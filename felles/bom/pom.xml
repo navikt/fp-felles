@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>no.nav.foreldrepenger.felles</groupId>
+        <artifactId>felles</artifactId>
+        <version>${revision}${sha1}${changelist}</version>
+    </parent>
+
+    <artifactId>felles-bom</artifactId>
+    <name>Felles :: Bill Of Material</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-db</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-log</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-feil</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.spvedtak.felles.sikkerhet</groupId>
+            <artifactId>felles-sikkerhet</artifactId>
+        </dependency>
+
+    </dependencies>
+</project>

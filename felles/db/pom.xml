@@ -1,0 +1,87 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>no.nav.foreldrepenger.felles</groupId>
+		<artifactId>felles</artifactId>
+		<version>${revision}${sha1}${changelist}</version>
+	</parent>
+
+	<artifactId>felles-db</artifactId>
+	<name>Felles :: Database Util</name>
+	<packaging>jar</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles</groupId>
+			<artifactId>felles-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.spvedtak.felles.sikkerhet</groupId>
+			<artifactId>felles-sikkerhet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.threeten</groupId>
+			<artifactId>threeten-extra</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ca.szc.thirdparty.nl.jworks.markdown_to_asciidoc</groupId>
+			<artifactId>markdown_to_asciidoc</artifactId>
+		</dependency>
+		<dependency>
+			<!-- for å bygge markup for sysdoc -->
+			<groupId>io.github.swagger2markup</groupId>
+			<artifactId>markup-document-builder</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<!-- for å generere doc fra db -->
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<!-- for å generere doc fra db -->
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+        <!-- test avhengigheter -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+	</dependencies>
+</project>

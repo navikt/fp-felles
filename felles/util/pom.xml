@@ -1,0 +1,67 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>no.nav.foreldrepenger.felles</groupId>
+		<artifactId>felles</artifactId>
+		<version>${revision}${sha1}${changelist}</version>
+	</parent>
+
+	<artifactId>felles-util</artifactId>
+	<name>Felles :: Util</name>
+	<packaging>jar</packaging>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles</groupId>
+			<artifactId>felles-feil</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.enterprise</groupId>
+			<artifactId>cdi-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.weld.se</groupId>
+			<artifactId>weld-se-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.weld</groupId>
+			<artifactId>weld-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>ca.szc.thirdparty.nl.jworks.markdown_to_asciidoc</groupId>
+			<artifactId>markdown_to_asciidoc</artifactId>
+		</dependency>
+
+		<dependency>
+			<!-- for å bygge markup for sysdoc -->
+			<groupId>io.github.swagger2markup</groupId>
+			<artifactId>markup-document-builder</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+</project>

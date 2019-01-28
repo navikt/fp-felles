@@ -1,0 +1,57 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>no.nav.spvedtak.felles.integrasjon</groupId>
+		<artifactId>felles-integrasjon-pom</artifactId>
+		<version>${revision}${sha1}${changelist}</version>
+	</parent>
+
+	<artifactId>felles-integrasjon-webservice</artifactId>
+	<packaging>jar</packaging>
+	<name>Felles :: Integrasjon :: WebService</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles</groupId>
+			<artifactId>felles-log</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.spvedtak.felles.sikkerhet</groupId>
+			<artifactId>felles-sikkerhet</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<!-- for å bygge markup for sysdoc -->
+			<groupId>io.github.swagger2markup</groupId>
+			<artifactId>markup-document-builder</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Test -->
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles</groupId>
+			<artifactId>felles-testutilities</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+</project>

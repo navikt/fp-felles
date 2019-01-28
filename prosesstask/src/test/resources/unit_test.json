@@ -1,0 +1,13 @@
+{
+  "schemas": [
+    {
+      "datasource": "defaultDS",
+      "schema": "public",
+      "user": "felles_behandlingsprosess_unit",
+      "password": "felles_behandlingsprosess_unit",
+      "url": "jdbc:postgresql://localhost:5432/felles_behandlingsprosess_unit",
+      "default": true,
+      "migrationScriptsFilesystemRoot": "src/test/resources/db/migration/"
+    }
+  ]
+}
