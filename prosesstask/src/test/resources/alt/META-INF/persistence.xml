@@ -11,7 +11,7 @@
         <mapping-file>META-INF/prosesstask-orm.xml</mapping-file>
 
         <properties>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle12cDialect"/>
             <property name="hibernate.connection.autocommit" value="false"/>
             <property name="hibernate.jdbc.use_get_generated_keys" value="true"/>
             <property name="org.hibernate.flushMode" value="COMMIT"/>

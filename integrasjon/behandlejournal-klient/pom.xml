@@ -7,7 +7,7 @@
 
     <parent>
         <artifactId>felles-integrasjon-pom</artifactId>
-        <groupId>no.nav.spvedtak.felles.integrasjon</groupId>
+        <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
         <version>${revision}${sha1}${changelist}</version>
     </parent>
 
@@ -17,7 +17,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>no.nav.spvedtak.felles.integrasjon</groupId>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>felles-integrasjon-webservice</artifactId>
         </dependency>
         <dependency>
@@ -25,7 +25,7 @@
             <artifactId>nav-fim-behandleJournal-v3-tjenestespesifikasjon</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.spvedtak.felles.integrasjon</groupId>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>behandleoppgave-klient</artifactId>
         </dependency>
 

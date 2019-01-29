@@ -21,13 +21,12 @@ import no.nav.vedtak.felles.testutilities.db.Repository;
 public class ProsessTaskRepositoryImplIT {
 
     private static final LocalDateTime NÅ = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+    private final LocalDateTime nesteKjøringEtter = NÅ.plusHours(1);
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private Repository repository = repoRule.getRepository();
     private ProsessTaskRepository prosessTaskRepository;
 
-    private final LocalDateTime nesteKjøringEtter = NÅ.plusHours(1);
-    
     @Before
     public void setUp() throws Exception {
         ProsessTaskEventPubliserer prosessTaskEventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
@@ -61,10 +60,10 @@ public class ProsessTaskRepositoryImplIT {
 
         Assertions.assertThat(prosessTaskData).isEmpty();
     }
-    
+
     @Test
     public void test_skal_finne_tasks_som_matcher_angitt_søk() throws Exception {
-        
+
         List<ProsessTaskStatus> statuser = Arrays.asList(ProsessTaskStatus.SUSPENDERT);
         List<ProsessTaskData> prosessTaskData = prosessTaskRepository.finnAlleForAngittSøk(statuser, null, nesteKjøringEtter, nesteKjøringEtter, "fagsakId=1%behandlingId=2%");
 
@@ -86,7 +85,7 @@ public class ProsessTaskRepositoryImplIT {
         repository.lagre(taskType2);
         repository.lagre(taskType3);
         repository.flushAndClear();
-        
+
         repository.lagre(lagTestEntitet(ProsessTaskStatus.FERDIG, NÅ.minusHours(2), "hello.world"));
         repository.lagre(lagTestEntitet(ProsessTaskStatus.VENTER_SVAR, NÅ.minusHours(3), "hello.world"));
         repository.lagre(lagTestEntitet(ProsessTaskStatus.FEILET, NÅ.minusHours(4), "hello.world"));

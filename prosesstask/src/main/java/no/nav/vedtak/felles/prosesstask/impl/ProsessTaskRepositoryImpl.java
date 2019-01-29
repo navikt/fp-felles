@@ -52,7 +52,7 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
                                      ProsessTaskEventPubliserer eventPubliserer) {
         // for kompatibilitet og forenkling av tester
         this(entityManager, eventPubliserer,
-                eventPubliserer == null ? null : new HandleProsessTaskLifecycleObserver() /* init kun dersom eventer lyttes på. */);
+            eventPubliserer == null ? null : new HandleProsessTaskLifecycleObserver() /* init kun dersom eventer lyttes på. */ );
     }
 
     @Inject
@@ -91,8 +91,8 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
                 task.setId(id);
             } catch (SQLException e) {
                 throw TaskManagerFeil.FACTORY
-                        .feilVedLagringAvProsessTask(task.getTaskType(), task.getNesteKjøringEtter(), task.getProperties(), e)
-                        .toException();
+                    .feilVedLagringAvProsessTask(task.getTaskType(), task.getNesteKjøringEtter(), task.getProperties(), e)
+                    .toException();
             }
         }
 
@@ -113,9 +113,7 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
         return lagre(gruppe);
     }
 
-    /**
-     * Lagre og returner id.
-     */
+    /** Lagre og returner id. */
     protected Long doLagreTask(ProsessTaskData task) {
         ProsessTaskEntitet pte;
         if (task.getId() != null) {
@@ -152,16 +150,16 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
     public List<ProsessTaskData> finnAlle(ProsessTaskStatus... statuses) {
         List<String> statusNames = Arrays.stream(statuses).map(ProsessTaskStatus::getDbKode).collect(Collectors.toList());
         TypedQuery<ProsessTaskEntitet> query = entityManager
-                .createQuery("from ProsessTaskEntitet pt where pt.status in(:statuses)", ProsessTaskEntitet.class)
-                .setParameter("statuses", statusNames); // NOSONAR $NON-NLS-1$
+            .createQuery("from ProsessTaskEntitet pt where pt.status in(:statuses)", ProsessTaskEntitet.class)
+            .setParameter("statuses", statusNames); // NOSONAR $NON-NLS-1$
         return tilProsessTask(query.getResultList());
     }
 
     @Override
     public List<ProsessTaskData> finnIkkeStartet() {
         TypedQuery<ProsessTaskEntitet> query = entityManager
-                .createQuery("from ProsessTaskEntitet pt where pt.status in(:statuses) and pt.sisteKjøring is NULL", ProsessTaskEntitet.class)
-                .setParameter("statuses", ProsessTaskStatus.KLAR.getDbKode()); // NOSONAR $NON-NLS-1$
+            .createQuery("from ProsessTaskEntitet pt where pt.status in(:statuses) and pt.sisteKjøring is NULL", ProsessTaskEntitet.class)
+            .setParameter("statuses", ProsessTaskStatus.KLAR.getDbKode()); // NOSONAR $NON-NLS-1$
         return tilProsessTask(query.getResultList());
 
     }
@@ -173,12 +171,12 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
         sisteKjoeringTilOgMed = sisteKjoeringTilOgMed.truncatedTo(ChronoUnit.MILLIS);
         List<String> statusNames = statuser.stream().map(ProsessTaskStatus::getDbKode).collect(Collectors.toList());
         TypedQuery<ProsessTaskEntitet> query = entityManager
-                .createQuery(
-                        "from ProsessTaskEntitet pt where pt.status in(:statuses) and pt.sisteKjøring >= (:sisteKjoeringFraOgMed) and pt.sisteKjøring <= (:sisteKjoeringTilOgMed)",
-                        ProsessTaskEntitet.class)
-                .setParameter("statuses", statusNames) // NOSONAR $NON-NLS-1$
-                .setParameter("sisteKjoeringFraOgMed", sisteKjoeringFraOgMed) // NOSONAR $NON-NLS-1$
-                .setParameter("sisteKjoeringTilOgMed", sisteKjoeringTilOgMed); // NOSONAR $NON-NLS-1$
+            .createQuery(
+                "from ProsessTaskEntitet pt where pt.status in(:statuses) and pt.sisteKjøring >= (:sisteKjoeringFraOgMed) and pt.sisteKjøring <= (:sisteKjoeringTilOgMed)",
+                ProsessTaskEntitet.class)
+            .setParameter("statuses", statusNames) // NOSONAR $NON-NLS-1$
+            .setParameter("sisteKjoeringFraOgMed", sisteKjoeringFraOgMed) // NOSONAR $NON-NLS-1$
+            .setParameter("sisteKjoeringTilOgMed", sisteKjoeringTilOgMed); // NOSONAR $NON-NLS-1$
         return tilProsessTask(query.getResultList());
     }
 
@@ -199,23 +197,23 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
         // samt cast til hibernate spesifikk håndtering av parametere som kan være NULL
         @SuppressWarnings("unchecked")
         NativeQuery<ProsessTaskEntitet> query = (NativeQuery<ProsessTaskEntitet>) entityManager
-                .createNativeQuery(
-                        "SELECT pt.* FROM PROSESS_TASK pt"
-                                + " WHERE pt.status IN (:statuses)"
-                                + " AND pt.task_gruppe = coalesce(:gruppe, pt.task_gruppe)"
-                                + " AND (pt.neste_kjoering_etter IS NULL"
-                                + "      OR ("
-                                + "           pt.neste_kjoering_etter >= cast(:nesteKjoeringFraOgMed as timestamp(0)) AND pt.neste_kjoering_etter <= cast(:nesteKjoeringTilOgMed as timestamp(0))"
-                                + "      ))"
-                                + " AND pt.task_parametere like :likeSearch",
-                        ProsessTaskEntitet.class);
+            .createNativeQuery(
+                "SELECT pt.* FROM PROSESS_TASK pt"
+                    + " WHERE pt.status IN (:statuses)"
+                    + " AND pt.task_gruppe = coalesce(:gruppe, pt.task_gruppe)"
+                    + " AND (pt.neste_kjoering_etter IS NULL"
+                    + "      OR ("
+                    + "           pt.neste_kjoering_etter >= cast(:nesteKjoeringFraOgMed as timestamp(0)) AND pt.neste_kjoering_etter <= cast(:nesteKjoeringTilOgMed as timestamp(0))"
+                    + "      ))"
+                    + " AND pt.task_parametere like :likeSearch",
+                ProsessTaskEntitet.class);
 
         query.setParameter("statuses", statusNames) // NOSONAR $NON-NLS-1$
-                .setParameter("gruppe", gruppeId, StringType.INSTANCE) // NOSONAR $NON-NLS-1$
-                .setParameter("nesteKjoeringFraOgMed", nesteKjoeringFraOgMed) // max oppløsning på neste_kjoering_etter er sekunder
-                .setParameter("nesteKjoeringTilOgMed", nesteKjoeringTilOgMed) // NOSONAR $NON-NLS-1$
-                .setParameter("likeSearch", paramLikeSearch) // NOSONAR $NON-NLS-1$
-                .setHint(QueryHints.HINT_READONLY, "true");
+            .setParameter("gruppe", gruppeId, StringType.INSTANCE) // NOSONAR $NON-NLS-1$
+            .setParameter("nesteKjoeringFraOgMed", nesteKjoeringFraOgMed) // max oppløsning på neste_kjoering_etter er sekunder
+            .setParameter("nesteKjoeringTilOgMed", nesteKjoeringTilOgMed) // NOSONAR $NON-NLS-1$
+            .setParameter("likeSearch", paramLikeSearch) // NOSONAR $NON-NLS-1$
+            .setHint(QueryHints.HINT_READONLY, "true");
 
         List<ProsessTaskEntitet> resultList = query.getResultList();
         return tilProsessTask(resultList);
@@ -224,8 +222,8 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
     @Override
     public List<ProsessTaskData> finnUferdigeBatchTasks(String task) {
         TypedQuery<ProsessTaskEntitet> query = entityManager
-                .createQuery("from ProsessTaskEntitet pt where pt.status != 'FERDIG' and pt.taskType = :task", ProsessTaskEntitet.class)
-                .setParameter("task", task); // NOSONAR $NON-NLS-1$
+            .createQuery("from ProsessTaskEntitet pt where pt.status != 'FERDIG' and pt.taskType = :task", ProsessTaskEntitet.class)
+            .setParameter("task", task); // NOSONAR $NON-NLS-1$
 
         return tilProsessTask(query.getResultList());
     }
@@ -268,14 +266,14 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
         for (ProsessTaskData pt : tasks) {
             // lås alle først
             TypedQuery<ProsessTaskEntitet> query = entityManager
-                    .createQuery("from ProsessTaskEntitet pt where pt.status NOT IN (:status, 'FERDIG') and pt.taskType = :task AND pt.id=:id",
-                            ProsessTaskEntitet.class)
-                    .setHint(org.hibernate.annotations.QueryHints.FETCH_SIZE, 1)
-                    .setParameter("status", status.getDbKode()) // NOSONAR $NON-NLS-1$
-                    .setParameter("task", pt.getTaskType()) // NOSONAR $NON-NLS-1$
-                    .setParameter("id", pt.getId()) // NOSONAR $NON-NLS-1$
-                    // viktig å låse alle entiter for å garantere at vi kan oppdatere de.
-                    .setLockMode(LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+                .createQuery("from ProsessTaskEntitet pt where pt.status NOT IN (:status, 'FERDIG') and pt.taskType = :task AND pt.id=:id",
+                    ProsessTaskEntitet.class)
+                .setHint(org.hibernate.annotations.QueryHints.FETCH_SIZE, 1)
+                .setParameter("status", status.getDbKode()) // NOSONAR $NON-NLS-1$
+                .setParameter("task", pt.getTaskType()) // NOSONAR $NON-NLS-1$
+                .setParameter("id", pt.getId()) // NOSONAR $NON-NLS-1$
+                // viktig å låse alle entiter for å garantere at vi kan oppdatere de.
+                .setLockMode(LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
             List<ProsessTaskEntitet> resultList = query.getResultList();
             if (resultList.size() != 1) {
@@ -299,9 +297,9 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
     public List<TaskStatus> finnStatusForTaskIGruppe(String task, String gruppe) {
 
         final Query query = entityManager
-                .createNativeQuery("SELECT pt.status, count(*) FROM PROSESS_TASK pt WHERE pt.task_type = :task AND pt.TASK_GRUPPE = :gruppe GROUP BY pt.status")
-                .setParameter("task", task)
-                .setParameter("gruppe", gruppe);
+            .createNativeQuery("SELECT pt.status, count(*) FROM PROSESS_TASK pt WHERE pt.task_type = :task AND pt.TASK_GRUPPE = :gruppe GROUP BY pt.status")
+            .setParameter("task", task)
+            .setParameter("gruppe", gruppe);
 
         List<TaskStatus> statuser = new ArrayList<>();
 
@@ -331,7 +329,7 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
      * Aller helst skulle vært UUID type 3?
      */
     String getUniktProsessTaskGruppeNavn(EntityManager entityManager) throws SQLException {
-        Query query = entityManager.createNativeQuery("SELECT nextval('seq_prosess_task_gruppe')"); //$NON-NLS-1$
+        Query query = entityManager.createNativeQuery("SELECT seq_prosess_task_gruppe.nextval FROM dual"); //$NON-NLS-1$
         return String.valueOf(query.getSingleResult());
     }
 

@@ -76,7 +76,7 @@ public class FlywayKonfig {
         }
 
         if (cleanup) {
-            clean(dataSource, username);
+            flyway.clean();
         }
 
         flyway.configure(lesFlywayPlaceholders());

@@ -140,6 +140,11 @@
 				<artifactId>felles-kafka</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.kafka</groupId>
+                <artifactId>producer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles</groupId>
 				<artifactId>felles-log</artifactId>
@@ -156,12 +161,12 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>no.nav.spvedtak.felles.sikkerhet</groupId>
+				<groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
 				<artifactId>felles-sikkerhet</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>no.nav.spvedtak.felles.sikkerhet</groupId>
+				<groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
 				<artifactId>felles-sikkerhet-testutilities</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -178,6 +183,16 @@
 				<artifactId>nav-kodeverk-v3-tjenestespesifikasjon</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>no.nav.tjenestespesifikasjoner</groupId>
+				<artifactId>nav-fim-sak-v1-tjenestespesifikasjon</artifactId>
+				<version>${tjenestespesifikasjoner.version}</version>
+			</dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>dokumentproduksjon-v2-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-fim-kodeverk-v2-tjenestespesifikasjon</artifactId>
@@ -280,16 +295,16 @@
 			</dependency>
 
 			<!-- Database avhengigheter -->
-			<!--dependency>
+			<dependency>
 				<groupId>com.oracle</groupId>
 				<artifactId>ojdbc8</artifactId>
 				<version>12.2.0.1</version>
-			</dependency-->
-			<dependency>
+			</dependency>
+			<!--<dependency>
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
 				<version>42.2.5</version>
-			</dependency>
+			</dependency>-->
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
@@ -298,7 +313,7 @@
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-core</artifactId>
-				<version>5.2.4</version>
+				<version>4.2.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
@@ -478,7 +493,38 @@
 				<artifactId>felles-testutilities</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>felles-integrasjon-jms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>sakogbehandling-klient</artifactId>
+                <type>test-jar</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>okonomistotte-jms</artifactId>
+                <type>test-jar</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>sakogbehandling-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>okonomistotte-jms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>sak-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>io.github.lukehutch</groupId>
 				<artifactId>fast-classpath-scanner</artifactId>

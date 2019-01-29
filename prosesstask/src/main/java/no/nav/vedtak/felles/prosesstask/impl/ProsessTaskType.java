@@ -54,6 +54,10 @@ public class ProsessTaskType extends KodeverkTabell {
         return feilhåndteringAlgoritme;
     }
 
+    void setFeilhåndteringAlgoritme(ProsessTaskFeilhand feilhåndteringAlgoritme) {
+        this.feilhåndteringAlgoritme = feilhåndteringAlgoritme;
+    }
+
     String getCronExpression() {
         return cronExpression;
     }

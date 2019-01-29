@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import no.nav.vedtak.feil.Feil;
@@ -12,5 +13,5 @@ public interface SoapWebServiceFeil extends DeklarerteFeil {
     SoapWebServiceFeil FACTORY = FeilFactory.create(SoapWebServiceFeil.class);
 
     @IntegrasjonFeil(feilkode = "FP-942048", feilmelding = "SOAP tjenesten [ %s ] returnerte en SOAP Fault: %s", logLevel = LogLevel.WARN)
-    Feil soapFaultIwebserviceKall(String webservice, SOAPFaultException soapException);
+    Feil soapFaultIwebserviceKall(String webservice, WebServiceException soapException);
 }

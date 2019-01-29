@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>no.nav.spvedtak.felles.integrasjon</groupId>
+		<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 		<artifactId>felles-integrasjon-pom</artifactId>
 		<version>${revision}${sha1}${changelist}</version>
 	</parent>
@@ -20,7 +20,7 @@
 			<artifactId>felles-log</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>no.nav.spvedtak.felles.sikkerhet</groupId>
+			<groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
 			<artifactId>felles-sikkerhet</artifactId>
 		</dependency>
 

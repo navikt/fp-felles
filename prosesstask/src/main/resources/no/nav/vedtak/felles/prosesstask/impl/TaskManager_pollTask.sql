@@ -12,38 +12,38 @@
  * subresultater (så vesentlig kraftigere)</li>
  * </ul>
  */
-SELECT pt.* 
+SELECT pt.*
 FROM prosess_task pt
 
-WHERE pt.id 
-          IN (
-			-- Må beytte en IN clause istdf. JOIN, ellers kaster SKIP LOCKED exception (ORA-02014).
-			-- Gir oss ett ekstra nivå av subquery
-                 SELECT tbl.ID
-                 FROM 
-                   (
-                      SELECT id
-                           , task_type
-							-- SQL Window Function: finn første sekvens i gruppa
-                           , FIRST_VALUE(task_sekvens) OVER (PARTITION BY task_gruppe ORDER BY task_sekvens ASC NULLS FIRST, siste_kjoering_ts ASC NULLS FIRST, prioritet DESC) AS foerste_sekvens
-                           , task_sekvens
-                           , status
-                      FROM prosess_task pt
-                      WHERE 
-                         status != 'FERDIG'
-                   ) tbl
-                   INNER JOIN prosess_task_type tt ON tt.kode = tbl.task_type
-                 WHERE 
-                   -- filtrer vekk de som ikke har samme sekvensnr som første i gruppen, og som er KLAR
-                   tbl.task_sekvens=tbl.foerste_sekvens
-                   AND tbl.status IN ('KLAR')
-                   -- sjekk feilede forsøk
-                   AND pt.feilede_forsoek < tt.feil_maks_forsoek
-           )
-  -- fjerner de som har mindre enn maks antall feilde forsøk           
+WHERE pt.id
+  IN (
+        -- Må beytte en IN clause istdf. JOIN, ellers kaster SKIP LOCKED exception (ORA-02014).
+        -- Gir oss ett ekstra nivå av subquery
+        SELECT tbl.ID
+        FROM
+          (
+            SELECT id
+                , task_type
+                   -- SQL Window Function: finn første sekvens i gruppa
+                , FIRST_VALUE(task_sekvens) OVER (PARTITION BY task_gruppe ORDER BY task_sekvens ASC NULLS FIRST, siste_kjoering_ts ASC NULLS FIRST, prioritet DESC) AS foerste_sekvens
+                , task_sekvens
+                , status
+            FROM prosess_task pt
+            WHERE
+              status != 'FERDIG'
+          ) tbl
+            INNER JOIN prosess_task_type tt ON tt.kode = tbl.task_type
+        WHERE
+          -- filtrer vekk de som ikke har samme sekvensnr som første i gruppen, og som er KLAR
+            tbl.task_sekvens=tbl.foerste_sekvens
+          AND tbl.status IN ('KLAR')
+          -- sjekk feilede forsøk
+          AND pt.feilede_forsoek < tt.feil_maks_forsoek
+      )
+  -- fjerner de som har mindre enn maks antall feilde forsøk
   -- håndterer at kjøring ikke skjer før angitt tidstempel
   AND (pt.neste_kjoering_etter IS NULL OR pt.neste_kjoering_etter < COALESCE(:neste_kjoering, CURRENT_TIMESTAMP))
   AND status = 'KLAR' -- effektiviserer planen med bedre indeks
--- sorter etter prioritet og når de sist ble kjørt
+  -- sorter etter prioritet og når de sist ble kjørt
 ORDER BY prioritet DESC, siste_kjoering_ts ASC NULLS FIRST, ID ASC
-FOR UPDATE SKIP LOCKED
+         FOR UPDATE SKIP LOCKED

@@ -250,7 +250,7 @@ public class RunTask {
          * Aller helst skulle vært UUID type 3?
          */
         private String getUniktProsessTaskGruppeNavn() throws SQLException {
-            Query query = getEntityManager().createNativeQuery("SELECT nextval('seq_prosess_task_gruppe')"); //$NON-NLS-1$
+            Query query = getEntityManager().createNativeQuery("SELECT seq_prosess_task_gruppe.nextval from dual"); //$NON-NLS-1$
             return String.valueOf(query.getSingleResult());
         }
 

@@ -10,7 +10,7 @@
 		<version>${revision}${sha1}${changelist}</version>
 	</parent>
 
-	<groupId>no.nav.spvedtak.felles.sikkerhet</groupId>
+	<groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
 	<artifactId>felles-sikkerhet-pom</artifactId>
 	<name>Felles :: Sikkerhet Pom</name>
 	<packaging>pom</packaging>

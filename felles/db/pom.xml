@@ -19,7 +19,7 @@
 			<artifactId>felles-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>no.nav.spvedtak.felles.sikkerhet</groupId>
+			<groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
 			<artifactId>felles-sikkerhet</artifactId>
 		</dependency>
 		<dependency>

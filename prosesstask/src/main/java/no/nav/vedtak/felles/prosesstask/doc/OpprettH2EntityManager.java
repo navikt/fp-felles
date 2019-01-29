@@ -19,7 +19,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 /** Oppretter en H2 EntityManager og kjører migreringer mot den. Fordrer at H2 er tilgjengelig på classpath når doc genereres. Skal aldri kjøres mot noe reell db. */
 class OpprettH2EntityManager {
-    private static final String INMEMORY_DB_JDBC_URL = "jdbc:h2:./test;MODE=PostgreSQL";
+    private static final String INMEMORY_DB_JDBC_URL = "jdbc:h2:./test;MODE=Oracle";
     private static final String INMEMORY_DB_USER = "sa";
 
     private static final String LOC = System.getProperty("doc.plugin.jdbc.db.migration.defaultDS", "classpath:db/migration");

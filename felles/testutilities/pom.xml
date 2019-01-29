@@ -13,7 +13,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>no.nav.spvedtak.felles.sikkerhet</groupId>
+			<groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
 			<artifactId>felles-sikkerhet-testutilities</artifactId>
 			<scope>compile</scope>
 		</dependency>
@@ -36,14 +36,14 @@
 			<artifactId>weld-se-core</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		<!--dependency>
+		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>ojdbc8</artifactId>
-		</dependency-->
-		<dependency>
+		</dependency>
+		<!--dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>

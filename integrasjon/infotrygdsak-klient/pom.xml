@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>no.nav.spvedtak.felles.integrasjon</groupId>
+        <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
         <artifactId>felles-integrasjon-pom</artifactId>
         <version>${revision}${sha1}${changelist}</version>
     </parent>
@@ -19,7 +19,7 @@
             <artifactId>nav-infotrygdSak-v1-tjenestespesifikasjon</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.spvedtak.felles.integrasjon</groupId>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>felles-integrasjon-webservice</artifactId>
         </dependency>
 

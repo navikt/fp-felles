@@ -65,7 +65,7 @@
 		<!-- REST felles -->
 		<dependency>
 			<!-- Trengs for REST grensesnitt -->
-            <groupId>no.nav.spvedtak.felles.sikkerhet</groupId>
+            <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
             <artifactId>felles-sikkerhet</artifactId>
 			<scope>provided</scope>
         </dependency>

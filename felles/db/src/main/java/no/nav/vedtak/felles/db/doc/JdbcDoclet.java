@@ -35,7 +35,7 @@ import no.nav.vedtak.felles.db.doc.model.Table;
 /** Migrer mot en H2 db (hvis tilgjengelig på classpath), og dokumenterer struktur. */
 public class JdbcDoclet implements Doclet {
 
-    private static final String INMEMORY_DB_JDBC_URL = "jdbc:h2:./TEST;MODE=PostgreSQL";
+    private static final String INMEMORY_DB_JDBC_URL = "jdbc:h2:./TEST;MODE=Oracle";
     private static final String INMEMORY_DB_USER = "sa";
 
     private static final String dsNames = System.getProperty("doc.plugin.jdbc.dslist", "defaultDS");
