@@ -4,14 +4,18 @@ import no.nav.jenkins.*
 
 node('DOCKER3') {
   Date date= new Date()
-	GIT_COMMIT_HASH = sh (script: "git log -n 1 --pretty=format:'%h'", returnStdout: true)
+	
 	def revision = "1.0.0"
-	def changelist = "_" + date.format("YYYYMMDDHHmmss") + "_" + GIT_COMMIT_HASH
-    def tagName=revision + changelist
+	def changelist
+        def tagName
     
     maven = new maven()
     stage('Checkout Tags') { // checkout only tags.
         checkout scm
+	GIT_COMMIT_HASH = sh (script: "git log -n 1 --pretty=format:'%h'", returnStdout: true)
+	def changelist = "_" + date.format("YYYYMMDDHHmmss") + "_" + GIT_COMMIT_HASH
+	tagName=revision + changelist
+	
         echo "Tag to be deployed $tagName"
 	}
    
