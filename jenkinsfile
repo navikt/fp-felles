@@ -13,7 +13,7 @@ node('DOCKER3') {
     stage('Checkout Tags') { // checkout only tags.
         checkout scm
 	GIT_COMMIT_HASH = sh (script: "git log -n 1 --pretty=format:'%h'", returnStdout: true)
-	def changelist = "_" + date.format("YYYYMMDDHHmmss") + "_" + GIT_COMMIT_HASH
+	changelist = "_" + date.format("YYYYMMDDHHmmss") + "_" + GIT_COMMIT_HASH
 	tagName=revision + changelist
 	
         echo "Tag to be deployed $tagName"
