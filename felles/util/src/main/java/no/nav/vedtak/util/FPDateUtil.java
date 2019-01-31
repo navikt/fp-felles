@@ -116,8 +116,8 @@ public class FPDateUtil {
                 return date;
             }
             return date.plusYears(period.getYears())
-                    .plusMonths(period.getMonths())
-                    .plusDays(period.getDays());
+                .plusMonths(period.getMonths())
+                .plusDays(period.getDays());
         }
     }
 }
