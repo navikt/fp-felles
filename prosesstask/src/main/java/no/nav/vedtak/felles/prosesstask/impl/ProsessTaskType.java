@@ -1,12 +1,15 @@
 package no.nav.vedtak.felles.prosesstask.impl;
 
+import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import no.nav.vedtak.felles.jpa.KodeverkTabell;
+import no.nav.vedtak.felles.jpa.BaseEntitet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 
 /**
@@ -14,7 +17,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
  */
 @Entity(name = "ProsessTaskType")
 @Table(name = "PROSESS_TASK_TYPE")
-public class ProsessTaskType extends KodeverkTabell {
+public class ProsessTaskType extends BaseEntitet {
 
     @Column(name = "feil_maks_forsoek", updatable = false, insertable = false, nullable = false)
     private int maksForsøk = 1;
@@ -26,19 +29,32 @@ public class ProsessTaskType extends KodeverkTabell {
     @JoinColumn(name = "feilhandtering_algoritme", updatable = false, insertable = false)
     private ProsessTaskFeilhand feilhåndteringAlgoritme;
 
-    @Column(name = "cron_expression")
+    @Column(name = "cron_expression", nullable = true, updatable = false)
     private String cronExpression;
+    @Id
+    @Column(name = "kode", updatable = false, insertable = false, nullable = false)
+    private String kode;
+    @Column(name = "beskrivelse", updatable = false, insertable = false)
+    private String beskrivelse;
+    /**
+     * Navn registrert i databasen.
+     */
+    @Column(name = "navn", updatable = false, insertable = false)
+    private String navn;
 
     public ProsessTaskType() {
+        // Hibernate
         // for hibernate
     }
 
     public ProsessTaskType(String taskType) {
-        super(taskType);
+        Objects.requireNonNull(taskType, "kode");
+        this.kode = taskType;
     }
 
     ProsessTaskType(String taskType, String cronExpression) {
-        super(taskType);
+        Objects.requireNonNull(taskType, "kode");
+        this.kode = taskType;
         this.cronExpression = cronExpression;
     }
 
@@ -70,4 +86,37 @@ public class ProsessTaskType extends KodeverkTabell {
         return new ProsessTaskTypeInfo(getKode(), getMaksForsøk());
     }
 
+    public String getKode() {
+        return kode;
+    }
+
+    public String getNavn() {
+        return navn;
+    }
+
+    public String getBeskrivelse() {
+        return beskrivelse;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof ProsessTaskType)) {
+            return false;
+        }
+        ProsessTaskType other = (ProsessTaskType) object;
+        return Objects.equals(getKode(), other.getKode());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(kode);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "<kode=" + getKode() + ", navn=" + getNavn() + ">"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
 }

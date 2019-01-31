@@ -17,7 +17,7 @@ interface RelyingPartyCallbackFeil extends DeklarerteFeil {
     @TekniskFeil(feilkode = "F-731807", feilmelding = "Mangler parameter 'state' i URL", logLevel = LogLevel.WARN)
     Feil manglerStateParameter();
 
-    @TekniskFeil(feilkode = "F-755892", feilmelding = "Cookie for redirect URL mangler eller er tom", logLevel = LogLevel.WARN)
+    @TekniskFeil(feilkode = "F-755892", feilmelding = "Cookie for redirect URL mangler eller er tom", logLevel = LogLevel.INFO)
     Feil manglerCookieForRedirectionURL();
 
     @TekniskFeil(feilkode = "F-448219", feilmelding = "Kunne ikke URL decode '%s'", logLevel = LogLevel.WARN)

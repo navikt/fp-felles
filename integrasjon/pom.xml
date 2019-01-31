@@ -46,7 +46,6 @@
         <module>behandlejournal-klient</module>
         <module>sakogbehandling-klient</module>
         <module>okonomistotte-jms</module>
-        <module>sak-klient</module>
         <module>dokumentproduksjon-klient</module>
         <module>bom</module>
 

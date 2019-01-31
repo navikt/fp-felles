@@ -40,10 +40,6 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>sak-klient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>ldap-klient</artifactId>
         </dependency>
         <dependency>

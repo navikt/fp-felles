@@ -7,6 +7,7 @@ public enum FagomradeKode {
     OMS("OMS", "Omsorg-, pleie- og opplæringspenger"), //$NON-NLS-1$ //$NON-NLS-2$
     FOS("FOS", "Forsikring"), //$NON-NLS-1$ //$NON-NLS-2$
     TSO("TSO", "Tilleggsstønad"), //$NON-NLS-1$ //$NON-NLS-2$
+    STO("STO", "Regnskap/utbetaling"), //$NON-NLS-1$ //$NON-NLS-2$
     UKJ("UKJ", "Ukjent"); // for tester //$NON-NLS-1$ //$NON-NLS-2$
 
     private String beskrivelse;

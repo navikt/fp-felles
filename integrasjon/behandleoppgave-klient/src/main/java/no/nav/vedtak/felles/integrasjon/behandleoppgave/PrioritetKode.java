@@ -13,7 +13,10 @@ public enum PrioritetKode {
     LAV_OMS,
     HOY_FOS,
     NORM_FOS,
-    LAV_FOS;
+    LAV_FOS,
+    HOY_STO,
+    NORM_STO,
+    LAV_STO;
 
     public static PrioritetKode fraString(String kode) {
         for (PrioritetKode key : values()) {

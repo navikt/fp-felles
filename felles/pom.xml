@@ -520,11 +520,6 @@
                 <artifactId>okonomistotte-jms</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>sak-klient</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 			<dependency>
 				<groupId>io.github.lukehutch</groupId>
 				<artifactId>fast-classpath-scanner</artifactId>
