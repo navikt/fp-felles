@@ -7,7 +7,7 @@
     <artifactId>felles-root</artifactId>
     <version>${revision}${sha1}${changelist}</version>
     <packaging>pom</packaging>
-    <name>Felles</name>
+    <name>Felles-root</name>
 
     <modules>
         <module>felles</module>
@@ -27,7 +27,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <tjenestespesifikasjoner.version>1.2019.01.16-10.26-afc54bed6f85</tjenestespesifikasjoner.version>
-        <vl-felles-kafka-producer.version>1.0_20181119102442_ac2add1</vl-felles-kafka-producer.version>
         <!-- Marker Junit Category interface for End2End tester -->
         <additionalparam>-Xdoclint:none</additionalparam> <!-- TODO: Skru på doclint igjen... -->
     </properties>
