@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public class EnvironmentProperty {
 
-    public static final String APP_ENVIRONMENT_NAME = "NAIS_CLUSTER_NAME";
+    public static final String APP_ENVIRONMENT_NAME = "NAIS_NAMESPACE";
     public static final String APP_NAME = "NAIS_APP_NAME";
 
     private EnvironmentProperty() {}
