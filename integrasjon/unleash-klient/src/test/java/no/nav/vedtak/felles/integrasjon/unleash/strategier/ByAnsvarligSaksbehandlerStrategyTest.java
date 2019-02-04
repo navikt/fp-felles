@@ -19,7 +19,7 @@ public class ByAnsvarligSaksbehandlerStrategyTest {
 
     @Before
     public void setUp() {
-        System.setProperty(EnvironmentProperty.APP_ENVIRONMENT_NAME, "t10");
+        System.setProperty(EnvironmentProperty.NAIS_NAMESPACE, "t10");
         unleashContext = UnleashContext.builder()
                 .addProperty(ByAnsvarligSaksbehandlerStrategy.SAKSBEHANDLER_IDENT, "10001")
                 .build();
