@@ -16,6 +16,7 @@ import no.nav.vedtak.felles.integrasjon.unleash.strategier.ByEnvironmentStrategy
 public class ToggleConfig {
 
     private static final String UNLEASH_API = "https://unleash.nais.adeo.no/api/";
+    public static final String PROD = "default";
     private String appName;
     private String instanceName;
     private static final Logger LOGGER = LoggerFactory.getLogger(ToggleConfig.class);
@@ -26,7 +27,7 @@ public class ToggleConfig {
      */
     ToggleConfig() {
         this.appName = EnvironmentProperty.getApplicationName();
-        this.instanceName = EnvironmentProperty.getEnvironmentName().orElse("devimg");
+        this.instanceName = EnvironmentProperty.getEnvironmentName().orElse(PROD);
     }
 
     public Unleash unleash() {
