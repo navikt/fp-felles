@@ -17,6 +17,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
@@ -81,7 +82,7 @@ public class RunTask {
      * @throws PersistenceException dersom transaksjoner er markert for total rollback (dvs. savepoint vil ikke virke)
      */
     protected void runTaskAndUpdateStatus(Connection conn, ProsessTaskEntitet pte, PickAndRunTask pickAndRun)
-            throws SQLException {
+        throws SQLException {
         String name = pte.getTaskName();
 
         pickAndRun.markerTaskUnderArbeid(pte);
@@ -107,9 +108,10 @@ public class RunTask {
             }
 
         } catch (JDBCConnectionException
-                | SQLTransientException
-                | SQLNonTransientConnectionException
-                | SQLRecoverableException e) {
+            | SQLTransientException
+            | SQLNonTransientConnectionException
+            | SQLRecoverableException
+            | OptimisticLockException e) {
 
             // vil kun logges
             pickAndRun.getFeilOgStatushåndterer().handleTransientAndRecoverableException(e);
@@ -238,10 +240,10 @@ public class RunTask {
                 getEntityManager().flush();
 
                 log.info("Oppretter ny prosesstask [{}], id={}, status={}, kjøretidspunktEtter={}",
-                        nyPte.getTaskName(),
-                        nyPte.getId(),
-                        nyPte.getStatus(),
-                        nyPte.getNesteKjøringEtter());
+                    nyPte.getTaskName(),
+                    nyPte.getId(),
+                    nyPte.getStatus(),
+                    nyPte.getNesteKjøringEtter());
             }
         }
 
@@ -277,9 +279,9 @@ public class RunTask {
                             runTaskAndUpdateStatus(conn, pte.get(), pickAndRun);
                         }
                     } catch (JDBCConnectionException
-                            | SQLTransientException
-                            | SQLNonTransientConnectionException
-                            | SQLRecoverableException e) {
+                        | SQLTransientException
+                        | SQLNonTransientConnectionException
+                        | SQLRecoverableException e) {
 
                         // vil kun logges
                         pickAndRun.getFeilOgStatushåndterer().handleTransientAndRecoverableException(e);
@@ -296,7 +298,7 @@ public class RunTask {
             }
 
             @SuppressWarnings("resource") // skal ikke lukke session her
-                    Session session = em.unwrap(Session.class);
+                Session session = em.unwrap(Session.class);
 
             session.doWork(pullSingleTask);
 
