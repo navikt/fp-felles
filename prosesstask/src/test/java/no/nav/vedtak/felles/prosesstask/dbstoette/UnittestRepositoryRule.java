@@ -17,14 +17,6 @@ public class UnittestRepositoryRule extends RepositoryRule {
         super(transaksjonell);
     }
 
-    public UnittestRepositoryRule(String persistenceUnitKey) {
-        super(persistenceUnitKey);
-    }
-
-    public UnittestRepositoryRule(String persistenceUnitKey, boolean transaksjonell) {
-        super(persistenceUnitKey, transaksjonell);
-    }
-
     @Override
     protected void init() {
     }

@@ -16,8 +16,6 @@ import javax.xml.transform.TransformerException;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -104,7 +102,6 @@ public class BeskyttetRessursInterceptor {
     }
 
     @SuppressWarnings("rawtypes")
-    @VisibleForTesting
     static void leggTilAttributterFraParameter(AbacAttributtSamling attributter, Object parameterValue, TilpassetAbacAttributt tilpassetAnnotering) {
         if (tilpassetAnnotering != null) {
             leggTil(attributter, tilpassetAnnotering, parameterValue);
