@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 
+import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,12 @@ public class UnitTestPersistenceUnitProvider extends VLPersistenceUnitProvider {
     @Override
     protected PersistenceUnitDescriptor extendPersistenceUnitDescriptor(PersistenceUnitDescriptor pud) {
         return new InjectingPersistenceUnitDescriptor(super.extendPersistenceUnitDescriptor(pud));
+    }
+    
+    @Override
+    protected boolean isMatchingProvider(ParsedPersistenceXmlDescriptor persistenceUnit, @SuppressWarnings("rawtypes") Map properties) {
+        // Går alltid for gull
+        return true;  
     }
 
     /** Injecter properties i orm (mapping-files) filer. */

@@ -19,13 +19,19 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
+import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
 import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
+import org.hibernate.jpa.boot.internal.PersistenceXmlParser;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
+import org.hibernate.jpa.boot.spi.ProviderChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link PersistenceProvider} which loads all mapping files dynamically from classpath as long as they match the pattern
@@ -36,8 +42,43 @@ import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 @SuppressWarnings("rawtypes")
 public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
 
+    private static final Logger log = LoggerFactory.getLogger(VLPersistenceUnitProvider.class);
+
     public VLPersistenceUnitProvider() {
     }
+
+    /** Add additional mapping files based on naming convention. */
+    protected PersistenceUnitDescriptor extendPersistenceUnitDescriptor(PersistenceUnitDescriptor pud) {
+        class AdditionalMappingFilesPersistenceUnitDescriptor extends DelegatingPersistenceUnitDescriptor {
+            private final List<String> mappingFiles = new ArrayList<>();
+
+            AdditionalMappingFilesPersistenceUnitDescriptor(PersistenceUnitDescriptor pud) {
+                super(pud);
+                mappingFiles.addAll(pud.getMappingFileNames());
+            }
+
+            @Override
+            public List<String> getMappingFileNames() {
+                return this.mappingFiles;
+            }
+
+            void addMappingFileNames(Collection<String> mappingFileNames) {
+                this.mappingFiles.addAll(mappingFileNames);
+            }
+        }
+
+        try {
+            Pattern ormPattern = Pattern.compile("^META-INF/" + pud.getName() + "\\..+\\.orm\\.xml$");
+            Set<String> ormFiles = getResourceFolderFiles("META-INF", ormPattern);
+
+            AdditionalMappingFilesPersistenceUnitDescriptor newPud = new AdditionalMappingFilesPersistenceUnitDescriptor(pud);
+            newPud.addMappingFileNames(ormFiles);
+            return newPud;
+        } catch (IOException | URISyntaxException e) {
+            throw new IllegalArgumentException("Could not load ORM files for persistence unit " + pud.getName(), e);
+        }
+    }
+    
 
     @Override
     public void generateSchema(PersistenceUnitInfo info, Map map) {
@@ -67,39 +108,97 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
         return getEntityManagerFactoryBuilder(extendPersistenceUnitDescriptor(persistenceUnitDescriptor), integration, (ClassLoader) null);
     }
 
-    protected PersistenceUnitDescriptor extendPersistenceUnitDescriptor(PersistenceUnitDescriptor pud) {
-        class AdditionalMappingFilesPersistenceUnitDescriptor extends DelegatingPersistenceUnitDescriptor {
-            private final List<String> mappingFiles = new ArrayList<>();
-
-            AdditionalMappingFilesPersistenceUnitDescriptor(PersistenceUnitDescriptor pud) {
-                super(pud);
-                mappingFiles.addAll(pud.getMappingFileNames());
-            }
-
-            @Override
-            public List<String> getMappingFileNames() {
-                return this.mappingFiles;
-            }
-
-            void addMappingFileNames(Collection<String> mappingFileNames) {
-                this.mappingFiles.addAll(mappingFileNames);
-            }
-        }
-
-        try {
-            Pattern ormPattern = Pattern.compile("^META-INF/" + pud.getName() + "\\..+\\.orm\\.xml$");
-            Set<String> ormFiles = getResourceFolderFiles("META-INF", ormPattern);
-            
-            AdditionalMappingFilesPersistenceUnitDescriptor newPud = new AdditionalMappingFilesPersistenceUnitDescriptor(pud);
-            newPud.addMappingFileNames(ormFiles);
-            return newPud;
-        } catch (IOException | URISyntaxException e) {
-            throw new IllegalArgumentException("Could not load ORM files for persistence unit " + pud.getName(), e);
-        }
+    @Override
+    protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties) {
+        // duplisert fra HibernatePersistenceProvider for å kunne ha egen implementasjon av getEntityManagerFactoryBuilderOrNull
+        return getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, null, null);
     }
 
+    @Override
+    protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties,
+                                                                               ClassLoader providedClassLoader) {
+        // duplisert fra HibernatePersistenceProvider for å kunne ha egen implementasjon av getEntityManagerFactoryBuilderOrNull
+        return getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, providedClassLoader, null);
+    }
+
+    @Override
+    protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties,
+                                                                               ClassLoaderService providedClassLoaderService) {
+        // duplisert fra HibernatePersistenceProvider for å kunne ha egen implementasjon av getEntityManagerFactoryBuilderOrNull
+        return getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, null, providedClassLoaderService);
+    }
+
+    private EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties,
+                                                                             ClassLoader providedClassLoader, ClassLoaderService providedClassLoaderService) {
+
+        // duplisert fra HibernatePersistenceProvider for å kunne overstyre kall til ProviderChecker (siden den hardkoder
+        // HibernatePersistenceProvider klassenavn)
+        
+        log.trace("Attempting to obtain correct EntityManagerFactoryBuilder for persistenceUnitName : %s", persistenceUnitName);
+
+        final Map integration = wrap(properties);
+        final List<ParsedPersistenceXmlDescriptor> units;
+        try {
+            units = PersistenceXmlParser.locatePersistenceUnits(integration);
+        } catch (Exception e) {
+            log.debug("Unable to locate persistence units", e);
+            throw new PersistenceException("Unable to locate persistence units", e);
+        }
+
+        log.debug("Located and parsed %s persistence units; checking each", units.size());
+
+        if (persistenceUnitName == null && units.size() > 1) {
+            // no persistence-unit name to look for was given and we found multiple persistence-units
+            throw new PersistenceException("No name provided and multiple persistence units found");
+        }
+
+        for (ParsedPersistenceXmlDescriptor persistenceUnit : units) {
+            log.debug(
+                "Checking persistence-unit [name=%s, explicit-provider=%s] against incoming persistence unit name [%s]",
+                persistenceUnit.getName(),
+                persistenceUnit.getProviderClassName(),
+                persistenceUnitName);
+
+            final boolean matches = persistenceUnitName == null || persistenceUnit.getName().equals(persistenceUnitName);
+            if (!matches) {
+                log.debug("Excluding from consideration due to name mis-match");
+                continue;
+            }
+
+            if(!isMatchingProvider(persistenceUnit, properties)) {
+                log.debug("Excluding from consideration due to provider mis-match");
+                continue;
+            }
+           
+            if (providedClassLoaderService != null) {
+                return getEntityManagerFactoryBuilder(persistenceUnit, integration, providedClassLoaderService);
+            } else {
+                return getEntityManagerFactoryBuilder(persistenceUnit, integration, providedClassLoader);
+            }
+        }
+
+        log.debug("Found no matching persistence units");
+        return null;
+    }
+
+    /** overridden check from HibernatePersistenceProvider */
+    protected boolean isMatchingProvider(ParsedPersistenceXmlDescriptor persistenceUnit, Map properties) {
+        /*
+        // See if we (Hibernate) are the persistence provider
+        if (!ProviderChecker.isProvider(persistenceUnit, properties)) {
+            log.debug("Excluding from consideration due to provider mis-match");
+            continue;
+        }
+        */
+        
+        // Alternativ 
+        String requestedProviderName = ProviderChecker.extractRequestedProviderName(persistenceUnit, properties);
+        return getClass().getName().equals(requestedProviderName);
+    }
+
+
     /** Scan a named folder present in jars or directories on classpath for files matching a pattern. */
-    static Set<String> getResourceFolderFiles(String folder, Pattern filePattern) throws IOException, URISyntaxException {
+    Set<String> getResourceFolderFiles(String folder, Pattern filePattern) throws IOException, URISyntaxException {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         Enumeration<URL> en = loader.getResources(folder);
 
