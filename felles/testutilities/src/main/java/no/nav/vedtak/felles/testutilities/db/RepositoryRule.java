@@ -35,15 +35,6 @@ public abstract class RepositoryRule extends PersistenceUnitInitializer implemen
         this.transaksjonell = transaksjonell;
     }
 
-    public RepositoryRule(String persistenceUnitKey) {
-        super(persistenceUnitKey);
-    }
-
-    public RepositoryRule(String persistenceUnitKey, boolean transaksjonell) {
-        this(persistenceUnitKey);
-        this.transaksjonell = transaksjonell;
-    }
-
     private Statement adaptStatementWithTx(Statement statement, FrameworkMethod method) {
         if (!transaksjonell) {
             return statement;
@@ -83,34 +74,25 @@ public abstract class RepositoryRule extends PersistenceUnitInitializer implemen
     @Override
     public Statement apply(Statement statement, FrameworkMethod method, Object target) {
 
-        if (!isCdi()) {
-            return adaptStatementWithTx(statement, method);
-        } else {
-            return new Statement() {
+        return new Statement() {
 
-                @Override
-                public void evaluate() throws Throwable {
-                    WeldContext.getInstance().doWithScope(() -> {
-                        Statement stmt = adaptStatementWithTx(statement, method);
-                        try {
-                            stmt.evaluate();
-                            return null;
-                        } catch (RuntimeException | Error e) {
-                            throw e;
-                        } catch (Throwable e) {
-                            throw new IllegalStateException(e);
-                        }
-                    });
-                }
+            @Override
+            public void evaluate() throws Throwable {
+                WeldContext.getInstance().doWithScope(() -> {
+                    Statement stmt = adaptStatementWithTx(statement, method);
+                    try {
+                        stmt.evaluate();
+                        return null;
+                    } catch (RuntimeException | Error e) {
+                        throw e;
+                    } catch (Throwable e) {
+                        throw new IllegalStateException(e);
+                    }
+                });
+            }
 
-            };
-        }
+        };
 
-    }
-
-    public RepositoryRule disableCdi() {
-        super.setCdi(false);
-        return this;
     }
 
     public <R> R doInTransaction(EntityManager entityManager, Work<R> func) throws Exception {
@@ -136,11 +118,7 @@ public abstract class RepositoryRule extends PersistenceUnitInitializer implemen
 
     @Override
     public EntityManager getEntityManager() {
-        if (!isCdi()) {
-            return super.getEntityManager();
-        } else {
-            return WeldContext.getInstance().doWithScope(super::getEntityManager);
-        }
+        return WeldContext.getInstance().doWithScope(super::getEntityManager);
     }
 
     public Repository getRepository() {

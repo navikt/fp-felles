@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 public class ProsessTaskHendelseMottakImplTest {
 
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     private static final Long UKJENT_TASK_ID = 999L;
     private static final Long TASK_ID = 111L;
