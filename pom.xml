@@ -34,6 +34,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>no.nav.helse</groupId>
+                <artifactId>cxf-prometheus-metrics</artifactId>
+                <version>dd7d125</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles</artifactId>
                 <type>pom</type>
