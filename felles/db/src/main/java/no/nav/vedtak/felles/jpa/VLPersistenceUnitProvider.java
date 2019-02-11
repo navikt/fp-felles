@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link PersistenceProvider} which loads all mapping files dynamically from classpath as long as they match the pattern
- * &lt;persistence-unit-name&gt;.xxx.orm.xml).
+ * &lt;persistence-unit-name&gt;.xxx.orm.xml).  They must reside directly under META-INF/.
  * 
  * Makes it simpler to support entities in different modules without having to be on build-time dependency path of where persistence.xml is.
  */
@@ -70,7 +70,8 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
         try {
             Pattern ormPattern = Pattern.compile("^META-INF/" + pud.getName() + "\\..+\\.orm\\.xml$");
             Set<String> ormFiles = getResourceFolderFiles("META-INF", ormPattern);
-
+            ormFiles.forEach(f -> log.info("Found ORM mapping file: " + f));
+            
             AdditionalMappingFilesPersistenceUnitDescriptor newPud = new AdditionalMappingFilesPersistenceUnitDescriptor(pud);
             newPud.addMappingFileNames(ormFiles);
             return newPud;
