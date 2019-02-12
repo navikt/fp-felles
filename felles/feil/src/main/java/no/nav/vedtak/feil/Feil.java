@@ -49,10 +49,6 @@ public class Feil {
         return this;
     }
 
-    private void logMedCause(Logger logger) {
-        logMedCause(logger, getLogLevel());
-    }
-
     public Level getLogLevel() {
         switch (logLevel) {
             case ERROR:
@@ -74,7 +70,7 @@ public class Feil {
 
     private void logUtenCause(Logger logger) {
         String text = toLogString();
-        switch (logLevel) {
+        switch (getLogLevel()) {
             case ERROR:
                 logger.error(text); // NOSONAR
                 break;
@@ -84,14 +80,23 @@ public class Feil {
             case INFO:
                 logger.info(text); // NOSONAR
                 break;
+            case DEBUG:
+                logger.debug(text); // NOSONAR
+                logger.error("Ikke-støttet LogLevel: " + logLevel); // NOSONAR
+                break;
+            case TRACE:
+                logger.info(text); // NOSONAR
+                logger.error("Ikke-støttet LogLevel: " + logLevel); // NOSONAR
+                break;
             default:
-                throw new IllegalArgumentException("Ikke-støttet LogLevel: " + logLevel);
+                logger.error(text); // NOSONAR
+                logger.error("Ikke-støttet LogLevel: " + logLevel); // NOSONAR
         }
     }
 
-    private void logMedCause(Logger logger, Level level) {
+    private void logMedCause(Logger logger) {
         String text = toLogString();
-        switch (level) {
+        switch (getLogLevel()) {
             case ERROR:
                 logger.error(text, cause); // NOSONAR
                 break;
@@ -101,8 +106,17 @@ public class Feil {
             case INFO:
                 logger.info(text, cause); // NOSONAR
                 break;
+            case DEBUG:
+                logger.debug(text, cause); // NOSONAR
+                logger.error("Ikke-støttet LogLevel: " + logLevel); // NOSONAR
+                break;
+            case TRACE:
+                logger.info(text, cause); // NOSONAR
+                logger.error("Ikke-støttet LogLevel: " + logLevel); // NOSONAR
+                break;
             default:
-                throw new IllegalArgumentException("Ikke-støttet LogLevel: " + logLevel);
+                logger.error(text, cause); // NOSONAR
+                logger.error("Ikke-støttet LogLevel: " + logLevel); // NOSONAR
         }
     }
 

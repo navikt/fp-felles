@@ -22,17 +22,7 @@ public abstract class VLException extends RuntimeException {
     }
 
     public void log(Logger logger) {
-        String text = feil.toLogString();
-        switch (feil.getLogLevel()) {
-            case ERROR:
-                logger.error(text, this);
-                break;
-            case WARN:
-                logger.warn(text, this);
-                break;
-            default:
-                throw new IllegalArgumentException("Ikke-støttet LogLevel: " + feil.getLogLevel());
-        }
+       feil.log(logger);
     }
 
 }
