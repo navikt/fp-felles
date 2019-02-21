@@ -4,6 +4,7 @@ import no.nav.tjeneste.virksomhet.organisasjon.v4.binding.HentOrganisasjonOrgani
 import no.nav.tjeneste.virksomhet.organisasjon.v4.binding.HentOrganisasjonUgyldigInput;
 import no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentOrganisasjonResponse;
 import no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentVirksomhetsOrgnrForJuridiskOrgnrBolkResponse;
+import no.nav.vedtak.felles.integrasjon.organisasjon.hent.HentOrganisasjonForJuridiskRequest;
 import no.nav.vedtak.felles.integrasjon.organisasjon.hent.HentOrganisasjonRequest;
 
 public interface OrganisasjonConsumer {
@@ -25,6 +26,6 @@ public interface OrganisasjonConsumer {
      * @param request 'skal innholde organisasjonsnummer'
      * @return HentOrganisasjonResponse
      */
-    HentVirksomhetsOrgnrForJuridiskOrgnrBolkResponse hentOrganisajonerForJuridiskOrgnr(HentOrganisasjonRequest request);
+    HentVirksomhetsOrgnrForJuridiskOrgnrBolkResponse hentOrganisajonerForJuridiskOrgnr(HentOrganisasjonForJuridiskRequest request);
 
 }

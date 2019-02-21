@@ -10,7 +10,9 @@ import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.Organisasjonsfilte
 import no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentOrganisasjonResponse;
 import no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentVirksomhetsOrgnrForJuridiskOrgnrBolkRequest;
 import no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentVirksomhetsOrgnrForJuridiskOrgnrBolkResponse;
+import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebServiceFeil;
+import no.nav.vedtak.felles.integrasjon.organisasjon.hent.HentOrganisasjonForJuridiskRequest;
 import no.nav.vedtak.felles.integrasjon.organisasjon.hent.HentOrganisasjonRequest;
 
 public class OrganisasjonConsumerImpl implements OrganisasjonConsumer {
@@ -38,7 +40,7 @@ public class OrganisasjonConsumerImpl implements OrganisasjonConsumer {
     }
 
     @Override
-    public HentVirksomhetsOrgnrForJuridiskOrgnrBolkResponse hentOrganisajonerForJuridiskOrgnr(HentOrganisasjonRequest request) {
+    public HentVirksomhetsOrgnrForJuridiskOrgnrBolkResponse hentOrganisajonerForJuridiskOrgnr(HentOrganisasjonForJuridiskRequest request) {
         try {
             return port.hentVirksomhetsOrgnrForJuridiskOrgnrBolk(convertToWSRequestJuridisk(request));
         } catch (WebServiceException e) { //NOSONAR
@@ -46,10 +48,11 @@ public class OrganisasjonConsumerImpl implements OrganisasjonConsumer {
         }
     }
 
-    private no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentVirksomhetsOrgnrForJuridiskOrgnrBolkRequest convertToWSRequestJuridisk(HentOrganisasjonRequest request) {
+    private no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentVirksomhetsOrgnrForJuridiskOrgnrBolkRequest convertToWSRequestJuridisk(HentOrganisasjonForJuridiskRequest request) {
         HentVirksomhetsOrgnrForJuridiskOrgnrBolkRequest result = new HentVirksomhetsOrgnrForJuridiskOrgnrBolkRequest();
         Organisasjonsfilter organisasjonsfilter = new Organisasjonsfilter();
         organisasjonsfilter.setOrganisasjonsnummer(request.getOrgnummer());
+        organisasjonsfilter.setHentingsdato(DateUtil.convertToXMLGregorianCalendar(request.getHenteForDato()));
         result.getOrganisasjonsfilterListe().add(organisasjonsfilter);
         return result;
     }
