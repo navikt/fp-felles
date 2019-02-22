@@ -15,7 +15,8 @@ public class BehandlingProsessEventDto {
         AKSJONSPUNKT_UTFØRT,
         AKSJONSPUNKT_TILBAKEFØR,
         AKSJONSPUNKT_AVBRUTT,
-        AKSJONSPUNKT_HAR_ENDRET_BEHANDLENDE_ENHET
+        AKSJONSPUNKT_HAR_ENDRET_BEHANDLENDE_ENHET,
+        BEHANDLINGSKONTROLL_EVENT
     }
 
     private String fagsystem; // // Identifikasjon av systemet eventet opstod i : FPSAK
