@@ -186,8 +186,19 @@
 			</dependency>
             <dependency>
                 <groupId>no.nav.abac.policies</groupId>
+                <artifactId>abac-common-attributes-alfa</artifactId>
+                <version>4.0.3</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.abac.policies</groupId>
                 <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
                 <version>4.3.5</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.abac.policies</groupId>
+                <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
+                <version>4.3.5</version>
+                <classifier>attributes</classifier>
             </dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>

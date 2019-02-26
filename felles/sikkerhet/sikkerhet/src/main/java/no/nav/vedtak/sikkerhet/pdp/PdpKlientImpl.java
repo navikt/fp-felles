@@ -8,10 +8,10 @@ import java.util.Optional;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
 import no.nav.vedtak.konfig.KonfigVerdi;
