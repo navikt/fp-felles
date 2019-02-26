@@ -105,6 +105,11 @@
             <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.abac.policies</groupId>
+            <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
+            <classifier>attributes</classifier>
+        </dependency>
+        <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>javax.activation-api</artifactId>
         </dependency>
