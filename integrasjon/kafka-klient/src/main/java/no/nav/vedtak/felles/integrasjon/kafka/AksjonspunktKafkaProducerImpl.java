@@ -9,13 +9,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class AksjonspunktAksjonspunktKafkaProducerImpl implements AksjonspunktKafkaProducer {
+public class AksjonspunktKafkaProducerImpl implements AksjonspunktKafkaProducer {
 
-    private final Logger logger = LoggerFactory.getLogger(AksjonspunktAksjonspunktKafkaProducerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(AksjonspunktKafkaProducerImpl.class);
     private final MeldingProducer meldingProducer;
 
     @Inject
-    AksjonspunktAksjonspunktKafkaProducerImpl(AksjonspunktMeldingProducer meldingProducer) {
+    AksjonspunktKafkaProducerImpl(AksjonspunktMeldingProducer meldingProducer) {
         this.meldingProducer = meldingProducer;
     }
 
