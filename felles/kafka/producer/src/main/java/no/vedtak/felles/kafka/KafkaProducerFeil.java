@@ -14,17 +14,17 @@ public interface KafkaProducerFeil extends DeklarerteFeil {
 
     KafkaProducerFeil FACTORY = FeilFactory.create(KafkaProducerFeil.class);
 
-    @ManglerTilgangFeil(feilkode = "VLKAFKA-821005", feilmelding = "Feil i pålogging mot Kafka", logLevel = LogLevel.ERROR)
-    Feil feilIPålogging(Exception e);
+    @ManglerTilgangFeil(feilkode = "VLKAFKA-821005", feilmelding = "Feil i pålogging mot Kafka, topic:%s", logLevel = LogLevel.ERROR)
+    Feil feilIPålogging(String topic, Exception e);
 
-    @IntegrasjonFeil(feilkode = "VLKAFKA-925469", feilmelding = "Uventet feil ved sending til Kafka", logLevel = LogLevel.WARN)
-    Feil uventetFeil(Exception e);
+    @IntegrasjonFeil(feilkode = "VLKAFKA-925469", feilmelding = "Uventet feil ved sending til Kafka, topic:%s", logLevel = LogLevel.WARN)
+    Feil uventetFeil(String topic, Exception e);
 
-    @IntegrasjonFeil(feilkode = "VLKAFKA-127608", feilmelding = "Fikk transient feil mot Kafka, kan prøve igjen", logLevel = LogLevel.WARN)
-    Feil retriableExceptionMotKaka(RetriableException e);
+    @IntegrasjonFeil(feilkode = "VLKAFKA-127608", feilmelding = "Fikk transient feil mot Kafka, kan prøve igjen, topic:%s", logLevel = LogLevel.WARN)
+    Feil retriableExceptionMotKaka(String topic, RetriableException e);
 
-    @IntegrasjonFeil(feilkode = "VLKAFKA-811208", feilmelding = "Fikk feil mot Kafka", logLevel = LogLevel.WARN)
-    Feil annenExceptionMotKafka(KafkaException e);
+    @IntegrasjonFeil(feilkode = "VLKAFKA-811208", feilmelding = "Fikk feil mot Kafka, topic:%s", logLevel = LogLevel.WARN)
+    Feil annenExceptionMotKafka(String topic, KafkaException e);
 
 
 }

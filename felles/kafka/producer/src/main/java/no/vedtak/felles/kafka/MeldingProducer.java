@@ -2,7 +2,9 @@ package no.vedtak.felles.kafka;
 
 public interface MeldingProducer {
 
-    void sendOppgaveMedJson(Long behandlingId,String json);
+    void sendJson(String json);
+
+    void sendJsonMedNøkkel(String nøkkel, String json);
 
     void flushAndClose();
 
