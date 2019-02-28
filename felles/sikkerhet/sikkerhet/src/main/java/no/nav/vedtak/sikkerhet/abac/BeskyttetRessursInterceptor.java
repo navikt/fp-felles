@@ -128,7 +128,7 @@ public class BeskyttetRessursInterceptor {
     private static Class<?> getOpprinneligKlasse(InvocationContext invocationContext) {
         Object target = invocationContext.getTarget();
         if (target instanceof TargetInstanceProxy) {
-            return ((TargetInstanceProxy) target).getTargetClass();
+            return ((TargetInstanceProxy) target).weld_getTargetClass();
         }
         return target.getClass();
     }

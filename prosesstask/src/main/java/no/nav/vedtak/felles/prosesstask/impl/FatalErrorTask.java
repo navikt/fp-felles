@@ -100,7 +100,7 @@ public class FatalErrorTask {
             EntityManager em = getEntityManager();
             // workaround for hibernate issue HHH-11020
             if (em instanceof TargetInstanceProxy) {
-                em = (EntityManager) ((TargetInstanceProxy) em).getTargetInstance();
+                em = (EntityManager) ((TargetInstanceProxy) em).weld_getTargetInstance();
             }
 
             @SuppressWarnings("resource") // skal ikke lukke session her

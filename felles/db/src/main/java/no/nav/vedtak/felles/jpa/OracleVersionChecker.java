@@ -46,7 +46,7 @@ public class OracleVersionChecker {
         // workaround for hibernate issue HHH-11020:
         EntityManager unproxiedEntityManager = entityManager;
         if (unproxiedEntityManager instanceof TargetInstanceProxy) {
-            unproxiedEntityManager = (EntityManager) ((TargetInstanceProxy<?>) unproxiedEntityManager).getTargetInstance();
+            unproxiedEntityManager = (EntityManager) ((TargetInstanceProxy<?>) unproxiedEntityManager).weld_getTargetInstance();
         }
 
         final Boolean[] resHolder = {false};
