@@ -5,9 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -16,20 +13,18 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@ApplicationScoped
-public class MeldingConsumerImpl implements MeldingConsumer {
+public class GenerellMeldingConsumer {
 
     private static final int TIMEOUT = 10000;
-    private KafkaConsumer<String, String> kafkaConsumer;
-    private String topic;
+    KafkaConsumer<String, String> kafkaConsumer;
+    String topic;
 
-    @Inject
-    public MeldingConsumerImpl(@KonfigVerdi("kafka.aksjonspunkthendelse.topic") String topic,
-                               @KonfigVerdi("bootstrap.servers") String bootstrapServers,
-                               @KonfigVerdi("kafka.aksjonspunkthendelse.schema.registry.url") String schemaRegistryUrl,
-                               @KonfigVerdi("kafka.aksjonspunkthendelse.group.id") String groupId,
-                               @KonfigVerdi("systembruker.username") String username,
-                               @KonfigVerdi("systembruker.password") String password) {
+    public GenerellMeldingConsumer(String topic,
+                                   String bootstrapServers,
+                                   String schemaRegistryUrl,
+                                   String groupId,
+                                   String username,
+                                   String password) {
 
         Properties properties = new Properties();
         properties.put("bootstrap.servers", bootstrapServers);
@@ -46,7 +41,10 @@ public class MeldingConsumerImpl implements MeldingConsumer {
         subscribe();
     }
 
-    private void setSecurity(String username, Properties properties) {
+    public GenerellMeldingConsumer() {
+    }
+
+    void setSecurity(String username, Properties properties) {
         if (username != null && !username.isEmpty()) {
             properties.put("security.protocol", "SASL_SSL");
             properties.put("sasl.mechanism", "PLAIN");
@@ -54,7 +52,7 @@ public class MeldingConsumerImpl implements MeldingConsumer {
     }
 
 
-    private void addUserToProperties(@KonfigVerdi("kafka.username") String username, @KonfigVerdi("kafka.password") String password, Properties properties) {
+    void addUserToProperties(@KonfigVerdi("kafka.username") String username, @KonfigVerdi("kafka.password") String password, Properties properties) {
         if (username != null && !username.isEmpty() && password != null && !password.isEmpty()) {
             String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
             String jaasCfg = String.format(jaasTemplate, username, password);
@@ -71,7 +69,7 @@ public class MeldingConsumerImpl implements MeldingConsumer {
         return responseStringList;
     }
 
-    private void subscribe() {
+    void subscribe() {
         kafkaConsumer.subscribe(Collections.singletonList(topic));
     }
 
@@ -98,7 +96,7 @@ public class MeldingConsumerImpl implements MeldingConsumer {
         kafkaConsumer.commitAsync();
     }
 
-    private KafkaConsumer<String, String> createConsumer(Properties properties) {
+    KafkaConsumer<String, String> createConsumer(Properties properties) {
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put("auto.offset.reset", "earliest");

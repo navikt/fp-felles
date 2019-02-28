@@ -11,6 +11,5 @@ public interface MeldingConsumer {
 
     List<String> hentConsumerMeldingeneFraStarten();
 
-
     void close();
 }

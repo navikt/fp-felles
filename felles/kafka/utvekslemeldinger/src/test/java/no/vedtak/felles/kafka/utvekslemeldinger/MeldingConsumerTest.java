@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import no.vedtak.felles.kafka.MeldingConsumerImpl;
-import no.vedtak.felles.kafka.MeldingProducerImpl;
+import no.vedtak.felles.kafka.AksjonspunktMeldingProducer;
 
 
 public class MeldingConsumerTest {
@@ -33,12 +33,12 @@ public class MeldingConsumerTest {
     public void getMessagesWithOneMessageAtATime() {
         MessagesHelper.lagMeldingMedBehandlinsfrist();
 
-        MeldingProducerImpl meldingProducerImpl = createSimpleProducer(TOPIC_NAME_MESSAGES);
+        AksjonspunktMeldingProducer aksjonspunktMeldingProducer = createSimpleProducer(TOPIC_NAME_MESSAGES);
         MessagesHelper.jsonMeldinger.forEach((key, value) -> {
-            meldingProducerImpl.sendOppgaveMedJson(key, value);
+            aksjonspunktMeldingProducer.sendJsonMedNøkkel(key, value);
         });
 
-        meldingProducerImpl.flush();
+        aksjonspunktMeldingProducer.flush();
 
         MeldingConsumerImpl meldingConsumer = createSimpleConsumer();
         List<String> messagesFromKafka = new ArrayList<>();
@@ -60,9 +60,9 @@ public class MeldingConsumerTest {
         messagesFromkafka.addAll(response);
     }
 
-    private MeldingProducerImpl createSimpleProducer(String topic) {
+    private AksjonspunktMeldingProducer createSimpleProducer(String topic) {
         Map<String, Object> senderProps = KafkaTestUtils.producerProps(embeddedKafka);
-        return new MeldingProducerImpl(topic,
+        return new AksjonspunktMeldingProducer(topic,
                 senderProps.get("bootstrap.servers").toString(),
                 "https://kafka-test-schema-registry.nais.preprod.local",
                 ""

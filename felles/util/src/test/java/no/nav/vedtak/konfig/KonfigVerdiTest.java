@@ -113,7 +113,7 @@ public class KonfigVerdiTest {
     }
 
     @Test
-    public void skal_injisere_boolean_amp_fra_systemproperties() throws Exception {
+    public void skal_injisere_boolean_map_fra_systemproperties() throws Exception {
         assertThat(providers).isNotEmpty();
         Map<String, Boolean> expected = new HashMap<>();
         expected.put("key1", Boolean.TRUE);
