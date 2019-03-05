@@ -30,4 +30,8 @@ node('DOCKER') {
            }   
                 
     }
+    stage('Create Github tag') {
+        sh "git tag $tagName -m $tagName"
+        sh "git push origin --tag"
+    }
 }
