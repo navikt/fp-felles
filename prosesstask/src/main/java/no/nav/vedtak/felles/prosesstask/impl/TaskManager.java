@@ -166,7 +166,7 @@ public class TaskManager implements AppServiceHandler {
             this.pollingService = Executors
                 .newSingleThreadScheduledExecutor(new Utils.NamedThreadFactory(threadPoolNamePrefix + "-poller", false)); //$NON-NLS-1$
         }
-        this.pollingServiceScheduledFuture = pollingService.scheduleAtFixedRate(new PollAvailableTasks(), delayBetweenPollingMillis / 2,
+        this.pollingServiceScheduledFuture = pollingService.scheduleWithFixedDelay(new PollAvailableTasks(), delayBetweenPollingMillis / 2,
             delayBetweenPollingMillis, TimeUnit.MILLISECONDS); // NOSONAR
     }
 
@@ -187,7 +187,7 @@ public class TaskManager implements AppServiceHandler {
         LocalDateTime now = LocalDateTime.now();
 
         int capacity = getRunTaskService().remainingCapacity();
-        if(reportRegularlyAndSkipIfNoAvailableCapacity(now, capacity)) {
+        if (reportRegularlyAndSkipIfNoAvailableCapacity(now, capacity)) {
             return Collections.emptyList();
         }
 
@@ -346,10 +346,19 @@ public class TaskManager implements AppServiceHandler {
     }
 
     /**
-     * For testing.
+     * For testing. Kjørere synkront med kallende tråd
      */
     int doSinglePolling() {
         return new PollAvailableTasks().call();
+    }
+
+    /**
+     * Kjører en polling runde (async)
+     */
+    void doSinglePollingAsync() {
+        if (pollingService != null) {
+            pollingService.submit(new PollAvailableTasks(), Boolean.TRUE);
+        } // else - ignoreres hvis ikke startet
     }
 
     /**
@@ -400,6 +409,10 @@ public class TaskManager implements AppServiceHandler {
                     Future<Boolean> fut = (Future<Boolean>) r;
                     if (taskIndex.remove(fut) == null) {
                         logImprobableErrors(t, fut);
+                    }
+                    if (getQueue().isEmpty()) {
+                        // gi oss selv en head start ifht. neste polling runde
+// doSinglePollingAsync();
                     }
                 }
 
