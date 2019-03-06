@@ -35,3 +35,4 @@ node('DOCKER') {
         sh "git push origin --tag"
     }
 }
+
