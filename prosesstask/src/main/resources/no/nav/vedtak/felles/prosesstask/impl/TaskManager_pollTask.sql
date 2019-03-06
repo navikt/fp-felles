@@ -44,6 +44,7 @@ WHERE pt.id
   -- håndterer at kjøring ikke skjer før angitt tidstempel
   AND (pt.neste_kjoering_etter IS NULL OR pt.neste_kjoering_etter < COALESCE(:neste_kjoering, CURRENT_TIMESTAMP))
   AND status = 'KLAR' -- effektiviserer planen med bedre indeks
+  AND pt.id NOT IN (:skip_ids)
   -- sorter etter prioritet og når de sist ble kjørt
 ORDER BY prioritet DESC, siste_kjoering_ts ASC NULLS FIRST, ID ASC
          FOR UPDATE SKIP LOCKED

@@ -61,7 +61,7 @@ public class RunProsessTaskTestIT {
         taskManager.startTaskThreads();
 
         EntityManager entityManager = taskManager.getTransactionManagerRepository().getEntityManager();
-        List<Runnable> tasksPolled = repoRule.doInTransaction(entityManager, (em) -> taskManager.pollForAvailableTasks());
+        List<IdentRunnable> tasksPolled = repoRule.doInTransaction(entityManager, (em) -> taskManager.pollForAvailableTasks());
         assertThat(tasksPolled).hasSize(1);
     }
 
@@ -127,7 +127,7 @@ public class RunProsessTaskTestIT {
         assertThat(tasksPolled).isEqualTo(1);
 
         CountDownLatch latch = new CountDownLatch(1);
-        taskManager.getRunTaskService().submit(latch::countDown);
+        taskManager.getRunTaskService().submit(new IdentRunnableTask(1L, latch::countDown));
 
         assertThat(latch.await(120, TimeUnit.SECONDS)).isTrue();
     }

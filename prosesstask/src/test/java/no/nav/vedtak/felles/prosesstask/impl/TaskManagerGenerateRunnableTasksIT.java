@@ -32,7 +32,7 @@ public class TaskManagerGenerateRunnableTasksIT {
         TaskManagerGenerateRunnableTasks generateRunnableTasks = new TaskManagerGenerateRunnableTasks(null, null, null) {
 
             @Override
-            Runnable lagErrorCallback(RunTaskInfo taskInfo, String callId, Throwable t) {
+            IdentRunnable lagErrorCallback(RunTaskInfo taskInfo, String callId, Throwable t) {
                 // TEST override for å fange exception
                 errorFuncException.set(t);
                 return super.lagErrorCallback(taskInfo, callId, t);
@@ -50,7 +50,7 @@ public class TaskManagerGenerateRunnableTasksIT {
             }
             
             @Override
-            void handleErrorCallback(Runnable errorCallback) {
+            void handleErrorCallback(IdentRunnable errorCallback) {
             }
         };
 

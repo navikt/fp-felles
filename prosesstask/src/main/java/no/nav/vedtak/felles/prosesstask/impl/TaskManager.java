@@ -2,12 +2,13 @@ package no.nav.vedtak.felles.prosesstask.impl;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -56,12 +57,12 @@ public class TaskManager implements AppServiceHandler {
     /**
      * Max number of tasks that will be attempted to poll on every try.
      */
-    private int maxNumberOfTasksToPoll = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_TASKS_SIZE, 50, 1);
+    private int maxNumberOfTasksToPoll = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_TASKS_SIZE, 15, 1);
 
     /**
      * Antall parallelle tråder for å plukke tasks.
      */
-    private int numberOfTaskRunnerThreads = getSystemPropertyWithLowerBoundry(TASK_MANAGER_RUNNER_THREADS, 3, 0);
+    private int numberOfTaskRunnerThreads = getSystemPropertyWithLowerBoundry(TASK_MANAGER_RUNNER_THREADS, 5, 0);
 
     /**
      * Delay between each interval of polling. (millis)
@@ -72,17 +73,12 @@ public class TaskManager implements AppServiceHandler {
      * Ventetid før neste polling forsøk (antar dersom task ikke plukkes raskt nok, kan en annen poller ta over).
      * (sekunder)
      */
-    private long waitTimeBeforeNextPollingAttemptSecs = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_WAIT, 50L, 1L);
-
-    /**
-     * Intern buffer for tasks (som tråder plukker fra).
-     */
-    private BlockingQueue<Runnable> internalRunTaskWaitQueue;
+    private long waitTimeBeforeNextPollingAttemptSecs = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_WAIT, 30L, 1L);
 
     /**
      * Executor for å håndtere tråder for å kjøre tasks.
      */
-    private ExecutorService runTaskService;
+    private IdentExecutorService runTaskService;
 
     /**
      * Single scheduled thread handling polling.
@@ -155,15 +151,9 @@ public class TaskManager implements AppServiceHandler {
             pollingServiceScheduledFuture.cancel(true);
             pollingServiceScheduledFuture = null;
         }
-        if (internalRunTaskWaitQueue != null) {
-            runTaskService.shutdownNow();
-            try {
-                runTaskService.awaitTermination(30, TimeUnit.SECONDS);
-                runTaskService = null;
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            internalRunTaskWaitQueue = null;
+        if(runTaskService!=null) {
+            runTaskService.stop();
+            runTaskService = null;
         }
     }
 
@@ -175,29 +165,27 @@ public class TaskManager implements AppServiceHandler {
             this.pollingService = Executors
                 .newSingleThreadScheduledExecutor(new Utils.NamedThreadFactory(threadPoolNamePrefix + "-poller", false)); //$NON-NLS-1$
         }
-        this.pollingServiceScheduledFuture = pollingService.scheduleWithFixedDelay(new PollAvailableTasks(), delayBetweenPollingMillis / 2,
+        this.pollingServiceScheduledFuture = pollingService.scheduleAtFixedRate(new PollAvailableTasks(), delayBetweenPollingMillis / 2,
             delayBetweenPollingMillis, TimeUnit.MILLISECONDS); // NOSONAR
     }
 
     synchronized void startTaskThreads() {
-        if (internalRunTaskWaitQueue != null) {
+        if (runTaskService != null) {
             throw new IllegalStateException("Service allerede startet, stopp først");//$NON-NLS-1$
         }
-        this.internalRunTaskWaitQueue = new ArrayBlockingQueue<>(5 * maxNumberOfTasksToPoll);
-        this.runTaskService = new ThreadPoolExecutor(numberOfTaskRunnerThreads, numberOfTaskRunnerThreads, 0L, TimeUnit.MILLISECONDS,
-            internalRunTaskWaitQueue, new Utils.NamedThreadFactory(threadPoolNamePrefix + "-runtask", true)); //$NON-NLS-1$
+        this.runTaskService = new IdentExecutorService();
     }
 
-    interface ReadTaskFunksjon extends Function<ProsessTaskEntitet, Runnable> {
+    interface ReadTaskFunksjon extends Function<ProsessTaskEntitet, IdentRunnable> {
     }
 
     /**
      * Poller for tasks og logger jevnlig om det ikke er ledig kapasitet (i in-memory queue) eller ingen tasks funnet (i db).
      */
-    protected synchronized List<Runnable> pollForAvailableTasks() {
+    protected synchronized List<IdentRunnable> pollForAvailableTasks() {
         LocalDateTime now = LocalDateTime.now();
 
-        int capacity = internalRunTaskWaitQueue.remainingCapacity();
+        int capacity = getRunTaskService().remainingCapacity();
         if (capacity < 1) {
             long round = pollerRoundNoCapacityRounds.incrementAndGet();
             if (round % 60 == 0) {
@@ -215,7 +203,7 @@ public class TaskManager implements AppServiceHandler {
         int numberOfTasksToPoll = Math.min(capacity, maxNumberOfTasksToPoll);
         TaskManagerGenerateRunnableTasks pollDatabaseToRunnable = new TaskManagerGenerateRunnableTasks(getTaskDispatcher(), this::pollTasksFunksjon,
             this::submitTask);
-        List<Runnable> tasksFound = pollDatabaseToRunnable.execute(numberOfTasksToPoll);
+        List<IdentRunnable> tasksFound = pollDatabaseToRunnable.execute(numberOfTasksToPoll);
 
         if (tasksFound.isEmpty()) {
             if (pollerRoundNoneLastReported.get().plusHours(1).isBefore(now)) {
@@ -230,11 +218,12 @@ public class TaskManager implements AppServiceHandler {
 
     }
 
-    List<Runnable> pollTasksFunksjon(int numberOfTasksToPoll, ReadTaskFunksjon readTaskFunksjon) {
+    List<IdentRunnable> pollTasksFunksjon(int numberOfTasksToPoll, ReadTaskFunksjon readTaskFunksjon) {
         int numberOfTasksStillToGo = numberOfTasksToPoll;
 
-        List<ProsessTaskEntitet> tasksEntiteter = taskManagerRepository.pollNesteScrollingUpdate(numberOfTasksStillToGo,
-            waitTimeBeforeNextPollingAttemptSecs);
+        Set<Long> inmemoryTaskIds = getRunTaskService().getTaskIds();
+        List<ProsessTaskEntitet> tasksEntiteter = taskManagerRepository
+            .pollNesteScrollingUpdate(numberOfTasksStillToGo, waitTimeBeforeNextPollingAttemptSecs, inmemoryTaskIds);
 
         return tasksEntiteter.stream().map(readTaskFunksjon).collect(Collectors.toList());
     }
@@ -248,9 +237,9 @@ public class TaskManager implements AppServiceHandler {
      */
     protected class PollAvailableTasks implements Callable<Integer>, Runnable {
 
-        private final class PollInNewTransaction extends TransactionHandler<List<Runnable>> {
+        private final class PollInNewTransaction extends TransactionHandler<List<IdentRunnable>> {
 
-            List<Runnable> doWork() throws Exception {
+            List<IdentRunnable> doWork() throws Exception {
 
                 EntityManager entityManager = getTransactionManagerRepository().getEntityManager();
                 try {
@@ -261,7 +250,7 @@ public class TaskManager implements AppServiceHandler {
             }
 
             @Override
-            protected List<Runnable> doWork(EntityManager entityManager) {
+            protected List<IdentRunnable> doWork(EntityManager entityManager) {
                 return pollForAvailableTasks();
             }
         }
@@ -285,7 +274,7 @@ public class TaskManager implements AppServiceHandler {
                 if (backoffRound.get() > 0) {
                     Thread.sleep(getBackoffIntervalSeconds());
                 }
-                List<Runnable> availableTasks = new PollInNewTransaction().doWork();
+                List<IdentRunnable> availableTasks = new PollInNewTransaction().doWork();
 
                 // dispatch etter commit
                 dispatchTasks(availableTasks);
@@ -330,8 +319,8 @@ public class TaskManager implements AppServiceHandler {
             }
         }
 
-        private void dispatchTasks(List<Runnable> availableTasks) {
-            for (Runnable task : availableTasks) {
+        private void dispatchTasks(List<IdentRunnable> availableTasks) {
+            for (IdentRunnable task : availableTasks) {
                 @SuppressWarnings("unused")
                 Future<?> future = submitTask(task); // NOSONAR
                 // lar futures ligge, feil fanges i task
@@ -340,8 +329,8 @@ public class TaskManager implements AppServiceHandler {
 
     }
 
-    Future<Boolean> submitTask(Runnable task) {
-        return getRunTaskService().submit(task, Boolean.TRUE);
+    Future<Boolean> submitTask(IdentRunnable task) {
+        return getRunTaskService().submit(task);
     }
 
     /**
@@ -354,7 +343,7 @@ public class TaskManager implements AppServiceHandler {
     /**
      * For testing.
      */
-    synchronized ExecutorService getRunTaskService() {
+    synchronized IdentExecutorService getRunTaskService() {
         return runTaskService;
     }
 
@@ -378,6 +367,54 @@ public class TaskManager implements AppServiceHandler {
             return lowerBoundry;
         }
         return systemPropertyValue;
+    }
+
+    /** Internal executor that also tracks ids of currently queue or running tasks. */
+    class IdentExecutorService {
+
+        private final ThreadPoolExecutor executor;
+        
+        // track id per kjørende future
+        private final Map<Future<Boolean>, Long> taskIndex = Collections.synchronizedMap(new IdentityHashMap<>());
+
+        IdentExecutorService() {
+            executor = new ThreadPoolExecutor(numberOfTaskRunnerThreads, numberOfTaskRunnerThreads, 0L, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(5 * maxNumberOfTasksToPoll),
+                new Utils.NamedThreadFactory(threadPoolNamePrefix + "-runtask", true)) { //$NON-NLS-1$
+        
+                @SuppressWarnings("unchecked")
+                @Override
+                protected void afterExecute(Runnable r, Throwable t) {
+                    taskIndex.remove((Future<Boolean>) r);
+                }
+
+            };
+        }
+
+        int remainingCapacity() {
+            return executor.getQueue().remainingCapacity();
+        }
+
+        Future<Boolean> submit(IdentRunnable command) {
+            Future<Boolean> future = executor.submit(command, Boolean.TRUE);
+            taskIndex.put(future, command.getId());
+            return future;
+        }
+
+        Set<Long> getTaskIds() {
+            return Set.copyOf(taskIndex.values());
+        }
+
+        void stop() {
+            executor.shutdownNow();
+            try {
+                executor.awaitTermination(30, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                taskIndex.clear();
+            }
+        }
     }
 
 }

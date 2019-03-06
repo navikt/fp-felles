@@ -7,10 +7,12 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -92,6 +94,7 @@ public class TaskManagerRepositoryImpl {
         List<ProsessTaskEntitet> resultList = entityManager
             .createNativeQuery(sqlForPolling, ProsessTaskEntitet.class) // NOSONAR - statisk SQL
             .setParameter("neste_kjoering", etterTid)
+            .setParameter("skip_ids", Set.of(-1))
             .setHint(QueryHints.HINT_CACHE_MODE, "IGNORE")
             .getResultList();
         return tilProsessTask(resultList);
@@ -168,7 +171,7 @@ public class TaskManagerRepositoryImpl {
      * at flere pollere kan opere samtidig og uavhengig av hverandre.
      */
     @SuppressWarnings("rawtypes")
-    List<ProsessTaskEntitet> pollNesteScrollingUpdate(int numberOfTasks, long waitTimeBeforeNextPollingAttemptSecs) {
+    List<ProsessTaskEntitet> pollNesteScrollingUpdate(int numberOfTasks, long waitTimeBeforeNextPollingAttemptSecs, Set<Long> skipIds) {
         int numberOfTasksStillToGo = numberOfTasks;
         List<ProsessTaskEntitet> tasksToRun = new ArrayList<>(numberOfTasks);
 
@@ -188,6 +191,7 @@ public class TaskManagerRepositoryImpl {
             // hent kun 1 av gangen for å la andre pollere slippe til
             .setHint(QueryHints.HINT_FETCH_SIZE, 1)
             .setParameter("neste_kjoering", Instant.now(FPDateUtil.getOffset()), TemporalType.TIMESTAMP)
+            .setParameter("skip_ids", skipIds.isEmpty()? Set.of(-1) : skipIds)
             .scroll(ScrollMode.FORWARD_ONLY);) {
 
             LocalDateTime now = getNåTidSekundOppløsning();

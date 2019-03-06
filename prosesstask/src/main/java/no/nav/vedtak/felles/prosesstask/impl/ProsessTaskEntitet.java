@@ -19,7 +19,6 @@ import javax.persistence.Version;
 
 import org.hibernate.annotations.Type;
 
-import no.nav.vedtak.felles.jpa.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.PropertiesToStringConverter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
