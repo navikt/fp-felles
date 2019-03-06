@@ -100,10 +100,10 @@ public class ProsessTaskApplikasjonTjenesteImpl implements ProsessTaskApplikasjo
                 taskTypesMaxForsøk.put(tasktype, forsøk);
             }
         });
-        LocalDateTime naa = LocalDateTime.now(FPDateUtil.getOffset());
+        LocalDateTime nå = FPDateUtil.nå();
         ptdList.forEach(ptd -> {
             ptd.setStatus(ProsessTaskStatus.KLAR);
-            ptd.setNesteKjøringEtter(naa);
+            ptd.setNesteKjøringEtter(nå);
             ptd.setSisteFeilKode(null);
             ptd.setSisteFeil(null);
             if (taskTypesMaxForsøk.get(ptd.getTaskType()) == ptd.getAntallFeiledeForsøk()) { // NOSONAR
@@ -118,7 +118,7 @@ public class ProsessTaskApplikasjonTjenesteImpl implements ProsessTaskApplikasjo
     private void oppdaterProsessTaskDataMedKjoerbarStatus(ProsessTaskData eksisterendeProsessTaskData) {
 
         eksisterendeProsessTaskData.setStatus(ProsessTaskStatus.KLAR);
-        eksisterendeProsessTaskData.setNesteKjøringEtter(LocalDateTime.now(FPDateUtil.getOffset()));
+        eksisterendeProsessTaskData.setNesteKjøringEtter(FPDateUtil.nå());
         eksisterendeProsessTaskData.setSisteFeilKode(null);
         eksisterendeProsessTaskData.setSisteFeil(null);
 

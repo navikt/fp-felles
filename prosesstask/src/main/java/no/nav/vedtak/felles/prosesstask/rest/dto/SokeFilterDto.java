@@ -22,8 +22,8 @@ public class SokeFilterDto implements AbacDto {
     @Size(max = 10)
     @Valid
     private List<ProsessTaskStatusDto> prosessTaskStatuser = new ArrayList<>();
-    private LocalDateTime sisteKjoeretidspunktFraOgMed = LocalDateTime.now(FPDateUtil.getOffset()).minusHours(24);
-    private LocalDateTime sisteKjoeretidspunktTilOgMed = LocalDateTime.now(FPDateUtil.getOffset());
+    private LocalDateTime sisteKjoeretidspunktFraOgMed = FPDateUtil.nå().minusHours(24);
+    private LocalDateTime sisteKjoeretidspunktTilOgMed = FPDateUtil.nå();
 
     public SokeFilterDto() {
     }

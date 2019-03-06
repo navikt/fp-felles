@@ -291,7 +291,7 @@ public abstract class QueueConsumer extends QueueBase {
         private void mottattMelding() {
             meldingCount.incrementAndGet();
             timeoutCount.set(0L);
-            sistMottatt = LocalDateTime.now(FPDateUtil.getOffset());
+            sistMottatt = FPDateUtil.nå();
         }
     }
 }

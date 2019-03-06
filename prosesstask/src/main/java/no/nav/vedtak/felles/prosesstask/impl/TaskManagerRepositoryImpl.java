@@ -3,11 +3,9 @@ package no.nav.vedtak.felles.prosesstask.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -130,13 +128,16 @@ public class TaskManagerRepositoryImpl {
             " ,feilede_forsoek = :forsoek" +
             " ,siste_kjoering_feil_kode = :feilkode" +
             " ,siste_kjoering_feil_tekst = :feiltekst" +
+            ", siste_kjoering_ts_status = :status_ts" + 
             " ,versjon=versjon+1 " +
             " WHERE id = :id";
 
         String status = taskStatus.getDbKode();
+        LocalDateTime now = FPDateUtil.nå();
         int tasks = entityManager.createNativeQuery(updateSql)
             .setParameter("id", prosessTaskId) // NOSONAR
             .setParameter("status", status) // NOSONAR
+            .setParameter("status_ts", now)
             .setParameter("neste", nesteKjøringEtter == null ? null : Timestamp.valueOf(nesteKjøringEtter), TemporalType.TIME) // NOSONAR
             .setParameter("feilkode", feilkode)// NOSONAR
             .setParameter("feiltekst", feiltekst)// NOSONAR
@@ -154,14 +155,17 @@ public class TaskManagerRepositoryImpl {
             " ,neste_kjoering_etter= NULL" +
             " ,siste_kjoering_feil_kode = NULL" +
             " ,siste_kjoering_feil_tekst = NULL" +
+            ", siste_kjoering_ts_status = :status_ts" + 
             " ,versjon=versjon+1 " +
             " WHERE id = :id";
 
         String status = taskStatus.getDbKode();
+        LocalDateTime now = FPDateUtil.nå();
         @SuppressWarnings("unused")
         int tasks = entityManager.createNativeQuery(updateSql)  // NOSONAR
             .setParameter("id", prosessTaskId)
             .setParameter("status", status)
+            .setParameter("status_ts", now)
             .executeUpdate();
 
     }
@@ -190,7 +194,7 @@ public class TaskManagerRepositoryImpl {
             .setFlushMode(FlushMode.MANUAL)
             // hent kun 1 av gangen for å la andre pollere slippe til
             .setHint(QueryHints.HINT_FETCH_SIZE, 1)
-            .setParameter("neste_kjoering", Instant.now(FPDateUtil.getOffset()), TemporalType.TIMESTAMP)
+            .setParameter("neste_kjoering", FPDateUtil.nåInstant(), TemporalType.TIMESTAMP)
             .setParameter("skip_ids", skipIds.isEmpty()? Set.of(-1) : skipIds)
             .scroll(ScrollMode.FORWARD_ONLY);) {
 
@@ -219,7 +223,7 @@ public class TaskManagerRepositoryImpl {
     LocalDateTime getNåTidSekundOppløsning() {
         // nåtid trunkeres til seconds siden det er det nestekjøring presisjon i db tilsier.  Merk at her må også sistekjøring settes 
         // med sekund oppløsning siden disse sammenlignes i hand-over til RunTask
-        return LocalDateTime.now(FPDateUtil.getOffset()).truncatedTo(ChronoUnit.SECONDS);
+        return FPDateUtil.nå().truncatedTo(ChronoUnit.SECONDS);
     }
 
     void logTaskPollet(ProsessTaskEntitet pte) {

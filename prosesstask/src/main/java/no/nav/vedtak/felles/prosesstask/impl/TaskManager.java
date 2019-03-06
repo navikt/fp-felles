@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -57,7 +58,7 @@ public class TaskManager implements AppServiceHandler {
     /**
      * Max number of tasks that will be attempted to poll on every try.
      */
-    private int maxNumberOfTasksToPoll = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_TASKS_SIZE, 15, 1);
+    private int maxNumberOfTasksToPoll = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_TASKS_SIZE, 20, 1);
 
     /**
      * Antall parallelle tråder for å plukke tasks.
@@ -151,7 +152,7 @@ public class TaskManager implements AppServiceHandler {
             pollingServiceScheduledFuture.cancel(true);
             pollingServiceScheduledFuture = null;
         }
-        if(runTaskService!=null) {
+        if (runTaskService != null) {
             runTaskService.stop();
             runTaskService = null;
         }
@@ -186,18 +187,8 @@ public class TaskManager implements AppServiceHandler {
         LocalDateTime now = LocalDateTime.now();
 
         int capacity = getRunTaskService().remainingCapacity();
-        if (capacity < 1) {
-            long round = pollerRoundNoCapacityRounds.incrementAndGet();
-            if (round % 60 == 0) {
-                log.info(
-                    "Ingen ledig kapasitet i siste polling runder siden [{}].  Sjekk eventuelt om tasks blir kjørt eller om de henger/er treghet under kjøring.",
-                    pollerRoundNoCapacitySince.get());
-            }
-            // internal work queue already full, no point trying to push more
+        if(reportRegularlyAndSkipIfNoAvailableCapacity(now, capacity)) {
             return Collections.emptyList();
-        } else {
-            pollerRoundNoCapacityRounds.set(0L); // reset
-            pollerRoundNoCapacitySince.set(now); // reset
         }
 
         int numberOfTasksToPoll = Math.min(capacity, maxNumberOfTasksToPoll);
@@ -205,6 +196,12 @@ public class TaskManager implements AppServiceHandler {
             this::submitTask);
         List<IdentRunnable> tasksFound = pollDatabaseToRunnable.execute(numberOfTasksToPoll);
 
+        reportRegularlyIfNoTasksFound(now, tasksFound);
+        return tasksFound;
+
+    }
+
+    private void reportRegularlyIfNoTasksFound(LocalDateTime now, List<IdentRunnable> tasksFound) {
         if (tasksFound.isEmpty()) {
             if (pollerRoundNoneLastReported.get().plusHours(1).isBefore(now)) {
                 pollerRoundNoneLastReported.set(now);
@@ -214,8 +211,23 @@ public class TaskManager implements AppServiceHandler {
             pollerRoundNoneFoundSince.set(now); // reset
             pollerRoundNoneLastReported.set(now); // reset
         }
-        return tasksFound;
+    }
 
+    private boolean reportRegularlyAndSkipIfNoAvailableCapacity(LocalDateTime now, int capacity) {
+        if (capacity < 1) {
+            long round = pollerRoundNoCapacityRounds.incrementAndGet();
+            if (round % 60 == 0) {
+                log.info(
+                    "Ingen ledig kapasitet i siste polling runder siden [{}].  Sjekk eventuelt om tasks blir kjørt eller om de henger/er treghet under kjøring.",
+                    pollerRoundNoCapacitySince.get());
+            }
+            // internal work queue already full, no point trying to push more
+            return true;
+        } else {
+            pollerRoundNoCapacityRounds.set(0L); // reset
+            pollerRoundNoCapacitySince.set(now); // reset
+            return false;
+        }
     }
 
     List<IdentRunnable> pollTasksFunksjon(int numberOfTasksToPoll, ReadTaskFunksjon readTaskFunksjon) {
@@ -373,19 +385,38 @@ public class TaskManager implements AppServiceHandler {
     class IdentExecutorService {
 
         private final ThreadPoolExecutor executor;
-        
+
         // track id per kjørende future
         private final Map<Future<Boolean>, Long> taskIndex = Collections.synchronizedMap(new IdentityHashMap<>());
 
         IdentExecutorService() {
             executor = new ThreadPoolExecutor(numberOfTaskRunnerThreads, numberOfTaskRunnerThreads, 0L, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(5 * maxNumberOfTasksToPoll),
+                new ArrayBlockingQueue<>(maxNumberOfTasksToPoll),
                 new Utils.NamedThreadFactory(threadPoolNamePrefix + "-runtask", true)) { //$NON-NLS-1$
-        
+
                 @SuppressWarnings("unchecked")
                 @Override
                 protected void afterExecute(Runnable r, Throwable t) {
-                    taskIndex.remove((Future<Boolean>) r);
+                    Future<Boolean> fut = (Future<Boolean>) r;
+                    if (taskIndex.remove(fut) == null) {
+                        logImprobableErrors(t, fut);
+                    }
+                }
+
+                // TODO (FC): Fjern logging om ikke feil intreffer her i testing
+                private void logImprobableErrors(Throwable t, Future<Boolean> fut) {
+                    if (t == null) {
+                        log.error("Klarte ikke finne match. Inkonsistente in-memory task indeks. Task: " + fut, t);
+                    } else {
+                        try {
+                            log.error("Klarte ikke finne match. Inkonsistente in-memory task indeks. Task: " + fut.get());
+                        } catch (InterruptedException e) {
+                            log.error("Kunne ikke lese data fra task", e);
+                            Thread.currentThread().interrupt();
+                        } catch (ExecutionException e) {
+                            log.error("Fikke ikke resultat fra task", e);
+                        }
+                    }
                 }
 
             };

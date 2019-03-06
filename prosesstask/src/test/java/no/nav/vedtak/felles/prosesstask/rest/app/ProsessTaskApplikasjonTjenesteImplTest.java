@@ -84,7 +84,7 @@ public class ProsessTaskApplikasjonTjenesteImplTest {
         assertThat(dataTilPersistering.getAntallFeiledeForsøk()).isEqualTo(DEFAULT_MAKS_ANTALL_FEIL_FORSØK - 1);
 
         // Neste kjøring setes til LocalDateTime.now(), så tester på en enkel måte.
-        assertThat(dataTilPersistering.getNesteKjøringEtter()).isAfter(LocalDateTime.now(FPDateUtil.getOffset()).minusSeconds(5));
+        assertThat(dataTilPersistering.getNesteKjøringEtter()).isAfter(FPDateUtil.nå().minusSeconds(5));
     }
 
 
@@ -108,7 +108,7 @@ public class ProsessTaskApplikasjonTjenesteImplTest {
         assertThat(dataTilPersistering.getAntallFeiledeForsøk()).isEqualTo(0);
 
         // Neste kjøring setes til LocalDateTime.now(), så tester på en enkel måte.
-        assertThat(dataTilPersistering.getNesteKjøringEtter()).isAfter(LocalDateTime.now(FPDateUtil.getOffset()).minusSeconds(5));
+        assertThat(dataTilPersistering.getNesteKjøringEtter()).isAfter(FPDateUtil.nå().minusSeconds(5));
     }
 
     @Test

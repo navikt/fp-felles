@@ -46,7 +46,7 @@ public class ProsessTaskData implements ProsessTaskInfo {
     private int antallFeiledeForsøk;
     private String gruppe;
     private Long id;
-    private LocalDateTime nesteKjøringEtter = LocalDateTime.now(FPDateUtil.getOffset());
+    private LocalDateTime nesteKjøringEtter = FPDateUtil.nå();
     private Clob payload;
     private int prioritet = 1;
     private String sekvens;
