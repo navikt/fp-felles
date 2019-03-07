@@ -28,7 +28,7 @@ public class TaskManagerFeilIT {
     public void skal_logge_transient_feil_under_polling() throws Exception {
         TaskManager taskManager = new TaskManager(taskManagerRepo) {
             @Override
-            protected List<Runnable> pollForAvailableTasks() {
+            protected List<IdentRunnable> pollForAvailableTasks() {
                 throw new JDBCConnectionException("NOT AVAILABLE!", null);
             }
         };
@@ -43,7 +43,7 @@ public class TaskManagerFeilIT {
     public void skal_logge_annen_feil_under_polling() throws Exception {
         TaskManager taskManager = new TaskManager(taskManagerRepo) {
             @Override
-            protected List<Runnable> pollForAvailableTasks() {
+            protected List<IdentRunnable> pollForAvailableTasks() {
                 throw new RuntimeException("HERE BE DRAGONS!");
             }
         };

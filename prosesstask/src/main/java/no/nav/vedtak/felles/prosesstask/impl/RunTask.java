@@ -194,11 +194,6 @@ public class RunTask {
             return getEntityManager().find(ProsessTaskEntitet.class, id);
         }
 
-        /**
-         * marker task ferdig.
-         *
-         * @return ny status
-         */
         ProsessTaskStatus markerTaskFerdig(ProsessTaskEntitet pte) {
             ProsessTaskStatus nyStatus = ProsessTaskStatus.FERDIG;
             taskManagerRepository.oppdaterStatusOgTilFerdig(pte.getId(), nyStatus);
@@ -211,17 +206,17 @@ public class RunTask {
             return nyStatus;
         }
 
-        /**
-         * markerer task som påbegynt (merk committer ikke før til slutt).
-         */
+        // markerer task som påbegynt (merk committer ikke før til slutt).
         void markerTaskUnderArbeid(ProsessTaskEntitet pte) {
             // mark row being processed with timestamp and server process id
-            pte.setSisteKjøring(LocalDateTime.now(FPDateUtil.getOffset()));
+            LocalDateTime now = FPDateUtil.nå();
+            pte.setSisteKjøring(now);
             pte.setSisteKjøringServer(Utils.getJvmUniqueProcessName());
             getEntityManager().persist(pte);
             getEntityManager().flush();
         }
 
+        // regner ut neste kjøretid for tasks som kan repeteres (har CronExpression) 
         void planleggNesteKjøring(ProsessTaskEntitet pte) throws SQLException {
             ProsessTaskType taskType = taskManagerRepository.getTaskType(getTaskInfo().getTaskType());
             if (taskType.getErGjentagende()) {

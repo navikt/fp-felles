@@ -3,7 +3,6 @@ package no.nav.vedtak.felles.prosesstask.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -92,6 +92,7 @@ public class TaskManagerRepositoryImpl {
         List<ProsessTaskEntitet> resultList = entityManager
             .createNativeQuery(sqlForPolling, ProsessTaskEntitet.class) // NOSONAR - statisk SQL
             .setParameter("neste_kjoering", etterTid)
+            .setParameter("skip_ids", Set.of(-1))
             .setHint(QueryHints.HINT_CACHE_MODE, "IGNORE")
             .getResultList();
         return tilProsessTask(resultList);
@@ -127,13 +128,16 @@ public class TaskManagerRepositoryImpl {
             " ,feilede_forsoek = :forsoek" +
             " ,siste_kjoering_feil_kode = :feilkode" +
             " ,siste_kjoering_feil_tekst = :feiltekst" +
+            ", siste_kjoering_slutt_ts = :status_ts" + 
             " ,versjon=versjon+1 " +
             " WHERE id = :id";
 
         String status = taskStatus.getDbKode();
+        LocalDateTime now = FPDateUtil.nå();
         int tasks = entityManager.createNativeQuery(updateSql)
             .setParameter("id", prosessTaskId) // NOSONAR
             .setParameter("status", status) // NOSONAR
+            .setParameter("status_ts", now)
             .setParameter("neste", nesteKjøringEtter == null ? null : Timestamp.valueOf(nesteKjøringEtter), TemporalType.TIME) // NOSONAR
             .setParameter("feilkode", feilkode)// NOSONAR
             .setParameter("feiltekst", feiltekst)// NOSONAR
@@ -151,14 +155,17 @@ public class TaskManagerRepositoryImpl {
             " ,neste_kjoering_etter= NULL" +
             " ,siste_kjoering_feil_kode = NULL" +
             " ,siste_kjoering_feil_tekst = NULL" +
+            ", siste_kjoering_slutt_ts = :status_ts" + 
             " ,versjon=versjon+1 " +
             " WHERE id = :id";
 
         String status = taskStatus.getDbKode();
+        LocalDateTime now = FPDateUtil.nå();
         @SuppressWarnings("unused")
         int tasks = entityManager.createNativeQuery(updateSql)  // NOSONAR
             .setParameter("id", prosessTaskId)
             .setParameter("status", status)
+            .setParameter("status_ts", now)
             .executeUpdate();
 
     }
@@ -168,7 +175,7 @@ public class TaskManagerRepositoryImpl {
      * at flere pollere kan opere samtidig og uavhengig av hverandre.
      */
     @SuppressWarnings("rawtypes")
-    List<ProsessTaskEntitet> pollNesteScrollingUpdate(int numberOfTasks, long waitTimeBeforeNextPollingAttemptSecs) {
+    List<ProsessTaskEntitet> pollNesteScrollingUpdate(int numberOfTasks, long waitTimeBeforeNextPollingAttemptSecs, Set<Long> skipIds) {
         int numberOfTasksStillToGo = numberOfTasks;
         List<ProsessTaskEntitet> tasksToRun = new ArrayList<>(numberOfTasks);
 
@@ -187,7 +194,8 @@ public class TaskManagerRepositoryImpl {
             .setFlushMode(FlushMode.MANUAL)
             // hent kun 1 av gangen for å la andre pollere slippe til
             .setHint(QueryHints.HINT_FETCH_SIZE, 1)
-            .setParameter("neste_kjoering", Instant.now(FPDateUtil.getOffset()), TemporalType.TIMESTAMP)
+            .setParameter("neste_kjoering", FPDateUtil.nåInstant(), TemporalType.TIMESTAMP)
+            .setParameter("skip_ids", skipIds.isEmpty()? Set.of(-1) : skipIds)
             .scroll(ScrollMode.FORWARD_ONLY);) {
 
             LocalDateTime now = getNåTidSekundOppløsning();
@@ -215,7 +223,7 @@ public class TaskManagerRepositoryImpl {
     LocalDateTime getNåTidSekundOppløsning() {
         // nåtid trunkeres til seconds siden det er det nestekjøring presisjon i db tilsier.  Merk at her må også sistekjøring settes 
         // med sekund oppløsning siden disse sammenlignes i hand-over til RunTask
-        return LocalDateTime.now(FPDateUtil.getOffset()).truncatedTo(ChronoUnit.SECONDS);
+        return FPDateUtil.nå().truncatedTo(ChronoUnit.SECONDS);
     }
 
     void logTaskPollet(ProsessTaskEntitet pte) {

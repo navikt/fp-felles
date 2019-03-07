@@ -114,7 +114,7 @@ public class RunTaskFeilOgStatusEventHåndterer {
         int secsBetweenAttempts = feilhåndteringsalgoritme.getForsinkelseStrategi().sekunderTilNesteForsøk(failureAttempt,
             feilhåndteringsData);
 
-        LocalDateTime nyTid = LocalDateTime.now(FPDateUtil.getOffset()).plusSeconds(secsBetweenAttempts);
+        LocalDateTime nyTid = FPDateUtil.nå().plusSeconds(secsBetweenAttempts);
         return nyTid;
     }
 

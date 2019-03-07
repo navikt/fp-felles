@@ -22,9 +22,9 @@ public class TaskManagerGenerateRunnableTasks {
     private static final MdcExtendedLogContext LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess"); //$NON-NLS-1$
     private static final CDI<Object> CURRENT = CDI.current();
 
-    private final BiFunction<Integer, ReadTaskFunksjon, List<Runnable>> availableTasksFunc;
+    private final BiFunction<Integer, ReadTaskFunksjon, List<IdentRunnable>> availableTasksFunc;
     private final ProsessTaskDispatcher taskDispatcher;
-    private Consumer<Runnable> fatalErrorSubmitFunc;
+    private Consumer<IdentRunnable> fatalErrorSubmitFunc;
 
     /**
      * Constructor
@@ -34,24 +34,24 @@ public class TaskManagerGenerateRunnableTasks {
      */
     TaskManagerGenerateRunnableTasks(
                                      ProsessTaskDispatcher taskDispatcher,
-                                     BiFunction<Integer, ReadTaskFunksjon, List<Runnable>> availableTasksFunc,
-                                     Consumer<Runnable> errorSubmitFunc) {
+                                     BiFunction<Integer, ReadTaskFunksjon, List<IdentRunnable>> availableTasksFunc,
+                                     Consumer<IdentRunnable> errorSubmitFunc) {
         this.taskDispatcher = taskDispatcher;
         this.availableTasksFunc = availableTasksFunc;
         this.fatalErrorSubmitFunc = errorSubmitFunc;
     }
 
-    public List<Runnable> execute(int numberOfTasksToPoll) {
+    public List<IdentRunnable> execute(int numberOfTasksToPoll) {
         return availableTasksFunc.apply(numberOfTasksToPoll, this::readTask);
     }
 
-    Runnable readTask(ProsessTaskEntitet pte) {
+    IdentRunnable readTask(ProsessTaskEntitet pte) {
         final RunTaskInfo taskInfo = new RunTaskInfo(taskDispatcher, pte.tilProsessTask());
         final String callId = pte.getPropertyValue(MDCOperations.MDC_CALL_ID);
         String taskName = pte.getTaskName();
-        return () -> {
+        Runnable r = () -> {
             RunTask runSingleTask = newRunTaskInstance();
-            Runnable errorCallback = null;
+            IdentRunnable errorCallback = null;
             try {
                 initLogContext(callId, taskName);
 
@@ -74,16 +74,19 @@ public class TaskManagerGenerateRunnableTasks {
                 handleErrorCallback(errorCallback);
             }
         };
+        
+        
+        return new IdentRunnableTask(pte.getId(), r);
     }
 
-    void handleErrorCallback(Runnable errorCallback) {
+    void handleErrorCallback(IdentRunnable errorCallback) {
         if (errorCallback != null) {
             // NB - kjøres i annen transaksjon enn opprinnelig
             fatalErrorSubmitFunc.accept(errorCallback);
         }
     }
 
-    Runnable lagErrorCallback(final RunTaskInfo taskInfo, final String callId, final Throwable fatal) {
+    IdentRunnable lagErrorCallback(final RunTaskInfo taskInfo, final String callId, final Throwable fatal) {
         Runnable errorCallback;
         errorCallback = () -> {
             final FatalErrorTask errorTask = CURRENT.select(FatalErrorTask.class).get();
@@ -104,7 +107,7 @@ public class TaskManagerGenerateRunnableTasks {
         TaskManagerFeil.FACTORY.kritiskFeilKunneIkkeProsessereTaskPgaFatalFeil(taskInfo.getId(), taskInfo.getTaskType(), fatal)
             .log(log);
 
-        return errorCallback;
+        return new IdentRunnableTask(taskInfo.getId(), errorCallback);
     }
 
     void clearLogContext() {

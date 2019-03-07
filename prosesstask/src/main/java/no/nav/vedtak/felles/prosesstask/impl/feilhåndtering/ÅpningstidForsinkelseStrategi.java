@@ -14,7 +14,7 @@ public class ÅpningstidForsinkelseStrategi implements ForsinkelseStrategi {
 
     @Override
     public int sekunderTilNesteForsøk(int runde, ProsessTaskFeilHåndteringParametere feilhåndteringAlgoritme) {
-        return sekunderTilNesteForsøk(LocalDateTime.now(FPDateUtil.getOffset()), feilhåndteringAlgoritme.getInputVariabel1(), feilhåndteringAlgoritme.getInputVariabel2());
+        return sekunderTilNesteForsøk(FPDateUtil.nå(), feilhåndteringAlgoritme.getInputVariabel1(), feilhåndteringAlgoritme.getInputVariabel2());
     }
 
     int sekunderTilNesteForsøk(LocalDateTime now, int klokkeslettÅpning, int klokkeslettStenging) {

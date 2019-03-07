@@ -2,6 +2,7 @@ package no.nav.vedtak.util;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -42,6 +43,10 @@ public class FPDateUtil {
      */
     @Deprecated
     public static Clock getOffset() {
+        return getMyClock();
+    }
+
+    private static Clock getMyClock() {
         if (clockProvider == null) {
             init();
         }
@@ -49,11 +54,15 @@ public class FPDateUtil {
     }
 
     public static LocalDate iDag() {
-        return LocalDate.now(getOffset());
+        return LocalDate.now(getMyClock());
     }
 
     public static LocalDateTime nå() {
-        return LocalDateTime.now(getOffset());
+        return LocalDateTime.now(getMyClock());
+    }
+    
+    public static Instant nåInstant() {
+        return Instant.now(getMyClock());
     }
 
     /**
