@@ -128,7 +128,7 @@ public class TaskManagerRepositoryImpl {
             " ,feilede_forsoek = :forsoek" +
             " ,siste_kjoering_feil_kode = :feilkode" +
             " ,siste_kjoering_feil_tekst = :feiltekst" +
-            ", siste_kjoering_ts_status = :status_ts" + 
+            ", siste_kjoering_slutt_ts = :status_ts" + 
             " ,versjon=versjon+1 " +
             " WHERE id = :id";
 
@@ -155,7 +155,7 @@ public class TaskManagerRepositoryImpl {
             " ,neste_kjoering_etter= NULL" +
             " ,siste_kjoering_feil_kode = NULL" +
             " ,siste_kjoering_feil_tekst = NULL" +
-            ", siste_kjoering_ts_status = :status_ts" + 
+            ", siste_kjoering_slutt_ts = :status_ts" + 
             " ,versjon=versjon+1 " +
             " WHERE id = :id";
 

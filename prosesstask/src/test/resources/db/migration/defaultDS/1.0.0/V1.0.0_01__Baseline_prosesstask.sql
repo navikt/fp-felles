@@ -17,7 +17,7 @@ CREATE TABLE "PROSESS_TASK"
   "NESTE_KJOERING_ETTER"      TIMESTAMP(0)       DEFAULT current_timestamp,
   "FEILEDE_FORSOEK"           NUMBER(5, 0)       DEFAULT 0,
   "SISTE_KJOERING_TS"         TIMESTAMP(6),
-  "SISTE_KJOERING_TS_STATUS"  TIMESTAMP(6),
+  "SISTE_KJOERING_SLUTT_TS"  TIMESTAMP(6),
   "SISTE_KJOERING_FEIL_KODE"  VARCHAR2(50 CHAR),
   "SISTE_KJOERING_FEIL_TEKST" CLOB,
   "SISTE_KJOERING_SERVER"     VARCHAR2(50 CHAR),
@@ -38,7 +38,7 @@ COMMENT ON COLUMN "PROSESS_TASK"."TASK_SEKVENS" IS 'angir rekkefølge på task i
 COMMENT ON COLUMN "PROSESS_TASK"."NESTE_KJOERING_ETTER" IS 'tasken skal ikke kjøeres før tidspunkt er passert';
 COMMENT ON COLUMN "PROSESS_TASK"."FEILEDE_FORSOEK" IS 'antall feilede forsøk';
 COMMENT ON COLUMN "PROSESS_TASK"."SISTE_KJOERING_TS" IS 'siste gang tasken ble forsøkt kjørt (før kjøring)';
-COMMENT ON COLUMN "PROSESS_TASK"."SISTE_KJOERING_TS_STATUS" IS 'tidsstempel siste gang tasken ble kjørt (etter kjøring) og fikk ny status';
+COMMENT ON COLUMN "PROSESS_TASK"."SISTE_KJOERING_SLUTT_TS" IS 'tidsstempel siste gang tasken ble kjørt (etter kjøring) og fikk ny status';
 COMMENT ON COLUMN "PROSESS_TASK"."SISTE_KJOERING_FEIL_KODE" IS 'siste feilkode tasken fikk';
 COMMENT ON COLUMN "PROSESS_TASK"."SISTE_KJOERING_FEIL_TEKST" IS 'siste feil tasken fikk';
 COMMENT ON COLUMN "PROSESS_TASK"."SISTE_KJOERING_SERVER" IS 'navn på node som sist kjørte en task (server@pid)';
