@@ -2,16 +2,15 @@ package no.nav.vedtak.felles.prosesstask.impl;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -55,21 +54,21 @@ public class TaskManager implements AppServiceHandler {
      */
     private final String threadPoolNamePrefix = getClass().getSimpleName();
 
-    /**
-     * Max number of tasks that will be attempted to poll on every try.
-     */
-    private int maxNumberOfTasksToPoll = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_TASKS_SIZE, 20, 1);
 
     /**
      * Antall parallelle tråder for å plukke tasks.
      */
     private int numberOfTaskRunnerThreads = getSystemPropertyWithLowerBoundry(TASK_MANAGER_RUNNER_THREADS, 5, 0);
-
     /**
      * Delay between each interval of polling. (millis)
      */
     private long delayBetweenPollingMillis = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_DELAY, 500L, 1L);
-
+    
+    /**
+     * Max number of tasks that will be attempted to poll on every try.
+     */
+    private int maxNumberOfTasksToPoll = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_TASKS_SIZE, numberOfTaskRunnerThreads * 2, 1);
+    
     /**
      * Ventetid før neste polling forsøk (antar dersom task ikke plukkes raskt nok, kan en annen poller ta over).
      * (sekunder)
@@ -395,43 +394,29 @@ public class TaskManager implements AppServiceHandler {
 
         private final ThreadPoolExecutor executor;
 
-        // track id per kjørende future
-        private final Map<Future<Boolean>, Long> taskIndex = Collections.synchronizedMap(new IdentityHashMap<>());
-
         IdentExecutorService() {
             executor = new ThreadPoolExecutor(numberOfTaskRunnerThreads, numberOfTaskRunnerThreads, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(maxNumberOfTasksToPoll),
                 new Utils.NamedThreadFactory(threadPoolNamePrefix + "-runtask", true)) { //$NON-NLS-1$
 
-                @SuppressWarnings("unchecked")
                 @Override
                 protected void afterExecute(Runnable r, Throwable t) {
-                    Future<Boolean> fut = (Future<Boolean>) r;
-                    if (taskIndex.remove(fut) == null) {
-                        logImprobableErrors(t, fut);
-                    }
                     if (getQueue().isEmpty()) {
                         // gi oss selv en head start ifht. neste polling runde
-// doSinglePollingAsync();
+                        doSinglePollingAsync();
                     }
                 }
 
-                // TODO (FC): Fjern logging om ikke feil intreffer her i testing
-                private void logImprobableErrors(Throwable t, Future<Boolean> fut) {
-                    if (t == null) {
-                        log.error("Klarte ikke finne match. Inkonsistente in-memory task indeks. Task: " + fut, t);
-                    } else {
-                        try {
-                            log.error("Klarte ikke finne match. Inkonsistente in-memory task indeks. Task: " + fut.get());
-                        } catch (InterruptedException e) {
-                            log.error("Kunne ikke lese data fra task", e);
-                            Thread.currentThread().interrupt();
-                        } catch (ExecutionException e) {
-                            log.error("Fikke ikke resultat fra task", e);
-                        }
-                    }
+                @Override
+                protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
+                    throw new UnsupportedOperationException("Alle kall skal gå til andre #newTaskFor(Runnable, T value)");
                 }
 
+                @Override
+                protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
+                    return new IdentFutureTask<T>((IdentRunnable) runnable, value);
+                }
+                
             };
         }
 
@@ -440,13 +425,14 @@ public class TaskManager implements AppServiceHandler {
         }
 
         Future<Boolean> submit(IdentRunnable command) {
-            Future<Boolean> future = executor.submit(command, Boolean.TRUE);
-            taskIndex.put(future, command.getId());
-            return future;
+            return executor.submit(command, Boolean.TRUE);
         }
 
         Set<Long> getTaskIds() {
-            return Set.copyOf(taskIndex.values());
+            return executor.getQueue().stream()
+                    .map(IdentFutureTask.class::cast)
+                    .map(IdentFutureTask::getId)
+                    .collect(Collectors.toSet());
         }
 
         void stop() {
@@ -455,10 +441,23 @@ public class TaskManager implements AppServiceHandler {
                 executor.awaitTermination(30, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            } finally {
-                taskIndex.clear();
             }
         }
+        
     }
 
+    static final class IdentFutureTask<T> extends FutureTask<T> implements IdentRunnable {
+
+        private final Long id;
+
+        IdentFutureTask(IdentRunnable runnable, T value) {
+            super(runnable, value);
+            this.id = runnable.getId();
+        }
+
+        @Override
+        public Long getId() {
+            return id;
+        }
+    }
 }
