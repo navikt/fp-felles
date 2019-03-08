@@ -199,7 +199,7 @@ public class RunTask {
             taskManagerRepository.oppdaterStatusOgTilFerdig(pte.getId(), nyStatus);
 
             pte = refreshProsessTask(pte.getId());
-            feilOgStatushåndterer.publiserNyStatusEvent(pte.tilProsessTask(), nyStatus, null);
+            feilOgStatushåndterer.publiserNyStatusEvent(pte.tilProsessTask(), ProsessTaskStatus.KLAR, nyStatus);
 
             // frigir veto etter at event handlere er fyrt
             taskManagerRepository.frigiVeto(pte);

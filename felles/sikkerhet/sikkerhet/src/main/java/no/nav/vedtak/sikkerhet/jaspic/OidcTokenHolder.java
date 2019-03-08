@@ -19,6 +19,7 @@ public class OidcTokenHolder {
         return fromCookie;
     }
 
+    @Override
     public String toString() {
         return getClass().getSimpleName() + "<token=" + maskerOidcToken(token) + ", fromCookie=" + fromCookie + ">";
     }

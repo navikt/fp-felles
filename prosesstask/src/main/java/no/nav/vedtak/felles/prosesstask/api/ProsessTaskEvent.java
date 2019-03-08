@@ -5,6 +5,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
+import no.nav.vedtak.feil.Feil;
+
 /**
  * CDI Event for ProsessTask.
  * Publiseres når en ProsessTask opprettes eller endrer status.
@@ -25,15 +27,18 @@ public class ProsessTaskEvent implements ProsessTaskInfo {
     private Exception exception;
     private ProsessTaskStatus gammelStatus;
     private ProsessTaskStatus nyStatus;
+    private Feil feil;
 
-    public ProsessTaskEvent(ProsessTaskData data, ProsessTaskStatus gammelStatus, ProsessTaskStatus nyStatus, Exception e) {
+    public ProsessTaskEvent(ProsessTaskData data, ProsessTaskStatus gammelStatus, ProsessTaskStatus nyStatus, Feil feil, Exception e) {
         this.gammelStatus = gammelStatus;
         this.nyStatus = nyStatus;
+        this.feil = feil;
         Objects.requireNonNull(data, "data"); //$NON-NLS-1$
         this.data = data;
         this.exception = e;
     }
 
+    /** Rapportert (original) exception hvis task har feilet. */
     public Exception getException() {
         return exception;
     }
@@ -69,6 +74,11 @@ public class ProsessTaskEvent implements ProsessTaskInfo {
     @Override
     public String getGruppe() {
         return data.getGruppe();
+    }
+    
+    /** Rapportert feil hvis task har feilet. */
+    public Feil getFeil() {
+        return feil;
     }
 
     @Override

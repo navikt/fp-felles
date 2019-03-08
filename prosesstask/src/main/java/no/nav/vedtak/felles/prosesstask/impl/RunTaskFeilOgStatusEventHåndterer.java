@@ -43,18 +43,21 @@ public class RunTaskFeilOgStatusEventHåndterer {
     private final RunTaskInfo taskInfo;
 
     public RunTaskFeilOgStatusEventHåndterer(RunTaskInfo taskInfo, ProsessTaskEventPubliserer eventPubliserer,
-                                TaskManagerRepositoryImpl taskManagerRepository,
-                                Instance<ProsessTaskFeilhåndteringAlgoritme> feilhåndteringsalgoritmer) {
+                                             TaskManagerRepositoryImpl taskManagerRepository,
+                                             Instance<ProsessTaskFeilhåndteringAlgoritme> feilhåndteringsalgoritmer) {
         this.taskInfo = taskInfo;
         this.eventPubliserer = eventPubliserer;
         this.taskManagerRepository = taskManagerRepository;
         this.feilhåndteringsalgoritmer = feilhåndteringsalgoritmer;
     }
 
-    protected void publiserNyStatusEvent(ProsessTaskData data, ProsessTaskStatus nyStatus, Exception e) {
-        ProsessTaskStatus status = data.getStatus();
-        if (eventPubliserer != null && !Objects.equals(status, nyStatus)) {
-            eventPubliserer.fireEvent(data, status, nyStatus, e);
+    protected void publiserNyStatusEvent(ProsessTaskData data, ProsessTaskStatus gammelStatus, ProsessTaskStatus nyStatus) {
+        publiserNyStatusEvent(data, gammelStatus, nyStatus, null, null);
+    }
+
+    protected void publiserNyStatusEvent(ProsessTaskData data, ProsessTaskStatus gammelStatus, ProsessTaskStatus nyStatus, Feil feil, Exception e) {
+        if (eventPubliserer != null) {
+            eventPubliserer.fireEvent(data, gammelStatus, nyStatus, feil, e);
         }
     }
 
@@ -90,12 +93,13 @@ public class RunTaskFeilOgStatusEventHåndterer {
     }
 
     protected void handleFatalTaskFeil(ProsessTaskEntitet pte, Feil feil, Exception e) {
+        ProsessTaskStatus nyStatus = ProsessTaskStatus.FEILET;
         try {
-            publiserNyStatusEvent(pte.tilProsessTask(), ProsessTaskStatus.FEILET, e);
+            publiserNyStatusEvent(pte.tilProsessTask(), pte.getStatus(), nyStatus, feil, e);
         } finally {
             int failureAttempt = pte.getFeiledeForsøk() + 1;
             String feiltekst = getFeiltekstOgLoggHvisFørstegang(pte, feil, e);
-            taskManagerRepository.oppdaterStatusOgNesteKjøring(pte.getId(), ProsessTaskStatus.FEILET, null, feil.getKode(), feiltekst, failureAttempt);
+            taskManagerRepository.oppdaterStatusOgNesteKjøring(pte.getId(), nyStatus, null, feil.getKode(), feiltekst, failureAttempt);
         }
     }
 

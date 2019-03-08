@@ -28,6 +28,7 @@ public class QueueConsumerManagerImplTest {
         QueueConsumer mockConsumer2 = mock(QueueConsumer.class);
         QueueConsumer mockConsumer3 = mock(QueueConsumer.class);
         List<QueueConsumer> mockConsumersList = Arrays.asList(mockConsumer1, mockConsumer2, mockConsumer3);
+        @SuppressWarnings("unchecked")
         Instance<QueueConsumer> mockConsumersInstance = mock(Instance.class);
         when(mockConsumersInstance.iterator()).thenReturn(mockConsumersList.iterator());
 

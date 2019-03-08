@@ -1,5 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
@@ -151,10 +152,12 @@ public class BeskyttetRessursInterceptor {
 
     private static void leggTil(AbacAttributtSamling attributter, TilpassetAbacAttributt tilpassetAnnotering, Object verdi) {
         try {
-            AbacDataAttributter dataAttributter = tilpassetAnnotering.supplierClass().newInstance().apply(verdi);
+            AbacDataAttributter dataAttributter = tilpassetAnnotering.supplierClass().getDeclaredConstructor().newInstance().apply(verdi);
             attributter.leggTil(dataAttributter);
-        } catch (IllegalAccessException | InstantiationException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException e) {
             throw new IllegalStateException(e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalStateException(e.getCause());
         }
     }
 

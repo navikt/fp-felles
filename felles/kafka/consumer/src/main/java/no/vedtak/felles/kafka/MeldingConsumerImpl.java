@@ -62,6 +62,7 @@ public class MeldingConsumerImpl implements MeldingConsumer {
         }
     }
 
+    @Override
     public List<String> hentConsumerMeldingene() {
         ConsumerRecords<String, String> records = kafkaConsumer.poll(TIMEOUT);
         List<String> responseStringList = new ArrayList<>();
@@ -75,6 +76,7 @@ public class MeldingConsumerImpl implements MeldingConsumer {
         kafkaConsumer.subscribe(Collections.singletonList(topic));
     }
 
+    @Override
     public List<String> hentConsumerMeldingeneFraStarten() {
         kafkaConsumer.poll(TIMEOUT);
         kafkaConsumer.seekToBeginning(kafkaConsumer.assignment());
@@ -86,14 +88,17 @@ public class MeldingConsumerImpl implements MeldingConsumer {
         return responseStringList;
     }
 
+    @Override
     public void close() {
         kafkaConsumer.close();
     }
 
+    @Override
     public void manualCommitSync() {
         kafkaConsumer.commitSync();
     }
 
+    @Override
     public void manualCommitAsync() {
         kafkaConsumer.commitAsync();
     }

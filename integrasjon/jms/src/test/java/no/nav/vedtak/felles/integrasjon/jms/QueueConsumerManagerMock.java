@@ -21,7 +21,7 @@ public class QueueConsumerManagerMock implements QueueConsumerManager {
 
     // Får inn (indirekte) liste over alle beans av type QueueConsumer
     @Inject
-    public void initConsumers(@Any Instance<QueueConsumer> consumersInstance) { // NOSONAR Joda, kalles av CDI
+    public void initConsumers(@SuppressWarnings("unused") @Any Instance<QueueConsumer> consumersInstance) { // NOSONAR Joda, kalles av CDI
         LOGGER.info("invoked: initConsumers - Starter ikke opp MQ consumer");
     }
 
