@@ -205,7 +205,7 @@ public class KonfigVerdiProdusent {
         KonfigVerdi.Converter converter = converters.get(converterClass);
         if (converter == null) {
             try {
-                converter = converterClass.newInstance();
+                converter = converterClass.getDeclaredConstructor().newInstance();
                 converters.put(converterClass, converter);
             } catch (ReflectiveOperationException e) {
                 throw new UnsupportedOperationException("Mangler no-arg constructor for klasse: " + converterClass, e); //$NON-NLS-1$

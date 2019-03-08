@@ -30,7 +30,7 @@ public class ProsessTaskRepositoryImplIT {
     @Before
     public void setUp() throws Exception {
         ProsessTaskEventPubliserer prosessTaskEventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
-        Mockito.doNothing().when(prosessTaskEventPubliserer).fireEvent(Mockito.any(ProsessTaskData.class), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(prosessTaskEventPubliserer).fireEvent(Mockito.any(ProsessTaskData.class), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), prosessTaskEventPubliserer);
 
         lagTestData();

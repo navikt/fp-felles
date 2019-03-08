@@ -19,6 +19,7 @@ public class AksjonspunktKafkaProducerImpl implements AksjonspunktKafkaProducer 
         this.meldingProducer = meldingProducer;
     }
 
+    @Override
     public void publiserEvent(String key, String hendelseJson) {
         try{
             meldingProducer.sendJsonMedNøkkel(key,hendelseJson);

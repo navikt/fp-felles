@@ -28,7 +28,7 @@ public class SigrunConsumerImpl implements SigrunConsumer {
 
     private static final String TEKNISK_NAVN = "skatteoppgjoersdato";
 
-    SigrunConsumerImpl(SigrunRestClient client) {
+    SigrunConsumerImpl() {
         //CDI
     }
 

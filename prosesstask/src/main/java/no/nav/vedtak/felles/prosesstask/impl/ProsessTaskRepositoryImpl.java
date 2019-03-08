@@ -117,15 +117,16 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
     protected Long doLagreTask(ProsessTaskData task) {
         ProsessTaskEntitet pte;
         if (task.getId() != null) {
+            ProsessTaskStatus nyStatus = task.getStatus();
             pte = entityManager.find(ProsessTaskEntitet.class, task.getId());
             ProsessTaskStatus status = pte.getStatus();
-            ProsessTaskStatus nyStatus = task.getStatus();
+            
             pte.kopierFra(task);
             entityManager.persist(pte);
             entityManager.flush();
 
-            if (eventPubliserer != null && !Objects.equals(nyStatus, status)) {
-                eventPubliserer.fireEvent(pte.tilProsessTask(), status, nyStatus, null);
+            if (eventPubliserer != null && !Objects.equals(status, nyStatus)) {
+                eventPubliserer.fireEvent(pte.tilProsessTask(), status, nyStatus);
             }
         } else {
             pte = new ProsessTaskEntitet();
@@ -134,7 +135,7 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
             entityManager.flush();
             task.setId(pte.getId()); // oppdaterer input med Id slik at denne kan brukes
             if (eventPubliserer != null) {
-                eventPubliserer.fireEvent(pte.tilProsessTask(), null, task.getStatus(), null);
+                eventPubliserer.fireEvent(pte.tilProsessTask(), null, task.getStatus());
             }
         }
         return pte.getId();

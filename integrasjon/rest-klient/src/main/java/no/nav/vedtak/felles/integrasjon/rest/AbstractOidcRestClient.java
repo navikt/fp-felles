@@ -123,6 +123,7 @@ abstract class AbstractOidcRestClient extends CloseableHttpClient {
             this.endpoint = endpoint;
         }
 
+        @Override
         public String handleResponse(final HttpResponse response) throws IOException {
             int status = response.getStatusLine().getStatusCode();
             if (status >= HttpStatus.SC_OK && status < HttpStatus.SC_MULTIPLE_CHOICES) {

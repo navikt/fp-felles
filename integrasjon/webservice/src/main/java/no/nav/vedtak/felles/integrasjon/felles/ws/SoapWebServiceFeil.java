@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.soap.SOAPFaultException;
 
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;

@@ -81,7 +81,7 @@ public class OidcAuthConfigProvider implements AuthConfigProvider {
         }
 
         try {
-            return (CallbackHandler) Thread.currentThread().getContextClassLoader().loadClass(callBackClassName).newInstance();
+            return (CallbackHandler) Thread.currentThread().getContextClassLoader().loadClass(callBackClassName).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new AuthException(e.getMessage());
         }

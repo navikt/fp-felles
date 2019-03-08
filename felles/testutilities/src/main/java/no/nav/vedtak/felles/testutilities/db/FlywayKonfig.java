@@ -104,6 +104,7 @@ public class FlywayKonfig {
         return placeholders;
     }
     
+    /** For å postgres - unngår issue med manglende support i flyway. */
     private void clean(DataSource dataSource, String username) {
         try (Connection c = dataSource.getConnection();
                 Statement stmt = c.createStatement()) {
