@@ -32,7 +32,7 @@ public class PepImplTest {
 
     @Test
     public void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
-        SubjectHandlerUtils.setInternBruker("srvPDP");
+        SubjectHandlerUtils.setInternBruker("srvfplos");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
                 .setResource(BeskyttetRessursResourceAttributt.PIP)
                 .setAction("READ");
