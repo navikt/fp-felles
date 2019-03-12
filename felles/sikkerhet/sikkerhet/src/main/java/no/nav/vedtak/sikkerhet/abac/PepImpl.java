@@ -14,7 +14,8 @@ public class PepImpl implements Pep {
     private PdpKlient pdpKlient;
     private PdpRequestBuilder pdpRequestBuilder;
 
-    private String PDP_USER_ID = "srvpdp";
+    //TODO: Ikke lag en liste av brukere. Skal ettehvert bruke LDAP for å sjekke for grupper.
+    private String PDP_USER_ID = "srvfplos";
 
     public PepImpl() {
     }
@@ -71,6 +72,4 @@ public class PepImpl implements Pep {
             throw PepFeil.FACTORY.ugyldigInputForMangeBehandlingIder(attributter.getBehandlingsIder()).toException();
         }
     }
-
-
 }
