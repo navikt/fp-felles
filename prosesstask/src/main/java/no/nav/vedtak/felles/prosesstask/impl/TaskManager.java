@@ -58,7 +58,7 @@ public class TaskManager implements AppServiceHandler {
     /**
      * Antall parallelle tråder for å plukke tasks.
      */
-    private int numberOfTaskRunnerThreads = getSystemPropertyWithLowerBoundry(TASK_MANAGER_RUNNER_THREADS, 5, 0);
+    private int numberOfTaskRunnerThreads = getSystemPropertyWithLowerBoundry(TASK_MANAGER_RUNNER_THREADS, 10, 0);
     /**
      * Delay between each interval of polling. (millis)
      */
@@ -67,7 +67,7 @@ public class TaskManager implements AppServiceHandler {
     /**
      * Max number of tasks that will be attempted to poll on every try.
      */
-    private int maxNumberOfTasksToPoll = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_TASKS_SIZE, numberOfTaskRunnerThreads * 2, 1);
+    private int maxNumberOfTasksToPoll = getSystemPropertyWithLowerBoundry(TASK_MANAGER_POLLING_TASKS_SIZE, numberOfTaskRunnerThreads, 0);
     
     /**
      * Ventetid før neste polling forsøk (antar dersom task ikke plukkes raskt nok, kan en annen poller ta over).
@@ -449,15 +449,23 @@ public class TaskManager implements AppServiceHandler {
     static final class IdentFutureTask<T> extends FutureTask<T> implements IdentRunnable {
 
         private final Long id;
+        private final LocalDateTime createTime;
 
         IdentFutureTask(IdentRunnable runnable, T value) {
             super(runnable, value);
             this.id = runnable.getId();
+            this.createTime = runnable.getCreateTime();
         }
 
         @Override
         public Long getId() {
             return id;
+        }
+        
+        /** Tid denne future tasken ble opprettet (i minne). */
+        @Override
+        public LocalDateTime getCreateTime() {
+            return createTime;
         }
     }
 }

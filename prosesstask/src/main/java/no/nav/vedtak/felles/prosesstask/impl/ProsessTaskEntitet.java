@@ -70,8 +70,9 @@ public class ProsessTaskEntitet {
 
     @Column(name = "siste_kjoering_ts")
     private LocalDateTime sisteKjøring;
-
-    @Column(name = "siste_kjoering_server")
+    
+    // all oppdatering skjer via sql, tillater derfor ikke insert, update her
+    @Column(name = "siste_kjoering_server", insertable=false, updatable=false)
     private String sisteKjøringServerProsess;
 
     @Column(name = "status", nullable = false)
@@ -159,10 +160,6 @@ public class ProsessTaskEntitet {
         return sisteKjøring;
     }
 
-    void setSisteKjøring(LocalDateTime tid) {
-        this.sisteKjøring = tid;
-    }
-
     public String getSisteKjøringServerProsess() {
         return sisteKjøringServerProsess;
     }
@@ -231,10 +228,6 @@ public class ProsessTaskEntitet {
     void setSisteFeil(String kode, String feilBeskrivelse) {
         this.sisteFeilTekst = feilBeskrivelse;
         this.sisteFeilKode = kode;
-    }
-
-    void setSisteKjøringServer(String serverProcess) {
-        this.sisteKjøringServerProsess = serverProcess;
     }
 
     @PrePersist

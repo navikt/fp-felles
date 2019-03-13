@@ -1,13 +1,17 @@
 package no.nav.vedtak.felles.prosesstask.impl;
 
+import java.time.LocalDateTime;
+
 /** IdentRunnable som tar id og Runnable. */
 class IdentRunnableTask implements IdentRunnable {
-    private Long id;
-    private Runnable runnable;
+    private final Long id;
+    private final Runnable runnable;
+    private final LocalDateTime createTime;
 
-    IdentRunnableTask(Long id, Runnable run) {
+    IdentRunnableTask(Long id, Runnable run, LocalDateTime createTime) {
         this.id = id;
         this.runnable = run;
+        this.createTime = createTime;
     }
 
     @Override
@@ -18,5 +22,10 @@ class IdentRunnableTask implements IdentRunnable {
     @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public LocalDateTime getCreateTime() {
+        return createTime;
     }
 }

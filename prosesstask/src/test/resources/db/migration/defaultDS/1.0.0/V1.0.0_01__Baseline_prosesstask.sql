@@ -16,8 +16,9 @@ CREATE TABLE "PROSESS_TASK"
   "TASK_SEKVENS"              VARCHAR2(100 CHAR) DEFAULT '1',
   "NESTE_KJOERING_ETTER"      TIMESTAMP(0)       DEFAULT current_timestamp,
   "FEILEDE_FORSOEK"           NUMBER(5, 0)       DEFAULT 0,
+  "SISTE_KJOERING_PLUKK_TS"	  TIMESTAMP(6),
   "SISTE_KJOERING_TS"         TIMESTAMP(6),
-  "SISTE_KJOERING_SLUTT_TS"  TIMESTAMP(6),
+  "SISTE_KJOERING_SLUTT_TS"   TIMESTAMP(6),
   "SISTE_KJOERING_FEIL_KODE"  VARCHAR2(50 CHAR),
   "SISTE_KJOERING_FEIL_TEKST" CLOB,
   "SISTE_KJOERING_SERVER"     VARCHAR2(50 CHAR),
@@ -37,6 +38,7 @@ COMMENT ON COLUMN "PROSESS_TASK"."TASK_GRUPPE" IS 'angir en unik id som gruppere
 COMMENT ON COLUMN "PROSESS_TASK"."TASK_SEKVENS" IS 'angir rekkefølge på task innenfor en gruppe ';
 COMMENT ON COLUMN "PROSESS_TASK"."NESTE_KJOERING_ETTER" IS 'tasken skal ikke kjøeres før tidspunkt er passert';
 COMMENT ON COLUMN "PROSESS_TASK"."FEILEDE_FORSOEK" IS 'antall feilede forsøk';
+COMMENT ON COLUMN "PROSESS_TASK"."SISTE_KJOERING_PLUKK_TS" IS 'siste gang tasken ble forsøkt plukket (klargjort til kjøring)';
 COMMENT ON COLUMN "PROSESS_TASK"."SISTE_KJOERING_TS" IS 'siste gang tasken ble forsøkt kjørt (før kjøring)';
 COMMENT ON COLUMN "PROSESS_TASK"."SISTE_KJOERING_SLUTT_TS" IS 'tidsstempel siste gang tasken ble kjørt (etter kjøring) og fikk ny status';
 COMMENT ON COLUMN "PROSESS_TASK"."SISTE_KJOERING_FEIL_KODE" IS 'siste feilkode tasken fikk';

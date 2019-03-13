@@ -170,6 +170,40 @@ public class TaskManagerRepositoryImpl {
 
     }
 
+    /** Markere task under arbeid (kjøres nå). */
+    void oppdaterTaskUnderArbeid(Long prosessTaskId, LocalDateTime now) {
+        String updateSql = "update PROSESS_TASK set" +
+            "  siste_kjoering_ts = :naa" +
+            " ,versjon=versjon+1 " +
+            " WHERE id = :id";
+
+        @SuppressWarnings("unused")
+        int tasks = entityManager.createNativeQuery(updateSql)  // NOSONAR
+            .setParameter("id", prosessTaskId)
+            .setParameter("naa", now)
+            .executeUpdate();
+
+    }
+    
+    /** Markere task plukket til arbeid (ligger på in-memory kø). */
+    void oppdaterTaskPlukket(Long prosessTaskId, LocalDateTime nesteKjøring, LocalDateTime now) {
+        String updateSql = "update PROSESS_TASK set" +
+            "  neste_kjoering_etter= :neste_kjoering" +
+            " ,siste_kjoering_plukk_ts = :naa" +
+            " ,siste_kjoering_server = :server" +
+            " ,versjon=versjon+1 " +
+            " WHERE id = :id";
+
+        @SuppressWarnings("unused")
+        int tasks = entityManager.createNativeQuery(updateSql)  // NOSONAR
+            .setParameter("id", prosessTaskId)
+            .setParameter("neste_kjoering", nesteKjøring)
+            .setParameter("naa", now)
+            .setParameter("server", jvmUniqueProcessName)
+            .executeUpdate();
+
+    }
+
     /**
      * Poll neste vha. scrolling. Dvs. vi plukker en og en task og håndterer den får vi laster mer fra databasen. Sikrer
      * at flere pollere kan opere samtidig og uavhengig av hverandre.
@@ -206,12 +240,7 @@ public class TaskManagerRepositoryImpl {
                 if (resultObjects.length > 0) {
                     ProsessTaskEntitet pte = (ProsessTaskEntitet) resultObjects[0];
                     tasksToRun.add(pte);
-                    pte.setSisteKjøring(now);
-                    pte.setSisteKjøringServer(jvmUniqueProcessName);
-                    pte.setNesteKjøringEtter(nyNesteTid);
-                    entityManager.persist(pte);
-                    entityManager.flush();
-
+                    oppdaterTaskPlukket(pte.getId(), nyNesteTid, now);
                     logTaskPollet(pte);
                 }
             }

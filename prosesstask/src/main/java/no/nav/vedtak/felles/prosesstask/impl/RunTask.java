@@ -84,8 +84,6 @@ public class RunTask {
             throws SQLException {
         String name = pte.getTaskName();
 
-        pickAndRun.markerTaskUnderArbeid(pte);
-
         // set up a savepoint to rollback to in case of failure
         Savepoint savepoint = conn.setSavepoint();
 
@@ -205,15 +203,12 @@ public class RunTask {
             taskManagerRepository.frigiVeto(pte);
             return nyStatus;
         }
-
+        
         // markerer task som påbegynt (merk committer ikke før til slutt).
-        void markerTaskUnderArbeid(ProsessTaskEntitet pte) {
+        void markerTaskUnderArbeid(Long id) {
             // mark row being processed with timestamp and server process id
             LocalDateTime now = FPDateUtil.nå();
-            pte.setSisteKjøring(now);
-            pte.setSisteKjøringServer(Utils.getJvmUniqueProcessName());
-            getEntityManager().persist(pte);
-            getEntityManager().flush();
+            taskManagerRepository.oppdaterTaskUnderArbeid(id, now);
         }
 
         // regner ut neste kjøretid for tasks som kan repeteres (har CronExpression) 
@@ -222,9 +217,10 @@ public class RunTask {
             if (taskType.getErGjentagende()) {
                 ProsessTaskData data = new ProsessTaskData(pte.getTaskName());
                 data.setStatus(ProsessTaskStatus.KLAR);
-                LocalDateTime nesteKjøring = new CronExpression(taskType.getCronExpression()).neste(pte.getSisteKjøring());
+                LocalDateTime now = FPDateUtil.nå();
+                LocalDateTime nesteKjøring = new CronExpression(taskType.getCronExpression()).neste(now);
                 data.setNesteKjøringEtter(nesteKjøring);
-                data.setGruppe(getUniktProsessTaskGruppeNavn());
+                data.setGruppe(getUniktProsessTaskGruppeNavn()); // <- ny gruppe
                 data.setSekvens(pte.getSekvens());
                 data.setProperties(pte.getProperties());
                 ProsessTaskEntitet nyPte = new ProsessTaskEntitet().kopierFra(data);
@@ -267,6 +263,8 @@ public class RunTask {
                 @Override
                 public void execute(Connection conn) throws SQLException {
                     try {
+                        pickAndRun.markerTaskUnderArbeid(taskInfo.getId());
+                        
                         Optional<ProsessTaskEntitet> pte = taskManagerRepository.finnOgLås(taskInfo);
                         if (pte.isPresent()) {
                             runTaskAndUpdateStatus(conn, pte.get(), pickAndRun);
