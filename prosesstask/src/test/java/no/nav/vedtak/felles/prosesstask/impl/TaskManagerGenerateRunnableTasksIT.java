@@ -25,32 +25,39 @@ public class TaskManagerGenerateRunnableTasksIT {
         ProsessTaskData data = new ProsessTaskData("hello.world");
         data.setId(99L);
         ProsessTaskEntitet pte = new ProsessTaskEntitet();
-        pte.kopierFra(data);
+        pte.kopierFraEksisterende(data);
 
         AtomicReference<Throwable> errorFuncException = new AtomicReference<>();
 
         TaskManagerGenerateRunnableTasks generateRunnableTasks = new TaskManagerGenerateRunnableTasks(null, null, null) {
 
             @Override
-            IdentRunnable lagErrorCallback(RunTaskInfo taskInfo, String callId, Throwable t) {
-                // TEST override for å fange exception
-                errorFuncException.set(t);
-                return super.lagErrorCallback(taskInfo, callId, t);
-            }
-            
-            @Override
-            RunTask newRunTaskInstance() {
-                // TEST override for å kaste exception
-                return new RunTask() {
+            TaskManagerRunnableTask createTaskManagerRunnableTask(final RunTaskInfo taskInfo, final String callId, String taskName) {
+                return new TaskManagerRunnableTask(taskName, taskInfo, callId, null) {
+
                     @Override
-                    public void doRun(RunTaskInfo taskInfo) {
-                        throw new PersistenceException("howdy!");
+                    IdentRunnable lagErrorCallback(RunTaskInfo taskInfo, String callId, Throwable t) {
+                        // TEST override for å fange exception
+                        errorFuncException.set(t);
+                        return super.lagErrorCallback(taskInfo, callId, t);
                     }
+
+                    @Override
+                    RunTask newRunTaskInstance() {
+                        // TEST override for å kaste exception
+                        return new RunTask() {
+                            @Override
+                            public void doRun(RunTaskInfo taskInfo) {
+                                throw new PersistenceException("howdy!");
+                            }
+                        };
+                    }
+
+                    @Override
+                    void handleErrorCallback(IdentRunnable errorCallback) {
+                    }
+
                 };
-            }
-            
-            @Override
-            void handleErrorCallback(IdentRunnable errorCallback) {
             }
         };
 
@@ -60,12 +67,12 @@ public class TaskManagerGenerateRunnableTasksIT {
 
         // Act
         sut.run();
-        
+
         logSniffer.assertHasWarnMessage("FP-876628");
         logSniffer.assertNoErrors();
         logSniffer.clearLog();
 
         assertThat(errorFuncException.get()).isInstanceOf(PersistenceException.class);
-        
+
     }
 }

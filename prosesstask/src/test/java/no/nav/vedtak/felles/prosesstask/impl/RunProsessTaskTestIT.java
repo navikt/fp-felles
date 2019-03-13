@@ -27,10 +27,12 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.dbstoette.UnittestRepositoryRule;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class RunProsessTaskTestIT {
 
+    private static final LocalDateTime NÅ = FPDateUtil.nå();
     private static final String TASK1 = "mytask1";
     private static final String TASK2 = "mytask2";
     private static final String TASK3 = "mytask3";
@@ -127,7 +129,7 @@ public class RunProsessTaskTestIT {
         assertThat(tasksPolled).isEqualTo(1);
 
         CountDownLatch latch = new CountDownLatch(1);
-        taskManager.getRunTaskService().submit(new IdentRunnableTask(1L, latch::countDown));
+        taskManager.getRunTaskService().submit(new IdentRunnableTask(1L, latch::countDown, NÅ));
 
         assertThat(latch.await(120, TimeUnit.SECONDS)).isTrue();
     }

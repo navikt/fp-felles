@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -22,6 +23,8 @@ public class ProsessTaskRepositoryImplIT {
 
     private static final LocalDateTime NÅ = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
     private final LocalDateTime nesteKjøringEtter = NÅ.plusHours(1);
+    
+    private final AtomicLong ids= new AtomicLong(1);
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private Repository repository = repoRule.getRepository();
@@ -108,13 +111,14 @@ public class ProsessTaskRepositoryImplIT {
         data.setNesteKjøringEtter(nesteKjøringEtter);
         data.setPrioritet(2);
         data.setSekvens("123");
+        data.setId(ids.incrementAndGet());
 
         if (sistKjørt != null) {
             data.setSistKjørt(sistKjørt);
         }
 
         ProsessTaskEntitet pte = new ProsessTaskEntitet();
-        return pte.kopierFra(data);
+        return pte.kopierFraEksisterende(data);
     }
 
 }

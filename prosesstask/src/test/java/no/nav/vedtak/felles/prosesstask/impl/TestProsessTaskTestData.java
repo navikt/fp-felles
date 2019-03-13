@@ -31,7 +31,7 @@ public class TestProsessTaskTestData {
     }
 
     public TestProsessTaskTestData opprettTask(ProsessTaskData prosessTask) {
-        entityManager.persist(new ProsessTaskEntitet().kopierFra(prosessTask));
+        entityManager.persist(new ProsessTaskEntitet().kopierFraNy(prosessTask));
         return this;
     }
 
