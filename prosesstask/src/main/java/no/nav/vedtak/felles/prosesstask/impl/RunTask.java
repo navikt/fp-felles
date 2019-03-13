@@ -48,7 +48,7 @@ import no.nav.vedtak.util.FPDateUtil;
 @AktiverContextOgTransaksjon
 public class RunTask {
     private static final Logger log = LoggerFactory.getLogger(RunTask.class);
-
+    
     private ProsessTaskEventPubliserer eventPubliserer;
     private TaskManagerRepositoryImpl taskManagerRepository;
     private Instance<ProsessTaskFeilhåndteringAlgoritme> feilhåndteringalgoritmer;
@@ -77,13 +77,14 @@ public class RunTask {
      * rollback av hele transaksjonen (eks {@link EntityNotFoundException} delegeres oppover). Gjelder også totalt transiente feil (eks.
      * JDBCConnectionException)
      *
-     * @throws SQLException         - dersom ikke kan ta savepoint
+     * @throws SQLException - dersom ikke kan ta savepoint
      * @throws PersistenceException dersom transaksjoner er markert for total rollback (dvs. savepoint vil ikke virke)
      */
     protected void runTaskAndUpdateStatus(Connection conn, ProsessTaskEntitet pte, PickAndRunTask pickAndRun)
             throws SQLException {
         String name = pte.getTaskName();
-
+        pickAndRun.markerTaskUnderArbeid(pte);
+        
         // set up a savepoint to rollback to in case of failure
         Savepoint savepoint = conn.setSavepoint();
 
@@ -171,7 +172,6 @@ public class RunTask {
      * på kjøringen.
      */
     class PickAndRunTask {
-
         private final RunTaskInfo taskInfo;
         private final RunTaskFeilOgStatusEventHåndterer feilOgStatushåndterer;
 
@@ -203,15 +203,18 @@ public class RunTask {
             taskManagerRepository.frigiVeto(pte);
             return nyStatus;
         }
-        
+
         // markerer task som påbegynt (merk committer ikke før til slutt).
-        void markerTaskUnderArbeid(Long id) {
+        void markerTaskUnderArbeid(ProsessTaskEntitet pte) {
             // mark row being processed with timestamp and server process id
             LocalDateTime now = FPDateUtil.nå();
-            taskManagerRepository.oppdaterTaskUnderArbeid(id, now);
+            pte.setSisteKjøring(now);
+            pte.setSisteKjøringServer(Utils.getJvmUniqueProcessName());
+            getEntityManager().persist(pte);
+            getEntityManager().flush();
         }
-
-        // regner ut neste kjøretid for tasks som kan repeteres (har CronExpression) 
+        
+        // regner ut neste kjøretid for tasks som kan repeteres (har CronExpression)
         void planleggNesteKjøring(ProsessTaskEntitet pte) throws SQLException {
             ProsessTaskType taskType = taskManagerRepository.getTaskType(getTaskInfo().getTaskType());
             if (taskType.getErGjentagende()) {
@@ -223,16 +226,16 @@ public class RunTask {
                 data.setGruppe(getUniktProsessTaskGruppeNavn()); // <- ny gruppe
                 data.setSekvens(pte.getSekvens());
                 data.setProperties(pte.getProperties());
-                ProsessTaskEntitet nyPte = new ProsessTaskEntitet().kopierFra(data);
+                ProsessTaskEntitet nyPte = new ProsessTaskEntitet().kopierFraNy(data);
 
                 getEntityManager().persist(nyPte);
                 getEntityManager().flush();
 
                 log.info("Oppretter ny prosesstask [{}], id={}, status={}, kjøretidspunktEtter={}",
-                        nyPte.getTaskName(),
-                        nyPte.getId(),
-                        nyPte.getStatus(),
-                        nyPte.getNesteKjøringEtter());
+                    nyPte.getTaskName(),
+                    nyPte.getId(),
+                    nyPte.getStatus(),
+                    nyPte.getNesteKjøringEtter());
             }
         }
 
@@ -263,8 +266,6 @@ public class RunTask {
                 @Override
                 public void execute(Connection conn) throws SQLException {
                     try {
-                        pickAndRun.markerTaskUnderArbeid(taskInfo.getId());
-                        
                         Optional<ProsessTaskEntitet> pte = taskManagerRepository.finnOgLås(taskInfo);
                         if (pte.isPresent()) {
                             runTaskAndUpdateStatus(conn, pte.get(), pickAndRun);
@@ -289,7 +290,7 @@ public class RunTask {
             }
 
             @SuppressWarnings("resource") // skal ikke lukke session her
-                    Session session = em.unwrap(Session.class);
+            Session session = em.unwrap(Session.class);
 
             session.doWork(pullSingleTask);
 

@@ -25,7 +25,7 @@ public class TaskManagerGenerateRunnableTasksIT {
         ProsessTaskData data = new ProsessTaskData("hello.world");
         data.setId(99L);
         ProsessTaskEntitet pte = new ProsessTaskEntitet();
-        pte.kopierFra(data);
+        pte.kopierFraEksisterende(data);
 
         AtomicReference<Throwable> errorFuncException = new AtomicReference<>();
 

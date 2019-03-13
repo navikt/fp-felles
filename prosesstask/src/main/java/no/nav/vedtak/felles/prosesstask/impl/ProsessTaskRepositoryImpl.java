@@ -121,7 +121,7 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
             pte = entityManager.find(ProsessTaskEntitet.class, task.getId());
             ProsessTaskStatus status = pte.getStatus();
             
-            pte.kopierFra(task);
+            pte.kopierFraEksisterende(task);
             entityManager.persist(pte);
             entityManager.flush();
 
@@ -130,7 +130,7 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
             }
         } else {
             pte = new ProsessTaskEntitet();
-            pte.kopierFra(task);
+            pte.kopierFraNy(task);
             entityManager.persist(pte);
             entityManager.flush();
             task.setId(pte.getId()); // oppdaterer input med Id slik at denne kan brukes
@@ -143,7 +143,10 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
 
     @Override
     public ProsessTaskData finn(Long id) {
-        ProsessTaskEntitet prosessTaskEntitet = this.entityManager.find(ProsessTaskEntitet.class, id);
+        ProsessTaskEntitet prosessTaskEntitet = this.entityManager.createQuery("from ProsessTaskEntitet pt where pt.id=:id", ProsessTaskEntitet.class)
+                .setParameter("id", id)
+                .setHint(QueryHints.HINT_CACHE_MODE, "IGNORE")
+                .getSingleResult();
         return prosessTaskEntitet == null ? null : prosessTaskEntitet.tilProsessTask();
     }
 

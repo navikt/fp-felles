@@ -70,9 +70,8 @@ public class ProsessTaskEntitet {
 
     @Column(name = "siste_kjoering_ts")
     private LocalDateTime sisteKjøring;
-    
-    // all oppdatering skjer via sql, tillater derfor ikke insert, update her
-    @Column(name = "siste_kjoering_server", insertable=false, updatable=false)
+
+    @Column(name = "siste_kjoering_server")
     private String sisteKjøringServerProsess;
 
     @Column(name = "status", nullable = false)
@@ -112,6 +111,10 @@ public class ProsessTaskEntitet {
         this.feiledeForsøk = feiledeForsøk;
     }
 
+    void setSisteKjøring(LocalDateTime sisteKjøring) {
+        this.sisteKjøring = sisteKjøring;
+    }
+
     public String getGruppe() {
         return gruppe;
     }
@@ -126,6 +129,10 @@ public class ProsessTaskEntitet {
 
     public void setNesteKjøringEtter(LocalDateTime nesteKjøringEtter) {
         this.nesteKjøringEtter = nesteKjøringEtter;
+    }
+
+    public void setSisteKjøringServer(String sisteKjøringServerProsess) {
+        this.sisteKjøringServerProsess = sisteKjøringServerProsess;
     }
 
     public String getPayload() {
@@ -206,16 +213,32 @@ public class ProsessTaskEntitet {
 
     }
 
-    ProsessTaskEntitet kopierFra(ProsessTaskInfo prosessTask) {
+    ProsessTaskEntitet kopierFraEksisterende(ProsessTaskInfo prosessTask) {
         Objects.requireNonNull(prosessTask, "prosessTask");
+        Objects.requireNonNull(prosessTask.getId(), "prosessTask#id");
+
         this.id = prosessTask.getId();
-        this.taskType = prosessTask.getTaskType();
-        this.nesteKjøringEtter = prosessTask.getNesteKjøringEtter();
-        this.sisteKjøring = prosessTask.getSistKjørt();
-        this.prioritet = prosessTask.getPriority();
         this.sisteFeilKode = prosessTask.getSisteFeilKode();
         this.sisteFeilTekst = prosessTask.getSisteFeil();
         this.feiledeForsøk = prosessTask.getAntallFeiledeForsøk();
+        this.sisteKjøring = prosessTask.getSistKjørt();
+        kopierBasicFelter(prosessTask);
+        return this;
+    }
+
+    ProsessTaskEntitet kopierFraNy(ProsessTaskInfo prosessTask) {
+        Objects.requireNonNull(prosessTask, "prosessTask");
+        if (prosessTask.getId() != null) {
+            throw new IllegalArgumentException("prosessTask#id må være null");
+        }
+        return kopierBasicFelter(prosessTask);
+    }
+
+    private ProsessTaskEntitet kopierBasicFelter(ProsessTaskInfo prosessTask) {
+        this.id = prosessTask.getId();
+        this.taskType = prosessTask.getTaskType();
+        this.nesteKjøringEtter = prosessTask.getNesteKjøringEtter();
+        this.prioritet = prosessTask.getPriority();
 
         this.props = prosessTask.getProperties();
         this.status = prosessTask.getStatus().getDbKode();
