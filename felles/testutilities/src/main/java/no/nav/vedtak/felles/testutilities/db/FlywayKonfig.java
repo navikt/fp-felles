@@ -28,7 +28,9 @@ public class FlywayKonfig {
     private EntityManager entityManager = null;
     private String tabellnavn = null;
 
-    /** Username i db. Brukes til å rense alle tilhørende objekter (KUN FOR TEST!!). */
+    /**
+     * Username i db. Brukes til å rense alle tilhørende objekter (KUN FOR TEST!!).
+     */
     private String username;
 
     private FlywayKonfig(DataSource dataSource) {
@@ -76,7 +78,11 @@ public class FlywayKonfig {
         }
 
         if (cleanup) {
-            flyway.clean();
+            if (skalBrukeCustomClean(dataSource)) {
+                clean(dataSource, username);
+            } else {
+                flyway.clean();
+            }
         }
 
         flyway.configure(lesFlywayPlaceholders());
@@ -94,6 +100,15 @@ public class FlywayKonfig {
         }
     }
 
+    private boolean skalBrukeCustomClean(DataSource dataSource) {
+        try {
+            String databaseProductName = dataSource.getConnection().getMetaData().getDatabaseProductName();
+            return "PostgreSQL".equalsIgnoreCase(databaseProductName);
+        } catch (SQLException e) {
+            throw FeilFactory.create(DbMigreringFeil.class).kanIkkeDetektereDatbaseType(e).toException();
+        }
+    }
+
     private Properties lesFlywayPlaceholders() {
         Properties placeholders = new Properties();
         for (String prop : System.getProperties().stringPropertyNames()) {
@@ -103,11 +118,13 @@ public class FlywayKonfig {
         }
         return placeholders;
     }
-    
-    /** For å postgres - unngår issue med manglende support i flyway. */
+
+    /**
+     * For å postgres - unngår issue med manglende support i flyway.
+     */
     private void clean(DataSource dataSource, String username) {
         try (Connection c = dataSource.getConnection();
-                Statement stmt = c.createStatement()) {
+             Statement stmt = c.createStatement()) {
             stmt.execute("drop owned by " + username.replaceAll("[^a-zA-Z0-9_-]", "_"));
         } catch (SQLException e) {
             throw new IllegalStateException("Kunne ikke kjøre clean på db", e);
