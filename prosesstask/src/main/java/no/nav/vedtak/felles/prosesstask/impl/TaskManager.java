@@ -43,7 +43,6 @@ public class TaskManager implements AppServiceHandler {
     public static final String TASK_MANAGER_POLLING_WAIT = "task.manager.polling.wait";
     public static final String TASK_MANAGER_POLLING_DELAY = "task.manager.polling.delay";
     public static final String TASK_MANAGER_POLLING_TASKS_SIZE = "task.manager.polling.tasks.size";
-    public static final String TASK_MANAGER_RUNNER_THREADS = "task.manager.runner.threads";
 
     private static final Logger log = LoggerFactory.getLogger(TaskManager.class);
 
@@ -58,7 +57,7 @@ public class TaskManager implements AppServiceHandler {
     /**
      * Antall parallelle tråder for å plukke tasks.
      */
-    private int numberOfTaskRunnerThreads = getSystemPropertyWithLowerBoundry(TASK_MANAGER_RUNNER_THREADS, 10, 0);
+    private int numberOfTaskRunnerThreads = Runtime.getRuntime().availableProcessors();
     /**
      * Delay between each interval of polling. (millis)
      */
@@ -141,7 +140,7 @@ public class TaskManager implements AppServiceHandler {
             startTaskThreads();
             startPollerThread();
         } else {
-            log.info("Kan ikke starte {}, ingen tråder konfigurert, sjekk property [{}]", getClass().getSimpleName(), TASK_MANAGER_RUNNER_THREADS);
+            log.info("Kan ikke starte {}, ingen tråder konfigurert, sjekk om du har konfigurert kontaineren din riktig bør ha minst en cpu tilgjengelig.", getClass().getSimpleName());
         }
     }
 
