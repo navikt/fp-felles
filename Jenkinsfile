@@ -10,7 +10,7 @@ node('DOCKER') {
     stage('Checkout scm') { // checkout only tags.
         checkout scm
 	GIT_COMMIT_HASH = sh (script: "git log -n 1 --pretty=format:'%h'", returnStdout: true)
-	changelist = "_" + date.format("YYYYMMDDHHmmss") + "_" + GIT_COMMIT_HASH
+	changelist = "_" + date.format("YYYYMMddHHmmss") + "_" + GIT_COMMIT_HASH
 	mRevision = maven.revision()
 	tagName = mRevision + changelist
         echo "Tag to be deployed $tagName"
