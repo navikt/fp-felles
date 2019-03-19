@@ -43,6 +43,7 @@ public class TaskManager implements AppServiceHandler {
     public static final String TASK_MANAGER_POLLING_WAIT = "task.manager.polling.wait";
     public static final String TASK_MANAGER_POLLING_DELAY = "task.manager.polling.delay";
     public static final String TASK_MANAGER_POLLING_TASKS_SIZE = "task.manager.polling.tasks.size";
+    public static final int    TASK_MANAGER_RUNNER_THREADS_MULTIPLYER = 3;
 
     private static final Logger log = LoggerFactory.getLogger(TaskManager.class);
 
@@ -57,7 +58,7 @@ public class TaskManager implements AppServiceHandler {
     /**
      * Antall parallelle tråder for å plukke tasks.
      */
-    private int numberOfTaskRunnerThreads = Runtime.getRuntime().availableProcessors();
+    private int numberOfTaskRunnerThreads = Runtime.getRuntime().availableProcessors() * TASK_MANAGER_RUNNER_THREADS_MULTIPLYER;
     /**
      * Delay between each interval of polling. (millis)
      */
