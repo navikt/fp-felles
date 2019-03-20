@@ -31,7 +31,8 @@ WHERE pt.id
                 , feilede_forsoek
             FROM prosess_task pt
             WHERE
-              status != 'FERDIG'
+              -- bruker dette itdf. (status != 'FERDIG'). Innført for å bruke partisjoner med minst data, unngår skanning av alle partisjoner
+              status in ('FEILET', 'KLAR', 'VENTER_SVAR', 'SUSPENDERT', 'VETO')
           ) tbl
             INNER JOIN prosess_task_type tt ON tt.kode = tbl.task_type
         WHERE
