@@ -12,6 +12,7 @@ public enum BeskyttetRessursResourceAttributt {
     OPPGAVESTYRING("no.nav.abac.attributter.foreldrepenger.oppgavestyring"),
     PIP("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker"),
     OPPGAVESTYRING_AVDELINGENHET("no.nav.abac.attributter.foreldrepenger.oppgavestyring.avdelingsenhet"),
+    RISIKOKLASSIFISERING("no.nav.abac.attributter.foreldrepenger.risikoklassifisering"),
 
     /**
      * Skal kun brukes av Interceptor
