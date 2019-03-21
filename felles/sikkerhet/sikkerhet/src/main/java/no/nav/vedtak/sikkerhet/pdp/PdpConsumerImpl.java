@@ -1,13 +1,12 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
-import static no.nav.vedtak.sikkerhet.pdp.feil.PdpSystemPropertyChecker.getSystemProperty;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -35,6 +34,8 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.shibboleth.utilities.java.support.collection.Pair;
+import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.pdp.feil.PdpFeil;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
@@ -42,73 +43,115 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
 @ApplicationScoped
 public class PdpConsumerImpl implements PdpConsumer {
 
-    static final String PDP_ENDPOINT_URL_KEY = "abac.pdp.endpoint.url";
-    static final int MAX_TOTAL_CONNECTIONS = 20;
-    static final String SYSTEMBRUKER_USERNAME = "systembruker.username";
-    static final String SYSTEMBRUKER_PASSWORD = "systembruker.password"; // NOSONAR
+    private static final String PDP_ENDPOINT_URL_KEY = "abac.pdp.endpoint.url";
+    private static final String SYSTEMBRUKER_USERNAME = "systembruker.username";
+    private static final String SYSTEMBRUKER_PASSWORD = "systembruker.password"; // NOSONAR
+    private static final int MAX_TOTAL_CONNECTIONS = 20;
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final Logger LOG = LoggerFactory.getLogger(PdpConsumerImpl.class);
 
-    private final CloseableHttpClient httpclient;
-    private HttpClientContext localContext;
+    private String pdpUrl;
+    private String brukernavn;
+    private String passord;
     private HttpHost target;
 
-    public PdpConsumerImpl() {
+    private Pair<CloseableHttpClient, HttpClientContext> activeConfiguration;
+
+    PdpConsumerImpl() {} //CDI
+
+    @Inject
+    public PdpConsumerImpl(@KonfigVerdi(PDP_ENDPOINT_URL_KEY) String pdpUrl, @KonfigVerdi(SYSTEMBRUKER_USERNAME) String brukernavn, @KonfigVerdi(SYSTEMBRUKER_PASSWORD) String passord) {
+        this.pdpUrl = pdpUrl;
+        this.brukernavn = brukernavn;
+        this.passord = passord;
+        target = HttpHost.create(getSchemaAndHostFromURL(pdpUrl));
+        activeConfiguration = buildClient();
+    }
+
+    private Pair<CloseableHttpClient, HttpClientContext> buildClient() {
         @SuppressWarnings("resource")
         PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
         cm.setMaxTotal(MAX_TOTAL_CONNECTIONS);
         cm.setDefaultMaxPerRoute(MAX_TOTAL_CONNECTIONS);
+
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(new AuthScope(target.getHostName(), target.getPort()), new UsernamePasswordCredentials(brukernavn, passord));
 
         RequestConfig requestConfig = RequestConfig.custom()
             .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
             .setAuthenticationEnabled(true)
             .build();
 
-        // FIXME: Hvorfor injectes ikke disse propertyene også?
-        String brukernavn = getSystemProperty(SYSTEMBRUKER_USERNAME);
-        String passord = getSystemProperty(SYSTEMBRUKER_PASSWORD);
-
-        target = HttpHost.create(getSchemaAndHostFromURL());
-
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(new AuthScope(target.getHostName(), target.getPort()), new UsernamePasswordCredentials(brukernavn, passord));
-
-        AuthCache authCache = new BasicAuthCache();
-        BasicScheme basicAuth = new BasicScheme();
-        authCache.put(target, basicAuth);
-
-        localContext = HttpClientContext.create();
-        localContext.setAuthCache(authCache);
-
-        httpclient = HttpClients.custom()
+        CloseableHttpClient client = HttpClients.custom()
             .setConnectionManager(cm)
             .setDefaultCredentialsProvider(credsProvider)
             .setDefaultRequestConfig(requestConfig)
             .build();
+
+        AuthCache authCache = new BasicAuthCache();
+        authCache.put(target, new BasicScheme());
+
+        HttpClientContext localContext = HttpClientContext.create();
+        localContext.setAuthCache(authCache);
+
+        return new Pair<>(client, localContext);
     }
 
     @Override
     public XacmlResponseWrapper evaluate(XacmlRequestBuilder request) {
-        return execute(request);
+        return new XacmlResponseWrapper(execute(request.build()));
     }
 
-    private XacmlResponseWrapper execute(XacmlRequestBuilder request) {
-        HttpPost post = new HttpPost(getSystemProperty(PDP_ENDPOINT_URL_KEY));
+    JsonObject execute(JsonObject request) {
+        HttpPost post = new HttpPost(pdpUrl);
         post.setHeader("Content-type", MEDIA_TYPE);
-        JsonObject json = request.build();
-        LOG.trace("PDP-request: {}", json);
-        post.setEntity(new StringEntity(json.toString(), Charset.forName("UTF-8")));
-        try (CloseableHttpResponse response = httpclient.execute(target, post, localContext)) {
+        post.setEntity(new StringEntity(request.toString(), Charset.forName("UTF-8")));
+        LOG.trace("PDP-request: {}", request);
+
+        Pair<CloseableHttpClient, HttpClientContext> active = activeConfiguration;
+
+        Pair<StatusLine, JsonObject> response = call(active, post);
+        int statusCode = response.getFirst().getStatusCode();
+        if (HttpStatus.SC_OK == statusCode) {
+            return response.getSecond();
+        }
+        if(HttpStatus.SC_UNAUTHORIZED == statusCode){
+            synchronized (this) {
+                if(active == activeConfiguration){
+                    activeConfiguration = buildClient();
+                    PdpFeil.FACTORY.reinstansiertHttpClient().log(LOG);
+                }
+            }
+            active = activeConfiguration;
+
+            response = call(active, post);
+            statusCode = response.getFirst().getStatusCode();
+            if (HttpStatus.SC_OK == statusCode) {
+                return response.getSecond();
+            }
+            if(HttpStatus.SC_UNAUTHORIZED == statusCode){
+                throw PdpFeil.FACTORY.autentiseringFeilerEtterReinstansiering(System.getenv("HOSTNAME")).toException();
+            }
+        }
+        throw PdpFeil.FACTORY.httpFeil(statusCode, response.getFirst().getReasonPhrase()).toException();
+
+    }
+
+    private Pair<StatusLine, JsonObject> call(Pair<CloseableHttpClient, HttpClientContext> active, HttpPost post) {
+        final CloseableHttpClient client = active.getFirst();
+        final HttpClientContext context = active.getSecond();
+
+        try (CloseableHttpResponse response = client.execute(target, post, context)) {
             final StatusLine statusLine = response.getStatusLine();
-            if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+            if (HttpStatus.SC_OK == statusLine.getStatusCode()) {
                 final HttpEntity entity = response.getEntity();
                 try (JsonReader reader = Json.createReader(entity.getContent())) {
                     JsonObject jsonResponse = reader.readObject();
                     LOG.trace("PDP-response: {}", jsonResponse);
-                    return new XacmlResponseWrapper(jsonResponse);
+                    return new Pair<>(statusLine, jsonResponse);
                 }
             }
-            throw PdpFeil.FACTORY.httpFeil(statusLine.getStatusCode(), statusLine.getReasonPhrase()).toException();
+            return new Pair<>(statusLine, null);
         } catch (IOException e) {
             throw PdpFeil.FACTORY.ioFeil(e).toException();
         } finally {
@@ -116,8 +159,7 @@ public class PdpConsumerImpl implements PdpConsumer {
         }
     }
 
-    final String getSchemaAndHostFromURL() {
-        final String pdpUrl = getSystemProperty(PDP_ENDPOINT_URL_KEY);
+    private String getSchemaAndHostFromURL(String pdpUrl) {
         try {
             URI uri = new URI(pdpUrl);
             return uri.getScheme() + "://" + uri.getHost() + (uri.getPort() > -1 ? ":" + uri.getPort() : "");

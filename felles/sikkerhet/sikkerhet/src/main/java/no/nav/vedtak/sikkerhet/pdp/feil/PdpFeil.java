@@ -31,4 +31,10 @@ public interface PdpFeil extends DeklarerteFeil {
 
     @TekniskFeil(feilkode = "F-576027", feilmelding = "Mottok ukjente obligations fra PDP: %s", logLevel = ERROR)
     Feil ukjentObligationsFeil(List<Obligation> obligations);
+
+    @TekniskFeil(feilkode = "F-563467", feilmelding = "Feilet autentisering mot PDP, reinstansierer hele klienten for å fjerne all state", logLevel = LogLevel.WARN)
+    Feil reinstansiertHttpClient();
+
+    @TekniskFeil(feilkode = "F-867412", feilmelding = "Feilet autentisering mot PDP, reinstansiering av klienten hjalp ikke. Tiltak: Drep pod '%s'", logLevel = LogLevel.ERROR)
+    Feil autentiseringFeilerEtterReinstansiering(String podName);
 }
