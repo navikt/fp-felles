@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.json.JsonValue;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -34,11 +35,11 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.shibboleth.utilities.java.support.collection.Pair;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.pdp.feil.PdpFeil;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
+import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class PdpConsumerImpl implements PdpConsumer {
@@ -55,9 +56,10 @@ public class PdpConsumerImpl implements PdpConsumer {
     private String passord;
     private HttpHost target;
 
-    private Pair<CloseableHttpClient, HttpClientContext> activeConfiguration;
+    private Tuple<CloseableHttpClient, AuthCache> activeConfiguration;
 
-    PdpConsumerImpl() {} //CDI
+    PdpConsumerImpl() {
+    } //CDI
 
     @Inject
     public PdpConsumerImpl(@KonfigVerdi(PDP_ENDPOINT_URL_KEY) String pdpUrl, @KonfigVerdi(SYSTEMBRUKER_USERNAME) String brukernavn, @KonfigVerdi(SYSTEMBRUKER_PASSWORD) String passord) {
@@ -68,7 +70,7 @@ public class PdpConsumerImpl implements PdpConsumer {
         activeConfiguration = buildClient();
     }
 
-    private Pair<CloseableHttpClient, HttpClientContext> buildClient() {
+    private Tuple<CloseableHttpClient, AuthCache> buildClient() {
         @SuppressWarnings("resource")
         PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
         cm.setMaxTotal(MAX_TOTAL_CONNECTIONS);
@@ -91,10 +93,7 @@ public class PdpConsumerImpl implements PdpConsumer {
         AuthCache authCache = new BasicAuthCache();
         authCache.put(target, new BasicScheme());
 
-        HttpClientContext localContext = HttpClientContext.create();
-        localContext.setAuthCache(authCache);
-
-        return new Pair<>(client, localContext);
+        return new Tuple<>(client, authCache);
     }
 
     @Override
@@ -108,16 +107,16 @@ public class PdpConsumerImpl implements PdpConsumer {
         post.setEntity(new StringEntity(request.toString(), Charset.forName("UTF-8")));
         LOG.trace("PDP-request: {}", request);
 
-        Pair<CloseableHttpClient, HttpClientContext> active = activeConfiguration;
+        Tuple<CloseableHttpClient, AuthCache> active = activeConfiguration;
 
-        Pair<StatusLine, JsonObject> response = call(active, post);
-        int statusCode = response.getFirst().getStatusCode();
+        Tuple<StatusLine, JsonObject> response = call(active, post);
+        int statusCode = response.getElement1().getStatusCode();
         if (HttpStatus.SC_OK == statusCode) {
-            return response.getSecond();
+            return response.getElement2();
         }
-        if(HttpStatus.SC_UNAUTHORIZED == statusCode){
+        if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
             synchronized (this) {
-                if(active == activeConfiguration){
+                if (active == activeConfiguration) {
                     activeConfiguration = buildClient();
                     PdpFeil.FACTORY.reinstansiertHttpClient().log(LOG);
                 }
@@ -125,22 +124,24 @@ public class PdpConsumerImpl implements PdpConsumer {
             active = activeConfiguration;
 
             response = call(active, post);
-            statusCode = response.getFirst().getStatusCode();
+            statusCode = response.getElement1().getStatusCode();
             if (HttpStatus.SC_OK == statusCode) {
-                return response.getSecond();
+                return response.getElement2();
             }
-            if(HttpStatus.SC_UNAUTHORIZED == statusCode){
+            if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
                 throw PdpFeil.FACTORY.autentiseringFeilerEtterReinstansiering(System.getenv("HOSTNAME")).toException();
             }
         }
-        throw PdpFeil.FACTORY.httpFeil(statusCode, response.getFirst().getReasonPhrase()).toException();
+        throw PdpFeil.FACTORY.httpFeil(statusCode, response.getElement1().getReasonPhrase()).toException();
 
     }
 
-    private Pair<StatusLine, JsonObject> call(Pair<CloseableHttpClient, HttpClientContext> active, HttpPost post) {
-        final CloseableHttpClient client = active.getFirst();
-        final HttpClientContext context = active.getSecond();
+    private Tuple<StatusLine, JsonObject> call(Tuple<CloseableHttpClient, AuthCache> active, HttpPost post) {
+        final CloseableHttpClient client = active.getElement1();
+        final AuthCache authCache = active.getElement2();
 
+        HttpClientContext context = HttpClientContext.create();
+        context.setAuthCache(authCache);
         try (CloseableHttpResponse response = client.execute(target, post, context)) {
             final StatusLine statusLine = response.getStatusLine();
             if (HttpStatus.SC_OK == statusLine.getStatusCode()) {
@@ -148,10 +149,10 @@ public class PdpConsumerImpl implements PdpConsumer {
                 try (JsonReader reader = Json.createReader(entity.getContent())) {
                     JsonObject jsonResponse = reader.readObject();
                     LOG.trace("PDP-response: {}", jsonResponse);
-                    return new Pair<>(statusLine, jsonResponse);
+                    return new Tuple<>(statusLine, jsonResponse);
                 }
             }
-            return new Pair<>(statusLine, null);
+            return new Tuple<>(statusLine, JsonValue.EMPTY_JSON_OBJECT);
         } catch (IOException e) {
             throw PdpFeil.FACTORY.ioFeil(e).toException();
         } finally {
