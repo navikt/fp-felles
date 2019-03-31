@@ -54,7 +54,7 @@ pipeline {
                             buildEnvironment.overrideJDK(maven.javaVersion())
                         }
 
-                        sh "mvn -U -B -s $MAVEN_SETTINGS -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true -Dsha1= -Dchangelist=-SNAPSHOT -Drevision=$tagName clean deploy"
+                        sh "mvn -U -B -s $MAVEN_SETTINGS -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true -Dsha1= -Dchangelist= -Drevision=$tagName clean deploy"
 
                     }
                 }
