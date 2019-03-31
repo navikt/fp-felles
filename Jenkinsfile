@@ -98,12 +98,12 @@ pipeline {
     post {
         success {
             script {
-                fpgithub.updateBuildStatus("fp-abakus", "success", GIT_COMMIT_HASH_FULL)
+                fpgithub.updateBuildStatus("fp-felles", "success", GIT_COMMIT_HASH_FULL)
             }
         }
         failure {
             script {
-                fpgithub.updateBuildStatus("fp-abakus", "failure", GIT_COMMIT_HASH_FULL)
+                fpgithub.updateBuildStatus("fp-felles", "failure", GIT_COMMIT_HASH_FULL)
             }
         }
     }
