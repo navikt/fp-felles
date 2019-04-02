@@ -38,15 +38,14 @@
             <dependency>
                 <groupId>org.springframework.kafka</groupId>
                 <artifactId>spring-kafka-test</artifactId>
-                <version>2.1.9.RELEASE</version>
+                <version>2.2.4.RELEASE</version>
                 <scope>test</scope>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
             <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka -->
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka_2.11</artifactId>
-                <version>1.0.2</version>
+                <version>2.2.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.zookeeper</groupId>
@@ -58,7 +57,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
