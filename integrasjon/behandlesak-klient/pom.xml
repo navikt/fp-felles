@@ -26,5 +26,10 @@
             <groupId>no.nav.tjenestespesifikasjoner</groupId>
             <artifactId>nav-fim-sak-v1-tjenestespesifikasjon</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
