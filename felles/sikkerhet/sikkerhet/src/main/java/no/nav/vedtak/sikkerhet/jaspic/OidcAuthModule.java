@@ -110,9 +110,9 @@ public class OidcAuthModule implements ServerAuthModule {
 
     @Override
     public AuthStatus validateRequest(MessageInfo messageInfo, Subject clientSubject, Subject serviceSubject) throws AuthException {
-        validateCleanSubjecthandler();
         HttpServletRequest originalRequest = (HttpServletRequest) messageInfo.getRequestMessage();
         setCallAndConsumerId(originalRequest);
+        validateCleanSubjecthandler();
         AuthStatus authStatus;
 
         if (isProtected(messageInfo)) {
@@ -136,13 +136,15 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     private void validateCleanSubjecthandler() {
-        final SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
-        if(subjectHandler instanceof ThreadLocalSubjectHandler) {
-            final ThreadLocalSubjectHandler threadLocalSubjectHandler = (ThreadLocalSubjectHandler) subjectHandler;
-            final Subject subject = threadLocalSubjectHandler.getSubject();
-            if (subject != null) {
-                JaspicFeil.FACTORY.eksisterendeSubject(new HashSet<>(subject.getPrincipals())).log(LOG);
-                threadLocalSubjectHandler.setSubject(null);
+        final Subject subject = SubjectHandler.getSubjectHandler().getSubject();
+        if (subject != null) {
+            if (SubjectHandler.getSubjectHandler() instanceof ThreadLocalSubjectHandler) {
+                final Set<String> credidentialClasses = new HashSet<>();
+                for (Object publicCredential : subject.getPublicCredentials()) {
+                    credidentialClasses.add(publicCredential.getClass().getName());
+                }
+                JaspicFeil.FACTORY.eksisterendeSubject(new HashSet<>(subject.getPrincipals()), credidentialClasses).log(LOG);
+                ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(null);
             }
         }
     }

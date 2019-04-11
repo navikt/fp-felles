@@ -35,6 +35,8 @@ import no.nav.vedtak.sikkerhet.loginmodule.SamlUtils;
 
 /**
  * CXF Soap interceptor som validerer SAML-token og logger caller inn i containeren.
+ * Legger også til en Interceptor som logger ut igjen fra containeren.
+ * @see SAMLLogoutInterceptor
  */
 public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
 
@@ -80,6 +82,7 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
             String result = SamlUtils.getSamlAssertionAsString(assertion);
             LoginContext loginContext = createLoginContext(SAML, loginContextConfiguration, result);
             loginContext.login();
+            msg.getInterceptorChain().add(new SAMLLogoutInterceptor(loginContext));
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
         } catch (LoginException | TransformerException e) {
