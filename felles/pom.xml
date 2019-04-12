@@ -86,12 +86,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- Kommer fra felles-tjenestebeskrivelser på github -->
-            <dependency>
-                <groupId>org.jvnet.jaxb2_commons</groupId>
-                <artifactId>jaxb2-basics-runtime</artifactId>
-                <version>0.9.5</version>
-            </dependency>
 
 			<dependency>
 				<!-- er ikke i resteasy-bom, så må defineres separat -->

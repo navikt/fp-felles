@@ -350,13 +350,6 @@
                 <version>${ibmmq.version}</version>
             </dependency>
 
-            <!-- test avhengigheter -->
-            <dependency>
-                <groupId>org.jvnet.jaxb2_commons</groupId>
-                <artifactId>jaxb2-basics-runtime</artifactId>
-                <version>1.11.1</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
