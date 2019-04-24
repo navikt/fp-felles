@@ -35,7 +35,6 @@
         <module>medl-klient</module>
         <module>meldekortutbetalingsgrunnlag-klient</module>
         <module>oppgave-klient</module>
-        <module>kafka-klient</module>
         <module>jms</module>
         <module>arbeidsforhold-klient</module>
         <module>organisasjon-klient</module>

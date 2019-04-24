@@ -19,7 +19,6 @@
 		<module>util</module>
 		<module>db</module>
 		<module>bom</module>
-		<module>kafka</module>
 	</modules>
 
 	<properties>
@@ -116,16 +115,6 @@
 				<artifactId>felles-util</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles</groupId>
-				<artifactId>felles-kafka</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.kafka</groupId>
-                <artifactId>producer</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles</groupId>
 				<artifactId>felles-log</artifactId>
