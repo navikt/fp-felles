@@ -17,6 +17,8 @@ public enum AbacAttributtType {
     DOKUMENT_DATA_ID,
     FAGSAK_ID,
 
+    /** Eksternt refererbar unik UUID for Behandling. Bør brukes mot andre systemer istdf. BEHANDLING_ID. */
+    BEHANDLING_UUID,
     /**
      * Indikerer at alle saker som har dette fødselsnummeret som søker må sjekkes.
      */
