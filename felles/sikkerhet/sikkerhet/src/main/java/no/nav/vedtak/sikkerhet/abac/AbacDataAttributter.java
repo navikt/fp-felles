@@ -63,9 +63,21 @@ public class AbacDataAttributter {
     public AbacDataAttributter leggTilBehandlingsId(Long behandlingsId) {
         return leggTil(AbacAttributtType.BEHANDLING_ID, behandlingsId);
     }
+    
+    public AbacDataAttributter leggTilBehandlingsUUID(UUID behandlingsUuid) {
+        return leggTil(AbacAttributtType.BEHANDLING_UUID, behandlingsUuid.toString());
+    }
+    
+    public AbacDataAttributter leggTilBehandlingsUUID(String behandlingsUuid) {
+        return leggTil(AbacAttributtType.BEHANDLING_UUID, behandlingsUuid);
+    }
 
     Set<Long> getBehandlingIder() {
         return getVerdier(AbacAttributtType.BEHANDLING_ID);
+    }
+    
+    Set<String> getBehandlingsUUIDer() {
+        return getVerdier(AbacAttributtType.BEHANDLING_UUID);
     }
 
     public AbacDataAttributter leggTilFagsakId(Long fagsakId) {

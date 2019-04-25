@@ -38,6 +38,10 @@ public class AbacAttributtSamling {
         return dataAttributter.getBehandlingIder();
     }
     
+    public Set<String> getBehandlingsUUIDer() {
+        return dataAttributter.getBehandlingsUUIDer();
+    }
+    
     public Set<Long> getSPBeregningsIder() {
         return dataAttributter.getSPBeregningsIder();
     }

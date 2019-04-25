@@ -7,6 +7,7 @@ public enum SporingsloggId {
     FNR_SOK("fnrSok"),
     AKTOR_ID("aktorId"),
     BEHANDLING_ID("behandlingId"),
+    BEHANDLING_UUID("behandlingUuid"),
     AKSJONSPUNKT_ID("aksjonspunktId"),
     JOURNALPOST_ID("journalpostId"),
     DOKUMENT_ID("dokumentId"),

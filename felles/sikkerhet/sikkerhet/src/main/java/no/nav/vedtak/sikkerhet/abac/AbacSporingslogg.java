@@ -77,6 +77,7 @@ public class AbacSporingslogg {
         sporingsdata = utvidSporingsdata(sporingsdata, attributter.getAksjonspunktKode(), SporingsloggId.AKSJONSPUNKT_ID);
         sporingsdata = utvidSporingsdata(sporingsdata, attributter.getAktørIder(), SporingsloggId.AKTOR_ID);
         sporingsdata = utvidSporingsdata(sporingsdata, attributter.getBehandlingsIder(), SporingsloggId.BEHANDLING_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getBehandlingsUUIDer(), SporingsloggId.BEHANDLING_UUID);
         sporingsdata = utvidSporingsdata(sporingsdata, attributter.getDokumentDataIDer(), SporingsloggId.DOKUMENT_DATA_ID);
         sporingsdata = utvidSporingsdata(sporingsdata, attributter.getDokumentIDer(), SporingsloggId.DOKUMENT_ID);
         sporingsdata = utvidSporingsdata(sporingsdata, attributter.getFagsakIder(), SporingsloggId.FAGSAK_ID);
@@ -96,6 +97,7 @@ public class AbacSporingslogg {
                 attributter.getAksjonspunktKode(),
                 attributter.getAktørIder(),
                 attributter.getBehandlingsIder(),
+                attributter.getBehandlingsUUIDer(),
                 attributter.getDokumentDataIDer(),
                 attributter.getFagsakIder(),
                 attributter.getFnrForSøkEtterSaker(),

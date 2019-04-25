@@ -25,7 +25,7 @@ public class DefaultDatabaseOppePreconditionChecker implements PreconditionCheck
     @Override
     public PreconditionCheckerResult check() {
         try (Connection connection = dataSource.getConnection()) {
-            // Jboss / Connection pool validerer connections for oss, så trenger ikke gjøre noen spørring her (ønsker
+            // Connection pool validerer connections for oss, så trenger ikke gjøre noen spørring her (ønsker
             // bare å se om db er tilgjengelig)
             return PreconditionCheckerResult.fullfilled();
         } catch (SQLException e) { // NOSONAR
