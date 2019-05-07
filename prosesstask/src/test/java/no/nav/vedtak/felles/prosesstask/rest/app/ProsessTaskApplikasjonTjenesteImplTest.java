@@ -31,6 +31,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 import no.nav.vedtak.felles.prosesstask.rest.dto.FeiletProsessTaskDataDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskDataDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskDataPayloadDto;
+import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskOpprettInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartResultatDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRetryAllResultatDto;
@@ -87,6 +88,15 @@ public class ProsessTaskApplikasjonTjenesteImplTest {
         assertThat(dataTilPersistering.getNesteKjøringEtter()).isAfter(FPDateUtil.nå().minusSeconds(5));
     }
 
+    @Test
+    public void skal_opprette_task() {
+        ProsessTaskOpprettInputDto dto = new ProsessTaskOpprettInputDto();
+        dto.setTaskType("asdf.asdf");
+
+        ProsessTaskDataDto prosessTaskDataDto = prosessTaskApplikasjonTjeneste.opprettTask(dto);
+        assertThat(prosessTaskDataDto.getTaskType()).isEqualTo(dto.getTaskType());
+        assertThat(prosessTaskDataDto.getTaskParametre()).isEmpty();
+    }
 
     @Test
     public void skal_flagge_prosesstask_for_restart_gitt_korrekt_input() throws Exception {
