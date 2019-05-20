@@ -1,5 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_PERSON_FNR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Constructor;
@@ -14,38 +15,34 @@ import org.assertj.core.api.Fail;
 import org.junit.Rule;
 import org.junit.Test;
 
+import no.nav.abac.xacml.NavAttributter;
+import no.nav.abac.xacml.StandardAttributter;
 import no.nav.modig.core.test.LogSniffer;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.InnloggetSubject;
 
 public class BeskyttetRessursInterceptorTest {
 
+    private final RestClass tjeneste = new RestClass();
     @Rule
     public InnloggetSubject innloggetSubject = new InnloggetSubject().medOidcToken("dummy.oidc.token");
-
     @Rule
     public LogSniffer sniffer = new LogSniffer();
-
-    private final RestClass tjeneste = new RestClass();
-
     private FnrDto fnr1 = new FnrDto("00000000000");
     private BehandlingIdDto behandlingIdDto = new BehandlingIdDto(1234L);
 
     @Test
     public void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit() throws Exception {
-        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(new Pep() {
-            @Override
-            public Tilgangsbeslutning vurderTilgang(AbacAttributtSamling attributter) {
-                PdpRequest pdpRequest = new PdpRequest();
-                pdpRequest.setFnr(Collections.singleton(fnr1.getFnr()));
-                pdpRequest.setAction(attributter.getActionType());
-                pdpRequest.setResource(attributter.getResource());
-                pdpRequest.setToken(attributter.getIdToken());
-                return new Tilgangsbeslutning(
-                        AbacResultat.GODKJENT,
-                        Collections.singletonList(Decision.Permit),
-                        pdpRequest);
-            }
+        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
+            PdpRequest pdpRequest = new PdpRequest();
+            pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton(fnr1.getFnr()));
+            pdpRequest.put(StandardAttributter.ACTION_ID, attributter.getActionType().getEksternKode());
+            pdpRequest.put(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource().getEksternKode());
+            pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, attributter.getIdToken());
+            return new Tilgangsbeslutning(
+                AbacResultat.GODKJENT,
+                Collections.singletonList(Decision.Permit),
+                pdpRequest);
         });
 
         Method method = RestClass.class.getMethod("fnrIn", FnrDto.class);
@@ -57,19 +54,16 @@ public class BeskyttetRessursInterceptorTest {
 
     @Test
     public void skal_også_logge_input_parametre_til_sporingslogg_ved_permit() throws Exception {
-        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(new Pep() {
-            @Override
-            public Tilgangsbeslutning vurderTilgang(AbacAttributtSamling attributter) {
-                PdpRequest pdpRequest = new PdpRequest();
-                pdpRequest.setFnr(Collections.singleton(fnr1.getFnr()));
-                pdpRequest.setAction(attributter.getActionType());
-                pdpRequest.setResource(attributter.getResource());
-                pdpRequest.setToken(attributter.getIdToken());
-                return new Tilgangsbeslutning(
-                        AbacResultat.GODKJENT,
-                        Collections.singletonList(Decision.Permit),
-                        pdpRequest);
-            }
+        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
+            PdpRequest pdpRequest = new PdpRequest();
+            pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, (Collections.singleton(fnr1.getFnr())));
+            pdpRequest.put(StandardAttributter.ACTION_ID, attributter.getActionType().getEksternKode());
+            pdpRequest.put(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource().getEksternKode());
+            pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, attributter.getIdToken());
+            return new Tilgangsbeslutning(
+                AbacResultat.GODKJENT,
+                Collections.singletonList(Decision.Permit),
+                pdpRequest);
         });
 
         Method method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
@@ -81,19 +75,16 @@ public class BeskyttetRessursInterceptorTest {
 
     @Test
     public void skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering() throws Exception {
-        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(new Pep() {
-            @Override
-            public Tilgangsbeslutning vurderTilgang(AbacAttributtSamling attributter) {
-                PdpRequest pdpRequest = new PdpRequest();
-                pdpRequest.setFnr(Collections.singleton(fnr1.getFnr()));
-                pdpRequest.setAction(attributter.getActionType());
-                pdpRequest.setResource(attributter.getResource());
-                pdpRequest.setToken(attributter.getIdToken());
-                return new Tilgangsbeslutning(
-                        AbacResultat.GODKJENT,
-                        Collections.singletonList(Decision.Permit),
-                        pdpRequest);
-            }
+        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
+            PdpRequest pdpRequest = new PdpRequest();
+            pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, (Collections.singleton(fnr1.getFnr())));
+            pdpRequest.put(StandardAttributter.ACTION_ID, attributter.getActionType().getEksternKode());
+            pdpRequest.put(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource().getEksternKode());
+            pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, attributter.getIdToken());
+            return new Tilgangsbeslutning(
+                AbacResultat.GODKJENT,
+                Collections.singletonList(Decision.Permit),
+                pdpRequest);
         });
 
         Method method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
@@ -105,19 +96,16 @@ public class BeskyttetRessursInterceptorTest {
 
     @Test
     public void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny() throws Exception {
-        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(new Pep() {
-            @Override
-            public Tilgangsbeslutning vurderTilgang(AbacAttributtSamling attributter) {
-                PdpRequest pdpRequest = new PdpRequest();
-                pdpRequest.setFnr(Collections.singleton(fnr1.getFnr()));
-                pdpRequest.setAction(attributter.getActionType());
-                pdpRequest.setResource(attributter.getResource());
-                pdpRequest.setToken(attributter.getIdToken());
-                return new Tilgangsbeslutning(
-                        AbacResultat.AVSLÅTT_KODE_6,
-                        Collections.singletonList(Decision.Deny),
-                        pdpRequest);
-            }
+        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
+            PdpRequest pdpRequest = new PdpRequest();
+            pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, (Collections.singleton(fnr1.getFnr())));
+            pdpRequest.put(StandardAttributter.ACTION_ID, attributter.getActionType().getEksternKode());
+            pdpRequest.put(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource().getEksternKode());
+            pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, attributter.getIdToken());
+            return new Tilgangsbeslutning(
+                AbacResultat.AVSLÅTT_KODE_6,
+                Collections.singletonList(Decision.Deny),
+                pdpRequest);
         });
 
         Method method = RestClass.class.getMethod("fnrIn", FnrDto.class);
