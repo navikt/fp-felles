@@ -18,6 +18,7 @@ public class ProsessTaskOpprettInputDto implements AbacDto {
     private String taskType;
 
     @NotNull
+    @Size(max = 100)
     @Valid
     private Properties taskParametre = new Properties();
 
