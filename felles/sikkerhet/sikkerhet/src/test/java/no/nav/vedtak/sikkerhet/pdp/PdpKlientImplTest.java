@@ -1,5 +1,8 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
+import static no.nav.abac.common.xacml.CommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
+import static no.nav.abac.common.xacml.CommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN;
+import static no.nav.abac.common.xacml.CommonAttributter.RESOURCE_FELLES_PERSON_FNR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -25,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import no.nav.abac.xacml.NavAttributter;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
@@ -63,7 +65,7 @@ public class PdpKlientImplTest {
         pdpRequest.setToken(idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
-        assertThat(captor.getValue().build().toString().contains(NavAttributter.ENVIRONMENT_FELLES_SAML_TOKEN)).isTrue();
+        assertThat(captor.getValue().build().toString().contains(ENVIRONMENT_FELLES_SAML_TOKEN)).isTrue();
     }
 
     @Test
@@ -79,7 +81,7 @@ public class PdpKlientImplTest {
         pdpRequest.setToken(idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
-        assertThat(captor.getValue().build().toString().contains(NavAttributter.RESOURCE_FELLES_PERSON_FNR)).isFalse();
+        assertThat(captor.getValue().build().toString().contains(RESOURCE_FELLES_PERSON_FNR)).isFalse();
     }
 
     @Test
@@ -95,7 +97,7 @@ public class PdpKlientImplTest {
         pdpRequest.setToken(idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
-        assertThat(captor.getValue().build().toString().contains(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY)).isTrue();
+        assertThat(captor.getValue().build().toString().contains(ENVIRONMENT_FELLES_OIDC_TOKEN_BODY)).isTrue();
     }
 
     @Test
@@ -164,7 +166,7 @@ public class PdpKlientImplTest {
         JsonObject environment = request.getJsonObject("Environment");
         JsonArray attributes = environment.getJsonArray("Attribute");
 
-        assertHasAttribute(attributes, NavAttributter.ENVIRONMENT_FELLES_SAML_TOKEN, Base64.getEncoder().encodeToString("<dummy SAML token>".getBytes(StandardCharsets.UTF_8)));
+        assertHasAttribute(attributes, ENVIRONMENT_FELLES_SAML_TOKEN, Base64.getEncoder().encodeToString("<dummy SAML token>".getBytes(StandardCharsets.UTF_8)));
 
         attributes.getJsonObject(0).getJsonString("AttributeId");
     }

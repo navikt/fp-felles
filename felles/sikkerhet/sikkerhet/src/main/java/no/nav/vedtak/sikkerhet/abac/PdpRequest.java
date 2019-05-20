@@ -14,6 +14,9 @@ public class PdpRequest {
     private AbacIdToken token;
     private String ansvarligSaksbehandler;
     private List<String> oppgavestyringEnhet;
+
+    private String annenPartAktørId;
+    private Boolean opgittAleneomsorg;
     
     private String xacmlAction;
     private String xacmlResourceType;
@@ -163,6 +166,22 @@ public class PdpRequest {
 
     public List<String> getSaksnummer(){ return saksnummer; }
 
+    public Optional<String> getAnnenPartAktørId() {
+        return Optional.ofNullable(annenPartAktørId);
+    }
+
+    public void setAnnenPartAktørId(String annenPartAktørId) {
+        this.annenPartAktørId = annenPartAktørId;
+    }
+
+    public Optional<Boolean> getOpgittAleneomsorg() {
+        return Optional.ofNullable(opgittAleneomsorg);
+    }
+
+    public void setOpgittAleneomsorg(Boolean opgittAleneomsorg) {
+        this.opgittAleneomsorg = opgittAleneomsorg;
+    }
+
     private int antallSaksnummer(){
         return saksnummer != null ? saksnummer.size() : 0;
     }
@@ -173,5 +192,4 @@ public class PdpRequest {
                 ? Optional.empty()
                 : Optional.of(saksnummer.get(index));
     }
-
 }

@@ -28,6 +28,22 @@ public class AbacDataAttributter {
         return this;
     }
 
+    public AbacDataAttributter leggTilAnnenPart(String annenPart) {
+        return leggTil(AbacAttributtType.ANNEN_PART, annenPart);
+    }
+
+    public AbacDataAttributter leggTilAleneomsorg(Boolean oppgittAleneomsorg) {
+        return leggTil(AbacAttributtType.OPPGITT_ALENEOMSORG, oppgittAleneomsorg);
+    }
+
+    Set<String> getAnnenPart() {
+        return getVerdier(AbacAttributtType.ANNEN_PART);
+    }
+
+    Set<String> getAleneomsorg() {
+        return getVerdier(AbacAttributtType.OPPGITT_ALENEOMSORG);
+    }
+
     public AbacDataAttributter leggTilOppgavestyringEnhet(String enhet) {
         return leggTil(AbacAttributtType.OPPGAVESTYRING_ENHET, enhet);
     }
@@ -63,11 +79,11 @@ public class AbacDataAttributter {
     public AbacDataAttributter leggTilBehandlingsId(Long behandlingsId) {
         return leggTil(AbacAttributtType.BEHANDLING_ID, behandlingsId);
     }
-    
+
     public AbacDataAttributter leggTilBehandlingsUUID(UUID behandlingsUuid) {
         return leggTil(AbacAttributtType.BEHANDLING_UUID, behandlingsUuid.toString());
     }
-    
+
     public AbacDataAttributter leggTilBehandlingsUUID(String behandlingsUuid) {
         return leggTil(AbacAttributtType.BEHANDLING_UUID, behandlingsUuid);
     }
@@ -75,7 +91,7 @@ public class AbacDataAttributter {
     Set<Long> getBehandlingIder() {
         return getVerdier(AbacAttributtType.BEHANDLING_ID);
     }
-    
+
     Set<String> getBehandlingsUUIDer() {
         return getVerdier(AbacAttributtType.BEHANDLING_UUID);
     }

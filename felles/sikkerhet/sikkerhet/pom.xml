@@ -102,16 +102,11 @@
         <!-- for PDP/ABAC -->
         <dependency>
             <groupId>no.nav.abac.policies</groupId>
-            <artifactId>abac-attribute-constants</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.abac.policies</groupId>
             <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.abac.policies</groupId>
-            <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
-            <classifier>attributes</classifier>
+            <artifactId>abac-arkiv-policies-alfa</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>

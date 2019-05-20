@@ -154,26 +154,20 @@
 
 
 			<!-- NAV interne 3djepart avhengigheter til kontrakter og bibliotek -->
-			<dependency>
-				<groupId>no.nav.abac.policies</groupId>
-				<artifactId>abac-attribute-constants</artifactId>
-				<version>3.3.13</version>
-			</dependency>
             <dependency>
                 <groupId>no.nav.abac.policies</groupId>
                 <artifactId>abac-common-attributes-alfa</artifactId>
-                <version>4.0.3</version>
+                <version>4.0.8</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.abac.policies</groupId>
                 <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
-                <version>4.3.5</version>
+                <version>4.5.0</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.abac.policies</groupId>
-                <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
-                <version>4.3.5</version>
-                <classifier>attributes</classifier>
+                <artifactId>abac-arkiv-policies-alfa</artifactId>
+                <version>4.6.2</version>
             </dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
