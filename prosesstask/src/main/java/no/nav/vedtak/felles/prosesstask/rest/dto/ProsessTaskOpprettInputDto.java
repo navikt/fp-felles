@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.prosesstask.rest.dto;
 
 import java.util.Properties;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -17,6 +18,7 @@ public class ProsessTaskOpprettInputDto implements AbacDto {
     private String taskType;
 
     @NotNull
+    @Valid
     private Properties taskParametre = new Properties();
 
     public String getTaskType() {
