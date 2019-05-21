@@ -18,13 +18,13 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 
 @Dependent
-public class XamlRequestBuilderTjenesteImpl implements XamlRequestBuilderTjeneste {
+public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjeneste {
 
-    public XamlRequestBuilderTjenesteImpl() {
+    public XacmlRequestBuilderTjenesteImpl() {
     }
 
     @Override
-    public XacmlRequestBuilder lagXamlRequestBuilder(PdpRequest pdpRequest) {
+    public XacmlRequestBuilder lagXacmlRequestBuilder(PdpRequest pdpRequest) {
         XacmlRequestBuilder xacmlBuilder = new XacmlRequestBuilder();
 
         XacmlAttributeSet actionAttributeSet = new XacmlAttributeSet();
