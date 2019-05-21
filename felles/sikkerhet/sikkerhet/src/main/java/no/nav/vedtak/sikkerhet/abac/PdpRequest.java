@@ -37,6 +37,7 @@ public class PdpRequest {
         return Optional.ofNullable(attributeMap.get(key)).map(String.class::cast);
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> getListOfString(String key) {
         Objects.requireNonNull(key, "Key must not be null");
         if (attributeMap.containsKey(key)) {

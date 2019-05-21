@@ -1,10 +1,5 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_PERSON_FNR;
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,9 +11,14 @@ import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.log.sporingslogg.SporingsloggId;
+import no.nav.vedtak.log.sporingslogg.StandardSporingsloggId;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.util.AppLoggerFactory;
 
+/**
+ * @deprecated FIXME Denne klassen har Høy teknisk gjeld og er en flaskehals hver gang noen har noen nytt å spore. Bør skrive om spesielt {@link #utvidSporingsdata(List, Collection, SporingsloggId)} og direkte kobling til konstant.er
+ */
+@Deprecated
 public class AbacSporingslogg {
 
     private static final Logger SPORINGSLOGG = AppLoggerFactory.getSporingLogger(AbacSporingslogg.class);
@@ -90,11 +90,11 @@ public class AbacSporingslogg {
     }
 
     private int antallIdenter(PdpRequest pdpRequest) {
-        return pdpRequest.getAntall(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE) + pdpRequest.getAntall(RESOURCE_FELLES_PERSON_FNR);
+        return pdpRequest.getAntall(NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE) + pdpRequest.getAntall(NavAttributter.RESOURCE_FELLES_PERSON_FNR);
     }
 
     private int antallAksjonspunktTyper(PdpRequest pdpRequest) {
-        return pdpRequest.getAntall(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
+        return pdpRequest.getAntall(NavAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
     }
 
     private List<Sporingsdata> byggIkkeSammensatteSporingsdata(AbacAttributtSamling attributter, List<Sporingsdata> pdpRequestSporingsdata, int antallRaderFraAttributter) {
@@ -118,19 +118,19 @@ public class AbacSporingslogg {
         List<Sporingsdata> sporingsdata = new ArrayList<>(antallRaderFraAttributter);
         sporingsdata.add(original);
 
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getAksjonspunktKode(), SporingsloggId.AKSJONSPUNKT_ID);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getAktørIder(), SporingsloggId.AKTOR_ID);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getBehandlingsIder(), SporingsloggId.BEHANDLING_ID);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getBehandlingsUUIDer(), SporingsloggId.BEHANDLING_UUID);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getDokumentDataIDer(), SporingsloggId.DOKUMENT_DATA_ID);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getDokumentIDer(), SporingsloggId.DOKUMENT_ID);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getFagsakIder(), SporingsloggId.FAGSAK_ID);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getFnrForSøkEtterSaker(), SporingsloggId.FNR_SOK);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getSaksnummre(), SporingsloggId.GSAK_SAKSNUMMER);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getJournalpostIder(false), SporingsloggId.JOURNALPOST_ID);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getJournalpostIder(true), SporingsloggId.JOURNALPOST_ID);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getOppgaveIder(), SporingsloggId.OPPGAVE_ID);
-        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getSPBeregningsIder(), SporingsloggId.SPBEREGNING_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getAksjonspunktKode(), StandardSporingsloggId.AKSJONSPUNKT_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getAktørIder(), StandardSporingsloggId.AKTOR_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getBehandlingsIder(), StandardSporingsloggId.BEHANDLING_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getBehandlingsUUIDer(), StandardSporingsloggId.BEHANDLING_UUID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getDokumentDataIDer(), StandardSporingsloggId.DOKUMENT_DATA_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getDokumentIDer(), StandardSporingsloggId.DOKUMENT_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getFagsakIder(), StandardSporingsloggId.FAGSAK_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getFnrForSøkEtterSaker(), StandardSporingsloggId.FNR_SOK);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getSaksnummre(), StandardSporingsloggId.GSAK_SAKSNUMMER);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getJournalpostIder(false), StandardSporingsloggId.JOURNALPOST_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getJournalpostIder(true), StandardSporingsloggId.JOURNALPOST_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getOppgaveIder(), StandardSporingsloggId.OPPGAVE_ID);
+        sporingsdata = utvidSporingsdata(sporingsdata, attributter.getSPBeregningsIder(), StandardSporingsloggId.SPBEREGNING_ID);
 
         return sporingsdata;
 
@@ -153,21 +153,21 @@ public class AbacSporingslogg {
     }
 
     private Sporingsdata byggSporingsdata(PdpRequest pdpRequest, int index, Decision decision) {
-        return byggSporingsdata(pdpRequest, index).leggTilId(SporingsloggId.ABAC_DECISION, decision.getEksternKode());
+        return byggSporingsdata(pdpRequest, index).leggTilId(StandardSporingsloggId.ABAC_DECISION, decision.getEksternKode());
     }
 
     private Sporingsdata byggSporingsdata(PdpRequest pdpRequest, int index) {
         Sporingsdata sporingsdata = Sporingsdata.opprett()
-            .leggTilId(SporingsloggId.ABAC_ACTION, pdpRequest.getString(StandardAttributter.ACTION_ID))
-            .leggTilId(SporingsloggId.ABAC_RESOURCE_TYPE, pdpRequest.getString(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
+            .leggTilId(StandardSporingsloggId.ABAC_ACTION, pdpRequest.getString(StandardAttributter.ACTION_ID))
+            .leggTilId(StandardSporingsloggId.ABAC_RESOURCE_TYPE, pdpRequest.getString(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
 
         //hent ut fnr og aksjonpspunkt-typer vha indexer pga kryssprodukt mellom disse
-        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, RESOURCE_FELLES_PERSON_FNR, index % Math.max(pdpRequest.getAntall(RESOURCE_FELLES_PERSON_FNR), 1), SporingsloggId.FNR);
-        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, (index / Math.max(antallIdenter(pdpRequest), 1)), SporingsloggId.ABAC_AKSJONSPUNKT_TYPE);
+        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FELLES_PERSON_FNR, index % Math.max(pdpRequest.getAntall(NavAttributter.RESOURCE_FELLES_PERSON_FNR), 1), StandardSporingsloggId.FNR);
+        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, (index / Math.max(antallIdenter(pdpRequest), 1)), StandardSporingsloggId.ABAC_AKSJONSPUNKT_TYPE);
 
-        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER, SporingsloggId.ABAC_ANSVALIG_SAKSBEHANDLER);
-        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS, SporingsloggId.ABAC_BEHANDLING_STATUS);
-        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS, SporingsloggId.ABAC_SAK_STATUS);
+        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER, StandardSporingsloggId.ABAC_ANSVALIG_SAKSBEHANDLER);
+        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS, StandardSporingsloggId.ABAC_BEHANDLING_STATUS);
+        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS, StandardSporingsloggId.ABAC_SAK_STATUS);
         return sporingsdata;
     }
 
@@ -193,7 +193,7 @@ public class AbacSporingslogg {
         StringBuilder msg = new StringBuilder()
             .append("action=").append(action).append(SPACE_SEPARATOR);
         for (SporingsloggId id : sporingsdata.getNøkler()) {
-            String nøkkel = id.getEksternKode();
+            String nøkkel = id.getSporingsloggKode();
             String verdi = sporingsdata.getVerdi(id);
             msg.append(nøkkel)
                 .append('=')

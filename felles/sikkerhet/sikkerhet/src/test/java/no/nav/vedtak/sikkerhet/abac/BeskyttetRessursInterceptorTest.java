@@ -49,7 +49,7 @@ public class BeskyttetRessursInterceptorTest {
         InvocationContext ic = new TestInvocationContext(method, new Object[]{fnr1});
         interceptor.wrapTransaction(ic);
 
-        sniffer.assertHasInfoMessage("action=/foo/fnr_in fnr=00000000000 abac_action=create abac_resource_type=no.nav.abac.attributter.foreldrepenger.fagsak");
+        sniffer.assertHasInfoMessage("action=/foo/fnr_in abac_action=create abac_resource_type=no.nav.abac.attributter.foreldrepenger.fagsak fnr=00000000000");
     }
 
     @Test
@@ -70,7 +70,7 @@ public class BeskyttetRessursInterceptorTest {
         InvocationContext ic = new TestInvocationContext(method, new Object[]{behandlingIdDto});
         interceptor.wrapTransaction(ic);
 
-        sniffer.assertHasInfoMessage("action=/foo/behandling_id_in fnr=00000000000 behandlingId=1234 abac_action=create abac_resource_type=no.nav.abac.attributter.foreldrepenger.fagsak");
+        sniffer.assertHasInfoMessage("action=/foo/behandling_id_in abac_action=create abac_resource_type=no.nav.abac.attributter.foreldrepenger.fagsak behandlingId=1234 fnr=00000000000");
     }
 
     @Test
@@ -117,7 +117,7 @@ public class BeskyttetRessursInterceptorTest {
         } catch (ManglerTilgangException e) {
             //FORVENTET
         }
-        sniffer.assertHasInfoMessage("action=/foo/fnr_in fnr=00000000000 decision=Deny abac_action=create abac_resource_type=no.nav.abac.attributter.foreldrepenger.fagsak");
+        sniffer.assertHasInfoMessage("action=/foo/fnr_in abac_action=create abac_resource_type=no.nav.abac.attributter.foreldrepenger.fagsak decision=Deny fnr=00000000000");
     }
 
     @Path("foo")

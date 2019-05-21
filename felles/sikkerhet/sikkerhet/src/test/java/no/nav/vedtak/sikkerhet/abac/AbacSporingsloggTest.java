@@ -34,7 +34,7 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        sniffer.assertHasInfoMessage("action=foobar saksnummer=SNR0001 behandlingId=1234 aksjonspunktId=999999999 journalpostId=JP001 dokumentDataId=1000 abac_action=null abac_resource_type=null");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunktId=999999999 behandlingId=1234 dokumentDataId=1000 journalpostId=JP001 saksnummer=SNR0001 ");
         assertThat(sniffer.countEntries("action")).isEqualTo(1);
     }
 
@@ -53,9 +53,9 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        sniffer.assertHasInfoMessage("action=foobar behandlingId=1234 aksjonspunktId=777777777 abac_action=null abac_resource_type=null");
-        sniffer.assertHasInfoMessage("action=foobar behandlingId=1234 aksjonspunktId=888888888 abac_action=null abac_resource_type=null");
-        sniffer.assertHasInfoMessage("action=foobar behandlingId=1234 aksjonspunktId=999999999 abac_action=null abac_resource_type=null");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunktId=777777777 behandlingId=1234");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunktId=888888888 behandlingId=1234");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunktId=999999999 behandlingId=1234");
         assertThat(sniffer.countEntries("action")).isEqualTo(3);
     }
 
@@ -76,12 +76,12 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        sniffer.assertHasInfoMessage("foobar saksnummer=SNR0001 aksjonspunktId=999999999 journalpostId=JP001 abac_action=null abac_resource_type=null");
-        sniffer.assertHasInfoMessage("foobar saksnummer=SNR0002 aksjonspunktId=999999999 journalpostId=JP001 abac_action=null abac_resource_type=null");
-        sniffer.assertHasInfoMessage("foobar saksnummer=SNR0003 aksjonspunktId=999999999 journalpostId=JP001 abac_action=null abac_resource_type=null");
-        sniffer.assertHasInfoMessage("foobar saksnummer=SNR0001 aksjonspunktId=888888888 journalpostId=JP001 abac_action=null abac_resource_type=null");
-        sniffer.assertHasInfoMessage("foobar saksnummer=SNR0002 aksjonspunktId=888888888 journalpostId=JP001 abac_action=null abac_resource_type=null");
-        sniffer.assertHasInfoMessage("foobar saksnummer=SNR0003 aksjonspunktId=888888888 journalpostId=JP001 abac_action=null abac_resource_type=null");
+        sniffer.assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktId=999999999 journalpostId=JP001 saksnummer=SNR0001 ");
+        sniffer.assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktId=999999999 journalpostId=JP001 saksnummer=SNR0002 ");
+        sniffer.assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktId=999999999 journalpostId=JP001 saksnummer=SNR0003 ");
+        sniffer.assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktId=888888888 journalpostId=JP001 saksnummer=SNR0001 ");
+        sniffer.assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktId=888888888 journalpostId=JP001 saksnummer=SNR0002 ");
+        sniffer.assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktId=888888888 journalpostId=JP001 saksnummer=SNR0003 ");
         assertThat(sniffer.countEntries("action")).isEqualTo(6);
     }
 
@@ -94,7 +94,7 @@ public class AbacSporingsloggTest {
         r.put(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, Collections.singleton("X"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token");
         sporing.loggTilgang(r, attributter);
-        sniffer.assertHasInfoMessage("action=foobar fnr=11111111111 abac_action=null abac_resource_type=null aksjonspunkt_type=X");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunkt_type=X fnr=11111111111");
         assertThat(sniffer.countEntries("action")).isEqualTo(1);
     }
 
@@ -116,7 +116,7 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        sniffer.assertHasInfoMessage("action=foobar saksnummer=SNR0001 fnr=11111111111 behandlingId=1234 aksjonspunktId=999999999 journalpostId=JP001 dokumentDataId=1000 abac_action=null abac_resource_type=null aksjonspunkt_type=X");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunktId=999999999 aksjonspunkt_type=X behandlingId=1234 dokumentDataId=1000 fnr=11111111111 journalpostId=JP001 saksnummer=SNR0001 ");
         assertThat(sniffer.countEntries("action")).isEqualTo(1);
     }
 
@@ -136,9 +136,9 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        sniffer.assertHasInfoMessage("action=foobar fnr=11111111111 behandlingId=1234 abac_action=null abac_resource_type=null aksjonspunkt_type=X");
-        sniffer.assertHasInfoMessage("action=foobar fnr=11111111111 behandlingId=1235 abac_action=null abac_resource_type=null aksjonspunkt_type=X");
-        sniffer.assertHasInfoMessage("action=foobar fnr=11111111111 behandlingId=1236 abac_action=null abac_resource_type=null aksjonspunkt_type=X");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunkt_type=X behandlingId=1234 fnr=11111111111");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunkt_type=X behandlingId=1235 fnr=11111111111");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunkt_type=X behandlingId=1236 fnr=11111111111");
         assertThat(sniffer.countEntries("action")).isEqualTo(3);
     }
 
@@ -157,9 +157,9 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        sniffer.assertHasInfoMessage("action=foobar fnr=11111111111 behandlingId=1234 abac_action=null abac_resource_type=null aksjonspunkt_type=X");
-        sniffer.assertHasInfoMessage("action=foobar fnr=22222222222 behandlingId=1234 abac_action=null abac_resource_type=null aksjonspunkt_type=X");
-        sniffer.assertHasInfoMessage("action=foobar fnr=33333333333 behandlingId=1234 abac_action=null abac_resource_type=null aksjonspunkt_type=X");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunkt_type=X behandlingId=1234 fnr=11111111111");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunkt_type=X behandlingId=1234 fnr=22222222222");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunkt_type=X behandlingId=1234 fnr=33333333333");
         assertThat(sniffer.countEntries("action")).isEqualTo(3);
     }
 
@@ -179,8 +179,8 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        sniffer.assertHasInfoMessage("action=foobar fnr=11111111111 abac_action=null abac_resource_type=null aksjonspunkt_type=X");
-        sniffer.assertHasInfoMessage("action=foobar fnr=22222222222 abac_action=null abac_resource_type=null aksjonspunkt_type=X");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunkt_type=X fnr=11111111111 ");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunkt_type=X fnr=22222222222 ");
         sniffer.assertHasInfoMessage("action=foobar behandlingId=1234");
         sniffer.assertHasInfoMessage("action=foobar behandlingId=1235");
         sniffer.assertHasInfoMessage("action=foobar behandlingId=1236");
@@ -213,7 +213,7 @@ public class AbacSporingsloggTest {
 
         sporing.loggDeny(r, Collections.singletonList(Decision.Deny), attributter);
 
-        sniffer.assertHasInfoMessage("action=foobar fnr=11111111111 behandlingId=1234 decision=Deny abac_action=null abac_resource_type=null aksjonspunkt_type=X");
+        sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null aksjonspunkt_type=X behandlingId=1234 decision=Deny fnr=11111111111 ");
         assertThat(sniffer.countEntries("action")).isEqualTo(1);
     }
 
