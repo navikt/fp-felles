@@ -46,12 +46,12 @@ public class PdpKlientImplTest {
     private static final String PEP_ID = "pepId";
     private PdpKlient pdpKlient;
     private PdpConsumer pdpConsumerMock;
-    private XamlRequestBuilderTjenesteImpl xamlRequestBuilderTjeneste;
+    private XacmlRequestBuilderTjenesteImpl xamlRequestBuilderTjeneste;
 
     @Before
     public void setUp() {
         pdpConsumerMock = mock(PdpConsumer.class);
-        xamlRequestBuilderTjeneste = new XamlRequestBuilderTjenesteImpl();
+        xamlRequestBuilderTjeneste = new XacmlRequestBuilderTjenesteImpl();
         pdpKlient = new PdpKlientImpl(pdpConsumerMock, xamlRequestBuilderTjeneste, PEP_ID);
     }
 
@@ -163,7 +163,7 @@ public class PdpKlientImplTest {
         pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
 
-        XacmlRequestBuilder builder = xamlRequestBuilderTjeneste.lagXamlRequestBuilder(pdpRequest);
+        XacmlRequestBuilder builder = xamlRequestBuilderTjeneste.lagXacmlRequestBuilder(pdpRequest);
         ((PdpKlientImpl) pdpKlient).leggPåTokenInformasjon(builder, pdpRequest);
         JsonObject jsonRequest = builder.build();
         JsonObject request = jsonRequest.getJsonObject("Request");

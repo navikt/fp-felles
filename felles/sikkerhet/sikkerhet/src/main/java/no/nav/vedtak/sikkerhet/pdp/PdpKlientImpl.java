@@ -32,13 +32,13 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
 public class PdpKlientImpl implements PdpKlient {
 
     private static final Logger logger = LoggerFactory.getLogger(PdpKlientImpl.class);
-    private final XamlRequestBuilderTjeneste xamlRequestBuilderTjeneste;
+    private final XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste;
     private final String pepId;
 
     private PdpConsumer pdpConsumer;
 
     @Inject
-    public PdpKlientImpl(PdpConsumer pdpConsumer, XamlRequestBuilderTjeneste xamlRequestBuilderTjeneste,
+    public PdpKlientImpl(PdpConsumer pdpConsumer, XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste,
                          @KonfigVerdi("systembruker.username") String pepId) {
         this.pdpConsumer = pdpConsumer;
         this.xamlRequestBuilderTjeneste = xamlRequestBuilderTjeneste;
@@ -47,7 +47,7 @@ public class PdpKlientImpl implements PdpKlient {
 
     @Override
     public Tilgangsbeslutning forespørTilgang(PdpRequest pdpRequest) {
-        XacmlRequestBuilder xacmlBuilder = xamlRequestBuilderTjeneste.lagXamlRequestBuilder(pdpRequest);
+        XacmlRequestBuilder xacmlBuilder = xamlRequestBuilderTjeneste.lagXacmlRequestBuilder(pdpRequest);
         leggPåTokenInformasjon(xacmlBuilder, pdpRequest);
         XacmlResponseWrapper response = pdpConsumer.evaluate(xacmlBuilder);
         BiasedDecisionResponse biasedResponse = evaluateWithBias(response);

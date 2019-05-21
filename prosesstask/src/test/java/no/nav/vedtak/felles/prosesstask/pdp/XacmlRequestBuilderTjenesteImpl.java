@@ -1,4 +1,4 @@
-package no.nav.vedtak.sikkerhet.pdp;
+package no.nav.vedtak.felles.prosesstask.pdp;
 
 import static no.nav.abac.xacml.NavAttributter.RESOURCE_ARKIV_GSAK_SAKSID;
 import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
@@ -14,17 +14,18 @@ import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
+import no.nav.vedtak.sikkerhet.pdp.XacmlRequestBuilderTjeneste;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 
 @Dependent
-public class XamlRequestBuilderTjenesteImpl implements XamlRequestBuilderTjeneste {
+public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjeneste {
 
-    public XamlRequestBuilderTjenesteImpl() {
+    public XacmlRequestBuilderTjenesteImpl() {
     }
 
     @Override
-    public XacmlRequestBuilder lagXamlRequestBuilder(PdpRequest pdpRequest) {
+    public XacmlRequestBuilder lagXacmlRequestBuilder(PdpRequest pdpRequest) {
         XacmlRequestBuilder xacmlBuilder = new XacmlRequestBuilder();
 
         XacmlAttributeSet actionAttributeSet = new XacmlAttributeSet();
