@@ -4,19 +4,17 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class AbacDataAttributter {
 
-    private NavigableMap<AbacAttributtType, Set<Object>> attributter = new TreeMap<>(Comparator.comparing(AbacAttributtType::getSporingsloggEksternKode));
+    private Map<AbacAttributtType, Set<Object>> attributter = new LinkedHashMap<>();
 
     public static AbacDataAttributter opprett() {
         return new AbacDataAttributter();
