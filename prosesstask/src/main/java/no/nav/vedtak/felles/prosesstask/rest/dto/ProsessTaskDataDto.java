@@ -6,7 +6,7 @@ import java.util.Properties;
 
 import io.swagger.annotations.ApiModel;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
-import no.nav.vedtak.log.sporingslogg.SporingsloggId;
+import no.nav.vedtak.log.sporingslogg.StandardSporingsloggId;
 
 @ApiModel
 public class ProsessTaskDataDto implements ProsessTaskDataInfo {
@@ -115,16 +115,16 @@ public class ProsessTaskDataDto implements ProsessTaskDataInfo {
 
         Sporingsdata sporingsdata = Sporingsdata.opprett();
         if (aktørId != null) {
-            sporingsdata.leggTilId(SporingsloggId.AKTOR_ID, Long.valueOf(aktørId));
+            sporingsdata.leggTilId(StandardSporingsloggId.AKTOR_ID, Long.valueOf(aktørId));
         }
         if (fagsakId != null) {
-            sporingsdata.leggTilId(SporingsloggId.FAGSAK_ID, Long.valueOf(fagsakId));
+            sporingsdata.leggTilId(StandardSporingsloggId.FAGSAK_ID, Long.valueOf(fagsakId));
         }
         if (behandlingId != null) {
-            sporingsdata.leggTilId(SporingsloggId.BEHANDLING_ID, Long.valueOf(behandlingId));
+            sporingsdata.leggTilId(StandardSporingsloggId.BEHANDLING_ID, Long.valueOf(behandlingId));
         }
         if (pnrId != null) {
-            sporingsdata.leggTilId(SporingsloggId.FNR, Long.valueOf(pnrId));
+            sporingsdata.leggTilId(StandardSporingsloggId.FNR, Long.valueOf(pnrId));
         }
         return Optional.of(sporingsdata);
     }
