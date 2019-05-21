@@ -1,10 +1,15 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import org.junit.Test;
+import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_PERSON_FNR;
+import static no.nav.abac.xacml.NavAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public class PdpRequestTest {
 
@@ -16,42 +21,42 @@ public class PdpRequestTest {
         fnr.add("22222222222");
         fnr.add("33333333333");
         fnr.add("44444444444");
-        req.setFnr(fnr);
+        req.put(RESOURCE_FELLES_PERSON_FNR, fnr);
         LinkedHashSet<String> aktørId = new LinkedHashSet<>();
         aktørId.add("1111");
         aktørId.add("2222");
-        req.setAktørId(aktørId);
+        req.put(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, aktørId);
         LinkedHashSet<String> at = new LinkedHashSet<>();
         at.add("a");
         at.add("b");
-        req.setAksjonspunktType(at);
+        req.put(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, at);
 
-        assertThat(req.antallResources()).isEqualTo(12); //(4 fnr + 2 aktørId) * 2 at
+        assertThat(antallResources(req)).isEqualTo(12); //(4 fnr + 2 aktørId) * 2 at
 
-        assertThat(req.getFnrForIndex(0).get()).isEqualTo("11111111111");
-        assertThat(req.getFnrForIndex(1).get()).isEqualTo("22222222222");
-        assertThat(req.getFnrForIndex(2).get()).isEqualTo("33333333333");
-        assertThat(req.getFnrForIndex(3).get()).isEqualTo("44444444444");
-        assertThat(req.getAktørIdForIndex(0).get()).isEqualTo("1111");
-        assertThat(req.getAktørIdForIndex(1).get()).isEqualTo("2222");
-        assertThat(req.getFnrForIndex(4).get()).isEqualTo("11111111111");
-        assertThat(req.getFnrForIndex(5).get()).isEqualTo("22222222222");
-        assertThat(req.getFnrForIndex(6).get()).isEqualTo("33333333333");
-        assertThat(req.getFnrForIndex(7).get()).isEqualTo("44444444444");
-        assertThat(req.getAktørIdForIndex(2).get()).isEqualTo("1111");
-        assertThat(req.getAktørIdForIndex(3).get()).isEqualTo("2222");
-        assertThat(req.getAksjonspunktTypeForIndex(0).get()).isEqualTo("a");
-        assertThat(req.getAksjonspunktTypeForIndex(1).get()).isEqualTo("a");
-        assertThat(req.getAksjonspunktTypeForIndex(2).get()).isEqualTo("a");
-        assertThat(req.getAksjonspunktTypeForIndex(3).get()).isEqualTo("a");
-        assertThat(req.getAksjonspunktTypeForIndex(4).get()).isEqualTo("a");
-        assertThat(req.getAksjonspunktTypeForIndex(5).get()).isEqualTo("a");
-        assertThat(req.getAksjonspunktTypeForIndex(6).get()).isEqualTo("b");
-        assertThat(req.getAksjonspunktTypeForIndex(7).get()).isEqualTo("b");
-        assertThat(req.getAksjonspunktTypeForIndex(8).get()).isEqualTo("b");
-        assertThat(req.getAksjonspunktTypeForIndex(9).get()).isEqualTo("b");
-        assertThat(req.getAksjonspunktTypeForIndex(10).get()).isEqualTo("b");
-        assertThat(req.getAksjonspunktTypeForIndex(11).get()).isEqualTo("b");
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 0)).hasValueSatisfying(it -> assertThat(it).isEqualTo("11111111111"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 1)).hasValueSatisfying(it -> assertThat(it).isEqualTo("22222222222"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 2)).hasValueSatisfying(it -> assertThat(it).isEqualTo("33333333333"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 3)).hasValueSatisfying(it -> assertThat(it).isEqualTo("44444444444"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, 0)).hasValueSatisfying(it -> assertThat(it).isEqualTo("1111"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, 1)).hasValueSatisfying(it -> assertThat(it).isEqualTo("2222"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 4)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 5)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 6)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 7)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, 2)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, 3)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 0)).hasValueSatisfying(it -> assertThat(it).isEqualTo("a"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 1)).hasValueSatisfying(it -> assertThat(it).isEqualTo("b"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 2)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 3)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 4)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 5)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 6)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 7)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 8)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 9)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 10)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 11)).isNotPresent();
     }
 
     @Test
@@ -60,13 +65,13 @@ public class PdpRequestTest {
         LinkedHashSet<String> fnr = new LinkedHashSet<>();
         fnr.add("11111111111");
         fnr.add("22222222222");
-        req.setFnr(fnr);
+        req.put(RESOURCE_FELLES_PERSON_FNR, fnr);
 
-        assertThat(req.antallResources()).isEqualTo(2);
-        assertThat(req.getFnrForIndex(0).get()).isEqualTo("11111111111");
-        assertThat(req.getFnrForIndex(1).get()).isEqualTo("22222222222");
-        assertThat(req.getAksjonspunktTypeForIndex(0)).isNotPresent();
-        assertThat(req.getAksjonspunktTypeForIndex(1)).isNotPresent();
+        assertThat(antallResources(req)).isEqualTo(2);
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 0)).hasValueSatisfying(it -> assertThat(it).isEqualTo("11111111111"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 1)).hasValueSatisfying(it -> assertThat(it).isEqualTo("22222222222"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 0)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 1)).isNotPresent();
     }
 
     @Test
@@ -75,21 +80,42 @@ public class PdpRequestTest {
         LinkedHashSet<String> at = new LinkedHashSet<>();
         at.add("a");
         at.add("b");
-        req.setAksjonspunktType(at);
+        req.put(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, at);
 
-        assertThat(req.antallResources()).isEqualTo(2);
-        assertThat(req.getFnrForIndex(0)).isNotPresent();
-        assertThat(req.getFnrForIndex(1)).isNotPresent();
-        assertThat(req.getAksjonspunktTypeForIndex(0).get()).isEqualTo("a");
-        assertThat(req.getAksjonspunktTypeForIndex(1).get()).isEqualTo("b");
+        assertThat(antallResources(req)).isEqualTo(2);
+        assertThat(req.getListOfString(RESOURCE_FELLES_PERSON_FNR)).isEmpty();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 0)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 1)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 0)).hasValueSatisfying(it -> assertThat(it).isEqualTo("a"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 1)).hasValueSatisfying(it -> assertThat(it).isEqualTo("b"));
     }
 
     @Test
     public void skal_fungere_uten_fnr_og_uten_aksjonspunkt_type() throws Exception {
         PdpRequest req = new PdpRequest();
 
-        assertThat(req.antallResources()).isEqualTo(1);
-        assertThat(req.getFnrForIndex(0)).isNotPresent();
-        assertThat(req.getAksjonspunktTypeForIndex(0)).isNotPresent();
+        assertThat(antallResources(req)).isEqualTo(1);
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 0)).isNotPresent();
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, 0)).isNotPresent();
+    }
+
+    private Optional<String> getElementFromListByKeyAndIndex(PdpRequest pdpRequest, String key, int index) {
+        List<String> list = pdpRequest.getListOfString(key);
+        if (list.size() >= index + 1) {
+            return Optional.ofNullable(list.get(index));
+        }
+        return Optional.empty();
+    }
+
+    private int antallResources(PdpRequest pdpRequest) {
+        return Math.max(1, antallIdenter(pdpRequest)) * Math.max(1, antallAksjonspunktTyper(pdpRequest));
+    }
+
+    private int antallIdenter(PdpRequest pdpRequest) {
+        return pdpRequest.getAntall(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE) + pdpRequest.getAntall(RESOURCE_FELLES_PERSON_FNR);
+    }
+
+    private int antallAksjonspunktTyper(PdpRequest pdpRequest) {
+        return pdpRequest.getAntall(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
     }
 }

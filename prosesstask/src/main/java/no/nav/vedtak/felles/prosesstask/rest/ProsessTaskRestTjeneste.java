@@ -33,6 +33,7 @@ import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskDataDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskDataInfo;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskDataPayloadDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
+import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskOpprettInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartResultatDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRetryAllResultatDto;
@@ -58,6 +59,28 @@ public class ProsessTaskRestTjeneste {
     @Inject
     public ProsessTaskRestTjeneste(ProsessTaskApplikasjonTjeneste prosessTaskApplikasjonTjeneste) {
         this.prosessTaskApplikasjonTjeneste = prosessTaskApplikasjonTjeneste;
+    }
+
+    @POST
+    @Path("/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Oppretter en prosess task i henhold til request",
+            notes = "Oppretter en ny task klar for kjøring."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    code = 202,
+                    message = "Prosesstaskens oppdatert informasjon"
+            ),
+            @ApiResponse(code = 500, message = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
+    public ProsessTaskDataDto createProsessTask(@ApiParam("Informasjon for restart en eksisterende prosesstask") @Valid ProsessTaskOpprettInputDto inputDto) {
+        //kjøres manuelt for å avhjelpe feilsituasjon, da er det veldig greit at det blir logget!
+        logger.info("Oppretter prossess task av type {}", inputDto.getTaskType());
+
+        return prosessTaskApplikasjonTjeneste.opprettTask(inputDto);
     }
 
     @POST

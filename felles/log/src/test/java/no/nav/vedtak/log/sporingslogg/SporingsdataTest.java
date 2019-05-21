@@ -16,17 +16,18 @@ public class SporingsdataTest {
     @Test
     public void skalHuskeIder() {
         Sporingsdata sporingsdata = Sporingsdata.opprett();
-        sporingsdata.leggTilId(SporingsloggId.AKSJONSPUNKT_ID, "1001");
-        assertThat(sporingsdata.getVerdi(SporingsloggId.AKSJONSPUNKT_ID)).isEqualTo("1001");
+        sporingsdata.leggTilId(StandardSporingsloggId.AKTOR_ID, "1001");
+        assertThat(sporingsdata.getVerdi(StandardSporingsloggId.AKTOR_ID)).isEqualTo("1001");
 
-        assertThat(sporingsdata.getNøkler()).containsOnly(SporingsloggId.AKSJONSPUNKT_ID);
+        assertThat(sporingsdata.getNøkler()).containsOnly(StandardSporingsloggId.AKTOR_ID);
 
-        sporingsdata.leggTilId(SporingsloggId.AKTOR_ID, "2002");
-        sporingsdata.leggTilId(SporingsloggId.ENHET_ID, "3003");
+        sporingsdata.leggTilId(StandardSporingsloggId.AKTOR_ID, "2002");
+        sporingsdata.leggTilId(StandardSporingsloggId.FNR, "1239487");
+        sporingsdata.leggTilId(StandardSporingsloggId.GSAK_SAKSNUMMER, "3003");
 
-        assertThat(sporingsdata.getNøkler()).containsOnly(SporingsloggId.AKSJONSPUNKT_ID, SporingsloggId.AKTOR_ID, SporingsloggId.ENHET_ID);
-        assertThat(sporingsdata.getVerdi(SporingsloggId.AKSJONSPUNKT_ID)).isEqualTo("1001");
-        assertThat(sporingsdata.getVerdi(SporingsloggId.AKTOR_ID)).isEqualTo("2002");
-        assertThat(sporingsdata.getVerdi(SporingsloggId.ENHET_ID)).isEqualTo("3003");
+        assertThat(sporingsdata.getNøkler()).containsOnly(StandardSporingsloggId.FNR, StandardSporingsloggId.AKTOR_ID, StandardSporingsloggId.GSAK_SAKSNUMMER);
+        assertThat(sporingsdata.getVerdi(StandardSporingsloggId.FNR)).isEqualTo("1239487");
+        assertThat(sporingsdata.getVerdi(StandardSporingsloggId.AKTOR_ID)).isEqualTo("2002");
+        assertThat(sporingsdata.getVerdi(StandardSporingsloggId.GSAK_SAKSNUMMER)).isEqualTo("3003");
     }
 }

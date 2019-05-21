@@ -19,6 +19,7 @@ import no.nav.vedtak.felles.prosesstask.rest.dto.FeiletProsessTaskDataDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskDataDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskDataKonverter;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskDataPayloadDto;
+import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskOpprettInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartResultatDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRetryAllResultatDto;
@@ -31,6 +32,9 @@ import no.nav.vedtak.util.FPDateUtil;
 public class ProsessTaskApplikasjonTjenesteImpl implements ProsessTaskApplikasjonTjeneste {
 
     private ProsessTaskRepository prosessTaskRepository;
+
+    public ProsessTaskApplikasjonTjenesteImpl() {
+    }
 
     @Inject
     public ProsessTaskApplikasjonTjenesteImpl(ProsessTaskRepository prosessTaskRepository) {
@@ -113,6 +117,15 @@ public class ProsessTaskApplikasjonTjenesteImpl implements ProsessTaskApplikasjo
             retryAllResultatDto.addProsessTaskId(ptd.getId());
         });
         return retryAllResultatDto;
+    }
+
+    @Override
+    public ProsessTaskDataDto opprettTask(ProsessTaskOpprettInputDto inputDto) {
+        ProsessTaskData taskData = new ProsessTaskData(inputDto.getTaskType());
+        taskData.setProperties(inputDto.getTaskParametre());
+        prosessTaskRepository.lagre(taskData);
+
+        return ProsessTaskDataKonverter.tilProsessTaskDataDto(taskData);
     }
 
     private void oppdaterProsessTaskDataMedKjoerbarStatus(ProsessTaskData eksisterendeProsessTaskData) {

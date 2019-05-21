@@ -1,5 +1,9 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+/**
+ * @deprecated Flyttes til fpsak. Styr unna
+ */
+@Deprecated
 public enum AbacBehandlingStatus {
     OPPRETTET("Opprettet"),
     UTREDES("Behandling utredes"),
