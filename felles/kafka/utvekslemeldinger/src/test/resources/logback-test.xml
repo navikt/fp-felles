@@ -1,3 +1,0 @@
-<logger name="kafka" level="DEBUG">
-    <appender-ref ref="STDOUTAppender" />
-</logger>
