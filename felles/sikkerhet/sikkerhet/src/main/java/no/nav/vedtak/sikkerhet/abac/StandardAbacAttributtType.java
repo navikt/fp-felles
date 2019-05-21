@@ -85,7 +85,7 @@ public enum StandardAbacAttributtType implements AbacAttributtType {
     private final boolean valider;
 
     StandardAbacAttributtType() {
-        sporingsloggEksternKode = "UNDEFINED_" + name();
+        sporingsloggEksternKode = null;
         maskerOutput = false;
         valider = false;
     }
