@@ -20,4 +20,10 @@ public interface JmsKonfig {
 
     String getQueueName();
 
+    boolean harReplyToQueue();
+
+    String getReplyToQueueName();
+
+
+
 }

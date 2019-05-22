@@ -1,5 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.jms;
 
+import javax.jms.JMSException;
+
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -25,5 +27,8 @@ public interface QueueProducerFeil extends DeklarerteFeil { // NOSONAR
 
     @TekniskFeil(feilkode = FeilKoder.UVENTET_FEIL_VED_SENDING_AV_MELDING, feilmelding = "Uventet feil ved håndtering av melding: %s", logLevel = LogLevel.ERROR)
     Feil uventetFeilVedSendingAvMelding(CharSequence errorDetails, Exception e);
+
+    @TekniskFeil(feilkode = "F-549339", feilmelding = "JMSException ved oppsett av replyTo", logLevel = LogLevel.ERROR)
+    Feil feilVedOppsettAvReplyTo(JMSException cause);
 
 }

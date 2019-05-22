@@ -19,11 +19,18 @@ public class BaseJmsKonfig implements JmsKonfig {
     private static final String NAME = ".name"; // NOSONAR //$NON-NLS-1$
 
     private String queueKeyPrefix;
+    private String replyToQueueKeyPrefix;
+
 
     public BaseJmsKonfig(String queueKeyPrefix) {
         Objects.requireNonNull(queueKeyPrefix, "queueKeyPrefix"); //$NON-NLS-1$
-
         this.queueKeyPrefix = queueKeyPrefix;
+    }
+
+    public BaseJmsKonfig(String queueKeyPrefix, String replyToQueueKeyPrefix) {
+        Objects.requireNonNull(queueKeyPrefix, "queueKeyPrefix"); //$NON-NLS-1$
+        this.queueKeyPrefix = queueKeyPrefix;
+        this.replyToQueueKeyPrefix = replyToQueueKeyPrefix;
     }
 
     protected String getProperty(String key) {
@@ -111,6 +118,17 @@ public class BaseJmsKonfig implements JmsKonfig {
         return queueKeyPrefix + ".queueName"; //$NON-NLS-1$
     }
 
+    @Override
+    public boolean harReplyToQueue() {
+        return replyToQueueKeyPrefix != null;
+    }
+
+    @Override
+    public String getReplyToQueueName() {
+        String propertyName = replyToQueueKeyPrefix + ".queueName";
+        return getProperty(propertyName);
+    }
+
     public void setQueueManagerChannelName(String value) {
         setProperty(getQueueManagerChannelNamePropertyKey(), value);
     }
@@ -138,12 +156,12 @@ public class BaseJmsKonfig implements JmsKonfig {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<"
-                + ", queue=" + getQueueManagerName()
-                + ",channel=" + getQueueManagerChannelName()
-                + ", host=" + getQueueManagerHostname()
-                + ", port" + getQueueManagerPort()
-                + ", username=" + getQueueManagerUsername()
-                + ">";
+            + ", queue=" + getQueueManagerName()
+            + ",channel=" + getQueueManagerChannelName()
+            + ", host=" + getQueueManagerHostname()
+            + ", port" + getQueueManagerPort()
+            + ", username=" + getQueueManagerUsername()
+            + ">";
     }
 
     @Override
@@ -155,16 +173,16 @@ public class BaseJmsKonfig implements JmsKonfig {
         }
         BaseJmsKonfig other = (BaseJmsKonfig) obj;
         return Objects.equals(getQueueName(), other.getQueueName())
-                && Objects.equals(getQueueManagerChannelName(), other.getQueueManagerChannelName())
-                && Objects.equals(getQueueManagerHostname(), other.getQueueManagerHostname())
-                && Objects.equals(getQueueManagerPort(), other.getQueueManagerPort())
-                && Objects.equals(getQueueManagerUsername(), other.getQueueManagerUsername());
+            && Objects.equals(getQueueManagerChannelName(), other.getQueueManagerChannelName())
+            && Objects.equals(getQueueManagerHostname(), other.getQueueManagerHostname())
+            && Objects.equals(getQueueManagerPort(), other.getQueueManagerPort())
+            && Objects.equals(getQueueManagerUsername(), other.getQueueManagerUsername());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getQueueManagerChannelName(), getQueueManagerHostname(), getQueueManagerPort(), getQueueManagerUsername(),
-                getQueueName());
+            getQueueName());
     }
 
 }

@@ -3,10 +3,14 @@ package no.nav.vedtak.felles.integrasjon.jms;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.jms.Destination;
 import javax.jms.JMSContext;
+import javax.jms.JMSException;
 import javax.jms.JMSProducer;
 import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
+
+import com.ibm.mq.jms.MQQueue;
 
 import no.nav.vedtak.felles.integrasjon.jms.pausing.MQExceptionUtil;
 
@@ -56,11 +60,24 @@ public abstract class QueueProducer extends QueueBase {
 
     protected void doSendTextMessage(JmsMessage message, JMSContext context) {
         JMSProducer producer = context.createProducer();
+        if (getKonfig().harReplyToQueue()) {
+            registrerReplyToQueue(producer);
+        }
         if (message.hasHeaders()) {
             for (Map.Entry<String, String> entry : message.getHeaders().entrySet()) {
                 producer.setProperty(entry.getKey(), entry.getValue());
             }
         }
         producer.send(getQueue(), message.getText());
+    }
+
+    private void registrerReplyToQueue(JMSProducer producer) {
+        JmsKonfig konfig = getKonfig();
+        try {
+            MQQueue replyToQueue = new MQQueue(konfig.getQueueManagerName(), konfig.getReplyToQueueName());
+            producer.setJMSReplyTo(replyToQueue);
+        } catch (JMSException e) {
+            throw QueueProducerFeil.FACTORY.feilVedOppsettAvReplyTo(e).toException();
+        }
     }
 }
