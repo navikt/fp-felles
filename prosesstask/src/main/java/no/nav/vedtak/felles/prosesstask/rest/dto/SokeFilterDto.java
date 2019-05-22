@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
-import no.nav.vedtak.log.sporingslogg.SporingsloggId;
+import no.nav.vedtak.log.sporingslogg.StandardSporingsloggId;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.FPDateUtil;
@@ -57,8 +57,8 @@ public class SokeFilterDto implements AbacDto {
 
     public Sporingsdata lagSporingsloggData() {
         Sporingsdata sporingsdata = Sporingsdata.opprett();
-        sporingsdata.leggTilId(SporingsloggId.PROSESS_TASK_STATUS, prosessTaskStatuser.stream().map(ProsessTaskStatusDto::getProsessTaskStatusName).collect(Collectors.joining(",")));
-        sporingsdata.leggTilId(SporingsloggId.PROSESS_TASK_KJORETIDSINTERVALL, String.format("%s-%s", sisteKjoeretidspunktFraOgMed, sisteKjoeretidspunktTilOgMed));
+        sporingsdata.leggTilId(StandardSporingsloggId.PROSESS_TASK_STATUS, prosessTaskStatuser.stream().map(ProsessTaskStatusDto::getProsessTaskStatusName).collect(Collectors.joining(",")));
+        sporingsdata.leggTilId(StandardSporingsloggId.PROSESS_TASK_KJORETIDSINTERVALL, String.format("%s-%s", sisteKjoeretidspunktFraOgMed, sisteKjoeretidspunktTilOgMed));
         return sporingsdata;
     }
 

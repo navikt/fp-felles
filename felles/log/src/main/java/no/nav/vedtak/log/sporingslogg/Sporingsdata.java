@@ -1,19 +1,19 @@
 package no.nav.vedtak.log.sporingslogg;
 
-import java.util.EnumMap;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * DTO for data som utgjør et innslag i sporingsloggen.
  */
 public class Sporingsdata {
 
-    private Map<SporingsloggId, String> verdier = new EnumMap<>(SporingsloggId.class);
+    private Map<SporingsloggId, String> verdier = new TreeMap<>(Comparator.comparing(SporingsloggId::getSporingsloggKode));
 
     private Sporingsdata() {
-
     }
 
     private Sporingsdata(Map<SporingsloggId, String> verdier) {
@@ -24,7 +24,7 @@ public class Sporingsdata {
         return new Sporingsdata();
     }
 
-    public Sporingsdata kopi(){
+    public Sporingsdata kopi() {
         return new Sporingsdata(verdier);
     }
 
@@ -63,7 +63,7 @@ public class Sporingsdata {
     @Override
     public String toString() {
         return "Sporingsdata{" +
-                ", verdier=" + verdier +
-                '}';
+            ", verdier=" + verdier +
+            '}';
     }
 }

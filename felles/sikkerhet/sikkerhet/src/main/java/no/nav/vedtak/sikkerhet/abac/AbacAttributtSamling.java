@@ -30,40 +30,82 @@ public class AbacAttributtSamling {
         return this;
     }
 
+    /**
+     * @deprecated bye-bye bruk verdier direkte, ikke hardkod metoder
+     */
+    @Deprecated
     public Set<String> getSaksnummre() {
         return dataAttributter.getSaksnummre();
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<Long> getBehandlingsIder() {
         return dataAttributter.getBehandlingIder();
     }
     
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<String> getBehandlingsUUIDer() {
         return dataAttributter.getBehandlingsUUIDer();
     }
     
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<Long> getSPBeregningsIder() {
         return dataAttributter.getSPBeregningsIder();
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<String> getFødselsnumre() {
         return dataAttributter.getFødselsnumre();
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<String> getFnrForSøkEtterSaker() {
         return dataAttributter.getFnrForSøkEtterSaker();
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<String> getJournalpostIder(boolean påkrevde) {
         return dataAttributter.getJournalpostIder(påkrevde);
     }
-
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<String> getOppgaveIder() {
         return dataAttributter.getOppgaveIder();
     }
-
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<String> getOppgavestyringEnhet(){
         return dataAttributter.getOppgavestyringEnhet();
+    }
+    
+    public Set<String> getVerdier(AbacAttributtType type){
+        return dataAttributter.getVerdier(type);
+    }
+    
+    public Set<AbacAttributtType> keySet(){
+        return dataAttributter.keySet();
     }
 
     public AbacIdToken getIdToken() {
@@ -98,26 +140,50 @@ public class AbacAttributtSamling {
         return resource;
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<String> getAksjonspunktKode() {
         return dataAttributter.getAksjonspunktKode();
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<String> getAktørIder() {
         return dataAttributter.getAktørIder();
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<Long> getDokumentDataIDer() {
         return dataAttributter.getDokumentDataId();
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<String> getDokumentIDer() {
         return dataAttributter.getDokumentId();
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<Long> getFagsakIder() {
         return dataAttributter.getFagsakIder();
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public Set<UUID> getDokumentforsendelseIder() {
         return dataAttributter.getDokumentforsendelseIder();
     }

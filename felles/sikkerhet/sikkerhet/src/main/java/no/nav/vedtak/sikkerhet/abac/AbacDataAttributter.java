@@ -4,16 +4,17 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class AbacDataAttributter {
 
-    private Map<AbacAttributtType, Set<Object>> attributter = new EnumMap<>(AbacAttributtType.class);
+    private Map<AbacAttributtType, Set<Object>> attributter = new LinkedHashMap<>();
 
     public static AbacDataAttributter opprett() {
         return new AbacDataAttributter();
@@ -28,145 +29,275 @@ public class AbacDataAttributter {
         return this;
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilOppgavestyringEnhet(String enhet) {
-        return leggTil(AbacAttributtType.OPPGAVESTYRING_ENHET, enhet);
+        return leggTil(StandardAbacAttributtType.OPPGAVESTYRING_ENHET, enhet);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<String> getOppgavestyringEnhet() {
-        return getVerdier(AbacAttributtType.OPPGAVESTYRING_ENHET);
+        return getVerdier(StandardAbacAttributtType.OPPGAVESTYRING_ENHET);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilFødselsnummer(String fnr) {
-        return leggTil(AbacAttributtType.FNR, fnr);
+        return leggTil(StandardAbacAttributtType.FNR, fnr);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<String> getFødselsnumre() {
-        return getVerdier(AbacAttributtType.FNR);
+        return getVerdier(StandardAbacAttributtType.FNR);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilAktørId(String aktørId) {
-        return leggTil(AbacAttributtType.AKTØR_ID, aktørId);
+        return leggTil(StandardAbacAttributtType.AKTØR_ID, aktørId);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<String> getAktørIder() {
-        return getVerdier(AbacAttributtType.AKTØR_ID);
+        return getVerdier(StandardAbacAttributtType.AKTØR_ID);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilSaksnummer(String saksnummer) {
-        return leggTil(AbacAttributtType.SAKSNUMMER, saksnummer);
+        return leggTil(StandardAbacAttributtType.SAKSNUMMER, saksnummer);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<String> getSaksnummre() {
-        return getVerdier(AbacAttributtType.SAKSNUMMER);
+        return getVerdier(StandardAbacAttributtType.SAKSNUMMER);
     }
+
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
 
     public AbacDataAttributter leggTilBehandlingsId(Long behandlingsId) {
-        return leggTil(AbacAttributtType.BEHANDLING_ID, behandlingsId);
+        return leggTil(StandardAbacAttributtType.BEHANDLING_ID, behandlingsId);
     }
-    
+
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
+
     public AbacDataAttributter leggTilBehandlingsUUID(UUID behandlingsUuid) {
-        return leggTil(AbacAttributtType.BEHANDLING_UUID, behandlingsUuid.toString());
+        return leggTil(StandardAbacAttributtType.BEHANDLING_UUID, behandlingsUuid.toString());
     }
-    
+
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilBehandlingsUUID(String behandlingsUuid) {
-        return leggTil(AbacAttributtType.BEHANDLING_UUID, behandlingsUuid);
+        return leggTil(StandardAbacAttributtType.BEHANDLING_UUID, behandlingsUuid);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<Long> getBehandlingIder() {
-        return getVerdier(AbacAttributtType.BEHANDLING_ID);
+        return getVerdier(StandardAbacAttributtType.BEHANDLING_ID);
     }
-    
+
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<String> getBehandlingsUUIDer() {
-        return getVerdier(AbacAttributtType.BEHANDLING_UUID);
+        return getVerdier(StandardAbacAttributtType.BEHANDLING_UUID);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilFagsakId(Long fagsakId) {
-        return leggTil(AbacAttributtType.FAGSAK_ID, fagsakId);
+        return leggTil(StandardAbacAttributtType.FAGSAK_ID, fagsakId);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<Long> getFagsakIder() {
-        return getVerdier(AbacAttributtType.FAGSAK_ID);
+        return getVerdier(StandardAbacAttributtType.FAGSAK_ID);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilDokumentDataId(Long dokumentDataId) {
-        return leggTil(AbacAttributtType.DOKUMENT_DATA_ID, dokumentDataId);
+        return leggTil(StandardAbacAttributtType.DOKUMENT_DATA_ID, dokumentDataId);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<Long> getDokumentDataId() {
-        return getVerdier(AbacAttributtType.DOKUMENT_DATA_ID);
+        return getVerdier(StandardAbacAttributtType.DOKUMENT_DATA_ID);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilDokumentId(String dokumentId) {
-        return leggTil(AbacAttributtType.DOKUMENT_ID, dokumentId);
+        return leggTil(StandardAbacAttributtType.DOKUMENT_ID, dokumentId);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<String> getDokumentId() {
-        return getVerdier(AbacAttributtType.DOKUMENT_ID);
+        return getVerdier(StandardAbacAttributtType.DOKUMENT_ID);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilJournalPostId(String journalpostId, boolean krevAtFinnes) {
-        return leggTil(krevAtFinnes ? AbacAttributtType.EKSISTERENDE_JOURNALPOST_ID : AbacAttributtType.JOURNALPOST_ID, journalpostId);
+        return leggTil(krevAtFinnes ? StandardAbacAttributtType.EKSISTERENDE_JOURNALPOST_ID : StandardAbacAttributtType.JOURNALPOST_ID, journalpostId);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<String> getJournalpostIder(boolean påkrevde) {
-        return getVerdier(påkrevde ? AbacAttributtType.EKSISTERENDE_JOURNALPOST_ID : AbacAttributtType.JOURNALPOST_ID);
+        return getVerdier(påkrevde ? StandardAbacAttributtType.EKSISTERENDE_JOURNALPOST_ID : StandardAbacAttributtType.JOURNALPOST_ID);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilFnrForSøkeEtterSaker(String fnr) {
-        return leggTil(AbacAttributtType.SAKER_MED_FNR, fnr);
+        return leggTil(StandardAbacAttributtType.SAKER_MED_FNR, fnr);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<String> getFnrForSøkEtterSaker() {
-        return getVerdier(AbacAttributtType.SAKER_MED_FNR);
+        return getVerdier(StandardAbacAttributtType.SAKER_MED_FNR);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilOppgaveId(String oppgaveId) {
-        return leggTil(AbacAttributtType.OPPGAVE_ID, oppgaveId);
+        return leggTil(StandardAbacAttributtType.OPPGAVE_ID, oppgaveId);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<String> getOppgaveIder() {
-        return getVerdier(AbacAttributtType.OPPGAVE_ID);
+        return getVerdier(StandardAbacAttributtType.OPPGAVE_ID);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilAksjonspunktKode(String aksjonspunktId) {
-        return leggTil(AbacAttributtType.AKSJONSPUNKT_KODE, aksjonspunktId);
+        return leggTil(StandardAbacAttributtType.AKSJONSPUNKT_KODE, aksjonspunktId);
     }
 
+    public Set<AbacAttributtType> keySet() {
+        return attributter.keySet();
+    }
+
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<String> getAksjonspunktKode() {
-        return getVerdier(AbacAttributtType.AKSJONSPUNKT_KODE);
+        return getVerdier(StandardAbacAttributtType.AKSJONSPUNKT_KODE);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilSPBeregningId(Long beregningId) {
-        return leggTil(AbacAttributtType.SPBEREGNING_ID, beregningId);
+        return leggTil(StandardAbacAttributtType.SPBEREGNING_ID, beregningId);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<Long> getSPBeregningsIder() {
-        return getVerdier(AbacAttributtType.SPBEREGNING_ID);
+        return getVerdier(StandardAbacAttributtType.SPBEREGNING_ID);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     public AbacDataAttributter leggTilDokumentforsendelseId(UUID forsendelseId) {
-        return leggTil(AbacAttributtType.DOKUMENTFORSENDELSE_ID, forsendelseId);
+        return leggTil(StandardAbacAttributtType.DOKUMENTFORSENDELSE_ID, forsendelseId);
     }
 
+    /**
+     * @deprecated bye-bye
+     */
+    @Deprecated
     Set<UUID> getDokumentforsendelseIder() {
-        return getVerdier(AbacAttributtType.DOKUMENTFORSENDELSE_ID);
+        return getVerdier(StandardAbacAttributtType.DOKUMENTFORSENDELSE_ID);
     }
 
-    private AbacDataAttributter leggTil(AbacAttributtType type, Collection<Object> samling) {
+    public AbacDataAttributter leggTil(AbacAttributtType type, Collection<Object> samling) {
         Set<Object> a = attributter.get(type);
         if (a == null) {
-            attributter.put(type, new HashSet<>(samling));
+            attributter.put(type, new LinkedHashSet<>(samling));
         } else {
             a.addAll(samling);
         }
         return this;
     }
 
-    private AbacDataAttributter leggTil(AbacAttributtType type, Object verdi) {
+    public AbacDataAttributter leggTil(AbacAttributtType type, Object verdi) {
         requireNonNull(verdi, "Attributt av type " + type + " kan ikke være null"); //$NON-NLS-1$ //$NON-NLS-2$
         Set<Object> a = attributter.get(type);
         if (a == null) {
-            a = new HashSet<>(4); // det er vanligvis bare 1 attributt i settet
+            a = new LinkedHashSet<>(4); // det er vanligvis bare 1 attributt i settet
             attributter.put(type, a);
         }
         a.add(verdi);
@@ -174,7 +305,7 @@ public class AbacDataAttributter {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Set<T> getVerdier(AbacAttributtType type) {
+    public <T> Set<T> getVerdier(AbacAttributtType type) {
         return attributter.containsKey(type)
             ? (Set<T>) attributter.get(type) // NOSONAR cast fungerer når settere/gettere er symmetriske slik de skal være her
             : Collections.emptySet();
@@ -182,20 +313,10 @@ public class AbacDataAttributter {
 
     @Override
     public String toString() {
-        return AbacDataAttributter.class.getSimpleName() +
-            "{saksnummre='" + getSaksnummre() + '\'' +
-            ", fnr='" + maskertEllerTom(getFødselsnumre()) + "'" +
-            ", aktørId='" + maskertEllerTom(getAktørIder()) + "'" +
-            ", oppgaveId='" + getOppgaveIder() + "'" +
-            ", fagsakId='" + getFagsakIder() + "'" +
-            ", behandlingId='" + getBehandlingIder() + "'" +
-            ", aksjonspunktKoder='" + getAksjonspunktKode() + "'" +
-            ", journalpostId='" + getJournalpostIder(false) + "'" +
-            ", påkrevdeJournalpostId='" + getJournalpostIder(true) + "'" +
-            ", beregningId='" + getSPBeregningsIder() + "'" +
-            ", dokumentforsendelseId='" + getDokumentforsendelseIder() + "'" +
-            ", oppgavestyringEnhet='" + getOppgavestyringEnhet() + "'" +
-            '}';
+        return AbacDataAttributter.class.getSimpleName() + "{" +
+            attributter.entrySet().stream()
+                .map(e -> e.getKey() + "=" + (e.getKey().getMaskerOutput() ? maskertEllerTom(e.getValue()) : e.getValue()))
+                .collect(Collectors.joining(", ", "{", "}"));
     }
 
     @Override

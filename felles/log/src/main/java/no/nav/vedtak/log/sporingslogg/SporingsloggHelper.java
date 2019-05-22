@@ -19,7 +19,7 @@ public class SporingsloggHelper {
                 .append("action=").append(action).append(SPACE_SEPARATOR)
                 .append("actionType=").append(actionType).append(SPACE_SEPARATOR);
         for (SporingsloggId id : sporingsdata.getNøkler()) {
-            msg.append(id.getEksternKode()).append('=').append(sporingsdata.getVerdi(id)).append(SPACE_SEPARATOR);
+            msg.append(id.getSporingsloggKode()).append('=').append(sporingsdata.getVerdi(id)).append(SPACE_SEPARATOR);
         }
         String sanitizedMsg = LoggerUtils.toStringWithoutLineBreaks(msg.toString());
         AppLoggerFactory.getSporingLogger(clazz).info(sanitizedMsg); //NOSONAR

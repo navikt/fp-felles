@@ -38,7 +38,7 @@ public interface ProsessTaskInfo {
     Long getFagsakId();
 
     Long getBehandlingId();
-
+    
     String getPayloadAsString();
 
     Optional<ProsessTaskHendelse> getHendelse();
