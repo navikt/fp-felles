@@ -31,6 +31,8 @@ public @interface KonfigVerdi {
     @Nonbinding
     String value() default "";
 
+    String gruppe() default "INGEN";
+
     @Nonbinding
     boolean required() default true;
 
@@ -85,7 +87,7 @@ public @interface KonfigVerdi {
             }
         }
     }
-    
+
     public static class PeriodConverter implements KonfigVerdi.Converter<Period> {
 
         @Override
@@ -97,7 +99,7 @@ public @interface KonfigVerdi {
             }
         }
     }
-    
+
     public static class DurationConverter implements KonfigVerdi.Converter<Duration> {
 
         @Override
@@ -127,6 +129,11 @@ public @interface KonfigVerdi {
         @Override
         public String value() {
             return "";
+        }
+
+        @Override
+        public String gruppe() {
+            return "INGEN";
         }
 
         @Override
