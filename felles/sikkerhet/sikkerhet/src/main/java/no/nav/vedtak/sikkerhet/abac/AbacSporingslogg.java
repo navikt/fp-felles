@@ -7,8 +7,8 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 
-import no.nav.abac.xacml.NavAttributter;
-import no.nav.abac.xacml.StandardAttributter;
+import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.log.sporingslogg.SporingsloggId;
 import no.nav.vedtak.log.sporingslogg.StandardSporingsloggId;
@@ -90,11 +90,11 @@ public class AbacSporingslogg {
     }
 
     private int antallIdenter(PdpRequest pdpRequest) {
-        return pdpRequest.getAntall(NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE) + pdpRequest.getAntall(NavAttributter.RESOURCE_FELLES_PERSON_FNR);
+        return pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE) + pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_FNR);
     }
 
     private int antallAksjonspunktTyper(PdpRequest pdpRequest) {
-        return pdpRequest.getAntall(NavAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
+        return pdpRequest.getAntall(ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
     }
 
     private List<Sporingsdata> byggIkkeSammensatteSporingsdata(AbacAttributtSamling attributter, List<Sporingsdata> pdpRequestSporingsdata, int antallRaderFraAttributter) {
@@ -158,16 +158,16 @@ public class AbacSporingslogg {
 
     private Sporingsdata byggSporingsdata(PdpRequest pdpRequest, int index) {
         Sporingsdata sporingsdata = Sporingsdata.opprett()
-            .leggTilId(StandardSporingsloggId.ABAC_ACTION, pdpRequest.getString(StandardAttributter.ACTION_ID))
-            .leggTilId(StandardSporingsloggId.ABAC_RESOURCE_TYPE, pdpRequest.getString(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
+            .leggTilId(StandardSporingsloggId.ABAC_ACTION, pdpRequest.getString(CommonAttributter.XACML_1_0_ACTION_ACTION_ID))
+            .leggTilId(StandardSporingsloggId.ABAC_RESOURCE_TYPE, pdpRequest.getString(CommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
 
         //hent ut fnr og aksjonpspunkt-typer vha indexer pga kryssprodukt mellom disse
-        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FELLES_PERSON_FNR, index % Math.max(pdpRequest.getAntall(NavAttributter.RESOURCE_FELLES_PERSON_FNR), 1), StandardSporingsloggId.FNR);
-        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, (index / Math.max(antallIdenter(pdpRequest), 1)), StandardSporingsloggId.ABAC_AKSJONSPUNKT_TYPE);
+        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, CommonAttributter.RESOURCE_FELLES_PERSON_FNR, index % Math.max(pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_FNR), 1), StandardSporingsloggId.FNR);
+        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, (index / Math.max(antallIdenter(pdpRequest), 1)), StandardSporingsloggId.ABAC_AKSJONSPUNKT_TYPE);
 
-        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER, StandardSporingsloggId.ABAC_ANSVALIG_SAKSBEHANDLER);
-        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS, StandardSporingsloggId.ABAC_BEHANDLING_STATUS);
-        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS, StandardSporingsloggId.ABAC_SAK_STATUS);
+        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER, StandardSporingsloggId.ABAC_ANSVALIG_SAKSBEHANDLER);
+        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS, StandardSporingsloggId.ABAC_BEHANDLING_STATUS);
+        setOptionalValueinAttributeSet(sporingsdata, pdpRequest, ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS, StandardSporingsloggId.ABAC_SAK_STATUS);
         return sporingsdata;
     }
 

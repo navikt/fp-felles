@@ -102,15 +102,15 @@
         <!-- for PDP/ABAC -->
         <dependency>
             <groupId>no.nav.abac.policies</groupId>
-            <artifactId>abac-attribute-constants</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.abac.policies</groupId>
             <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.abac.policies</groupId>
-            <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
+            <artifactId>abac-common-attributes-alfa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.abac.policies</groupId>
+            <artifactId>abac-arkiv-policies-alfa</artifactId>
             <classifier>attributes</classifier>
         </dependency>
         <dependency>
