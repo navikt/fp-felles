@@ -1,7 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac;
 
 import static no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE;
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_PERSON_FNR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
@@ -11,6 +10,7 @@ import java.util.TreeSet;
 import org.junit.Rule;
 import org.junit.Test;
 
+import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.modig.core.test.LogSniffer;
 
 public class AbacSporingsloggTest {
@@ -25,11 +25,11 @@ public class AbacSporingsloggTest {
         PdpRequest r = new PdpRequest();
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token");
         attributter.leggTil(AbacDataAttributter.opprett()
-                .leggTilBehandlingsId(1234L)
-                .leggTilDokumentDataId(1000L)
-                .leggTilSaksnummer("SNR0001")
-                .leggTilAksjonspunktKode("999999999")
-                .leggTilJournalPostId("JP001", true)
+            .leggTilBehandlingsId(1234L)
+            .leggTilDokumentDataId(1000L)
+            .leggTilSaksnummer("SNR0001")
+            .leggTilAksjonspunktKode("999999999")
+            .leggTilJournalPostId("JP001", true)
         );
 
         sporing.loggTilgang(r, attributter);
@@ -45,10 +45,10 @@ public class AbacSporingsloggTest {
         PdpRequest r = new PdpRequest();
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token");
         attributter.leggTil(AbacDataAttributter.opprett()
-                .leggTilAksjonspunktKode("777777777")
-                .leggTilAksjonspunktKode("888888888")
-                .leggTilAksjonspunktKode("999999999")
-                .leggTilBehandlingsId(1234L)
+            .leggTilAksjonspunktKode("777777777")
+            .leggTilAksjonspunktKode("888888888")
+            .leggTilAksjonspunktKode("999999999")
+            .leggTilBehandlingsId(1234L)
         );
 
         sporing.loggTilgang(r, attributter);
@@ -66,12 +66,12 @@ public class AbacSporingsloggTest {
         PdpRequest r = new PdpRequest();
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token");
         attributter.leggTil(AbacDataAttributter.opprett()
-                .leggTilSaksnummer("SNR0001")
-                .leggTilSaksnummer("SNR0002")
-                .leggTilSaksnummer("SNR0003")
-                .leggTilAksjonspunktKode("888888888")
-                .leggTilAksjonspunktKode("999999999")
-                .leggTilJournalPostId("JP001", true)
+            .leggTilSaksnummer("SNR0001")
+            .leggTilSaksnummer("SNR0002")
+            .leggTilSaksnummer("SNR0003")
+            .leggTilAksjonspunktKode("888888888")
+            .leggTilAksjonspunktKode("999999999")
+            .leggTilJournalPostId("JP001", true)
         );
 
         sporing.loggTilgang(r, attributter);
@@ -90,7 +90,7 @@ public class AbacSporingsloggTest {
         AbacSporingslogg sporing = new AbacSporingslogg("foobar");
 
         PdpRequest r = new PdpRequest();
-        r.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
+        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
         r.put(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, Collections.singleton("X"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token");
         sporing.loggTilgang(r, attributter);
@@ -103,15 +103,15 @@ public class AbacSporingsloggTest {
         AbacSporingslogg sporing = new AbacSporingslogg("foobar");
 
         PdpRequest r = new PdpRequest();
-        r.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
+        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
         r.put(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, Collections.singleton("X"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token");
         attributter.leggTil(AbacDataAttributter.opprett()
-                .leggTilBehandlingsId(1234L)
-                .leggTilDokumentDataId(1000L)
-                .leggTilSaksnummer("SNR0001")
-                .leggTilAksjonspunktKode("999999999")
-                .leggTilJournalPostId("JP001", true)
+            .leggTilBehandlingsId(1234L)
+            .leggTilDokumentDataId(1000L)
+            .leggTilSaksnummer("SNR0001")
+            .leggTilAksjonspunktKode("999999999")
+            .leggTilJournalPostId("JP001", true)
         );
 
         sporing.loggTilgang(r, attributter);
@@ -125,13 +125,13 @@ public class AbacSporingsloggTest {
         AbacSporingslogg sporing = new AbacSporingslogg("foobar");
 
         PdpRequest r = new PdpRequest();
-        r.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
+        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
         r.put(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, Collections.singleton("X"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token");
         attributter.leggTil(AbacDataAttributter.opprett()
-                .leggTilBehandlingsId(1234L)
-                .leggTilBehandlingsId(1235L)
-                .leggTilBehandlingsId(1236L)
+            .leggTilBehandlingsId(1234L)
+            .leggTilBehandlingsId(1235L)
+            .leggTilBehandlingsId(1236L)
         );
 
         sporing.loggTilgang(r, attributter);
@@ -148,11 +148,11 @@ public class AbacSporingsloggTest {
 
 
         PdpRequest r = new PdpRequest();
-        r.put(RESOURCE_FELLES_PERSON_FNR, new TreeSet<>(Arrays.asList("11111111111", "22222222222", "33333333333")));
+        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, new TreeSet<>(Arrays.asList("11111111111", "22222222222", "33333333333")));
         r.put(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, Collections.singleton("X"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token");
         attributter.leggTil(AbacDataAttributter.opprett()
-                .leggTilBehandlingsId(1234L)
+            .leggTilBehandlingsId(1234L)
         );
 
         sporing.loggTilgang(r, attributter);
@@ -168,13 +168,13 @@ public class AbacSporingsloggTest {
         AbacSporingslogg sporing = new AbacSporingslogg("foobar");
 
         PdpRequest r = new PdpRequest();
-        r.put(RESOURCE_FELLES_PERSON_FNR, new TreeSet<>(Arrays.asList("11111111111", "22222222222")));
+        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, new TreeSet<>(Arrays.asList("11111111111", "22222222222")));
         r.put(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, Collections.singleton("X"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token");
         attributter.leggTil(AbacDataAttributter.opprett()
-                .leggTilBehandlingsId(1234L)
-                .leggTilBehandlingsId(1235L)
-                .leggTilBehandlingsId(1236L)
+            .leggTilBehandlingsId(1234L)
+            .leggTilBehandlingsId(1235L)
+            .leggTilBehandlingsId(1236L)
         );
 
         sporing.loggTilgang(r, attributter);
@@ -206,7 +206,7 @@ public class AbacSporingsloggTest {
         AbacSporingslogg sporing = new AbacSporingslogg("foobar");
 
         PdpRequest r = new PdpRequest();
-        r.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
+        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
         r.put(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, Collections.singleton("X"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token");
         attributter.leggTil(AbacDataAttributter.opprett().leggTilBehandlingsId(1234L));

@@ -1,11 +1,11 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_PERSON_FNR;
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE;
 import static no.nav.vedtak.util.Objects.check;
 
 import java.util.List;
+
+import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 
 public final class Tilgangsbeslutning {
     private AbacResultat beslutningKode;
@@ -48,10 +48,10 @@ public final class Tilgangsbeslutning {
     }
 
     private int antallIdenter(PdpRequest pdpRequest) {
-        return pdpRequest.getAntall(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE) + pdpRequest.getAntall(RESOURCE_FELLES_PERSON_FNR);
+        return pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE) + pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_FNR);
     }
 
     private int antallAksjonspunktTyper(PdpRequest pdpRequest) {
-        return pdpRequest.getAntall(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
+        return pdpRequest.getAntall(ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
     }
 }

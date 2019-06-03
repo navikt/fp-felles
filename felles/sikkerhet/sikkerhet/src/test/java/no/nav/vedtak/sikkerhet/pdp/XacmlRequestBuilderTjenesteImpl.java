@@ -1,15 +1,13 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 
-import no.nav.abac.xacml.NavAttributter;
-import no.nav.abac.xacml.StandardAttributter;
+import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
@@ -26,10 +24,10 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
         XacmlRequestBuilder xacmlBuilder = new XacmlRequestBuilder();
 
         XacmlAttributeSet actionAttributeSet = new XacmlAttributeSet();
-        actionAttributeSet.addAttribute(StandardAttributter.ACTION_ID, pdpRequest.getString(StandardAttributter.ACTION_ID));
+        actionAttributeSet.addAttribute(CommonAttributter.XACML_1_0_ACTION_ACTION_ID, pdpRequest.getString(CommonAttributter.XACML_1_0_ACTION_ACTION_ID));
         xacmlBuilder.addActionAttributeSet(actionAttributeSet);
 
-        List<Tuple<String, String>> identer = hentIdenter(pdpRequest, NavAttributter.RESOURCE_FELLES_PERSON_FNR, NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
+        List<Tuple<String, String>> identer = hentIdenter(pdpRequest, CommonAttributter.RESOURCE_FELLES_PERSON_FNR, CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
 
         if (identer.isEmpty()) {
             populerResources(xacmlBuilder, pdpRequest, null);
@@ -43,7 +41,7 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
     }
 
     private void populerResources(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest, Tuple<String, String> ident) {
-        List<String> aksjonspunktTyper = pdpRequest.getListOfString(RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
+        List<String> aksjonspunktTyper = pdpRequest.getListOfString(ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
         if (aksjonspunktTyper.isEmpty()) {
             xacmlBuilder.addResourceAttributeSet(byggRessursAttributter(pdpRequest, ident, null));
         } else {
@@ -55,16 +53,16 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
 
     private XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, Tuple<String, String> ident, String aksjonsounktType) {
         XacmlAttributeSet resourceAttributeSet = new XacmlAttributeSet();
-        resourceAttributeSet.addAttribute(NavAttributter.RESOURCE_FELLES_DOMENE, pdpRequest.getString(NavAttributter.RESOURCE_FELLES_DOMENE));
-        resourceAttributeSet.addAttribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, pdpRequest.getString(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
-        setOptionalValueinAttributeSet(resourceAttributeSet, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS);
-        setOptionalValueinAttributeSet(resourceAttributeSet, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS);
-        setOptionalValueinAttributeSet(resourceAttributeSet, pdpRequest, NavAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER);
+        resourceAttributeSet.addAttribute(CommonAttributter.RESOURCE_FELLES_DOMENE, pdpRequest.getString(CommonAttributter.RESOURCE_FELLES_DOMENE));
+        resourceAttributeSet.addAttribute(CommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, pdpRequest.getString(CommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
+        setOptionalValueinAttributeSet(resourceAttributeSet, pdpRequest, ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS);
+        setOptionalValueinAttributeSet(resourceAttributeSet, pdpRequest, ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS);
+        setOptionalValueinAttributeSet(resourceAttributeSet, pdpRequest, ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER);
         if (ident != null) {
             resourceAttributeSet.addAttribute(ident.getElement1(), ident.getElement2());
         }
         if (aksjonsounktType != null) {
-            resourceAttributeSet.addAttribute(NavAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, aksjonsounktType);
+            resourceAttributeSet.addAttribute(ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, aksjonsounktType);
         }
 
         return resourceAttributeSet;
