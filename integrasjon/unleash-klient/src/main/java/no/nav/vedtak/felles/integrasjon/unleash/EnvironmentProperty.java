@@ -26,13 +26,18 @@ public class EnvironmentProperty {
     }
 
     static String getApplicationName() {
+        var appName = getAppName();
+        if (!appName.isPresent()) {
+            throw EnvironmentFeil.FACTORY.manglerApplicationNameProperty().toException();
+        }
+        return appName.get();
+    }
+
+    static Optional<String> getAppName() {
         String appName = PropertyUtil.getProperty(APP_NAME);
         if (appName == null) {
             appName = PropertyUtil.getProperty("application.name");
         }
-        if (appName == null) {
-            throw EnvironmentFeil.FACTORY.manglerApplicationNameProperty().toException();
-        }
-        return appName;
+        return Optional.ofNullable(appName);
     }
 }
