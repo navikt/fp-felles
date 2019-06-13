@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.sigrun;
 
 import static java.util.Arrays.asList;
 
+import java.io.IOException;
 import java.net.URI;
 import java.time.Year;
 import java.util.ArrayList;
@@ -14,15 +15,47 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.vedtak.felles.integrasjon.rest.JsonMapper;
+import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.feil.LogLevel;
+import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.FPDateUtil;
 
 
 @ApplicationScoped
 public class SigrunConsumerImpl implements SigrunConsumer {
+    
+    private static final ObjectMapper mapper = getObjectMapper();
+
+    private static ObjectMapper getObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new Jdk8Module());
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper;
+    }
+    
+    interface JsonMapperFeil extends DeklarerteFeil {
+
+        public static final JsonMapperFeil FACTORY = FeilFactory.create(JsonMapperFeil.class);
+
+        @TekniskFeil(feilkode = "F-918328", feilmelding = "Fikk IO exception ved parsing av JSON", logLevel = LogLevel.WARN)
+        Feil ioExceptionVedLesing(IOException cause);
+
+    }
+
 
     private SigrunRestClient sigrunRestClient;
 
@@ -55,7 +88,7 @@ public class SigrunConsumerImpl implements SigrunConsumer {
     private void leggTil(Map<Year, List<BeregnetSkatt>> årTilListeMedSkatt, Year år, String skatt) {
         årTilListeMedSkatt.put(år, skatt.isEmpty()
                 ? Collections.emptyList()
-                : JsonMapper.fromJson(skatt, new TypeReference<List<BeregnetSkatt>>() {
+                : fromJson(skatt, new TypeReference<List<BeregnetSkatt>>() {
         }));
     }
 
@@ -72,10 +105,19 @@ public class SigrunConsumerImpl implements SigrunConsumer {
     private boolean iFjorErFerdiglignet(Long aktørId, Year iFjor) {
         String json = sigrunRestClient.hentBeregnetSkattForAktørOgÅr(aktørId, iFjor.toString());
         List<BeregnetSkatt> beregnetSkatt = json != null
-                ? JsonMapper.fromJson(json, new TypeReference<List<BeregnetSkatt>>(){})
+                ? fromJson(json, new TypeReference<List<BeregnetSkatt>>(){})
                 : new ArrayList<>();
 
         return beregnetSkatt.stream()
                 .anyMatch(l -> l.getTekniskNavn().equals(TEKNISK_NAVN));
     }
+    
+    static <T> List<T> fromJson(String json, TypeReference<List<T>> typeReference) {
+        try {
+            return mapper.readValue(json, typeReference);
+        } catch (IOException e) {
+            throw JsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+        }
+    }
+
 }

@@ -5,11 +5,6 @@ import java.io.IOException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.w3c.dom.Element;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
@@ -44,18 +39,6 @@ public class OidcRestClient extends AbstractOidcRestClient {
         } catch (IOException e) {
             throw OidcRestClientFeil.FACTORY.feilVedHentingAvSystemToken(e).toException();
         }
-    }
-
-    interface OidcRestClientFeil extends DeklarerteFeil {
-
-        OidcRestClientFeil FACTORY = FeilFactory.create(OidcRestClientFeil.class);
-
-        @TekniskFeil(feilkode = "F-891590", feilmelding = "IOException ved henting av systemets OIDC-token", logLevel = LogLevel.ERROR)
-        Feil feilVedHentingAvSystemToken(IOException cause);
-
-        @TekniskFeil(feilkode = "F-937072", feilmelding = "Klarte ikke å fremskaffe et OIDC token", logLevel = LogLevel.ERROR)
-        Feil klarteIkkeSkaffeOIDCToken();
-
     }
 
 }

@@ -18,27 +18,10 @@ import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
-public class JsonMapper {
+class DefaultJsonMapper {
     private static final ObjectMapper mapper = getObjectMapper();
 
-    public static String toJson(Object dto) {
-        try {
-            return mapper.writeValueAsString(dto);
-        } catch (JsonProcessingException e) {
-            throw JsonMapperFeil.FACTORY.kunneIkkeSerialisereJson(e).toException();
-        }
-    }
-
-    public static <T> T fromJson(String json, Class<T> clazz) {
-        try {
-            return mapper.readValue(json, clazz);
-        } catch (IOException e) {
-            throw JsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
-        }
-    }
-
-
-    private static ObjectMapper getObjectMapper() {
+    static ObjectMapper getObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new Jdk8Module());
         mapper.registerModule(new JavaTimeModule());
@@ -52,13 +35,13 @@ public class JsonMapper {
         try {
             return mapper.readValue(json, typeReference);
         } catch (IOException e) {
-            throw JsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+            throw DefaultJsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
         }
     }
 
-    interface JsonMapperFeil extends DeklarerteFeil {
+    interface DefaultJsonMapperFeil extends DeklarerteFeil {
 
-        JsonMapperFeil FACTORY = FeilFactory.create(JsonMapperFeil.class);
+        public static final DefaultJsonMapperFeil FACTORY = FeilFactory.create(DefaultJsonMapperFeil.class);
 
         @TekniskFeil(feilkode = "F-919328", feilmelding = "Fikk IO exception ved parsing av JSON", logLevel = LogLevel.WARN)
         Feil ioExceptionVedLesing(IOException cause);
