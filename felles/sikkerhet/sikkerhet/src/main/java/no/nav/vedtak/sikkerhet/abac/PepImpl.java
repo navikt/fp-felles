@@ -1,31 +1,45 @@
 package no.nav.vedtak.sikkerhet.abac;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
+import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
-@Dependent
+@ApplicationScoped
 public class PepImpl implements Pep {
 
     private PdpKlient pdpKlient;
     private PdpRequestBuilder pdpRequestBuilder;
 
-    //TODO: Ikke lag en liste av brukere. Skal ettehvert bruke LDAP for å sjekke for grupper.
-    private String PDP_USER_ID = "srvfplos";
+    private Set<String> pipUsers;
 
     public PepImpl() {
     }
 
     @Inject
-    public PepImpl(PdpKlient pdpKlient, PdpRequestBuilder pdpRequestBuilder) {
+    public PepImpl(PdpKlient pdpKlient, PdpRequestBuilder pdpRequestBuilder, @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
         this.pdpKlient = pdpKlient;
         this.pdpRequestBuilder = pdpRequestBuilder;
+
+        this.pipUsers = konfigurePipUsers(pipUsers);
+    }
+
+    private Set<String> konfigurePipUsers(String pipUsers) {
+        Set<String> result = new HashSet<>();
+        if (pipUsers != null) {
+            Collections.addAll(result, pipUsers.toLowerCase().split(","));
+        }
+        return result;
     }
 
     @Override
@@ -42,7 +56,7 @@ public class PepImpl implements Pep {
 
     private Tilgangsbeslutning vurderTilgangTilPipTjeneste(PdpRequest pdpRequest, AbacAttributtSamling attributter) {
         String uid = SubjectHandler.getSubjectHandler().getUid();
-        if (PDP_USER_ID.equals(uid.toLowerCase())) {
+        if (pipUsers.contains(uid.toLowerCase())) {
             return lagPipPermit(pdpRequest);
         }
         Tilgangsbeslutning tilgangsbeslutning = lagPipDeny(pdpRequest);
