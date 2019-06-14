@@ -7,12 +7,10 @@ import java.util.Optional;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -51,14 +49,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     @Override
     public void close() throws IOException {
         client.close();
-    }
-
-    @Override
-    public <T> T execute(final HttpUriRequest request,
-                         final ResponseHandler<? extends T> responseHandler, final HttpContext context)
-            throws IOException,
-            ClientProtocolException {
-        return execute(request, responseHandler, context);
     }
 
     public <T> T get(URI endpoint, Class<T> clazz) {
