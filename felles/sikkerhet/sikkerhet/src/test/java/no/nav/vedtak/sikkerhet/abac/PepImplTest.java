@@ -22,7 +22,7 @@ public class PepImplTest {
     @Before
     public void setUp() {
         pdpKlientMock = mock(PdpKlient.class);
-        pep = new PepImpl(pdpKlientMock, new DummyRequestBuilder());
+        pep = new PepImpl(pdpKlientMock, new DummyRequestBuilder(), "SRVFPLOS,SRVPDP");
     }
 
     @After
@@ -32,7 +32,7 @@ public class PepImplTest {
 
     @Test
     public void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
-        SubjectHandlerUtils.setInternBruker("srvfplos");
+        SubjectHandlerUtils.setInternBruker("srvpdp");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
                 .setResource(BeskyttetRessursResourceAttributt.PIP)
                 .setAction("READ");

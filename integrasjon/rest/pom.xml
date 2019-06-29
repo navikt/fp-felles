@@ -36,6 +36,13 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-validator-provider-11</artifactId>
+            <exclusions>
+                <exclusion>
+                    <!-- nyere versjoner av hibernate har byttet groupId til org.hibernate.validator så denne ender med å trekke inn gammel versjon -->
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-validator</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>

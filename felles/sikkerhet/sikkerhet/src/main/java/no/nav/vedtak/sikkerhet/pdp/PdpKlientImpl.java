@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -28,14 +29,18 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
 
-@Dependent
+@ApplicationScoped
 public class PdpKlientImpl implements PdpKlient {
 
     private static final Logger logger = LoggerFactory.getLogger(PdpKlientImpl.class);
-    private final XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste;
-    private final String pepId;
+    private XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste;
+    private String pepId;
 
     private PdpConsumer pdpConsumer;
+
+    public PdpKlientImpl(){
+        //for CDI
+    }
 
     @Inject
     public PdpKlientImpl(PdpConsumer pdpConsumer, XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste,
