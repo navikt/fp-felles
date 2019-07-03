@@ -10,13 +10,21 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.http.Consts;
 import org.apache.http.Header;
+import org.apache.http.HeaderElement;
+import org.apache.http.HeaderElementIterator;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.ConnectionConfig;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicHeaderElementIterator;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 
 @ApplicationScoped
 public class RestClientSupportProdusent {
@@ -39,16 +47,19 @@ public class RestClientSupportProdusent {
         return systemUserOidcRestClient;
     }
 
+    @SuppressWarnings("resource")
     private OidcRestClient createOidcRestClient() {
         CloseableHttpClient closeableHttpClient = createHttpClient();
         return new OidcRestClient(closeableHttpClient);
     }
 
+    @SuppressWarnings("resource")
     private SystemUserOidcRestClient creatSystemUserOidcRestClient() {
         CloseableHttpClient closeableHttpClient = createHttpClient();
         return new SystemUserOidcRestClient(closeableHttpClient);
     }
 
+    @SuppressWarnings("resource")
     private CloseableHttpClient createHttpClient() {
         // Create connection configuration
         ConnectionConfig defaultConnectionConfig = ConnectionConfig.custom()
@@ -74,7 +85,29 @@ public class RestClientSupportProdusent {
                 .setConnectionManager(connManager)
                 .setDefaultHeaders(defaultHeaders)
                 .setDefaultRequestConfig(defaultRequestConfig)
+                .setRetryHandler(new StandardHttpRequestRetryHandler())
+                .setKeepAliveStrategy(createKeepAliveStrategy(30))
                 .build();
+    }
+    
+    /** Sørger for å droppe og starte nye connections innimellom også om server ikke sender keepalive header. */
+    private static ConnectionKeepAliveStrategy createKeepAliveStrategy(int seconds) {
+        ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
+            @Override
+            public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+                HeaderElementIterator it = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE));
+                while (it.hasNext()) {
+                    HeaderElement he = it.nextElement();
+                    String param = he.getName();
+                    String value = he.getValue();
+                    if (value != null && param.equalsIgnoreCase("timeout")) {
+                        return Long.parseLong(value) * 1000;
+                    }
+                }
+                return seconds * 1000;
+            }
+        };
+        return myStrategy;
     }
 
 }

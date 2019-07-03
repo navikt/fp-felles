@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -13,9 +12,9 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.FPDateUtil;
 
 /**
- * En basis {@link Entity} klasse som håndtere felles standarder for utformign av tabeller (eks. sporing av hvem som har
- * opprettet eller oppdatert en rad, og når).
+ * @deprecated : Lag din egen. Denne skal ikke gjenbrukes.
  */
+@Deprecated
 @MappedSuperclass
 public class BaseEntitet implements Serializable {
 
