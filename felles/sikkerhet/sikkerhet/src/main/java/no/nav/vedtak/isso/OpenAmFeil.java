@@ -19,8 +19,8 @@ public interface OpenAmFeil extends DeklarerteFeil {
     @TekniskFeil(feilkode = "F-945077", feilmelding = "Feil i konfigurert redirect uri: %s", logLevel = LogLevel.ERROR)
     Feil feilIKonfigurertRedirectUri(String redirectBase, UnsupportedEncodingException e);
 
-    @TekniskFeil(feilkode = "F-011609", feilmelding = "Ikke-forventet respons fra OpenAm, statusCode %s og respons '%s'", logLevel = LogLevel.WARN)
-    Feil uforventetResponsFraOpenAM(int statusCode, String responseString);
+    @TekniskFeil(feilkode = "F-011609", feilmelding = "Ikke-forventet respons fra OpenAm, statusCode %s, respons '%s', headers '%s'", logLevel = LogLevel.WARN)
+    Feil uforventetResponsFraOpenAM(int statusCode, String responseString, String responseHeaders);
 
     @TekniskFeil(feilkode = "F-404323", feilmelding = "Kunne ikke parse JSON: '%s'", logLevel = LogLevel.WARN)
     Feil kunneIkkeParseJson(String response, IOException e);

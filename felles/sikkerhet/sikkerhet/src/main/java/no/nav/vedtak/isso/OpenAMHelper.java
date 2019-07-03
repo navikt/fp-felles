@@ -1,11 +1,22 @@
 package no.nav.vedtak.isso;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.MapType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
-import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
+import static no.nav.vedtak.konfig.PropertyUtil.getProperty;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -16,21 +27,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
 
-import static no.nav.vedtak.konfig.PropertyUtil.getProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import no.nav.vedtak.isso.config.ServerInfo;
+import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
+import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
 
 public class OpenAMHelper {
     public static final String OPEN_ID_CONNECT_ISSO_HOST = "OpenIdConnect.issoHost";
@@ -81,10 +84,12 @@ public class OpenAMHelper {
     }
 
     private void authenticateUser(CloseableHttpClient httpClient, CookieStore cookieStore, String brukernavn, String passord) throws IOException {
-        String jsonAuthUrl = getIssoHostUrl().replace(OAUTH2_ENDPOINT, JSON_AUTH_ENDPOINT);
+
+        String jsonAuthUrl = finnJsonAuthUrl();
+
 
         String template = post(httpClient, jsonAuthUrl, null, Function.identity(),
-                "Authorization: Negotiate");
+            "Authorization: Negotiate");
 
         ObjectMapper mapper = new ObjectMapper();
         String utfyltTemplate;
@@ -111,6 +116,15 @@ public class OpenAMHelper {
         cookieStore.addCookie(cookie);
     }
 
+    private String finnJsonAuthUrl() {
+        String issoHostUrl = getIssoHostUrl();
+        //det ser for tiden ut til at det er to ulike formater for issoHost, ett hvor konfigurert url slutter med /oauth2
+        //og ett hvor url ikke har /oauth2 på slutten. legger til støtte for begge
+        return issoHostUrl.contains(OAUTH2_ENDPOINT)
+            ? issoHostUrl.replace(OAUTH2_ENDPOINT, JSON_AUTH_ENDPOINT)
+            : issoHostUrl + JSON_AUTH_ENDPOINT;
+    }
+
     private <T> T post(CloseableHttpClient httpClient, String url, String data, Function<String, T> resultTransformer, String... headers) throws IOException {
         return post(httpClient, url, data, 200, resultTransformer, headers);
     }
@@ -128,18 +142,26 @@ public class OpenAMHelper {
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8)) {
+                int statusCode = response.getStatusLine().getStatusCode();
                 try (BufferedReader br = new BufferedReader(isr)) {
                     String responseString = br.lines().collect(Collectors.joining("\n"));
-                    if (response.getStatusLine().getStatusCode() == expectedHttpCode) {
+                    if (statusCode == expectedHttpCode) {
                         return resultTransformer.apply(responseString);
                     } else {
-                        throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(response.getStatusLine().getStatusCode(), responseString).toException();
+                        String responseHeaders = prettyPrintHeaders(response);
+                        throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(statusCode, responseString, responseHeaders).toException();
                     }
                 }
             }
         } finally {
             post.reset();
         }
+    }
+
+    private static String prettyPrintHeaders(CloseableHttpResponse response) {
+        return Arrays.stream(response.getAllHeaders())
+            .map(h -> h.getName() + "='" + h.getValue() + "'")
+            .reduce("", (a, b) -> a + "," + b);
     }
 
     private String hentAuthorizationCode(CloseableHttpClient httpClient) throws IOException {
