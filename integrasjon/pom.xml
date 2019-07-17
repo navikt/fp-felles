@@ -202,6 +202,12 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>unleash-klient</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>kodeverk-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
