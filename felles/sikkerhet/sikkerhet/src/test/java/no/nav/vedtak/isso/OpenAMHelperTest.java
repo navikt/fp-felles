@@ -4,10 +4,13 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import no.nav.modig.core.test.LogSniffer;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
 import no.nav.vedtak.sts.client.SecurityConstants;
+
+import org.jose4j.json.JsonUtil;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -15,6 +18,9 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_PASSWORD;
@@ -45,20 +51,21 @@ public class OpenAMHelperTest {
     }
 
     @BeforeClass
-    public static void ensureFrameworkLogging(){
-        HTTP_CLIENT_LOGGER = (Logger)LoggerFactory.getLogger("org.apache.http.client");
+    public static void ensureFrameworkLogging() {
+        HTTP_CLIENT_LOGGER = (Logger) LoggerFactory.getLogger("org.apache.http.client");
         ORG_HTTP_CLIENT_LOG_LEVEL = HTTP_CLIENT_LOGGER.getLevel();
         HTTP_CLIENT_LOGGER.setLevel(Level.WARN);
     }
 
     @Before
     public void setUp() {
+        OpenAMHelper.unsetWellKnownConfig();
+
         logSniffer.clearLog();
 
         System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://isso-t.adeo.no/isso/oauth2");
         System.setProperty(OPEN_ID_CONNECT_USERNAME, "fpsak-localhost");
-        System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, "http://localhost:8080");
-
+        System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, "http://app.expample.com");
         backupSystemProperties();
         ContextPathHolder.instance("/fpsak");
         helper = new OpenAMHelper();
@@ -95,7 +102,7 @@ public class OpenAMHelperTest {
         assertThat(tokens.getRefreshToken()).isNotNull();
         logSniffer.assertHasWarnMessage("Cookie rejected");
         int entries = logSniffer.countEntries("F-050157:Uventet format for host");
-        if(entries > 0) { //HACK (u139158): ServerInfo.cookieDomain beregnes kun en gang så når man kjører alle testene i modulen blir denne spist tidligere
+        if (entries > 0) { //HACK (u139158): ServerInfo.cookieDomain beregnes kun en gang så når man kjører alle testene i modulen blir denne spist tidligere
             logSniffer.assertHasWarnMessage("F-050157:Uventet format for host");
         }
     }
@@ -114,13 +121,42 @@ public class OpenAMHelperTest {
 
     @Test
     public void skalFåHTTP401FraOpenAM_VedUgyldigBrukernavnOgEllerPassord() throws Exception {
-    	ignoreTestHvisPropertiesIkkeErsatt();
+        ignoreTestHvisPropertiesIkkeErsatt();
         try {
             helper.getToken("NA", "NA");
         } catch (TekniskException e) {
             assertThat(e.getMessage()).startsWith("F-011609:Ikke-forventet respons fra OpenAm, statusCode 401");
             logSniffer.assertHasWarnMessage("Cookie rejected");
         }
+    }
+
+    @Test
+    public void well_known_config_should_fail_gracefully() {
+        try {
+            System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "http://should.not.exist:23442/rest/isso/oauth2");
+            String url = OpenAMHelper.getIssoIssuerUrl();
+            assertThat(url).isNull();
+        } catch (TekniskException e) {
+            assertThat(e.getMessage()).startsWith(OpenAmFeil.SERVICE_DISCOVERY_FAILED_CODE);
+        }
+    }
+
+    @Test
+    public void should_be_able_to_read_from_well_known_config() {
+        String expectedIssuer = "http://isso.example.com/rest/isso/oauth2";
+        String expextedJwks = "http://isso.example.com/rest/isso/oauth2/connect/jwk_uri";
+        String expectedAutorizationEndpoint = "http://isso.example.com/rest/isso/oauth2/authorize";
+        Map<String, String> testData = new HashMap<>() {
+            {
+                put(OpenAMHelper.ISSUER_KEY, expectedIssuer);
+                put(OpenAMHelper.JWKS_URI_KEY, expextedJwks);
+                put(OpenAMHelper.AUTHORIZATION_ENDPOINT_KEY, expectedAutorizationEndpoint);
+            }
+        };
+        OpenAMHelper.setWellKnownConfig(JsonUtil.toJson(testData));
+        assertThat(OpenAMHelper.getIssoIssuerUrl()).isEqualTo(expectedIssuer);
+        assertThat(OpenAMHelper.getIssoJwksUrl()).isEqualTo(expextedJwks);
+        assertThat(OpenAMHelper.getAuthorizationEndpoint()).isEqualTo(expectedAutorizationEndpoint);
     }
 
     private void ignoreTestHvisPropertiesIkkeErsatt() {
@@ -148,4 +184,6 @@ public class OpenAMHelperTest {
         setProperty(SecurityConstants.SYSTEMUSER_USERNAME, systembrukerUsername);
         setProperty(SecurityConstants.SYSTEMUSER_PASSWORD, systembrukerPassword);
     }
+
+
 }

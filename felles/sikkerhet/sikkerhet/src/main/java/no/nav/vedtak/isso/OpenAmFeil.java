@@ -11,6 +11,8 @@ import java.io.UnsupportedEncodingException;
 
 public interface OpenAmFeil extends DeklarerteFeil {
 
+    String SERVICE_DISCOVERY_FAILED_CODE = "F-312233";
+
     OpenAmFeil FACTORY = FeilFactory.create(OpenAmFeil.class);
 
     @TekniskFeil(feilkode = "F-502086", feilmelding = "Uventet feil ved utfylling av authorization template", logLevel = LogLevel.ERROR)
@@ -27,4 +29,7 @@ public interface OpenAmFeil extends DeklarerteFeil {
 
     @TekniskFeil(feilkode = "F-909480", feilmelding = "Fant ikke auth-code på responsen, får respons: '%s - %s'", logLevel = LogLevel.WARN)
     Feil kunneIkkeFinneAuthCode(int statusCode, String reason);
+
+    @TekniskFeil(feilkode = SERVICE_DISCOVERY_FAILED_CODE, feilmelding = "Service Discovery feilet mot wellknown host: '%s'", logLevel = LogLevel.ERROR)
+    Feil serviceDiscoveryFailed(String url, IOException e);
 }

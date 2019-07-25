@@ -1,7 +1,6 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_ISSUER;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
 import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,11 +27,10 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import no.nav.vedtak.isso.OpenAMHelper;
+import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
@@ -79,11 +77,22 @@ public class OidcAuthModuleTest {
         System.setProperty(OPEN_ID_CONNECT_USERNAME, "OIDC");
         System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://bar.devillo.no/isso/oauth2");
         System.setProperty(SecurityConstants.SYSTEMUSER_USERNAME, "JUnit Test");
-        System.setProperty(OPEN_ID_CONNECT_ISSO_ISSUER, OidcTokenGenerator.ISSUER);
 
+
+        Map<String, String> testData = new HashMap<>() {
+            {
+                put(OpenAMHelper.ISSUER_KEY, OidcTokenGenerator.ISSUER);
+            }
+        };
+        OpenAMHelper.setWellKnownConfig(JsonUtil.toJson(testData));
         Map<String, OidcTokenValidator> map = new HashMap<>();
         map.put(OidcTokenGenerator.ISSUER, tokenValidator);
         OidcTokenValidatorProviderForTest.setValidators(map);
+    }
+
+    @Before
+    public void setUp() {
+        OpenAMHelper.unsetWellKnownConfig();
     }
 
     @BeforeClass

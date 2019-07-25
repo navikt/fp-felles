@@ -2,15 +2,19 @@ package no.nav.vedtak.sikkerhet.oidc;
 
 import static java.util.Arrays.asList;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_ISSUER;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
+import no.nav.vedtak.isso.OpenAMHelper;
+import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,16 +35,19 @@ public class OidcTokenValidatorTest {
 
     public OidcTokenValidatorTest() {
         System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://foo.bar.adeo.no");
-        System.setProperty(OPEN_ID_CONNECT_ISSO_ISSUER, "https://foo.bar.adeo.no/openam/oauth2");
+        Map<String, String> testData = new HashMap<>() {
+            {
+                put(OpenAMHelper.ISSUER_KEY, "https://foo.bar.adeo.no/openam/oauth2");
+            }
+        };
+        OpenAMHelper.setWellKnownConfig(JsonUtil.toJson(testData));
         System.setProperty(OPEN_ID_CONNECT_USERNAME, "OIDC");
-
         tokenValidator = new OidcTokenValidator(new JwksKeyHandlerFromString(KeyStoreTool.getJwks()));
     }
 
     @Test
     public void skal_godta_token_som_har_forventede_verdier() throws Exception {
         OidcTokenHolder token = new OidcTokenGenerator().createHeaderTokenHolder();
-
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertValid(result);
     }
@@ -163,8 +170,7 @@ public class OidcTokenValidatorTest {
     public void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_issuer() throws Exception {
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("Expected issuer must be configured.");
-
-        System.clearProperty(OPEN_ID_CONNECT_ISSO_ISSUER);
+        OpenAMHelper.setWellKnownConfig("{}");
 
         tokenValidator = new OidcTokenValidator(new JwksKeyHandlerFromString(KeyStoreTool.getJwks()));
     }
@@ -224,7 +230,6 @@ public class OidcTokenValidatorTest {
     @After
     public void cleanSystemProperties() {
         System.clearProperty(OPEN_ID_CONNECT_ISSO_HOST);
-        System.clearProperty(OPEN_ID_CONNECT_ISSO_ISSUER);
         System.clearProperty(OPEN_ID_CONNECT_USERNAME);
     }
 
