@@ -15,6 +15,12 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.glassfish.json.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+import javax.json.JsonObject;
 
 import static no.nav.vedtak.konfig.PropertyUtil.getProperty;
 
@@ -33,16 +39,24 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class OpenAMHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenAMHelper.class);
+
     public static final String OPEN_ID_CONNECT_ISSO_HOST = "OpenIdConnect.issoHost";
-    public static final String OPEN_ID_CONNECT_ISSO_ISSUER = "OpenIdConnect.issoIssuer";
-    public static final String OPEN_ID_CONNECT_ISSO_JWKS = "OpenIdConnect.issoJwks";
     public static final String OPEN_ID_CONNECT_USERNAME = "OpenIdConnect.username";
     public static final String OPEN_ID_CONNECT_PASSWORD = "OpenIdConnect.password";
 
     private static final String OAUTH2_ENDPOINT = "/oauth2";
     private static final String JSON_AUTH_ENDPOINT = "/json/authenticate";
+    private static final String WELL_KNOWN_ENDPOINT = "/.well-known/openid-configuration";
+
+    public static final String ISSUER_KEY = "issuer";
+    public static final String JWKS_URI_KEY = "jwks_uri";
+    public static final String AUTHORIZATION_ENDPOINT_KEY = "authorization_endpoint";
 
     private String redirectUriEncoded;
+
+    private static JsonObject wellKnownConfig;
 
     public OpenAMHelper() {
         try {
@@ -84,7 +98,7 @@ public class OpenAMHelper {
         String jsonAuthUrl = getIssoHostUrl().replace(OAUTH2_ENDPOINT, JSON_AUTH_ENDPOINT);
 
         String template = post(httpClient, jsonAuthUrl, null, Function.identity(),
-                "Authorization: Negotiate");
+            "Authorization: Negotiate");
 
         ObjectMapper mapper = new ObjectMapper();
         String utfyltTemplate;
@@ -142,9 +156,50 @@ public class OpenAMHelper {
         }
     }
 
-    private String hentAuthorizationCode(CloseableHttpClient httpClient) throws IOException {
+    public static void setWellKnownConfig(String jsonAsString) {
+        wellKnownConfig = JsonUtil.toJson(jsonAsString).asJsonObject();
+    }
 
-        String url = getIssoHostUrl() + "/authorize?response_type=code&scope=openid&client_id=" + getIssoUserName() + "&state=dummy&redirect_uri=" + redirectUriEncoded;
+    public static void unsetWellKnownConfig() {
+        wellKnownConfig = null;
+    }
+
+    public static JsonObject getWellKnownConfig() {
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        String url = getIssoHostUrl() + WELL_KNOWN_ENDPOINT;
+        if (wellKnownConfig == null) {
+            HttpGet get = new HttpGet(url);
+            try (CloseableHttpResponse response = httpClient.execute(get)) {
+                try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8)) {
+                    try (BufferedReader br = new BufferedReader(isr)) {
+                        String responseString = br.lines().collect(Collectors.joining("\n"));
+                        if (response.getStatusLine().getStatusCode() == 200) {
+                            LOGGER.debug("Successfully fetching well known oidc configuration from " + url);
+                            setWellKnownConfig(responseString);
+                        } else {
+                            throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(response.getStatusLine().getStatusCode(), responseString).toException();
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                throw OpenAmFeil.FACTORY.serviceDiscoveryFailed(url, e).toException();
+            } finally {
+                get.reset();
+            }
+        }
+        return wellKnownConfig;
+    }
+
+    public static String getStringFromWellKnownConfig(String key) {
+        if (getWellKnownConfig().containsKey(key)) {
+            return getWellKnownConfig().getString(key);
+        } else {
+            return null;
+        }
+    }
+
+    private String hentAuthorizationCode(CloseableHttpClient httpClient) throws IOException {
+        String url = getAuthorizationEndpoint() + "?response_type=code&scope=openid&client_id=" + getIssoUserName() + "&state=dummy&redirect_uri=" + redirectUriEncoded;
         HttpGet get = new HttpGet(url);
         get.setHeader("Content-type", "application/json");
 
@@ -167,14 +222,6 @@ public class OpenAMHelper {
         return getProperty(OPEN_ID_CONNECT_ISSO_HOST);
     }
 
-    public static String getIssoIssuerUrl() {
-        return getProperty(OPEN_ID_CONNECT_ISSO_ISSUER);
-    }
-
-    public static String getIssoJwksUrl() {
-        return getProperty(OPEN_ID_CONNECT_ISSO_JWKS);
-    }
-
     public static String getIssoUserName() {
         return getProperty(OPEN_ID_CONNECT_USERNAME);
     }
@@ -182,5 +229,17 @@ public class OpenAMHelper {
     public static String getIssoPassword() {
         return getProperty(OPEN_ID_CONNECT_PASSWORD);
     }
-}
 
+    public static String getIssoIssuerUrl() {
+        return getStringFromWellKnownConfig(ISSUER_KEY);
+    }
+
+    public static String getIssoJwksUrl() {
+        return getStringFromWellKnownConfig(JWKS_URI_KEY);
+    }
+
+    public static String getAuthorizationEndpoint() {
+        return getStringFromWellKnownConfig(AUTHORIZATION_ENDPOINT_KEY);
+    }
+
+}

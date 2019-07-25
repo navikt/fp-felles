@@ -5,6 +5,7 @@ import no.nav.modig.core.test.LogSniffer;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.sikkerhet.domene.IdentType;
+import org.jose4j.json.JsonUtil;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -12,12 +13,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_ISSUER;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_JWKS;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_PASSWORD;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
 import static no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider.AGENT_NAME_KEY;
@@ -45,9 +46,8 @@ public class OidcTokenValidatorProviderTest {
     private static final String invalidUrl = "this.is.a.invalid.url";
     private static String OPPRINNELIG_OPEN_ID_CONNECT_USERNAME;
     private static String OPPRINNELIG_OPEN_ID_CONNECT_PASSWORD;
-    private static String OPPRINNELIG_OPEN_ID_CONNECT_ISSO_ISSUER;
     private static String OPPRINNELIG_OPEN_ID_CONNECT_ISSO_HOST;
-    private static String OPPRINNELIG_OPEN_ID_CONNECT_ISSO_JWKS;
+
 
     @Rule
     public LogSniffer logSniffer = new LogSniffer(Level.DEBUG);
@@ -58,13 +58,13 @@ public class OidcTokenValidatorProviderTest {
     public static void saveState() {
         OPPRINNELIG_OPEN_ID_CONNECT_USERNAME = OpenAMHelper.getIssoUserName();
         OPPRINNELIG_OPEN_ID_CONNECT_PASSWORD = OpenAMHelper.getIssoPassword();
-        OPPRINNELIG_OPEN_ID_CONNECT_ISSO_ISSUER = OpenAMHelper.getIssoIssuerUrl();
         OPPRINNELIG_OPEN_ID_CONNECT_ISSO_HOST = OpenAMHelper.getIssoHostUrl();
-        OPPRINNELIG_OPEN_ID_CONNECT_ISSO_JWKS = OpenAMHelper.getIssoJwksUrl();
     }
 
     @Before
     public void setUp() {
+        OpenAMHelper.unsetWellKnownConfig();
+
         System.setProperty(PROVIDERNAME_OPEN_AM + AGENT_NAME_KEY, openam_agent);
         System.setProperty(PROVIDERNAME_OPEN_AM + ISSUER_URL_KEY, openam_iss);
         System.setProperty(PROVIDERNAME_OPEN_AM + JWKS_URL_KEY, validUrl);
@@ -91,8 +91,8 @@ public class OidcTokenValidatorProviderTest {
     public static void cleanupState() {
         for (String key : System.getProperties().stringPropertyNames()) {
             if (key.startsWith(PROVIDERNAME_OPEN_AM) ||
-                    key.startsWith(PROVIDERNAME_STS) ||
-                    key.startsWith(PROVIDERNAME_AAD_B2C)) {
+                key.startsWith(PROVIDERNAME_STS) ||
+                key.startsWith(PROVIDERNAME_AAD_B2C)) {
                 System.clearProperty(key);
             }
         }
@@ -106,21 +106,12 @@ public class OidcTokenValidatorProviderTest {
         } else {
             System.setProperty(OPEN_ID_CONNECT_PASSWORD, OPPRINNELIG_OPEN_ID_CONNECT_PASSWORD);
         }
-        if (OPPRINNELIG_OPEN_ID_CONNECT_ISSO_ISSUER == null) {
-            System.clearProperty(OPEN_ID_CONNECT_ISSO_ISSUER);
-        } else {
-            System.setProperty(OPEN_ID_CONNECT_ISSO_ISSUER, OPPRINNELIG_OPEN_ID_CONNECT_ISSO_ISSUER);
-        }
         if (OPPRINNELIG_OPEN_ID_CONNECT_ISSO_HOST == null) {
             System.clearProperty(OPEN_ID_CONNECT_ISSO_HOST);
         } else {
             System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, OPPRINNELIG_OPEN_ID_CONNECT_ISSO_HOST);
         }
-        if (OPPRINNELIG_OPEN_ID_CONNECT_ISSO_JWKS == null) {
-            System.clearProperty(OPEN_ID_CONNECT_ISSO_JWKS);
-        } else {
-            System.setProperty(OPEN_ID_CONNECT_ISSO_JWKS, OPPRINNELIG_OPEN_ID_CONNECT_ISSO_JWKS);
-        }
+
     }
 
     @Test
@@ -137,11 +128,17 @@ public class OidcTokenValidatorProviderTest {
     @Test
     public void finner_OpenAm_provider_konfigurert_for_OpenAMHelper() {
         cleanupState();
+        System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, validUrl);
         System.setProperty(OPEN_ID_CONNECT_USERNAME, openam_agent);
         System.setProperty(OPEN_ID_CONNECT_PASSWORD, "aPassword");
-        System.setProperty(OPEN_ID_CONNECT_ISSO_ISSUER, openam_iss);
-        System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, validUrl);
-        System.setProperty(OPEN_ID_CONNECT_ISSO_JWKS, validUrl);
+        Map<String, String> testData = new HashMap<>() {
+            {
+                put(OpenAMHelper.ISSUER_KEY, openam_iss);
+                put(OpenAMHelper.JWKS_URI_KEY, validUrl);
+
+            }
+        };
+        OpenAMHelper.setWellKnownConfig(JsonUtil.toJson(testData));
 
         assertThat(OidcTokenValidatorProvider.instance().getValidator(openam_iss)).isNotNull();
     }
@@ -186,16 +183,16 @@ public class OidcTokenValidatorProviderTest {
         Set<OpenIDProviderConfig> configForEksternBruker = configs.stream().filter(config -> config.getIdentTyper().contains(IdentType.EksternBruker)).collect(Collectors.toSet());
 
         assertThat(configForEksternBruker).allSatisfy(config ->
-                assertThat(config.isSkipAudienceValidation()).isFalse());
+            assertThat(config.isSkipAudienceValidation()).isFalse());
     }
 
     @Test
     public void providere_skal_støtte_enten_InternBruker_eller_EksternBruker() {
         Set<OpenIDProviderConfig> configs = new OidcTokenValidatorProvider.OpenIDProviderConfigProvider().getConfigs();
         assertThat(configs.stream()
-                .filter(config -> !config.getIdentTyper().contains(IdentType.InternBruker) && !config.getIdentTyper().contains(IdentType.EksternBruker))
-                .collect(Collectors.toSet()))
-                .isEmpty();
+            .filter(config -> !config.getIdentTyper().contains(IdentType.InternBruker) && !config.getIdentTyper().contains(IdentType.EksternBruker))
+            .collect(Collectors.toSet()))
+            .isEmpty();
     }
 
     @Test
