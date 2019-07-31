@@ -24,7 +24,7 @@
 	<properties>
 		<additionalparam>-Xdoclint:none</additionalparam>
 
-		<cxf.version>3.3.1</cxf.version>
+		<cxf.version>3.3.2</cxf.version>
 		<logback.version>1.2.3</logback.version>
 		<resteasy.version>3.6.1.SP2</resteasy.version>
 		<slf4j.version>1.7.26</slf4j.version>
@@ -312,7 +312,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>5.4.2.Final</version>
+				<version>5.4.4.Final</version>
 			</dependency>
 			<dependency>
 				<!-- transitiv fiks version, brukes av hibernate-core og mockito-core -->
