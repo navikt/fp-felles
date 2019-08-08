@@ -300,6 +300,10 @@ public class CronExpression {
     public static CronExpression createWithoutSeconds(final String expr) {
         return new CronExpression(expr, false);
     }
+    
+    public LocalDateTime neste(LocalDateTime forrige) {
+        return nextTimeAfter(ZonedDateTime.of(forrige, ZoneId.systemDefault())).toLocalDateTime();
+    }
 
     public ZonedDateTime nextTimeAfter(ZonedDateTime afterTime) {
         // will search for the next time within the next 4 years. If there is no
