@@ -86,10 +86,15 @@
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>arbeidsforhold-klient</artifactId>
         </dependency>
+        
+        <!-- Fjernet fra BOM, bruk heller REST klient (aordningen-inntektinformasjon) -->
+        <!--
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>inntekt-klient</artifactId>
         </dependency>
+        -->
+        
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>kodeverk-klient</artifactId>
