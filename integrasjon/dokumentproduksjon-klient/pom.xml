@@ -18,9 +18,8 @@
             <artifactId>felles-integrasjon-webservice</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.tjenester.fim</groupId>
-            <artifactId>nav-fim-dokumentproduksjon-v2-tjenestespesifikasjon</artifactId>
-            <classifier>jaxws</classifier>
+            <groupId>no.nav.tjenestespesifikasjoner</groupId>
+            <artifactId>dokumentproduksjon-v2-tjenestespesifikasjon</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.xacml.CommonAttributter;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;

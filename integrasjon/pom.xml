@@ -53,8 +53,7 @@
     <properties>
 
 
-
-        <ibmmq.version>8.0.0.6</ibmmq.version>
+        <ibmmq.version>9.1.3.0</ibmmq.version>
 
         <jms-api.version>2.0.1</jms-api.version>
 
@@ -334,18 +333,15 @@
 
             <!-- Meldingsspesifikasjoner -->
             <dependency>
-                <groupId>no.nav.meldinger.virksomhet</groupId>
-                <artifactId>nav-virksomhet-hendelsehandterer-behandlingstatus-v1-meldingsdefinisjon</artifactId>
-                <version>${sob.melding.version}</version>
-                <classifier>jaxb</classifier>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>tmp-nav-fim-hendelse-v1</artifactId>
+                <version>1.2019.08.12-12.12-4258f3dded02</version>
             </dependency>
 
-            <!--Denne er lagt inn på grunn av konflikt i versjonsnummer mellom medl
-                og person -->
             <dependency>
-                <groupId>no.nav.tjenester</groupId>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
                 <artifactId>nav-tjenestespesifikasjoner-felles-adapter</artifactId>
-                <version>${felles.adapter.version}</version>
+                <version>${tjenestespesifikasjoner.version}</version>
             </dependency>
 
             <!-- Andre 3djepart avhengigheter -->

@@ -8,9 +8,9 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.xml.bind.JAXBException;
 
-import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingAvsluttet;
-import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingOpprettet;
-import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.ObjectFactory;
+import no.nav.melding.virksomhet.hendelse.behandling.status.v1.BehandlingAvsluttet;
+import no.nav.melding.virksomhet.hendelse.behandling.status.v1.BehandlingOpprettet;
+import no.nav.melding.virksomhet.hendelse.behandling.status.v1.ObjectFactory;
 import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
 import no.nav.vedtak.felles.integrasjon.jms.ExternalQueueProducer;
 import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
@@ -22,6 +22,7 @@ class SakOgBehandlingClientImpl extends ExternalQueueProducer implements SakOgBe
 
     public SakOgBehandlingClientImpl() {
         // CDI
+
     }
 
     @Inject

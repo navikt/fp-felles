@@ -48,7 +48,7 @@ import no.nav.vedtak.util.FPDateUtil;
 @AktiverContextOgTransaksjon
 public class RunTask {
     private static final Logger log = LoggerFactory.getLogger(RunTask.class);
-    
+
     private ProsessTaskEventPubliserer eventPubliserer;
     private TaskManagerRepositoryImpl taskManagerRepository;
     private Instance<ProsessTaskFeilhåndteringAlgoritme> feilhåndteringalgoritmer;
@@ -77,14 +77,14 @@ public class RunTask {
      * rollback av hele transaksjonen (eks {@link EntityNotFoundException} delegeres oppover). Gjelder også totalt transiente feil (eks.
      * JDBCConnectionException)
      *
-     * @throws SQLException - dersom ikke kan ta savepoint
+     * @throws SQLException         - dersom ikke kan ta savepoint
      * @throws PersistenceException dersom transaksjoner er markert for total rollback (dvs. savepoint vil ikke virke)
      */
     protected void runTaskAndUpdateStatus(Connection conn, ProsessTaskEntitet pte, PickAndRunTask pickAndRun)
-            throws SQLException {
+        throws SQLException {
         String name = pte.getTaskName();
         pickAndRun.markerTaskUnderArbeid(pte);
-        
+
         // set up a savepoint to rollback to in case of failure
         Savepoint savepoint = conn.setSavepoint();
 
@@ -106,9 +106,9 @@ public class RunTask {
             }
 
         } catch (JDBCConnectionException
-                | SQLTransientException
-                | SQLNonTransientConnectionException
-                | SQLRecoverableException e) {
+            | SQLTransientException
+            | SQLNonTransientConnectionException
+            | SQLRecoverableException e) {
 
             // vil kun logges
             pickAndRun.getFeilOgStatushåndterer().handleTransientAndRecoverableException(e);
@@ -213,17 +213,18 @@ public class RunTask {
             getEntityManager().persist(pte);
             getEntityManager().flush();
         }
-        
+
         // regner ut neste kjøretid for tasks som kan repeteres (har CronExpression)
         void planleggNesteKjøring(ProsessTaskEntitet pte) throws SQLException {
             ProsessTaskType taskType = taskManagerRepository.getTaskType(getTaskInfo().getTaskType());
+            String gruppe = ProsessTaskRepositoryImpl.getUniktProsessTaskGruppeNavn(taskManagerRepository.getEntityManager());
             if (taskType.getErGjentagende()) {
                 ProsessTaskData data = new ProsessTaskData(pte.getTaskName());
                 data.setStatus(ProsessTaskStatus.KLAR);
                 LocalDateTime now = FPDateUtil.nå();
                 LocalDateTime nesteKjøring = new CronExpression(taskType.getCronExpression()).neste(now);
                 data.setNesteKjøringEtter(nesteKjøring);
-                data.setGruppe(getUniktProsessTaskGruppeNavn()); // <- ny gruppe
+                data.setGruppe(gruppe); // <- ny gruppe
                 data.setSekvens(pte.getSekvens());
                 data.setProperties(pte.getProperties());
                 ProsessTaskEntitet nyPte = new ProsessTaskEntitet().kopierFraNy(data);
@@ -237,15 +238,6 @@ public class RunTask {
                     nyPte.getStatus(),
                     nyPte.getNesteKjøringEtter());
             }
-        }
-
-        /**
-         * Lager enkelt unik gruppenavn basert på en sekvens.
-         * Aller helst skulle vært UUID type 3?
-         */
-        private String getUniktProsessTaskGruppeNavn() throws SQLException {
-            Query query = getEntityManager().createNativeQuery("SELECT seq_prosess_task_gruppe.nextval from dual"); //$NON-NLS-1$
-            return String.valueOf(query.getSingleResult());
         }
 
         void dispatchWork(ProsessTaskEntitet pte) throws Exception { // NOSONAR
@@ -271,9 +263,9 @@ public class RunTask {
                             runTaskAndUpdateStatus(conn, pte.get(), pickAndRun);
                         }
                     } catch (JDBCConnectionException
-                            | SQLTransientException
-                            | SQLNonTransientConnectionException
-                            | SQLRecoverableException e) {
+                        | SQLTransientException
+                        | SQLNonTransientConnectionException
+                        | SQLRecoverableException e) {
 
                         // vil kun logges
                         pickAndRun.getFeilOgStatushåndterer().handleTransientAndRecoverableException(e);
@@ -290,7 +282,7 @@ public class RunTask {
             }
 
             @SuppressWarnings("resource") // skal ikke lukke session her
-            Session session = em.unwrap(Session.class);
+                Session session = em.unwrap(Session.class);
 
             session.doWork(pullSingleTask);
 
