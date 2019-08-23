@@ -4,8 +4,8 @@ import static no.nav.vedtak.util.Objects.check;
 
 import java.util.List;
 
-import no.nav.abac.common.xacml.CommonAttributter;
-import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
+import no.nav.abac.xacml.CommonAttributter;
+import no.nav.abac.xacml.ForeldrepengerAttributter;
 
 public final class Tilgangsbeslutning {
     private AbacResultat beslutningKode;

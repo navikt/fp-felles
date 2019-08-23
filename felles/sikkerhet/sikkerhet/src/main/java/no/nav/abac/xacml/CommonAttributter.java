@@ -1,0 +1,72 @@
+package no.nav.abac.xacml;
+
+public class CommonAttributter {
+    public static final String ADVICES_ACTION_SPORBARHETSLOGG = "no.nav.abac.advices.action.sporbarhetslogg";
+    public static final String ADVICES_PING_RESPONSE = "no.nav.abac.advices.ping.response";
+    public static final String ADVICES_REASON_DENY_INFO = "no.nav.abac.advices.reason.deny_info";
+    public static final String ADVICES_REASON_DENY_REASON = "no.nav.abac.advices.reason.deny_reason";
+    public static final String ADVICEOROBLIGATION_CAUSE = "no.nav.abac.attributter.adviceorobligation.cause";
+    public static final String ADVICEOROBLIGATION_DENY_POLICY = "no.nav.abac.attributter.adviceorobligation.deny_policy";
+    public static final String ADVICEOROBLIGATION_DENY_RULE = "no.nav.abac.attributter.adviceorobligation.deny_rule";
+    public static final String ADVICEOROBLIGATION_FRITEKST = "no.nav.abac.attributter.adviceorobligation.fritekst";
+    public static final String ENVIRONMENT_FELLES_CONSUMER_OIDC_TOKEN_BODY = "no.nav.abac.attributter.environment.felles.consumer_oidc_token_body";
+    public static final String ENVIRONMENT_FELLES_MILJOE = "no.nav.abac.attributter.environment.felles.miljoe";
+    public static final String ENVIRONMENT_FELLES_OIDC_TOKEN_BODY = "no.nav.abac.attributter.environment.felles.oidc_token_body";
+    public static final String ENVIRONMENT_FELLES_PEP_ID = "no.nav.abac.attributter.environment.felles.pep_id";
+    public static final String ENVIRONMENT_FELLES_SAML_TOKEN = "no.nav.abac.attributter.environment.felles.saml_token";
+    public static final String ENVIRONMENT_FELLES_TJENESTENAVN = "no.nav.abac.attributter.environment.felles.tjenestenavn";
+    public static final String RESOURCE_FELLES_DOMENE = "no.nav.abac.attributter.resource.felles.domene";
+    public static final String RESOURCE_FELLES_ENHET = "no.nav.abac.attributter.resource.felles.enhet";
+    public static final String RESOURCE_FELLES_PERSON = "no.nav.abac.attributter.resource.felles.person";
+    public static final String RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE = "no.nav.abac.attributter.resource.felles.person.aktoerId_resource";
+    public static final String RESOURCE_FELLES_PERSON_EGEN_ANSATT = "no.nav.abac.attributter.resource.felles.person.egen_ansatt";
+    public static final String RESOURCE_FELLES_PERSON_FNR = "no.nav.abac.attributter.resource.felles.person.fnr";
+    public static final String RESOURCE_FELLES_PERSON_GEOGRAFISK_TILKNYTNING = "no.nav.abac.attributter.resource.felles.person.geografisk_tilknytning";
+    public static final String RESOURCE_FELLES_PERSON_KONTAKTINFORMASJON = "no.nav.abac.attributter.resource.felles.person.kontaktinformasjon";
+    public static final String RESOURCE_FELLES_PERSON_NAV_ENHET_ID = "no.nav.abac.attributter.resource.felles.person.nav_enhet_id";
+    public static final String RESOURCE_FELLES_PERSON_NAVN = "no.nav.abac.attributter.resource.felles.person.navn";
+    public static final String RESOURCE_FELLES_PERSON_REGIONAL_ENHET = "no.nav.abac.attributter.resource.felles.person.regional_enhet";
+    public static final String RESOURCE_FELLES_PERSON_RELASJON = "no.nav.abac.attributter.resource.felles.person.relasjon";
+    public static final String RESOURCE_FELLES_PERSON_RELASJONER = "no.nav.abac.attributter.resource.felles.person.relasjoner";
+    public static final String RESOURCE_FELLES_PERSON_SPESREG = "no.nav.abac.attributter.resource.felles.person.spesreg";
+    public static final String RESOURCE_FELLES_PERSON_TILKNYTTET_EGEN_ANSATT = "no.nav.abac.attributter.resource.felles.person.tilknyttet_egen_ansatt";
+    public static final String RESOURCE_FELLES_PERSON_TILKNYTTET_FNR = "no.nav.abac.attributter.resource.felles.person.tilknyttet_fnr";
+    public static final String RESOURCE_FELLES_PERSON_TILKNYTTET_SPESREG = "no.nav.abac.attributter.resource.felles.person.tilknyttet_spesreg";
+    public static final String RESOURCE_FELLES_RESOURCE_TYPE = "no.nav.abac.attributter.resource.felles.resource_type";
+    public static final String RESOURCE_FELLES_TEMA = "no.nav.abac.attributter.resource.felles.tema";
+    public static final String SUBJECT_FELLES_AKTOERID_SUBJECT = "no.nav.abac.attributter.subject.felles.aktoerId_subject";
+    public static final String SUBJECT_FELLES_ALDER = "no.nav.abac.attributter.subject.felles.alder";
+    public static final String SUBJECT_FELLES_ALLE_TEMA = "no.nav.abac.attributter.subject.felles.alle_tema";
+    public static final String SUBJECT_FELLES_AUTHENTICATIONLEVEL = "no.nav.abac.attributter.subject.felles.authenticationLevel";
+    public static final String SUBJECT_FELLES_CONSUMERID = "no.nav.abac.attributter.subject.felles.consumerId";
+    public static final String SUBJECT_FELLES_CONSUMERID_ROLLE = "no.nav.abac.attributter.subject.felles.consumerId_rolle";
+    public static final String SUBJECT_FELLES_ENHETIDLISTE = "no.nav.abac.attributter.subject.felles.enhetidliste";
+    public static final String SUBJECT_FELLES_ER_LEVENDE = "no.nav.abac.attributter.subject.felles.er_levende";
+    public static final String SUBJECT_FELLES_HAR_TILGANG_EGEN_ANSATT = "no.nav.abac.attributter.subject.felles.har_tilgang_egen_ansatt";
+    public static final String SUBJECT_FELLES_HAR_TILGANG_KODE_6 = "no.nav.abac.attributter.subject.felles.har_tilgang_kode_6";
+    public static final String SUBJECT_FELLES_HAR_TILGANG_KODE_7 = "no.nav.abac.attributter.subject.felles.har_tilgang_kode_7";
+    public static final String SUBJECT_FELLES_INDIREKTE_GRUPPER = "no.nav.abac.attributter.subject.felles.indirekte_grupper";
+    public static final String SUBJECT_FELLES_REGIONIDLISTE = "no.nav.abac.attributter.subject.felles.regionidliste";
+    public static final String SUBJECT_FELLES_SUBJECTTYPE = "no.nav.abac.attributter.subject.felles.subjectType";
+    public static final String SUBJECT_FELLES_TEMA_FOR_ENHET = "no.nav.abac.attributter.subject.felles.tema_for_enhet";
+    public static final String XACML_1_0_ACTION_ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+    public static final String XACML_1_0_ACTION_IMPLIED_ACTION = "urn:oasis:names:tc:xacml:1.0:action:implied-action";
+    public static final String XACML_1_0_ENVIRONMENT_CURRENT_DATE = "urn:oasis:names:tc:xacml:1.0:environment:current-date";
+    public static final String XACML_1_0_ENVIRONMENT_CURRENT_DATETIME = "urn:oasis:names:tc:xacml:1.0:environment:current-dateTime";
+    public static final String XACML_1_0_ENVIRONMENT_CURRENT_TIME = "urn:oasis:names:tc:xacml:1.0:environment:current-time";
+    public static final String XACML_1_0_RESOURCE_RESOURCE_ID = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+    public static final String XACML_1_0_SUBJECT_AUTHENTICATION_METHOD = "urn:oasis:names:tc:xacml:1.0:subject:authentication-method";
+    public static final String XACML_1_0_SUBJECT_AUTHENTICATION_TIME = "urn:oasis:names:tc:xacml:1.0:subject:authentication-time";
+    public static final String XACML_1_0_SUBJECT_KEY_INFO = "urn:oasis:names:tc:xacml:1.0:subject:key-info";
+    public static final String XACML_1_0_SUBJECT_REQUEST_TIME = "urn:oasis:names:tc:xacml:1.0:subject:request-time";
+    public static final String XACML_1_0_SUBJECT_SESSION_START_TIME = "urn:oasis:names:tc:xacml:1.0:subject:session-start-time";
+    public static final String XACML_1_0_SUBJECT_SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
+    public static final String XACML_1_0_SUBJECT_SUBJECT_ID_QUALIFIER = "urn:oasis:names:tc:xacml:1.0:subject:subject-id-qualifier";
+    public static final String XACML_2_0_RESOURCE_TARGET_NAMESPACE = "urn:oasis:names:tc:xacml:2.0:resource:target-namespace";
+    public static final String XACML_2_0_SUBJECT_ROLE = "urn:oasis:names:tc:xacml:2.0:subject:role";
+    public static final String XACML_3_0_SUBJECT_AUTHN_LOCALITY_DNS_NAME = "urn:oasis:names:tc:xacml:3.0:subject:authn-locality:dns-name";
+    public static final String XACML_3_0_SUBJECT_AUTHN_LOCALITY_IP_ADDRESS = "urn:oasis:names:tc:xacml:3.0:subject:authn-locality:ip-address";
+
+    public CommonAttributter() {
+    }
+}

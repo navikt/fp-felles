@@ -18,9 +18,8 @@
             <artifactId>felles-integrasjon-webservice</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.meldinger.virksomhet</groupId>
-            <artifactId>nav-virksomhet-hendelsehandterer-behandlingstatus-v1-meldingsdefinisjon</artifactId>
-            <classifier>jaxb</classifier>
+            <groupId>no.nav.tjenestespesifikasjoner</groupId>
+            <artifactId>tmp-nav-fim-hendelse-v1</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>

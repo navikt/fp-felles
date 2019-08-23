@@ -1,6 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import static no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE;
+import static no.nav.abac.xacml.ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
@@ -10,7 +10,7 @@ import java.util.TreeSet;
 import org.junit.Rule;
 import org.junit.Test;
 
-import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.xacml.CommonAttributter;
 import no.nav.modig.core.test.LogSniffer;
 
 public class AbacSporingsloggTest {

@@ -5,19 +5,18 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.jms.JMSException;
 
+import no.nav.melding.virksomhet.hendelse.behandling.status.v1.BehandlingAvsluttet;
+import no.nav.melding.virksomhet.hendelse.behandling.status.v1.BehandlingOpprettet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingAvsluttet;
-import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingOpprettet;
 
 @ApplicationScoped
 @Alternative
 @Priority(1)
 public class NoopSakOgBehandlingClient implements SakOgBehandlingClient {
     protected final Logger log = LoggerFactory.getLogger(NoopSakOgBehandlingClient.class);
-    
-    
+
+
     @Override
     public void sendBehandlingOpprettet(BehandlingOpprettet behandlingOpprettet) {
         log.info("Invoked: sendBehandlingOpprettet");

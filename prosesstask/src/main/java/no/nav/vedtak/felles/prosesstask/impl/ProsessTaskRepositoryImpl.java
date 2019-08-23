@@ -16,10 +16,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.NativeQuery;
@@ -52,7 +49,7 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
                                      ProsessTaskEventPubliserer eventPubliserer) {
         // for kompatibilitet og forenkling av tester
         this(entityManager, eventPubliserer,
-            eventPubliserer == null ? null : new HandleProsessTaskLifecycleObserver() /* init kun dersom eventer lyttes på. */ );
+            eventPubliserer == null ? null : new HandleProsessTaskLifecycleObserver() /* init kun dersom eventer lyttes på. */);
     }
 
     @Inject
@@ -113,14 +110,16 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
         return lagre(gruppe);
     }
 
-    /** Lagre og returner id. */
+    /**
+     * Lagre og returner id.
+     */
     protected Long doLagreTask(ProsessTaskData task) {
         ProsessTaskEntitet pte;
         if (task.getId() != null) {
             ProsessTaskStatus nyStatus = task.getStatus();
             pte = entityManager.find(ProsessTaskEntitet.class, task.getId());
             ProsessTaskStatus status = pte.getStatus();
-            
+
             pte.kopierFraEksisterende(task);
             entityManager.persist(pte);
             entityManager.flush();
@@ -144,9 +143,9 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
     @Override
     public ProsessTaskData finn(Long id) {
         ProsessTaskEntitet prosessTaskEntitet = this.entityManager.createQuery("from ProsessTaskEntitet pt where pt.id=:id", ProsessTaskEntitet.class)
-                .setParameter("id", id)
-                .setHint(QueryHints.HINT_CACHE_MODE, "IGNORE")
-                .getSingleResult();
+            .setParameter("id", id)
+            .setHint(QueryHints.HINT_CACHE_MODE, "IGNORE")
+            .getSingleResult();
         return prosessTaskEntitet == null ? null : prosessTaskEntitet.tilProsessTask();
     }
 
@@ -236,8 +235,8 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
     @Override
     public Map<ProsessTaskType, ProsessTaskEntitet> finnStatusForBatchTasks() {
         TypedQuery<ProsessTaskType> query = entityManager
-                .createQuery("SELECT ptt from ProsessTaskType ptt " +
-                        "where ptt.cronExpression is not null", ProsessTaskType.class); // NOSONAR $NON-NLS-1$
+            .createQuery("SELECT ptt from ProsessTaskType ptt " +
+                "where ptt.cronExpression is not null", ProsessTaskType.class); // NOSONAR $NON-NLS-1$
 
         List<ProsessTaskType> resultList = query.getResultList();
         Map<ProsessTaskType, ProsessTaskEntitet> result = new HashMap<>();
@@ -249,13 +248,13 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
 
     private ProsessTaskEntitet finnStatusForTaskType(ProsessTaskType taskType) {
         TypedQuery<ProsessTaskEntitet> query = entityManager
-                .createQuery("SELECT pt from ProsessTaskEntitet pt " +
-                        "where pt.taskType = :task ORDER BY pt.nesteKjøringEtter DESC", ProsessTaskEntitet.class)
-                .setParameter("task", taskType.getKode())
-                .setMaxResults(1); // NOSONAR $NON-NLS-1$
+            .createQuery("SELECT pt from ProsessTaskEntitet pt " +
+                "where pt.taskType = :task ORDER BY pt.nesteKjøringEtter DESC", ProsessTaskEntitet.class)
+            .setParameter("task", taskType.getKode())
+            .setMaxResults(1); // NOSONAR $NON-NLS-1$
         return query.getResultList().stream()
-                .findFirst()
-                .orElse(null);
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
@@ -332,9 +331,23 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
      * Lager enkelt unik gruppenavn basert på en sekvens.
      * Aller helst skulle vært UUID type 3?
      */
-    String getUniktProsessTaskGruppeNavn(EntityManager entityManager) throws SQLException {
-        Query query = entityManager.createNativeQuery("SELECT seq_prosess_task_gruppe.nextval FROM dual"); //$NON-NLS-1$
+    public static String getUniktProsessTaskGruppeNavn(EntityManager entityManager) throws SQLException {
+        String sqlString;
+        if (isPostgres(entityManager)) {
+            sqlString = "SELECT nextval('seq_prosess_task_gruppe')";
+        } else {
+            sqlString = "SELECT seq_prosess_task_gruppe.nextval FROM dual";
+        }
+        Query query = entityManager.createNativeQuery(sqlString); //$NON-NLS-1$
         return String.valueOf(query.getSingleResult());
+    }
+
+    public static Boolean isPostgres(EntityManager entityManager) {
+        EntityManagerFactory emf = entityManager.getEntityManagerFactory();
+        Map<String, Object> emfProperties = emf.getProperties();
+        // System.out.println("properties" + emfProperties.toString());
+        String driverClass = (String) emfProperties.get("hibernate.dialect");
+        return driverClass.equals("org.hibernate.dialect.PostgreSQLDialect");
     }
 
     void flushAndClear() {
