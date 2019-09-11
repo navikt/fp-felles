@@ -1,9 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.jms;
-import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Specializes;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -13,9 +12,8 @@ import org.slf4j.LoggerFactory;
  * Brukes til å starte/stoppe meldingsdrevne beans.
  */
 @ApplicationScoped
-@Alternative
-@Priority(1)
-public class QueueConsumerManagerMock implements QueueConsumerManager {
+@Specializes
+public class QueueConsumerManagerMock extends QueueConsumerManagerImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueueConsumerManagerMock.class);
 
