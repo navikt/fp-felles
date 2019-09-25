@@ -1,33 +1,30 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import static java.util.Arrays.asList;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.modig.core.test.LogSniffer;
+import no.nav.vedtak.isso.OpenAMHelper;
+import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
+import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
+import org.jose4j.json.JsonUtil;
+import org.jose4j.jwt.NumericDate;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.nav.vedtak.isso.OpenAMHelper;
-import org.jose4j.json.JsonUtil;
-import org.jose4j.jwt.NumericDate;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import ch.qos.logback.classic.Level;
-import no.nav.modig.core.test.LogSniffer;
-import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
-import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
+import static java.util.Arrays.asList;
+import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
+import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class OidcTokenValidatorTest {
 
     @Rule
-    public LogSniffer logSniffer = new LogSniffer(Level.DEBUG);
+    public LogSniffer logSniffer = new LogSniffer();
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
