@@ -34,7 +34,7 @@
     <scm>
         <connection>scm:git:https://github.com/navikt/fp-felles.git</connection>
         <developerConnection>scm:git:https://github.com/navikt/fp-felles.git</developerConnection>
-        <url>https://github.com/navikt/fp-felles.git</url>
+        <url>https://github.com/navikt/fp-felles/</url>
     </scm>
 
     <dependencyManagement>
@@ -151,8 +151,9 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
                 <configuration>
-                    <flattenMode>bom</flattenMode>
+                    <updatePomFile>true</updatePomFile>
                     <flattenedPomFilename>.flattened</flattenedPomFilename>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
                 </configuration>
                 <executions>
                     <execution>
@@ -350,7 +351,7 @@
                 <repository>
                     <id>github</id>
                     <name>Github navikt Maven Packages</name>
-                    <url>https://maven.pkg.github.com/navikt</url>
+                    <url>https://maven.pkg.github.com/navikt/fp-felles</url>
                 </repository>
             </distributionManagement>
         </profile>
