@@ -98,7 +98,20 @@
             <groupId>org.picketbox</groupId>
             <artifactId>picketbox</artifactId>
         </dependency>
-
+        <!-- for PDP/ABAC -->
+        <dependency>
+            <groupId>no.nav.abac.policies</groupId>
+            <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.abac.policies</groupId>
+            <artifactId>abac-common-attributes-alfa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.abac.policies</groupId>
+            <artifactId>abac-arkiv-policies-alfa</artifactId>
+            <classifier>attributes</classifier>
+        </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>javax.activation-api</artifactId>

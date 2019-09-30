@@ -5,10 +5,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.jms.JMSException;
 
-import no.nav.melding.virksomhet.hendelse.behandling.status.v1.BehandlingAvsluttet;
-import no.nav.melding.virksomhet.hendelse.behandling.status.v1.BehandlingOpprettet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingAvsluttet;
+import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingOpprettet;
 
 @ApplicationScoped
 @Alternative

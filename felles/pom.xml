@@ -29,7 +29,7 @@
 		<resteasy.version>3.6.1.SP2</resteasy.version>
 		<slf4j.version>1.7.26</slf4j.version>
 		<swagger.version>1.5.13</swagger.version>
-        <doksys.dokumentproduksjon.version>1.2019.08.12-12.12-4258f3dded02</doksys.dokumentproduksjon.version>
+        <doksys.dokumentproduksjon.version>2.1.8</doksys.dokumentproduksjon.version>
 
 	</properties>
 
@@ -144,6 +144,22 @@
 
 
 			<!-- NAV interne 3djepart avhengigheter til kontrakter og bibliotek -->
+            <dependency>
+                <groupId>no.nav.abac.policies</groupId>
+                <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
+                <version>4.5.0</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.abac.policies</groupId>
+                <artifactId>abac-common-attributes-alfa</artifactId>
+                <version>4.0.8</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.abac.policies</groupId>
+                <artifactId>abac-arkiv-policies-alfa</artifactId>
+                <version>4.6.2</version>
+                <classifier>attributes</classifier>
+            </dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-kodeverk-v3-tjenestespesifikasjon</artifactId>
@@ -155,9 +171,10 @@
 				<version>${tjenestespesifikasjoner.version}</version>
 			</dependency>
             <dependency>
-                <groupId>no.nav.tjenestespesifikasjoner</groupId>
-                <artifactId>dokumentproduksjon-v2-tjenestespesifikasjon</artifactId>
+                <groupId>no.nav.tjenester.fim</groupId>
+                <artifactId>nav-fim-dokumentproduksjon-v2-tjenestespesifikasjon</artifactId>
                 <version>${doksys.dokumentproduksjon.version}</version>
+                <classifier>jaxws</classifier>
             </dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>

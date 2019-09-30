@@ -14,7 +14,7 @@ import org.assertj.core.api.Fail;
 import org.junit.Rule;
 import org.junit.Test;
 
-import no.nav.abac.xacml.CommonAttributter;
+import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.modig.core.test.LogSniffer;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.InnloggetSubject;
