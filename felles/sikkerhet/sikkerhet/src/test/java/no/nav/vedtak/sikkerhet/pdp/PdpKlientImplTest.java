@@ -1,6 +1,6 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
-import static no.nav.abac.xacml.CommonAttributter.RESOURCE_FELLES_PERSON_FNR;
+import static no.nav.abac.common.xacml.CommonAttributter.RESOURCE_FELLES_PERSON_FNR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import no.nav.abac.xacml.CommonAttributter;
+import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;

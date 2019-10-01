@@ -7,11 +7,10 @@ import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import no.nav.abac.xacml.CommonAttributter;
-import no.nav.abac.xacml.ForeldrepengerAttributter;
+import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 

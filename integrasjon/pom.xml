@@ -333,15 +333,17 @@
 
             <!-- Meldingsspesifikasjoner -->
             <dependency>
-                <groupId>no.nav.tjenestespesifikasjoner</groupId>
-                <artifactId>tmp-nav-fim-hendelse-v1</artifactId>
-                <version>1.2019.08.12-12.12-4258f3dded02</version>
+                <groupId>no.nav.meldinger.virksomhet</groupId>
+                <artifactId>nav-virksomhet-hendelsehandterer-behandlingstatus-v1-meldingsdefinisjon</artifactId>
+                <version>${sob.melding.version}</version>
+                <classifier>jaxb</classifier>
             </dependency>
 
+            <!--Denne er lagt inn på grunn av konflikt i versjonsnummer mellom medl og person -->
             <dependency>
-                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <groupId>no.nav.tjenester</groupId>
                 <artifactId>nav-tjenestespesifikasjoner-felles-adapter</artifactId>
-                <version>${tjenestespesifikasjoner.version}</version>
+                <version>${felles.adapter.version}</version>
             </dependency>
 
             <!-- Andre 3djepart avhengigheter -->

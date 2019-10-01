@@ -16,15 +16,17 @@ import javax.jms.JMSProducer;
 import javax.jms.Queue;
 import javax.xml.datatype.DatatypeConfigurationException;
 
-import no.nav.melding.virksomhet.hendelse.behandling.status.v1.BehandlingAvsluttet;
-import no.nav.melding.virksomhet.hendelse.behandling.status.v1.BehandlingOpprettet;
-import no.nav.melding.virksomhet.hendelse.behandling.v1.Avslutningsstatuser;
-import no.nav.melding.virksomhet.hendelse.behandling.v1.Behandlingstyper;
-import no.nav.melding.virksomhet.hendelse.behandling.v1.Temaer;
-import no.nav.melding.virksomhet.hendelse.v1.ApplikasjonIDer;
 import org.junit.Before;
 import org.junit.Test;
 
+import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Aktoer;
+import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Applikasjoner;
+import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Avslutningsstatuser;
+import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingAvsluttet;
+import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingOpprettet;
+import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Behandlingstemaer;
+import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Behandlingstyper;
+import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Sakstemaer;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -123,7 +125,7 @@ public class SakOgBehandlingClientImplTest {
 
         behandlingAvsluttet.setHendelsesId("callid_123456");
 
-        ApplikasjonIDer applikasjoner = new ApplikasjonIDer();
+        Applikasjoner applikasjoner = new Applikasjoner();
         applikasjoner.setValue("APPLIKASJON_ID");
         behandlingAvsluttet.setHendelsesprodusentREF(applikasjoner);
 
@@ -131,17 +133,19 @@ public class SakOgBehandlingClientImplTest {
         avslutningsstatuser.setValue("OK");
         behandlingAvsluttet.setAvslutningsstatus(avslutningsstatuser);
 
-        behandlingAvsluttet.setApplikasjonSakREF("4833");
+        behandlingAvsluttet.setAnsvarligEnhetREF("4833");
 
         Behandlingstyper behandlingstype = new Behandlingstyper();
         behandlingstype.setValue("behandlingstype");
         behandlingAvsluttet.setBehandlingstype(behandlingstype);
 
-        Temaer sakstema = new Temaer();
+        Sakstemaer sakstema = new Sakstemaer();
         sakstema.setValue("sakstema");
-        behandlingAvsluttet.setTema(sakstema);
+        behandlingAvsluttet.setSakstema(sakstema);
 
-        behandlingAvsluttet.getAktoerREF().add("123");
+        Aktoer aktoer = new Aktoer();
+        aktoer.setAktoerId("123");
+        behandlingAvsluttet.getAktoerREF().add(aktoer);
 
         return behandlingAvsluttet;
     }
@@ -149,13 +153,13 @@ public class SakOgBehandlingClientImplTest {
     private BehandlingOpprettet lagBehandlingOpprettet() throws DatatypeConfigurationException {
         BehandlingOpprettet behandlingOpprettet = new BehandlingOpprettet();
 
-        Temaer behandlingstema = new Temaer();
+        Behandlingstemaer behandlingstema = new Behandlingstemaer();
         behandlingstema.setValue("behandlingstema");
-        behandlingOpprettet.setTema(behandlingstema);
+        behandlingOpprettet.setBehandlingstema(behandlingstema);
 
         behandlingOpprettet.setHendelsesId("hendelsesId");
 
-        ApplikasjonIDer applikasjoner = new ApplikasjonIDer();
+        Applikasjoner applikasjoner = new Applikasjoner();
         applikasjoner.setValue("applikasjoner");
         behandlingOpprettet.setHendelsesprodusentREF(applikasjoner);
 
@@ -167,10 +171,12 @@ public class SakOgBehandlingClientImplTest {
         behandlingstype.setValue("behandlingstype");
         behandlingOpprettet.setBehandlingstype(behandlingstype);
 
-        Temaer sakstema = new Temaer();
+        Sakstemaer sakstema = new Sakstemaer();
         sakstema.setValue("sakstema");
 
-        behandlingOpprettet.getAktoerREF().add("123");
+        Aktoer aktoer = new Aktoer();
+        aktoer.setAktoerId("123");
+        behandlingOpprettet.getAktoerREF().add(aktoer);
 
         return behandlingOpprettet;
     }

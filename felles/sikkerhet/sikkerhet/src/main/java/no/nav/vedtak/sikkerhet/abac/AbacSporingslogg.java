@@ -5,11 +5,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.abac.xacml.CommonAttributter;
 import org.slf4j.Logger;
 
-
-import no.nav.abac.xacml.ForeldrepengerAttributter;
+import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.log.sporingslogg.SporingsloggId;
 import no.nav.vedtak.log.sporingslogg.StandardSporingsloggId;

@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 
-import no.nav.abac.xacml.CommonAttributter;
-import no.nav.abac.xacml.ForeldrepengerAttributter;
+import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
