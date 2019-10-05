@@ -1,6 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.unleash.strategier;
 
 import no.finn.unleash.Unleash;
+import no.finn.unleash.UnleashContext;
+import no.finn.unleash.Variant;
+
+import org.jboss.weld.exceptions.UnsupportedOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,4 +78,24 @@ public class UnleashAutotestMock implements Unleash {
     public List<String> getFeatureToggleNames() {
         return new ArrayList<>(toggles.keySet());
     }
+
+	@Override
+	public Variant getVariant(String arg0) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Variant getVariant(String arg0, UnleashContext arg1) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Variant getVariant(String arg0, Variant arg1) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Variant getVariant(String arg0, UnleashContext arg1, Variant arg2) {
+		throw new UnsupportedOperationException();
+	}
 }

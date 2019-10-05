@@ -6,6 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 
 import no.finn.unleash.Unleash;
 import no.finn.unleash.UnleashContext;
+import no.finn.unleash.Variant;
 
 @ApplicationScoped
 public class UnleashTjeneste implements Unleash {
@@ -39,7 +40,7 @@ public class UnleashTjeneste implements Unleash {
     public List<String> getFeatureToggleNames() {
         return getUnleash().getFeatureToggleNames();
     }
-
+    
     private Unleash getUnleash() {
         if (unleash == null) {
             synchronized (this) {
@@ -48,4 +49,24 @@ public class UnleashTjeneste implements Unleash {
         }
         return unleash;
     }
+
+	@Override
+	public Variant getVariant(String arg0) {
+		return getUnleash().getVariant(arg0);
+	}
+
+	@Override
+	public Variant getVariant(String arg0, UnleashContext arg1) {
+		return getUnleash().getVariant(arg0, arg1);
+	}
+
+	@Override
+	public Variant getVariant(String arg0, Variant arg1) {
+		return getUnleash().getVariant(arg0, arg1);
+	}
+
+	@Override
+	public Variant getVariant(String arg0, UnleashContext arg1, Variant arg2) {
+		return getUnleash().getVariant(arg0, arg1, arg2);
+	}
 }
