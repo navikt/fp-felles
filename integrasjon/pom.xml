@@ -60,7 +60,7 @@
         <sob.melding.version>1.1.0</sob.melding.version>
 
         <felles.adapter.version>0.1.8</felles.adapter.version>
-        <unleash.version>3.1.1</unleash.version>
+        <unleash.version>3.2.8</unleash.version>
 
     </properties>
 
@@ -322,6 +322,27 @@
                 <groupId>no.nav.tjenestespesifikasjoner</groupId>
                 <artifactId>no-nav-dok-tjenester-mottainngaaendeforsendelse</artifactId>
                 <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
+	    <dependency>
+	        <groupId>no.nav.tjenestespesifikasjoner</groupId>
+	        <artifactId>nav-fim-kodeverk-v2-tjenestespesifikasjon</artifactId>
+	        <version>${tjenestespesifikasjoner.version}</version>
+	    </dependency>
+	    <dependency>
+		<groupId>no.nav.tjenestespesifikasjoner</groupId>
+		<artifactId>nav-kodeverk-v3-tjenestespesifikasjon</artifactId>
+		<version>${tjenestespesifikasjoner.version}</version>
+	    </dependency>
+	    <dependency>
+		<groupId>no.nav.tjenestespesifikasjoner</groupId>
+	   	<artifactId>nav-fim-virgo-v2-tjenestespesifikasjon</artifactId>
+		<version>${tjenestespesifikasjoner.version}</version>
+	    </dependency>
+            <dependency>
+                <groupId>no.nav.tjenester.fim</groupId>
+                <artifactId>nav-fim-dokumentproduksjon-v2-tjenestespesifikasjon</artifactId>
+                <version>2.1.8</version>
+                <classifier>jaxws</classifier>
             </dependency>
 
             <!-- JMS -->

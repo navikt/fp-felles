@@ -108,7 +108,7 @@
         <dependency>
             <!-- Trengs for REST grensesnitt -->
             <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-validator-provider-11</artifactId>
+            <artifactId>resteasy-validator-provider</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
