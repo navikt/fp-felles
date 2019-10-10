@@ -22,5 +22,15 @@
             <artifactId>nav-fim-dokumentproduksjon-v2-tjenestespesifikasjon</artifactId>
             <classifier>jaxws</classifier>
         </dependency>
+        <dependency>
+            <groupId>no.nav.tjenester</groupId>
+            <artifactId>nav-dokumentproduksjon-v3-tjenestespesifikasjon</artifactId>
+            <classifier>jaxws</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics</artifactId>
+            <version>0.12.0</version>
+        </dependency>
     </dependencies>
 </project>

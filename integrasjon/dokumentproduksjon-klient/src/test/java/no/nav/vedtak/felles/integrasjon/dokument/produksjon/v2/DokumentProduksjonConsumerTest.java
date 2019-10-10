@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.dokument.produksjon;
+package no.nav.vedtak.felles.integrasjon.dokument.produksjon.v2;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;

@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.dokument.produksjon;
+package no.nav.vedtak.felles.integrasjon.dokument.produksjon.v2;
 
 import javax.xml.ws.WebServiceException;
 

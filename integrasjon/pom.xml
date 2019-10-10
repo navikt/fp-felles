@@ -344,6 +344,12 @@
                 <version>2.1.8</version>
                 <classifier>jaxws</classifier>
             </dependency>
+            <dependency>
+                <groupId>no.nav.tjenester</groupId>
+                <artifactId>nav-dokumentproduksjon-v3-tjenestespesifikasjon</artifactId>
+                <version>3.3.2</version>
+                <classifier>jaxws</classifier>
+            </dependency>
 
             <!-- JMS -->
             <dependency>

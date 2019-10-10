@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.dokument.produksjon;
+package no.nav.vedtak.felles.integrasjon.dokument.produksjon.v3;
 
 import static no.nav.vedtak.sts.client.NAVSTSClient.StsClientType.SECURITYCONTEXT_TIL_SAML;
 import static no.nav.vedtak.sts.client.NAVSTSClient.StsClientType.SYSTEM_SAML;
@@ -6,7 +6,7 @@ import static no.nav.vedtak.sts.client.NAVSTSClient.StsClientType.SYSTEM_SAML;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.tjeneste.virksomhet.dokumentproduksjon.v2.binding.DokumentproduksjonV2;
+import no.nav.tjeneste.virksomhet.dokumentproduksjon.v3.DokumentproduksjonV3;
 import no.nav.vedtak.sts.client.NAVSTSClient;
 import no.nav.vedtak.sts.client.StsConfigurationUtil;
 
@@ -20,16 +20,16 @@ public class DokumentproduksjonConsumerProducer {
     }
 
     public DokumentproduksjonConsumer dokumentproduksjonConsumer() {
-        DokumentproduksjonV2 port = wrapWithSts(consumerConfig.getPort(), SECURITYCONTEXT_TIL_SAML);
+        DokumentproduksjonV3 port = wrapWithSts(consumerConfig.getPort(), SECURITYCONTEXT_TIL_SAML);
         return new DokumentproduksjonConsumerImpl(port);
     }
 
     public DokumentproduksjonSelftestConsumer dokumentproduksjonSelftestConsumer() {
-        DokumentproduksjonV2 port = wrapWithSts(consumerConfig.getPort(), SYSTEM_SAML);
+        DokumentproduksjonV3 port = wrapWithSts(consumerConfig.getPort(), SYSTEM_SAML);
         return new DokumentproduksjonSelftestConsumerImpl(port, consumerConfig.getEndpointUrl());
     }
 
-    DokumentproduksjonV2 wrapWithSts(DokumentproduksjonV2 port, NAVSTSClient.StsClientType samlTokenType) {
+    DokumentproduksjonV3 wrapWithSts(DokumentproduksjonV3 port, NAVSTSClient.StsClientType samlTokenType) {
         return StsConfigurationUtil.wrapWithSts(port, samlTokenType);
     }
 
