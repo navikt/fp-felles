@@ -1,12 +1,12 @@
-package no.nav.vedtak.felles.integrasjon.dokument.produksjon;
+package no.nav.vedtak.felles.integrasjon.dokument.produksjon.v3;
 
-import no.nav.tjeneste.virksomhet.dokumentproduksjon.v2.binding.DokumentproduksjonV2;
+import no.nav.tjeneste.virksomhet.dokumentproduksjon.v3.DokumentproduksjonV3;
 
 class DokumentproduksjonSelftestConsumerImpl implements DokumentproduksjonSelftestConsumer {
-    private DokumentproduksjonV2 port;
+    private DokumentproduksjonV3 port;
     private String endpointUrl;
 
-    public DokumentproduksjonSelftestConsumerImpl(DokumentproduksjonV2 port, String endpointUrl) {
+    public DokumentproduksjonSelftestConsumerImpl(DokumentproduksjonV3 port, String endpointUrl) {
         this.port = port;
         this.endpointUrl = endpointUrl;
     }

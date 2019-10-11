@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.dokument.produksjon;
+package no.nav.vedtak.felles.integrasjon.dokument.produksjon.v2;
 
 import no.nav.tjeneste.virksomhet.dokumentproduksjon.v2.binding.FerdigstillForsendelseDokumentUnderRedigering;
 import no.nav.tjeneste.virksomhet.dokumentproduksjon.v2.binding.FerdigstillForsendelseJournalpostIkkeFunnet;
