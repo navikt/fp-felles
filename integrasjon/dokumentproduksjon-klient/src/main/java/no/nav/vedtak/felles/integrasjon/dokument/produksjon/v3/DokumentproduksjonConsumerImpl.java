@@ -34,7 +34,7 @@ import no.nav.tjeneste.virksomhet.dokumentproduksjon.v3.meldinger.ProduserIkkere
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebServiceFeil;
 
 public class DokumentproduksjonConsumerImpl implements DokumentproduksjonConsumer {
-    private static final String SERVICE_IDENTIFIER = "DokumentproduksjonV2";
+    private static final String SERVICE_IDENTIFIER = "DokumentproduksjonV3";
     private DokumentproduksjonV3 port;
 
     public DokumentproduksjonConsumerImpl(DokumentproduksjonV3 port) {
