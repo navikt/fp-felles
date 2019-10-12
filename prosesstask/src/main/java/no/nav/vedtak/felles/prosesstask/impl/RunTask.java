@@ -16,9 +16,7 @@ import javax.enterprise.inject.InjectionException;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
-import javax.persistence.Query;
 
 import org.hibernate.Session;
 import org.hibernate.exception.JDBCConnectionException;
@@ -34,7 +32,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.cron.CronExpression;
 import no.nav.vedtak.felles.prosesstask.spi.ProsessTaskFeilhåndteringAlgoritme;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Kjører en task. Flere JVM'er kan kjøre tasks i parallell
@@ -207,7 +204,7 @@ public class RunTask {
         // markerer task som påbegynt (merk committer ikke før til slutt).
         void markerTaskUnderArbeid(ProsessTaskEntitet pte) {
             // mark row being processed with timestamp and server process id
-            LocalDateTime now = FPDateUtil.nå();
+            LocalDateTime now = LocalDateTime.now();
             pte.setSisteKjøring(now);
             pte.setSisteKjøringServer(Utils.getJvmUniqueProcessName());
             getEntityManager().persist(pte);
@@ -221,7 +218,7 @@ public class RunTask {
             if (taskType.getErGjentagende()) {
                 ProsessTaskData data = new ProsessTaskData(pte.getTaskName());
                 data.setStatus(ProsessTaskStatus.KLAR);
-                LocalDateTime now = FPDateUtil.nå();
+                LocalDateTime now = LocalDateTime.now();
                 LocalDateTime nesteKjøring = new CronExpression(taskType.getCronExpression()).neste(now);
                 data.setNesteKjøringEtter(nesteKjøring);
                 data.setGruppe(gruppe); // <- ny gruppe

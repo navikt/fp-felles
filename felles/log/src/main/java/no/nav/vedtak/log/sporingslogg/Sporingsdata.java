@@ -12,20 +12,23 @@ import java.util.TreeMap;
 public class Sporingsdata {
 
     private Map<SporingsloggId, String> verdier = new TreeMap<>(Comparator.comparing(SporingsloggId::getSporingsloggKode));
+    private String action;
 
-    private Sporingsdata() {
-    }
-
-    private Sporingsdata(Map<SporingsloggId, String> verdier) {
+    private Sporingsdata(String action, Map<SporingsloggId, String> verdier) {
+        this.action = action;
         this.verdier.putAll(verdier);
     }
 
-    public static Sporingsdata opprett() {
-        return new Sporingsdata();
+    private Sporingsdata(String action) {
+        this.action = action;
+    }
+
+    public static Sporingsdata opprett(String action) {
+        return new Sporingsdata(action);
     }
 
     public Sporingsdata kopi() {
-        return new Sporingsdata(verdier);
+        return new Sporingsdata(action, verdier);
     }
 
     public Sporingsdata leggTilId(SporingsloggId navn, Long verdi) {
@@ -65,5 +68,9 @@ public class Sporingsdata {
         return "Sporingsdata{" +
             ", verdier=" + verdier +
             '}';
+    }
+
+    public String getAction() {
+        return action;
     }
 }

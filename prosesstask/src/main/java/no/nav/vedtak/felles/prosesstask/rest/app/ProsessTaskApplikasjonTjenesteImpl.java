@@ -26,7 +26,6 @@ import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRetryAllResultatDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskStatusDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.SokeFilterDto;
 import no.nav.vedtak.felles.prosesstask.rest.feil.ProsessTaskRestTjenesteFeil;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class ProsessTaskApplikasjonTjenesteImpl implements ProsessTaskApplikasjonTjeneste {
@@ -104,10 +103,10 @@ public class ProsessTaskApplikasjonTjenesteImpl implements ProsessTaskApplikasjo
                 taskTypesMaxForsøk.put(tasktype, forsøk);
             }
         });
-        LocalDateTime nå = FPDateUtil.nå();
+        LocalDateTime now = LocalDateTime.now();
         ptdList.forEach(ptd -> {
             ptd.setStatus(ProsessTaskStatus.KLAR);
-            ptd.setNesteKjøringEtter(nå);
+            ptd.setNesteKjøringEtter(now);
             ptd.setSisteFeilKode(null);
             ptd.setSisteFeil(null);
             if (taskTypesMaxForsøk.get(ptd.getTaskType()) == ptd.getAntallFeiledeForsøk()) { // NOSONAR
@@ -131,7 +130,7 @@ public class ProsessTaskApplikasjonTjenesteImpl implements ProsessTaskApplikasjo
     private void oppdaterProsessTaskDataMedKjoerbarStatus(ProsessTaskData eksisterendeProsessTaskData) {
 
         eksisterendeProsessTaskData.setStatus(ProsessTaskStatus.KLAR);
-        eksisterendeProsessTaskData.setNesteKjøringEtter(FPDateUtil.nå());
+        eksisterendeProsessTaskData.setNesteKjøringEtter(LocalDateTime.now());
         eksisterendeProsessTaskData.setSisteFeilKode(null);
         eksisterendeProsessTaskData.setSisteFeil(null);
 

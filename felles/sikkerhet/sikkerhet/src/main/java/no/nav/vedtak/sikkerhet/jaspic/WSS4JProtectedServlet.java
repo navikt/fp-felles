@@ -1,10 +1,6 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
-import org.apache.wss4j.dom.handler.WSHandlerConstants;
-
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 

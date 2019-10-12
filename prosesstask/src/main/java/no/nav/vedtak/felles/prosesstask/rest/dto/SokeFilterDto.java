@@ -11,10 +11,8 @@ import javax.validation.constraints.Size;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
-import no.nav.vedtak.log.sporingslogg.StandardSporingsloggId;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApiModel
 public class SokeFilterDto implements AbacDto {
@@ -22,8 +20,8 @@ public class SokeFilterDto implements AbacDto {
     @Size(max = 10)
     @Valid
     private List<ProsessTaskStatusDto> prosessTaskStatuser = new ArrayList<>();
-    private LocalDateTime sisteKjoeretidspunktFraOgMed = FPDateUtil.nå().minusHours(24);
-    private LocalDateTime sisteKjoeretidspunktTilOgMed = FPDateUtil.nå();
+    private LocalDateTime sisteKjoeretidspunktFraOgMed = LocalDateTime.now().minusHours(24);
+    private LocalDateTime sisteKjoeretidspunktTilOgMed = LocalDateTime.now();
 
     public SokeFilterDto() {
     }
@@ -55,10 +53,10 @@ public class SokeFilterDto implements AbacDto {
         this.sisteKjoeretidspunktTilOgMed = sisteKjoeretidspunktTilOgMed;
     }
 
-    public Sporingsdata lagSporingsloggData() {
-        Sporingsdata sporingsdata = Sporingsdata.opprett();
-        sporingsdata.leggTilId(StandardSporingsloggId.PROSESS_TASK_STATUS, prosessTaskStatuser.stream().map(ProsessTaskStatusDto::getProsessTaskStatusName).collect(Collectors.joining(",")));
-        sporingsdata.leggTilId(StandardSporingsloggId.PROSESS_TASK_KJORETIDSINTERVALL, String.format("%s-%s", sisteKjoeretidspunktFraOgMed, sisteKjoeretidspunktTilOgMed));
+    public Sporingsdata lagSporingsloggData(String action) {
+        Sporingsdata sporingsdata = Sporingsdata.opprett(action);
+        sporingsdata.leggTilId(ProsessTaskSporingsloggId.PROSESS_TASK_STATUS, prosessTaskStatuser.stream().map(ProsessTaskStatusDto::getProsessTaskStatusName).collect(Collectors.joining(",")));
+        sporingsdata.leggTilId(ProsessTaskSporingsloggId.PROSESS_TASK_KJORETIDSINTERVALL, String.format("%s-%s", sisteKjoeretidspunktFraOgMed, sisteKjoeretidspunktTilOgMed));
         return sporingsdata;
     }
 

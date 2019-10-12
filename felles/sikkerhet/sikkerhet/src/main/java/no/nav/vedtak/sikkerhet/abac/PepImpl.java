@@ -21,14 +21,19 @@ public class PepImpl implements Pep {
     private PdpRequestBuilder pdpRequestBuilder;
 
     private Set<String> pipUsers;
+    private AbacSporingslogg sporingslogg;
 
     public PepImpl() {
     }
 
     @Inject
-    public PepImpl(PdpKlient pdpKlient, PdpRequestBuilder pdpRequestBuilder, @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
+    public PepImpl(PdpKlient pdpKlient, 
+                   PdpRequestBuilder pdpRequestBuilder, 
+                   AbacSporingslogg sporingslogg,
+                   @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
         this.pdpKlient = pdpKlient;
         this.pdpRequestBuilder = pdpRequestBuilder;
+        this.sporingslogg = sporingslogg;
 
         this.pipUsers = konfigurePipUsers(pipUsers);
     }
@@ -43,7 +48,6 @@ public class PepImpl implements Pep {
 
     @Override
     public Tilgangsbeslutning vurderTilgang(AbacAttributtSamling attributter) {
-        validerInput(attributter);
         PdpRequest pdpRequest = pdpRequestBuilder.lagPdpRequest(attributter);
 
         if (BeskyttetRessursResourceAttributt.PIP.equals(attributter.getResource())) {
@@ -59,8 +63,7 @@ public class PepImpl implements Pep {
             return lagPipPermit(pdpRequest);
         }
         Tilgangsbeslutning tilgangsbeslutning = lagPipDeny(pdpRequest);
-        AbacSporingslogg sporingslogg = new AbacSporingslogg(attributter.getAction());
-        sporingslogg.loggDeny(pdpRequest, tilgangsbeslutning.getDelbeslutninger(), attributter);
+        sporingslogg.loggDeny(tilgangsbeslutning, attributter);
         return tilgangsbeslutning;
     }
 
@@ -94,9 +97,4 @@ public class PepImpl implements Pep {
         return decisions;
     }
 
-    private void validerInput(AbacAttributtSamling attributter) {
-        if (attributter.getBehandlingsIder().size() > 1) {
-            throw PepFeil.FACTORY.ugyldigInputForMangeBehandlingIder(attributter.getBehandlingsIder()).toException();
-        }
-    }
 }

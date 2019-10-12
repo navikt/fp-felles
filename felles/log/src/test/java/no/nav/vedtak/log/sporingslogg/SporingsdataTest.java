@@ -9,13 +9,13 @@ public class SporingsdataTest {
 
     @Test
     public void skalInitialisereForMedGyldigeArgs() {
-        Sporingsdata sporingsdata = Sporingsdata.opprett();
+        Sporingsdata sporingsdata = Sporingsdata.opprett("login");
         assertThat(sporingsdata.getNøkler()).isEmpty();
     }
 
     @Test
     public void skalHuskeIder() {
-        Sporingsdata sporingsdata = Sporingsdata.opprett();
+        Sporingsdata sporingsdata = Sporingsdata.opprett("login");
         sporingsdata.leggTilId(StandardSporingsloggId.AKTOR_ID, "1001");
         assertThat(sporingsdata.getVerdi(StandardSporingsloggId.AKTOR_ID)).isEqualTo("1001");
 

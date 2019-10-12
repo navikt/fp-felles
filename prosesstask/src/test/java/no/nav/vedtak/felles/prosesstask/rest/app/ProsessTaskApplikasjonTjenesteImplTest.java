@@ -37,7 +37,6 @@ import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartResultatDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRetryAllResultatDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.SokeFilterDto;
 import no.nav.vedtak.felles.prosesstask.rest.feil.ProsessTaskRestTjenesteFeil;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class ProsessTaskApplikasjonTjenesteImplTest {
 
@@ -85,7 +84,7 @@ public class ProsessTaskApplikasjonTjenesteImplTest {
         assertThat(dataTilPersistering.getAntallFeiledeForsøk()).isEqualTo(DEFAULT_MAKS_ANTALL_FEIL_FORSØK - 1);
 
         // Neste kjøring setes til LocalDateTime.now(), så tester på en enkel måte.
-        assertThat(dataTilPersistering.getNesteKjøringEtter()).isAfter(FPDateUtil.nå().minusSeconds(5));
+        assertThat(dataTilPersistering.getNesteKjøringEtter()).isAfter(LocalDateTime.now().minusSeconds(5));
     }
 
     @Test
@@ -118,7 +117,7 @@ public class ProsessTaskApplikasjonTjenesteImplTest {
         assertThat(dataTilPersistering.getAntallFeiledeForsøk()).isEqualTo(0);
 
         // Neste kjøring setes til LocalDateTime.now(), så tester på en enkel måte.
-        assertThat(dataTilPersistering.getNesteKjøringEtter()).isAfter(FPDateUtil.nå().minusSeconds(5));
+        assertThat(dataTilPersistering.getNesteKjøringEtter()).isAfter(LocalDateTime.now().minusSeconds(5));
     }
 
     @Test

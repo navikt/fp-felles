@@ -1,12 +1,12 @@
 package no.nav.vedtak.felles.prosesstask.impl;
 
+import java.time.LocalDateTime;
 import java.util.function.Consumer;
 
 import javax.persistence.PersistenceException;
 
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.FPDateUtil;
 
 class TaskManagerRunnableTask implements Runnable {
     private final String taskName;
@@ -70,7 +70,7 @@ class TaskManagerRunnableTask implements Runnable {
         TaskManagerFeil.FACTORY.kritiskFeilKunneIkkeProsessereTaskPgaFatalFeil(taskInfo.getId(), taskInfo.getTaskType(), fatal)
             .log(TaskManagerGenerateRunnableTasks.log);
 
-        return new IdentRunnableTask(taskInfo.getId(), errorCallback, FPDateUtil.nå());
+        return new IdentRunnableTask(taskInfo.getId(), errorCallback, LocalDateTime.now());
     }
 
     void clearLogContext() {

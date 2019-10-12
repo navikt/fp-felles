@@ -5,5 +5,5 @@ import java.util.Optional;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 
 public interface ProsessTaskDataInfo {
-    Optional<Sporingsdata> lagSporingsloggData();
+    Optional<Sporingsdata> lagSporingsloggData(String action);
 }

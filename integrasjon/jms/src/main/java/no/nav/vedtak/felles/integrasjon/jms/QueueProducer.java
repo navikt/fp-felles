@@ -3,7 +3,6 @@ package no.nav.vedtak.felles.integrasjon.jms;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import javax.jms.Destination;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.JMSProducer;

@@ -24,7 +24,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskFeil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.spi.ProsessTaskFeilhåndteringAlgoritme;
-import no.nav.vedtak.util.FPDateUtil;
 
 /** Samler feilhåndtering og status publisering som skjer på vanlige prosess tasks. */
 public class RunTaskFeilOgStatusEventHåndterer {
@@ -118,7 +117,7 @@ public class RunTaskFeilOgStatusEventHåndterer {
         int secsBetweenAttempts = feilhåndteringsalgoritme.getForsinkelseStrategi().sekunderTilNesteForsøk(failureAttempt,
             feilhåndteringsData);
 
-        LocalDateTime nyTid = FPDateUtil.nå().plusSeconds(secsBetweenAttempts);
+        LocalDateTime nyTid = LocalDateTime.now().plusSeconds(secsBetweenAttempts);
         return nyTid;
     }
 

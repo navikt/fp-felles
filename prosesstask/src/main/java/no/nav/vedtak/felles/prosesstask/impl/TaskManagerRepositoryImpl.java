@@ -3,6 +3,7 @@ package no.nav.vedtak.felles.prosesstask.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -133,7 +134,7 @@ public class TaskManagerRepositoryImpl {
             " WHERE id = :id";
 
         String status = taskStatus.getDbKode();
-        LocalDateTime now = FPDateUtil.nå();
+        LocalDateTime now = LocalDateTime.now();
         int tasks = entityManager.createNativeQuery(updateSql)
             .setParameter("id", prosessTaskId) // NOSONAR
             .setParameter("status", status) // NOSONAR
@@ -160,7 +161,7 @@ public class TaskManagerRepositoryImpl {
             " WHERE id = :id";
 
         String status = taskStatus.getDbKode();
-        LocalDateTime now = FPDateUtil.nå();
+        LocalDateTime now = LocalDateTime.now();
         @SuppressWarnings("unused")
         int tasks = entityManager.createNativeQuery(updateSql)  // NOSONAR
             .setParameter("id", prosessTaskId)
@@ -228,7 +229,7 @@ public class TaskManagerRepositoryImpl {
             .setFlushMode(FlushMode.MANUAL)
             // hent kun 1 av gangen for å la andre pollere slippe til
             .setHint(QueryHints.HINT_FETCH_SIZE, 1)
-            .setParameter("neste_kjoering", FPDateUtil.nåInstant(), TemporalType.TIMESTAMP)
+            .setParameter("neste_kjoering", Instant.now(), TemporalType.TIMESTAMP)
             .setParameter("skip_ids", skipIds.isEmpty()? Set.of(-1) : skipIds)
             .scroll(ScrollMode.FORWARD_ONLY);) {
 

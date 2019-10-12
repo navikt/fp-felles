@@ -25,66 +25,6 @@ public enum StandardSporingsloggId implements SporingsloggId {
     JOURNALPOST_ID("journalpostId"),
     DOKUMENT_ID("dokumentId"),
     DOKUMENT_DATA_ID("dokumentDataId"),
-    /**
-     * @deprecated Bruk saksnummer
-     */
-    @Deprecated
-    ENHET_ID("enhetId"),
-
-    /**
-     * @deprecated Bruk saksnummer
-     */
-    @Deprecated
-    FAGSAK_ID("fagsakId"),
-
-    /**
-     * @deprecated Implementer selv
-     */
-    @Deprecated
-    OPPGAVE_ID("oppgaveId"),
-    /**
-     * @deprecated Implementer selv
-     */
-    @Deprecated
-    BATCH_NAME("batchname"),
-    /**
-     * @deprecated Implementer selv
-     */
-    @Deprecated
-    BATCH_PARAMETER_NAME("parameter_name"),
-    /**
-     * @deprecated Implementer selv
-     */
-    @Deprecated
-    BATCH_PARAMETER_VALUE("parameter_value"),
-    /**
-     * @deprecated Implementer selv i formidling
-     */
-    @Deprecated
-    BREV_MALKODE("brev.malkode"),
-    /**
-     * @deprecated Implementer selv i formidling
-     */
-    @Deprecated
-    BREV_MOTTAKER("brev.mottaker"),
-    /**
-     * @deprecated Implementer selv
-     */
-    @Deprecated
-    PROSESS_TASK_STATUS("prosesstask.status"),
-    /**
-     * @deprecated Implementer selv
-     */
-    @Deprecated
-    PROSESS_TASK_KJORETIDSINTERVALL("prosesstask.kjoretidsintervall"),
-
-    /**
-     * Brukes kun av SPBeregning applikasjon.
-     * 
-     * @deprecated fjern herfra
-     **/
-    @Deprecated
-    SPBEREGNING_ID("beregningId"),
 
     ABAC_DECISION("decision"),
     ABAC_ACTION("abac_action"),

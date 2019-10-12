@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import no.nav.modig.core.test.LogSniffer;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
