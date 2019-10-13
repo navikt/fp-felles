@@ -60,7 +60,7 @@ public enum StandardAbacAttributtType implements AbacAttributtType {
     }
 
     @Override
-    public String getSporingsloggEksternKode() {
+    public String getSporingsloggKode() {
         return sporingsloggEksternKode;
     }
 

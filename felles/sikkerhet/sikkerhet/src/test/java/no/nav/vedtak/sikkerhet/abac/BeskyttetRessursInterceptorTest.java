@@ -41,7 +41,7 @@ public class BeskyttetRessursInterceptorTest {
                 AbacResultat.GODKJENT,
                 Collections.singletonList(Decision.Permit),
                 pdpRequest);
-        }, new LegacyAbacSporingslogg());
+        }, new DefaultAbacSporingslogg());
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[] { aktør1 });
@@ -62,7 +62,7 @@ public class BeskyttetRessursInterceptorTest {
                 AbacResultat.GODKJENT,
                 Collections.singletonList(Decision.Permit),
                 pdpRequest);
-        }, new LegacyAbacSporingslogg());
+        }, new DefaultAbacSporingslogg());
 
         Method method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[] { behandlingIdDto });
@@ -84,7 +84,7 @@ public class BeskyttetRessursInterceptorTest {
                 AbacResultat.GODKJENT,
                 Collections.singletonList(Decision.Permit),
                 pdpRequest);
-        }, new LegacyAbacSporingslogg());
+        }, new DefaultAbacSporingslogg());
 
         Method method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[] { behandlingIdDto });
@@ -105,7 +105,7 @@ public class BeskyttetRessursInterceptorTest {
                 AbacResultat.AVSLÅTT_KODE_6,
                 Collections.singletonList(Decision.Deny),
                 pdpRequest);
-        }, new LegacyAbacSporingslogg());
+        }, new DefaultAbacSporingslogg());
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[] { aktør1 });

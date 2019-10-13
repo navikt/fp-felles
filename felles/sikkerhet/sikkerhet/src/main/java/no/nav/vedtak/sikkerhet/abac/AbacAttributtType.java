@@ -1,8 +1,8 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-public interface AbacAttributtType {
+import no.nav.vedtak.log.sporingslogg.SporingsloggId;
 
-    String getSporingsloggEksternKode();
+public interface AbacAttributtType extends SporingsloggId {
 
     boolean getMaskerOutput();
 
