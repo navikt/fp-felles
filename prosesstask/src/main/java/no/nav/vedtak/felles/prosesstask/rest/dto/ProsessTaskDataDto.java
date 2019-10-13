@@ -6,7 +6,6 @@ import java.util.Properties;
 
 import io.swagger.annotations.ApiModel;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
-import no.nav.vedtak.log.sporingslogg.StandardSporingsloggId;
 
 @ApiModel
 public class ProsessTaskDataDto implements ProsessTaskDataInfo {
@@ -102,7 +101,7 @@ public class ProsessTaskDataDto implements ProsessTaskDataInfo {
     }
 
     @Override
-    public Optional<Sporingsdata> lagSporingsloggData() {
+    public Optional<Sporingsdata> lagSporingsloggData(String action) {
 
         String aktørId = taskParametre.getProperty(AKTØR_ID);
         String fagsakId = taskParametre.getProperty(FAGSAK_ID);
@@ -113,18 +112,18 @@ public class ProsessTaskDataDto implements ProsessTaskDataInfo {
             return Optional.empty();
         }
 
-        Sporingsdata sporingsdata = Sporingsdata.opprett();
+        Sporingsdata sporingsdata = Sporingsdata.opprett(action);
         if (aktørId != null) {
-            sporingsdata.leggTilId(StandardSporingsloggId.AKTOR_ID, Long.valueOf(aktørId));
+            sporingsdata.leggTilId(ProsessTaskSporingsloggId.AKTOR_ID, Long.valueOf(aktørId));
         }
         if (fagsakId != null) {
-            sporingsdata.leggTilId(StandardSporingsloggId.FAGSAK_ID, Long.valueOf(fagsakId));
+            sporingsdata.leggTilId(ProsessTaskSporingsloggId.FAGSAK_ID, Long.valueOf(fagsakId));
         }
         if (behandlingId != null) {
-            sporingsdata.leggTilId(StandardSporingsloggId.BEHANDLING_ID, Long.valueOf(behandlingId));
+            sporingsdata.leggTilId(ProsessTaskSporingsloggId.BEHANDLING_ID, Long.valueOf(behandlingId));
         }
         if (pnrId != null) {
-            sporingsdata.leggTilId(StandardSporingsloggId.FNR, Long.valueOf(pnrId));
+            sporingsdata.leggTilId(ProsessTaskSporingsloggId.FNR, Long.valueOf(pnrId));
         }
         return Optional.of(sporingsdata);
     }

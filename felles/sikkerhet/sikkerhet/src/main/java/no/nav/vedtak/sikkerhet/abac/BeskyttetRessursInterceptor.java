@@ -13,7 +13,6 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import javax.jws.WebService;
-import javax.xml.transform.TransformerException;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
@@ -29,10 +28,12 @@ import no.nav.vedtak.sikkerhet.loginmodule.SamlUtils;
 public class BeskyttetRessursInterceptor {
 
     private Pep pep;
+    private AbacSporingslogg sporingslogg;
 
     @Inject
-    public BeskyttetRessursInterceptor(Pep pep) {
+    public BeskyttetRessursInterceptor(Pep pep, AbacSporingslogg sporingslogg) {
         this.pep = pep;
+        this.sporingslogg = sporingslogg;
     }
 
     @AroundInvoke
@@ -53,8 +54,7 @@ public class BeskyttetRessursInterceptor {
         if (sporingslogges) {
             //bygger sporingsdata før kallet til invocationContext.proceed,
             //da vi heller vil ha evt. exceptions fra sporing før forretningslogikk har kjørt
-            AbacSporingslogg sporingslogg = new AbacSporingslogg(attributter.getAction());
-            List<Sporingsdata> sporingsdata = sporingslogg.byggSporingsdata(beslutning.getPdpRequest(), attributter);
+            List<Sporingsdata> sporingsdata = sporingslogg.byggSporingsdata(beslutning, attributter);
             Object resultat = invocationContext.proceed();
             //logger til slutt, det skal ikke logges dersom operasjonen ikke lot seg utføre
             //i motsatt fall blir sporingsloggen misvisende
@@ -66,8 +66,7 @@ public class BeskyttetRessursInterceptor {
     }
 
     private Object ikkeTilgang(AbacAttributtSamling attributter, Tilgangsbeslutning beslutning) {
-        AbacSporingslogg sporingslogg = new AbacSporingslogg(attributter.getAction());
-        sporingslogg.loggDeny(beslutning.getPdpRequest(), beslutning.getDelbeslutninger(), attributter);
+        sporingslogg.loggDeny(beslutning, attributter);
 
         switch (beslutning.getBeslutningKode()) {
             case AVSLÅTT_KODE_6:
@@ -141,7 +140,7 @@ public class BeskyttetRessursInterceptor {
     private static String hentSamlToken() {
         try {
             return SamlUtils.getSamlAssertionAsString(SubjectHandler.getSubjectHandler().getSamlToken());
-        } catch (TransformerException e) {
+        } catch (Exception e) {
             throw FeilFactory.create(BeskyttetRessursFeil.class).kunneIkkeGjøreSamlTokenOmTilStreng(e).toException();
         }
     }

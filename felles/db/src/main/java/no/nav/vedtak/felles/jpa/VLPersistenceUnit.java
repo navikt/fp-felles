@@ -8,7 +8,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import javax.inject.Qualifier;
-import javax.persistence.PersistenceUnit;
 
 /**
  * Definerer hvilken {@link PersistenceUnit} som skal benyttes.

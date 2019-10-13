@@ -53,7 +53,7 @@ public class FeiletProsessTaskDataDto implements ProsessTaskDataInfo {
     }
 
     @Override
-    public Optional<Sporingsdata> lagSporingsloggData() {
-        return prosessTaskDataDto.lagSporingsloggData();
+    public Optional<Sporingsdata> lagSporingsloggData(String action) {
+        return prosessTaskDataDto.lagSporingsloggData(action);
     }
 }

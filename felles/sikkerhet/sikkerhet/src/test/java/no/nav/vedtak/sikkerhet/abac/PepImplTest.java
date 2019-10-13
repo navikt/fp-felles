@@ -22,7 +22,7 @@ public class PepImplTest {
     @Before
     public void setUp() {
         pdpKlientMock = mock(PdpKlient.class);
-        pep = new PepImpl(pdpKlientMock, new DummyRequestBuilder(), "SRVFPLOS,SRVPDP");
+        pep = new PepImpl(pdpKlientMock, new DummyRequestBuilder(), new DefaultAbacSporingslogg(), "SRVFPLOS,SRVPDP");
     }
 
     @After

@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.testutilities.sikkerhet;
 
-import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.domene.ConsumerId;
 import no.nav.vedtak.sikkerhet.domene.SluttBruker;

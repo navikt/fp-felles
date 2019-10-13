@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import javax.sql.rowset.serial.SerialClob;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Task info describing the task to run, including error handling.
@@ -39,6 +38,7 @@ public class ProsessTaskData implements ProsessTaskInfo {
      * Standard properties - hendelse som tasken venter på eller har behandlet.
      */
     public static final String OPPGAVE_ID = "oppgaveId";
+    
     public static final Pattern VALID_KEY_PATTERN = Pattern.compile("[a-zA-Z0-9_\\.]+$"); //$NON-NLS-1$
     static final String CALL_ID = MDCOperations.MDC_CALL_ID;
     private final Properties props = new Properties();
@@ -46,7 +46,7 @@ public class ProsessTaskData implements ProsessTaskInfo {
     private int antallFeiledeForsøk;
     private String gruppe;
     private Long id;
-    private LocalDateTime nesteKjøringEtter = FPDateUtil.nå();
+    private LocalDateTime nesteKjøringEtter = LocalDateTime.now();
     private Clob payload;
     private int prioritet = 1;
     private String sekvens;

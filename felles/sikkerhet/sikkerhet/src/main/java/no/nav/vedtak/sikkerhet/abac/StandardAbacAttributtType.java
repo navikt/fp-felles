@@ -28,57 +28,8 @@ public enum StandardAbacAttributtType implements AbacAttributtType {
     
     AKSJONSPUNKT_KODE("aksjonspunktKode"),
     
-    JOURNALPOST_ID("journalpostId"),
-    
-    /**
-     * Indikerer at alle saker som har dette fødselsnummeret som søker må sjekkes.
-     * 
-     * @deprecated Implementer selv
-     */
-    SAKER_MED_FNR(),
-
-
-    /**
-     * Samme som JOURNALPOST_ID, men det skal kreves at denne journalpost_Id finnes
-     * 
-     * @deprecated Bør bare bruke {@link #JOURNALPOST_ID}
-     */
-    @Deprecated
-    EKSISTERENDE_JOURNALPOST_ID("journalpostId", false, true),
-
-
-    /**
-     * @deprecated Implementer selv i fordel
-     */
-    @Deprecated
-    OPPGAVE_ID("oppgaveId"),
-
-    /**
-     * @deprecated Implementer selv i fpsak
-     */
-    @Deprecated
-    /* vi kan ikke bruke DokumentID til tilgangskontroll, men har den med for å populere sporingslogg */
-    DOKUMENT_ID("dokumentId"),
-
-    /**
-     * Skal kun brukes i spberegning. Brukes ikke til tilgangskontroll, men for sporing.
-     * 
-     * @deprecated - flytt til spberegning
-     */
-    @Deprecated
-    SPBEREGNING_ID,
-
-    /**
-     * @deprecated Implementer selv i fordel
-     */
-    @Deprecated
-    DOKUMENTFORSENDELSE_ID,
-
-    /**
-     * @deprecated Flytt til LOS
-     */
-    @Deprecated
-    OPPGAVESTYRING_ENHET;
+    JOURNALPOST_ID("journalpostId")
+    ;
 
     private final String sporingsloggEksternKode;
     private final boolean maskerOutput;
@@ -109,7 +60,7 @@ public enum StandardAbacAttributtType implements AbacAttributtType {
     }
 
     @Override
-    public String getSporingsloggEksternKode() {
+    public String getSporingsloggKode() {
         return sporingsloggEksternKode;
     }
 

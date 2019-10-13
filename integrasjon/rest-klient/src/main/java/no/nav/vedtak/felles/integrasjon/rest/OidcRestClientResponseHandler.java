@@ -10,7 +10,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.util.EntityUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 public abstract class OidcRestClientResponseHandler<T> implements ResponseHandler<T> {

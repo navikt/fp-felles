@@ -201,7 +201,7 @@ public class ProsessTaskRestTjeneste {
     private void loggLesingAvPersondataFraProsessTask(ProsessTaskDataInfo prosessTaskInfo, String metode) {
         String actionType = "read";
         String endepunkt = ProsessTaskRestTjeneste.class.getAnnotation(Path.class).value() + metode;
-        Optional<Sporingsdata> sporingsdata = prosessTaskInfo.lagSporingsloggData();
+        Optional<Sporingsdata> sporingsdata = prosessTaskInfo.lagSporingsloggData(metode);
         sporingsdata.ifPresent(sd -> SporingsloggHelper.logSporing(ProsessTaskRestTjeneste.class, sd, actionType, endepunkt));
     }
 }
