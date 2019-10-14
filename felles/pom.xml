@@ -145,19 +145,8 @@
 			<!-- NAV interne 3djepart avhengigheter til kontrakter og bibliotek -->
             <dependency>
                 <groupId>no.nav.abac.policies</groupId>
-                <artifactId>abac-foreldrepenger-policies-alfa</artifactId>
-                <version>4.5.0</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.abac.policies</groupId>
                 <artifactId>abac-common-attributes-alfa</artifactId>
                 <version>4.0.8</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.abac.policies</groupId>
-                <artifactId>abac-arkiv-policies-alfa</artifactId>
-                <version>4.6.2</version>
-                <classifier>attributes</classifier>
             </dependency>
 			
 			<!-- Logging -->

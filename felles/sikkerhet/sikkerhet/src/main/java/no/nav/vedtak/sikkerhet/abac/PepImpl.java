@@ -1,5 +1,7 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import static no.nav.vedtak.util.Objects.check;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -7,13 +9,14 @@ import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
 import no.nav.abac.common.xacml.CommonAttributter;
-import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
+@Default
 @ApplicationScoped
 public class PepImpl implements Pep {
 
@@ -21,19 +24,24 @@ public class PepImpl implements Pep {
     private PdpRequestBuilder pdpRequestBuilder;
 
     private Set<String> pipUsers;
+    private AbacSporingslogg sporingslogg;
 
     public PepImpl() {
     }
 
     @Inject
-    public PepImpl(PdpKlient pdpKlient, PdpRequestBuilder pdpRequestBuilder, @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
+    public PepImpl(PdpKlient pdpKlient,
+                   PdpRequestBuilder pdpRequestBuilder,
+                   AbacSporingslogg sporingslogg,
+                   @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
         this.pdpKlient = pdpKlient;
         this.pdpRequestBuilder = pdpRequestBuilder;
+        this.sporingslogg = sporingslogg;
 
         this.pipUsers = konfigurePipUsers(pipUsers);
     }
 
-    private Set<String> konfigurePipUsers(String pipUsers) {
+    protected Set<String> konfigurePipUsers(String pipUsers) {
         Set<String> result = new HashSet<>();
         if (pipUsers != null) {
             Collections.addAll(result, pipUsers.toLowerCase().split(","));
@@ -43,7 +51,6 @@ public class PepImpl implements Pep {
 
     @Override
     public Tilgangsbeslutning vurderTilgang(AbacAttributtSamling attributter) {
-        validerInput(attributter);
         PdpRequest pdpRequest = pdpRequestBuilder.lagPdpRequest(attributter);
 
         if (BeskyttetRessursResourceAttributt.PIP.equals(attributter.getResource())) {
@@ -53,37 +60,41 @@ public class PepImpl implements Pep {
         }
     }
 
-    private Tilgangsbeslutning vurderTilgangTilPipTjeneste(PdpRequest pdpRequest, AbacAttributtSamling attributter) {
+    protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(PdpRequest pdpRequest, AbacAttributtSamling attributter) {
         String uid = SubjectHandler.getSubjectHandler().getUid();
         if (pipUsers.contains(uid.toLowerCase())) {
             return lagPipPermit(pdpRequest);
         }
         Tilgangsbeslutning tilgangsbeslutning = lagPipDeny(pdpRequest);
-        AbacSporingslogg sporingslogg = new AbacSporingslogg(attributter.getAction());
-        sporingslogg.loggDeny(pdpRequest, tilgangsbeslutning.getDelbeslutninger(), attributter);
+        sporingslogg.loggDeny(tilgangsbeslutning, attributter);
         return tilgangsbeslutning;
     }
 
-    private Tilgangsbeslutning lagPipPermit(PdpRequest pdpRequest) {
-        List<Decision> decisions = lagDecisions(antallResources(pdpRequest), Decision.Permit);
+    protected Tilgangsbeslutning lagPipPermit(PdpRequest pdpRequest) {
+        int antallResources = antallResources(pdpRequest);
+        List<Decision> decisions = lagDecisions(antallResources, Decision.Permit);
         return new Tilgangsbeslutning(AbacResultat.GODKJENT, decisions, pdpRequest);
     }
 
-    private Tilgangsbeslutning lagPipDeny(PdpRequest pdpRequest) {
-        List<Decision> decisions = lagDecisions(antallResources(pdpRequest), Decision.Deny);
+    protected Tilgangsbeslutning lagPipDeny(PdpRequest pdpRequest) {
+        int antallResources = antallResources(pdpRequest);
+        List<Decision> decisions = lagDecisions(antallResources, Decision.Deny);
         return new Tilgangsbeslutning(AbacResultat.AVSLÅTT_ANNEN_ÅRSAK, decisions, pdpRequest);
     }
 
-    private int antallResources(PdpRequest pdpRequest) {
-        return Math.max(1, antallIdenter(pdpRequest)) * Math.max(1, antallAksjonspunktTyper(pdpRequest));
+    protected int antallResources(PdpRequest pdpRequest) {
+        return Math.max(1, antallIdenter(pdpRequest)) * Math.max(1, getAntallResources(pdpRequest));
     }
 
-    private int antallIdenter(PdpRequest pdpRequest) {
-        return pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE) + pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_FNR);
+    protected int antallIdenter(PdpRequest pdpRequest) {
+        // antall identer involvert i en request (eks. default - antall aktørId + antall fnr)
+        return pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)
+            + pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_FNR);
     }
 
-    private int antallAksjonspunktTyper(PdpRequest pdpRequest) {
-        return pdpRequest.getAntall(ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
+    protected int getAntallResources(PdpRequest pdpRequest) {
+        // Template method. Regn evt ut antall aksjonspunkter el andre typer ressurser som behandles i denne requesten (hvis mer enn 1)
+        return 1;
     }
 
     private List<Decision> lagDecisions(int antallDecisions, Decision decision) {
@@ -94,9 +105,4 @@ public class PepImpl implements Pep {
         return decisions;
     }
 
-    private void validerInput(AbacAttributtSamling attributter) {
-        if (attributter.getBehandlingsIder().size() > 1) {
-            throw PepFeil.FACTORY.ugyldigInputForMangeBehandlingIder(attributter.getBehandlingsIder()).toException();
-        }
-    }
 }

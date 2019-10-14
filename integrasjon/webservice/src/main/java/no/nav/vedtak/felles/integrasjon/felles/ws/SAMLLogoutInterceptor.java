@@ -9,15 +9,13 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SAMLLogoutInterceptor implements Interceptor<SoapMessage>,
-    PhaseInterceptor<SoapMessage> {
+public class SAMLLogoutInterceptor implements PhaseInterceptor<SoapMessage> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLLogoutInterceptor.class);
     private LoginContext loginContext;

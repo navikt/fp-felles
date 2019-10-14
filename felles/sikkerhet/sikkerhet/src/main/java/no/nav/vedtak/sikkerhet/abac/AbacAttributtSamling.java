@@ -2,7 +2,6 @@ package no.nav.vedtak.sikkerhet.abac;
 
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 public class AbacAttributtSamling {
     private final AbacIdToken idToken;
@@ -30,81 +29,11 @@ public class AbacAttributtSamling {
         return this;
     }
 
-    /**
-     * @deprecated bye-bye bruk verdier direkte, ikke hardkod metoder
-     */
-    @Deprecated
-    public Set<String> getSaksnummre() {
-        return dataAttributter.getSaksnummre();
-    }
-
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<Long> getBehandlingsIder() {
-        return dataAttributter.getBehandlingIder();
-    }
-    
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<String> getBehandlingsUUIDer() {
-        return dataAttributter.getBehandlingsUUIDer();
-    }
-    
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<Long> getSPBeregningsIder() {
-        return dataAttributter.getSPBeregningsIder();
-    }
-
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<String> getFødselsnumre() {
-        return dataAttributter.getFødselsnumre();
-    }
-
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<String> getFnrForSøkEtterSaker() {
-        return dataAttributter.getFnrForSøkEtterSaker();
-    }
-
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<String> getJournalpostIder(boolean påkrevde) {
-        return dataAttributter.getJournalpostIder(påkrevde);
-    }
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<String> getOppgaveIder() {
-        return dataAttributter.getOppgaveIder();
-    }
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<String> getOppgavestyringEnhet(){
-        return dataAttributter.getOppgavestyringEnhet();
-    }
-    
-    public Set<String> getVerdier(AbacAttributtType type){
+    public<T> Set<T> getVerdier(AbacAttributtType type) {
         return dataAttributter.getVerdier(type);
     }
-    
-    public Set<AbacAttributtType> keySet(){
+
+    public Set<AbacAttributtType> keySet() {
         return dataAttributter.keySet();
     }
 
@@ -140,52 +69,15 @@ public class AbacAttributtSamling {
         return resource;
     }
 
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<String> getAksjonspunktKode() {
-        return dataAttributter.getAksjonspunktKode();
+    public int getTotalAntallAttributter() {
+        return dataAttributter.keySet().stream().mapToInt(k -> dataAttributter.getVerdier(k).size()).sum();
     }
 
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<String> getAktørIder() {
-        return dataAttributter.getAktørIder();
-    }
-
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<Long> getDokumentDataIDer() {
-        return dataAttributter.getDokumentDataId();
-    }
-
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<String> getDokumentIDer() {
-        return dataAttributter.getDokumentId();
-    }
-
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<Long> getFagsakIder() {
-        return dataAttributter.getFagsakIder();
-    }
-
-    /**
-     * @deprecated bye-bye
-     */
-    @Deprecated
-    public Set<UUID> getDokumentforsendelseIder() {
-        return dataAttributter.getDokumentforsendelseIder();
+    public int kryssProduktAntallAttributter() {
+        return dataAttributter.keySet().stream()
+            .mapToInt(k -> dataAttributter.getVerdier(k).size())
+            .filter(s -> s > 0)
+            .reduce(1, (a, b) -> a * b);
     }
 
     AbacAttributtSamling setAction(String action) {
@@ -196,4 +88,5 @@ public class AbacAttributtSamling {
     public String getAction() {
         return action;
     }
+
 }

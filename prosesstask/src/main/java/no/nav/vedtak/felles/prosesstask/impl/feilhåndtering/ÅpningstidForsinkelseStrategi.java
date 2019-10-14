@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit;
 
 import no.nav.vedtak.felles.prosesstask.spi.ForsinkelseStrategi;
 import no.nav.vedtak.felles.prosesstask.spi.ProsessTaskFeilHåndteringParametere;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class ÅpningstidForsinkelseStrategi implements ForsinkelseStrategi {
 
@@ -14,7 +13,7 @@ public class ÅpningstidForsinkelseStrategi implements ForsinkelseStrategi {
 
     @Override
     public int sekunderTilNesteForsøk(int runde, ProsessTaskFeilHåndteringParametere feilhåndteringAlgoritme) {
-        return sekunderTilNesteForsøk(FPDateUtil.nå(), feilhåndteringAlgoritme.getInputVariabel1(), feilhåndteringAlgoritme.getInputVariabel2());
+        return sekunderTilNesteForsøk(LocalDateTime.now(), feilhåndteringAlgoritme.getInputVariabel1(), feilhåndteringAlgoritme.getInputVariabel2());
     }
 
     int sekunderTilNesteForsøk(LocalDateTime now, int klokkeslettÅpning, int klokkeslettStenging) {

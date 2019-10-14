@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.prosesstask.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -13,7 +14,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDispatcher;
 import no.nav.vedtak.felles.prosesstask.impl.TaskManager.ReadTaskFunksjon;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.FPDateUtil;
 import no.nav.vedtak.util.MdcExtendedLogContext;
 
 /** Poller for tilgjengelige tasks og omsetter disse til Runnable som kan kjøres på andre tråder. */
@@ -56,7 +56,7 @@ public class TaskManagerGenerateRunnableTasks {
 
     private IdentRunnable createRunnable(final RunTaskInfo taskInfo, final String callId, String taskName) {
         Runnable r = createTaskManagerRunnableTask(taskInfo, callId, taskName);
-        return new IdentRunnableTask(taskInfo.getId(), r, FPDateUtil.nå());
+        return new IdentRunnableTask(taskInfo.getId(), r, LocalDateTime.now());
     }
 
     TaskManagerRunnableTask createTaskManagerRunnableTask(final RunTaskInfo taskInfo, final String callId, String taskName) {

@@ -33,7 +33,7 @@ public class OidcRestClient extends AbstractOidcRestClient {
 
     //FIXME (u139158): PK-50281 STS for SAML til OIDC
     // I mellomtiden bruker vi systemets OIDC-token, dvs vi propagerer ikke sikkerhetskonteksten
-    private String veksleSamlTokenTilOIDCToken(Element samlToken) {
+    private String veksleSamlTokenTilOIDCToken(@SuppressWarnings("unused") Element samlToken) {
         try {
             return new OpenAMHelper().getToken().getIdToken().getToken();
         } catch (IOException e) {

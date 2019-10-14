@@ -5,9 +5,9 @@ import javax.enterprise.context.ApplicationScoped;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
+import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskSporingsloggId;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.log.sporingslogg.SporingsloggHelper;
-import no.nav.vedtak.log.sporingslogg.StandardSporingsloggId;
 import no.nav.vedtak.sikkerhet.loginmodule.ContainerLogin;
 import no.nav.vedtak.util.MdcExtendedLogContext;
 
@@ -40,19 +40,20 @@ public class AuthenticatedCdiProsessTaskDispatcher extends BasicCdiProsessTaskDi
     }
 
     static void sporingslogg(ProsessTaskData data) {
-        Sporingsdata sporingsdata = Sporingsdata.opprett();
+        String action = data.getTaskType();
+        Sporingsdata sporingsdata = Sporingsdata.opprett(action);
 
         String aktørId = data.getAktørId();
         if (aktørId != null) {
-            sporingsdata.leggTilId(StandardSporingsloggId.AKTOR_ID, aktørId);
+            sporingsdata.leggTilId(ProsessTaskSporingsloggId.AKTOR_ID, aktørId);
         }
         Long fagsakId = data.getFagsakId();
         if (fagsakId != null) {
-            sporingsdata.leggTilId(StandardSporingsloggId.FAGSAK_ID, fagsakId);
+            sporingsdata.leggTilId(ProsessTaskSporingsloggId.FAGSAK_ID, fagsakId);
         }
         Long behandlingId = data.getBehandlingId();
         if (behandlingId != null) {
-            sporingsdata.leggTilId(StandardSporingsloggId.BEHANDLING_ID, behandlingId);
+            sporingsdata.leggTilId(ProsessTaskSporingsloggId.BEHANDLING_ID, behandlingId);
         }
 
         SporingsloggHelper.logSporingForTask(AuthenticatedCdiProsessTaskDispatcher.class, sporingsdata, data.getTaskType());
