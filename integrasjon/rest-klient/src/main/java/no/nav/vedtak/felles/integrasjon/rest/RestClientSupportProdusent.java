@@ -19,7 +19,6 @@ import org.apache.http.config.ConnectionConfig;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHeaderElementIterator;
@@ -35,6 +34,28 @@ public class RestClientSupportProdusent {
     public RestClientSupportProdusent() {
         this.oidcRestClient = createOidcRestClient();
         this.systemUserOidcRestClient = creatSystemUserOidcRestClient();
+    }
+
+    /**
+     * Sørger for å droppe og starte nye connections innimellom også om server ikke sender keepalive header.
+     */
+    private static ConnectionKeepAliveStrategy createKeepAliveStrategy(int seconds) {
+        ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
+            @Override
+            public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+                HeaderElementIterator it = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE));
+                while (it.hasNext()) {
+                    HeaderElement he = it.nextElement();
+                    String param = he.getName();
+                    String value = he.getValue();
+                    if (value != null && param.equalsIgnoreCase("timeout")) {
+                        return Long.parseLong(value) * 1000;
+                    }
+                }
+                return seconds * 1000;
+            }
+        };
+        return myStrategy;
     }
 
     @Produces
@@ -63,8 +84,8 @@ public class RestClientSupportProdusent {
     private CloseableHttpClient createHttpClient() {
         // Create connection configuration
         ConnectionConfig defaultConnectionConfig = ConnectionConfig.custom()
-                .setCharset(Consts.UTF_8)
-                .build();
+            .setCharset(Consts.UTF_8)
+            .build();
 
         // Create a connection manager with custom configuration.
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
@@ -73,8 +94,8 @@ public class RestClientSupportProdusent {
 
         // Create global request configuration
         RequestConfig defaultRequestConfig = RequestConfig.custom()
-                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
-                .build();
+            .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+            .build();
 
         // Create default headers
         Header header = new BasicHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
@@ -82,32 +103,12 @@ public class RestClientSupportProdusent {
 
         // Create an HttpClient with the given custom dependencies and configuration.
         return HttpClients.custom()
-                .setConnectionManager(connManager)
-                .setDefaultHeaders(defaultHeaders)
-                .setDefaultRequestConfig(defaultRequestConfig)
-                .setRetryHandler(new StandardHttpRequestRetryHandler())
-                .setKeepAliveStrategy(createKeepAliveStrategy(30))
-                .build();
-    }
-    
-    /** Sørger for å droppe og starte nye connections innimellom også om server ikke sender keepalive header. */
-    private static ConnectionKeepAliveStrategy createKeepAliveStrategy(int seconds) {
-        ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
-            @Override
-            public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
-                HeaderElementIterator it = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE));
-                while (it.hasNext()) {
-                    HeaderElement he = it.nextElement();
-                    String param = he.getName();
-                    String value = he.getValue();
-                    if (value != null && param.equalsIgnoreCase("timeout")) {
-                        return Long.parseLong(value) * 1000;
-                    }
-                }
-                return seconds * 1000;
-            }
-        };
-        return myStrategy;
+            .setConnectionManager(connManager)
+            .setDefaultHeaders(defaultHeaders)
+            .setDefaultRequestConfig(defaultRequestConfig)
+            .setRetryHandler(new HttpRequestRetryHandler())
+            .setKeepAliveStrategy(createKeepAliveStrategy(30))
+            .build();
     }
 
 }
