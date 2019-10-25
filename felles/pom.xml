@@ -98,7 +98,12 @@
 				<artifactId>jboss-logging</artifactId>
 				<version>3.3.0.Final</version>
 			</dependency>
-
+            <!-- Kollisjon mellom weld & -->
+            <dependency>
+                <groupId>org.jboss.spec.javax.annotation</groupId>
+                <artifactId>jboss-annotations-api_1.3_spec</artifactId>
+                <version>1.0.1.Final</version>
+            </dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles</groupId>
 				<artifactId>felles-feil</artifactId>
