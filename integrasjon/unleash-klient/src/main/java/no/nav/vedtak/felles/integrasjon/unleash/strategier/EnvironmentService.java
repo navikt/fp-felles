@@ -22,7 +22,7 @@ class EnvironmentService {
     static boolean isCurrentEnvironmentInMap(Map<String, String> parameters, String envKey) {
         Optional<String> currentEnvironmentOpt = EnvironmentProperty.getEnvironmentName();
         List<String> enabledEnvironments = parseEnvironments(parameters, envKey);
-        LOGGER.info("Current Environment={}, Enabled Environments: {}", currentEnvironmentOpt, enabledEnvironments);
+        LOGGER.debug("Current Environment={}, Enabled Environments: {}", currentEnvironmentOpt, enabledEnvironments);
 
         return currentEnvironmentOpt
                 .map(currentEnvironment -> enabledEnvironments.stream()

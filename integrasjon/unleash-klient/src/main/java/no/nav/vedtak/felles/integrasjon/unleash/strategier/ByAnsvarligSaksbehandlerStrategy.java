@@ -45,7 +45,7 @@ public class ByAnsvarligSaksbehandlerStrategy implements Strategy {
     }
 
     private boolean logErEnabled(boolean erEnabled, String saksbehandlerIdent) {
-        LOGGER.info("Strategy={} is enabled={} for {}", getName(), erEnabled, saksbehandlerIdent);
+        LOGGER.debug("Strategy={} is enabled={} for {}", getName(), erEnabled, saksbehandlerIdent);
         return erEnabled;
     }
 
