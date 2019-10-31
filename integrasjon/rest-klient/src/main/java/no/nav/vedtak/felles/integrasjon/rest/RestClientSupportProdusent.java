@@ -91,6 +91,7 @@ public class RestClientSupportProdusent {
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
         connManager.setMaxTotal(100);
         connManager.setDefaultConnectionConfig(defaultConnectionConfig);
+        connManager.setValidateAfterInactivity(100);
 
         // Create global request configuration
         RequestConfig defaultRequestConfig = RequestConfig.custom()
