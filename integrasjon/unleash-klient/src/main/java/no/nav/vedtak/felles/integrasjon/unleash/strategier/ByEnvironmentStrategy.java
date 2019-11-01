@@ -20,7 +20,8 @@ public class ByEnvironmentStrategy implements Strategy {
     public boolean isEnabled(Map<String, String> parameters) {
         boolean enabled = EnvironmentService.isCurrentEnvironmentInMap(parameters, ENV_KEY);
 
-        LOGGER.info("Strategy={} is enabled={}", getName(), enabled);
+        if (LOGGER.isDebugEnabled())
+            LOGGER.debug("Strategy={} is enabled={}", getName(), enabled);
         return enabled;
     }
 }

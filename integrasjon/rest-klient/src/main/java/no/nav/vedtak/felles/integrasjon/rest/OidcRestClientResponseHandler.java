@@ -23,7 +23,9 @@ public abstract class OidcRestClientResponseHandler<T> implements ResponseHandle
     @Override
     public T handleResponse(final HttpResponse response) throws IOException {
         int status = response.getStatusLine().getStatusCode();
-        if (status >= HttpStatus.SC_OK && status < HttpStatus.SC_MULTIPLE_CHOICES) {
+        if (status == HttpStatus.SC_NO_CONTENT) {
+            return null;
+        } else if (status >= HttpStatus.SC_OK && status < HttpStatus.SC_MULTIPLE_CHOICES) {
             HttpEntity entity = response.getEntity();
             return entity != null ? readEntity(entity) : null;
         } else if (status == HttpStatus.SC_FORBIDDEN) {
@@ -43,14 +45,16 @@ public abstract class OidcRestClientResponseHandler<T> implements ResponseHandle
             super(endpoint);
         }
 
-        /** default håndteres alt som string. */
+        /**
+         * default håndteres alt som string.
+         */
         @Override
         protected String readEntity(HttpEntity entity) throws IOException {
             return EntityUtils.toString(entity, StandardCharsets.UTF_8);
         }
 
     }
-    
+
     public static class ObjectReaderResponseHandler<T> extends OidcRestClientResponseHandler<T> {
 
         private ObjectReader reader;
@@ -64,6 +68,6 @@ public abstract class OidcRestClientResponseHandler<T> implements ResponseHandle
         protected T readEntity(HttpEntity entity) throws IOException {
             return reader.readValue(entity.getContent());
         }
-        
+
     }
 }

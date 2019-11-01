@@ -59,7 +59,7 @@ public class ToggleConfig {
             LOGGER.info("Oppretter unleash strategier med appName={} and instanceName={}", this.appName.get(), this.instanceName);
             return new DefaultUnleash(config, addStrategies());
         } else {
-            LOGGER.info("Benytter FakeUnleash, NAIS_APP_NAME ikke definert");
+            LOGGER.warn("Benytter FakeUnleash, NAIS_APP_NAME ikke definert");
             return new FakeUnleash();
         }
     }
