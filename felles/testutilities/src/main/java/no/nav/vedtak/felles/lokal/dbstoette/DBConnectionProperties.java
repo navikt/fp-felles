@@ -92,7 +92,7 @@ public final class DBConnectionProperties {
         try {
             JsonNode json = OM.reader().readTree(jsonFil);
             for (var sc : json.get("schemas")) {
-                dbProperties.add(readRaw(sc));
+                dbProperties.add(read(sc));
             }
         } catch (IOException e) {
 
