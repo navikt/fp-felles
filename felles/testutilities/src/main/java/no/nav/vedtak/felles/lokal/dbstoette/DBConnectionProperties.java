@@ -14,6 +14,9 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import no.nav.vedtak.felles.testutilities.VariablePlaceholderReplacer;
 
 /**
@@ -43,6 +46,8 @@ import no.nav.vedtak.felles.testutilities.VariablePlaceholderReplacer;
  * </p>
  */
 public final class DBConnectionProperties {
+
+    private static final ObjectMapper OM = new ObjectMapper();
 
     private String datasource;
     private String schema;
@@ -84,12 +89,13 @@ public final class DBConnectionProperties {
     public static List<DBConnectionProperties> fraStream(InputStream jsonFil) {
         List<DBConnectionProperties> dbProperties = new ArrayList<>();
 
-        try (JsonReader reader = Json.createReader(jsonFil)) {
-            JsonArray jsonArray = reader.readObject().getJsonArray("schemas");
-            for (int i = 0; i < jsonArray.size(); i++) {
-                JsonObject jsonObject = jsonArray.getJsonObject(i);
-                dbProperties.add(read(jsonObject));
+        try {
+            JsonNode json = OM.reader().readTree(jsonFil);
+            for (var sc : json.get("schemas")) {
+                dbProperties.add(readRaw(sc));
             }
+        } catch (IOException e) {
+
         }
 
         if (dbProperties.stream().filter(DBConnectionProperties::isDefaultDataSource).count() > 1L) {
@@ -102,12 +108,13 @@ public final class DBConnectionProperties {
     public static List<DBConnectionProperties> rawFraStream(InputStream jsonFil) {
         List<DBConnectionProperties> dbProperties = new ArrayList<>();
 
-        try (JsonReader reader = Json.createReader(jsonFil)) {
-            JsonArray jsonArray = reader.readObject().getJsonArray("schemas");
-            for (int i = 0; i < jsonArray.size(); i++) {
-                JsonObject jsonObject = jsonArray.getJsonObject(i);
-                dbProperties.add(readRaw(jsonObject));
+        try {
+            JsonNode json = OM.reader().readTree(jsonFil);
+            for (var sc : json.get("schemas")) {
+                dbProperties.add(readRaw(sc));
             }
+        } catch (IOException e) {
+
         }
 
         if (dbProperties.stream().filter(DBConnectionProperties::isDefaultDataSource).count() > 1L) {
@@ -121,7 +128,7 @@ public final class DBConnectionProperties {
         return connectionProperties.stream().filter(DBConnectionProperties::isDefaultDataSource).findFirst();
     }
 
-    private static DBConnectionProperties read(JsonObject db) {
+    private static DBConnectionProperties read(JsonNode db) {
 
         DBConnectionProperties raw = readRaw(db);
 
@@ -149,21 +156,21 @@ public final class DBConnectionProperties {
             .build();
     }
 
-    private static DBConnectionProperties readRaw(JsonObject db) {
+    private static DBConnectionProperties readRaw(JsonNode sc) {
 
-        final String datasource = getString(db, "datasource");
-        final String schema = getString(db, "schema");
-        final String defaultSchema = getString(db, "defaultSchema");
-        final String user = getString(db, "user", schema);
-        final String password = getString(db, "password", schema);
-        final String migrationScriptsClasspathRoot = getString(db, "migrationScriptsClasspathRoot");
-        final String migrationScriptsFilesystemRoot = getString(db, "migrationScriptsFilesystemRoot");
-        final String tabell = getString(db, "versjonstabell", "schema_version");
-        final String url = getString(db, "url");
+        final String datasource = getString(sc, "datasource");
+        final String schema = getString(sc, "schema");
+        final String defaultSchema = getString(sc, "defaultSchema");
+        final String user = getString(sc, "user", schema);
+        final String password = getString(sc, "password", schema);
+        final String migrationScriptsClasspathRoot = getString(sc, "migrationScriptsClasspathRoot");
+        final String migrationScriptsFilesystemRoot = getString(sc, "migrationScriptsFilesystemRoot");
+        final String tabell = getString(sc, "versjonstabell", "schema_version");
+        final String url = getString(sc, "url");
 
-        boolean isDefaultDataSource = db.isNull("default") ? false : db.getBoolean("default");
-        boolean migrateClean2 = db.isNull("migrateClean") ? false  : db.getBoolean("migrateClean");
-        
+        boolean isDefaultDataSource = Boolean.valueOf(getString(sc, "default"));
+        boolean migrateClean2 = Boolean.valueOf(getString(sc, "migrateClean"));
+
         return new Builder()
             .datasource(datasource)
             .schema(schema)
@@ -179,14 +186,15 @@ public final class DBConnectionProperties {
             .build();
     }
 
-    private static String getString(JsonObject jo, String key, String defaultValue) {
+    private static String getString(JsonNode jo, String key, String defaultValue) {
         var val = getString(jo, key);
         return val != null ? val : defaultValue;
     }
 
-    private static String getString(JsonObject jo, String key) {
-        var val = jo.getJsonString(key);
-        return val == null && jo.isNull(key) ? null : val.getString();
+    private static String getString(JsonNode sc, String key) {
+        // fordi glassfish impl sux sjekker vi for nulls først slik at ikke det spruter interne NPE is JsonObject
+        var val = sc.get(key);
+        return val == null ? null : val.asText();
     }
 
     public String getDatasource() {
