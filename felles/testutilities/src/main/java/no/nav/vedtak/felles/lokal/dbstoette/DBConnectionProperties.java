@@ -151,15 +151,19 @@ public final class DBConnectionProperties {
 
     private static DBConnectionProperties readRaw(JsonObject db) {
 
-        final String datasource = db.getString("datasource");
-        final String schema = db.getString("schema");
-        final String defaultSchema = db.getString("defaultSchema", null);
-        final String user = db.getString("user", schema);
-        final String password = db.getString("password", schema);
-        final String migrationScriptsClasspathRoot = db.getString("migrationScriptsClasspathRoot", null);
-        final String migrationScriptsFilesystemRoot = db.getString("migrationScriptsFilesystemRoot", null);
-        final String tabell = db.getString("versjonstabell", "schema_version");
+        final String datasource = getString(db, "datasource");
+        final String schema = getString(db, "schema");
+        final String defaultSchema = getString(db, "defaultSchema");
+        final String user = getString(db, "user", schema);
+        final String password = getString(db, "password", schema);
+        final String migrationScriptsClasspathRoot = getString(db, "migrationScriptsClasspathRoot");
+        final String migrationScriptsFilesystemRoot = getString(db, "migrationScriptsFilesystemRoot");
+        final String tabell = getString(db, "versjonstabell", "schema_version");
+        final String url = getString(db, "url");
 
+        boolean isDefaultDataSource = db.isNull("default") ? false : db.getBoolean("default");
+        boolean migrateClean2 = db.isNull("migrateClean") ? false  : db.getBoolean("migrateClean");
+        
         return new Builder()
             .datasource(datasource)
             .schema(schema)
@@ -169,10 +173,20 @@ public final class DBConnectionProperties {
             .migrationScriptsClasspathRoot(migrationScriptsClasspathRoot)
             .migrationScriptsFilesystemRoot(migrationScriptsFilesystemRoot)
             .versjonstabell(tabell)
-            .url(db.getString("url"))
-            .defaultDataSource(db.getBoolean("default", false))
-            .migrateClean(db.getBoolean("migrateClean", false))
+            .url(url)
+            .defaultDataSource(isDefaultDataSource)
+            .migrateClean(migrateClean2)
             .build();
+    }
+
+    private static String getString(JsonObject jo, String key, String defaultValue) {
+        var val = getString(jo, key);
+        return val != null ? val : defaultValue;
+    }
+
+    private static String getString(JsonObject jo, String key) {
+        var val = jo.getJsonString(key);
+        return val == null && jo.isNull(key) ? null : val.getString();
     }
 
     public String getDatasource() {
