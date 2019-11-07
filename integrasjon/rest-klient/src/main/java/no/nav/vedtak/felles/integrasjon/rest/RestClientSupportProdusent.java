@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.rest;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -88,7 +89,7 @@ public class RestClientSupportProdusent {
             .build();
 
         // Create a connection manager with custom configuration.
-        PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+        PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(55, TimeUnit.MINUTES);
         connManager.setMaxTotal(100);
         connManager.setDefaultConnectionConfig(defaultConnectionConfig);
         connManager.setValidateAfterInactivity(100);
