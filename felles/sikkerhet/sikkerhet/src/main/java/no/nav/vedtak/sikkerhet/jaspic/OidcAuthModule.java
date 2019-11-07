@@ -1,7 +1,7 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
 import static javax.security.auth.message.AuthStatus.FAILURE;
-import static javax.security.auth.message.AuthStatus.SEND_FAILURE;
+import static javax.security.auth.message.AuthStatus.SEND_CONTINUE;
 import static javax.security.auth.message.AuthStatus.SEND_SUCCESS;
 import static javax.security.auth.message.AuthStatus.SUCCESS;
 import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
@@ -55,7 +55,7 @@ import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
 
 /**
  * Stjålet mye fra https://github.com/omnifaces/omnisecurity
- * 
+ *
  * Klassen er og må være thread-safe da den vil brukes til å kalle på subjects samtidig. Se {@link ServerAuthModule}.  Skal derfor ikke inneholde felter som holder Subject, token eller andre parametere som kommer med en request eller session.
  */
 public class OidcAuthModule implements ServerAuthModule {
@@ -241,7 +241,7 @@ public class OidcAuthModule implements ServerAuthModule {
                 }
             }
         }
-        
+
         CallbackHandler callbackHandler = new TokenCallbackHandler();
         try {
             return new LoginContext(loginConfigName.name(), clientSubject, callbackHandler, loginConfiguration);
@@ -309,7 +309,7 @@ public class OidcAuthModule implements ServerAuthModule {
         } catch (IOException e) {
             throw OidcAuthModuleFeil.FACTORY.klarteIkkeSendeRespons(e).toException();
         }
-        return SEND_FAILURE;
+        return SEND_CONTINUE;
     }
 
     private String encode(String redirectLocation) throws UnsupportedEncodingException {

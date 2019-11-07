@@ -27,14 +27,18 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import no.nav.vedtak.isso.OpenAMHelper;
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
 import no.nav.modig.core.test.LogSniffer;
+import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.isso.config.ServerInfoTestUtil;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
@@ -126,7 +130,7 @@ public class OidcAuthModuleTest {
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.empty());
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
-        assertThat(result).isEqualTo(AuthStatus.SEND_FAILURE);
+        assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
         verify(response).sendError(401, "Resource is protected, but id token is missing or invalid.");
         verifyNoMoreInteractions(response);
     }
@@ -143,7 +147,7 @@ public class OidcAuthModuleTest {
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(utløptIdToken));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
-        assertThat(result).isEqualTo(AuthStatus.SEND_FAILURE);
+        assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
         verify(response).sendError(401, "Resource is protected, but id token is missing or invalid.");
         verifyNoMoreInteractions(response);
     }
@@ -157,7 +161,7 @@ public class OidcAuthModuleTest {
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.empty());
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
-        assertThat(result).isEqualTo(AuthStatus.SEND_FAILURE);
+        assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
 
         CookieCollector cookieCollector = new CookieCollector();
         verify(response).addCookie(Mockito.argThat(cookieCollector));
@@ -206,7 +210,7 @@ public class OidcAuthModuleTest {
                 .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 - 10));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
-        assertThat(result).isEqualTo(AuthStatus.SEND_FAILURE);
+        assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
         verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
         verifyNoMoreInteractions(response);
     }
@@ -224,7 +228,7 @@ public class OidcAuthModuleTest {
                 .thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
-        assertThat(result).isEqualTo(AuthStatus.SEND_FAILURE);
+        assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
     }
 
     @Test
@@ -242,7 +246,7 @@ public class OidcAuthModuleTest {
         when(idTokenProvider.getToken(ugyldigIdToken, ugyldigRefreshToken)).thenReturn(Optional.empty());
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
-        assertThat(result).isEqualTo(AuthStatus.SEND_FAILURE);
+        assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
         verify(idTokenProvider).getToken(ugyldigIdToken, ugyldigRefreshToken);
     }
 
@@ -290,7 +294,7 @@ public class OidcAuthModuleTest {
         when(idTokenProvider.getToken(ugyldig, gyldigRefreshToken)).thenReturn(Optional.of(gyldigIdToken));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
-        assertThat(result).isEqualTo(AuthStatus.SEND_FAILURE);
+        assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
     }
 
     @Test
@@ -394,7 +398,7 @@ public class OidcAuthModuleTest {
         Mockito.verifyZeroInteractions(idTokenProvider); // skal ikke hente refresh-token
         Mockito.verifyZeroInteractions(response); // skal ikke sette cookie
     }
-    
+
     @Test
     public void skal_ha_korrekt_scheme_selv_om_TLS_termineres_underveis() throws Exception {
         ServerInfoTestUtil.clearServerInfoInstance();
@@ -469,7 +473,7 @@ public class OidcAuthModuleTest {
 
     private MessageInfo createRequestForResource(boolean isProtected) {
         MessageInfo messageInfo = Mockito.mock(MessageInfo.class);
-        Map<Object, Object> properties = new HashMap<>(); 
+        Map<Object, Object> properties = new HashMap<>();
         properties.put("javax.security.auth.message.MessagePolicy.isMandatory", Boolean.toString(isProtected));
         when(messageInfo.getMap()).thenReturn(properties);
         when(messageInfo.getRequestMessage()).thenReturn(request);
