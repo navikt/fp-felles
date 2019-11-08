@@ -33,12 +33,20 @@ public class SigrunRestClient {
     private static final String NYE_HEADER_CALL_ID = "no.nav.callid";
     private static final String NYE_HEADER_CONSUMER_ID = "no.nav.consumer.id";
 
-    private static final String X_INNTEKTSÅR = "x-inntektsaar";
-    private static final String X_FILTER = "x-filter";
-    private static final String X_AKTØRID = "x-aktoerid";
-
+    //config beregnetskatt
     private static final String FILTER = "BeregnetSkattPensjonsgivendeInntekt";
     private static final String PATH = "/api/beregnetskatt";
+    private static final String X_AKTØRID = "x-aktoerid";
+    private static final String X_FILTER = "x-filter";
+    private static final String X_INNTEKTSÅR = "x-inntektsaar";
+
+    //config summertskattegrunnlag
+    public static final String INNTEKTSAAR = "inntektsaar";
+    public static final String INNTEKTSFILTER = "inntektsfilter";
+    public static final String NAV_PERSONIDENT = "Nav-Personident";
+    public static final String PATH_SSG = "/api/v1/summertskattegrunnlag";
+    public static final String FILTER_SSG = "SummertSkattegrunnlagForeldrepenger";
+
     private static final Logger LOG = LoggerFactory.getLogger(SigrunRestClient.class);
     private final ResponseHandler<String> defaultResponseHandler;
     private CloseableHttpClient client;
@@ -50,7 +58,7 @@ public class SigrunRestClient {
         defaultResponseHandler = createDefaultResponseHandler();
     }
 
-    public String hentBeregnetSkattForAktørOgÅr(long aktørId, String år) {
+    String hentBeregnetSkattForAktørOgÅr(long aktørId, String år) {
         HttpRequestBase request = new HttpGet(endpoint.resolve(endpoint.getPath() + PATH));
         String authHeaderValue = OIDC_AUTH_HEADER_PREFIX + getOIDCToken();
         request.setHeader(AUTH_HEADER, authHeaderValue);
@@ -74,6 +82,30 @@ public class SigrunRestClient {
         return response;
     }
 
+    String hentSummertskattegrunnlag(long aktørId, String år) {
+        HttpRequestBase request = new HttpGet(endpoint.resolve(endpoint.getPath() + PATH_SSG));
+        String authHeaderValue = OIDC_AUTH_HEADER_PREFIX + getOIDCToken();
+        request.setHeader(AUTH_HEADER, authHeaderValue);
+        request.setHeader(CALL_ID, MDCOperations.getCallId());
+        request.setHeader(NYE_HEADER_CALL_ID, MDCOperations.getCallId());
+        request.setHeader("Accept", "application/json");
+        request.setHeader(CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
+        request.setHeader(NYE_HEADER_CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
+
+        request.addHeader(INNTEKTSFILTER, FILTER_SSG);
+        request.addHeader(NAV_PERSONIDENT, String.valueOf(aktørId));
+        request.addHeader(INNTEKTSAAR, år);
+
+        String response;
+        try {
+            response = client.execute(request, defaultResponseHandler);
+        } catch (IOException e) {
+            throw SigrunRestClient.SigrunRestClientFeil.FACTORY.ioException(e).toException();
+        } finally {
+            request.reset();
+        }
+        return response;
+    }
 
     private String getOIDCToken() {
         String oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
@@ -115,7 +147,7 @@ public class SigrunRestClient {
         }
     }
 
-    public void setEndpoint(URI endpoint) {
+    void setEndpoint(URI endpoint) {
         this.endpoint = endpoint;
     }
 
