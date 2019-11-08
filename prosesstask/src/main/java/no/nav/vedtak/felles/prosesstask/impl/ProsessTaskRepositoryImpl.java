@@ -18,6 +18,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.*;
 
+import org.hibernate.dialect.Dialect;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.type.StringType;
@@ -345,9 +346,8 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
     public static Boolean isPostgres(EntityManager entityManager) {
         EntityManagerFactory emf = entityManager.getEntityManagerFactory();
         Map<String, Object> emfProperties = emf.getProperties();
-        // System.out.println("properties" + emfProperties.toString());
-        String driverClass = (String) emfProperties.get("hibernate.dialect");
-        return driverClass.equals("org.hibernate.dialect.PostgreSQLDialect");
+        String dialect = (String) emfProperties.get("hibernate.dialect");
+        return dialect.contains("PostgreSQL");
     }
 
     void flushAndClear() {
