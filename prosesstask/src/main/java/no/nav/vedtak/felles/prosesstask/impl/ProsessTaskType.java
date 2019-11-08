@@ -74,7 +74,7 @@ public class ProsessTaskType extends BaseEntitet {
         this.feilhåndteringAlgoritme = feilhåndteringAlgoritme;
     }
 
-    String getCronExpression() {
+    public String getCronExpression() {
         return cronExpression;
     }
 
