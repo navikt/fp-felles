@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,38 +29,19 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SSGResponse;
+import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SigrunSummertSkattegrunnlagResponse;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.FPDateUtil;
 
 
 @ApplicationScoped
 public class SigrunConsumerImpl implements SigrunConsumer {
-    
+
     private static final ObjectMapper mapper = getObjectMapper();
-
-    private static ObjectMapper getObjectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new Jdk8Module());
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return mapper;
-    }
-    
-    interface JsonMapperFeil extends DeklarerteFeil {
-
-        public static final JsonMapperFeil FACTORY = FeilFactory.create(JsonMapperFeil.class);
-
-        @TekniskFeil(feilkode = "F-918328", feilmelding = "Fikk IO exception ved parsing av JSON", logLevel = LogLevel.WARN)
-        Feil ioExceptionVedLesing(IOException cause);
-
-    }
-
-
+    private static final String TEKNISK_NAVN = "skatteoppgjoersdato";
     private SigrunRestClient sigrunRestClient;
 
-    private static final String TEKNISK_NAVN = "skatteoppgjoersdato";
 
     SigrunConsumerImpl() {
         //CDI
@@ -74,45 +56,43 @@ public class SigrunConsumerImpl implements SigrunConsumer {
     @Override
     public SigrunResponse beregnetskatt(Long aktørId) {
         Map<Year, List<BeregnetSkatt>> årTilListeMedSkatt = new HashMap<>();
-        ferdiglignedeÅr(aktørId)
-                .stream()
-                .collect(Collectors.toMap(år -> år, år -> {
-                    String resultat = sigrunRestClient.hentBeregnetSkattForAktørOgÅr(aktørId, år.toString());
-                    return resultat != null ? resultat : "";
-                }))
-                .forEach((resulatÅr, skatt) -> leggTil(årTilListeMedSkatt, resulatÅr, skatt));
+        ferdiglignedeBeregnetSkattÅr(aktørId)
+            .stream()
+            .collect(Collectors.toMap(år -> år, år -> {
+                String resultat = sigrunRestClient.hentBeregnetSkattForAktørOgÅr(aktørId, år.toString());
+                return resultat != null ? resultat : "";
+            }))
+            .forEach((resulatÅr, skatt) -> leggTilBS(årTilListeMedSkatt, resulatÅr, skatt));
 
         return new SigrunResponse(årTilListeMedSkatt);
     }
 
-    private void leggTil(Map<Year, List<BeregnetSkatt>> årTilListeMedSkatt, Year år, String skatt) {
-        årTilListeMedSkatt.put(år, skatt.isEmpty()
-                ? Collections.emptyList()
-                : fromJson(skatt, new TypeReference<List<BeregnetSkatt>>() {
-        }));
+    @Override
+    public SigrunSummertSkattegrunnlagResponse summertSkattegrunnlag(Long aktørId) {
+        Map<Year, Optional<SSGResponse>> summertskattegrunnlagMap = hentÅrsListeForSummertskattegrunnlag()
+            .stream()
+            .collect(Collectors.toMap(år -> år, år -> {
+                String resultat = sigrunRestClient.hentSummertskattegrunnlag(aktørId, år.toString());
+                if (resultat == null) {
+                    return Optional.empty();
+                }
+                return Optional.of(fromJson(resultat, new TypeReference<>() {
+                }));
+            }));
+        return new SigrunSummertSkattegrunnlagResponse(summertskattegrunnlagMap);
     }
 
-    private List<Year> ferdiglignedeÅr(Long aktørId) {
-        Year iFjor = Year.now(FPDateUtil.getOffset()).minusYears(1L);
-        if (iFjorErFerdiglignet(aktørId, iFjor)) {
-            return asList(iFjor, iFjor.minusYears(1L), iFjor.minusYears(2L));
-        } else {
-            Year iForifjor = iFjor.minusYears(1L);
-            return asList(iForifjor, iForifjor.minusYears(1L), iForifjor.minusYears(2L));
-        }
+    private static ObjectMapper getObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new Jdk8Module());
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper;
     }
 
-    private boolean iFjorErFerdiglignet(Long aktørId, Year iFjor) {
-        String json = sigrunRestClient.hentBeregnetSkattForAktørOgÅr(aktørId, iFjor.toString());
-        List<BeregnetSkatt> beregnetSkatt = json != null
-                ? fromJson(json, new TypeReference<List<BeregnetSkatt>>(){})
-                : new ArrayList<>();
-
-        return beregnetSkatt.stream()
-                .anyMatch(l -> l.getTekniskNavn().equals(TEKNISK_NAVN));
-    }
-    
-    static <T> List<T> fromJson(String json, TypeReference<List<T>> typeReference) {
+    private static <T> List<T> fromJsonList(String json, TypeReference<List<T>> typeReference) {
         try {
             return mapper.readValue(json, typeReference);
         } catch (IOException e) {
@@ -120,4 +100,54 @@ public class SigrunConsumerImpl implements SigrunConsumer {
         }
     }
 
+    private static <T> T fromJson(String json, TypeReference<T> typeReference) {
+        try {
+            return mapper.readValue(json, typeReference);
+        } catch (IOException e) {
+            throw JsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+        }
+    }
+
+
+    private void leggTilBS(Map<Year, List<BeregnetSkatt>> årTilListeMedSkatt, Year år, String skatt) {
+        årTilListeMedSkatt.put(år, skatt.isEmpty()
+            ? Collections.emptyList()
+            : fromJsonList(skatt, new TypeReference<>() {
+        }));
+    }
+
+    private List<Year> ferdiglignedeBeregnetSkattÅr(Long aktørId) {
+        Year iFjor = Year.now(FPDateUtil.getOffset()).minusYears(1L);
+        if (iFjorErFerdiglignetBeregnet(aktørId, iFjor)) {
+            return asList(iFjor, iFjor.minusYears(1L), iFjor.minusYears(2L));
+        } else {
+            Year iForifjor = iFjor.minusYears(1L);
+            return asList(iForifjor, iForifjor.minusYears(1L), iForifjor.minusYears(2L));
+        }
+    }
+
+    private List<Year> hentÅrsListeForSummertskattegrunnlag() {
+        Year iFjor = Year.now(FPDateUtil.getOffset()).minusYears(1L);
+        return asList(iFjor, iFjor.minusYears(1L), iFjor.minusYears(2L));
+    }
+
+    private boolean iFjorErFerdiglignetBeregnet(Long aktørId, Year iFjor) {
+        String json = sigrunRestClient.hentBeregnetSkattForAktørOgÅr(aktørId, iFjor.toString());
+        List<BeregnetSkatt> beregnetSkatt = json != null
+            ? fromJsonList(json, new TypeReference<>() {
+        })
+            : new ArrayList<>();
+
+        return beregnetSkatt.stream()
+            .anyMatch(l -> l.getTekniskNavn().equals(TEKNISK_NAVN));
+    }
+
+    interface JsonMapperFeil extends DeklarerteFeil {
+
+        public static final JsonMapperFeil FACTORY = FeilFactory.create(JsonMapperFeil.class);
+
+        @TekniskFeil(feilkode = "F-918328", feilmelding = "Fikk IO exception ved parsing av JSON", logLevel = LogLevel.WARN)
+        Feil ioExceptionVedLesing(IOException cause);
+
+    }
 }
