@@ -1,5 +1,22 @@
 package no.nav.vedtak.felles.integrasjon.sigrun;
 
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.*;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.AUTH_HEADER;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.CALL_ID;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.CONSUMER_ID;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.FILTER;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.FILTER_SSG;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.INNTEKTSAAR;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.INNTEKTSFILTER;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.NAV_PERSONIDENT;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.NYE_HEADER_CALL_ID;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.NYE_HEADER_CONSUMER_ID;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.OIDC_AUTH_HEADER_PREFIX;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.PATH_SSG;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.X_AKTØRID;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.X_FILTER;
+import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.X_INNTEKTSÅR;
+
 import java.io.IOException;
 import java.net.URI;
 
@@ -26,47 +43,20 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 public class SigrunRestClient {
-    private static final String AUTH_HEADER = "Authorization";
-    private static final String CONSUMER_ID = "x-consumer-id";
-    private static final String CALL_ID = "x-call-id";
-    private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
-    private static final String NYE_HEADER_CALL_ID = "no.nav.callid";
-    private static final String NYE_HEADER_CONSUMER_ID = "no.nav.consumer.id";
-
-    //config beregnetskatt
-    private static final String FILTER = "BeregnetSkattPensjonsgivendeInntekt";
-    private static final String PATH = "/api/beregnetskatt";
-    private static final String X_AKTØRID = "x-aktoerid";
-    private static final String X_FILTER = "x-filter";
-    private static final String X_INNTEKTSÅR = "x-inntektsaar";
-
-    //config summertskattegrunnlag
-    public static final String INNTEKTSAAR = "inntektsaar";
-    public static final String INNTEKTSFILTER = "inntektsfilter";
-    public static final String NAV_PERSONIDENT = "Nav-Personident";
-    public static final String PATH_SSG = "/api/v1/summertskattegrunnlag";
-    public static final String FILTER_SSG = "SummertSkattegrunnlagForeldrepenger";
-
     private static final Logger LOG = LoggerFactory.getLogger(SigrunRestClient.class);
     private final ResponseHandler<String> defaultResponseHandler;
     private CloseableHttpClient client;
     private URI endpoint;
 
-    public SigrunRestClient(CloseableHttpClient closeableHttpClient) {
+    SigrunRestClient(CloseableHttpClient closeableHttpClient) {
         super();
         client = closeableHttpClient;
         defaultResponseHandler = createDefaultResponseHandler();
     }
 
+    //api/beregnetskatt
     String hentBeregnetSkattForAktørOgÅr(long aktørId, String år) {
-        HttpRequestBase request = new HttpGet(endpoint.resolve(endpoint.getPath() + PATH));
-        String authHeaderValue = OIDC_AUTH_HEADER_PREFIX + getOIDCToken();
-        request.setHeader(AUTH_HEADER, authHeaderValue);
-        request.setHeader(CALL_ID, MDCOperations.getCallId());
-        request.setHeader(NYE_HEADER_CALL_ID, MDCOperations.getCallId());
-        request.setHeader("Accept", "application/json");
-        request.setHeader(CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
-        request.setHeader(NYE_HEADER_CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
+        HttpRequestBase request = lagFellesHttpRequestBase(PATH);
         request.addHeader(X_FILTER, FILTER);
         request.addHeader(X_AKTØRID, String.valueOf(aktørId));
         request.addHeader(X_INNTEKTSÅR, år);
@@ -82,16 +72,9 @@ public class SigrunRestClient {
         return response;
     }
 
+    //api/v1/summertskattegrunnlag
     String hentSummertskattegrunnlag(long aktørId, String år) {
-        HttpRequestBase request = new HttpGet(endpoint.resolve(endpoint.getPath() + PATH_SSG));
-        String authHeaderValue = OIDC_AUTH_HEADER_PREFIX + getOIDCToken();
-        request.setHeader(AUTH_HEADER, authHeaderValue);
-        request.setHeader(CALL_ID, MDCOperations.getCallId());
-        request.setHeader(NYE_HEADER_CALL_ID, MDCOperations.getCallId());
-        request.setHeader("Accept", "application/json");
-        request.setHeader(CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
-        request.setHeader(NYE_HEADER_CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
-
+        HttpRequestBase request = lagFellesHttpRequestBase(PATH_SSG);
         request.addHeader(INNTEKTSFILTER, FILTER_SSG);
         request.addHeader(NAV_PERSONIDENT, String.valueOf(aktørId));
         request.addHeader(INNTEKTSAAR, år);
@@ -105,6 +88,18 @@ public class SigrunRestClient {
             request.reset();
         }
         return response;
+    }
+
+    private HttpRequestBase lagFellesHttpRequestBase(String path) {
+        HttpRequestBase request = new HttpGet(endpoint.resolve(endpoint.getPath() + path));
+        String authHeaderValue = OIDC_AUTH_HEADER_PREFIX + getOIDCToken();
+        request.setHeader(AUTH_HEADER, authHeaderValue);
+        request.setHeader(CALL_ID, MDCOperations.getCallId());
+        request.setHeader(NYE_HEADER_CALL_ID, MDCOperations.getCallId());
+        request.setHeader("Accept", "application/json");
+        request.setHeader(CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
+        request.setHeader(NYE_HEADER_CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
+        return request;
     }
 
     private String getOIDCToken() {
