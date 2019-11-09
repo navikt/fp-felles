@@ -2,6 +2,7 @@ package no.nav.vedtak.konfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,11 +17,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import no.nav.vedtak.konfig.KonfigVerdi.Converter;
-
 @RunWith(LocalCdiRunner.class)
 public class KonfigVerdiTest {
 
+    private static final String NAV = "http://www.nav.no";
     private static final String KEY = "my.test.property";
     private static final String VALUE = "key1:true,key2:false";
 
@@ -90,6 +90,10 @@ public class KonfigVerdiTest {
     @KonfigVerdi(value = "my.property", defaultVerdi = "true")
     private boolean booleanDefaultProperty;
 
+    @Inject
+    @KonfigVerdi(value = "my.property", defaultVerdi = NAV)
+    private URI uriDefaultProperty;
+
     @BeforeClass
     public static void setupSystemPropertyForTest() {
         System.setProperty(KEY, VALUE);
@@ -104,6 +108,8 @@ public class KonfigVerdiTest {
         assertThat(booleanDefaultProperty).isEqualTo(true);
         assertThat(intDefaultProperty).isEqualTo(42);
         assertThat(stringDefaultWithConversionProperty).isEqualTo("4242");
+        assertThat(uriDefaultProperty).isEqualTo(URI.create(NAV));
+
     }
 
     @Test
@@ -163,14 +169,5 @@ public class KonfigVerdiTest {
         assertThat(providers).isNotEmpty();
         LocalDate randomDato = LocalDate.of(1989, 9, 29);
         assertThat(myLocalDateValue).isEqualTo(randomDato);
-    }
-
-    private static class StringDuplicator implements Converter<String> {
-
-        @Override
-        public String tilVerdi(String verdi) {
-            return verdi + verdi;
-        }
-
     }
 }
