@@ -16,6 +16,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import no.nav.vedtak.konfig.KonfigVerdi.Converter;
+
 @RunWith(LocalCdiRunner.class)
 public class KonfigVerdiTest {
 
@@ -75,6 +77,18 @@ public class KonfigVerdiTest {
     @KonfigVerdi(value = KonfigVerdiTest.KEY_LOCAL_DATE, converter = KonfigVerdi.LocalDateConverter.class)
     private LocalDate myLocalDateValue;
 
+    @Inject
+    @KonfigVerdi(value = "my.property", defaultVerdi = "42")
+    private String stringProperty;
+    @Inject
+    @KonfigVerdi(value = "my.property", defaultVerdi = "42", converter = StringDuplicator.class)
+    private String stringDefaultWithConversionProperty;
+    @Inject
+    @KonfigVerdi(value = "my.property", defaultVerdi = "42")
+    private Integer intDefaultProperty;
+    @Inject
+    @KonfigVerdi(value = "my.property", defaultVerdi = "true")
+    private boolean booleanDefaultProperty;
 
     @BeforeClass
     public static void setupSystemPropertyForTest() {
@@ -82,6 +96,14 @@ public class KonfigVerdiTest {
         System.setProperty(KEY_INT, VALUE_INT);
         System.setProperty(KEY_BOOLEAN, VALUE_BOOLEAN);
         System.setProperty(KEY_LOCAL_DATE, VALUE_LOCAL_DATE);
+    }
+
+    @Test
+    public void defaultVerdier() throws Exception {
+        assertThat(stringProperty).isEqualTo("42");
+        assertThat(booleanDefaultProperty).isEqualTo(true);
+        assertThat(intDefaultProperty).isEqualTo(42);
+        assertThat(stringDefaultWithConversionProperty).isEqualTo("4242");
     }
 
     @Test
@@ -141,5 +163,14 @@ public class KonfigVerdiTest {
         assertThat(providers).isNotEmpty();
         LocalDate randomDato = LocalDate.of(1989, 9, 29);
         assertThat(myLocalDateValue).isEqualTo(randomDato);
+    }
+
+    private static class StringDuplicator implements Converter<String> {
+
+        @Override
+        public String tilVerdi(String verdi) {
+            return verdi + verdi;
+        }
+
     }
 }

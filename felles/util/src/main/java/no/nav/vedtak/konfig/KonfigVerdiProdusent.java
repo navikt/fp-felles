@@ -35,6 +35,7 @@ import no.nav.vedtak.konfig.KonfigVerdiProviderOutput.ProviderOutput;
 /* Producer av konfig verdier. Støtter pluggbart antall providere av konfigurasjonsverdier. */
 @ApplicationScoped
 public class KonfigVerdiProdusent {
+    private static final DefaultValueKonfigProvider DEFAULTVALUEPROVIDER = new DefaultValueKonfigProvider();
     private static final Pattern SKJUL = Pattern.compile(".*(passw?ord|[k|c]redential).*"); //$NON-NLS-1$
     private static final Logger log = LoggerFactory.getLogger(KonfigVerdiProdusent.class);
 
@@ -67,7 +68,8 @@ public class KonfigVerdiProdusent {
     @Produces
     public Boolean getKonfigVerdiBoolean(final InjectionPoint ip) {
         Object verdi = getEnkelVerdi(ip);
-        return verdi == null ? null : (verdi instanceof Boolean ? (Boolean) verdi : Boolean.parseBoolean((String) verdi));
+        return verdi == null ? null
+                : (verdi instanceof Boolean ? (Boolean) verdi : Boolean.parseBoolean((String) verdi));
     }
 
     @KonfigVerdi
@@ -95,7 +97,8 @@ public class KonfigVerdiProdusent {
     @Produces
     public LocalDate getKonfigVerdiLocalDate(final InjectionPoint ip) {
         Object verdi = getEnkelVerdi(ip);
-        return verdi == null ? null : (verdi instanceof LocalDate ? (LocalDate) verdi : LocalDate.parse((String) verdi));
+        return verdi == null ? null
+                : (verdi instanceof LocalDate ? (LocalDate) verdi : LocalDate.parse((String) verdi));
     }
 
     @KonfigVerdi
@@ -106,8 +109,8 @@ public class KonfigVerdiProdusent {
     }
 
     /*
-     * Støtter kun URI, ikke URL. Bør unngå URL som konfig verdier pga kjente problemer med hashcode/equals og ytelse
-     * etc.
+     * Støtter kun URI, ikke URL. Bør unngå URL som konfig verdier pga kjente
+     * problemer med hashcode/equals og ytelse etc.
      */
     @KonfigVerdi
     @Produces
@@ -163,7 +166,8 @@ public class KonfigVerdiProdusent {
     }
 
     @SuppressWarnings("rawtypes")
-    public <T> T getVerdi(InjectionPoint ip, KonfigVerdi annotation, ProviderOutput<T> outputFunction, String key, Converter converter) {
+    public <T> T getVerdi(InjectionPoint ip, KonfigVerdi annotation, ProviderOutput<T> outputFunction, String key,
+            Converter converter) {
         for (KonfigVerdiProvider kvp : providers) {
             try {
                 if (kvp.harVerdi(key)) {
@@ -173,15 +177,23 @@ public class KonfigVerdiProdusent {
                 }
             } catch (RuntimeException e) {
                 throw new IllegalStateException(
-                        "Kunne ikke slå opp verdi for key [" + key + "] fra " + kvp.getClass().getName() + "; InjectionPoint=" + ip, e);
+                        "Kunne ikke slå opp verdi for key [" + key + "] fra " + kvp.getClass().getName()
+                                + "; InjectionPoint=" + ip,
+                        e);
             }
         }
-
-        if (annotation.required()) {
-            throw new IllegalStateException("Mangler verdi for key(required): " + annotation.value() + "; InjectionPoint=" + ip); //$NON-NLS-1$ //$NON-NLS-2$
+        String defaultVerdi = annotation.defaultVerdi();
+        if (annotation.required() && defaultVerdi.isEmpty()) {
+            throw new IllegalStateException(
+                    "Mangler verdi for key(required): " + annotation.value() + "; InjectionPoint=" + ip); //$NON-NLS-1$ //$NON-NLS-2$
         } else {
-            return null;
+            if (!defaultVerdi.isEmpty()) {
+                T output = outputFunction.getOutput(DEFAULTVALUEPROVIDER, defaultVerdi, converter);
+                sporKonfigVerdier(ip, annotation, output);
+                return output;
+            }
         }
+        return null;
     }
 
     public <T> void sporKonfigVerdier(InjectionPoint ip, KonfigVerdi annot, T output) {
