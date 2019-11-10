@@ -2,6 +2,7 @@ package no.nav.vedtak.konfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,9 +17,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import no.nav.vedtak.konfig.KonfigVerdi.StringDuplicator;
+
 @RunWith(LocalCdiRunner.class)
 public class KonfigVerdiTest {
 
+    private static final String NAV = "http://www.nav.no";
     private static final String KEY = "my.test.property";
     private static final String VALUE = "key1:true,key2:false";
 
@@ -75,13 +79,45 @@ public class KonfigVerdiTest {
     @KonfigVerdi(value = KonfigVerdiTest.KEY_LOCAL_DATE, converter = KonfigVerdi.LocalDateConverter.class)
     private LocalDate myLocalDateValue;
 
+    @Inject
+    @KonfigVerdi(value = "my.property", defaultVerdi = "42")
+    private String stringProperty;
+    @Inject
+    @KonfigVerdi(value = "my.property", defaultVerdi = "42", converter = StringDuplicator.class)
+    private String stringDefaultWithConversionProperty;
+    @Inject
+    @KonfigVerdi(value = "my.property", defaultVerdi = "42")
+    private Integer intDefaultProperty;
+    @Inject
+    @KonfigVerdi(value = "my.property", defaultVerdi = "true")
+    private boolean booleanDefaultProperty;
+
+    @Inject
+    @KonfigVerdi(value = "my.property", defaultVerdi = NAV)
+    private URI uriDefaultProperty;
+
+    @Inject
+    @KonfigVerdi(value = "my.property.notdefault", defaultVerdi = "42")
+    private int defaultNotUsed;
 
     @BeforeClass
     public static void setupSystemPropertyForTest() {
+        System.setProperty("my.property.notdefault", "0");
         System.setProperty(KEY, VALUE);
         System.setProperty(KEY_INT, VALUE_INT);
         System.setProperty(KEY_BOOLEAN, VALUE_BOOLEAN);
         System.setProperty(KEY_LOCAL_DATE, VALUE_LOCAL_DATE);
+    }
+
+    @Test
+    public void defaultVerdier() throws Exception {
+        assertThat(defaultNotUsed).isEqualTo(0);
+        assertThat(stringProperty).isEqualTo("42");
+        assertThat(booleanDefaultProperty).isEqualTo(true);
+        assertThat(intDefaultProperty).isEqualTo(42);
+        assertThat(stringDefaultWithConversionProperty).isEqualTo("4242");
+        assertThat(uriDefaultProperty).isEqualTo(URI.create(NAV));
+
     }
 
     @Test
