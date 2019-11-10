@@ -17,6 +17,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import no.nav.vedtak.konfig.KonfigVerdi.StringDuplicator;
+
 @RunWith(LocalCdiRunner.class)
 public class KonfigVerdiTest {
 

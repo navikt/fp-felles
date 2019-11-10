@@ -129,6 +129,14 @@ public @interface KonfigVerdi {
         }
     }
 
+    static class StringDuplicator implements Converter<String> {
+
+        @Override
+        public String tilVerdi(String verdi) {
+            return verdi + verdi;
+        }
+    }
+
     static class KonfigVerdiTypeLiteral extends AnnotationLiteral<KonfigVerdi> implements KonfigVerdi {
 
         @Override
