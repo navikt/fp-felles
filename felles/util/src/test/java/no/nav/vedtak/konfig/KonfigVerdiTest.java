@@ -96,8 +96,13 @@ public class KonfigVerdiTest {
     @KonfigVerdi(value = "my.property", defaultVerdi = NAV)
     private URI uriDefaultProperty;
 
+    @Inject
+    @KonfigVerdi(value = "my.property.notdefault", defaultVerdi = "42")
+    private int defaultNotUsed;
+
     @BeforeClass
     public static void setupSystemPropertyForTest() {
+        System.setProperty("my.property.notdefault", "0");
         System.setProperty(KEY, VALUE);
         System.setProperty(KEY_INT, VALUE_INT);
         System.setProperty(KEY_BOOLEAN, VALUE_BOOLEAN);
@@ -106,6 +111,7 @@ public class KonfigVerdiTest {
 
     @Test
     public void defaultVerdier() throws Exception {
+        assertThat(defaultNotUsed).isEqualTo(0);
         assertThat(stringProperty).isEqualTo("42");
         assertThat(booleanDefaultProperty).isEqualTo(true);
         assertThat(intDefaultProperty).isEqualTo(42);
