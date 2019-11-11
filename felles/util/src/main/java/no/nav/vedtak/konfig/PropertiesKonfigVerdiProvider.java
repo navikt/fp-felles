@@ -18,7 +18,7 @@ public abstract class PropertiesKonfigVerdiProvider implements KonfigVerdiProvid
 
     @Override
     public <V> V getVerdi(String key, KonfigVerdi.Converter<V> converter) {
-        return converter.tilVerdi(PropertyUtil.getProperty(key));
+        return converter.tilVerdi((String) props.get(key));
     }
 
     @Override
@@ -47,5 +47,5 @@ public abstract class PropertiesKonfigVerdiProvider implements KonfigVerdiProvid
                         ));
         return map;
     }
-
+    
 }
