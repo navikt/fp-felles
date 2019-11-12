@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.sigrun;
 
-import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.*;
 import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.AUTH_HEADER;
 import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.CALL_ID;
 import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.CONSUMER_ID;
@@ -19,12 +18,14 @@ import static no.nav.vedtak.felles.integrasjon.sigrun.SigrunRestConfig.X_INNTEKT
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -56,11 +57,7 @@ public class SigrunRestClient {
 
     //api/beregnetskatt
     String hentBeregnetSkattForAktørOgÅr(long aktørId, String år) {
-        HttpRequestBase request = lagFellesHttpRequestBase(PATH);
-        request.addHeader(X_FILTER, FILTER);
-        request.addHeader(X_AKTØRID, String.valueOf(aktørId));
-        request.addHeader(X_INNTEKTSÅR, år);
-
+        HttpRequestBase request = lagRequestBS(år, aktørId);
         String response;
         try {
             response = client.execute(request, defaultResponseHandler);
@@ -74,11 +71,7 @@ public class SigrunRestClient {
 
     //api/v1/summertskattegrunnlag
     String hentSummertskattegrunnlag(long aktørId, String år) {
-        HttpRequestBase request = lagFellesHttpRequestBase(PATH_SSG);
-        request.addHeader(INNTEKTSFILTER, FILTER_SSG);
-        request.addHeader(NAV_PERSONIDENT, String.valueOf(aktørId));
-        request.addHeader(INNTEKTSAAR, år);
-
+        HttpRequestBase request = lagRequestSSG(aktørId, år);
         String response;
         try {
             response = client.execute(request, defaultResponseHandler);
@@ -90,10 +83,37 @@ public class SigrunRestClient {
         return response;
     }
 
-    private HttpRequestBase lagFellesHttpRequestBase(String path) {
-        HttpRequestBase request = new HttpGet(endpoint.resolve(endpoint.getPath() + path));
+    private HttpRequestBase lagRequestSSG(long aktørId, String år) {
+        URIBuilder builder = new URIBuilder();
+        builder.setParameter(INNTEKTSAAR, år);
+        builder.setParameter(INNTEKTSFILTER, FILTER_SSG);
+        builder.setPath(endpoint.getPath() + PATH_SSG);
+        URI build = null;
+        try {
+            build = builder.build();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        HttpRequestBase request = new HttpGet(build);
+        request.addHeader(NAV_PERSONIDENT, String.valueOf(aktørId));
         String authHeaderValue = OIDC_AUTH_HEADER_PREFIX + getOIDCToken();
         request.setHeader(AUTH_HEADER, authHeaderValue);
+        request.setHeader(CALL_ID, MDCOperations.getCallId());
+        request.setHeader(NYE_HEADER_CALL_ID, MDCOperations.getCallId());
+        request.setHeader("Accept", "application/json");
+        request.setHeader(CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
+        request.setHeader(NYE_HEADER_CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
+
+        return request;
+    }
+
+    private HttpRequestBase lagRequestBS(String år, long aktørId) {
+        HttpRequestBase request = new HttpGet(endpoint.resolve(endpoint.getPath() + SigrunRestConfig.PATH));
+        String authHeaderValue = OIDC_AUTH_HEADER_PREFIX + getOIDCToken();
+        request.setHeader(AUTH_HEADER, authHeaderValue);
+        request.addHeader(X_FILTER, FILTER);
+        request.addHeader(X_AKTØRID, String.valueOf(aktørId));
+        request.addHeader(X_INNTEKTSÅR, år);
         request.setHeader(CALL_ID, MDCOperations.getCallId());
         request.setHeader(NYE_HEADER_CALL_ID, MDCOperations.getCallId());
         request.setHeader("Accept", "application/json");

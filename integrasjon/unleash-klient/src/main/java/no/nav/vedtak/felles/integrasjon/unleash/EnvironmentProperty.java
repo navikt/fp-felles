@@ -2,35 +2,35 @@ package no.nav.vedtak.felles.integrasjon.unleash;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.konfig.PropertyUtil;
 
 public class EnvironmentProperty {
 
     public static final String NAIS_NAMESPACE = "NAIS_NAMESPACE";
-    public static final String APP_NAME = "NAIS_APP_NAME";
-    public static final String FASIT_ENVIRONMENT_NAME = "FASIT_ENVIRONMENT_NAME";
+    static final String APP_NAME = "NAIS_APP_NAME";
+    private static final String FASIT_ENVIRONMENT_NAME = "FASIT_ENVIRONMENT_NAME";
+
+    private static final Logger log = LoggerFactory.getLogger(EnvironmentProperty.class);
 
     private EnvironmentProperty() {
     }
 
     public static Optional<String> getEnvironmentName() {
         String environmentName = PropertyUtil.getProperty(FASIT_ENVIRONMENT_NAME);
-        if (environmentName != null) {
+        if (environmentName != null && !environmentName.isEmpty()) {
             return Optional.of(environmentName);
         }
         environmentName = PropertyUtil.getProperty(NAIS_NAMESPACE);
-        if (environmentName != null) {
+        if (environmentName != null && !environmentName.isEmpty()) {
+        log.info("{} ikke satt setter environmentName={}", FASIT_ENVIRONMENT_NAME, environmentName);
             return Optional.of(environmentName);
         }
-        return Optional.ofNullable(PropertyUtil.getProperty("environment.name"));
-    }
-
-    static String getApplicationName() {
-        var appName = getAppName();
-        if (!appName.isPresent()) {
-            throw EnvironmentFeil.FACTORY.manglerApplicationNameProperty().toException();
-        }
-        return appName.get();
+        String property = PropertyUtil.getProperty("environment.name");
+        log.info("{} ikke satt setter environmentName={}", NAIS_NAMESPACE, property);
+        return Optional.ofNullable(property);
     }
 
     static Optional<String> getAppName() {
