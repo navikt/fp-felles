@@ -271,11 +271,6 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>dokumentproduksjon-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-journal-v2-tjenestespesifikasjon</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
