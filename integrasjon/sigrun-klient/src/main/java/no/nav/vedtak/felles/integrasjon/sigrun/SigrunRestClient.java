@@ -84,10 +84,9 @@ public class SigrunRestClient {
     }
 
     private HttpRequestBase lagRequestSSG(long aktørId, String år) {
-        URIBuilder builder = new URIBuilder();
+        URIBuilder builder = new URIBuilder(endpoint.resolve(endpoint.getPath() + PATH_SSG));
         builder.setParameter(INNTEKTSAAR, år);
         builder.setParameter(INNTEKTSFILTER, FILTER_SSG);
-        builder.setPath(endpoint.getPath() + PATH_SSG);
         URI build = null;
         try {
             build = builder.build();
