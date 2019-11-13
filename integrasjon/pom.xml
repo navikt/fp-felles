@@ -43,7 +43,6 @@
 		<module>behandlejournal-klient</module>
 		<module>sakogbehandling-klient</module>
 		<module>okonomistotte-jms</module>
-		<module>dokumentproduksjon-klient</module>
 
 	</modules>
 
@@ -305,18 +304,6 @@
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>no-nav-dok-tjenester-mottainngaaendeforsendelse</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenester.fim</groupId>
-				<artifactId>nav-fim-dokumentproduksjon-v2-tjenestespesifikasjon</artifactId>
-				<version>2.1.8</version>
-				<classifier>jaxws</classifier>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenester</groupId>
-				<artifactId>nav-dokumentproduksjon-v3-tjenestespesifikasjon</artifactId>
-				<version>3.3.3</version>
-				<classifier>jaxws</classifier>
 			</dependency>
 
 			<!-- Klienter for Produksjonsstyring -->
