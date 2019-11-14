@@ -24,11 +24,6 @@ public class ActionUthenterTest {
         assertThat(ActionUthenter.action(MyWebService.class, MyWebService.class.getDeclaredMethod("coinToss"))).isEqualTo("http://foobar.com/biased/coin/toss/v1");
     }
 
-    @Test
-    public void skalLageActionForProsessTask() {
-        assertThat(ActionUthenter.actionForProsessTask("doIt")).isEqualTo("doIt");
-    }
-
     @Path("/root1")
     private static class MyRestSvc1 {
         @Path("/resource1")

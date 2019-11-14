@@ -40,7 +40,7 @@ public class NAVSTSClient extends STSClient {
     @Override
     public SecurityToken requestSecurityToken(String appliesTo, String action, String requestType, String binaryExchange) throws Exception {
         final SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
-        final Element samlToken = subjectHandler.getSamlToken();
+        var samlToken = subjectHandler.getSamlToken();
         String userId = subjectHandler.getUid();
 
         if(userId == null){
@@ -108,7 +108,7 @@ public class NAVSTSClient extends STSClient {
      * @return if key is JWT - &lt;base64 encoded header&gt;.&lt;base64 encoded body&gt; <br>
      *     else -  {@code key}
      */
-    public String stripJwtSignatur(String key) {
+    private String stripJwtSignatur(String key) {
         final int lastDot = key.lastIndexOf('.');
         final int end = lastDot == -1 ? key.length() : lastDot;
         return key.substring(0, end);

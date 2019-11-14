@@ -6,8 +6,6 @@ import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
 
-import java.util.Set;
-
 interface PepFeil extends DeklarerteFeil {
     PepFeil FACTORY = FeilFactory.create(PepFeil.class);
 
@@ -22,7 +20,4 @@ interface PepFeil extends DeklarerteFeil {
 
     @ManglerTilgangFeil(feilkode = "F-608625", feilmelding = "Ikke tilgang", logLevel = LogLevel.INFO, exceptionClass = PepNektetTilgangException.class)
     Feil ikkeTilgang();
-
-    @ManglerTilgangFeil(feilkode = "F-738053", feilmelding = "Ugyldig input. Kan ha 0 eller 1 behandlingsId, fikk %s", logLevel = LogLevel.WARN, exceptionClass = PepNektetTilgangException.class)
-    Feil ugyldigInputForMangeBehandlingIder(Set<Long> behandlingIder);
 }

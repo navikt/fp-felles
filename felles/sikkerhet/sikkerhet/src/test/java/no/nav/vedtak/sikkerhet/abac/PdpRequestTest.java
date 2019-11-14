@@ -1,8 +1,8 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import static no.nav.abac.common.xacml.CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
-import static no.nav.abac.common.xacml.CommonAttributter.RESOURCE_FELLES_PERSON_FNR;
-import static no.nav.abac.common.xacml.CommonAttributter.RESOURCE_FELLES_PERSON_NAVN;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_NAVN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.LinkedHashSet;

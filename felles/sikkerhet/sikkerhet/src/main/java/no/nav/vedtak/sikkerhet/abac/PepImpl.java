@@ -1,7 +1,5 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import static no.nav.vedtak.util.Objects.check;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,7 +10,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
-import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
@@ -88,8 +85,8 @@ public class PepImpl implements Pep {
 
     protected int antallIdenter(PdpRequest pdpRequest) {
         // antall identer involvert i en request (eks. default - antall aktørId + antall fnr)
-        return pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)
-            + pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_FNR);
+        return pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)
+            + pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR);
     }
 
     protected int getAntallResources(PdpRequest pdpRequest) {

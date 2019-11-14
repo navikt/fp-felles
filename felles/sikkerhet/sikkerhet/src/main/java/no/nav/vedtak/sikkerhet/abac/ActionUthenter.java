@@ -14,10 +14,6 @@ public class ActionUthenter {
 
     }
 
-    public static String actionForProsessTask(String prosessTaskName) {
-        return prosessTaskName;
-    }
-
     public static String action(Class<?> clazz, Method method) {
         return clazz.getAnnotation(WebService.class) != null
                 ? actionForWebServiceMethod(clazz, method)

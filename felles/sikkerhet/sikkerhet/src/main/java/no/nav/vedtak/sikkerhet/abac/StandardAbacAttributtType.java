@@ -33,30 +33,20 @@ public enum StandardAbacAttributtType implements AbacAttributtType {
 
     private final String sporingsloggEksternKode;
     private final boolean maskerOutput;
-    private final boolean valider;
 
     StandardAbacAttributtType() {
         sporingsloggEksternKode = null;
         maskerOutput = false;
-        valider = false;
     }
 
     StandardAbacAttributtType(String sporingsloggEksternKode) {
         this.sporingsloggEksternKode = sporingsloggEksternKode;
         this.maskerOutput = false;
-        valider = false;
     }
 
     StandardAbacAttributtType(String sporingsloggEksternKode, boolean maskerOutput) {
         this.sporingsloggEksternKode = sporingsloggEksternKode;
         this.maskerOutput = maskerOutput;
-        valider = false;
-    }
-
-    StandardAbacAttributtType(String sporingsloggEksternKode, boolean maskerOutput, boolean valider) {
-        this.sporingsloggEksternKode = sporingsloggEksternKode;
-        this.maskerOutput = maskerOutput;
-        this.valider = valider;
     }
 
     @Override
@@ -69,8 +59,4 @@ public enum StandardAbacAttributtType implements AbacAttributtType {
         return maskerOutput;
     }
 
-    @Override
-    public boolean getValider() {
-        return valider;
-    }
 }

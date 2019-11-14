@@ -9,7 +9,6 @@ import java.util.TreeSet;
 import org.junit.Rule;
 import org.junit.Test;
 
-import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.modig.core.test.LogSniffer;
 
 public class AbacSporingsloggTest {
@@ -85,7 +84,7 @@ public class AbacSporingsloggTest {
         DefaultAbacSporingslogg sporing = new DefaultAbacSporingslogg();
 
         PdpRequest r = new PdpRequest();
-        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
+        r.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token").setAction("foobar");
         sporing.loggTilgang(r, attributter);
         sniffer.assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null fnr=11111111111");
@@ -97,7 +96,7 @@ public class AbacSporingsloggTest {
         DefaultAbacSporingslogg sporing = new DefaultAbacSporingslogg();
 
         PdpRequest r = new PdpRequest();
-        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
+        r.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token").setAction("foobar");
         attributter.leggTil(AbacDataAttributter.opprett()
             .leggTil(StandardAbacAttributtType.BEHANDLING_ID, 1234L)
@@ -115,7 +114,7 @@ public class AbacSporingsloggTest {
         DefaultAbacSporingslogg sporing = new DefaultAbacSporingslogg();
 
         PdpRequest r = new PdpRequest();
-        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
+        r.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token").setAction("foobar");
         attributter.leggTil(AbacDataAttributter.opprett()
             .leggTil(StandardAbacAttributtType.BEHANDLING_ID, 1234L)
@@ -137,7 +136,7 @@ public class AbacSporingsloggTest {
 
 
         PdpRequest r = new PdpRequest();
-        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, new TreeSet<>(Arrays.asList("11111111111", "22222222222", "33333333333")));
+        r.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, new TreeSet<>(Arrays.asList("11111111111", "22222222222", "33333333333")));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token").setAction("foobar");
         attributter.leggTil(AbacDataAttributter.opprett()
             .leggTil(StandardAbacAttributtType.BEHANDLING_ID, 1234L)
@@ -156,7 +155,7 @@ public class AbacSporingsloggTest {
         DefaultAbacSporingslogg sporing = new DefaultAbacSporingslogg();
 
         PdpRequest r = new PdpRequest();
-        r.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, new TreeSet<>(Arrays.asList("11111111111", "22222222222")));
+        r.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, new TreeSet<>(Arrays.asList("11111111111", "22222222222")));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token").setAction("foobar");
         attributter.leggTil(AbacDataAttributter.opprett()
             .leggTil(StandardAbacAttributtType.BEHANDLING_ID, 1234L)
@@ -193,7 +192,7 @@ public class AbacSporingsloggTest {
         var sporing = new DefaultAbacSporingslogg();
 
         var pdpRequest = new PdpRequest();
-        pdpRequest.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token").setAction("foobar");
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_ID, 1234L));
 

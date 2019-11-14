@@ -29,8 +29,6 @@ import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider;
 /**
  * <p>LoginModule that will use an OIDC ID Token and add NAV Principals and Credentials.</p>
  * <p>Depends on either the invoker or another LoginModule in the chain to actually set the SecurityContext.</p>
- *
- * @see org.jboss.security.ClientLoginModule
  */
 public class OIDCLoginModule extends LoginModuleBase {
 

@@ -10,7 +10,6 @@ import javax.enterprise.inject.Default;
 
 import org.slf4j.Logger;
 
-import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.log.sporingslogg.SporingsloggId;
 import no.nav.vedtak.log.sporingslogg.StandardSporingsloggId;
@@ -22,7 +21,7 @@ import no.nav.vedtak.util.AppLoggerFactory;
  * Vil benyttes med mindre applikasjonen definerer en {@link javax.enterprise.inject.Alternative} implementasjon.
  * 
  * Bør overrides i egen applikasjon dersom en har egne ABAC attributter eller nøkler som skal spores. Her håndteres kun
- * felles som {@link CommonAttributter} og {@link StandardSporingsloggId}.  Outputformat konsumeres av MF ArcSight.
+ * felles som {@link NavAbacCommonAttributter} og {@link StandardSporingsloggId}.  Outputformat konsumeres av MF ArcSight.
  */
 @Default
 @ApplicationScoped
@@ -136,8 +135,8 @@ public class DefaultAbacSporingslogg implements AbacSporingslogg {
 
     /** Antall identer (aktørId, fnr) som behandles i denne requesten. */
     protected int antallIdenter(PdpRequest pdpRequest) {
-        return pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)
-            + pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_FNR);
+        return pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)
+            + pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR);
     }
 
     protected int antallResources(PdpRequest pdpRequest) {
@@ -148,15 +147,15 @@ public class DefaultAbacSporingslogg implements AbacSporingslogg {
 
     protected Sporingsdata byggSporingsdata(String action, PdpRequest pdpRequest, int index) {
         Sporingsdata sporingsdata = Sporingsdata.opprett(action)
-            .leggTilId(StandardSporingsloggId.ABAC_ACTION, pdpRequest.getString(CommonAttributter.XACML_1_0_ACTION_ACTION_ID))
-            .leggTilId(StandardSporingsloggId.ABAC_RESOURCE_TYPE, pdpRequest.getString(CommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
+            .leggTilId(StandardSporingsloggId.ABAC_ACTION, pdpRequest.getString(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID))
+            .leggTilId(StandardSporingsloggId.ABAC_RESOURCE_TYPE, pdpRequest.getString(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
 
         // hent ut fnr og aksjonpspunkt-typer vha indexer pga kryssprodukt mellom disse
-        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, CommonAttributter.RESOURCE_FELLES_PERSON_FNR,
-            index % Math.max(pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_FNR), 1), StandardSporingsloggId.FNR);
+        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR,
+            index % Math.max(pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR), 1), StandardSporingsloggId.FNR);
         
-        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE,
-            index % Math.max(pdpRequest.getAntall(CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE), 1), StandardSporingsloggId.AKTOR_ID);
+        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE,
+            index % Math.max(pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE), 1), StandardSporingsloggId.AKTOR_ID);
 
         setCustomSporingsdata(pdpRequest, index, sporingsdata);
         return sporingsdata;
