@@ -24,6 +24,4 @@ interface SystemUserIdTokenProviderFeil extends DeklarerteFeil {
     @IntegrasjonFeil(feilkode = "F-061582", feilmelding = "Klarte ikke hente ID-token for systembrukeren, selv etter %s forsøk", logLevel = LogLevel.ERROR)
     Feil klarteIkkeHenteIdToken(int antall, Fikk40xKodeException e);
 
-    @TekniskFeil(feilkode = "F-864987", feilmelding = "Id-token var ugyldig selv om det nettopp ble hentet fra OpenAM: %s", logLevel = LogLevel.ERROR)
-    Feil ugyldigIdToken(String message);
 }

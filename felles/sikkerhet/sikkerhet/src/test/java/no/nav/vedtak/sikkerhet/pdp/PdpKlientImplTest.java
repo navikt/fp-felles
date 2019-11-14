@@ -1,8 +1,7 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
-import static no.nav.abac.common.xacml.CommonAttributter.RESOURCE_FELLES_PERSON_FNR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,22 +21,22 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
-import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.Decision;
+import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class PdpKlientImplTest {
 
@@ -62,11 +61,11 @@ public class PdpKlientImplTest {
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
         PdpRequest pdpRequest = lagPdpRequest();
-        pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
-        assertThat(captor.getValue().build().toString().contains(CommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN)).isTrue();
+        assertThat(captor.getValue().build().toString().contains(NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN)).isTrue();
     }
 
     @Test
@@ -78,11 +77,11 @@ public class PdpKlientImplTest {
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
 
         PdpRequest pdpRequest = lagPdpRequest();
-        pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, Collections.emptySet());
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.emptySet());
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
-        assertThat(captor.getValue().build().toString().contains(RESOURCE_FELLES_PERSON_FNR)).isFalse();
+        assertThat(captor.getValue().build().toString().contains(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR)).isFalse();
     }
 
     @Test
@@ -94,11 +93,11 @@ public class PdpKlientImplTest {
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
 
         PdpRequest pdpRequest = lagPdpRequest();
-        pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
-        assertThat(captor.getValue().build().toString().contains(CommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY)).isTrue();
+        assertThat(captor.getValue().build().toString().contains(NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY)).isTrue();
     }
 
     @Test
@@ -114,7 +113,7 @@ public class PdpKlientImplTest {
         personnr.add("15151515151");
 
         PdpRequest pdpRequest = lagPdpRequest();
-        pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, personnr);
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, personnr);
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
@@ -138,14 +137,14 @@ public class PdpKlientImplTest {
         personnr.add("15151515151");
 
         PdpRequest pdpRequest = lagPdpRequest();
-        pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, personnr);
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, personnr);
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
         JsonObject xacmlRequest = captor.getValue().build();
         JsonArray resourceArray = xacmlRequest.getJsonObject("Request").getJsonArray("Resource");
 
-        List<String> personer = pdpRequest.getListOfString(RESOURCE_FELLES_PERSON_FNR);
+        List<String> personer = pdpRequest.getListOfString(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR);
 
         for (int i = 0; i < personer.size(); i++) {
             assertThat(resourceArray.get(i).toString().contains(personer.get(i))).isTrue();
@@ -159,7 +158,7 @@ public class PdpKlientImplTest {
         XacmlResponseWrapper responseWrapper = createResponse("xacmlresponse_multiple_obligation.json");
 
         PdpRequest pdpRequest = lagPdpRequest();
-        pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
 
         XacmlRequestBuilder builder = xamlRequestBuilderTjeneste.lagXacmlRequestBuilder(pdpRequest);
@@ -169,7 +168,7 @@ public class PdpKlientImplTest {
         JsonObject environment = request.getJsonObject("Environment");
         JsonArray attributes = environment.getJsonArray("Attribute");
 
-        assertHasAttribute(attributes, CommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN, Base64.getEncoder().encodeToString("<dummy SAML token>".getBytes(StandardCharsets.UTF_8)));
+        assertHasAttribute(attributes, NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN, Base64.getEncoder().encodeToString("<dummy SAML token>".getBytes(StandardCharsets.UTF_8)));
 
         attributes.getJsonObject(0).getJsonString("AttributeId");
     }
@@ -187,7 +186,7 @@ public class PdpKlientImplTest {
         personnr.add("07078515206");
 
         PdpRequest pdpRequest = lagPdpRequest();
-        pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, personnr);
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, personnr);
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         Tilgangsbeslutning resultat = pdpKlient.forespørTilgang(pdpRequest);
         assertThat(resultat.getBeslutningKode()).isEqualTo(AbacResultat.AVSLÅTT_EGEN_ANSATT);
@@ -214,7 +213,7 @@ public class PdpKlientImplTest {
         String feilKode = "";
         try {
             PdpRequest pdpRequest = lagPdpRequest();
-            pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
+            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
             pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
             pdpKlient.forespørTilgang(pdpRequest);
         } catch (VLException e) {
@@ -238,8 +237,8 @@ public class PdpKlientImplTest {
         aktørId.add("22222");
 
         PdpRequest pdpRequest = lagPdpRequest();
-        pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, personnr);
-        pdpRequest.put(CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, aktørId);
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, personnr);
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, aktørId);
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
@@ -252,9 +251,9 @@ public class PdpKlientImplTest {
 
     private PdpRequest lagPdpRequest() {
         PdpRequest request = new PdpRequest();
-        request.put(CommonAttributter.RESOURCE_FELLES_DOMENE, "foreldrepenger");
-        request.put(CommonAttributter.XACML_1_0_ACTION_ACTION_ID, BeskyttetRessursActionAttributt.READ.getEksternKode());
-        request.put(CommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode());
+        request.put(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE, "foreldrepenger");
+        request.put(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID, BeskyttetRessursActionAttributt.READ.getEksternKode());
+        request.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode());
         return request;
     }
 

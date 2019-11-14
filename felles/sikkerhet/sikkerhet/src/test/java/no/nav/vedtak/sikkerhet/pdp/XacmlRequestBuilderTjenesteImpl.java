@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 
-import no.nav.abac.common.xacml.CommonAttributter;
+import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
@@ -26,11 +26,11 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
         XacmlRequestBuilder xacmlBuilder = new XacmlRequestBuilder();
 
         XacmlAttributeSet actionAttributeSet = new XacmlAttributeSet();
-        actionAttributeSet.addAttribute(CommonAttributter.XACML_1_0_ACTION_ACTION_ID, pdpRequest.getString(CommonAttributter.XACML_1_0_ACTION_ACTION_ID));
+        actionAttributeSet.addAttribute(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID, pdpRequest.getString(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID));
         xacmlBuilder.addActionAttributeSet(actionAttributeSet);
 
-        List<Tuple<String, String>> identer = hentIdenter(pdpRequest, CommonAttributter.RESOURCE_FELLES_PERSON_FNR,
-            CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
+        List<Tuple<String, String>> identer = hentIdenter(pdpRequest, NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR,
+            NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
 
         if (identer.isEmpty()) {
             populerResources(xacmlBuilder, pdpRequest, null);
@@ -54,11 +54,11 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
     protected XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest) {
         XacmlAttributeSet resourceAttributeSet = new XacmlAttributeSet();
 
-        resourceAttributeSet.addAttribute(CommonAttributter.RESOURCE_FELLES_DOMENE,
-            pdpRequest.getString(CommonAttributter.RESOURCE_FELLES_DOMENE));
+        resourceAttributeSet.addAttribute(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE,
+            pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE));
 
-        resourceAttributeSet.addAttribute(CommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE,
-            pdpRequest.getString(CommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
+        resourceAttributeSet.addAttribute(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE,
+            pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
 
         return resourceAttributeSet;
     }

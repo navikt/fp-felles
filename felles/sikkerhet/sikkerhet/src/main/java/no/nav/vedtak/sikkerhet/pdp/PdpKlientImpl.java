@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.abac.common.xacml.CommonAttributter;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
@@ -61,12 +60,12 @@ public class PdpKlientImpl implements PdpKlient {
 
     void leggPåTokenInformasjon(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest) {
         XacmlAttributeSet environmentAttributeSet = new XacmlAttributeSet();
-        environmentAttributeSet.addAttribute(CommonAttributter.ENVIRONMENT_FELLES_PEP_ID, pepId);
+        environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID, pepId);
         AbacIdToken idToken = (AbacIdToken) pdpRequest.get(ENVIRONMENT_AUTH_TOKEN);
         if (idToken.erOidcToken()) {
-            environmentAttributeSet.addAttribute(CommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, JwtUtil.getJwtBody(idToken.getToken()));
+            environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, JwtUtil.getJwtBody(idToken.getToken()));
         } else {
-            environmentAttributeSet.addAttribute(CommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN, base64encode(idToken.getToken()));
+            environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN, base64encode(idToken.getToken()));
         }
         xacmlBuilder.addEnvironmentAttributeSet(environmentAttributeSet);
     }

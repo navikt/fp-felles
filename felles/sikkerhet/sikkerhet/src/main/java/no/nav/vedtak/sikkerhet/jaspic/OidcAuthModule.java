@@ -181,7 +181,7 @@ public class OidcAuthModule implements ServerAuthModule {
         return "GET".equals(request.getMethod());
     }
 
-    public AuthStatus oidcLogin(MessageInfo messageInfo, Subject clientSubject, HttpServletRequest request) {
+    protected AuthStatus oidcLogin(MessageInfo messageInfo, Subject clientSubject, HttpServletRequest request) {
         // Get token
         Optional<OidcTokenHolder> oidcToken = tokenLocator.getToken(request);
         Optional<String> refreshToken = tokenLocator.getRefreshToken(request);
