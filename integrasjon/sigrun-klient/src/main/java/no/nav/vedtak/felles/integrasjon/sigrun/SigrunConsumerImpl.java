@@ -53,6 +53,32 @@ public class SigrunConsumerImpl implements SigrunConsumer {
         this.sigrunRestClient.setEndpoint(endpoint);
     }
 
+    private static ObjectMapper getObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new Jdk8Module());
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper;
+    }
+
+    private static <T> List<T> fromJsonList(String json, TypeReference<List<T>> typeReference) {
+        try {
+            return mapper.readValue(json, typeReference);
+        } catch (IOException e) {
+            throw JsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+        }
+    }
+
+    private static <T> T fromJson(String json, TypeReference<T> typeReference) {
+        try {
+            return mapper.readValue(json, typeReference);
+        } catch (IOException e) {
+            throw JsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+        }
+    }
+
     @Override
     public SigrunResponse beregnetskatt(Long aktørId) {
         Map<Year, List<BeregnetSkatt>> årTilListeMedSkatt = new HashMap<>();
@@ -82,33 +108,6 @@ public class SigrunConsumerImpl implements SigrunConsumer {
         return new SigrunSummertSkattegrunnlagResponse(summertskattegrunnlagMap);
     }
 
-    private static ObjectMapper getObjectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new Jdk8Module());
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return mapper;
-    }
-
-    private static <T> List<T> fromJsonList(String json, TypeReference<List<T>> typeReference) {
-        try {
-            return mapper.readValue(json, typeReference);
-        } catch (IOException e) {
-            throw JsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
-        }
-    }
-
-    private static <T> T fromJson(String json, TypeReference<T> typeReference) {
-        try {
-            return mapper.readValue(json, typeReference);
-        } catch (IOException e) {
-            throw JsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
-        }
-    }
-
-
     private void leggTilBS(Map<Year, List<BeregnetSkatt>> årTilListeMedSkatt, Year år, String skatt) {
         årTilListeMedSkatt.put(år, skatt.isEmpty()
             ? Collections.emptyList()
@@ -128,6 +127,12 @@ public class SigrunConsumerImpl implements SigrunConsumer {
 
     private List<Year> hentÅrsListeForSummertskattegrunnlag() {
         Year iFjor = Year.now(FPDateUtil.getOffset()).minusYears(1L);
+        //filteret(SummertSkattegrunnlagForeldrepenger) i Sigrun er ikke impl. tidligere enn 2018
+        if (iFjor.equals(Year.of(2018))) {
+            return List.of(iFjor);
+        } else if (iFjor.equals(Year.of(2019))) {
+            return List.of(iFjor, iFjor.minusYears(1L));
+        }
         return asList(iFjor, iFjor.minusYears(1L), iFjor.minusYears(2L));
     }
 
@@ -137,17 +142,15 @@ public class SigrunConsumerImpl implements SigrunConsumer {
             ? fromJsonList(json, new TypeReference<>() {
         })
             : new ArrayList<>();
-
         return beregnetSkatt.stream()
             .anyMatch(l -> l.getTekniskNavn().equals(TEKNISK_NAVN));
     }
 
     interface JsonMapperFeil extends DeklarerteFeil {
 
-        public static final JsonMapperFeil FACTORY = FeilFactory.create(JsonMapperFeil.class);
+        JsonMapperFeil FACTORY = FeilFactory.create(JsonMapperFeil.class);
 
         @TekniskFeil(feilkode = "F-918328", feilmelding = "Fikk IO exception ved parsing av JSON", logLevel = LogLevel.WARN)
         Feil ioExceptionVedLesing(IOException cause);
-
     }
 }

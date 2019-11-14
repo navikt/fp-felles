@@ -160,14 +160,14 @@ public class SigrunConsumerImplTest {
 
     @Test
     public void skal_hente_summertskattegrunnlag() {
-        Year toÅrSiden = Year.now().minusYears(2L);
+        Year iFjor = Year.now().minusYears(1L);
 
-        Mockito.when(client.hentSummertskattegrunnlag(AKTØR_ID, toÅrSiden.toString())).thenReturn(JSON_summerskattegrunnlag);
+        Mockito.when(client.hentSummertskattegrunnlag(AKTØR_ID, iFjor.toString())).thenReturn(JSON_summerskattegrunnlag);
 
         SigrunSummertSkattegrunnlagResponse response = consumer.summertSkattegrunnlag(AKTØR_ID);
 
         Map<Year, Optional<SSGResponse>> summertskattegrunnlagMap = response.getSummertskattegrunnlagMap();
-        Optional<SSGResponse> sum = summertskattegrunnlagMap.get(toÅrSiden);
+        Optional<SSGResponse> sum = summertskattegrunnlagMap.get(iFjor);
         assertThat(sum).isPresent();
         SSGResponse ssgResponse = sum.get();
         assertThat(ssgResponse.getGrunnlag()).hasSize(4);
