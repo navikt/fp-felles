@@ -39,8 +39,8 @@ public class PropertyFileKonfigProvider extends PropertiesKonfigVerdiProvider {
         try (InputStream is = PropertyFileKonfigProvider.class.getClassLoader().getResourceAsStream(navn)) {
             if (is != null) {
                 LOG.info("Laster properties fra {}", navn);
+                p.load(is);
             }
-            p.load(is);
         } catch (IOException e) {
             LOG.info("Propertyfil {} ikke funnet", navn);
         }
