@@ -48,6 +48,9 @@ public class KonfigVerdiTest {
     @Inject
     @KonfigVerdi(value = "test2.property")
     private int systemVinner;
+    @Inject
+    @KonfigVerdi(value = "test3.property")
+    private int namespaceVerdi;
 
     @Inject
     @KonfigVerdi("user.home")
@@ -122,10 +125,13 @@ public class KonfigVerdiTest {
     }
 
     @Test
+    // Denne testen vil bare virke om den kjøres via surfire plugin.
     public void propertyFil() throws Exception {
         assertThat(propFraFil).isEqualTo(42);
         assertThat(propFraFilOverride).isEqualTo(200);
         assertThat(systemVinner).isEqualTo(50);
+        assertThat(namespaceVerdi).isEqualTo(10);
+
     }
 
     @Test
