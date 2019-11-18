@@ -195,7 +195,7 @@
 			<dependency>
 				<groupId>javax.security.auth.message</groupId>
 				<artifactId>javax.security.auth.message-api</artifactId>
-				<version>1.1</version>
+				<version>1.1.1</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.servlet</groupId>
@@ -488,7 +488,7 @@
 			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
-				<version>3.13.2</version>
+				<version>3.14.0</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
