@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           echo "Building ${GITHUB_SHA}"
-          mvn package --batch-mode --file pom.xml -Dchangelist= -Dsha1=-${GITHUB_SHA}
+          mvn package --batch-mode -s ./.m2/settings.xml --file pom.xml -Dchangelist= -Dsha1=-${GITHUB_SHA}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DATASOURCE_HOST: localhost
