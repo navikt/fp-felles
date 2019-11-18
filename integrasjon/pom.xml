@@ -326,12 +326,11 @@
 				<artifactId>sakogbehandling-klient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>no.nav.meldinger.virksomhet</groupId>
-				<artifactId>nav-virksomhet-hendelsehandterer-behandlingstatus-v1-meldingsdefinisjon</artifactId>
-				<version>${sob.melding.version}</version>
-				<classifier>jaxb</classifier>
-			</dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-virksomhet-hendelsehandterer-behandlingstatus-v1-meldingsdefinisjon</artifactId>
+                <version>1.2019.11.15-14.51-ee264fbf814c</version>
+            </dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>behandleoppgave-v1-tjenestespesifikasjon</artifactId>
