@@ -40,6 +40,19 @@ public class KonfigVerdiTest {
     private Instance<KonfigVerdiProvider> providers;
 
     @Inject
+    @KonfigVerdi(value = "test.property")
+    private int propFraFil;
+    @Inject
+    @KonfigVerdi(value = "test1.property")
+    private int propFraFilOverride;
+    @Inject
+    @KonfigVerdi(value = "test2.property")
+    private int systemVinner;
+    @Inject
+    @KonfigVerdi(value = "test3.property")
+    private int namespaceVerdi;
+
+    @Inject
     @KonfigVerdi("user.home")
     private String javaHome;
 
@@ -107,6 +120,18 @@ public class KonfigVerdiTest {
         System.setProperty(KEY_INT, VALUE_INT);
         System.setProperty(KEY_BOOLEAN, VALUE_BOOLEAN);
         System.setProperty(KEY_LOCAL_DATE, VALUE_LOCAL_DATE);
+        System.setProperty("test2.property", "50");
+
+    }
+
+    @Test
+    // Denne testen vil bare virke om den kjøres via surfire plugin.
+    public void propertyFil() throws Exception {
+        assertThat(propFraFil).isEqualTo(42);
+        assertThat(propFraFilOverride).isEqualTo(200);
+        assertThat(systemVinner).isEqualTo(50);
+        assertThat(namespaceVerdi).isEqualTo(10);
+
     }
 
     @Test

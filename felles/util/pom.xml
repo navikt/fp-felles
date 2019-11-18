@@ -64,4 +64,19 @@
 		</dependency>
 
 	</dependencies>
+    
+    <build>
+      <plugins>
+       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+           <environmentVariables>
+            <NAIS_CLUSTER_NAME>mycluster</NAIS_CLUSTER_NAME>
+            <NAIS_NAMESPACE_NAME>mynamespace</NAIS_NAMESPACE_NAME>
+          </environmentVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
