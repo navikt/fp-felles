@@ -151,9 +151,8 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
                 <configuration>
-                    <updatePomFile>true</updatePomFile>
                     <flattenedPomFilename>.flattened</flattenedPomFilename>
-                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                    <flattenMode>bom</flattenMode>
                 </configuration>
                 <executions>
                     <execution>
