@@ -40,7 +40,8 @@ jobs:
           mvn deploy --batch-mode --settings ./.m2/settings.xml --activate-profiles publishGithub -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-${GITHUB_SHA}
           echo "Deployed artifacts"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           DATASOURCE_HOST: localhost
           DATASOURCE_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
 
