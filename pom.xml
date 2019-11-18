@@ -348,7 +348,7 @@
             <id>publishGithub</id>
             <distributionManagement>
                 <repository>
-                    <id>github</id>
+                    <id>github-1</id>
                     <name>Github navikt Maven Packages</name>
                     <url>https://maven.pkg.github.com/navikt/fp-felles</url>
                 </repository>
