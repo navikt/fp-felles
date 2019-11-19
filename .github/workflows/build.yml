@@ -37,7 +37,7 @@ jobs:
         shell: bash
         run: |
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn deploy --batch-mode --settings ./.m2/settings.xml --activate-profiles publishGithub -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(echo $GITHUB_SHA | cut -c1-7)
+          mvn deploy --batch-mode --settings ./.m2/settings.xml --activate-profiles publishGithub -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)
           echo "Deployed artifacts"
         env:
           GITHUB_USERNAME: x-access-token
