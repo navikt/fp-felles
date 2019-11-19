@@ -34,6 +34,7 @@
 		<module>medl-klient</module>
 		<module>meldekortutbetalingsgrunnlag-klient</module>
 		<module>oppgave-klient</module>
+		<module>oppgave-rest-klient</module>
 		<module>arbeidsforhold-klient</module>
 		<module>organisasjon-klient</module>
 		<module>kodeverk-klient</module>
