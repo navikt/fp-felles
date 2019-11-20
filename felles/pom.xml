@@ -280,7 +280,7 @@
 				<!-- transitiv fiks version, brukes av hibernate-core og mockito-core -->
 				<groupId>net.bytebuddy</groupId>
 				<artifactId>byte-buddy</artifactId>
-				<version>1.10.1</version>
+				<version>1.10.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.javassist</groupId>
