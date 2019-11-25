@@ -96,7 +96,7 @@
 				<!-- setter scope provided for globalt å ekskludere denne fra pakking -->
 				<groupId>org.jboss.logging</groupId>
 				<artifactId>jboss-logging</artifactId>
-				<version>3.3.0.Final</version>
+				<version>3.4.1.Final</version>
 			</dependency>
             <!-- Kollisjon mellom weld & -->
             <dependency>
