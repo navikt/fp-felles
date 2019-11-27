@@ -89,8 +89,8 @@
         </dependency>
         <dependency>
             <!-- Trengs for REST grensesnitt -->
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-jaxrs</artifactId>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

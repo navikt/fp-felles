@@ -4,11 +4,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.vedtak.util.InputValideringRegex;
 
-@ApiModel
+@Schema
 public class ProsessTaskStatusDto {
     @NotNull
     @Size(min = 1, max = 100)
@@ -22,7 +21,7 @@ public class ProsessTaskStatusDto {
         this.prosessTaskStatusName = prosessTaskStatusName;
     }
 
-    @ApiModelProperty(required = true, value = "Navn på prosesstask-status")
+    @Schema(required = true, description = "Navn på prosesstask-status")
     public String getProsessTaskStatusName() {
         return prosessTaskStatusName;
     }

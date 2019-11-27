@@ -4,10 +4,10 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 
-@ApiModel
+@Schema
 public class ProsessTaskDataPayloadDto implements ProsessTaskDataInfo {
 
     private String payload;

@@ -4,21 +4,20 @@ import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotNull;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@ApiModel(value = "Resultatet av asynkron-restart av en eksisterende prosesstask")
+@Schema(description = "Resultatet av asynkron-restart av en eksisterende prosesstask")
 public class ProsessTaskRestartResultatDto {
 
     @NotNull
     private Long prosessTaskId;
 
     @NotNull
-    @ApiModelProperty(value = "Nåværende status (KLAR)")
+    @Schema(description = "Nåværende status (KLAR)")
     private String prosessTaskStatus;
 
     @NotNull
-    @ApiModelProperty(value = "Kjøretidspunkt for restart av prosessen")
+    @Schema(description = "Kjøretidspunkt for restart av prosessen")
     private LocalDateTime nesteKjoeretidspunkt;
 
     public ProsessTaskRestartResultatDto() { // NOSONAR Input-dto, ingen behov for initialisering

@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Properties;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 
-@ApiModel
+@Schema
 public class ProsessTaskDataDto implements ProsessTaskDataInfo {
 
     private static final String AKTØR_ID = "aktoerId";
