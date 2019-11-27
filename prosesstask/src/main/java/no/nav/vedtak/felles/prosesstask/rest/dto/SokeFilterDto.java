@@ -8,13 +8,12 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
-@ApiModel
+@Schema
 public class SokeFilterDto implements AbacDto {
 
     @Size(max = 10)
@@ -26,7 +25,7 @@ public class SokeFilterDto implements AbacDto {
     public SokeFilterDto() {
     }
 
-    @ApiModelProperty(value = "Angi liste over prosesstask-statuser som skal søkes på, blant KLAR, FERDIG, VENTER_SVAR, SUSPENDERT, eller FEILET")
+    @Schema(description = "Angi liste over prosesstask-statuser som skal søkes på, blant KLAR, FERDIG, VENTER_SVAR, SUSPENDERT, eller FEILET")
     public List<ProsessTaskStatusDto> getProsessTaskStatuser() {
         return prosessTaskStatuser;
     }
@@ -35,7 +34,7 @@ public class SokeFilterDto implements AbacDto {
         this.prosessTaskStatuser = prosessTaskStatuser;
     }
 
-    @ApiModelProperty(value = "Søker etter prosesstask med siste kjøring fra og med dette tidspunktet")
+    @Schema(description = "Søker etter prosesstask med siste kjøring fra og med dette tidspunktet")
     public LocalDateTime getSisteKjoeretidspunktFraOgMed() {
         return sisteKjoeretidspunktFraOgMed;
     }
@@ -44,7 +43,7 @@ public class SokeFilterDto implements AbacDto {
         this.sisteKjoeretidspunktFraOgMed = sisteKjoeretidspunktFraOgMed;
     }
 
-    @ApiModelProperty(value = "Søker etter prosesstask med siste kjøring til og med dette tidspunktet")
+    @Schema(description = "Søker etter prosesstask med siste kjøring til og med dette tidspunktet")
     public LocalDateTime getSisteKjoeretidspunktTilOgMed() {
         return sisteKjoeretidspunktTilOgMed;
     }

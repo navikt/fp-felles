@@ -6,12 +6,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
-@ApiModel(value = "Informasjon for restart av en eksisterende prosesstask")
+@Schema(description = "Informasjon for restart av en eksisterende prosesstask")
 public class ProsessTaskRestartInputDto implements AbacDto {
 
     @Min(0)
@@ -19,9 +18,9 @@ public class ProsessTaskRestartInputDto implements AbacDto {
     @NotNull
     private Long prosessTaskId;
 
-    @ApiModelProperty(
-            value = "Nåværende status. Angis hviss prosessen som skal restartes har en annen status enn KLAR.",
-            allowableValues = "VENTER_SVAR, SUSPENDERT, FEILET"
+    @Schema(
+        description = "Nåværende status. Angis hviss prosessen som skal restartes har en annen status enn KLAR.",
+        allowableValues = "VENTER_SVAR, SUSPENDERT, FEILET"
     )
     @Size(max = 15)
     @Pattern(regexp = "VENTER_SVAR|FEILET|SUSPENDERT")

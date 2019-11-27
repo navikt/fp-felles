@@ -4,12 +4,11 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
-@ApiModel
+@Schema
 public class ProsessTaskIdDto implements AbacDto {
 
     @NotNull
@@ -24,7 +23,7 @@ public class ProsessTaskIdDto implements AbacDto {
         this.prosessTaskId = prosessTaskId;
     }
 
-    @ApiModelProperty(required = true, value = "Prosesstask-id for en eksisterende prosesstask")
+    @Schema(required = true, description = "Prosesstask-id for en eksisterende prosesstask")
     public Long getProsessTaskId() {
         return prosessTaskId;
     }
