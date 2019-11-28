@@ -1,6 +1,6 @@
 # Felles kode / bibliotek for foredrepenger området
 
-
+![](https://github.com/navikt/fp-felles/workflows/Bygg%20og%20deploy/badge.svg)
 
 ## Postgres
 I test og utvikling bruker vi postgres. For å enkelt sette opp dette slik at det fungerer med unit-tests:
