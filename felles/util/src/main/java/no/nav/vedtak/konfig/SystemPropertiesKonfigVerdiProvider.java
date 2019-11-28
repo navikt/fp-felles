@@ -5,6 +5,7 @@ import javax.enterprise.context.ApplicationScoped;
 /** Henter properties fra {@link System#getProperties}. */
 @ApplicationScoped
 public class SystemPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvider {
+    public static final int PRIORITET = Integer.MIN_VALUE;
     
     public SystemPropertiesKonfigVerdiProvider() {
         super(System.getProperties());
@@ -12,6 +13,6 @@ public class SystemPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiPr
 
     @Override
     public int getPrioritet() {
-        return 10; // NOSONAR
+        return PRIORITET;
     }
 }
