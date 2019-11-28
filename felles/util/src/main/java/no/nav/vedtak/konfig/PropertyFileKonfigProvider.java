@@ -22,13 +22,15 @@ public class PropertyFileKonfigProvider extends PropertiesKonfigVerdiProvider {
     private static final String SUFFIX = ".properties";
     private static final String PREFIX = "application";
     private static final Logger LOG = LoggerFactory.getLogger(PropertyFileKonfigProvider.class);
+    private static final String FALLBACK = "es-" + LOCAL + SUFFIX;
 
     protected PropertyFileKonfigProvider() {
         super(lesFra());
     }
 
     private static Properties lesFra() {
-        return lesFra(namespaceKonfig(), lesFra(clusterKonfig(), lesFra("", new Properties())));
+        var p = lesFra(namespaceKonfig(), lesFra(clusterKonfig(), lesFra("", new Properties())));
+        return p.isEmpty() ? les(FALLBACK, new Properties()) : p;
     }
 
     private static Properties lesFra(String infix, Properties p) {
@@ -36,17 +38,18 @@ public class PropertyFileKonfigProvider extends PropertiesKonfigVerdiProvider {
             LOG.info("Ingen namespace-spesifikk konfigurasjon funnet");
             return p;
         }
-        String navn = PREFIX + infix + SUFFIX;
-        try (var is = PropertyFileKonfigProvider.class.getClassLoader().getResourceAsStream(navn)) {
+        return les(PREFIX + infix + SUFFIX, p);
+    }
+
+    private static Properties les(String name, Properties p) {
+        try (var is = PropertyFileKonfigProvider.class.getClassLoader().getResourceAsStream(name)) {
             if (is != null) {
-                LOG.info("Laster properties fra {}", navn);
+                LOG.info("Laster properties fra {}", name);
                 p.load(is);
-                return p;
             }
         } catch (IOException e) {
-            LOG.info("Propertyfil {} ikke lesbar", navn);
+            LOG.info("Propertyfil {} ikke lesbar", name);
         }
-        LOG.info("Propertyfil {} ikke funnet", navn);
         return p;
     }
 
