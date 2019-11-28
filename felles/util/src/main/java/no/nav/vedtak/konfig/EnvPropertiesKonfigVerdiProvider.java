@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 /** Henter properties fra {@link System#getProperties}. */
 @ApplicationScoped
 public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvider {
+    public static final int PRIORITET = SystemPropertiesKonfigVerdiProvider.PRIORITET + 1;
     
     public EnvPropertiesKonfigVerdiProvider() {
         super(getEnv());
@@ -21,6 +22,6 @@ public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvi
     @Override
     public int getPrioritet() {
         // Et hakk lavere prioritet enn SystemPropertiesKonfigVerdiProvider
-        return 11; // NOSONAR
+        return PRIORITET;
     }
 }

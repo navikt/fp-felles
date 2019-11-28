@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class PropertyFileKonfigProvider extends PropertiesKonfigVerdiProvider {
 
-    private static final int PRIORITET = Integer.MAX_VALUE;
+    private static final int PRIORITET = EnvPropertiesKonfigVerdiProvider.PRIORITET + 1;
     private static final String LOCAL = "local";
     private static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
     private static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE_NAME";
