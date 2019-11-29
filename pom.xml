@@ -326,7 +326,6 @@
             </build>
         </profile>
 
-
         <profile>
             <id>publishAdeo</id>
             <activation>
