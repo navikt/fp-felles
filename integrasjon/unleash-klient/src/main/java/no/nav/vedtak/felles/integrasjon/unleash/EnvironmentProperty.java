@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.unleash;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -10,10 +11,13 @@ import no.nav.vedtak.konfig.PropertyUtil;
 public class EnvironmentProperty {
 
     public static final String NAIS_NAMESPACE = "NAIS_NAMESPACE";
+    public static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
+    public static final List<String> PROD_CLUSTERS = List.of("prod-fss", "prod-sbs");
+    public static final String PROD = "p";
     static final String APP_NAME = "NAIS_APP_NAME";
     private static final String FASIT_ENVIRONMENT_NAME = "FASIT_ENVIRONMENT_NAME";
-
     private static final Logger log = LoggerFactory.getLogger(EnvironmentProperty.class);
+    public static final String DEFAULT_NAMESPACE = "default";
 
     private EnvironmentProperty() {
     }
@@ -24,9 +28,13 @@ public class EnvironmentProperty {
             return Optional.of(environmentName);
         }
         environmentName = PropertyUtil.getProperty(NAIS_NAMESPACE);
-        if (environmentName != null && !environmentName.isEmpty()) {
-        log.info("{} ikke satt setter environmentName={}", FASIT_ENVIRONMENT_NAME, environmentName);
+        if (environmentName != null && !environmentName.isEmpty() && !environmentName.equals(DEFAULT_NAMESPACE)) {
+            log.info("{} ikke satt setter environmentName={}", FASIT_ENVIRONMENT_NAME, environmentName);
             return Optional.of(environmentName);
+        }
+        String cluster = PropertyUtil.getProperty(NAIS_CLUSTER_NAME);
+        if (cluster != null && !cluster.isEmpty() && PROD_CLUSTERS.contains(cluster.toLowerCase())) {
+            return Optional.of(PROD);
         }
         String property = PropertyUtil.getProperty("environment.name");
         log.info("{} ikke satt setter environmentName={}", NAIS_NAMESPACE, property);
