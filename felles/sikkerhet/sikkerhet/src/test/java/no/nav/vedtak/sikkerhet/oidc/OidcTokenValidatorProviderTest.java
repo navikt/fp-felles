@@ -40,7 +40,6 @@ public class OidcTokenValidatorProviderTest {
     private static final String sts_agent = "sts";
     private static final String aad_b2c_iss = "https://aad.b2c.no";
     private static final String aad_b2c_agent = "aad.b2c";
-    private static final String testhub_iss = "https://testhub.nav.no/supersecrettokenfacility";
 
     private static final String validUrl = "https://this.is.a.valid.url";
     private static final String invalidUrl = "this.is.a.invalid.url";
@@ -195,38 +194,5 @@ public class OidcTokenValidatorProviderTest {
             .isEmpty();
     }
 
-    @Test
-    public void finner_ikke_TestHub_provider() {
-        assertThat(OidcTokenValidatorProvider.instance().getValidator(testhub_iss)).isNull();
-    }
 
-    @Test
-    public void finner_TestHub_provider_ved_lokal_utvikling() {
-        System.setProperty("develop-local", "true");
-        assertThat(OidcTokenValidatorProvider.instance().getValidator(testhub_iss)).isNotNull();
-    }
-
-    @Test
-    public void finner_ikke_TestHub_provider_i_skya_p() {
-        System.setProperty("environment.class", "p");
-        assertThat(OidcTokenValidatorProvider.instance().getValidator(testhub_iss)).isNull();
-    }
-
-    @Test
-    public void finner_TestHub_provider_i_nais_t() {
-        System.setProperty("fasit.environment.name", "t10");
-        assertThat(OidcTokenValidatorProvider.instance().getValidator(testhub_iss)).isNotNull();
-    }
-
-    @Test
-    public void finner_TestHub_provider_i_nais_q() {
-        System.setProperty("fasit.environment.name", "q10");
-        assertThat(OidcTokenValidatorProvider.instance().getValidator(testhub_iss)).isNotNull();
-    }
-
-    @Test
-    public void finner_ikke_TestHub_provider_i_nais_p() {
-        System.setProperty("fasit.environment.name", "p");
-        assertThat(OidcTokenValidatorProvider.instance().getValidator(testhub_iss)).isNull();
-    }
 }
