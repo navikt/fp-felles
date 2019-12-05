@@ -89,7 +89,6 @@ public class OidcTokenValidatorProvider {
             configs.add(createOpenAmConfiguration(false,30, true, interneIdentTyper));
             configs.add(createStsConfiguration(PROVIDERNAME_STS, false, 30, true, interneIdentTyper));
             configs.add(createConfiguration(PROVIDERNAME_AAD_B2C, true, 30, false, eksterneIdentTyper));
-            configs.add(createTesthubConfiguration(false,30, false, eksterneIdentTyper));
             configs.remove(null); // Fjerner en eventuell feilet konfigurasjon
             return configs;
         }
@@ -164,37 +163,6 @@ public class OidcTokenValidatorProvider {
                     identTyper);
 
             return config;
-        }
-
-        private OpenIDProviderConfig createTesthubConfiguration(boolean useProxyForJwks, int allowedClockSkewInSeconds, boolean skipAudienceValidation, Set<IdentType> identTyper) {
-            boolean createConfig = false;
-            String jwks = null;
-
-            String naisEnvName = getProperty("fasit.environment.name");
-            String naisEnvClass = null == naisEnvName ? "x": naisEnvName.substring(0,1);
-            boolean develop = Boolean.getBoolean("develop-local");
-
-            if(develop ||
-                    "t".equalsIgnoreCase(naisEnvClass) ||
-                    "u".equalsIgnoreCase(naisEnvClass) ){
-                createConfig=true;
-                // FIXME (u139158): PK-53010 Må få testhub til å eksponere denne på https
-                jwks = "http://e34apvl00250.devillo.no:8050/sikkerhet/jwks_uri";
-            }
-            if("q".equalsIgnoreCase(naisEnvClass) ){
-                createConfig=true;
-                jwks = "https://testhub.nais.preprod.local/sikkerhet/jwks_uri";
-            }
-            if(!createConfig){
-                return null;
-            }
-
-            String providerName = "TestHub";
-            String issuer = "https://testhub.nav.no/supersecrettokenfacility";
-            String clientName = "OIDC";
-            String clientPassword = "Client password is not used for TestHub";
-            String host = "https://host.is.not.used.for.TestHub";
-            return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds, skipAudienceValidation, identTyper);
         }
 
     }
