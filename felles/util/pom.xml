@@ -72,8 +72,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
            <environmentVariables>
-            <NAIS_CLUSTER_NAME>mycluster</NAIS_CLUSTER_NAME>
-            <NAIS_NAMESPACE_NAME>mynamespace</NAIS_NAMESPACE_NAME>
+            <NAIS_CLUSTER_NAME>dev-fss</NAIS_CLUSTER_NAME>
+            <NAIS_NAMESPACE>t4</NAIS_NAMESPACE>
           </environmentVariables>
         </configuration>
       </plugin>
