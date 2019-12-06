@@ -17,7 +17,7 @@ public class PropertyFileKonfigProvider extends PropertiesKonfigVerdiProvider {
     private static final int PRIORITET = EnvPropertiesKonfigVerdiProvider.PRIORITET + 1;
     private static final String LOCAL = "local";
     private static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
-    private static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE_NAME";
+    private static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE";
 
     private static final String SUFFIX = ".properties";
     private static final String PREFIX = "application";

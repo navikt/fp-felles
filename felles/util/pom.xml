@@ -63,6 +63,14 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+		    <groupId>ch.qos.logback</groupId>
+		    <artifactId>logback-core</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>ch.qos.logback</groupId>
+		    <artifactId>logback-classic</artifactId>
+		</dependency>
 	</dependencies>
     
     <build>
@@ -72,8 +80,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
            <environmentVariables>
-            <NAIS_CLUSTER_NAME>mycluster</NAIS_CLUSTER_NAME>
-            <NAIS_NAMESPACE_NAME>mynamespace</NAIS_NAMESPACE_NAME>
+            <NAIS_CLUSTER_NAME>prod-fss</NAIS_CLUSTER_NAME>
+            <NAIS_NAMESPACE>jalla</NAIS_NAMESPACE>
           </environmentVariables>
         </configuration>
       </plugin>
