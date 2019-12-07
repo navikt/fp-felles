@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.vedtak.konfig.EnvPropertiesKonfigVerdiProvider;
@@ -64,7 +65,7 @@ public final class Environment {
     }
 
     public String getProperty(String key) {
-        return getProperty(key, String.class, null);
+        return getProperty(key, (String) null);
     }
 
     public String getRequiredProperty(String key) {
@@ -90,18 +91,16 @@ public final class Environment {
         if (converter == null && !targetType.equals(String.class)) {
             throw new IllegalArgumentException("Konvertering til " + targetType + " er ikke støttet");
         }
-        for (var source : propertySources) {
-            if (source.harVerdi(key)) {
-                Object verdi = source.getVerdi(key, converter);
-                if (verdi != null) {
-                    return (T) verdi;
-                }
-            }
-        }
-        return defaultVerdi;
+        return propertySources.stream()
+                .filter(s -> s.harVerdi(key))
+                .map(s -> s.getVerdi(key, converter))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(v -> (T) v)
+                .orElse(defaultVerdi);
     }
 
-    private <T> Converter<?> converterFor(Class<T> targetType) {
+    private static <T> Converter<?> converterFor(Class<T> targetType) {
         try {
             if (targetType.equals(Period.class)) {
                 return construct(PeriodConverter.class);
