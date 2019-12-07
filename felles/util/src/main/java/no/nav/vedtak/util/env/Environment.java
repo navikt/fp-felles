@@ -126,7 +126,7 @@ public final class Environment {
             }
             return null;
         } catch (Exception e) {
-            throw new IllegalArgumentException("Uventet feil ved konstruksjon av konverter");
+            throw new IllegalArgumentException("Uventet feil ved konstruksjon av konverter for " + targetType);
         }
     }
 
