@@ -47,4 +47,9 @@ public class EnvironmentTest {
     public void testPropertiesFraEnvUkjentConverter() {
         ENV.getProperty("finnes.ikke", Tid.class);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void testPropertiesIkkeFunnet() {
+        ENV.getRequiredProperty("finnes.ikke");
+    }
 }

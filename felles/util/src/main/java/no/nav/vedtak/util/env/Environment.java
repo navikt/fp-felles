@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Optional;
 
 import no.nav.vedtak.konfig.EnvPropertiesKonfigVerdiProvider;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -60,12 +61,22 @@ public final class Environment {
         return getProperty(key, String.class, null);
     }
 
+    public String getRequiredProperty(String key) {
+        return Optional.ofNullable(getProperty(key))
+                .orElseThrow(() -> ikkeFunnet(key));
+    }
+
     public String getProperty(String key, String defaultVerdi) {
         return getProperty(key, String.class, defaultVerdi);
     }
 
     public <T> T getProperty(String key, Class<T> targetType) {
         return getProperty(key, targetType, null);
+    }
+
+    public <T> T getRequiredProperty(String key, Class<T> targetType) {
+        return Optional.ofNullable(getProperty(key, targetType))
+                .orElseThrow(() -> ikkeFunnet(key));
     }
 
     public <T> T getProperty(String key, Class<T> targetType, T defaultVerdi) {
@@ -111,6 +122,10 @@ public final class Environment {
         } catch (Exception e) {
             throw new IllegalArgumentException("Uventet feil ved konstruksjon av konverter");
         }
+    }
+
+    private IllegalStateException ikkeFunnet(String key) {
+        throw new IllegalStateException(key + " ble ikke funnet");
     }
 
     @Override
