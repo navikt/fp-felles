@@ -35,7 +35,7 @@ public class EnvironmentTest {
 
     @Test
     public void testPropertiesFraEnv() {
-        assertEquals(Integer.valueOf(50), ENV.getProperty("test2.property", int.class));
+        assertEquals(Integer.valueOf(10), ENV.getProperty("test2.property", int.class));
         assertTrue(ENV.getProperty("test4.boolean", boolean.class));
         assertTrue(ENV.getProperty("test4.boolean", Boolean.class));
         assertEquals("42", ENV.getProperty("finnes.ikke", "42"));
