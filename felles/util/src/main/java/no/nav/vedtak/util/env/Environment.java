@@ -8,8 +8,14 @@ import java.util.List;
 import java.util.Optional;
 
 import no.nav.vedtak.konfig.EnvPropertiesKonfigVerdiProvider;
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.vedtak.konfig.KonfigVerdi.BooleanConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.Converter;
+import no.nav.vedtak.konfig.KonfigVerdi.DurationConverter;
+import no.nav.vedtak.konfig.KonfigVerdi.IntegerConverter;
+import no.nav.vedtak.konfig.KonfigVerdi.LocalDateConverter;
+import no.nav.vedtak.konfig.KonfigVerdi.LongConverter;
+import no.nav.vedtak.konfig.KonfigVerdi.PeriodConverter;
+import no.nav.vedtak.konfig.KonfigVerdi.UriConverter;
 import no.nav.vedtak.konfig.KonfigVerdiProvider;
 import no.nav.vedtak.konfig.PropertyFileKonfigProvider;
 import no.nav.vedtak.konfig.SystemPropertiesKonfigVerdiProvider;
@@ -98,25 +104,25 @@ public final class Environment {
     private <T> Converter<?> converterFor(Class<T> targetType) {
         try {
             if (targetType.equals(Period.class)) {
-                return KonfigVerdi.PeriodConverter.class.getDeclaredConstructor().newInstance();
+                return PeriodConverter.class.getDeclaredConstructor().newInstance();
             }
             if (targetType.equals(Duration.class)) {
-                return KonfigVerdi.DurationConverter.class.getDeclaredConstructor().newInstance();
+                return DurationConverter.class.getDeclaredConstructor().newInstance();
             }
             if (targetType.equals(LocalDate.class)) {
-                return KonfigVerdi.LocalDateConverter.class.getDeclaredConstructor().newInstance();
+                return LocalDateConverter.class.getDeclaredConstructor().newInstance();
             }
             if (targetType.equals(Long.class)) {
-                return KonfigVerdi.LongConverter.class.getDeclaredConstructor().newInstance();
+                return LongConverter.class.getDeclaredConstructor().newInstance();
             }
             if (targetType.equals(Boolean.class) || targetType.equals(boolean.class)) {
-                return KonfigVerdi.BooleanConverter.class.getDeclaredConstructor().newInstance();
+                return BooleanConverter.class.getDeclaredConstructor().newInstance();
             }
             if (targetType.equals(URI.class)) {
-                return KonfigVerdi.UriConverter.class.getDeclaredConstructor().newInstance();
+                return UriConverter.class.getDeclaredConstructor().newInstance();
             }
             if (targetType.equals(Integer.class) || targetType.equals(int.class)) {
-                return KonfigVerdi.IntegerConverter.class.getDeclaredConstructor().newInstance();
+                return IntegerConverter.class.getDeclaredConstructor().newInstance();
             }
             return null;
         } catch (Exception e) {
