@@ -104,25 +104,25 @@ public final class Environment {
     private <T> Converter<?> converterFor(Class<T> targetType) {
         try {
             if (targetType.equals(Period.class)) {
-                return PeriodConverter.class.getDeclaredConstructor().newInstance();
+                return construct(PeriodConverter.class);
             }
             if (targetType.equals(Duration.class)) {
-                return DurationConverter.class.getDeclaredConstructor().newInstance();
+                return construct(DurationConverter.class);
             }
             if (targetType.equals(LocalDate.class)) {
-                return LocalDateConverter.class.getDeclaredConstructor().newInstance();
+                return construct(LocalDateConverter.class);
             }
             if (targetType.equals(Long.class)) {
-                return LongConverter.class.getDeclaredConstructor().newInstance();
+                return construct(LongConverter.class);
             }
             if (targetType.equals(Boolean.class) || targetType.equals(boolean.class)) {
-                return BooleanConverter.class.getDeclaredConstructor().newInstance();
+                return construct(BooleanConverter.class);
             }
             if (targetType.equals(URI.class)) {
-                return UriConverter.class.getDeclaredConstructor().newInstance();
+                return construct(UriConverter.class);
             }
             if (targetType.equals(Integer.class) || targetType.equals(int.class)) {
-                return IntegerConverter.class.getDeclaredConstructor().newInstance();
+                return construct(IntegerConverter.class);
             }
             return null;
         } catch (Exception e) {
@@ -130,7 +130,11 @@ public final class Environment {
         }
     }
 
-    private IllegalStateException ikkeFunnet(String key) {
+    private static <T> Converter<T> construct(Class<? extends Converter<T>> clazz) throws Exception {
+        return clazz.getDeclaredConstructor().newInstance();
+    }
+
+    private static IllegalStateException ikkeFunnet(String key) {
         throw new IllegalStateException(key + " ble ikke funnet");
     }
 

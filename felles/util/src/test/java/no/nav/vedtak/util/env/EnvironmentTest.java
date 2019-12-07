@@ -16,31 +16,58 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.konfig.Tid;
 
-// Denne testen må kjøres fra maven, ettersom vi ikke enkelt kan sette env properties i kode. 
 public class EnvironmentTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnvironmentTest.class);
     private static final Environment ENV = Environment.current();
 
     @Test
+    // Denne testen må kjøres fra maven, ettersom vi ikke enkelt kan sette env
+    // properties i kode.
     public void testEnvironment() {
-        var stdout = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(stdout));
-        LOG.info(CONFIDENTIAL, "Dette er konfidensielt, OK i dev men ikke i prod, denne testen kjører i pseudo-prod");
         assertEquals(ENV.getCluster(), PROD_FSS);
         assertEquals("jalla", ENV.namespace());
         assertTrue(ENV.isProd());
+    }
+
+    @Test
+    public void testTurboFilterMedMarkerIProd() {
+        var stdout = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(stdout));
+        LOG.info(CONFIDENTIAL, "Dette er konfidensielt, OK i dev men ikke i prod, denne testen kjører i pseudo-prod");
         assertEquals(0, stdout.size());
     }
 
     @Test
-    public void testPropertiesFraEnv() {
-        assertEquals(Integer.valueOf(10), ENV.getProperty("test2.property", int.class));
+    public void testTurboFilterUtenMarkerIProd() {
+        var stdout = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(stdout));
+        LOG.info("Dette er ikke konfidensielt");
+        assertTrue(stdout.size() > 0);
+    }
+
+    @Test
+    public void testDuration() {
+        assertEquals(Duration.ofDays(42), ENV.getProperty("duration.property", Duration.class));
+        assertEquals(Duration.ofDays(2), ENV.getProperty("ikkw.funnet", Duration.class, Duration.ofDays(2)));
+    }
+
+    @Test
+    public void testString() {
+        assertEquals("42", ENV.getProperty("finnes.ikke", "42"));
+        assertNull(ENV.getProperty("finnes.ikke"));
+    }
+
+    @Test
+    public void testBoolean() {
         assertTrue(ENV.getProperty("test4.boolean", boolean.class));
         assertTrue(ENV.getProperty("test4.boolean", Boolean.class));
-        assertEquals("42", ENV.getProperty("finnes.ikke", "42"));
-        assertEquals(Duration.ofDays(42), ENV.getProperty("duration.property", Duration.class));
-        assertNull(ENV.getProperty("finnes.ikke"));
+    }
+
+    @Test
+    public void testInt() {
+        assertEquals(Integer.valueOf(10), ENV.getProperty("test2.property", Integer.class));
+        assertEquals(Integer.valueOf(10), ENV.getProperty("test2.property", int.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
