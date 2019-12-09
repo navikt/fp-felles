@@ -23,7 +23,7 @@ public class PropertyFileKonfigProvider extends PropertiesKonfigVerdiProvider {
     private static final String PREFIX = "application";
     private static final Logger LOG = LoggerFactory.getLogger(PropertyFileKonfigProvider.class);
 
-    protected PropertyFileKonfigProvider() {
+    public PropertyFileKonfigProvider() {
         super(lesFra());
     }
 
