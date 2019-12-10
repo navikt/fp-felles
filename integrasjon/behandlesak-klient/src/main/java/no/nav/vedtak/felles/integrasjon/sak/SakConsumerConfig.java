@@ -20,7 +20,7 @@ public class SakConsumerConfig {
     private static final QName PORT = new QName(NAMESPACE, "Sak_v1Port");
 
     @Inject
-    @KonfigVerdi("Sak_v1.url")
+    @KonfigVerdi("Sak.v1.url")
     private String endpointUrl;  // NOSONAR
 
     SakV1 getPort() {

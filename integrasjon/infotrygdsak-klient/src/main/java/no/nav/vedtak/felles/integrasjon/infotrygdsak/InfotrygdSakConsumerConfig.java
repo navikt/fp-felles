@@ -22,7 +22,7 @@ public class InfotrygdSakConsumerConfig {
     private String endpointUrl;
 
     @Inject
-    public InfotrygdSakConsumerConfig(@KonfigVerdi("InfotrygdSak_v1.url") String endpointUrl) {
+    public InfotrygdSakConsumerConfig(@KonfigVerdi("InfotrygdSak.v1.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

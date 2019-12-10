@@ -26,7 +26,7 @@ public class ArbeidsforholdConsumerConfig {
     private String endpointUrl;  // NOSONAR
 
     @Inject
-    public ArbeidsforholdConsumerConfig(@KonfigVerdi("Arbeidsforhold_v3.url") String endpointUrl) {
+    public ArbeidsforholdConsumerConfig(@KonfigVerdi("Arbeidsforhold.v3.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

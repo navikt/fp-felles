@@ -22,7 +22,7 @@ public class InfotrygdBeregningsgrunnlagConsumerConfig {
     private String endpointUrl;
 
     @Inject
-    public InfotrygdBeregningsgrunnlagConsumerConfig(@KonfigVerdi("InfotrygdBeregningsgrunnlag_v1.url") String endpointUrl) {
+    public InfotrygdBeregningsgrunnlagConsumerConfig(@KonfigVerdi("InfotrygdBeregningsgrunnlag.v1.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

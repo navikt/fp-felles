@@ -22,7 +22,7 @@ public class AktørConsumerConfig {
     private String endpointUrl;
 
     @Inject
-    public AktørConsumerConfig(@KonfigVerdi("Aktoer_v2.url") String endpointUrl) {
+    public AktørConsumerConfig(@KonfigVerdi("Aktoer.v2.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

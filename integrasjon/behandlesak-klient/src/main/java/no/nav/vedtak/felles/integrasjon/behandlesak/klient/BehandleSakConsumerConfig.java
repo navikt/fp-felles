@@ -26,7 +26,7 @@ public class BehandleSakConsumerConfig {
     }
 
     @Inject
-    public BehandleSakConsumerConfig(@KonfigVerdi("BehandleSak_v2.url") String endpointUrl) {
+    public BehandleSakConsumerConfig(@KonfigVerdi("BehandleSak.v2.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 
