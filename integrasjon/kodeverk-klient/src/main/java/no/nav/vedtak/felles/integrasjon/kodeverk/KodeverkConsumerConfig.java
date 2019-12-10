@@ -26,7 +26,7 @@ public class KodeverkConsumerConfig {
     private String endpointUrl;  // NOSONAR
 
     @Inject
-    public KodeverkConsumerConfig(@KonfigVerdi("Kodeverk_v2.url") String endpointUrl) {
+    public KodeverkConsumerConfig(@KonfigVerdi("Kodeverk.v2.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

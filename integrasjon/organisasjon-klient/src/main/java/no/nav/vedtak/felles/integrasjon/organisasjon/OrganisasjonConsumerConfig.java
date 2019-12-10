@@ -26,7 +26,7 @@ public class OrganisasjonConsumerConfig {
     private String endpointUrl;  // NOSONAR
 
     @Inject
-    public OrganisasjonConsumerConfig(@KonfigVerdi("Organisasjon_v4.url") String endpointUrl) {
+    public OrganisasjonConsumerConfig(@KonfigVerdi("Organisasjon.v4.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

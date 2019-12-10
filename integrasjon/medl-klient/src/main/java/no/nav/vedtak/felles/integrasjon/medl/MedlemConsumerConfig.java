@@ -23,7 +23,7 @@ public class MedlemConsumerConfig {
     private String endpointUrl;  // NOSONAR
 
     @Inject
-    public MedlemConsumerConfig(@KonfigVerdi("Medlem_v2.url") String endpointUrl) {
+    public MedlemConsumerConfig(@KonfigVerdi("Medlem.v2.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

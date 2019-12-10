@@ -22,7 +22,7 @@ public class MeldekortUtbetalingsgrunnlagConsumerConfig {
     private String endpointUrl;
 
     @Inject
-    public MeldekortUtbetalingsgrunnlagConsumerConfig(@KonfigVerdi("MeldekortUtbetalingsgrunnlag_v1.url") String endpointUrl) {
+    public MeldekortUtbetalingsgrunnlagConsumerConfig(@KonfigVerdi("MeldekortUtbetalingsgrunnlag.v1.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

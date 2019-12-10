@@ -23,7 +23,7 @@ public class BehandleoppgaveConsumerConfig {
     private String endpointUrl;  // NOSONAR
 
     @Inject
-    public BehandleoppgaveConsumerConfig(@KonfigVerdi("Behandleoppgave_v1.url") String endpointUrl) {
+    public BehandleoppgaveConsumerConfig(@KonfigVerdi("Behandleoppgave.v1.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

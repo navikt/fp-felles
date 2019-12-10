@@ -22,7 +22,7 @@ class InngaaendeJournalConsumerConfig {
 
     // TODO (u139158): Gjør verdi påkrevd når får innslag i Fasit
     @Inject
-    @KonfigVerdi(value = "InngaaendeJournal_v1.url", required = false)
+    @KonfigVerdi(value = "InngaaendeJournal.v1.url", required = false)
     private String endpointUrl; // NOSONAR
 
     InngaaendeJournalV1 getPort() {

@@ -22,7 +22,7 @@ public class JournalConsumerConfig {
     private String endpointUrl;  // NOSONAR
 
     @Inject
-    public JournalConsumerConfig(@KonfigVerdi("Journal_v3.url") String endpointUrl) {
+    public JournalConsumerConfig(@KonfigVerdi("Journal.v3.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

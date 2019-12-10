@@ -23,7 +23,7 @@ public class PersonConsumerConfig {
     private String endpointUrl; // NOSONAR
 
     @Inject
-    public PersonConsumerConfig(@KonfigVerdi("Person_v3.url") String endpointUrl) {
+    public PersonConsumerConfig(@KonfigVerdi("Person.v3.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

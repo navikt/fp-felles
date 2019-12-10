@@ -22,7 +22,7 @@ public class OppgaveConsumerConfig {
     private String endpointUrl;  // NOSONAR
 
     @Inject
-    public OppgaveConsumerConfig(@KonfigVerdi("Oppgave_v3.url") String endpointUrl) {
+    public OppgaveConsumerConfig(@KonfigVerdi("Oppgave.v3.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 

@@ -22,7 +22,7 @@ public class ArbeidsfordelingConsumerConfig {
     private String endpointUrl;
 
     @Inject
-    public ArbeidsfordelingConsumerConfig(@KonfigVerdi("Arbeidsfordeling_v1.url") String endpointUrl) {
+    public ArbeidsfordelingConsumerConfig(@KonfigVerdi("Arbeidsfordeling.v1.url") String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 
