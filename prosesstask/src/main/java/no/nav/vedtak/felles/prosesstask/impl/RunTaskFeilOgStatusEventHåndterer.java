@@ -124,17 +124,15 @@ public class RunTaskFeilOgStatusEventHåndterer {
     private boolean sjekkOmSkalKjøresPåNytt(Exception e, ProsessTaskType taskType, ProsessTaskFeilhåndteringAlgoritme feilhåndteringsalgoritme,
                                             int failureAttempt) {
 
-        if (e.getCause() != null && feilhåndteringExceptions(e.getCause())) {
-            return false;
-        } else if (e.getCause() == null && feilhåndteringExceptions(e)) {
-            return false;
-        } else {
+        // Prøv på nytt hvis kjent exception og feilhåndteringsalgoritmen tilsier nytt forsøk. Ellers fail-fast
+        if (feilhåndteringExceptions(e) || (e.getCause() != null && feilhåndteringExceptions(e.getCause()))) {
             return feilhåndteringsalgoritme.skalKjørePåNytt(taskType.tilProsessTaskTypeInfo(), failureAttempt, e);
         }
+        return false;
     }
 
     private boolean feilhåndteringExceptions(Throwable e) {
-        return (FEILHÅNDTERING_EXCEPTIONS.stream().noneMatch(fatal -> fatal.isAssignableFrom(e.getClass())));
+        return (FEILHÅNDTERING_EXCEPTIONS.stream().anyMatch(fatal -> fatal.isAssignableFrom(e.getClass())));
     }
 
     protected static String getFeiltekstOgLoggHvisFørstegang(ProsessTaskEntitet pte, Feil feil, Throwable t) {
