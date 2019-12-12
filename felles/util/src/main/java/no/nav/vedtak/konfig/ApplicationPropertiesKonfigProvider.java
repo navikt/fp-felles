@@ -1,6 +1,7 @@
 package no.nav.vedtak.konfig;
 
 import static java.lang.System.getenv;
+import static no.nav.vedtak.konfig.StandardPropertySource.APP_PROPERTIES;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -12,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-public class PropertyFileKonfigProvider extends PropertiesKonfigVerdiProvider {
+public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiProvider {
 
     private static final int PRIORITET = EnvPropertiesKonfigVerdiProvider.PRIORITET + 1;
     private static final String LOCAL = "local";
@@ -21,10 +22,10 @@ public class PropertyFileKonfigProvider extends PropertiesKonfigVerdiProvider {
 
     private static final String SUFFIX = ".properties";
     private static final String PREFIX = "application";
-    private static final Logger LOG = LoggerFactory.getLogger(PropertyFileKonfigProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ApplicationPropertiesKonfigProvider.class);
 
-    public PropertyFileKonfigProvider() {
-        super(lesFra());
+    public ApplicationPropertiesKonfigProvider() {
+        super(lesFra(), APP_PROPERTIES);
     }
 
     private static Properties lesFra() {
@@ -33,11 +34,10 @@ public class PropertyFileKonfigProvider extends PropertiesKonfigVerdiProvider {
 
     private static Properties lesFra(String infix, Properties p) {
         if (infix == null) {
-            LOG.info("Ingen namespace-spesifikk konfigurasjon funnet");
             return p;
         }
         String navn = PREFIX + infix + SUFFIX;
-        try (var is = PropertyFileKonfigProvider.class.getClassLoader().getResourceAsStream(navn)) {
+        try (var is = ApplicationPropertiesKonfigProvider.class.getClassLoader().getResourceAsStream(navn)) {
             if (is != null) {
                 LOG.info("Laster properties fra {}", navn);
                 p.load(is);
@@ -75,5 +75,11 @@ public class PropertyFileKonfigProvider extends PropertiesKonfigVerdiProvider {
     private static String namespaceName() {
         return Optional.ofNullable(getenv(NAIS_NAMESPACE_NAME))
                 .orElse(null);
+    }
+
+    @Override
+    public PropertySourceMetaData getAllProperties() {
+        // TODO Auto-generated method stub
+        return super.getAllProperties();
     }
 }

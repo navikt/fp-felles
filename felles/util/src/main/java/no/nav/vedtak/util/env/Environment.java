@@ -18,7 +18,9 @@ import no.nav.vedtak.konfig.KonfigVerdi.LongConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.PeriodConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.UriConverter;
 import no.nav.vedtak.konfig.KonfigVerdiProvider;
-import no.nav.vedtak.konfig.PropertyFileKonfigProvider;
+import no.nav.vedtak.konfig.ApplicationPropertiesKonfigProvider;
+import no.nav.vedtak.konfig.StandardPropertySource;
+import no.nav.vedtak.konfig.PropertySourceMetaData;
 import no.nav.vedtak.konfig.SystemPropertiesKonfigVerdiProvider;
 
 public final class Environment {
@@ -33,7 +35,7 @@ public final class Environment {
         this.propertySources = List.of(
                 new SystemPropertiesKonfigVerdiProvider(),
                 new EnvPropertiesKonfigVerdiProvider(),
-                new PropertyFileKonfigProvider());
+                new ApplicationPropertiesKonfigProvider());
     }
 
     private static Environment of(Cluster cluster, Namespace namespace) {
@@ -58,6 +60,13 @@ public final class Environment {
 
     public String clusterName() {
         return cluster.clusterName();
+    }
+
+    public PropertySourceMetaData getProperties(StandardPropertySource source) {
+        return propertySources.stream()
+                .filter(p -> p.getSource().equals(source))
+                .findFirst().map(p -> p.getAllProperties())
+                .orElseThrow();
     }
 
     public String namespace() {
@@ -91,6 +100,7 @@ public final class Environment {
         if (converter == null && !targetType.equals(String.class)) {
             throw new IllegalArgumentException("Konvertering til " + targetType + " er ikke støttet");
         }
+
         return propertySources.stream()
                 .filter(s -> s.harVerdi(key))
                 .map(s -> s.getVerdi(key, converter))

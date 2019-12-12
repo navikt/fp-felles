@@ -14,12 +14,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.konfig.StandardPropertySource;
 import no.nav.vedtak.konfig.Tid;
 
 public class EnvironmentTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnvironmentTest.class);
-    private static final Environment ENV = Environment.current();
+    private static Environment ENV = Environment.current();
 
     @Test
     // Denne testen må kjøres fra maven, ettersom vi ikke enkelt kan sette env
@@ -48,26 +49,28 @@ public class EnvironmentTest {
 
     @Test
     public void testDuration() {
-        assertEquals(Duration.ofDays(42), ENV.getProperty("duration.property", Duration.class));
-        assertEquals(Duration.ofDays(2), ENV.getProperty("ikkw.funnet", Duration.class, Duration.ofDays(2)));
+        assertEquals("duration.property", Duration.ofDays(42), ENV.getProperty("duration.property", Duration.class));
+        assertEquals("ikke.funnet", Duration.ofDays(2),
+                ENV.getProperty("ikke.funnet", Duration.class, Duration.ofDays(2)));
     }
 
     @Test
     public void testString() {
-        assertEquals("42", ENV.getProperty("finnes.ikke", "42"));
+        assertEquals("finnes.ikke", "42", ENV.getProperty("finnes.ikke", "42"));
         assertNull(ENV.getProperty("finnes.ikke"));
     }
 
     @Test
     public void testBoolean() {
-        assertTrue(ENV.getProperty("test4.boolean", boolean.class));
-        assertTrue(ENV.getProperty("test4.boolean", Boolean.class));
+        assertTrue("test4.boolean", ENV.getProperty("test4.boolean", boolean.class));
+        assertTrue("test4.boolean", ENV.getProperty("test4.boolean", Boolean.class));
     }
 
     @Test
     public void testInt() {
-        assertEquals(Integer.valueOf(10), ENV.getProperty("test2.property", Integer.class));
-        assertEquals(Integer.valueOf(10), ENV.getProperty("test2.property", int.class));
+        LOG.info("Application property verdier {}", ENV.getProperties(StandardPropertySource.APP_PROPERTIES));
+        assertEquals("test2.intproperty", Integer.valueOf(10), ENV.getProperty("test2.intproperty", Integer.class));
+        assertEquals("test2.intproperty", Integer.valueOf(10), ENV.getProperty("test2.intproperty", int.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
