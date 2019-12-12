@@ -69,8 +69,8 @@ public class EnvironmentTest {
     @Test
     public void testInt() {
         LOG.info("Application property verdier {}", ENV.getProperties(StandardPropertySource.APP_PROPERTIES));
-        assertEquals("test2.property", Integer.valueOf(10), ENV.getProperty("test2.property", Integer.class));
-        assertEquals("test2.property", Integer.valueOf(10), ENV.getProperty("test2.property", int.class));
+        assertEquals("test2.intproperty", Integer.valueOf(10), ENV.getProperty("test2.intproperty", Integer.class));
+        assertEquals("test2.intproperty", Integer.valueOf(10), ENV.getProperty("test2.intproperty", int.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
