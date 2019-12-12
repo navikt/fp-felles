@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -10,7 +12,7 @@
 
     <artifactId>felles-sikkerhet</artifactId>
     <name>Felles :: Sikkerhet</name>
-	<packaging>jar</packaging>
+    <packaging>jar</packaging>
 
     <properties>
         <e2e.test.group>no.nav.vedtak.isso.End2EndTest</e2e.test.group>
@@ -35,20 +37,21 @@
             <artifactId>cdi-api</artifactId>
         </dependency>
         <dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.security.auth.message</groupId>
-			<artifactId>javax.security.auth.message-api</artifactId>
-		</dependency>
-		<dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.security.auth.message</groupId>
+            <artifactId>javax.security.auth.message-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
 
         <dependency>
-            <!-- This artifact contains Slf4jLogger which is nessecary for managing loggin -->
+            <!-- This artifact contains Slf4jLogger which is nessecary for 
+                managing loggin -->
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-core</artifactId>
         </dependency>
@@ -97,6 +100,12 @@
         <dependency>
             <groupId>org.picketbox</groupId>
             <artifactId>picketbox</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
@@ -111,13 +120,13 @@
             <artifactId>resteasy-json-p-provider</artifactId>
         </dependency>
 
-         <dependency>
+        <dependency>
             <!-- dette er fjernet fra SE i Java11 -->
             <groupId>javax.jws</groupId>
             <artifactId>jsr181-api</artifactId>
         </dependency>
 
-        <!-- test dependencies-->
+        <!-- test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -166,7 +175,8 @@
 
     <profiles>
         <profile>
-            <!-- Kjører tunge tester som går mot andre systemer. Høyere sannsynlighet for å feile pga transiente feil/false positives. -->
+            <!-- Kjører tunge tester som går mot andre systemer. Høyere sannsynlighet 
+                for å feile pga transiente feil/false positives. -->
             <id>e2eTest</id>
             <build>
                 <plugins>

@@ -10,14 +10,18 @@ public interface KonfigVerdiProvider {
 
     /* Get verdi for angitt key. */
     <V> V getVerdi(String key, KonfigVerdi.Converter<V> converter);
-    
+
     <V> List<V> getVerdier(String key, KonfigVerdi.Converter<V> converter);
-    
+
     <V> Map<String, V> getVerdierAsMap(String key, KonfigVerdi.Converter<V> converter);
-    
+
     boolean harVerdi(String key);
-    
-    /* Prioritet rekkefølge.  1 er høyest prioritet. */
+
+    StandardPropertySource getSource();
+
+    /* Prioritet rekkefølge. 1 er høyest prioritet. */
     int getPrioritet();
+
+    PropertySourceMetaData getAllProperties();
 
 }

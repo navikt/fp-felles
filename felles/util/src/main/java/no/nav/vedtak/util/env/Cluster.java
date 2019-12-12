@@ -6,22 +6,24 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum Cluster {
-    LOCAL("local", false),
-    DEV_FSS("dev-fss", false),
-    DEV_SBS("dev-sbs", false),
-    DEV_GCP("dev-gcp", false),
-    PROD_SBS("prod-sbs", true),
-    PROD_GCP("prod-gcp", true),
-    PROD_FSS("prod-fss", true);
+    LOCAL("local"),
+    DEV_FSS("dev-fss"),
+    DEV_SBS("dev-sbs"),
+    DEV_GCP("dev-gcp"),
+    PROD_SBS("prod-sbs"),
+    PROD_GCP("prod-gcp"),
+    PROD_FSS("prod-fss");
+
+    private static final String PROD = "prod";
 
     public static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
 
     private final String name;
     private final boolean isProd;
 
-    Cluster(String name, boolean isProd) {
+    Cluster(String name) {
         this.name = name;
-        this.isProd = isProd;
+        this.isProd = name.startsWith(PROD);
     }
 
     public String clusterName() {

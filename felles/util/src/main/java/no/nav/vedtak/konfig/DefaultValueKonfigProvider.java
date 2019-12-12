@@ -3,11 +3,22 @@ package no.nav.vedtak.konfig;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import no.nav.vedtak.konfig.KonfigVerdi.Converter;
 
 public class DefaultValueKonfigProvider implements KonfigVerdiProvider {
+
+    @Override
+    public PropertySourceMetaData getAllProperties() {
+        return new PropertySourceMetaData(StandardPropertySource.DEFAULT, new Properties());
+    }
+
+    @Override
+    public StandardPropertySource getSource() {
+        return StandardPropertySource.DEFAULT;
+    }
 
     @Override
     public <V> V getVerdi(String verdi, Converter<V> converter) {

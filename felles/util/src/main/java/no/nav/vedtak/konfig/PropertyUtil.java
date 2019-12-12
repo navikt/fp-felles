@@ -1,11 +1,16 @@
 package no.nav.vedtak.konfig;
 
 public class PropertyUtil {
-	
-	private PropertyUtil() {
-		// hidden ctor
-	}
 
+    private PropertyUtil() {
+    }
+
+    /**
+     *
+     * @deprecated Bruk heller {@link Environment#getProperty(String)}
+     * 
+     */
+    @Deprecated
     public static String getProperty(String key) {
         String val = System.getProperty(key);
         if (val == null) {
