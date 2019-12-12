@@ -3,6 +3,7 @@ package no.nav.vedtak.felles.integrasjon.aktør.klient;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.ws.soap.SOAPFaultException;
 
@@ -14,6 +15,8 @@ import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.HentAktoerIdForIdentListeR
 import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.HentAktoerIdForIdentListeResponse;
 import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.HentAktoerIdForIdentRequest;
 import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.HentAktoerIdForIdentResponse;
+import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.HentIdentForAktoerIdListeRequest;
+import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.HentIdentForAktoerIdListeResponse;
 import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.HentIdentForAktoerIdRequest;
 import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.HentIdentForAktoerIdResponse;
 import no.nav.vedtak.feil.FeilFactory;
@@ -50,6 +53,15 @@ class AktørConsumerImpl implements AktørConsumer {
     }
 
     @Override
+    public List<AktoerIder> hentAktørIdForPersonIdentSet(Set<String> personIdentSet) {
+        HentAktoerIdForIdentListeRequest request = new HentAktoerIdForIdentListeRequest();
+        request.getIdentListe().addAll(personIdentSet);
+
+        HentAktoerIdForIdentListeResponse svar = port.hentAktoerIdForIdentListe(request);
+        return svar.getAktoerListe();
+    }
+
+    @Override
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         HentIdentForAktoerIdRequest request = new HentIdentForAktoerIdRequest();
         request.setAktoerId(aktørId);
@@ -61,12 +73,21 @@ class AktørConsumerImpl implements AktørConsumer {
         }
     }
 
-    @Override
-    public List<AktoerIder> hentAktørIdForPersonIdentSet(Set<String> personIdentSet) {
-        HentAktoerIdForIdentListeRequest request = new HentAktoerIdForIdentListeRequest();
-        request.getIdentListe().addAll(personIdentSet);
+    public List<AktoerIder> hentPersonIdenterForAktørIder(Set<String> aktørIder) {
+        HentIdentForAktoerIdListeRequest request = new HentIdentForAktoerIdListeRequest();
+        request.getAktoerIdListe().addAll(aktørIder);
 
-        HentAktoerIdForIdentListeResponse svar = port.hentAktoerIdForIdentListe(request);
-        return svar.getAktoerListe();
+        HentIdentForAktoerIdListeResponse response = port.hentIdentForAktoerIdListe(request);
+        validerResponse(response);
+        return response.getIdentListe();
+    }
+
+    private static void validerResponse(HentIdentForAktoerIdListeResponse response) {
+        if (!response.getFeilListe().isEmpty()) {
+            String feilmelding = response.getFeilListe().stream()
+                .map(feil -> feil.getFeilKode() + ":" + feil.getFeilBeskrivelse())
+                .collect(Collectors.joining(","));
+            throw FeilFactory.create(AktørConsumerFeil.class).feilmeldingFraAktørtjenesten(feilmelding).toException();
+        }
     }
 }
