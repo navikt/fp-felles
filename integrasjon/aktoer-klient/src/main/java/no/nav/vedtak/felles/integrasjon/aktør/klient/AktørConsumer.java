@@ -12,4 +12,6 @@ public interface AktørConsumer {
     Optional<String> hentPersonIdentForAktørId(String aktørId);
 
     List<AktoerIder> hentAktørIdForPersonIdentSet(Set<String> requestSet);
+
+    List<AktoerIder> hentPersonIdenterForAktørIder(Set<String> aktørIder);
 }

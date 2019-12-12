@@ -73,6 +73,7 @@ class AktørConsumerImpl implements AktørConsumer {
         }
     }
 
+    @Override
     public List<AktoerIder> hentPersonIdenterForAktørIder(Set<String> aktørIder) {
         HentIdentForAktoerIdListeRequest request = new HentIdentForAktoerIdListeRequest();
         request.getAktoerIdListe().addAll(aktørIder);
