@@ -7,7 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import no.nav.vedtak.felles.jpa.BaseEntitet;
 import no.nav.vedtak.felles.prosesstask.spi.ProsessTaskFeilHåndteringParametere;
 
 @Entity(name = "ProsessTaskFeilhand")
