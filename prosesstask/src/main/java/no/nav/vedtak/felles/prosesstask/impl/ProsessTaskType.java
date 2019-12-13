@@ -9,7 +9,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import no.nav.vedtak.felles.jpa.BaseEntitet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
 
 /**

@@ -19,10 +19,6 @@
 			<artifactId>felles-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
-			<artifactId>felles-sikkerhet</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 		</dependency>
@@ -37,10 +33,6 @@
 		<dependency>
 			<groupId>org.threeten</groupId>
 			<artifactId>threeten-extra</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ca.szc.thirdparty.nl.jworks.markdown_to_asciidoc</groupId>
-			<artifactId>markdown_to_asciidoc</artifactId>
 		</dependency>
 		<dependency>
 			<!-- for å bygge markup for sysdoc -->

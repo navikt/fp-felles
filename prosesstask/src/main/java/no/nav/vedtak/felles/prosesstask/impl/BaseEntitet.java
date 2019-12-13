@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.jpa;
+package no.nav.vedtak.felles.prosesstask.impl;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -11,12 +11,8 @@ import javax.persistence.PreUpdate;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.FPDateUtil;
 
-/**
- * @deprecated : Lag din egen. Denne skal ikke gjenbrukes.
- */
-@Deprecated
 @MappedSuperclass
-public class BaseEntitet implements Serializable {
+abstract class BaseEntitet implements Serializable {
 
     private static final String BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES = "VL";
 
