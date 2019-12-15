@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDispatcher;
 import no.nav.vedtak.felles.prosesstask.impl.TaskManager.ReadTaskFunksjon;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.MdcExtendedLogContext;
+import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 
 /** Poller for tilgjengelige tasks og omsetter disse til Runnable som kan kjøres på andre tråder. */
 public class TaskManagerGenerateRunnableTasks {

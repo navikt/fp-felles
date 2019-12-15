@@ -6,19 +6,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.enterprise.util.Nonbinding;
 import javax.interceptor.InterceptorBinding;
+import javax.transaction.Transactional;
 
 /**
  * Annotasjon for å flagge at her trengs en annotasjon.
+ * @deprecated Bytt til {@link Transactional} for bedre portabilitet over plattformer. 
  */
+@Deprecated(forRemoval = true)
 @Inherited
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Transaction {
-
-    @Nonbinding
-    VLPersistenceUnit value() default @VLPersistenceUnit;
 
 }

@@ -16,14 +16,16 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.LockModeType;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
-import org.hibernate.dialect.Dialect;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.type.StringType;
 
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe.Entry;
@@ -54,7 +56,7 @@ public class ProsessTaskRepositoryImpl implements ProsessTaskRepository {
     }
 
     @Inject
-    public ProsessTaskRepositoryImpl(@VLPersistenceUnit EntityManager entityManager,
+    public ProsessTaskRepositoryImpl(EntityManager entityManager,
                                      ProsessTaskEventPubliserer eventPubliserer,
                                      HandleProsessTaskLifecycleObserver handleLifecycleObserver) {
         Objects.requireNonNull(entityManager, "entityManager");

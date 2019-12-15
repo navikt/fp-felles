@@ -1,5 +1,7 @@
 package no.nav.vedtak.log.sporingslogg;
 
+import java.util.Map;
+
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.util.AppLoggerFactory;
 
@@ -14,12 +16,24 @@ public class SporingsloggHelper {
         logSporing(clazz, sporingsdata, "task", action);
     }
 
+    public static void logSporing(Class<?> clazz, Map<String, Object> sporingsdata, String actionType, String action) {
+        StringBuilder msg = new StringBuilder()
+                .append("action=").append(action).append(SPACE_SEPARATOR)
+                .append("actionType=").append(actionType).append(SPACE_SEPARATOR);
+        for (var entry : sporingsdata.entrySet()) {
+            msg.append(entry.getKey()).append('=').append(entry.getValue()).append(SPACE_SEPARATOR);
+        }
+        String sanitizedMsg = LoggerUtils.toStringWithoutLineBreaks(msg.toString());
+        AppLoggerFactory.getSporingLogger(clazz).info(sanitizedMsg); //NOSONAR
+    }
+
+    // Legacy
     public static void logSporing(Class<?> clazz, Sporingsdata sporingsdata, String actionType, String action) {
         StringBuilder msg = new StringBuilder()
                 .append("action=").append(action).append(SPACE_SEPARATOR)
                 .append("actionType=").append(actionType).append(SPACE_SEPARATOR);
-        for (SporingsloggId id : sporingsdata.getNøkler()) {
-            msg.append(id.getSporingsloggKode()).append('=').append(sporingsdata.getVerdi(id)).append(SPACE_SEPARATOR);
+        for (var entry : sporingsdata.entrySet()) {
+            msg.append(entry.getKey()).append('=').append(entry.getValue()).append(SPACE_SEPARATOR);
         }
         String sanitizedMsg = LoggerUtils.toStringWithoutLineBreaks(msg.toString());
         AppLoggerFactory.getSporingLogger(clazz).info(sanitizedMsg); //NOSONAR

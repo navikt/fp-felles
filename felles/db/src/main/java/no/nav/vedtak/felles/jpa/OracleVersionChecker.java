@@ -1,16 +1,17 @@
 package no.nav.vedtak.felles.jpa;
 
-import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Objects;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+
+import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
+import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
 /**
  * Sjekker om VL kjører mot Oracle Express Edition, som mangler visse features ift. Enterprise Edition,
@@ -28,7 +29,7 @@ public class OracleVersionChecker {
     }
 
     @Inject
-    public OracleVersionChecker(@VLPersistenceUnit EntityManager entityManager) {
+    public OracleVersionChecker(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

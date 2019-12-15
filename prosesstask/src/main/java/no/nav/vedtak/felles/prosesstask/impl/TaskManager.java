@@ -36,7 +36,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDispatcher;
 
 /**
  * Main class handling polling tasks and dispatching these.
+ * @deprecated Bytt til https://github.com/navikt/fp-prosesstask.
+ *             Hele modulen felles-prosesstask vil fjernes fra fp-felles
  */
+@Deprecated(forRemoval = true)
 @ApplicationScoped
 public class TaskManager implements AppServiceHandler {
 
