@@ -34,15 +34,11 @@
 		</dependency>
 
 		<dependency>
-			<groupId>ca.szc.thirdparty.nl.jworks.markdown_to_asciidoc</groupId>
-			<artifactId>markdown_to_asciidoc</artifactId>
-		</dependency>
-
-		<dependency>
 			<!-- for å bygge markup for sysdoc -->
 			<groupId>io.github.swagger2markup</groupId>
 			<artifactId>markup-document-builder</artifactId>
 			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- test dependencies -->

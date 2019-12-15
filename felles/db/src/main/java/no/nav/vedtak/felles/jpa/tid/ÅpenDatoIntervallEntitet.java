@@ -7,7 +7,9 @@ import javax.persistence.Embeddable;
 
 /**
  * Hibernate entitet som modellerer et dato intervall med nullable til og med dato.
+ * @deprecated flytt til egen applikasjon, trenger ikke bo i felles da det avhenger av valg om modellering av dato intervaller.
  */
+@Deprecated(forRemoval = true)
 @Embeddable
 public class ÅpenDatoIntervallEntitet extends AbstractLocalDateInterval {
 

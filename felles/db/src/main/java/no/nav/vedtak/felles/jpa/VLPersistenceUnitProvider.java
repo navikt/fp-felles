@@ -34,9 +34,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link PersistenceProvider} which loads all mapping files dynamically from classpath as long as they match the pattern
- * &lt;persistence-unit-name&gt;.xxx.orm.xml).  They must reside directly under META-INF/.
+ * &lt;persistence-unit-name&gt;.xxx.orm.xml).  They must reside directly under META-INF/ but can be split across multiple jars.
  * 
- * Makes it simpler to support entities in different modules without having to be on build-time dependency path of where persistence.xml is.
+ * This makes it possible simpler to support entities in different modules without having to be on build-time dependency path of where persistence.xml is.
+ * Thus making it possible to split up a larger entity model into smaller ones.
  */
 @SuppressWarnings("rawtypes")
 public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {

@@ -7,13 +7,15 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 
 /**
  * Interceptor som kobler {@link Transaction} annotasjon til oppsett og commit/rollback av en databasetransaksjon.
  * 
- * @deprecated Bytter til @Transactional
+ * @deprecated Bytter til {@link Transactional}. Denne klassen kan fjernes når {@link Transaction} fjernes (erstattes av
+ *             {@link TransactionInterceptor}, eller JTA.
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 @Transaction
 @Interceptor
 @Priority(Interceptor.Priority.APPLICATION + 10)

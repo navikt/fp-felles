@@ -16,7 +16,9 @@ import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 /**
  * Sjekker om VL kjører mot Oracle Express Edition, som mangler visse features ift. Enterprise Edition,
  * og dermed krever spesiell SQL i enkelte tilfeller.
+ * @deprecated Kan fjernes omgående, kun aktuelt for fpsak/ fpfordel / fpoppdrag. Bør legges inn der det er behov i stedet.
  */
+@Deprecated(forRemoval = true)
 @ApplicationScoped
 public class OracleVersionChecker {
 

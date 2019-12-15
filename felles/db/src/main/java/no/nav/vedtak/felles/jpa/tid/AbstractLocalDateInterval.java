@@ -23,7 +23,9 @@ import no.nav.vedtak.konfig.Tid;
 
 /**
  * Basis klasse for modellere et dato interval.
+ * @deprecated flytt til egen applikasjon, trenger ikke bo i felles da det avhenger av valg om modellering av dato intervaller.
  */
+@Deprecated(forRemoval = true)
 public abstract class AbstractLocalDateInterval implements Comparable<AbstractLocalDateInterval>, Serializable {
 
     private static final LocalDate TIDENES_BEGYNNELSE = Tid.TIDENES_BEGYNNELSE;

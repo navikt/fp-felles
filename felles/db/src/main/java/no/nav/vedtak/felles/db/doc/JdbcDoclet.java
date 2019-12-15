@@ -32,14 +32,19 @@ import no.nav.vedtak.felles.db.doc.model.JdbcModel;
 import no.nav.vedtak.felles.db.doc.model.Kodeverk;
 import no.nav.vedtak.felles.db.doc.model.Table;
 
-/** Migrer mot en H2 db (hvis tilgjengelig på classpath), og dokumenterer struktur. */
+/**
+ * Migrer mot en H2 db (hvis tilgjengelig på classpath), og dokumenterer struktur.
+ * 
+ * @deprecated Skal flyttes til eget repo / modul og generaliseres slik at ikke trenge å dra med avhengigheter til markdown. (gjelder hele pakken db.doc)
+ */
+@Deprecated(forRemoval = true)
 public class JdbcDoclet implements Doclet {
 
     private static final String INMEMORY_DB_JDBC_URL = "jdbc:h2:./TEST;MODE=Oracle";
     private static final String INMEMORY_DB_USER = "sa";
 
     private static final String dsNames = System.getProperty("doc.plugin.jdbc.dslist", "defaultDS");
-    
+
     @SuppressWarnings("unused")
     private Locale locale;
     private Reporter reporter;
@@ -47,11 +52,11 @@ public class JdbcDoclet implements Doclet {
 
     public JdbcDoclet() {
     }
-    
+
     public JdbcDoclet(String schemaNavn) {
         this.schemaOverride = schemaNavn;
     }
-    
+
     @Override
     public void init(Locale locale, Reporter reporter) {
         this.locale = locale;
@@ -129,7 +134,7 @@ public class JdbcDoclet implements Doclet {
             flyway.migrate();
         }
     }
-    
+
     private void clean(DataSource dataSource, String username) {
         try (Connection c = dataSource.getConnection();
                 Statement stmt = c.createStatement()) {
@@ -158,7 +163,8 @@ public class JdbcDoclet implements Doclet {
     }
 
     private String getSchemaName(String dsName) {
-        return this.schemaOverride!=null?this.schemaOverride : getEnvOrDefaultValue("doc.plugin.jdbc.schema." + dsName, getJdbcUserName(dsName).toUpperCase());
+        return this.schemaOverride != null ? this.schemaOverride
+            : getEnvOrDefaultValue("doc.plugin.jdbc.schema." + dsName, getJdbcUserName(dsName).toUpperCase());
     }
 
     private String getJdbcUrl() {

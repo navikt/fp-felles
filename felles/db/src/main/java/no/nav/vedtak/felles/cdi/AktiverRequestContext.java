@@ -6,6 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.enterprise.context.control.ActivateRequestContext;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.interceptor.InterceptorBinding;
 
@@ -18,7 +19,9 @@ import javax.interceptor.InterceptorBinding;
  * NB: I CDI 2.0 vil dette standardiseres og det vil antagelig ikke bli bruk for denne klassen.
  *
  * @see RequestScoped
+ * @deprecated Denne trengs ikke lenger. bytt til {@link ActivateRequestContext}
  */
+@Deprecated(forRemoval = true)
 @Inherited
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
