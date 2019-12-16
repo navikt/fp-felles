@@ -3,6 +3,7 @@ package no.nav.vedtak.felles.cdi;
 import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -14,7 +15,9 @@ import org.jboss.weld.manager.BeanManagerImpl;
 
 /**
  * Implementasjon som setter opp {@link RequestContext} når {@link AktiverRequestContext} CDI Scope skal aktiveres.
+ * @deprecated Trengs ikke lenger - Bytt til {@link ActivateRequestContext} i stedet (CDI 2.0 har innebygd støtte for dette).
  */
+@Deprecated(forRemoval = true)
 @Interceptor
 @AktiverRequestContext
 @Priority(Interceptor.Priority.APPLICATION)

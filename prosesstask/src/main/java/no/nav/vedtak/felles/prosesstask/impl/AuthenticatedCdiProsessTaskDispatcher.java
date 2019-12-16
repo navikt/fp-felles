@@ -6,10 +6,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskInfo;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskSporingsloggId;
+import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.log.sporingslogg.SporingsloggHelper;
 import no.nav.vedtak.sikkerhet.loginmodule.ContainerLogin;
-import no.nav.vedtak.util.MdcExtendedLogContext;
 
 /**
  * Implementerer dispatch vha. CDI scoped beans.

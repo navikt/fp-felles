@@ -1,9 +1,11 @@
-package no.nav.vedtak.util;
+package no.nav.vedtak.log.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.After;
 import org.junit.Test;
+
+import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 
 public class MdcExtendedLogContextTest {
 

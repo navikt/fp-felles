@@ -6,8 +6,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.enterprise.context.control.ActivateRequestContext;
 import javax.enterprise.inject.Stereotype;
 import javax.enterprise.util.AnnotationLiteral;
+import javax.transaction.Transactional;
 
 import no.nav.vedtak.felles.cdi.AktiverRequestContext;
 import no.nav.vedtak.felles.jpa.Transaction;
@@ -20,8 +22,10 @@ import no.nav.vedtak.felles.jpa.Transaction;
  *
  * @see RequestScoped
  * @see Transaction
+ * @deprecated Denne trengs ikke lenger - bytt til {@link ActivateRequestContext} + {@link Transactional}
  * 
  */
+@Deprecated(forRemoval = true)
 @Transaction
 @AktiverRequestContext
 @Stereotype

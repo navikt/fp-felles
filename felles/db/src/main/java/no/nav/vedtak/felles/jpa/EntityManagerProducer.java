@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
@@ -27,7 +28,6 @@ public class EntityManagerProducer {
     private static final Map<String, EntityManagerFactory> CACHE_FACTORIES = new ConcurrentHashMap<>(); // NOSONAR
 
     @Produces
-    @VLPersistenceUnit
     @RequestScoped
     public EntityManager createEntityManager() {
         return createNewEntityManager("pu-default");
@@ -58,7 +58,7 @@ public class EntityManagerProducer {
         return Persistence.createEntityManagerFactory(key);
     }
 
-    public void dispose(@Disposes @VLPersistenceUnit EntityManager mgr) {
+    public void dispose(@Disposes EntityManager mgr) {
         clearEntityManager(mgr);
     }
 

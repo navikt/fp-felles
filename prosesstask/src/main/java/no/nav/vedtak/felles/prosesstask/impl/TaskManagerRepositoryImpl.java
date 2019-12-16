@@ -29,7 +29,6 @@ import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.util.FPDateUtil;
@@ -49,7 +48,7 @@ public class TaskManagerRepositoryImpl {
     }
 
     @Inject
-    public TaskManagerRepositoryImpl(@VLPersistenceUnit EntityManager entityMangager) {
+    public TaskManagerRepositoryImpl(EntityManager entityMangager) {
         Objects.requireNonNull(entityMangager, "entityManager");
         this.entityManager = entityMangager;
     }

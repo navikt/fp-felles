@@ -12,7 +12,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDispatcher;
@@ -39,7 +38,6 @@ public class CdiProsessTaskDispatcherTest {
     static class DummyProsessTask implements ProsessTaskHandler {
 
         @Inject
-        @VLPersistenceUnit
         private EntityManager em;
 
         @Override

@@ -7,18 +7,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.inject.Qualifier;
+import javax.persistence.PersistenceUnit;
 
 /**
  * Definerer hvilken {@link PersistenceUnit} som skal benyttes.
+ * @deprecated fjern der den brukes, benytter kun en EntityManager default per applikasjon uansett
  */
-@Qualifier
+@Deprecated(forRemoval = true)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
 @Inherited
 @Documented
 public @interface VLPersistenceUnit {
-
-    String value() default VLPersistenceUnitLiteral.DEFAULT_KODE;
 
 }

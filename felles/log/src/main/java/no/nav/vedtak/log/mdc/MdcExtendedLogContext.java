@@ -1,4 +1,4 @@
-package no.nav.vedtak.util;
+package no.nav.vedtak.log.mdc;
 
 import java.util.ArrayList;
 import java.util.Arrays;

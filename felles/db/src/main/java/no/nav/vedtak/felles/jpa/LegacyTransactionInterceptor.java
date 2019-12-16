@@ -10,14 +10,17 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
 /**
- * Interceptor som kobler {@link Transactional} annotasjon til oppsett og commit/rollback av en databasetransaksjon.
- * Kan benyttes for enkelt å deklarere lokale transaksjoner mot EntityManager. (dersom 2-fase JTA / XA trengs, så benytter heller et bibliotek for det)
+ * Interceptor som kobler {@link Transaction} annotasjon til oppsett og commit/rollback av en databasetransaksjon.
+ * 
+ * @deprecated Bytter til {@link Transactional}. Denne klassen kan fjernes når {@link Transaction} fjernes (erstattes av
+ *             {@link TransactionInterceptor}, eller JTA.
  */
-@Transactional
+@Deprecated(forRemoval = true)
+@Transaction
 @Interceptor
 @Priority(Interceptor.Priority.APPLICATION + 10)
 @Dependent
-public class TransactionInterceptor {
+public class LegacyTransactionInterceptor {
 
     private static final class TransactionHandlerInvocation extends TransactionHandler<Object> {
         private final InvocationContext invocationContext;

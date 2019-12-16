@@ -11,17 +11,14 @@ import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceProviderResolver;
 import javax.persistence.spi.PersistenceProviderResolverHolder;
 
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnitLiteral;
 import no.nav.vedtak.felles.testutilities.UnitTestConfiguration;
 
 /**
- * Denne initialiserer en persistenceunit for bruk i unit testing, basert på default Persistence Unit (angitt
- * {@link VLPersistenceUnit}).  Integerer også automatisk CDI oppsett, med mindre det disables
+ * Denne initialiserer en persistenceunit for bruk i unit testing, basert på default Persistence Unit
+ * . Integerer også automatisk CDI oppsett, med mindre det disables
  * <p>
  * Kan subklasses for å integreres med testrammeverk (se {@link RepositoryRule}).
  */
-@VLPersistenceUnit
 public abstract class PersistenceUnitInitializer {
 
     static {
@@ -74,7 +71,7 @@ public abstract class PersistenceUnitInitializer {
     }
 
     protected EntityManager createEntityManager() {
-        return CDI.current().select(EntityManager.class, new VLPersistenceUnitLiteral()).get();
+        return CDI.current().select(EntityManager.class).get();
     }
 
 }

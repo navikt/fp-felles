@@ -121,9 +121,9 @@ public class DefaultAbacSporingslogg implements AbacSporingslogg {
     private void logg(Sporingsdata sporingsdata) {
         StringBuilder msg = new StringBuilder()
             .append("action=").append(sporingsdata.getAction()).append(SPACE_SEPARATOR);
-        for (SporingsloggId id : sporingsdata.getNøkler()) {
-            String nøkkel = id.getSporingsloggKode();
-            String verdi = sporingsdata.getVerdi(id);
+        for (var entry : sporingsdata.entrySet()) {
+            String nøkkel = entry.getKey();
+            String verdi = entry.getValue();
             msg.append(nøkkel)
                 .append('=')
                 .append(fjernMellomrom(verdi))
