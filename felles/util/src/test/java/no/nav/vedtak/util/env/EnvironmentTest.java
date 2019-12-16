@@ -32,7 +32,7 @@ public class EnvironmentTest {
     }
 
     public void testUppercase() {
-        assertEquals(Cluster.PROD_FSS.clusterName(), ENV.getProperty("nais.cluster.name"));
+        assertEquals(PROD_FSS.clusterName(), ENV.getProperty("nais.cluster.name"));
     }
 
     @Test
