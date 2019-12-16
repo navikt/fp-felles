@@ -31,6 +31,10 @@ public class EnvironmentTest {
         assertTrue(ENV.isProd());
     }
 
+    public void testUppercase() {
+        assertEquals(Cluster.PROD_FSS.clusterName(), ENV.getProperty("nais.cluster.name"));
+    }
+
     @Test
     public void testTurboFilterMedMarkerIProd() {
         var stdout = new ByteArrayOutputStream();
