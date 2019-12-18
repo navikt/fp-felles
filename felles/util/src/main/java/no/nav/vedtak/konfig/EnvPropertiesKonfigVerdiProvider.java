@@ -10,6 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 import no.nav.vedtak.konfig.KonfigVerdi.Converter;
 
 @ApplicationScoped
+
 public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvider {
 
     public static final int PRIORITET = SystemPropertiesKonfigVerdiProvider.PRIORITET + 1;
@@ -26,7 +27,7 @@ public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvi
 
     @Override
     public boolean harVerdi(String key) {
-        return super.harVerdi(key) || super.harVerdi(upper(key)) || super.harVerdi(endpointUrlKey(key));
+        return super.harVerdi(key) || super.harVerdi(upper(key));
     }
 
     private static String upper(String key) {
