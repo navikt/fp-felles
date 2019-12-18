@@ -9,7 +9,6 @@ import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.vedtak.konfig.KonfigVerdi.Converter;
 
-/** Henter properties fra {@link System#getProperties}. */
 @ApplicationScoped
 public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvider {
 
@@ -22,7 +21,16 @@ public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvi
     @Override
     public <V> V getVerdi(String key, Converter<V> converter) {
         return Optional.ofNullable(super.getVerdi(key, converter))
-                .orElse(super.getVerdi(key.toUpperCase().replace('.', '_'), converter));
+                .orElse(super.getVerdi(upper(key), converter));
+    }
+
+    @Override
+    public boolean harVerdi(String key) {
+        return super.harVerdi(key) || super.harVerdi(upper(key)) || super.harVerdi(endpointUrlKey(key));
+    }
+
+    private static String upper(String key) {
+        return key.toUpperCase().replace('.', '_');
     }
 
     private static Properties getEnv() {
@@ -33,7 +41,6 @@ public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvi
 
     @Override
     public int getPrioritet() {
-        // Et hakk lavere prioritet enn SystemPropertiesKonfigVerdiProvider
         return PRIORITET;
     }
 }
