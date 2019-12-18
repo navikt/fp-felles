@@ -30,6 +30,7 @@
 		<module>behandlesak-klient</module>
 		<module>infotrygdberegningsgrunnlag-klient</module>
 		<module>infotrygdsak-klient</module>
+        <module>infotrygd-saker-klient</module>
 		<module>behandleoppgave-klient</module>
 		<module>medl-klient</module>
 		<module>meldekortutbetalingsgrunnlag-klient</module>
