@@ -26,7 +26,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <tjenestespesifikasjoner.version>1.2019.09.25-00.21-49b69f0625e0</tjenestespesifikasjoner.version>
+        <tjenestespesifikasjoner.version>1.2019.12.13-19.12-aea1d1642d8a</tjenestespesifikasjoner.version>
         <!-- Marker Junit Category interface for End2End tester -->
         <additionalparam>-Xdoclint:none</additionalparam> <!-- TODO: Skru på doclint igjen... -->
     </properties>
