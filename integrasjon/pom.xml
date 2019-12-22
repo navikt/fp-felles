@@ -190,6 +190,11 @@
 				<artifactId>infotrygdsak-klient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>infotrygd-saker-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 				<artifactId>meldekortutbetalingsgrunnlag-klient</artifactId>
@@ -316,6 +321,11 @@
 				<artifactId>behandleoppgave-klient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>oppgave-rest-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 			<dependency>
 				<!-- GSAK -->
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>

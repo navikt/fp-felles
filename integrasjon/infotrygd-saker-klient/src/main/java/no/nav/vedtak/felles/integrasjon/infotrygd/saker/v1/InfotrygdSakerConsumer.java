@@ -20,7 +20,7 @@ public abstract class InfotrygdSakerConsumer {
         this.uri = uri;
     }
 
-    InfotrygdSakerConsumer() {
+    public InfotrygdSakerConsumer() {
         // Tja, nødvendig her?
     }
 
