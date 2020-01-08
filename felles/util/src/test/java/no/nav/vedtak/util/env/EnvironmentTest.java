@@ -21,6 +21,13 @@ public class EnvironmentTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnvironmentTest.class);
     private static Environment ENV = Environment.current();
+    private static PrintStream SYSOUT = System.out;
+    
+    @org.junit.After
+    public void after() throws Exception {
+        // reset
+        System.setOut(SYSOUT);
+    }
 
     @Test
     // Denne testen må kjøres fra maven, ettersom vi ikke enkelt kan sette env
