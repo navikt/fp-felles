@@ -35,11 +35,12 @@ jobs:
         shell: bash
         run: |
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn deploy sonar:sonar -e --batch-mode --settings ./.m2/settings.xml --activate-profiles publishGithub -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) -DdeployAtEnd=true -Dsonar.projectKey="navikt_fp-felles" -Dsonar.host.url='https://sonarcloud.io' -Dsonar.organization=navit -Dsonar.login=${SONAR_TOKEN}
+          mvn deploy sonar:sonar -e --batch-mode --settings ./.m2/settings.xml --activate-profiles publishGithub -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) -DdeployAtEnd=true -Dsonar.projectKey="navikt_fp-felles" -Dsonar.coverage.jacoco.xmlReportPaths=$(pwd)/target/site/jacoco-aggregate/jacoco.xml  -Dsonar.host.url='https://sonarcloud.io' -Dsonar.organization=navit -Dsonar.login=${SONAR_TOKEN}
           echo "Deployed artifacts"
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DATASOURCE_HOST: localhost
           DATASOURCE_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published 
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
