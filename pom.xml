@@ -29,6 +29,8 @@
         <tjenestespesifikasjoner.version>1.2019.12.13-19.12-aea1d1642d8a</tjenestespesifikasjoner.version>
         <!-- Marker Junit Category interface for End2End tester -->
         <additionalparam>-Xdoclint:none</additionalparam> <!-- TODO: Skru på doclint igjen... -->
+        
+        <argLine>-Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine>
     </properties>
 
     <scm>
@@ -146,11 +148,6 @@
                     <version>1.6.0</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.5</version>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.1.0</version>
@@ -188,7 +185,7 @@
                     </execution>
                 </executions>
             </plugin>
-           
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -202,11 +199,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -227,7 +219,6 @@
                 <configuration>
                     <reuseForks>true</reuseForks>
                     <useFile>true</useFile>
-                    <argLine>-Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine>
                 </configuration>
             </plugin>
 
@@ -252,6 +243,13 @@
 			      <groupId>org.jacoco</groupId>
 			      <artifactId>jacoco-maven-plugin</artifactId>
 			      <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
                     <execution>
                       <id>report</id>
                       <goals>
