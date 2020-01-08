@@ -242,22 +242,34 @@
              <plugin>
 			      <groupId>org.jacoco</groupId>
 			      <artifactId>jacoco-maven-plugin</artifactId>
-			      <executions>
-                    <execution>
-                      <id>report</id>
-                      <goals>
-                        <goal>report-aggregate</goal>
-                      </goals>
-                      <phase>verify</phase>
-                    </execution>
-			      </executions>
-			</plugin>
+			 </plugin>
 
         </plugins>
 
     </build>
 
     <profiles>
+        <profile>
+            <id>sonar</id>
+            <build>
+               <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                          <execution>
+                            <id>report</id>
+                            <goals>
+                              <goal>report-aggregate</goal>
+                            </goals>
+                            <phase>verify</phase>
+                          </execution>
+                        </executions>
+                  </plugin>
+               </plugins
+            </build>
+        </profile>
         <profile>
             <id>publishAdeo</id>
             <activation>
