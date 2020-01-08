@@ -30,7 +30,7 @@
         <!-- Marker Junit Category interface for End2End tester -->
         <additionalparam>-Xdoclint:none</additionalparam> <!-- TODO: Skru på doclint igjen... -->
         
-        <argLine>-Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine>
+        <argLine>-Dfile.encoding=UTF-8</argLine>
     </properties>
 
     <scm>
