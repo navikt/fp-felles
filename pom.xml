@@ -238,43 +238,15 @@
                     </execution>
                 </executions>
             </plugin>
-            
-             <plugin>
-			      <groupId>org.jacoco</groupId>
-			      <artifactId>jacoco-maven-plugin</artifactId>
-			 </plugin>
 
         </plugins>
 
     </build>
-
-    <profiles>
-        <profile>
-            <id>publishAdeo</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <distributionManagement>
-                <repository>
-                    <id>repo.adeo.no-releases</id>
-                    <url>https://repo.adeo.no/repository/maven-releases</url>
-                </repository>
-                <snapshotRepository>
-                    <id>repo.adeo.no-snapshots</id>
-                    <url>https://repo.adeo.no/repository/maven-snapshots</url>
-                    <uniqueVersion>false</uniqueVersion>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-        <profile>
-            <id>publishGithub</id>
-            <distributionManagement>
-                <repository>
-                    <id>github-1</id>
-                    <name>Github navikt Maven Packages</name>
-                    <url>https://maven.pkg.github.com/navikt/fp-felles</url>
-                </repository>
-            </distributionManagement>
-        </profile>
-    </profiles>
+    <distributionManagement>
+        <repository>
+            <id>github-1</id>
+            <name>Github navikt Maven Packages</name>
+            <url>https://maven.pkg.github.com/navikt/fp-felles</url>
+        </repository>
+    </distributionManagement>
 </project>
