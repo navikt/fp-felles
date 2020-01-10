@@ -36,7 +36,7 @@ jobs:
         run: |
           set -x
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn deploy -e --batch-mode --settings ./.m2/settings.xml --activate-profiles publishGithub -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) -DdeployAtEnd=true -Djacoco.destFile=$(pwd)/target/jacoco.exec 
+          mvn jacoco:prepare-agent deploy -e --batch-mode --settings ./.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) -DdeployAtEnd=true -Djacoco.destFile=$(pwd)/target/jacoco.exec 
           mvn jacoco:report sonar:sonar -e --batch-mode --settings ./.m2/settings.xml --file pom.xml -Djacoco.dataFile=$(pwd)/target/jacoco.exec -Dsonar.projectKey="navikt_fp-felles" -Dsonar.host.url='https://sonarcloud.io' -Dsonar.organization=navit -Dsonar.login=${SONAR_TOKEN}
           echo "Deployed artifacts"
         env:
