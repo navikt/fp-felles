@@ -341,7 +341,7 @@
             <dependency>
                 <groupId>no.nav.tjenestespesifikasjoner</groupId>
                 <artifactId>nav-virksomhet-hendelsehandterer-behandlingstatus-v1-meldingsdefinisjon</artifactId>
-                <version>1.2019.11.15-14.51-ee264fbf814c</version>
+                <version>1.2019.12.18-12.22-ce897c4eb2c1</version>
             </dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
