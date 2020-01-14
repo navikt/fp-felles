@@ -2,7 +2,7 @@ package no.nav.vedtak.sikkerhet;
 
 public class ContextPathHolder {
 
-    private static volatile ContextPathHolder instance = null;
+    private static ContextPathHolder instance = null;
     private final String contextPath;
 
     private ContextPathHolder(String contextPath) {
@@ -10,10 +10,12 @@ public class ContextPathHolder {
     }
 
     public static ContextPathHolder instance() {
-        if (instance == null) {
-            throw new IllegalStateException();
+        synchronized (ContextPathHolder.class) {
+            if (instance == null) {
+                throw new IllegalStateException();
+            }
+            return instance;
         }
-        return instance;
     }
 
     public static ContextPathHolder instance(String contextPath) {
