@@ -70,7 +70,7 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
         try {
             Pattern ormPattern = Pattern.compile("^META-INF/" + pud.getName() + "\\..+\\.orm\\.xml$");
             Set<String> ormFiles = getResourceFolderFiles("META-INF", ormPattern);
-            ormFiles.forEach(f -> log.info("Found ORM mapping file: " + f));
+            ormFiles.forEach(f -> log.info("Found ORM mapping file: {}", f));
             
             AdditionalMappingFilesPersistenceUnitDescriptor newPud = new AdditionalMappingFilesPersistenceUnitDescriptor(pud);
             newPud.addMappingFileNames(ormFiles);
@@ -112,30 +112,30 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
     @Override
     protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties) {
         // duplisert fra HibernatePersistenceProvider for å kunne ha egen implementasjon av getEntityManagerFactoryBuilderOrNull
-        return getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, null, null);
+        return getEntityManagerFactoryBuilderOrNull0(persistenceUnitName, properties, null, null);
     }
 
     @Override
     protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties,
                                                                                ClassLoader providedClassLoader) {
         // duplisert fra HibernatePersistenceProvider for å kunne ha egen implementasjon av getEntityManagerFactoryBuilderOrNull
-        return getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, providedClassLoader, null);
+        return getEntityManagerFactoryBuilderOrNull0(persistenceUnitName, properties, providedClassLoader, null);
     }
 
     @Override
     protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties,
                                                                                ClassLoaderService providedClassLoaderService) {
         // duplisert fra HibernatePersistenceProvider for å kunne ha egen implementasjon av getEntityManagerFactoryBuilderOrNull
-        return getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, null, providedClassLoaderService);
+        return getEntityManagerFactoryBuilderOrNull0(persistenceUnitName, properties, null, providedClassLoaderService);
     }
 
-    private EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties,
+    private EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull0(String persistenceUnitName, Map properties,
                                                                              ClassLoader providedClassLoader, ClassLoaderService providedClassLoaderService) {
 
         // duplisert fra HibernatePersistenceProvider for å kunne overstyre kall til ProviderChecker (siden den hardkoder
         // HibernatePersistenceProvider klassenavn)
         
-        log.trace("Attempting to obtain correct EntityManagerFactoryBuilder for persistenceUnitName : %s", persistenceUnitName);
+        log.trace("Attempting to obtain correct EntityManagerFactoryBuilder for persistenceUnitName : {}", persistenceUnitName);
 
         final Map integration = wrap(properties);
         final List<ParsedPersistenceXmlDescriptor> units;
@@ -146,7 +146,7 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
             throw new PersistenceException("Unable to locate persistence units", e);
         }
 
-        log.debug("Located and parsed %s persistence units; checking each", units.size());
+        log.debug("Located and parsed {} persistence units; checking each", units.size());
 
         if (persistenceUnitName == null && units.size() > 1) {
             // no persistence-unit name to look for was given and we found multiple persistence-units
@@ -155,19 +155,19 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
 
         for (ParsedPersistenceXmlDescriptor persistenceUnit : units) {
             log.debug(
-                "Checking persistence-unit [name=%s, explicit-provider=%s] against incoming persistence unit name [%s]",
+                "Checking persistence-unit [name={}, explicit-provider={}] against incoming persistence unit name [{}]",
                 persistenceUnit.getName(),
                 persistenceUnit.getProviderClassName(),
                 persistenceUnitName);
 
             final boolean matches = persistenceUnitName == null || persistenceUnit.getName().equals(persistenceUnitName);
             if (!matches) {
-                log.debug("Excluding from consideration due to name mis-match");
+                log.debug("Excluding from consideration due to name mis-match {}", persistenceUnit.getName());
                 continue;
             }
 
             if(!isMatchingProvider(persistenceUnit, properties)) {
-                log.debug("Excluding from consideration due to provider mis-match");
+                log.debug("Excluding from consideration due to provider mis-match {}", persistenceUnit.getName());
                 continue;
             }
            
@@ -178,21 +178,13 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
             }
         }
 
-        log.debug("Found no matching persistence units");
+        log.debug("Found no matching persistence units: persistenceUnitName={}", persistenceUnitName);
         return null;
     }
 
     /** overridden check from HibernatePersistenceProvider */
     protected boolean isMatchingProvider(ParsedPersistenceXmlDescriptor persistenceUnit, Map properties) {
-        /*
-        // See if we (Hibernate) are the persistence provider
-        if (!ProviderChecker.isProvider(persistenceUnit, properties)) {
-            log.debug("Excluding from consideration due to provider mis-match");
-            continue;
-        }
-        */
-        
-        // Alternativ 
+        // Alternativ persistence provider
         String requestedProviderName = ProviderChecker.extractRequestedProviderName(persistenceUnit, properties);
         return getClass().getName().equals(requestedProviderName);
     }
@@ -213,9 +205,9 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
                         filenames.add(filePath.toFile().getAbsolutePath());
                     });
                 } else if (url.getProtocol().equals("jar")) {
-                    String dirname = folder + "/";
+                    String dirname = folder + '/';
                     String path = url.getPath();
-                    String jarPath = path.substring(5, path.indexOf("!"));
+                    String jarPath = path.substring(5, path.indexOf('!'));
                     try (JarFile jar = new JarFile(URLDecoder.decode(jarPath, StandardCharsets.UTF_8.name()))) {
                         Enumeration<JarEntry> entries = jar.entries();
                         while (entries.hasMoreElements()) {
@@ -233,6 +225,7 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
             filenames.forEach(f -> {
                 String relativeFile = f.substring(f.indexOf(folder)).replace('\\', '/');
                 if (filePattern.matcher(relativeFile).matches()) {
+                    log.debug("Matched orm file {}", relativeFile);
                     relativeFilenames.add(relativeFile);
                 }
             });
