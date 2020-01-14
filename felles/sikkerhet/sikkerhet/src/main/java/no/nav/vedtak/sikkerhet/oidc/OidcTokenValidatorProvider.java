@@ -32,7 +32,7 @@ public class OidcTokenValidatorProvider {
     private static final Set<IdentType> interneIdentTyper = new HashSet<>(Arrays.asList(IdentType.InternBruker, IdentType.Systemressurs));
     private static final Set<IdentType> eksterneIdentTyper = new HashSet<>(Arrays.asList(IdentType.EksternBruker));
 
-    private static volatile OidcTokenValidatorProvider instance = null;
+    private static OidcTokenValidatorProvider instance;
     private final Map<String, OidcTokenValidator> validators;
 
     private OidcTokenValidatorProvider() {
