@@ -24,7 +24,7 @@ public class AktørId implements Serializable, Comparable<AktørId> {
     @javax.validation.constraints.Pattern(regexp = VALID_REGEXP, message = "aktørId ${validatedValue} har ikke gyldig verdi ( pattern '{regexp}')")
     private String aktørId;  // NOSONAR
 
-    protected AktørId() {
+    protected AktørId() { // NOSONAR
         // for hibernate
     }
 
