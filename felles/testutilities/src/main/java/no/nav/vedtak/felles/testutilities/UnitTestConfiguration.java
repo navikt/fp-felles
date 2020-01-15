@@ -21,7 +21,7 @@ public class UnitTestConfiguration {
 
     public static void loadUnitTestProperties() {
         Properties properties = getUnitTestProperties();
-        if (properties == null) {
+        if (properties.isEmpty()) {
             // ingenting nytt
             return;
         }
@@ -36,7 +36,7 @@ public class UnitTestConfiguration {
         Properties systemProperties = System.getProperties();
         for (Entry<Object, Object> entry : properties.entrySet()) {
             if (overwriteSystemProperties || !systemProperties.containsKey(entry.getKey())) {
-                log.info(entry.getKey() + " = " + entry.getValue()); //$NON-NLS-1$
+                log.info(entry.getKey() + " = " + entry.getValue()); // NOSONAR ok for test konfig
                 systemProperties.setProperty((String) entry.getKey(), (String) entry.getValue());
             }
         }
