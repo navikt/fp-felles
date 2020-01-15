@@ -17,7 +17,7 @@ public class AktørId implements Serializable, Comparable<AktørId> {
     private static final String VALID_REGEXP = "^\\d{13}$";
 
     private static final Pattern VALID = Pattern.compile(VALID_REGEXP, Pattern.CASE_INSENSITIVE);
-    private static AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);
+    private static final AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);
 
     @JsonValue
     @NotNull
