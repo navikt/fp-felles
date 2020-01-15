@@ -115,7 +115,7 @@ public class PdpConsumerImpl implements PdpConsumer {
     JsonObject execute(JsonObject request) {
         HttpPost post = new HttpPost(pdpUrl);
         post.setHeader("Content-type", MEDIA_TYPE);
-        post.setEntity(new StringEntity(request.toString(), Charset.forName("UTF-8")));
+        post.setEntity(new StringEntity(request.toString(), java.nio.charset.StandardCharsets.UTF_8)));
 
         LOG.trace("PDP-request: {}", request);
 
@@ -143,7 +143,7 @@ public class PdpConsumerImpl implements PdpConsumer {
                 return response.getElement2();
             }
             if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
-                throw PdpFeil.FACTORY.autentiseringFeilerEtterReinstansiering(System.getenv("HOSTNAME")).toException();
+                throw PdpFeil.FACTORY.autentiseringFeilerEtterReinstansiering(System.getenv("HOSTNAME")).toException(); // NOSONAR
             }
         }
         throw PdpFeil.FACTORY.httpFeil(statusCode, response.getElement1().getReasonPhrase()).toException();
