@@ -115,7 +115,7 @@ public class PdpConsumerImpl implements PdpConsumer {
     JsonObject execute(JsonObject request) {
         HttpPost post = new HttpPost(pdpUrl);
         post.setHeader("Content-type", MEDIA_TYPE);
-        post.setEntity(new StringEntity(request.toString(), java.nio.charset.StandardCharsets.UTF_8)));
+        post.setEntity(new StringEntity(request.toString(), java.nio.charset.StandardCharsets.UTF_8));
 
         LOG.trace("PDP-request: {}", request);
 
