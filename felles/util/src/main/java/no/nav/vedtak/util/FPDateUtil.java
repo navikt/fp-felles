@@ -131,9 +131,11 @@ public class FPDateUtil {
         
         /** Gjør eget oppslag her for å ikke koble denne koden til EnvironmentProperty eller annet rammeverk. */
         private String getProperty(String key) {
-            String val = System.getProperty(key); // sjekk system props først.
+            // sjekk system props først.
+            String val = System.getProperty(key); // NOSONAR
             if (val == null) {
-                val = System.getenv(key.toUpperCase().replace('.', '_')); // sjekk env hvis ikke fins som system prop
+                // sjekk env hvis ikke fins som system prop
+                val = System.getenv(key.toUpperCase().replace('.', '_')); // NOSONAR 
             }
             return val;
         }
