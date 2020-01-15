@@ -8,11 +8,11 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 
-import no.nav.vedtak.konfig.PropertyUtil;
-
 /**
  * Returner funksjonelt tidsoffset, Brukes med LocalDate og LocalDateTime. eks. LocalDate.now(FPDateUtil.getOffset)
+ * @deprecated  Overstyring av clock er ikke et test behov lenger (gjøres bedre gjennom docker/kubernetes).
  */
+@Deprecated(forRemoval = true)
 public class FPDateUtil {
     private static volatile ClockProvider clockProvider;
 
@@ -39,7 +39,7 @@ public class FPDateUtil {
 
     /**
      * Ikke bruk denne metoden direkte, kall på iDag() eller nå()
-     * Metoden vil bli private i en fremtidig versjon
+     * @deprecated Metoden vil bli private i en fremtidig versjon
      */
     @Deprecated
     public static Clock getOffset() {
@@ -86,7 +86,7 @@ public class FPDateUtil {
         private volatile Clock clock;
 
         public SystemConfiguredClockProvider() {
-            String offsetPeriode = PropertyUtil.getProperty(PROPERTY_KEY_OFFSET_PERIODE);
+            String offsetPeriode = getProperty(PROPERTY_KEY_OFFSET_PERIODE);
 
             if (offsetPeriode != null && !offsetPeriode.isEmpty()) {
                 this.offsetPeriod = Period.parse(offsetPeriode);
@@ -127,6 +127,17 @@ public class FPDateUtil {
             return date.plusYears(period.getYears())
                 .plusMonths(period.getMonths())
                 .plusDays(period.getDays());
+        }
+        
+        /** Gjør eget oppslag her for å ikke koble denne koden til EnvironmentProperty eller annet rammeverk. */
+        private String getProperty(String key) {
+            // sjekk system props først.
+            String val = System.getProperty(key); // NOSONAR
+            if (val == null) {
+                // sjekk env hvis ikke fins som system prop
+                val = System.getenv(key.toUpperCase().replace('.', '_')); // NOSONAR 
+            }
+            return val;
         }
     }
 }

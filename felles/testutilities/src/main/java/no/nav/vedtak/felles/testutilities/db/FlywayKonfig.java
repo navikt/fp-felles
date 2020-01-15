@@ -101,8 +101,8 @@ public class FlywayKonfig {
     }
 
     private boolean skalBrukeCustomClean(DataSource dataSource) {
-        try {
-            String databaseProductName = dataSource.getConnection().getMetaData().getDatabaseProductName();
+        try (var conn = dataSource.getConnection()) {
+            String databaseProductName = conn.getMetaData().getDatabaseProductName();
             return "PostgreSQL".equalsIgnoreCase(databaseProductName);
         } catch (SQLException e) {
             throw FeilFactory.create(DbMigreringFeil.class).kanIkkeDetektereDatbaseType(e).toException();
@@ -125,7 +125,7 @@ public class FlywayKonfig {
     private void clean(DataSource dataSource, String username) {
         try (Connection c = dataSource.getConnection();
              Statement stmt = c.createStatement()) {
-            stmt.execute("drop owned by " + username.replaceAll("[^a-zA-Z0-9_-]", "_"));
+            stmt.execute("drop owned by " + username.replaceAll("[^a-zA-Z0-9_-]", "_")); // NOSONAR ok her, test konfig
         } catch (SQLException e) {
             throw new IllegalStateException("Kunne ikke kjøre clean på db", e);
         }
