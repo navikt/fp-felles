@@ -50,10 +50,10 @@ public class RestClientSupportProdusent {
                     String param = he.getName();
                     String value = he.getValue();
                     if (value != null && param.equalsIgnoreCase("timeout")) {
-                        return Long.parseLong(value) * 1000;
+                        return Long.parseLong(value) * 1000L;
                     }
                 }
-                return seconds * 1000;
+                return seconds * 1000L;
             }
         };
         return myStrategy;
