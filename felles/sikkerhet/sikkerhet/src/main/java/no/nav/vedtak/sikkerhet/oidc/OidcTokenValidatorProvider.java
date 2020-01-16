@@ -32,7 +32,7 @@ public class OidcTokenValidatorProvider {
     private static final Set<IdentType> interneIdentTyper = new HashSet<>(Arrays.asList(IdentType.InternBruker, IdentType.Systemressurs));
     private static final Set<IdentType> eksterneIdentTyper = new HashSet<>(Arrays.asList(IdentType.EksternBruker));
 
-    private static OidcTokenValidatorProvider instance;
+    private static volatile OidcTokenValidatorProvider instance; // NOSONAR
     private final Map<String, OidcTokenValidator> validators;
 
     private OidcTokenValidatorProvider() {
@@ -44,28 +44,22 @@ public class OidcTokenValidatorProvider {
     }
 
     public static OidcTokenValidatorProvider instance() {
-        if (instance == null) {
-            synchronized (OidcTokenValidatorProvider.class) {
-                if (instance == null) {
-                    instance = new OidcTokenValidatorProvider();
-                }
-            }
+        var inst = instance;
+        if (inst == null) {
+            inst = new OidcTokenValidatorProvider();
+            instance = inst;
         }
-        return instance;
+        return inst;
     }
 
     // For test
     static void clearInstance() {
-        synchronized (OidcTokenValidatorProvider.class) {
-            instance = null;
-        }
+        instance = null;
     }
 
     // For test
     static void setValidators(Map<String, OidcTokenValidator> validators) {
-        synchronized (OidcTokenValidatorProvider.class) {
-            instance = new OidcTokenValidatorProvider(validators);
-        }
+        instance = new OidcTokenValidatorProvider(validators);
     }
 
     public OidcTokenValidator getValidator(String issuer) {

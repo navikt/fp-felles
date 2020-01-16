@@ -45,6 +45,7 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
     private static final Logger log = LoggerFactory.getLogger(VLPersistenceUnitProvider.class);
 
     public VLPersistenceUnitProvider() {
+        // default ctor
     }
 
     /** Add additional mapping files based on naming convention. */
@@ -198,12 +199,13 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
         Set<String> relativeFilenames = new TreeSet<>();
         for (Iterator<URL> it = en.asIterator(); it.hasNext();) {
             URL url = it.next();
-            List<String> filenames = new ArrayList<String>();
+            List<String> filenames = new ArrayList<>();
             if (url != null) {
                 if (url.getProtocol().equals("file")) {
-                    Files.walk(Paths.get(url.toURI())).filter(Files::isRegularFile).forEach(filePath -> {
-                        filenames.add(filePath.toFile().getAbsolutePath());
-                    });
+                    try (var files  = Files.walk(Paths.get(url.toURI()))) {
+                        files.filter(Files::isRegularFile)
+                             .forEach(filePath -> filenames.add(filePath.toFile().getAbsolutePath()));
+                    }
                 } else if (url.getProtocol().equals("jar")) {
                     String dirname = folder + '/';
                     String path = url.getPath();

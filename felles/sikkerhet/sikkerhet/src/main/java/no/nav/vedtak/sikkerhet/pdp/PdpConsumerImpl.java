@@ -3,7 +3,6 @@ package no.nav.vedtak.sikkerhet.pdp;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -207,10 +206,10 @@ public class PdpConsumerImpl implements PdpConsumer {
                     String param = he.getName();
                     String value = he.getValue();
                     if (value != null && param.equalsIgnoreCase("timeout")) {
-                        return Long.parseLong(value) * 1000;
+                        return Long.parseLong(value) * 1000L;
                     }
                 }
-                return seconds * 1000;
+                return seconds * 1000L;
             }
         };
         return myStrategy;

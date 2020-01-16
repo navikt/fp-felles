@@ -22,24 +22,17 @@ public final class ServerInfo {
     private static ServerInfo instance;
 
     ServerInfo() {
-
     }
 
-    public static ServerInfo instance() {
+    public static synchronized ServerInfo instance() {
         if (instance == null) {
-            synchronized (ServerInfo.class) {
-                if (instance == null) {
-                    instance = new ServerInfo();
-                }
-            }
+            instance = new ServerInfo();
         }
         return instance;
     }
 
-    static void clearInstance() {
-        synchronized (ServerInfo.class) {
-            instance = null;
-        }
+    static synchronized void clearInstance() {
+        instance = null;
     }
 
     public String getSchemeHostPort() {
