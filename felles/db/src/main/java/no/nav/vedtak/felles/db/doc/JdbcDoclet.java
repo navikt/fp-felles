@@ -93,7 +93,7 @@ public class JdbcDoclet implements Doclet {
             return true;
         } catch (SQLException | Error | RuntimeException e) {
             reporter.print(Kind.ERROR, e.getMessage());
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
             return false;
         }
     }

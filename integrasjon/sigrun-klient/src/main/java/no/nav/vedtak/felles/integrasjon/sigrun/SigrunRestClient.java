@@ -91,7 +91,7 @@ public class SigrunRestClient {
         try {
             build = builder.build();
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException("Kunne ikke lage URI for hente data fra Sigrun", e);
         }
         HttpRequestBase request = new HttpGet(build);
         request.addHeader(NAV_PERSONIDENT, String.valueOf(aktørId));
