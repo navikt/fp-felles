@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit;
  */
 @Deprecated(forRemoval = true)
 public class FPDateUtil {
-    private static volatile ClockProvider clockProvider;
+    private static volatile ClockProvider clockProvider; // NOSONAR
 
     /**
      * Bare for enhetstest
