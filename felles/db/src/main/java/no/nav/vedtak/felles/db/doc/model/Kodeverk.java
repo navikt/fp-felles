@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class Kodeverk implements MarkupOutput {
 
     public static final String KODEVERK_PK_SPEC = System.getProperty("doc.plugin.jdbc.kodeverk.pk", "KODE");
-    public static final Set<String> KODEVERK_UNNTAK_KOLONNER = toList(
+    protected static final Set<String> KODEVERK_UNNTAK_KOLONNER = toList(
             System.getProperty("doc.plugin.jdbc.kodeverk.kolonne.unntak",
                     "ENDRET_AV, OPPRETTET_AV, ENDRET_TID, OPPRETTET_TID"));
 
