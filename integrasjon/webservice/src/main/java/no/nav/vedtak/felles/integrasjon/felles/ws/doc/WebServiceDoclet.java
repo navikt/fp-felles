@@ -53,7 +53,7 @@ public class WebServiceDoclet implements Doclet {
             return true;
         } catch (Error | RuntimeException e) {
             reporter.print(Kind.ERROR, e.getMessage());
-            e.printStackTrace();
+            e.printStackTrace(); // NOSONAR
             return false;
         }
     }
