@@ -11,12 +11,11 @@
 
     <modules>
         <module>felles</module>
-        <module>prosesstask</module>
         <module>integrasjon</module>
     </modules>
 
     <properties>
-        <revision>1.4.2</revision>
+        <revision>1.5.0</revision>
         <sha1></sha1>
         <changelist>-SNAPSHOT</changelist>
         <java.version>11</java.version>
@@ -26,9 +25,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <tjenestespesifikasjoner.version>1.2019.09.25-00.21-49b69f0625e0</tjenestespesifikasjoner.version>
+        <tjenestespesifikasjoner.version>1.2019.12.18-12.22-ce897c4eb2c1</tjenestespesifikasjoner.version>
         <!-- Marker Junit Category interface for End2End tester -->
         <additionalparam>-Xdoclint:none</additionalparam> <!-- TODO: Skru på doclint igjen... -->
+        
+        <argLine>-Dfile.encoding=UTF-8</argLine>
     </properties>
 
     <scm>
@@ -53,11 +54,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-prosesstask</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-integrasjon-pom</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
@@ -68,6 +64,18 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.8.5</version>
+					<executions>
+						<execution>
+						    <goals>
+						      <goal>prepare-agent</goal>
+						    </goals>
+						</execution>
+					</executions>
+			    </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
@@ -93,7 +101,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.2.1</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -134,15 +142,15 @@
                     <version>1.6.0</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.5</version>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.1.0</version>
                 </plugin>
+                <plugin>
+					<groupId>org.sonarsource.scanner.maven</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>3.7.0.1746</version>
+				</plugin>
             </plugins>
         </pluginManagement>
 
@@ -171,7 +179,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -205,7 +213,6 @@
                 <configuration>
                     <reuseForks>true</reuseForks>
                     <useFile>true</useFile>
-                    <argLine>-Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN</argLine>
                 </configuration>
             </plugin>
 
@@ -229,129 +236,11 @@
         </plugins>
 
     </build>
-
-    <profiles>
-        <profile>
-            <id>runSonar</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <!-- maven.root bør overstyres fra cmdline -->
-                <maven.root>${project.basedir}</maven.root>
-
-                <sonar.language/>
-                <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-                <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-                <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
-                <sonar.java.source>1.8</sonar.java.source>
-                <sonar.exclusions>**/test/**,**/testutilities/**,**/fitnesse/**</sonar.exclusions>
-                <sonar.coverage.exclusions>${sonar.exclusions}</sonar.coverage.exclusions>
-                <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-                <sonar.jacoco.itReportPath>${maven.root}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
-                <sonar.jacoco.reportPath>${maven.root}/target/jacoco.exec</sonar.jacoco.reportPath>
-                <sonar.javascript.lcov.reportPath>${maven.root}/web/klient/coverage/lcov.info
-                </sonar.javascript.lcov.reportPath>
-                <sonar.javascript.file.suffixes>.js,.jsx</sonar.javascript.file.suffixes>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>agent</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                                <configuration>
-                                    <propertyName>jacoco.agent.argLine</propertyName>
-                                    <destFile>${sonar.jacoco.reportPath}</destFile>
-                                    <append>true</append>
-                                    <excludes>${sonar.coverage.exclusions}</excludes>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>agent-it</id>
-                                <goals>
-                                    <goal>prepare-agent-integration</goal>
-                                </goals>
-                                <configuration>
-                                    <propertyName>jacoco.agent.itArgLine</propertyName>
-                                    <destFile>${sonar.jacoco.itReportPath}</destFile>
-                                    <append>true</append>
-                                    <excludes>${sonar.coverage.exclusions}</excludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <argLine>${jacoco.agent.argLine} -Xms384M -Dfile.encoding=UTF-8
-                                -Dlog.level.no.nav=WARN
-                            </argLine>
-                        </configuration>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>failsafe-integration-test</id>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>failsafe-verify</id>
-                                <goals>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <reuseForks>true</reuseForks>
-                            <useFile>true</useFile>
-                            <argLine>${jacoco.agent.itArgLine} -Xms384M -Dfile.encoding=UTF-8
-                            </argLine>
-                        </configuration>
-                    </plugin>
-
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>publishAdeo</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <distributionManagement>
-                <repository>
-                    <id>repo.adeo.no-releases</id>
-                    <url>https://repo.adeo.no/repository/maven-releases</url>
-                </repository>
-                <snapshotRepository>
-                    <id>repo.adeo.no-snapshots</id>
-                    <url>https://repo.adeo.no/repository/maven-snapshots</url>
-                    <uniqueVersion>false</uniqueVersion>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-        <profile>
-            <id>publishGithub</id>
-            <distributionManagement>
-                <repository>
-                    <id>github-1</id>
-                    <name>Github navikt Maven Packages</name>
-                    <url>https://maven.pkg.github.com/navikt/fp-felles</url>
-                </repository>
-            </distributionManagement>
-        </profile>
-    </profiles>
+    <distributionManagement>
+        <repository>
+            <id>github-1</id>
+            <name>Github navikt Maven Packages</name>
+            <url>https://maven.pkg.github.com/navikt/fp-felles</url>
+        </repository>
+    </distributionManagement>
 </project>

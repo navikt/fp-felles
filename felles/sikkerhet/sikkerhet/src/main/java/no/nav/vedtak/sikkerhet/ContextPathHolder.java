@@ -2,7 +2,7 @@ package no.nav.vedtak.sikkerhet;
 
 public class ContextPathHolder {
 
-    private static volatile ContextPathHolder instance = null;
+    private static volatile ContextPathHolder instance; // NOSONAR
     private final String contextPath;
 
     private ContextPathHolder(String contextPath) {
@@ -10,21 +10,20 @@ public class ContextPathHolder {
     }
 
     public static ContextPathHolder instance() {
-        if (instance == null) {
+        var inst = instance;
+        if (inst == null) {
             throw new IllegalStateException();
         }
-        return instance;
+        return inst;
     }
 
     public static ContextPathHolder instance(String contextPath) {
-        if (instance == null) {
-            synchronized (ContextPathHolder.class) {
-                if (instance == null) {
-                    instance = new ContextPathHolder(contextPath);
-                }
-            }
+        var inst = instance;
+        if (inst == null) {
+            inst = new ContextPathHolder(contextPath);  // NOSONAR trenger ikke synkronisering her
+            instance = inst;
         }
-        return instance;
+        return inst;
     }
 
     public String getContextPath() {

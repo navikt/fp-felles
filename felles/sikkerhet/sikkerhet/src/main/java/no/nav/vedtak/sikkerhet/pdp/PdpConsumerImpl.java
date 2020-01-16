@@ -3,7 +3,6 @@ package no.nav.vedtak.sikkerhet.pdp;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -115,7 +114,7 @@ public class PdpConsumerImpl implements PdpConsumer {
     JsonObject execute(JsonObject request) {
         HttpPost post = new HttpPost(pdpUrl);
         post.setHeader("Content-type", MEDIA_TYPE);
-        post.setEntity(new StringEntity(request.toString(), Charset.forName("UTF-8")));
+        post.setEntity(new StringEntity(request.toString(), java.nio.charset.StandardCharsets.UTF_8));
 
         LOG.trace("PDP-request: {}", request);
 
@@ -143,7 +142,7 @@ public class PdpConsumerImpl implements PdpConsumer {
                 return response.getElement2();
             }
             if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
-                throw PdpFeil.FACTORY.autentiseringFeilerEtterReinstansiering(System.getenv("HOSTNAME")).toException();
+                throw PdpFeil.FACTORY.autentiseringFeilerEtterReinstansiering(System.getenv("HOSTNAME")).toException(); // NOSONAR
             }
         }
         throw PdpFeil.FACTORY.httpFeil(statusCode, response.getElement1().getReasonPhrase()).toException();
@@ -207,10 +206,10 @@ public class PdpConsumerImpl implements PdpConsumer {
                     String param = he.getName();
                     String value = he.getValue();
                     if (value != null && param.equalsIgnoreCase("timeout")) {
-                        return Long.parseLong(value) * 1000;
+                        return Long.parseLong(value) * 1000L;
                     }
                 }
-                return seconds * 1000;
+                return seconds * 1000L;
             }
         };
         return myStrategy;

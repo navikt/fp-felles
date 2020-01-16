@@ -19,27 +19,20 @@ public final class ServerInfo {
     private String callbackUrl;
     private String cookieDomain = cookieDomain(schemeHostPort);
 
-    private static volatile ServerInfo instance = null;
+    private static ServerInfo instance;
 
     ServerInfo() {
-
     }
 
-    public static ServerInfo instance() {
+    public static synchronized ServerInfo instance() {
         if (instance == null) {
-            synchronized (ServerInfo.class) {
-                if (instance == null) {
-                    instance = new ServerInfo();
-                }
-            }
+            instance = new ServerInfo();
         }
         return instance;
     }
 
-    static void clearInstance() {
-        synchronized (ServerInfo.class) {
-            instance = null;
-        }
+    static synchronized void clearInstance() {
+        instance = null;
     }
 
     public String getSchemeHostPort() {

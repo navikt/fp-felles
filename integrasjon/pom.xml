@@ -30,6 +30,7 @@
 		<module>behandlesak-klient</module>
 		<module>infotrygdberegningsgrunnlag-klient</module>
 		<module>infotrygdsak-klient</module>
+        <module>infotrygd-saker-klient</module>
 		<module>behandleoppgave-klient</module>
 		<module>medl-klient</module>
 		<module>meldekortutbetalingsgrunnlag-klient</module>
@@ -57,7 +58,7 @@
 		<sob.melding.version>1.1.0</sob.melding.version>
 
 		<felles.adapter.version>0.1.8</felles.adapter.version>
-		<unleash.version>3.2.10</unleash.version>
+		<unleash.version>3.3.0</unleash.version>
 
 	</properties>
 
@@ -189,6 +190,11 @@
 				<artifactId>infotrygdsak-klient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>infotrygd-saker-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 				<artifactId>meldekortutbetalingsgrunnlag-klient</artifactId>
@@ -315,6 +321,11 @@
 				<artifactId>behandleoppgave-klient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>oppgave-rest-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 			<dependency>
 				<!-- GSAK -->
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
@@ -330,7 +341,7 @@
             <dependency>
                 <groupId>no.nav.tjenestespesifikasjoner</groupId>
                 <artifactId>nav-virksomhet-hendelsehandterer-behandlingstatus-v1-meldingsdefinisjon</artifactId>
-                <version>1.2019.11.15-14.51-ee264fbf814c</version>
+                <version>1.2019.12.18-12.22-ce897c4eb2c1</version>
             </dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
