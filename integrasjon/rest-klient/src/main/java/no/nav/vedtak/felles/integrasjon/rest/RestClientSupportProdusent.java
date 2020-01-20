@@ -18,6 +18,7 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -38,13 +39,15 @@ public class RestClientSupportProdusent {
     }
 
     /**
-     * Sørger for å droppe og starte nye connections innimellom også om server ikke sender keepalive header.
+     * Sørger for å droppe og starte nye connections innimellom også om server ikke
+     * sender keepalive header.
      */
     private static ConnectionKeepAliveStrategy createKeepAliveStrategy(int seconds) {
         ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
             @Override
             public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
-                HeaderElementIterator it = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE));
+                HeaderElementIterator it = new BasicHeaderElementIterator(
+                        response.headerIterator(HTTP.CONN_KEEP_ALIVE));
                 while (it.hasNext()) {
                     HeaderElement he = it.nextElement();
                     String param = he.getName();
@@ -85,8 +88,8 @@ public class RestClientSupportProdusent {
     private CloseableHttpClient createHttpClient() {
         // Create connection configuration
         ConnectionConfig defaultConnectionConfig = ConnectionConfig.custom()
-            .setCharset(Consts.UTF_8)
-            .build();
+                .setCharset(Consts.UTF_8)
+                .build();
 
         // Create a connection manager with custom configuration.
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(55, TimeUnit.MINUTES);
@@ -96,8 +99,8 @@ public class RestClientSupportProdusent {
 
         // Create global request configuration
         RequestConfig defaultRequestConfig = RequestConfig.custom()
-            .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
-            .build();
+                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                .build();
 
         // Create default headers
         Header header = new BasicHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
@@ -105,12 +108,13 @@ public class RestClientSupportProdusent {
 
         // Create an HttpClient with the given custom dependencies and configuration.
         return HttpClients.custom()
-            .setConnectionManager(connManager)
-            .setDefaultHeaders(defaultHeaders)
-            .setDefaultRequestConfig(defaultRequestConfig)
-            .setRetryHandler(new HttpRequestRetryHandler())
-            .setKeepAliveStrategy(createKeepAliveStrategy(30))
-            .build();
+                .setSSLHostnameVerifier(new DefaultHostnameVerifier())
+                .setConnectionManager(connManager)
+                .setDefaultHeaders(defaultHeaders)
+                .setDefaultRequestConfig(defaultRequestConfig)
+                .setRetryHandler(new HttpRequestRetryHandler())
+                .setKeepAliveStrategy(createKeepAliveStrategy(30))
+                .build();
     }
 
 }
