@@ -1,11 +1,13 @@
 package no.nav.vedtak.isso.config;
 
-import no.nav.vedtak.sikkerhet.ContextPathHolder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import no.nav.vedtak.konfig.PropertyUtil;
+import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 public final class ServerInfo {
 
@@ -55,14 +57,14 @@ public final class ServerInfo {
     }
 
     public String getRelativeCallbackUrl() {
-        if(relativeCallbackUrl == null){
+        if (relativeCallbackUrl == null) {
             relativeCallbackUrl = ContextPathHolder.instance().getContextPath() + CALLBACK_ENDPOINT;
         }
         return relativeCallbackUrl;
     }
 
     private static String schemeHostPortFromSystemProperties() {
-        String verdi = System.getProperty(PROPERTY_KEY_LOADBALANCER_URL);
+        String verdi = PropertyUtil.getProperty(PROPERTY_KEY_LOADBALANCER_URL);
         if (verdi == null || verdi.isEmpty()) {
             throw ServerInfoFeil.FACTORY.manglerNødvendigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL).toException();
         }
@@ -82,10 +84,11 @@ public final class ServerInfo {
                 return hostname.substring(hostname.indexOf('.') + 1);
             } else {
                 ServerInfoFeil.FACTORY.uventetHostFormat(hostname).log(logger);
-                return null; //null er det strengeste i cookie domain, betyr 'kun denne server'
+                return null; // null er det strengeste i cookie domain, betyr 'kun denne server'
             }
         } else {
-            throw ServerInfoFeil.FACTORY.ugyldigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL, schemeHostPort).toException();
+            throw ServerInfoFeil.FACTORY.ugyldigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL, schemeHostPort)
+                    .toException();
         }
     }
 
