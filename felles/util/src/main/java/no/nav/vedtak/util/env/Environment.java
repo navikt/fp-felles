@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.vedtak.konfig.ApplicationPropertiesKonfigProvider;
 import no.nav.vedtak.konfig.EnvPropertiesKonfigVerdiProvider;
 import no.nav.vedtak.konfig.KonfigVerdi.BooleanConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.Converter;
@@ -15,12 +16,12 @@ import no.nav.vedtak.konfig.KonfigVerdi.DurationConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.IntegerConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.LocalDateConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.LongConverter;
+import no.nav.vedtak.konfig.KonfigVerdi.NoConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.PeriodConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.UriConverter;
 import no.nav.vedtak.konfig.KonfigVerdiProvider;
-import no.nav.vedtak.konfig.ApplicationPropertiesKonfigProvider;
-import no.nav.vedtak.konfig.StandardPropertySource;
 import no.nav.vedtak.konfig.PropertySourceMetaData;
+import no.nav.vedtak.konfig.StandardPropertySource;
 import no.nav.vedtak.konfig.SystemPropertiesKonfigVerdiProvider;
 
 public final class Environment {
@@ -112,6 +113,9 @@ public final class Environment {
 
     private static <T> Converter<?> converterFor(Class<T> targetType) {
         try {
+            if (targetType.equals(String.class)) {
+                return construct(NoConverter.class);
+            }
             if (targetType.equals(Period.class)) {
                 return construct(PeriodConverter.class);
             }
