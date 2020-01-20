@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.net.URI;
 import java.time.Duration;
 
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class EnvironmentTest {
     private static final Logger LOG = LoggerFactory.getLogger(EnvironmentTest.class);
     private static Environment ENV = Environment.current();
     private static PrintStream SYSOUT = System.out;
-    
+
     @org.junit.After
     public void after() throws Exception {
         // reset
@@ -36,6 +37,10 @@ public class EnvironmentTest {
         assertEquals(ENV.getCluster(), PROD_FSS);
         assertEquals("jalla", ENV.namespace());
         assertTrue(ENV.isProd());
+    }
+
+    public void testURI() {
+        assertEquals(ENV.getRequiredProperty("VG", URI.class), URI.create("http://www.vg.no"));
     }
 
     public void testUppercase() {

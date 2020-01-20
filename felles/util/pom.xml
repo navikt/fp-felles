@@ -76,6 +76,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
            <environmentVariables>
+            <VG>http://www.vg.no</VG>
             <NAIS_CLUSTER_NAME>prod-fss</NAIS_CLUSTER_NAME>
             <NAIS_NAMESPACE>jalla</NAIS_NAMESPACE>
           </environmentVariables>
