@@ -11,6 +11,11 @@ import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 import no.nav.vedtak.felles.integrasjon.jms.JmsMessage;
 import no.nav.vedtak.felles.integrasjon.okonomistottejms.ØkonomioppdragJmsProducer;
 
+
+/**
+* @deprecated Flytt til fpoppdrag
+*/
+@Deprecated
 @ApplicationScoped
 public class ØkonomioppdragJmsProducerImpl extends ØkonomioppdragJmsProducer {
 

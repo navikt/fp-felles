@@ -7,6 +7,11 @@ import javax.inject.Named;
 import no.finn.unleash.Unleash;
 import no.nav.vedtak.felles.integrasjon.jms.BaseJmsKonfig;
 
+
+/**
+* @deprecated Flytt til fpoppdrag
+*/
+@Deprecated
 @Named("økonomioppdragjmsproducerkonfig")
 @ApplicationScoped
 public class ØkonomioppdragJmsProducerKonfig extends BaseJmsKonfig {

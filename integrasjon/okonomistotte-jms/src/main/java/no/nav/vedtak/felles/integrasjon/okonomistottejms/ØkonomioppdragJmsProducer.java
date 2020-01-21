@@ -3,6 +3,10 @@ package no.nav.vedtak.felles.integrasjon.okonomistottejms;
 import no.nav.vedtak.felles.integrasjon.jms.ExternalQueueProducer;
 import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 
+/**
+* @deprecated Flytt til fpoppdrag
+*/
+@Deprecated
 public abstract class ØkonomioppdragJmsProducer extends ExternalQueueProducer {
     public ØkonomioppdragJmsProducer() {
     }
