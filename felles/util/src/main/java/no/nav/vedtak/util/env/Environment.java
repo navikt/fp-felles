@@ -74,8 +74,8 @@ public final class Environment {
         return namespace.getNamespace();
     }
 
-    public String getProperty(String key) {
-        return getProperty(key, (String) null);
+    public List<KonfigVerdiProvider> getPropertySources() {
+        return propertySources;
     }
 
     public String getRequiredProperty(String key) {
@@ -109,6 +109,10 @@ public final class Environment {
                 .findFirst()
                 .map(v -> (T) v)
                 .orElse(defaultVerdi);
+    }
+
+    public String getProperty(String key) {
+        return getProperty(key, (String) null);
     }
 
     private static <T> Converter<?> converterFor(Class<T> targetType) {
