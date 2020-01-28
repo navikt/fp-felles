@@ -38,6 +38,7 @@
 		<module>oppgave-rest-klient</module>
 		<module>arbeidsforhold-klient</module>
 		<module>organisasjon-klient</module>
+		<module>organisasjon-v5-klient</module>
 		<module>kodeverk-klient</module>
 		<module>sigrun-klient</module>
 		<module>mottainngaaendeforsendelse-klient</module>
@@ -45,12 +46,9 @@
 		<module>behandlejournal-klient</module>
 		<module>sakogbehandling-klient</module>
 		<module>okonomistotte-jms</module>
-
 	</modules>
 
 	<properties>
-
-
 		<ibmmq.version>9.1.4.0</ibmmq.version>
 
 		<jms-api.version>2.0.1</jms-api.version>
@@ -307,6 +305,11 @@
 				<artifactId>no-nav-dok-tjenester-mottainngaaendeforsendelse</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-fim-organisasjon-v5-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
 
 			<!-- Klienter for Produksjonsstyring -->
 			<dependency>
