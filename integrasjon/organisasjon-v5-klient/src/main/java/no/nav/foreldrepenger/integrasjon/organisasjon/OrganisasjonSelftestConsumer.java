@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.risk.integrasjon.organisasjon;
+package no.nav.foreldrepenger.integrasjon.organisasjon;
 
 import no.nav.vedtak.felles.integrasjon.felles.ws.SelftestConsumer;
 

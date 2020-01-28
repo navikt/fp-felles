@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.risk.integrasjon.organisasjon.hent;
+package no.nav.foreldrepenger.integrasjon.organisasjon.hent;
 
 import java.time.LocalDate;
 

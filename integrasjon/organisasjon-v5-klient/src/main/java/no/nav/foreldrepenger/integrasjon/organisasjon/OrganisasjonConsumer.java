@@ -1,8 +1,8 @@
-package no.nav.foreldrepenger.risk.integrasjon.organisasjon;
+package no.nav.foreldrepenger.integrasjon.organisasjon;
 
 
-import no.nav.foreldrepenger.risk.integrasjon.organisasjon.hent.HentOrganisasjonForJuridiskRequest;
-import no.nav.foreldrepenger.risk.integrasjon.organisasjon.hent.HentOrganisasjonRequest;
+import no.nav.foreldrepenger.integrasjon.organisasjon.hent.HentOrganisasjonForJuridiskRequest;
+import no.nav.foreldrepenger.integrasjon.organisasjon.hent.HentOrganisasjonRequest;
 import no.nav.tjeneste.virksomhet.organisasjon.v5.binding.HentOrganisasjonOrganisasjonIkkeFunnet;
 import no.nav.tjeneste.virksomhet.organisasjon.v5.binding.HentOrganisasjonUgyldigInput;
 import no.nav.tjeneste.virksomhet.organisasjon.v5.meldinger.HentOrganisasjonResponse;

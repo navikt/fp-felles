@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.risk.integrasjon.organisasjon;
+package no.nav.foreldrepenger.integrasjon.organisasjon;
 
 import java.util.HashMap;
 import java.util.Map;

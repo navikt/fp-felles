@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.risk.integrasjon.organisasjon;
+package no.nav.foreldrepenger.integrasjon.organisasjon;
 
 import static no.nav.vedtak.sts.client.NAVSTSClient.StsClientType.SECURITYCONTEXT_TIL_SAML;
 import static no.nav.vedtak.sts.client.NAVSTSClient.StsClientType.SYSTEM_SAML;

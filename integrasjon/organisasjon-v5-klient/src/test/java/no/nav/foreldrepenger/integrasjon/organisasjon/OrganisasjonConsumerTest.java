@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.risk.integrasjon.organisasjon;
+package no.nav.foreldrepenger.integrasjon.organisasjon;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -15,7 +15,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import no.nav.foreldrepenger.risk.integrasjon.organisasjon.hent.HentOrganisasjonRequest;
+import no.nav.foreldrepenger.integrasjon.organisasjon.hent.HentOrganisasjonRequest;
 import no.nav.tjeneste.virksomhet.organisasjon.v5.binding.OrganisasjonV5;
 import no.nav.vedtak.exception.IntegrasjonException;
 
