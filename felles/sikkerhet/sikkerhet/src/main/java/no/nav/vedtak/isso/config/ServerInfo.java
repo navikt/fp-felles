@@ -92,4 +92,11 @@ public final class ServerInfo {
         }
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[schemeHostPort=" + schemeHostPort + ", isUsingTLS=" + isUsingTLS
+                + ", relativeCallbackUrl=" + relativeCallbackUrl + ", callbackUrl=" + callbackUrl + ", cookieDomain="
+                + cookieDomain + "]";
+    }
+
 }
