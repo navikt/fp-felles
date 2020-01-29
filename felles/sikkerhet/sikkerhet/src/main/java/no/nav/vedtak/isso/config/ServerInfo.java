@@ -11,7 +11,7 @@ import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 public final class ServerInfo {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerInfo.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ServerInfo.class);
     public static final String PROPERTY_KEY_LOADBALANCER_URL = "loadbalancer.url";
     public static final String CALLBACK_ENDPOINT = "/cb";
 
@@ -64,7 +64,9 @@ public final class ServerInfo {
     }
 
     private static String schemeHostPortFromSystemProperties() {
+
         String verdi = PropertyUtil.getProperty(PROPERTY_KEY_LOADBALANCER_URL);
+        LOG.info("Fikk verdi " + verdi + " for " + PROPERTY_KEY_LOADBALANCER_URL);
         if (verdi == null || verdi.isEmpty()) {
             throw ServerInfoFeil.FACTORY.manglerNødvendigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL).toException();
         }
@@ -83,7 +85,7 @@ public final class ServerInfo {
             if (hostname.split("\\.").length >= 3) {
                 return hostname.substring(hostname.indexOf('.') + 1);
             } else {
-                ServerInfoFeil.FACTORY.uventetHostFormat(hostname).log(logger);
+                ServerInfoFeil.FACTORY.uventetHostFormat(hostname).log(LOG);
                 return null; // null er det strengeste i cookie domain, betyr 'kun denne server'
             }
         } else {
