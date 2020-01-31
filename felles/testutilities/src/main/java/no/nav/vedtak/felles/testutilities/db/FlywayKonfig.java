@@ -125,7 +125,7 @@ public class FlywayKonfig {
     private void clean(DataSource dataSource, String username) {
         try (Connection c = dataSource.getConnection();
              Statement stmt = c.createStatement()) {
-            stmt.execute("drop owned by " + username.replaceAll("[^a-zA-Z0-9_-]", "_")); // NOSONAR ok her, test konfig
+            stmt.execute("drop owned by \"" + username.replaceAll("[^a-zA-Z0-9_-]", "_") + "\""); // NOSONAR ok her, test konfig
         } catch (SQLException e) {
             throw new IllegalStateException("Kunne ikke kjøre clean på db", e);
         }
