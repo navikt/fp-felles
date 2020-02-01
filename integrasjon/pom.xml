@@ -30,6 +30,7 @@
 		<module>behandlesak-klient</module>
 		<module>infotrygdberegningsgrunnlag-klient</module>
 		<module>infotrygdsak-klient</module>
+        <module>infotrygd-grunnlag-klient</module>
         <module>infotrygd-saker-klient</module>
 		<module>behandleoppgave-klient</module>
 		<module>medl-klient</module>
@@ -46,7 +47,7 @@
 		<module>behandlejournal-klient</module>
 		<module>sakogbehandling-klient</module>
 		<module>okonomistotte-jms</module>
-	</modules>
+    </modules>
 
 	<properties>
 		<ibmmq.version>9.1.4.0</ibmmq.version>
