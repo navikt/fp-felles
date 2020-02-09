@@ -37,6 +37,8 @@ public class ConnectionHandler {
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(0);
         config.setMaximumPoolSize(4);
+        
+        config.setAutoCommit(false); // setter til false (default er true), slik at vi kan optimalisere JPA/Hibernate conn mgmt
 
         Properties dsProperties = new Properties();
         config.setDataSourceProperties(dsProperties);
