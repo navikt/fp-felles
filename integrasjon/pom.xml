@@ -28,8 +28,6 @@
 		<module>inngaaendejournal-klient</module>
 		<module>behandleinngaaendejournal-klient</module>
 		<module>behandlesak-klient</module>
-		<module>infotrygdberegningsgrunnlag-klient</module>
-		<module>infotrygdsak-klient</module>
         <module>infotrygd-grunnlag-klient</module>
         <module>infotrygd-saker-klient</module>
 		<module>behandleoppgave-klient</module>
@@ -180,16 +178,6 @@
 
 			<!-- Klienter for inntekter, arbeidsforhold, ytelser -->
 			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>infotrygdberegningsgrunnlag-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>infotrygdsak-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-            <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>infotrygd-grunnlag-klient</artifactId>
                 <version>${project.version}</version>
