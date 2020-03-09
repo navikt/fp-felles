@@ -35,13 +35,14 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     private static final String CALL_ID = "xCALL_ID";
     public static final String PERSONFEED_CONSUMER_ID = "nav-consumer-id";
     public static final String PERSONFEED_CALL_ID = "nav-call-id";
+    public static final String PERSONIDENT_HEADER = "nav-personident";
     public static final String NYE_HEADER_CALL_ID = "no.nav.callid";
     public static final String NYE_HEADER_CONSUMER_ID = "no.nav.consumer.id";
 
     private CloseableHttpClient client;
 
     private ObjectMapper mapper = DefaultJsonMapper.getObjectMapper();
-    
+
     AbstractOidcRestClient(CloseableHttpClient client) {
         this.client = client;
     }
@@ -51,11 +52,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         client.close();
     }
 
-    public <T> T get(URI endpoint, Class<T> clazz) {
-        String entity = get(endpoint, createResponseHandler(endpoint));
-        return fromJson(entity, clazz);
-    }
-    
     @Override
     public ClientConnectionManager getConnectionManager() {
         return client.getConnectionManager();
@@ -66,6 +62,15 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return client.getParams();
     }
 
+    public <T> T get(URI endpoint, Class<T> clazz) {
+        String entity = get(endpoint, createResponseHandler(endpoint));
+        return fromJson(entity, clazz);
+    }
+
+    public <T> T getPersonidentHeader(URI endpoint, String personIdent, Class<T> clazz) {
+        String entity = getPersonidentHeader(endpoint, personIdent, createResponseHandler(endpoint));
+        return fromJson(entity, clazz);
+    }
     public <T> Optional<T> getReturnsOptional(URI endpoint, Class<T> clazz) {
         String entity = get(endpoint, createResponseHandler(endpoint));
         if (StringUtils.nullOrEmpty(entity)) {
@@ -120,6 +125,16 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
 
     protected String get(URI endpoint, ResponseHandler<String> responseHandler) {
         HttpGet get = new HttpGet(endpoint);
+        return get(endpoint, get, responseHandler);
+    }
+
+    protected String getPersonidentHeader(URI endpoint, String personIdent, ResponseHandler<String> responseHandler) {
+        HttpGet get = new HttpGet(endpoint);
+        get.addHeader(PERSONIDENT_HEADER, personIdent);
+        return get(endpoint, get, responseHandler);
+    }
+
+    protected String get(URI endpoint, HttpGet get, ResponseHandler<String> responseHandler) {
         try {
             return this.execute(get, responseHandler);
         } catch (IOException e) {
