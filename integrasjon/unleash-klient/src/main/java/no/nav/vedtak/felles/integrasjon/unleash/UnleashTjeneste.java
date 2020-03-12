@@ -38,7 +38,7 @@ public class UnleashTjeneste implements Unleash {
 
     @Override
     public List<String> getFeatureToggleNames() {
-        return getUnleash().getFeatureToggleNames();
+        throw new RuntimeException("Trenger du virkelig å hente opp alle feature toggles definert i unleash? Dette vil ødelegge statistikk globalt..");
     }
     
     private Unleash getUnleash() {
