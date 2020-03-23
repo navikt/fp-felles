@@ -33,10 +33,13 @@ import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SSGResponse
 import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SigrunSummertSkattegrunnlagResponse;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.FPDateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @ApplicationScoped
 public class SigrunConsumerImpl implements SigrunConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SigrunConsumerImpl.class);
 
     private static final ObjectMapper mapper = getObjectMapper();
     private static final String TEKNISK_NAVN = "skatteoppgjoersdato";
@@ -92,6 +95,22 @@ public class SigrunConsumerImpl implements SigrunConsumer {
 
         return new SigrunResponse(årTilListeMedSkatt);
     }
+
+    @Override
+    public SigrunResponse beregnetskattMedLogging(Long aktørId) {
+        Map<Year, List<BeregnetSkatt>> årTilListeMedSkatt = new HashMap<>();
+        ferdiglignedeBeregnetSkattÅr(aktørId)
+            .stream()
+            .collect(Collectors.toMap(år -> år, år -> {
+                String resultat = sigrunRestClient.hentBeregnetSkattForAktørOgÅr(aktørId, år.toString());
+                LOGGER.info("Resultat for år " + år + " var " + resultat);
+                return resultat != null ? resultat : "";
+            }))
+            .forEach((resulatÅr, skatt) -> leggTilBS(årTilListeMedSkatt, resulatÅr, skatt));
+
+        return new SigrunResponse(årTilListeMedSkatt);
+    }
+
 
     @Override
     public SigrunSummertSkattegrunnlagResponse summertSkattegrunnlag(Long aktørId) {
