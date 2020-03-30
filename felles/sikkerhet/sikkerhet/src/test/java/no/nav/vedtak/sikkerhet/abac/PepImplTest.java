@@ -15,6 +15,7 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandlerUtils;
 
 public class PepImplTest {
 
+
     private PepImpl pep;
     private PdpKlient pdpKlientMock;
 
@@ -34,7 +35,7 @@ public class PepImplTest {
     public void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
         SubjectHandlerUtils.setInternBruker("srvpdp");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
-                .setResource(BeskyttetRessursResourceAttributt.PIP)
+                .setResource(BeskyttetRessursResourceAttributt.PIP.getEksternKode())
                 .setAction("READ");
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
@@ -46,7 +47,7 @@ public class PepImplTest {
     public void skal_nekte_tilgang_til_saksbehandler_for_piptjeneste() {
         SubjectHandlerUtils.setInternBruker("z142443");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
-                .setResource(BeskyttetRessursResourceAttributt.PIP)
+                .setResource(BeskyttetRessursResourceAttributt.PIP.getEksternKode())
                 .setAction("READ");
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
@@ -58,7 +59,7 @@ public class PepImplTest {
     public void skal_kalle_pdp_for_annet_enn_pip_tjenester(){
         SubjectHandlerUtils.setInternBruker("z142443");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
-                .setResource(BeskyttetRessursResourceAttributt.FAGSAK)
+                .setResource(BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode())
                 .setAction("READ");
 
         @SuppressWarnings("unused")

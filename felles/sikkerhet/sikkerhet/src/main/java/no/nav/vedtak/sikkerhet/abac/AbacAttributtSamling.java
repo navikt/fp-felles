@@ -7,7 +7,7 @@ public class AbacAttributtSamling {
     private final AbacIdToken idToken;
     private final AbacDataAttributter dataAttributter = AbacDataAttributter.opprett();
     private BeskyttetRessursActionAttributt actionType;
-    private BeskyttetRessursResourceAttributt resource;
+    private String resource;
     private String action;
 
     private AbacAttributtSamling(AbacIdToken idToken) {
@@ -60,12 +60,12 @@ public class AbacAttributtSamling {
         return actionType;
     }
 
-    public AbacAttributtSamling setResource(BeskyttetRessursResourceAttributt resource) {
+    public AbacAttributtSamling setResource(String resource) {
         this.resource = resource;
         return this;
     }
 
-    public BeskyttetRessursResourceAttributt getResource() {
+    public String getResource() {
         return resource;
     }
 
