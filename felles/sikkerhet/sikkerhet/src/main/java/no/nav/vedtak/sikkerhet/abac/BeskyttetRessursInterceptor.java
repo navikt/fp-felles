@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
@@ -21,7 +22,7 @@ import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.loginmodule.SamlUtils;
 
-@BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, ressurs = BeskyttetRessursResourceAttributt.DUMMY)
+@BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, ressurs = BeskyttetRessursResourceAttributt.DUMMY, resource = "")
 @Interceptor
 @Priority(Interceptor.Priority.APPLICATION + 11)
 @Dependent
@@ -89,9 +90,16 @@ public class BeskyttetRessursInterceptor {
                 : AbacAttributtSamling.medJwtToken(hentOidcTOken());
         BeskyttetRessurs beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         attributter.setActionType(beskyttetRessurs.action());
-        attributter.setResource(beskyttetRessurs.ressurs());
-        attributter.setAction(utledAction(clazz, method));
 
+        if (beskyttetRessurs.resource().isEmpty() && beskyttetRessurs.ressurs() == BeskyttetRessursResourceAttributt.DUMMY) {
+            throw new IllegalArgumentException("Beskyttet ressurs må være satt");
+        }
+        if(beskyttetRessurs.ressurs() != BeskyttetRessursResourceAttributt.DUMMY)
+            attributter.setResource(beskyttetRessurs.ressurs().getEksternKode());
+        if(!beskyttetRessurs.resource().isEmpty())
+            attributter.setResource(beskyttetRessurs.resource());
+
+        attributter.setAction(utledAction(clazz, method));
         Parameter[] parameterDecl = method.getParameters();
         for (int i = 0; i < method.getParameterCount(); i++) {
             Object parameterValue = invocationContext.getParameters()[i];

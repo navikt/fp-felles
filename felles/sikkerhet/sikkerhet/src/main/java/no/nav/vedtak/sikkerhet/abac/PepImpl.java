@@ -16,6 +16,8 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 @Default
 @ApplicationScoped
 public class PepImpl implements Pep {
+    private final static String PIP = "pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker";
+
 
     private PdpKlient pdpKlient;
     private PdpRequestBuilder pdpRequestBuilder;
@@ -50,7 +52,7 @@ public class PepImpl implements Pep {
     public Tilgangsbeslutning vurderTilgang(AbacAttributtSamling attributter) {
         PdpRequest pdpRequest = pdpRequestBuilder.lagPdpRequest(attributter);
 
-        if (BeskyttetRessursResourceAttributt.PIP.equals(attributter.getResource())) {
+        if (PIP.equals(attributter.getResource())) {
             return vurderTilgangTilPipTjeneste(pdpRequest, attributter);
         } else {
             return pdpKlient.forespørTilgang(pdpRequest);

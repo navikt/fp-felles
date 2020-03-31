@@ -17,7 +17,9 @@ import javax.interceptor.InterceptorBinding;
 public @interface BeskyttetRessurs {
     @Nonbinding BeskyttetRessursActionAttributt action();
 
-    @Nonbinding BeskyttetRessursResourceAttributt ressurs();
+    @Nonbinding @Deprecated BeskyttetRessursResourceAttributt ressurs() default BeskyttetRessursResourceAttributt.DUMMY;
+
+    @Nonbinding String resource() default "";
 
     /**
      * Sett til false for å unngå at det logges til sporingslogg ved tilgang. Det skal bare gjøres for tilfeller som ikke håndterer personopplysninger.

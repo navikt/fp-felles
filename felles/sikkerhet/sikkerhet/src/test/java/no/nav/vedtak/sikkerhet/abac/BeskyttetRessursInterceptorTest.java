@@ -34,7 +34,7 @@ public class BeskyttetRessursInterceptorTest {
             PdpRequest pdpRequest = new PdpRequest();
             pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, Collections.singleton(aktør1.getAktørId()));
             pdpRequest.put(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID, attributter.getActionType().getEksternKode());
-            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource().getEksternKode());
+            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource());
             pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, attributter.getIdToken());
             return new Tilgangsbeslutning(
                 AbacResultat.GODKJENT,
@@ -55,7 +55,7 @@ public class BeskyttetRessursInterceptorTest {
             PdpRequest pdpRequest = new PdpRequest();
             pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, (Collections.singleton(aktør1.getAktørId())));
             pdpRequest.put(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID, attributter.getActionType().getEksternKode());
-            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource().getEksternKode());
+            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource());
             pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, attributter.getIdToken());
             return new Tilgangsbeslutning(
                 AbacResultat.GODKJENT,
@@ -77,7 +77,7 @@ public class BeskyttetRessursInterceptorTest {
             PdpRequest pdpRequest = new PdpRequest();
             pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, (Collections.singleton(aktør1.getAktørId())));
             pdpRequest.put(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID, attributter.getActionType().getEksternKode());
-            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource().getEksternKode());
+            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource());
             pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, attributter.getIdToken());
             return new Tilgangsbeslutning(
                 AbacResultat.GODKJENT,
@@ -98,7 +98,7 @@ public class BeskyttetRessursInterceptorTest {
             PdpRequest pdpRequest = new PdpRequest();
             pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, (Collections.singleton(aktør1.getAktørId())));
             pdpRequest.put(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID, attributter.getActionType().getEksternKode());
-            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource().getEksternKode());
+            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource());
             pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, attributter.getIdToken());
             return new Tilgangsbeslutning(
                 AbacResultat.AVSLÅTT_KODE_6,
@@ -119,10 +119,11 @@ public class BeskyttetRessursInterceptorTest {
             "action=/foo/aktoer_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000 decision=Deny");
     }
 
+
     @Path("foo")
     public static class RestClass {
 
-        @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.PIP)
+        @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = "pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
         @Path("aktoer_in")
         public void aktoerIn(@SuppressWarnings("unused") AktørDto param) {
 
