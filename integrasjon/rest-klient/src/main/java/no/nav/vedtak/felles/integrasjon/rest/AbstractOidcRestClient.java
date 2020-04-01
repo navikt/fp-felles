@@ -25,11 +25,15 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.Strin
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og callId
  */
 public abstract class AbstractOidcRestClient extends CloseableHttpClient {
+    private static final Logger logger = LoggerFactory.getLogger(AbstractOidcRestClient.class);
+
     private static final String AUTH_HEADER = "Authorization";
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     private static final String CALL_ID = "xCALL_ID";
@@ -85,6 +89,12 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
 
     public <T> T post(URI endpoint, Object dto, Class<T> clazz) {
         String entity = post(endpoint, dto, createResponseHandler(endpoint));
+        return fromJson(entity, clazz);
+    }
+
+    public <T> T postAndLogRespons(URI endpoint, Object dto, Class<T> clazz) {
+        String entity = post(endpoint, dto, createResponseHandler(endpoint));
+        logger.info("Respons fra endepunkt " + endpoint + "var " + entity);
         return fromJson(entity, clazz);
     }
 
