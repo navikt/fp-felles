@@ -1,5 +1,6 @@
 package no.nav.vedtak.sikkerhet.pdp.xacml;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -16,14 +17,12 @@ import no.nav.vedtak.sikkerhet.abac.Decision;
 
 public class XacmlResponseWrapper {
 
+    public static final String ATTRIBUTE_ASSIGNMENT = "AttributeAssignment";
     private static final Logger logger = LoggerFactory.getLogger(XacmlResponseWrapper.class);
-
     private static final String RESPONSE = "Response";
     private static final String DECISION = "Decision";
     private static final String OBLIGATIONS = "Obligations";
     private static final String ADVICE = "AssociatedAdvice";
-    public static final String ATTRIBUTE_ASSIGNMENT = "AttributeAssignment";
-
     private static final String POLICY_IDENTIFIER = "no.nav.abac.attributter.adviceorobligation.deny_policy";
     private static final String DENY_ADVICE_IDENTIFIER = "no.nav.abac.advices.reason.deny_reason";
 
@@ -38,11 +37,23 @@ public class XacmlResponseWrapper {
         if (v.getValueType() == JsonValue.ValueType.ARRAY) {
             JsonArray jsonArray = responseJson.getJsonArray(RESPONSE);
             return jsonArray.stream()
-                    .map(jsonValue -> getObligationsFromObject((JsonObject) jsonValue))
-                    .flatMap(List::stream)
-                    .collect(Collectors.toList());
+                .map(this::getObligationsFromObject)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
         } else {
             return getObligationsFromObject(responseJson.getJsonObject(RESPONSE));
+        }
+    }
+
+    private List<Obligation> getObligationsFromObject(JsonValue jsonValue) {
+        if (jsonValue.getValueType() == JsonValue.ValueType.ARRAY) {
+            return jsonValue.asJsonArray()
+                .stream()
+                .map(this::getObligationsFromObject)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        } else {
+            return getObligationsFromObject(jsonValue.asJsonObject());
         }
     }
 
@@ -51,8 +62,8 @@ public class XacmlResponseWrapper {
             if (jsonObject.get(OBLIGATIONS).getValueType() == JsonValue.ValueType.ARRAY) {
                 JsonArray jsonArray = jsonObject.getJsonArray(OBLIGATIONS);
                 return jsonArray.stream()
-                        .map(jsonValue -> new Obligation((JsonObject) jsonValue))
-                        .collect(Collectors.toList());
+                    .map(jsonValue -> new Obligation((JsonObject) jsonValue))
+                    .collect(Collectors.toList());
             } else {
                 Obligation obligation = new Obligation(jsonObject.getJsonObject(OBLIGATIONS));
                 return Collections.singletonList(obligation);
@@ -66,9 +77,9 @@ public class XacmlResponseWrapper {
         if (v.getValueType() == JsonValue.ValueType.ARRAY) {
             JsonArray jsonArray = responseJson.getJsonArray(RESPONSE);
             return jsonArray.stream()
-                    .map(jsonValue -> getAdvicefromObject((JsonObject) jsonValue))
-                    .flatMap(List::stream)
-                    .collect(Collectors.toList());
+                .map(jsonValue -> getAdvicefromObject((JsonObject) jsonValue))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
         } else {
             return getAdvicefromObject(responseJson.getJsonObject(RESPONSE));
         }
@@ -85,15 +96,15 @@ public class XacmlResponseWrapper {
         if (adviceObject.get(ATTRIBUTE_ASSIGNMENT).getValueType() == JsonValue.ValueType.ARRAY) {
             JsonArray adviceArray = adviceObject.getJsonArray(ATTRIBUTE_ASSIGNMENT);
             return adviceArray.stream()
-                    .map(jsonValue -> jsonToAdvice((JsonObject) jsonValue))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
+                .map(jsonValue -> jsonToAdvice((JsonObject) jsonValue))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
         } else {
             Optional<Advice> advice = jsonToAdvice(adviceObject.getJsonObject(ATTRIBUTE_ASSIGNMENT));
             return advice.isPresent()
-                    ? Collections.singletonList(advice.get())
-                    : Collections.emptyList();
+                ? Collections.singletonList(advice.get())
+                : Collections.emptyList();
         }
     }
 
@@ -121,9 +132,9 @@ public class XacmlResponseWrapper {
         JsonValue response = responseJson.get(RESPONSE);
         if (response.getValueType() == JsonValue.ValueType.ARRAY) {
             return responseJson.getJsonArray(RESPONSE).stream()
-                    .map(jsonValue -> ((JsonObject) jsonValue).getString(DECISION))
-                    .map(Decision::valueOf)
-                    .collect(Collectors.toList());
+                .map(jsonValue -> ((JsonObject) jsonValue).getString(DECISION))
+                .map(Decision::valueOf)
+                .collect(Collectors.toList());
 
         } else {
             return Collections.singletonList(Decision.valueOf(responseJson.getJsonObject(RESPONSE).getString(DECISION)));
