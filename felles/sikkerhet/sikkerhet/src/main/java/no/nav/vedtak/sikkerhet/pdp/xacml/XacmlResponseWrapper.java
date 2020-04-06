@@ -77,11 +77,23 @@ public class XacmlResponseWrapper {
         if (v.getValueType() == JsonValue.ValueType.ARRAY) {
             JsonArray jsonArray = responseJson.getJsonArray(RESPONSE);
             return jsonArray.stream()
-                .map(jsonValue -> getAdvicefromObject((JsonObject) jsonValue))
+                .map(this::getAdviceFromObject)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
         } else {
             return getAdvicefromObject(responseJson.getJsonObject(RESPONSE));
+        }
+    }
+
+    private List<Advice> getAdviceFromObject(JsonValue jsonValue) {
+        if (jsonValue.getValueType() == JsonValue.ValueType.ARRAY) {
+            return jsonValue.asJsonArray()
+                .stream()
+                .map(this::getAdviceFromObject)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        } else {
+            return getAdviceFromObject(jsonValue.asJsonObject());
         }
     }
 
