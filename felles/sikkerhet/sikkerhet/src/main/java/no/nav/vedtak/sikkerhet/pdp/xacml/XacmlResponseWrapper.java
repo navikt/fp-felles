@@ -93,7 +93,7 @@ public class XacmlResponseWrapper {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
         } else {
-            return getAdviceFromObject(jsonValue.asJsonObject());
+            return getAdvicefromObject(jsonValue.asJsonObject());
         }
     }
 
