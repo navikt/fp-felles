@@ -3,19 +3,26 @@ package no.nav.vedtak.felles.integrasjon.rest;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,8 +32,6 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.Strin
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og callId
@@ -71,10 +76,20 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return fromJson(entity, clazz);
     }
 
-    public <T> T getPersonidentHeader(URI endpoint, String personIdent, Class<T> clazz) {
-        String entity = getPersonidentHeader(endpoint, personIdent, createResponseHandler(endpoint));
+    public <T> T get(URI endpoint, Set<Header> headers, Class<T> clazz) {
+        String entity = get(endpoint, headers, createResponseHandler(endpoint));
         return fromJson(entity, clazz);
     }
+
+    public String get(URI endpoint) {
+        return get(endpoint, createResponseHandler(endpoint));
+    }
+
+    public <T> T getPersonidentHeader(URI endpoint, String personIdent, Class<T> clazz) {
+        String entity = get(endpoint, Set.of(new BasicHeader(PERSONIDENT_HEADER, personIdent)), createResponseHandler(endpoint));
+        return fromJson(entity, clazz);
+    }
+
     public <T> Optional<T> getReturnsOptional(URI endpoint, Class<T> clazz) {
         String entity = get(endpoint, createResponseHandler(endpoint));
         if (StringUtils.nullOrEmpty(entity)) {
@@ -83,12 +98,25 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return Optional.of(fromJson(entity, clazz));
     }
 
+    public String patch(URI endpoint, Object dto) {
+        return patch(endpoint, dto, Collections.emptySet(), createResponseHandler(endpoint));
+    }
+
+    public String patch(URI endpoint, Object dto, Set<Header> headers) {
+        return patch(endpoint, dto, headers, createResponseHandler(endpoint));
+    }
+
     public String post(URI endpoint, Object dto) {
         return post(endpoint, dto, createResponseHandler(endpoint));
     }
 
     public <T> T post(URI endpoint, Object dto, Class<T> clazz) {
         String entity = post(endpoint, dto, createResponseHandler(endpoint));
+        return fromJson(entity, clazz);
+    }
+
+    public <T> T post(URI endpoint, Object dto, Set<Header> headers, Class<T> clazz) {
+        String entity = post(endpoint, dto, headers, createResponseHandler(endpoint));
         return fromJson(entity, clazz);
     }
 
@@ -138,9 +166,9 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return get(endpoint, get, responseHandler);
     }
 
-    protected String getPersonidentHeader(URI endpoint, String personIdent, ResponseHandler<String> responseHandler) {
+    protected String get(URI endpoint, Set<Header> headers, ResponseHandler<String> responseHandler) {
         HttpGet get = new HttpGet(endpoint);
-        get.addHeader(PERSONIDENT_HEADER, personIdent);
+        headers.forEach(get::addHeader);
         return get(endpoint, get, responseHandler);
     }
 
@@ -152,15 +180,37 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         }
     }
 
-    protected HttpPost getJsonPost(URI endpoint, Object dto) {
+    protected String patch(URI endpoint, Object dto, Set<Header> headers, ResponseHandler<String> responseHandler) {
+        HttpPatch patch = new HttpPatch(endpoint);
+        String json = toJson(dto);
+        patch.setEntity(new StringEntity(json, Charset.forName("UTF-8")));
+        headers.forEach(patch::addHeader);
+        try {
+            return this.execute(patch, responseHandler);
+        } catch (IOException e) {
+            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
+        }
+    }
+
+    protected HttpPost getJsonPost(URI endpoint, Object dto, Set<Header> headers) {
         HttpPost post = new HttpPost(endpoint);
         String json = toJson(dto);
         post.setEntity(new StringEntity(json, Charset.forName("UTF-8")));
+        headers.forEach(post::addHeader);
         return post;
     }
 
     protected String post(URI endpoint, Object dto, ResponseHandler<String> responseHandler) {
-        HttpPost post = getJsonPost(endpoint, dto);
+        HttpPost post = getJsonPost(endpoint, dto, Collections.emptySet());
+        try {
+            return this.execute(post, responseHandler);
+        } catch (IOException e) {
+            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
+        }
+    }
+
+    protected String post(URI endpoint, Object dto, Set<Header> headers, ResponseHandler<String> responseHandler) {
+        HttpPost post = getJsonPost(endpoint, dto, headers);
         try {
             return this.execute(post, responseHandler);
         } catch (IOException e) {
