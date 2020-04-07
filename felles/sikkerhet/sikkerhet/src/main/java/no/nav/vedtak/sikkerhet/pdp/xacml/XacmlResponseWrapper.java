@@ -101,22 +101,33 @@ public class XacmlResponseWrapper {
         if (!responseObject.containsKey(ADVICE)) {
             return Collections.emptyList();
         }
-        JsonObject adviceObject = responseObject.getJsonObject(ADVICE);
-        if (!DENY_ADVICE_IDENTIFIER.equals(adviceObject.getString("Id"))) {
-            return Collections.emptyList();
+        var objectValue = responseObject.get(ADVICE);
+        if (objectValue.getValueType() == JsonValue.ValueType.ARRAY) {
+            return objectValue.asJsonArray().stream()
+                .map(JsonValue::asJsonObject)
+                .map(this::getAdvice)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        } else {
+            JsonObject adviceObject = objectValue.asJsonObject();
+            if (!DENY_ADVICE_IDENTIFIER.equals(adviceObject.getString("Id"))) {
+                return Collections.emptyList();
+            }
+            return getAdvice(adviceObject);
         }
-        if (adviceObject.get(ATTRIBUTE_ASSIGNMENT).getValueType() == JsonValue.ValueType.ARRAY) {
-            JsonArray adviceArray = adviceObject.getJsonArray(ATTRIBUTE_ASSIGNMENT);
+    }
+
+    private List<Advice> getAdvice(JsonObject responseObject) {
+        if (responseObject.get(ATTRIBUTE_ASSIGNMENT).getValueType() == JsonValue.ValueType.ARRAY) {
+            JsonArray adviceArray = responseObject.getJsonArray(ATTRIBUTE_ASSIGNMENT);
             return adviceArray.stream()
                 .map(jsonValue -> jsonToAdvice((JsonObject) jsonValue))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
         } else {
-            Optional<Advice> advice = jsonToAdvice(adviceObject.getJsonObject(ATTRIBUTE_ASSIGNMENT));
-            return advice.isPresent()
-                ? Collections.singletonList(advice.get())
-                : Collections.emptyList();
+            Optional<Advice> advice = jsonToAdvice(responseObject.getJsonObject(ATTRIBUTE_ASSIGNMENT));
+            return advice.map(Collections::singletonList).orElse(Collections.emptyList());
         }
     }
 

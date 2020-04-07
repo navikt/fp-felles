@@ -21,6 +21,10 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
@@ -33,10 +37,6 @@ import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 public class PdpKlientImplTest {
 
@@ -104,6 +104,30 @@ public class PdpKlientImplTest {
     public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn1() throws FileNotFoundException {
         AbacIdToken idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
         XacmlResponseWrapper responseWrapper = createResponse("xacml3response.json");
+        ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
+
+        when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
+        Set<String> personnr = new HashSet<>();
+        personnr.add("12345678900");
+        personnr.add("00987654321");
+        personnr.add("15151515151");
+
+        PdpRequest pdpRequest = lagPdpRequest();
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, personnr);
+        pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
+        pdpKlient.forespørTilgang(pdpRequest);
+
+        String xacmlRequestString = captor.getValue().build().toString();
+
+        assertThat(xacmlRequestString.contains("12345678900")).isTrue();
+        assertThat(xacmlRequestString.contains("00987654321")).isTrue();
+        assertThat(xacmlRequestString.contains("15151515151")).isTrue();
+    }
+
+    @Test
+    public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn2() throws FileNotFoundException {
+        AbacIdToken idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
+        XacmlResponseWrapper responseWrapper = createResponse("xacmlresponse-array.json");
         ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
