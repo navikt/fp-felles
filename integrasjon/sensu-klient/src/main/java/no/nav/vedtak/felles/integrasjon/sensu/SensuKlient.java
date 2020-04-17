@@ -47,7 +47,8 @@ public class SensuKlient {
         LOG.info("Før launch av metrikklogg for callId: {}", callId);
         executorService.execute(() -> {
             long startTs = System.currentTimeMillis();
-            try (Socket socket = establishSocketConnections()) {
+            try {
+                Socket socket = establishSocketConnectionIfNeeded();
                 String data = sensuEvent.toSensuRequest().toJson();
                 LOG.debug("Sender json metrikk til sensu: {}", data);
                 try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
@@ -69,7 +70,7 @@ public class SensuKlient {
         });
     }
 
-    private Socket establishSocketConnections() throws Exception {
+    private Socket establishSocketConnectionIfNeeded() throws Exception {
         if (socket.isClosed() || !socket.isConnected()) {
             try {
                 socket.setSoTimeout(1000);
