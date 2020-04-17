@@ -45,6 +45,7 @@
 		<module>behandlejournal-klient</module>
 		<module>sakogbehandling-klient</module>
 		<module>okonomistotte-jms</module>
+        <module>sensu-klient</module>
     </modules>
 
 	<properties>
@@ -56,7 +57,7 @@
 
 		<felles.adapter.version>0.1.8</felles.adapter.version>
 		<unleash.version>3.3.3</unleash.version>
-
+		<influxdb-java.version>2.17</influxdb-java.version>
 	</properties>
 
 	<dependencyManagement>
@@ -371,6 +372,12 @@
 				<groupId>com.ibm.mq</groupId>
 				<artifactId>com.ibm.mq.allclient</artifactId>
 				<version>${ibmmq.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.influxdb</groupId>
+				<artifactId>influxdb-java</artifactId>
+				<version>${influxdb-java.version}</version>
 			</dependency>
 
 		</dependencies>
