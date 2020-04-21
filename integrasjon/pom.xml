@@ -374,12 +374,18 @@
 				<version>${ibmmq.version}</version>
 			</dependency>
 
+			<!-- SENSU klient -->
 			<dependency>
 				<groupId>org.influxdb</groupId>
 				<artifactId>influxdb-java</artifactId>
 				<version>${influxdb-java.version}</version>
 			</dependency>
-
+			<dependency>
+				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+				<artifactId>sensu-klient</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- End SENSU klient -->
 		</dependencies>
 	</dependencyManagement>
 
