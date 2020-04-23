@@ -26,13 +26,13 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.Obligation;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class PdpKlientImpl implements PdpKlient {
 
     private static final Logger logger = LoggerFactory.getLogger(PdpKlientImpl.class);
     private XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste;
-    private String pepId;
 
     private PdpConsumer pdpConsumer;
 
@@ -41,11 +41,9 @@ public class PdpKlientImpl implements PdpKlient {
     }
 
     @Inject
-    public PdpKlientImpl(PdpConsumer pdpConsumer, XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste,
-                         @KonfigVerdi("systembruker.username") String pepId) {
+    public PdpKlientImpl(PdpConsumer pdpConsumer, XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste) {
         this.pdpConsumer = pdpConsumer;
         this.xamlRequestBuilderTjeneste = xamlRequestBuilderTjeneste;
-        this.pepId = pepId;
     }
 
     @Override
@@ -60,7 +58,7 @@ public class PdpKlientImpl implements PdpKlient {
 
     void leggPåTokenInformasjon(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest) {
         XacmlAttributeSet environmentAttributeSet = new XacmlAttributeSet();
-        environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID, pepId);
+        environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID, getPepId());
         AbacIdToken idToken = (AbacIdToken) pdpRequest.get(ENVIRONMENT_AUTH_TOKEN);
         if (idToken.erOidcToken()) {
             environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, JwtUtil.getJwtBody(idToken.getToken()));
@@ -124,5 +122,9 @@ public class PdpKlientImpl implements PdpKlient {
         if (!obligations.isEmpty()) {
             throw PdpFeil.FACTORY.ukjentObligationsFeil(obligations).toException();
         }
+    }
+
+    private static String getPepId() {
+        return Environment.current().getProperty("NAIS_APP_NAME", "local-app");
     }
 }
