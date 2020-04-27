@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,14 +15,15 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.apptjeneste.AppServiceHandler;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
-public class SensuKlient {
+public class SensuKlient implements AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SensuKlient.class);
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private static ExecutorService executorService;
     private Socket socket;
 
     private String sensuHost;
@@ -46,29 +48,33 @@ public class SensuKlient {
 
     private void doLogMetrics(SensuEvent sensuEvent, String callId) {
         LOG.info("Før launch av metrikklogg for callId: {}", callId);
-        executorService.execute(() -> {
-            long startTs = System.currentTimeMillis();
-            try {
-                Socket socket = establishSocketConnectionIfNeeded();
-                String data = sensuEvent.toSensuRequest().toJson();
-                LOG.debug("Sender json metrikk til sensu: {}", data);
-                try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
-                    LOG.info("Start logging av metrikker for callId {}", callId);
-                    writer.write(data, 0, data.length());
-                    writer.flush();
-                    LOG.debug("Skrev {} bytes med data.", data.length());
-                } catch (IOException e) {
-                    LOG.warn("Feil ver sending av event {}", sensuEvent, e);
+        if (executorService != null) {
+            executorService.execute(() -> {
+                long startTs = System.currentTimeMillis();
+                try {
+                    Socket socket = establishSocketConnectionIfNeeded();
+                    String data = sensuEvent.toSensuRequest().toJson();
+                    LOG.debug("Sender json metrikk til sensu: {}", data);
+                    try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
+                        LOG.info("Start logging av metrikker for callId {}", callId);
+                        writer.write(data, 0, data.length());
+                        writer.flush();
+                        LOG.debug("Skrev {} bytes med data.", data.length());
+                    } catch (IOException e) {
+                        LOG.warn("Feil ver sending av event {}", sensuEvent, e);
+                    }
+                } catch (Exception ex) {
+                    if (System.getenv("NAIS_CLUSTER_NAME") != null) {
+                        LOG.warn("Feil ved tilkobling til metrikkendepunktet", ex);
+                    }
+                } finally {
+                    long tidBrukt = System.currentTimeMillis() - startTs;
+                    LOG.info("Ferdig med logging av metrikker for callId {}. Tid brukt: {}", callId, tidBrukt);
                 }
-            } catch (Exception ex) {
-                if (System.getenv("NAIS_CLUSTER_NAME") != null) {
-                    LOG.warn("Feil ved tilkobling til metrikkendepunktet", ex);
-                }
-            } finally {
-                long tidBrukt = System.currentTimeMillis() - startTs;
-                LOG.info("Ferdig med logging av metrikker for callId {}. Tid brukt: {}", callId, tidBrukt);
-            }
-        });
+            });
+        } else {
+            LOG.warn("Sensu klienten er ikke startet ennå!");
+        }
     }
 
     private Socket establishSocketConnectionIfNeeded() throws Exception {
@@ -85,5 +91,26 @@ public class SensuKlient {
             }
         }
         return socket;
+    }
+
+    @Override
+    public synchronized void start() {
+        if (executorService != null) {
+            throw new IllegalArgumentException("Service allerede startet, stopp først.");
+        }
+        executorService = Executors.newFixedThreadPool(2);
+    }
+
+    @Override
+    public synchronized void stop() {
+        if (executorService != null) {
+            executorService.shutdown();
+            try {
+                executorService.awaitTermination(30, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            executorService.shutdownNow();
+        }
     }
 }
