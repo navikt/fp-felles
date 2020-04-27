@@ -48,29 +48,33 @@ public class SensuKlient implements AppServiceHandler {
 
     private void doLogMetrics(SensuEvent sensuEvent, String callId) {
         LOG.info("Før launch av metrikklogg for callId: {}", callId);
-        executorService.execute(() -> {
-            long startTs = System.currentTimeMillis();
-            try {
-                Socket socket = establishSocketConnectionIfNeeded();
-                String data = sensuEvent.toSensuRequest().toJson();
-                LOG.debug("Sender json metrikk til sensu: {}", data);
-                try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
-                    LOG.info("Start logging av metrikker for callId {}", callId);
-                    writer.write(data, 0, data.length());
-                    writer.flush();
-                    LOG.debug("Skrev {} bytes med data.", data.length());
-                } catch (IOException e) {
-                    LOG.warn("Feil ver sending av event {}", sensuEvent, e);
+        if (executorService != null) {
+            executorService.execute(() -> {
+                long startTs = System.currentTimeMillis();
+                try {
+                    Socket socket = establishSocketConnectionIfNeeded();
+                    String data = sensuEvent.toSensuRequest().toJson();
+                    LOG.debug("Sender json metrikk til sensu: {}", data);
+                    try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
+                        LOG.info("Start logging av metrikker for callId {}", callId);
+                        writer.write(data, 0, data.length());
+                        writer.flush();
+                        LOG.debug("Skrev {} bytes med data.", data.length());
+                    } catch (IOException e) {
+                        LOG.warn("Feil ver sending av event {}", sensuEvent, e);
+                    }
+                } catch (Exception ex) {
+                    if (System.getenv("NAIS_CLUSTER_NAME") != null) {
+                        LOG.warn("Feil ved tilkobling til metrikkendepunktet", ex);
+                    }
+                } finally {
+                    long tidBrukt = System.currentTimeMillis() - startTs;
+                    LOG.info("Ferdig med logging av metrikker for callId {}. Tid brukt: {}", callId, tidBrukt);
                 }
-            } catch (Exception ex) {
-                if (System.getenv("NAIS_CLUSTER_NAME") != null) {
-                    LOG.warn("Feil ved tilkobling til metrikkendepunktet", ex);
-                }
-            } finally {
-                long tidBrukt = System.currentTimeMillis() - startTs;
-                LOG.info("Ferdig med logging av metrikker for callId {}. Tid brukt: {}", callId, tidBrukt);
-            }
-        });
+            });
+        } else {
+            LOG.warn("Sensu klienten er ikke startet ennå!");
+        }
     }
 
     private Socket establishSocketConnectionIfNeeded() throws Exception {
