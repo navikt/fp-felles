@@ -17,6 +17,8 @@ import org.junit.Test;
 public class SensuKlientTest {
 
     private static ServerSocket serverSocket;
+    private static SensuKlient sensuKlient;
+
     private static final String expectedJsonBeforeTimestamp = "{" +
             "\"name\":\"sensu-event-local-app\"," +
             "\"type\":\"metric\"," +
@@ -26,16 +28,18 @@ public class SensuKlientTest {
     @BeforeClass
     public static void init() throws IOException {
         serverSocket = new ServerSocket(0);
+        sensuKlient = new SensuKlient("localhost", serverSocket.getLocalPort());
+        sensuKlient.start();
     }
 
     @AfterClass
     public static void teardown() throws IOException {
         serverSocket.close();
+        sensuKlient.stop();
     }
 
     @Test
     public void logMetrics() throws IOException {
-        SensuKlient sensuKlient = new SensuKlient("localhost", serverSocket.getLocalPort());
         SensuEvent sensuDto = SensuEvent.createSensuEvent(
                 "registrert.task",
                 Map.of("task_type", "task.registerSøknad"),

@@ -89,16 +89,6 @@ public class SensuKlient implements AppServiceHandler {
         return socket;
     }
 
-    private void stopService() {
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        executorService.shutdownNow();
-    }
-
     @Override
     public synchronized void start() {
         if (executorService != null) {
