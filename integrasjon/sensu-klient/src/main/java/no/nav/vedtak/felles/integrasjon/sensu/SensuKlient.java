@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,14 +15,15 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.apptjeneste.AppServiceHandler;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
-public class SensuKlient {
+public class SensuKlient implements AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SensuKlient.class);
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private static ExecutorService executorService;
     private Socket socket;
 
     private String sensuHost;
@@ -85,5 +87,36 @@ public class SensuKlient {
             }
         }
         return socket;
+    }
+
+    private void stopService() {
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        executorService.shutdownNow();
+    }
+
+    @Override
+    public synchronized void start() {
+        if (executorService != null) {
+            throw new IllegalArgumentException("Service allerede startet, stopp først.");
+        }
+        executorService = Executors.newFixedThreadPool(2);
+    }
+
+    @Override
+    public synchronized void stop() {
+        if (executorService != null) {
+            executorService.shutdown();
+            try {
+                executorService.awaitTermination(30, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            executorService.shutdownNow();
+        }
     }
 }
