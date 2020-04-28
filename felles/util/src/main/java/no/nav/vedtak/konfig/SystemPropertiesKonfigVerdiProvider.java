@@ -2,10 +2,10 @@ package no.nav.vedtak.konfig;
 
 import static no.nav.vedtak.konfig.StandardPropertySource.SYSTEM_PROPERTIES;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 
 /** Henter properties fra {@link System#getProperties}. */
-@ApplicationScoped
+@Dependent
 public class SystemPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvider {
     public static final int PRIORITET = Integer.MIN_VALUE;
 
