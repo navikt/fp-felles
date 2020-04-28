@@ -25,6 +25,16 @@ import no.nav.vedtak.konfig.StandardPropertySource;
 import no.nav.vedtak.konfig.SystemPropertiesKonfigVerdiProvider;
 
 public final class Environment {
+    
+    static final class Init {
+        // Josh Bloch's lazy load singleton (ref "Effective Java").  Siden Init ikke lastes før den referes blir feltet her initiert først når den aksesseres første gang.
+        static final Environment CURRENT = of(Cluster.current(), Namespace.current());
+
+        private static Environment of(Cluster cluster, Namespace namespace) {
+            return new Environment(cluster, namespace);
+        }
+
+    }
 
     private final Cluster cluster;
     private final Namespace namespace;
@@ -39,12 +49,8 @@ public final class Environment {
                 new ApplicationPropertiesKonfigProvider());
     }
 
-    private static Environment of(Cluster cluster, Namespace namespace) {
-        return new Environment(cluster, namespace);
-    }
-
     public static Environment current() {
-        return of(Cluster.current(), Namespace.current());
+        return Init.CURRENT;
     }
 
     public Cluster getCluster() {
@@ -157,8 +163,7 @@ public final class Environment {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[cluster=" + cluster + ", namespace=" + namespace + ", propertySources="
-                + propertySources + "]";
+        return getClass().getSimpleName() + "[cluster=" + cluster + ", namespace=" + namespace + ", propertySources=" + propertySources + "]";
     }
 
 }

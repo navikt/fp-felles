@@ -1,5 +1,7 @@
 package no.nav.vedtak.felles.testutilities.cdi;
 
+import java.util.Properties;
+
 import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.vedtak.felles.testutilities.UnitTestConfiguration;
@@ -13,8 +15,13 @@ import no.nav.vedtak.konfig.StandardPropertySource;
 @ApplicationScoped
 public class UnitTestKonfigVerdiProvider extends PropertiesKonfigVerdiProvider {
 
+    static class Init {
+        // lazy load singleton
+        static final Properties PROPS = UnitTestConfiguration.getUnitTestProperties();
+    }
+
     UnitTestKonfigVerdiProvider() {
-        super(UnitTestConfiguration.getUnitTestProperties(), StandardPropertySource.APP_PROPERTIES);
+        super(Init.PROPS, StandardPropertySource.APP_PROPERTIES);
     }
 
     @Override
