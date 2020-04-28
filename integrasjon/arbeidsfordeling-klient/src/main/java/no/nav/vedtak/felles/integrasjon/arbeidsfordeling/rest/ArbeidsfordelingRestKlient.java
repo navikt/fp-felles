@@ -55,15 +55,15 @@ public class ArbeidsfordelingRestKlient {
                 .filter(response -> "AKTIV".equalsIgnoreCase(response.getStatus()))
                 .collect(Collectors.toList());
         } catch (Exception e) {
-            throw ArbeidsfordelingRestKlientFeil.FACTORY.feilfratjeneste(uriString).toException();
+            throw ArbeidsfordelingRestKlientFeil.FACTORY.feilfratjeneste(uriString, e.getMessage(), e).toException();
         }
     }
 
     interface ArbeidsfordelingRestKlientFeil extends DeklarerteFeil {
         ArbeidsfordelingRestKlientFeil FACTORY = FeilFactory.create(ArbeidsfordelingRestKlientFeil.class);
 
-        @IntegrasjonFeil(feilkode = "F-016912", feilmelding = "NORG2 arbeidsfordeling feil ved oppslag mot %s", logLevel = LogLevel.WARN)
-        Feil feilfratjeneste(String var1);
+        @IntegrasjonFeil(feilkode = "F-016913", feilmelding = "NORG2 arbeidsfordeling feil ved oppslag mot %s", logLevel = LogLevel.WARN)
+        Feil feilfratjeneste(String var1, String msg, Throwable t);
     }
 
 }
