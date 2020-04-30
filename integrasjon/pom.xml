@@ -49,7 +49,7 @@
     </modules>
 
 	<properties>
-		<ibmmq.version>9.1.4.0</ibmmq.version>
+		<ibmmq.version>9.1.5.0</ibmmq.version>
 
 		<jms-api.version>2.0.1</jms-api.version>
 
