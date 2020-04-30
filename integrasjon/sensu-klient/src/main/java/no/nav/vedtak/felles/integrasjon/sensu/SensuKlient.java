@@ -76,7 +76,7 @@ public class SensuKlient implements AppServiceHandler {
                 }
             });
         } else {
-            LOG.warn("Sensu klienten er ikke startet ennå!");
+            LOG.info("Sensu klienten er ikke startet ennå!");
         }
     }
 
