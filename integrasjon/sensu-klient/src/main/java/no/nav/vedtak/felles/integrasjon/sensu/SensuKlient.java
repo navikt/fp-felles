@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.sensu;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
@@ -47,7 +48,7 @@ public class SensuKlient implements AppServiceHandler {
     }
 
     private void doLogMetrics(SensuEvent sensuEvent, String callId) {
-        LOG.info("Før launch av metrikklogg for callId: {}", callId);
+        LOG.debug("Før launch av metrikklogg for callId: {}", callId);
         if (executorService != null) {
             executorService.execute(() -> {
                 long startTs = System.currentTimeMillis();
@@ -55,9 +56,11 @@ public class SensuKlient implements AppServiceHandler {
                     Socket socket = establishSocketConnectionIfNeeded();
                     String data = sensuEvent.toSensuRequest().toJson();
                     LOG.debug("Sender json metrikk til sensu: {}", data);
-                    try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
-                        LOG.info("Start logging av metrikker for callId {}", callId);
+                    try {
+                        LOG.debug("Start logging av metrikker for callId {}", callId);
+                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
                         writer.write(data, 0, data.length());
+                        writer.newLine();
                         writer.flush();
                         LOG.debug("Skrev {} bytes med data.", data.length());
                     } catch (IOException e) {
@@ -77,11 +80,12 @@ public class SensuKlient implements AppServiceHandler {
         }
     }
 
-    private Socket establishSocketConnectionIfNeeded() throws Exception {
+    private synchronized Socket establishSocketConnectionIfNeeded() throws Exception {
         if (socket.isClosed() || !socket.isConnected()) {
             try {
                 socket = new Socket();
                 socket.setSoTimeout(1000);
+                socket.setKeepAlive(true);
                 socket.connect(new InetSocketAddress(sensuHost, sensuPort), 1000);
                 return socket;
             } catch (Exception ex) {
