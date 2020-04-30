@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.jboss.logging.MDC;
@@ -31,8 +32,6 @@ public class SensuKlientTest {
             "\"handlers\":[\"events_nano\"]," +
             "\"output\":\"local-app.registrert.task,application=local-app,cluster=local,namespace=default,task_type=task.registerSøknad counter=1i";
 
-    int ANTALL_MELDINGER_SENDT = 100;
-
     @BeforeClass
     public static void init() throws IOException {
         serverSocket = new ServerSocket(0);
@@ -42,50 +41,29 @@ public class SensuKlientTest {
 
     @AfterClass
     public static void teardown() throws IOException {
-        serverSocket.close();
         sensuKlient.stop();
+        serverSocket.close();
     }
 
     @Test
     public void logMetrics() throws IOException {
         //Perform
-        for (int i = 0; i < ANTALL_MELDINGER_SENDT; i++) {
-            MDCOperations.putCallId("Sender: " + i);
-            sensuKlient.logMetrics(SensuEvent.createSensuEvent(
-                    "registrert.task",
-                    Map.of("task_type", "task.registerSøknad"),
-                    Map.of("counter", 1)));
-        }
+        sensuKlient.logMetrics(SensuEvent.createSensuEvent(
+                "registrert.task",
+                Map.of("task_type", "task.registerSøknad"),
+                Map.of("counter", 1)));
 
         //Assert
-        List<String> resultat = readFromSocket();
+        String resultat = readFromSocket();
         assertThat(resultat).isNotNull();
-        assertThat(resultat).isNotEmpty();
-        assertThat(resultat.size()).isEqualTo(ANTALL_MELDINGER_SENDT);
-
-        for (int i = 0; i < ANTALL_MELDINGER_SENDT; i++) {
-            assertThat(resultat.get(i)).startsWith(expectedJsonBeforeTimestamp);
-        }
+        assertThat(resultat).startsWith(expectedJsonBeforeTimestamp);
     }
 
-    private List<String> readFromSocket() throws IOException {
+    private String readFromSocket() throws IOException {
         serverSocket.setSoTimeout(1000);
-        List<String> result = new ArrayList<>();
         try (Socket socket = serverSocket.accept()) {
-            System.out.println("A new client is connected : " + socket);
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            int i = 0;
-            while (i < ANTALL_MELDINGER_SENDT) {
-                try {
-                    String received = reader.readLine();
-                    System.out.println("Got: " + received);
-                    result.add(received);
-                    i++;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            return reader.lines().collect(Collectors.joining(""));
         }
-        return result;
     }
 }
