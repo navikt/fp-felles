@@ -43,8 +43,11 @@ public class MdcExtendedLogContext {
 
     private String insertValue(String currentValue, String key, Object keyValue) {
         validateKey(key);
+        if(currentValue==null){
+            currentValue=this.baseFormat;
+        }
         String val = currentValue.substring(0, currentValue.length() - 1);
-        val = val + (val.endsWith("[") ? "" : ";") + key + "=" + keyValue + "]";
+        val = val + (val.endsWith("[") ? "" : ";") + (keyValue ==null ? "" : key + "=" + keyValue) + "]";
         return val;
     }
 
