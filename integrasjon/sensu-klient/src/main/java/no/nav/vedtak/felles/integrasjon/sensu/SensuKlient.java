@@ -25,7 +25,6 @@ public class SensuKlient implements AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SensuKlient.class);
     private static ExecutorService executorService;
-    private Socket socket;
 
     private String sensuHost;
     private int sensuPort;
@@ -39,7 +38,6 @@ public class SensuKlient implements AppServiceHandler {
                        @KonfigVerdi(value = "SENSU_PORT", defaultVerdi = "3030") Integer sensuPort) {
         this.sensuHost = sensuHost;
         this.sensuPort = sensuPort;
-        this.socket = new Socket();
     }
 
     public void logMetrics(SensuEvent metrics) {
@@ -52,23 +50,20 @@ public class SensuKlient implements AppServiceHandler {
         if (executorService != null) {
             executorService.execute(() -> {
                 long startTs = System.currentTimeMillis();
-                try {
-                    Socket socket = establishSocketConnectionIfNeeded();
+                try (Socket socket = establishSocketConnectionIfNeeded()) {
                     String data = sensuEvent.toSensuRequest().toJson();
                     LOG.debug("Sender json metrikk til sensu: {}", data);
-                    try {
+                    try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
                         LOG.debug("Start logging av metrikker for callId {}", callId);
-                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
                         writer.write(data, 0, data.length());
-                        writer.newLine();
                         writer.flush();
                         LOG.debug("Skrev {} bytes med data.", data.length());
                     } catch (IOException e) {
-                        LOG.warn("Feil ver sending av event {}", sensuEvent, e);
+                        LOG.warn("Feil ver sending av event.", e);
                     }
                 } catch (Exception ex) {
                     if (System.getenv("NAIS_CLUSTER_NAME") != null) {
-                        LOG.warn("Feil ved tilkobling til metrikkendepunktet", ex);
+                        LOG.warn("Feil ved tilkobling til metrikkendepunkt.", ex);
                     }
                 } finally {
                     long tidBrukt = System.currentTimeMillis() - startTs;
@@ -76,14 +71,13 @@ public class SensuKlient implements AppServiceHandler {
                 }
             });
         } else {
-            LOG.warn("Sensu klienten er ikke startet ennå!");
+            LOG.info("Sensu klienten er ikke startet ennå!");
         }
     }
 
     private synchronized Socket establishSocketConnectionIfNeeded() throws Exception {
-        if (socket.isClosed() || !socket.isConnected()) {
             try {
-                socket = new Socket();
+                Socket socket = new Socket();
                 socket.setSoTimeout(1000);
                 socket.setKeepAlive(true);
                 socket.connect(new InetSocketAddress(sensuHost, sensuPort), 1000);
@@ -93,8 +87,6 @@ public class SensuKlient implements AppServiceHandler {
                 LOG.debug(feilMelding, ex);
                 throw new Exception(feilMelding, ex);
             }
-        }
-        return socket;
     }
 
     @Override
@@ -102,7 +94,7 @@ public class SensuKlient implements AppServiceHandler {
         if (executorService != null) {
             throw new IllegalArgumentException("Service allerede startet, stopp først.");
         }
-        executorService = Executors.newFixedThreadPool(2);
+        executorService = Executors.newFixedThreadPool(3);
     }
 
     @Override
