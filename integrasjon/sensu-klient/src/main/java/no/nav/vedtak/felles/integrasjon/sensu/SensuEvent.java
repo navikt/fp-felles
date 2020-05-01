@@ -81,11 +81,12 @@ public class SensuEvent {
     }
 
     static class SensuRequest {
+        private static final ObjectMapper OM = new ObjectMapper();
         private final String name;
         private final String type;
         private final List<String> handlers;
+        private final int status = 0;
         private final String output;
-        private final ObjectMapper objectMapper = new ObjectMapper();
 
         public SensuRequest(String name, String output) {
             this.name = name;
@@ -95,7 +96,7 @@ public class SensuEvent {
         }
 
         public String toJson() throws JsonProcessingException {
-            return objectMapper.writeValueAsString(this);
+            return OM.writeValueAsString(this);
         }
 
         public String getName() {
@@ -112,6 +113,10 @@ public class SensuEvent {
 
         public String getOutput() {
             return output;
+        }
+        
+        public int getStatus() {
+            return status;
         }
     }
 }
