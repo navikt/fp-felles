@@ -124,9 +124,8 @@ public class SensuKlient implements AppServiceHandler {
                 var dataEvent = queue.poll(1000L, TimeUnit.MILLISECONDS);
                 if (dataEvent != null) {
                     writer.write(dataEvent.json, 0, dataEvent.json.length());
-                } // else heartbeat
-                writer.write('\n');
-                writer.flush();
+                    writer.flush();
+                }
             }
 
         } catch (IOException e) {

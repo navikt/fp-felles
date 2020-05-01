@@ -30,6 +30,7 @@ public class SingleSocketSensuKlientTest {
         "\"name\":\"sensu-event-local-app\"," +
         "\"type\":\"metric\"," +
         "\"handlers\":[\"events_nano\"]," +
+        "\"status\":0," +
         "\"output\":\"local-app.registrert.task,application=local-app,cluster=local,namespace=default,task_type=task.registerSøknad counter=1i";
 
     @Before
@@ -45,7 +46,7 @@ public class SingleSocketSensuKlientTest {
                 try (Reader reader = new BufferedReader(new InputStreamReader
                   (socket.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
                     int c = 0;
-                    while ((c = reader.read()) != -1 && c != '\n') {
+                    while ((c = reader.read()) != -1 && c != '}') {
                         sb.append((char) c);
                     }
                 }
