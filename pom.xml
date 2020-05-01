@@ -215,7 +215,6 @@
                     <useFile>true</useFile>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.jboss.jandex</groupId>
                 <artifactId>jandex-maven-plugin</artifactId>
