@@ -232,7 +232,6 @@
                 </executions>
             </plugin>
         </plugins>
-
     </build>
     <distributionManagement>
         <repository>
