@@ -15,6 +15,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -134,6 +135,14 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return Optional.of(fromJson(entity, clazz));
     }
 
+    public String put(URI endpoint, Object dto) {
+        return put(endpoint, dto, Collections.emptySet(), createResponseHandler(endpoint));
+    }
+
+    public String put(URI endpoint, Object dto, Set<Header> headers) {
+        return put(endpoint, dto, headers, createResponseHandler(endpoint));
+    }
+
     protected ResponseHandler<String> createResponseHandler(URI endpoint) {
         return new StringResponseHandler(endpoint);
     }
@@ -187,6 +196,18 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         headers.forEach(patch::addHeader);
         try {
             return this.execute(patch, responseHandler);
+        } catch (IOException e) {
+            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
+        }
+    }
+
+    protected String put(URI endpoint, Object dto, Set<Header> headers, ResponseHandler<String> responseHandler) {
+        HttpPut put = new HttpPut(endpoint);
+        String json = toJson(dto);
+        put.setEntity(new StringEntity(json, Charset.forName("UTF-8")));
+        headers.forEach(put::addHeader);
+        try {
+            return this.execute(put, responseHandler);
         } catch (IOException e) {
             throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
         }
