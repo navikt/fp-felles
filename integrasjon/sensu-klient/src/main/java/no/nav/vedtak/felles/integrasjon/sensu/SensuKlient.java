@@ -1,10 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.sensu;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -78,19 +78,44 @@ public class SensuKlient implements AppServiceHandler {
 
     private void publiserTilSensu() {
         // publiserer i en dobbel, loop, en tråd, en åpen socket/outputstream, inntil interrupted
+        DataEvent lastEvent = null;
+        int socketExceptions = 0;
+
         while (true) {
 
             try (var socket = createSocket()) {
 
-                publiserLoop(socket);
+                try (var socketOutputStream = socket.getOutputStream();
+                        OutputStreamWriter writer = new OutputStreamWriter(socketOutputStream, StandardCharsets.UTF_8)) {
+
+                    // indre loop
+                    while (true) {
+                        lastEvent = lastEvent != null ? lastEvent : queue.poll(1000L, TimeUnit.MILLISECONDS);
+                        if (lastEvent != null) {
+                            writer.write(lastEvent.json, 0, lastEvent.json.length());
+                            writer.flush();
+                            lastEvent = null;  // reset
+                            socketExceptions = 0; // reset
+                        }
+                    }
+                } catch (SocketException e) {
+                    socketExceptions++;
+
+                    if (socketExceptions % 10 == 0) {
+                        // forventer å få dette innimellom, så logger ikke hver gang
+                        LOG.warn("Feil ved sending av event [" + socketExceptions + "]: " + lastEvent, e);
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Feil ved sending av event: " + lastEvent, e);
+                }
 
             } catch (InterruptedException e) {
-                // avbryter
+                // avbryter helt
                 LOG.warn(getClass().getSimpleName() + " interrupted, stopper publisering");
                 Thread.currentThread().interrupt();
                 return;
             } catch (UnknownHostException e) {
-                // avbryter
+                // avbryter helt
                 LOG.error(getClass().getSimpleName() + ": ukjent host, stopper publisering", e);
                 return;
             } catch (Exception ex) {
@@ -98,38 +123,21 @@ public class SensuKlient implements AppServiceHandler {
                 if (cluster != null) {
                     LOG.warn("Feil ved tilkobling til metrikkendepunkt, vil forsøke igjen:" + cluster, ex);
                 }
-
-                // forsøker igjen om litt
-                try {
-                    Thread.sleep(1 * 1000L);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return; // avbryter
-                }
+                // fall gjennom og vent på neste runde
             } catch (Throwable t) {
-                // avbryter
+                // avbryter helt
                 LOG.error("Kan ikke publisere til Sensu, stopper publisering", t);
                 return;
             }
 
-        }
-    }
-
-    private void publiserLoop(Socket socket) throws InterruptedException {
-        try (var socketOutputStream = socket.getOutputStream();
-                OutputStreamWriter writer = new OutputStreamWriter(socketOutputStream, StandardCharsets.UTF_8)) {
-
-            // indre loop
-            while (true) {
-                var dataEvent = queue.poll(1000L, TimeUnit.MILLISECONDS);
-                if (dataEvent != null) {
-                    writer.write(dataEvent.json, 0, dataEvent.json.length());
-                    writer.flush();
-                }
+            // forsøker igjen om litt
+            try {
+                Thread.sleep(200L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return; // avbryter helt
             }
 
-        } catch (IOException e) {
-            LOG.warn("Feil ved sending av event.", e);
         }
     }
 
@@ -161,5 +169,9 @@ public class SensuKlient implements AppServiceHandler {
             this.json = sensuEvent.toSensuRequest().toJson();
         }
 
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "<" + json + ">";
+        }
     }
 }
