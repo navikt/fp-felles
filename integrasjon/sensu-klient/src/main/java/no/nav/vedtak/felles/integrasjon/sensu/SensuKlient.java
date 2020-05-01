@@ -64,7 +64,7 @@ public class SensuKlient implements AppServiceHandler {
     }
 
     private synchronized Socket createSocket() throws Exception {
-        Socket socket = new Socket();
+        var socket = new Socket();
         socket.setSoTimeout(1000);
         socket.setKeepAlive(true);
         socket.connect(new InetSocketAddress(sensuHost, sensuPort), 1000);
@@ -80,7 +80,7 @@ public class SensuKlient implements AppServiceHandler {
         // publiserer i en dobbel, loop, en tråd, en åpen socket/outputstream, inntil interrupted
         while (true) {
 
-            try (Socket socket = createSocket()) {
+            try (var socket = createSocket()) {
 
                 publiserLoop(socket);
 
@@ -116,21 +116,17 @@ public class SensuKlient implements AppServiceHandler {
     }
 
     private void publiserLoop(Socket socket) throws InterruptedException {
-        try (OutputStream socketOutputStream = socket.getOutputStream();
+        try (var socketOutputStream = socket.getOutputStream();
                 OutputStreamWriter writer = new OutputStreamWriter(socketOutputStream, StandardCharsets.UTF_8)) {
 
             // indre loop
             while (true) {
-
                 var dataEvent = queue.poll(1000L, TimeUnit.MILLISECONDS);
-
                 if (dataEvent != null) {
                     writer.write(dataEvent.json, 0, dataEvent.json.length());
-                    writer.write('\n');
-                    writer.flush();
-                } else {
-                    // heartbeat
-                }
+                } // else heartbeat
+                writer.write('\n');
+                writer.flush();
             }
 
         } catch (IOException e) {
