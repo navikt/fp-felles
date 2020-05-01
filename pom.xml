@@ -233,6 +233,7 @@
             </plugin>
         </plugins>
     </build>
+    
     <distributionManagement>
         <repository>
             <id>github-1</id>
