@@ -64,7 +64,7 @@ public class SensuKlient implements AppServiceHandler {
             if (!kanKobleTilSensu.get()) {
                 return; // ignorer, har skrudd av pga ingen tilkobling til sensu
             }
-            String data = toJson(sensuEvents);
+            List<String> jsonList = toJson(sensuEvents);
             int antall = sensuEvents.size();
             executorService.execute(() -> {
                 long startTs = System.currentTimeMillis();
@@ -72,31 +72,36 @@ public class SensuKlient implements AppServiceHandler {
                     int rounds = 2; // prøver par ganger hvis broken pipe, uten å logge første gang
                     while (rounds > 0 && kanKobleTilSensu.get() && !Thread.currentThread().isInterrupted()) {
                         rounds--;
+                        int pos = 0;
                         // sensu har en ping/pong/heartbeat protokol, men støtter ikke det p.t., så åpner ny socket/outputstream for hver melding
                         try (Socket socket = establishSocketConnectionIfNeeded()) {
                             try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
-                                writer.write(data, 0, data.length());
-                                writer.flush();
+                                for (var json : jsonList) {
+                                    writer.write(json, 0, json.length());
+                                    writer.write('\n');
+                                    writer.flush();
+                                    pos++;
+                                }
                                 trackProgress(antall);
                             } catch (SocketException e) {
                                 throw e; // throw next level
                             } catch (IOException e) {
                                 if (rounds <= 0) {
-                                    LOG.warn("Feil ved sending av event: " + data, e);
+                                    LOG.warn("Feil ved sending av event: " + jsonList, e);
                                     break;
                                 }
                             }
                         } catch (SocketException ex) {
-                            sjekkBroken(callId, data, ex);
+                            sjekkBroken(callId, jsonList.get(pos), ex);
                             if (rounds <= 0) {
-                                LOG.warn("Feil ved tilkobling til metrikkendepunkt. Kan ikke publisere melding fra callId[" + callId + "]: " + data, ex);
+                                LOG.warn("Feil ved tilkobling til metrikkendepunkt. Kan ikke publisere melding fra callId[" + callId + "]: " + jsonList, ex);
                                 break;
                             }
                         } catch (Exception ex) {
-                            sjekkBroken(callId, data, ex);
+                            sjekkBroken(callId, jsonList.get(pos), ex);
                             break;
                         }
-                        
+
                         Thread.sleep(500); // kort pause før retry
                     }
                 } catch (InterruptedException e) {
@@ -120,14 +125,8 @@ public class SensuKlient implements AppServiceHandler {
         }
     }
 
-    private String toJson(List<SensuEvent> events) {
-        if (events.size() == 1) {
-            // standard, single event
-            return events.get(0).toSensuRequest().toJson();
-        } else {
-            // json array
-            return "[" + events.stream().map(e -> e.toSensuRequest().toJson()).collect(Collectors.joining(",")) + "]";
-        }
+    private List<String> toJson(List<SensuEvent> events) {
+        return events.stream().map(e -> e.toSensuRequest().toJson()).collect(Collectors.toList());
     }
 
     private void sjekkBroken(String callId, String json, Exception ex) {
