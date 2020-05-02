@@ -18,7 +18,7 @@ public class AuditdataHeader {
     
     private AuditdataHeader(String vendor, String product, EventClassId eventClassId, String name, String severity) {
         this.vendor = Objects.requireNonNull(vendor);
-        this.product = Objects.requireNonNull(product);;
+        this.product = Objects.requireNonNull(product);
         this.eventClassId = Objects.requireNonNull(eventClassId);
         this.name = Objects.requireNonNull(name);
         this.severity = Objects.requireNonNull(severity);

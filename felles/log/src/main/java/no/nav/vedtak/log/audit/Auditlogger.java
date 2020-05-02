@@ -25,7 +25,9 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @Dependent
 public class Auditlogger {
 
-    private static final Logger logger = LoggerFactory.getLogger("auditLogger");
+    private static final Logger LOG = LoggerFactory.getLogger(Auditlogger.class);
+    
+    private static final Logger auditLogger = LoggerFactory.getLogger("auditLogger");
    
     private final boolean enabled;
     private final String defaultVendor;
@@ -40,6 +42,8 @@ public class Auditlogger {
         if (enabled) {
             Objects.requireNonNull(defaultVendor, "defaultVendor == null");
             Objects.requireNonNull(defaultProduct, "defaultProduct == null");
+        } else {
+            LOG.warn("Denne applikasjonen bruker sporingslogg som har blitt deprecated. Bytt til bruk av \"no.nav.vedtak.log.audit.Auditlogger\".");
         }
         
         this.enabled = enabled;
@@ -50,7 +54,7 @@ public class Auditlogger {
 
     public void logg(Auditdata auditdata) {
         if (enabled) {
-            logger.info(auditdata.toString());
+            auditLogger.info(auditdata.toString());
         }
     }
     

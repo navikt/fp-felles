@@ -11,8 +11,8 @@ public class Auditdata {
     
     private static final String FIELD_SEPARATOR = " ";
     
-    private AuditdataHeader header;
-    private Set<CefField> fields;
+    private final AuditdataHeader header;
+    private final Set<CefField> fields;
 
     public Auditdata(AuditdataHeader header, Set<CefField> fields) {
         this.header = header;
