@@ -10,6 +10,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import no.nav.vedtak.log.audit.Auditdata;
 import no.nav.vedtak.log.audit.AuditdataHeader;
 import no.nav.vedtak.log.audit.Auditlogger;
@@ -22,30 +25,36 @@ import no.nav.vedtak.log.audit.EventClassId;
  * godkjennes av Arcsight. Det er derfor ikke satt opp en løsning for å utvide
  * loggformatet.
  */
+@Dependent
 public class AbacAuditlogger {
     
-    private final String vendor;
-    private final String product;
     private final Auditlogger auditlogger;
     
-    
-    public AbacAuditlogger(String vendor, String product) {
-        this(new Auditlogger(), vendor, product);
-    }
-    
-    public AbacAuditlogger(Auditlogger auditlogger, String vendor, String product) {
+    @Inject
+    public AbacAuditlogger(Auditlogger auditlogger) {
         this.auditlogger = auditlogger;
-        this.vendor = vendor;
-        this.product = product;
     }
     
+    
+    public void loggTilgang(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter) {
+        logg(userId, pdpRequest, attributter, Access.GRANTED);
+    }
     
 
-    public void loggTilgang(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter) {
+    public void loggDeny(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter) {
+        logg(userId, pdpRequest, attributter, Access.DENIED);
+    }
+    
+    public boolean isEnabled() {
+        return auditlogger.isEnabled();
+    }
+    
+    
+    private void logg(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter, Access access) {
         requireNonNull(pdpRequest);
         
         final String abacAction = requireNonNull(pdpRequest.getString(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID));
-        final AuditdataHeader header = createHeader(abacAction, Access.GRANTED);
+        final AuditdataHeader header = createHeader(abacAction, access);
         final Set<CefField> fields = createDefaultAbacFields(userId, pdpRequest, attributter);
         
         List<String> ids = getBerortBrukerId(pdpRequest);
@@ -53,11 +62,6 @@ public class AbacAuditlogger {
             loggTilgangPerBerortAktoer(header, fields, aktorId);
         }
     }
-
-    public void loggDeny(String userId, PdpRequest pdpRequestd, AbacAttributtSamling attributter) {
-        
-    }
-
 
     private void loggTilgangPerBerortAktoer(AuditdataHeader header, Set<CefField> fields, String id) {
         final Set<CefField> fieldsWithBerortBruker = new HashSet<>(fields);
@@ -68,8 +72,8 @@ public class AbacAuditlogger {
 
     private AuditdataHeader createHeader(String abacAction, Access access) {
         return new AuditdataHeader.Builder()
-                .medVendor(vendor)
-                .medProduct(product)
+                .medVendor(auditlogger.getDefaultVendor())
+                .medProduct(auditlogger.getDefaultProduct())
                 .medEventClassId(finnEventClassIdFra(abacAction))
                 .medName("ABAC Sporingslogg")
                 .medSeverity(access.getSeverity())

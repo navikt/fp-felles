@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
@@ -30,11 +29,14 @@ public class BeskyttetRessursInterceptor {
 
     private Pep pep;
     private AbacSporingslogg sporingslogg;
-
+    private AbacAuditlogger abacAuditlogger;
+    
+ 
     @Inject
-    public BeskyttetRessursInterceptor(Pep pep, AbacSporingslogg sporingslogg) {
+    public BeskyttetRessursInterceptor(Pep pep, AbacSporingslogg sporingslogg, AbacAuditlogger abacAuditlogger) {
         this.pep = pep;
         this.sporingslogg = sporingslogg;
+        this.abacAuditlogger = abacAuditlogger;
     }
 
     @AroundInvoke
@@ -53,13 +55,21 @@ public class BeskyttetRessursInterceptor {
         Method method = invocationContext.getMethod();
         boolean sporingslogges = method.getAnnotation(BeskyttetRessurs.class).sporingslogg();
         if (sporingslogges) {
+            
+            if (abacAuditlogger.isEnabled()) {
+                final String uid = SubjectHandler.getSubjectHandler().getUid();
+                abacAuditlogger.loggTilgang(uid, beslutning.getPdpRequest(), attributter);
+            }
+            
             //bygger sporingsdata før kallet til invocationContext.proceed,
             //da vi heller vil ha evt. exceptions fra sporing før forretningslogikk har kjørt
             List<Sporingsdata> sporingsdata = sporingslogg.byggSporingsdata(beslutning, attributter);
             Object resultat = invocationContext.proceed();
             //logger til slutt, det skal ikke logges dersom operasjonen ikke lot seg utføre
             //i motsatt fall blir sporingsloggen misvisende
-            sporingslogg.logg(sporingsdata);
+            if (!abacAuditlogger.isEnabled()) {
+                sporingslogg.logg(sporingsdata);
+            }
             return resultat;
         } else {
             return invocationContext.proceed();
@@ -67,7 +77,12 @@ public class BeskyttetRessursInterceptor {
     }
 
     private Object ikkeTilgang(AbacAttributtSamling attributter, Tilgangsbeslutning beslutning) {
-        sporingslogg.loggDeny(beslutning, attributter);
+        if (abacAuditlogger.isEnabled()) {
+            final String uid = SubjectHandler.getSubjectHandler().getUid();
+            abacAuditlogger.loggDeny(uid, beslutning.getPdpRequest(), attributter);
+        } else {
+            sporingslogg.loggDeny(beslutning, attributter);
+        }
 
         switch (beslutning.getBeslutningKode()) {
             case AVSLÅTT_KODE_6:
