@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.sensu;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,21 +16,24 @@ import no.nav.vedtak.util.env.Environment;
 import no.nav.vedtak.util.env.Namespace;
 
 public class SensuEvent {
-    private final String metricName;
-    private final Map<String, String> tags;
-    private final Map<String, Object> fields;
 
-    private static final Map<String, String> defaultTags = Map.of(
+    private static final Map<String, String> DEFAULT_TAGS = Map.of(
         "application", getAppName(),
         "cluster", Cluster.current().clusterName(),
         "namespace", Namespace.current().getNamespace());
 
-    private SensuEvent(String metricName, Map<String, String> tags, Map<String, Object> fields) {
+    private final String metricName;
+    private final Map<String, String> tags;
+    private final Map<String, Object> fields;
+    private final long tidsstempel;
+
+    private SensuEvent(String metricName, Map<String, String> tags, Map<String, Object> fields, long tidsstempel) {
         this.metricName = Objects.requireNonNull(metricName, "Metrikk navn må ikke være null.");
         this.fields = Objects.requireNonNull(fields, "Metrikk felter må ikke være null.");
         if (fields.isEmpty()) {
             throw new IllegalStateException("Det må være minst enn metrikk i felter.");
         }
+        this.tidsstempel = tidsstempel;
         this.tags = (null != tags ? tags : Map.of());
     }
 
@@ -43,21 +47,25 @@ public class SensuEvent {
      *            Standard taggene som application, cluster og namespace er automatisk lagd til.
      * @param fields - felter som representeret målinger i influx.
      *            Skal vannligvis representere tall.
+     * @param tidsstempel - millis (unit time) for når hendelsen inntraff
      * @return SensuEvent
      */
-    public static SensuEvent createSensuEvent(String metricName, Map<String, String> tags, Map<String, Object> fields) {
-        return new SensuEvent(metricName, tags, fields);
+    public static SensuEvent createSensuEvent(String metricName, Map<String, String> tags, Map<String, Object> fields, long tidsstempel) {
+        return new SensuEvent(metricName, tags, fields, tidsstempel);
     }
 
     /**
-     * Representerer en objekt som kan bli prosesert av sensu og influx.
-     * 
-     * @param metricName - navn til metrikk i influx, blir automatisk prefixet med app navn fra miljø.
-     * @param fields - felter som representeret målinger i influx. Skal vannligvis representere tall.
-     * @return SensuEvent
+     * @see #createSensuEvent(String, Map, Map, long)
+     */
+    public static SensuEvent createSensuEvent(String metricName, Map<String, String> tags, Map<String, Object> fields) {
+        return new SensuEvent(metricName, tags, fields, System.currentTimeMillis());
+    }
+
+    /**
+     * @see #createSensuEvent(String, Map, Map, long)
      */
     public static SensuEvent createSensuEvent(String metricName, Map<String, Object> fields) {
-        return new SensuEvent(metricName, Map.of(), fields);
+        return new SensuEvent(metricName, Map.of(), fields, System.currentTimeMillis());
     }
 
     SensuRequest toSensuRequest() {
@@ -74,11 +82,36 @@ public class SensuEvent {
 
     private Point toPoint() {
         return Point.measurement(getAppName() + "." + metricName)
-            .time(TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis()), TimeUnit.NANOSECONDS)
-            .tag(defaultTags)
+            .time(TimeUnit.MILLISECONDS.toNanos(tidsstempel), TimeUnit.NANOSECONDS)
+            .tag(DEFAULT_TAGS)
             .tag(tags)
             .fields(fields)
             .build();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+        var other = (SensuEvent) obj;
+        return Objects.equals(this.metricName, other.metricName)
+            && Objects.equals(this.tags, other.tags);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(metricName, tags);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "<metricName=" + metricName +
+            ", t=" + Instant.ofEpochMilli(tidsstempel) +
+            ", tags=" + tags +
+            ", fields=" + fields
+            + ">";
     }
 
     static class SensuRequest {
