@@ -7,8 +7,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 public class SensuEventTest {
 
     @Test(expected = IllegalStateException.class)
@@ -23,12 +21,7 @@ public class SensuEventTest {
         final SensuEvent.SensuRequest sensuRequest = data.toSensuRequest();
 
         assertThat(sensuRequest).isNotNull();
-        String jsonRequest = null;
-        try {
-            jsonRequest = sensuRequest.toJson();
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        String jsonRequest = sensuRequest.toJson();
         assertThat(jsonRequest).contains("test");
         assertThat(jsonRequest).contains("testMetric");
         assertThat(jsonRequest).contains("events_nano");
@@ -40,13 +33,7 @@ public class SensuEventTest {
         SensuEvent data = SensuEvent.createSensuEvent("test", Map.of("testMetric", 1));
         final SensuEvent.SensuRequest sensuRequest = data.toSensuRequest();
 
-        String jsonRequest = null;
-        try {
-            jsonRequest = sensuRequest.toJson();
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
+        String jsonRequest = sensuRequest.toJson();
         assertThat(sensuRequest).isNotNull();
         assertThat(jsonRequest).isNotNull();
         assertThat(jsonRequest).contains("testMetric");

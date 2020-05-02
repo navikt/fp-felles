@@ -20,10 +20,9 @@ public class SensuEvent {
     private final Map<String, Object> fields;
 
     private static final Map<String, String> defaultTags = Map.of(
-            "application", getAppName(),
-            "cluster", Cluster.current().clusterName(),
-            "namespace", Namespace.current().getNamespace()
-    );
+        "application", getAppName(),
+        "cluster", Cluster.current().clusterName(),
+        "namespace", Namespace.current().getNamespace());
 
     private SensuEvent(String metricName, Map<String, String> tags, Map<String, Object> fields) {
         this.metricName = Objects.requireNonNull(metricName, "Metrikk navn må ikke være null.");
@@ -36,13 +35,14 @@ public class SensuEvent {
 
     /**
      * Representerer en objekt som kan bli prosesert av sensu og influx.
+     * 
      * @param metricName - navn til metrikk i influx, blir automatisk prefixet med app navn fra miljø.
      * @param tags - ekstra taggene som representerer kolonner i influx.
-     *             Skal vanligvis representere String konstanter som ikke varierer alt for mye.
-     *             Brukes til group by i influx.
-     *             Standard taggene som application, cluster og namespace er automatisk lagd til.
+     *            Skal vanligvis representere String konstanter som ikke varierer alt for mye.
+     *            Brukes til group by i influx.
+     *            Standard taggene som application, cluster og namespace er automatisk lagd til.
      * @param fields - felter som representeret målinger i influx.
-     *               Skal vannligvis representere tall.
+     *            Skal vannligvis representere tall.
      * @return SensuEvent
      */
     public static SensuEvent createSensuEvent(String metricName, Map<String, String> tags, Map<String, Object> fields) {
@@ -51,6 +51,7 @@ public class SensuEvent {
 
     /**
      * Representerer en objekt som kan bli prosesert av sensu og influx.
+     * 
      * @param metricName - navn til metrikk i influx, blir automatisk prefixet med app navn fra miljø.
      * @param fields - felter som representeret målinger i influx. Skal vannligvis representere tall.
      * @return SensuEvent
@@ -73,11 +74,11 @@ public class SensuEvent {
 
     private Point toPoint() {
         return Point.measurement(getAppName() + "." + metricName)
-                .time(TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis()), TimeUnit.NANOSECONDS)
-                .tag(defaultTags)
-                .tag(tags)
-                .fields(fields)
-                .build();
+            .time(TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis()), TimeUnit.NANOSECONDS)
+            .tag(defaultTags)
+            .tag(tags)
+            .fields(fields)
+            .build();
     }
 
     static class SensuRequest {
@@ -95,8 +96,12 @@ public class SensuEvent {
             this.handlers = List.of("events_nano");
         }
 
-        public String toJson() throws JsonProcessingException {
-            return OM.writeValueAsString(this);
+        public String toJson() {
+            try {
+                return OM.writeValueAsString(this);
+            } catch (JsonProcessingException e) {
+                throw new IllegalArgumentException("Ugyldig json: ", e);
+            }
         }
 
         public String getName() {
@@ -114,11 +119,9 @@ public class SensuEvent {
         public String getOutput() {
             return output;
         }
-        
+
         public int getStatus() {
             return status;
         }
     }
 }
-
-

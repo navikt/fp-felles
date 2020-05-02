@@ -19,7 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SingleSocketSensuKlientTest {
+public class SensuKlientTest {
 
     private static ServerSocket serverSocket;
     private static SensuKlient sensuKlient;
