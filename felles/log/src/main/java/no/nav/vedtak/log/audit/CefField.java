@@ -1,37 +1,27 @@
 package no.nav.vedtak.log.audit;
 
-import java.util.Objects;
-
 public final class CefField {
     
-    private String key;
+    private CefFieldName key;
     private String value;
  
     
-    public CefField(String key, String value) {
-        this.key = cefKeyWhitelist(key);
+    public CefField(CefFieldName key, String value) {
+        this.key = key;
         this.value = value;
     }
     
-    public CefField(String key, long value) {
-        this.key = cefKeyWhitelist(key);
+    public CefField(CefFieldName key, long value) {
+        this.key = key;
         this.value = Long.toString(value);
     }
     
-    
-    private static final String cefKeyWhitelist(String s) {
-        Objects.requireNonNull(s);
-        if (s.matches("[^a-zA-Z0-9]")) {
-            throw new IllegalArgumentException("Ugyldig CEF-nøkkeltegn");
-        }
-        return s;
-    }
     
     private static final String cefValueEscape(String s) {
         return s.replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r").replace("=", "\\=");
     }
     
-    public String getKey() {
+    public CefFieldName getKey() {
         return key;
     }
     
@@ -47,6 +37,6 @@ public final class CefField {
             return "";
         }
         
-        return key + "=" + cefValueEscape(value);
+        return key.getKode() + "=" + cefValueEscape(value);
     }
 }

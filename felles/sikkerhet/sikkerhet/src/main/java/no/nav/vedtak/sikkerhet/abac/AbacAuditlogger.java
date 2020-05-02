@@ -17,7 +17,7 @@ import no.nav.vedtak.log.audit.Auditdata;
 import no.nav.vedtak.log.audit.AuditdataHeader;
 import no.nav.vedtak.log.audit.Auditlogger;
 import no.nav.vedtak.log.audit.CefField;
-import no.nav.vedtak.log.audit.CefFields;
+import no.nav.vedtak.log.audit.CefFieldName;
 import no.nav.vedtak.log.audit.EventClassId;
 
 /**
@@ -65,7 +65,7 @@ public class AbacAuditlogger {
 
     private void loggTilgangPerBerortAktoer(AuditdataHeader header, Set<CefField> fields, String id) {
         final Set<CefField> fieldsWithBerortBruker = new HashSet<>(fields);
-        fieldsWithBerortBruker.add(new CefField(CefFields.BERORT_BRUKER_ID, id));
+        fieldsWithBerortBruker.add(new CefField(CefFieldName.BERORT_BRUKER_ID, id));
         final Auditdata auditdata = new Auditdata(header, fieldsWithBerortBruker);
         auditlogger.logg(auditdata);
     }
@@ -85,23 +85,21 @@ public class AbacAuditlogger {
         final String abacResourceType = requireNonNull(pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
         
         final Set<CefField> fields = new HashSet<>();
-        fields.add(new CefField(CefFields.EVENT_TIME, System.currentTimeMillis()));
-        fields.add(new CefField(CefFields.REQUEST, attributter.getAction()));
-        fields.add(new CefField(CefFields.ABAC_RESOURCE_TYPE, abacResourceType));
-        fields.add(new CefField(CefFields.ABAC_ACTION, abacAction));
+        fields.add(new CefField(CefFieldName.EVENT_TIME, System.currentTimeMillis()));
+        fields.add(new CefField(CefFieldName.REQUEST, attributter.getAction()));
+        fields.add(new CefField(CefFieldName.ABAC_RESOURCE_TYPE, abacResourceType));
+        fields.add(new CefField(CefFieldName.ABAC_ACTION, abacAction));
         
         if (userId != null) {
-            fields.add(new CefField(CefFields.USER_ID, userId));
+            fields.add(new CefField(CefFieldName.USER_ID, userId));
         }
         
         getOneOf(attributter, StandardAbacAttributtType.SAKSNUMMER, StandardAbacAttributtType.FAGSAK_ID).ifPresent(fagsak -> {
-            fields.add(new CefField(CefFields.SAKSNUMMER_VERDI, fagsak));
-            fields.add(new CefField(CefFields.SAKSNUMMER_LABEL, CefFields.SAKSNUMMER_TEXT));
+            fields.addAll(CefFieldName.forSaksnummer(fagsak));
         });
         
         getOneOf(attributter, StandardAbacAttributtType.BEHANDLING_UUID, StandardAbacAttributtType.BEHANDLING_ID).ifPresent(behandling -> {
-            fields.add(new CefField(CefFields.BEHANDLING_VERDI, behandling));
-            fields.add(new CefField(CefFields.BEHANDLING_LABEL, CefFields.BEHANDLING_TEXT));            
+            fields.addAll(CefFieldName.forBehandling(behandling));
         });
         
         return Collections.unmodifiableSet(fields);

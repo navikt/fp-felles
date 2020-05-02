@@ -1,18 +1,26 @@
 package no.nav.vedtak.log.audit;
 
-public class CefFields {
+import java.util.Set;
 
-    public static final String EVENT_TIME = "end";
-    public static final String USER_ID = "suid";
-    public static final String BERORT_BRUKER_ID = "duid";
-    public static final String REQUEST = "request";
-    public static final String ABAC_RESOURCE_TYPE = "requestContext";
-    public static final String ABAC_ACTION = "act";
+
+public final class CefFields {
+
+    private static final String BEHANDLING_TEXT = "Behandling";
+    private static final String SAKSNUMMER_TEXT = "Saksnummer";
     
-    public static final String SAKSNUMMER_VERDI = "flexString1";
-    public static final String SAKSNUMMER_LABEL = "flexString1Label";
-    public static final String SAKSNUMMER_TEXT = "Saksnummer";
-    public static final String BEHANDLING_VERDI = "flexString2";
-    public static final String BEHANDLING_LABEL = "flexString2Label";
-    public static final String BEHANDLING_TEXT = "Behandling";
+    private CefFields() {}
+    
+    
+    public static Set<CefField> forSaksnummer(long saksnummer) {
+        return forSaksnummer(saksnummer);
+    }
+    
+    public static Set<CefField> forSaksnummer(String saksnummer) {
+        return Set.of(new CefField(CefFieldName.SAKSNUMMER_VERDI, saksnummer), new CefField(CefFieldName.SAKSNUMMER_LABEL, SAKSNUMMER_TEXT));
+    }
+    
+    public static Set<CefField> forBehandling(String behandling) {
+        return Set.of(new CefField(CefFieldName.BEHANDLING_VERDI, behandling), new CefField(CefFieldName.BEHANDLING_LABEL, BEHANDLING_TEXT));
+    }
+    
 }
