@@ -18,6 +18,7 @@ import no.nav.vedtak.log.audit.AuditdataHeader;
 import no.nav.vedtak.log.audit.Auditlogger;
 import no.nav.vedtak.log.audit.CefField;
 import no.nav.vedtak.log.audit.CefFieldName;
+import no.nav.vedtak.log.audit.CefFields;
 import no.nav.vedtak.log.audit.EventClassId;
 
 /**
@@ -95,11 +96,11 @@ public class AbacAuditlogger {
         }
         
         getOneOf(attributter, StandardAbacAttributtType.SAKSNUMMER, StandardAbacAttributtType.FAGSAK_ID).ifPresent(fagsak -> {
-            fields.addAll(CefFieldName.forSaksnummer(fagsak));
+            fields.addAll(CefFields.forSaksnummer(fagsak));
         });
         
         getOneOf(attributter, StandardAbacAttributtType.BEHANDLING_UUID, StandardAbacAttributtType.BEHANDLING_ID).ifPresent(behandling -> {
-            fields.addAll(CefFieldName.forBehandling(behandling));
+            fields.addAll(CefFields.forBehandling(behandling));
         });
         
         return Collections.unmodifiableSet(fields);
