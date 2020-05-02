@@ -21,7 +21,7 @@ import no.nav.vedtak.log.audit.CefFields;
 import no.nav.vedtak.log.audit.EventClassId;
 
 /**
- * Dette loggformatet er avklart med Archsight. Eventuelle nye felter skal
+ * Dette loggformatet er avklart med Arcsight. Eventuelle nye felter skal
  * godkjennes av Arcsight. Det er derfor ikke satt opp en løsning for å utvide
  * loggformatet.
  */

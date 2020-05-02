@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 /**
- * Auditlogging til Archsight i Common Event Format (CEF). Dette er en erstatning for sporingslog.
+ * Auditlogging til Arcsight i Common Event Format (CEF). Dette er en erstatning for sporingslog.
  * 
  * Metode for å inkludere dette i prosjektet:
  * <ol>
