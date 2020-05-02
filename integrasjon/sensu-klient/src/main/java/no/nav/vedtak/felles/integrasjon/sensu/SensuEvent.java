@@ -69,10 +69,10 @@ public class SensuEvent {
     }
 
     SensuRequest toSensuRequest() {
-        return new SensuRequest(toSensuEventName(), toPoint().lineProtocol());
+        return new SensuRequest(getSensuEventName(), toPoint().lineProtocol());
     }
 
-    private String toSensuEventName() {
+    String getSensuEventName() {
         return "sensu-event-" + getAppName();
     }
 
@@ -122,7 +122,7 @@ public class SensuEvent {
         private final int status = 0;
         private final String output;
 
-        public SensuRequest(String name, String output) {
+        SensuRequest(String name, String output) {
             this.name = name;
             this.output = output;
             this.type = "metric";

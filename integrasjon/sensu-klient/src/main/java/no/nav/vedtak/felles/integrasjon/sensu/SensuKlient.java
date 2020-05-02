@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -64,8 +64,8 @@ public class SensuKlient implements AppServiceHandler {
             if (!kanKobleTilSensu.get()) {
                 return; // ignorer, har skrudd av pga ingen tilkobling til sensu
             }
-            List<String> jsonList = toJson(sensuEvents);
             int antall = sensuEvents.size();
+            List<String> jsonList = toJson(sensuEvents);
             executorService.execute(() -> {
                 long startTs = System.currentTimeMillis();
                 try {
@@ -78,21 +78,16 @@ public class SensuKlient implements AppServiceHandler {
                             try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
                                 for (var json : jsonList) {
                                     writer.write(json, 0, json.length());
-                                    writer.write('\n');
                                     writer.flush();
                                     pos++;
                                 }
                                 trackProgress(antall);
-                            } catch (SocketException e) {
-                                throw e; // throw next level
-                            } catch (IOException e) {
-                                if (rounds <= 0) {
-                                    LOG.warn("Feil ved sending av event: " + jsonList, e);
-                                    break;
-                                }
                             }
-                        } catch (SocketException ex) {
+                        } catch (UnknownHostException ex) {
                             sjekkBroken(callId, jsonList.get(pos), ex);
+                            break;
+                        } catch (IOException ex) {
+                            // ink. SocketException
                             if (rounds <= 0) {
                                 LOG.warn("Feil ved tilkobling til metrikkendepunkt. Kan ikke publisere melding fra callId[" + callId + "]: " + jsonList, ex);
                                 break;
@@ -102,7 +97,7 @@ public class SensuKlient implements AppServiceHandler {
                             break;
                         }
 
-                        Thread.sleep(500); // kort pause før retry
+                        Thread.sleep(100); // kort pause før retry
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -126,7 +121,14 @@ public class SensuKlient implements AppServiceHandler {
     }
 
     private List<String> toJson(List<SensuEvent> events) {
-        return events.stream().map(e -> e.toSensuRequest().toJson()).collect(Collectors.toList());
+        if (events.size() > 1) {
+            String sensuEventName = events.get(0).getSensuEventName();// alle får samme
+            // slår sammen til multiple linjer
+            var lineprotocolLines = events.stream().map(m -> m.toSensuRequest().getOutput()).collect(Collectors.joining("\n"));
+            return List.of(new SensuEvent.SensuRequest(sensuEventName, lineprotocolLines).toJson());
+        } else {
+            return events.stream().map(e -> e.toSensuRequest().toJson()).collect(Collectors.toList());
+        }
     }
 
     private void sjekkBroken(String callId, String json, Exception ex) {
@@ -138,16 +140,11 @@ public class SensuKlient implements AppServiceHandler {
     }
 
     private synchronized Socket establishSocketConnectionIfNeeded() throws Exception {
-        try {
-            Socket socket = new Socket();
-            socket.setSoTimeout(1000);
-            socket.connect(new InetSocketAddress(sensuHost, sensuPort), 1000);
-            return socket;
-        } catch (Exception ex) {
-            final String feilMelding = "Feil ved start av socket tilkobling.";
-            LOG.debug(feilMelding, ex);
-            throw new Exception(feilMelding, ex);
-        }
+        Socket socket = new Socket();
+        socket.setSoTimeout(1000);
+        socket.setReuseAddress(true);
+        socket.connect(new InetSocketAddress(sensuHost, sensuPort), 1000);
+        return socket;
     }
 
     @Override
