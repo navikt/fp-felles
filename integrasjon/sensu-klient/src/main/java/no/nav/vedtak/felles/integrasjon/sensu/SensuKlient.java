@@ -65,6 +65,7 @@ public class SensuKlient implements AppServiceHandler {
                 return; // ignorer, har skrudd av pga ingen tilkobling til sensu
             }
             String data = toJson(sensuEvents);
+            int antall = sensuEvents.size();
             executorService.execute(() -> {
                 long startTs = System.currentTimeMillis();
                 try {
@@ -76,7 +77,7 @@ public class SensuKlient implements AppServiceHandler {
                             try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
                                 writer.write(data, 0, data.length());
                                 writer.flush();
-                                trackProgress();
+                                trackProgress(antall);
                             } catch (SocketException e) {
                                 throw e; // throw next level
                             } catch (IOException e) {
@@ -110,9 +111,11 @@ public class SensuKlient implements AppServiceHandler {
         }
     }
 
-    private void trackProgress() {
-        long v = counterEvents.incrementAndGet();
-        if (v % 100 == 0) {
+    private void trackProgress(int antall) {
+        long s = counterEvents.getAndAdd(antall);
+        long f = s - (s % 100);
+        long v = s + antall;
+        if ((v - f) >= 100) {
             LOG.info("Har publisert {} metrikker til sensu", v);
         }
     }
