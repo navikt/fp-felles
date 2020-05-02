@@ -1,11 +1,16 @@
 package no.nav.vedtak.sikkerhet.abac;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.interceptor.InvocationContext;
 import javax.ws.rs.Path;
@@ -13,9 +18,13 @@ import javax.ws.rs.Path;
 import org.assertj.core.api.Fail;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import no.nav.modig.core.test.LogSniffer;
 import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.log.audit.Auditdata;
+import no.nav.vedtak.log.audit.Auditlogger;
 import no.nav.vedtak.sikkerhet.InnloggetSubject;
 
 public class BeskyttetRessursInterceptorTest {
@@ -27,9 +36,27 @@ public class BeskyttetRessursInterceptorTest {
     public LogSniffer sniffer = new LogSniffer();
     private AktørDto aktør1 = new AktørDto("00000000000");
     private BehandlingIdDto behandlingIdDto = new BehandlingIdDto(1234L);
+    
+    private final ArgumentCaptor<Auditdata> auditdataCaptor = ArgumentCaptor.forClass(Auditdata.class);
+    
+    private AbacAuditlogger noAuditLogger = Mockito.mock(AbacAuditlogger.class);
 
     @Test
-    public void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit() throws Exception {
+    public void sporingslogg_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit() throws Exception {
+        skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(noAuditLogger);
+        sniffer.assertHasInfoMessage("action=/foo/aktoer_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000");
+    }
+    
+    @Test
+    public void auditlogg_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit() throws Exception {
+        final Auditlogger auditlogger = mockAuditLogger();
+        final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
+        
+        skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(abacAuditlogger);        
+        assertGotPattern(auditlogger, "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
+    }
+
+    private void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(AbacAuditlogger abacAuditLogger) throws NoSuchMethodException, Exception {
         BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
             PdpRequest pdpRequest = new PdpRequest();
             pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, Collections.singleton(aktør1.getAktørId()));
@@ -40,17 +67,29 @@ public class BeskyttetRessursInterceptorTest {
                 AbacResultat.GODKJENT,
                 Collections.singletonList(Decision.Permit),
                 pdpRequest);
-        }, new DefaultAbacSporingslogg());
+        }, new DefaultAbacSporingslogg(), abacAuditLogger);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[] { aktør1 });
         interceptor.wrapTransaction(ic);
-
-        sniffer.assertHasInfoMessage("action=/foo/aktoer_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000");
     }
-
+    
     @Test
-    public void skal_også_logge_input_parametre_til_sporingslogg_ved_permit() throws Exception {
+    public void sporingslogg_skal_også_logge_input_parametre_til_sporingslogg_ved_permit() throws Exception {
+        skal_også_logge_input_parametre_til_sporingslogg_ved_permit(noAuditLogger);
+        sniffer.assertHasInfoMessage(
+                "action=/foo/behandling_id_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000 behandlingId=1234");
+    }
+    
+    @Test
+    public void auditlogg_skal_også_logge_input_parametre_til_sporingslogg_ved_permit() throws Exception {
+        final Auditlogger auditlogger = mockAuditLogger();
+        final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
+        skal_også_logge_input_parametre_til_sporingslogg_ved_permit(abacAuditlogger);
+        assertGotPattern(auditlogger, "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ flexString2=1234 flexString2Label=Behandling request=/foo/behandling_id_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
+    }
+    
+    private void skal_også_logge_input_parametre_til_sporingslogg_ved_permit(AbacAuditlogger abacAuditLogger) throws Exception {
         BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
             PdpRequest pdpRequest = new PdpRequest();
             pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, (Collections.singleton(aktør1.getAktørId())));
@@ -61,18 +100,28 @@ public class BeskyttetRessursInterceptorTest {
                 AbacResultat.GODKJENT,
                 Collections.singletonList(Decision.Permit),
                 pdpRequest);
-        }, new DefaultAbacSporingslogg());
+        }, new DefaultAbacSporingslogg(), abacAuditLogger);
 
         Method method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[] { behandlingIdDto });
         interceptor.wrapTransaction(ic);
-
-        sniffer.assertHasInfoMessage(
-            "action=/foo/behandling_id_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000 behandlingId=1234");
     }
 
     @Test
-    public void skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering() throws Exception {
+    public void sporingslogg_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering() throws Exception {
+        skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering(noAuditLogger);
+        assertThat(sniffer.countEntries("action")).isZero();
+    }
+    
+    @Test
+    public void auditlog_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering() throws Exception {
+        final Auditlogger auditlogger = mockAuditLogger();
+        final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
+        skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering(abacAuditlogger);
+        verify(auditlogger, never()).logg(Mockito.any());
+    }
+    
+    private void skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering(AbacAuditlogger abacAuditLogger) throws Exception {
         BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
             PdpRequest pdpRequest = new PdpRequest();
             pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, (Collections.singleton(aktør1.getAktørId())));
@@ -83,17 +132,29 @@ public class BeskyttetRessursInterceptorTest {
                 AbacResultat.GODKJENT,
                 Collections.singletonList(Decision.Permit),
                 pdpRequest);
-        }, new DefaultAbacSporingslogg());
+        }, new DefaultAbacSporingslogg(), abacAuditLogger);
 
         Method method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[] { behandlingIdDto });
         interceptor.wrapTransaction(ic);
-
-        assertThat(sniffer.countEntries("action")).isZero();
+    }
+    
+    @Test
+    public void sporingslog_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny() throws Exception {
+        skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny(noAuditLogger);
+        sniffer.assertHasInfoMessage(
+                "action=/foo/aktoer_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000 decision=Deny");
+    }
+    
+    @Test
+    public void auditlog_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny() throws Exception {
+        final Auditlogger auditlogger = mockAuditLogger();
+        final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
+        skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny(abacAuditlogger);
+        assertGotPattern(auditlogger, "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|WARN|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
     }
 
-    @Test
-    public void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny() throws Exception {
+    private void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny(AbacAuditlogger abacAuditLogger) throws Exception {
         BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
             PdpRequest pdpRequest = new PdpRequest();
             pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, (Collections.singleton(aktør1.getAktørId())));
@@ -104,7 +165,7 @@ public class BeskyttetRessursInterceptorTest {
                 AbacResultat.AVSLÅTT_KODE_6,
                 Collections.singletonList(Decision.Deny),
                 pdpRequest);
-        }, new DefaultAbacSporingslogg());
+        }, new DefaultAbacSporingslogg(), abacAuditLogger);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[] { aktør1 });
@@ -115,10 +176,29 @@ public class BeskyttetRessursInterceptorTest {
         } catch (ManglerTilgangException e) {
             // FORVENTET
         }
-        sniffer.assertHasInfoMessage(
-            "action=/foo/aktoer_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000 decision=Deny");
+    }
+    
+    private void assertGotPattern(final Auditlogger auditlogger, String expected) {
+        verify(auditlogger).logg(auditdataCaptor.capture());
+        final String actual = auditdataCaptor.getValue().toString();
+        assertThat(actual).matches(toAuditdataPattern(expected));
     }
 
+    private Auditlogger mockAuditLogger() {
+        final Auditlogger auditlogger = mock(Auditlogger.class);
+        when(auditlogger.isEnabled()).thenReturn(true);
+        when(auditlogger.getDefaultVendor()).thenReturn("felles");
+        when(auditlogger.getDefaultProduct()).thenReturn("felles-test");
+        return auditlogger;
+    }
+    
+    private static final String toAuditdataPattern(String s) {
+        return Pattern.quote(s).replaceAll("__NUMBERS__", unquoteInReplacement("[0-9]*"));
+    }
+    
+    private static final String unquoteInReplacement(String s) {
+        return "\\\\E" + s + "\\\\Q";
+    }
 
     @Path("foo")
     public static class RestClass {
