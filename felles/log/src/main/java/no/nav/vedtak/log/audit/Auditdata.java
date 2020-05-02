@@ -26,6 +26,7 @@ public class Auditdata {
     public String toString() {
         return header.toString() + fields.stream()
                 .map(f -> f.toString())
+                .sorted()
                 .collect(Collectors.joining(FIELD_SEPARATOR));
     }
 }
