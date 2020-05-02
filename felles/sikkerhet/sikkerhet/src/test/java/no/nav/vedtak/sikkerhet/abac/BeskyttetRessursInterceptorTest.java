@@ -193,7 +193,7 @@ public class BeskyttetRessursInterceptorTest {
     }
     
     private static final String toAuditdataPattern(String s) {
-        return Pattern.quote(s).replaceFirst("__NUMBERS__", unquoteInReplacement("[0-9]*"));
+        return Pattern.quote(s).replaceAll("__NUMBERS__", unquoteInReplacement("[0-9]*"));
     }
     
     private static final String unquoteInReplacement(String s) {
