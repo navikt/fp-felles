@@ -106,11 +106,12 @@ public class SensuKlient implements AppServiceHandler {
     }
 
     private void trackProgress(int antall) {
-        long s = counterEvents.getAndAdd(antall);
-        long f = s - (s % 100);
-        long v = s + antall;
-        if ((v - f) >= 100) {
-            LOG.info("Har publisert {} metrikker til sensu", v);
+        final int trackInterval = 200;
+        final long s = counterEvents.getAndAdd(antall);
+        final long f = s - (s % trackInterval);
+        final long v = s + antall;
+        if ((v - f) >= trackInterval) {
+            LOG.info("Publisert {} metrikker til sensu", v);
         }
     }
 
