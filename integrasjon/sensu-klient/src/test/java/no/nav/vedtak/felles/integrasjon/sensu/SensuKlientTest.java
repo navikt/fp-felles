@@ -46,7 +46,7 @@ public class SensuKlientTest {
                 try (Reader reader = new BufferedReader(new InputStreamReader
                   (socket.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
                     int c = 0;
-                    while ((c = reader.read()) != -1 && c != '}') {
+                    while ((c = reader.read()) != -1) {
                         sb.append((char) c);
                     }
                 }

@@ -1,10 +1,12 @@
 package no.nav.vedtak.felles.integrasjon.sensu;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.influxdb.dto.Point;
 
@@ -16,6 +18,9 @@ import no.nav.vedtak.util.env.Environment;
 import no.nav.vedtak.util.env.Namespace;
 
 public class SensuEvent {
+
+    private static final String APP_NAME = Environment.current().getProperty("NAIS_APP_NAME", "local-app");
+    private static final String DEFAULT_SENSU_EVENT_NAME = "sensu-event-" + APP_NAME;
 
     private static final Map<String, String> DEFAULT_TAGS = Map.of(
         "application", getAppName(),
@@ -73,11 +78,11 @@ public class SensuEvent {
     }
 
     String getSensuEventName() {
-        return "sensu-event-" + getAppName();
+        return DEFAULT_SENSU_EVENT_NAME;
     }
 
     private static String getAppName() {
-        return Environment.current().getProperty("NAIS_APP_NAME", "local-app");
+        return APP_NAME;
     }
 
     private Point toPoint() {
@@ -114,6 +119,10 @@ public class SensuEvent {
             + ">";
     }
 
+    static SensuRequest createBatchSensuRequest(List<SensuEvent> metrics) {
+        return new SensuEvent.SensuRequest(metrics.stream().map(m -> m.toSensuRequest()).collect(Collectors.toList()));
+    }
+
     static class SensuRequest {
         private static final ObjectMapper OM = new ObjectMapper();
         private final String name;
@@ -121,6 +130,11 @@ public class SensuEvent {
         private final List<String> handlers;
         private final int status = 0;
         private final String output;
+
+        /** Genrerer batch request fra list av requests. */
+        SensuRequest(Collection<SensuRequest> list) {
+            this(DEFAULT_SENSU_EVENT_NAME, list.stream().map(SensuRequest::getOutput).collect(Collectors.joining("\n")));
+        }
 
         SensuRequest(String name, String output) {
             this.name = name;
@@ -157,4 +171,5 @@ public class SensuEvent {
             return status;
         }
     }
+
 }
