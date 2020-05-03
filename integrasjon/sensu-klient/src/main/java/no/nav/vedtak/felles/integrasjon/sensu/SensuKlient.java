@@ -111,7 +111,7 @@ public class SensuKlient implements AppServiceHandler {
         final long f = s - (s % trackInterval);
         final long v = s + antall;
         if ((v - f) >= trackInterval) {
-            LOG.info("Publisert {} metrikker til sensu", v);
+            LOG.info("Publisert {} metrikker til sensu (totalt siden oppstart)", v);
         }
     }
 
