@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -32,6 +31,7 @@ public class SensuKlient implements AppServiceHandler {
 
     private String sensuHost;
     private int sensuPort;
+    private final int maxRetrySendSensu = 2;
 
     private AtomicBoolean kanKobleTilSensu = new AtomicBoolean(false);
     private AtomicLong counterEvents = new AtomicLong(0L);
@@ -48,62 +48,56 @@ public class SensuKlient implements AppServiceHandler {
     }
 
     public void logMetrics(SensuEvent metrics) {
-        var callId = MDCOperations.getCallId();
-        doLogMetrics(callId, List.of(metrics));
+        logMetrics(List.of(metrics));
     }
 
-    /** @deprecated - kun eksperimentelt p.t. ser ut som sensu socket støtter arrays av events. */
-    @Deprecated
+    /** Sender et set med events samlet til Sensu. */
     public void logMetrics(List<SensuEvent> metrics) {
         var callId = MDCOperations.getCallId();
-        doLogMetrics(callId, metrics);
+        var event = SensuEvent.createBatchSensuRequest(metrics);
+        doLogMetrics(callId, event, metrics.size());
     }
 
-    private void doLogMetrics(String callId, List<SensuEvent> sensuEvents) {
+    private void doLogMetrics(String callId, SensuEvent.SensuRequest sensuRequest, int antallMetrikker) {
         if (executorService != null) {
             if (!kanKobleTilSensu.get()) {
                 return; // ignorer, har skrudd av pga ingen tilkobling til sensu
             }
-            int antall = sensuEvents.size();
-            List<String> jsonList = toJson(sensuEvents);
+            String json = sensuRequest.toJson();
             executorService.execute(() -> {
-                long startTs = System.currentTimeMillis();
+                long startTs = System.nanoTime();
                 try {
-                    int rounds = 2; // prøver par ganger hvis broken pipe, uten å logge første gang
+                    int rounds = maxRetrySendSensu; // prøver par ganger hvis broken pipe, uten å logge første gang
                     while (rounds > 0 && kanKobleTilSensu.get() && !Thread.currentThread().isInterrupted()) {
                         rounds--;
-                        int pos = 0;
                         // sensu har en ping/pong/heartbeat protokol, men støtter ikke det p.t., så åpner ny socket/outputstream for hver melding
                         try (Socket socket = establishSocketConnectionIfNeeded()) {
                             try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
-                                for (var json : jsonList) {
-                                    writer.write(json, 0, json.length());
-                                    writer.flush();
-                                    pos++;
-                                }
-                                trackProgress(antall);
+                                writer.write(json, 0, json.length());
+                                writer.flush();
+                                trackProgress(antallMetrikker);
                             }
                         } catch (UnknownHostException ex) {
-                            sjekkBroken(callId, jsonList.get(pos), ex);
+                            sjekkBroken(callId, json, ex);
                             break;
                         } catch (IOException ex) {
                             // ink. SocketException
                             if (rounds <= 0) {
-                                LOG.warn("Feil ved tilkobling til metrikkendepunkt. Kan ikke publisere melding fra callId[" + callId + "]: " + jsonList, ex);
+                                LOG.warn("Feil ved tilkobling til metrikkendepunkt. Kan ikke publisere melding fra callId[" + callId + "]: " + json, ex);
                                 break;
                             }
                         } catch (Exception ex) {
-                            sjekkBroken(callId, jsonList.get(pos), ex);
+                            sjekkBroken(callId, json, ex);
                             break;
                         }
 
-                        Thread.sleep(100); // kort pause før retry
+                        Thread.sleep(50); // kort pause før retry
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 } finally {
-                    long tidBrukt = System.currentTimeMillis() - startTs;
-                    LOG.debug("Ferdig med logging av metrikker for callId {}. Tid brukt: {}", callId, tidBrukt);
+                    long tidBrukt = System.nanoTime() - startTs;
+                    LOG.debug("Ferdig med logging av metrikker for callId {}. Tid brukt: {}ms", callId, TimeUnit.NANOSECONDS.toMillis(tidBrukt));
                 }
             });
         } else {
@@ -117,17 +111,6 @@ public class SensuKlient implements AppServiceHandler {
         long v = s + antall;
         if ((v - f) >= 100) {
             LOG.info("Har publisert {} metrikker til sensu", v);
-        }
-    }
-
-    private List<String> toJson(List<SensuEvent> events) {
-        if (events.size() > 1) {
-            String sensuEventName = events.get(0).getSensuEventName();// alle får samme
-            // slår sammen til multiple linjer
-            var lineprotocolLines = events.stream().map(m -> m.toSensuRequest().getOutput()).collect(Collectors.joining("\n"));
-            return List.of(new SensuEvent.SensuRequest(sensuEventName, lineprotocolLines).toJson());
-        } else {
-            return events.stream().map(e -> e.toSensuRequest().toJson()).collect(Collectors.toList());
         }
     }
 
