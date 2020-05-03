@@ -12,7 +12,7 @@ public final class CefFields {
     
     
     public static Set<CefField> forSaksnummer(long saksnummer) {
-        return forSaksnummer(saksnummer);
+        return forSaksnummer(Long.toString(saksnummer));
     }
     
     public static Set<CefField> forSaksnummer(String saksnummer) {
