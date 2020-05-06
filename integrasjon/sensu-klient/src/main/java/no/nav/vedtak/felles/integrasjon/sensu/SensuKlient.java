@@ -53,12 +53,15 @@ public class SensuKlient implements AppServiceHandler {
 
     /** Sender et set med events samlet til Sensu. */
     public void logMetrics(List<SensuEvent> metrics) {
-        var callId = MDCOperations.getCallId();
         var event = SensuEvent.createBatchSensuRequest(metrics);
-        doLogMetrics(callId, event, metrics.size());
+        logMetrics(event);
     }
 
-    private void doLogMetrics(String callId, SensuEvent.SensuRequest sensuRequest, int antallMetrikker) {
+    /**
+     * @param sensuRequest - requst til å sende sensu. Kan inneholde mange metrikker
+    */
+    public void logMetrics(SensuEvent.SensuRequest sensuRequest) {
+        var callId = MDCOperations.getCallId();
         if (executorService != null) {
             if (!kanKobleTilSensu.get()) {
                 return; // ignorer, har skrudd av pga ingen tilkobling til sensu
@@ -75,7 +78,6 @@ public class SensuKlient implements AppServiceHandler {
                             try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
                                 writer.write(json, 0, json.length());
                                 writer.flush();
-                                trackProgress(antallMetrikker);
                             }
                         } catch (UnknownHostException ex) {
                             sjekkBroken(callId, json, ex);
@@ -102,16 +104,6 @@ public class SensuKlient implements AppServiceHandler {
             });
         } else {
             LOG.info("Sensu klienten er ikke startet ennå!");
-        }
-    }
-
-    private void trackProgress(int antall) {
-        final int trackInterval = 200;
-        final long s = counterEvents.getAndAdd(antall);
-        final long f = s - (s % trackInterval);
-        final long v = s + antall;
-        if ((v - f) >= trackInterval) {
-            LOG.info("Publisert {} metrikker til sensu (totalt siden oppstart)", v);
         }
     }
 
