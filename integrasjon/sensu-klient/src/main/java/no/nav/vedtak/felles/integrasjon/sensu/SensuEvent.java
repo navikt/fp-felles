@@ -73,19 +73,19 @@ public class SensuEvent {
         return new SensuEvent(metricName, Map.of(), fields, System.currentTimeMillis());
     }
 
-    SensuRequest toSensuRequest() {
+    public SensuRequest toSensuRequest() {
         return new SensuRequest(getSensuEventName(), toPoint().lineProtocol());
     }
 
-    String getSensuEventName() {
+    public String getSensuEventName() {
         return DEFAULT_SENSU_EVENT_NAME;
     }
 
-    private static String getAppName() {
+    public static String getAppName() {
         return APP_NAME;
     }
 
-    private Point toPoint() {
+    public Point toPoint() {
         return Point.measurement(getAppName() + "." + metricName)
             .time(TimeUnit.MILLISECONDS.toNanos(tidsstempel), TimeUnit.NANOSECONDS)
             .tag(DEFAULT_TAGS)
@@ -119,11 +119,11 @@ public class SensuEvent {
             + ">";
     }
 
-    static SensuRequest createBatchSensuRequest(List<SensuEvent> metrics) {
+    public static SensuRequest createBatchSensuRequest(List<SensuEvent> metrics) {
         return new SensuEvent.SensuRequest(metrics.stream().map(m -> m.toSensuRequest()).collect(Collectors.toList()));
     }
 
-    static class SensuRequest {
+    public static class SensuRequest {
         private static final ObjectMapper OM = new ObjectMapper();
         private final String name;
         private final String type;
@@ -132,11 +132,11 @@ public class SensuEvent {
         private final String output;
 
         /** Genrerer batch request fra list av requests. */
-        SensuRequest(Collection<SensuRequest> list) {
+        public SensuRequest(Collection<SensuRequest> list) {
             this(DEFAULT_SENSU_EVENT_NAME, list.stream().map(SensuRequest::getOutput).collect(Collectors.joining("\n")));
         }
 
-        SensuRequest(String name, String output) {
+        public SensuRequest(String name, String output) {
             this.name = name;
             this.output = output;
             this.type = "metric";
