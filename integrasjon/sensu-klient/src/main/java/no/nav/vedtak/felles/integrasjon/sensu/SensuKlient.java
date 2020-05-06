@@ -54,13 +54,7 @@ public class SensuKlient implements AppServiceHandler {
     /** Sender et set med events samlet til Sensu. */
     public void logMetrics(List<SensuEvent> metrics) {
         var event = SensuEvent.createBatchSensuRequest(metrics);
-        doLogMetrics(event);
-    }
-    
-        /** Sender et set med events samlet til Sensu. */
-    public void logMetrics(List<SensuEvent> metrics) {
-        var event = SensuEvent.createBatchSensuRequest(metrics);
-        doLogMetrics(event);
+        logMetrics(event);
     }
 
     /**
