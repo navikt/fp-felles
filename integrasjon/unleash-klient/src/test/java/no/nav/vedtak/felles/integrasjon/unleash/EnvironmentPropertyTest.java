@@ -14,4 +14,14 @@ public class EnvironmentPropertyTest {
         environment = EnvironmentProperty.getEnvironmentName();
         assertThat(environment).hasValue(EnvironmentProperty.PROD);
     }
+
+    @Test
+    public void skal_utlede_q_for_preprod() {
+        System.setProperty(EnvironmentProperty.NAIS_NAMESPACE, "default");
+        var environment = EnvironmentProperty.getEnvironmentName();
+
+        System.setProperty(EnvironmentProperty.NAIS_CLUSTER_NAME, "dev-fss");
+        environment = EnvironmentProperty.getEnvironmentName();
+        assertThat(environment).hasValue(EnvironmentProperty.PREPROD);
+    }
 }
