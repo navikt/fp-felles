@@ -30,8 +30,7 @@ public class BeskyttetRessursInterceptor {
     private Pep pep;
     private AbacSporingslogg sporingslogg;
     private AbacAuditlogger abacAuditlogger;
-    
- 
+
     @Inject
     public BeskyttetRessursInterceptor(Pep pep, AbacSporingslogg sporingslogg, AbacAuditlogger abacAuditlogger) {
         this.pep = pep;
@@ -55,18 +54,18 @@ public class BeskyttetRessursInterceptor {
         Method method = invocationContext.getMethod();
         boolean sporingslogges = method.getAnnotation(BeskyttetRessurs.class).sporingslogg();
         if (sporingslogges) {
-            
+
             if (abacAuditlogger.isEnabled()) {
                 final String uid = SubjectHandler.getSubjectHandler().getUid();
                 abacAuditlogger.loggTilgang(uid, beslutning.getPdpRequest(), attributter);
             }
-            
-            //bygger sporingsdata før kallet til invocationContext.proceed,
-            //da vi heller vil ha evt. exceptions fra sporing før forretningslogikk har kjørt
+
+            // bygger sporingsdata før kallet til invocationContext.proceed,
+            // da vi heller vil ha evt. exceptions fra sporing før forretningslogikk har kjørt
             List<Sporingsdata> sporingsdata = sporingslogg.byggSporingsdata(beslutning, attributter);
             Object resultat = invocationContext.proceed();
-            //logger til slutt, det skal ikke logges dersom operasjonen ikke lot seg utføre
-            //i motsatt fall blir sporingsloggen misvisende
+            // logger til slutt, det skal ikke logges dersom operasjonen ikke lot seg utføre
+            // i motsatt fall blir sporingsloggen misvisende
             if (!abacAuditlogger.isEnabled()) {
                 sporingslogg.logg(sporingsdata);
             }
@@ -101,18 +100,21 @@ public class BeskyttetRessursInterceptor {
         Method method = invocationContext.getMethod();
 
         AbacAttributtSamling attributter = clazz.getAnnotation(WebService.class) != null
-                ? AbacAttributtSamling.medSamlToken(hentSamlToken())
-                : AbacAttributtSamling.medJwtToken(hentOidcTOken());
+            ? AbacAttributtSamling.medSamlToken(hentSamlToken())
+            : AbacAttributtSamling.medJwtToken(hentOidcTOken());
         BeskyttetRessurs beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         attributter.setActionType(beskyttetRessurs.action());
 
-        if (beskyttetRessurs.resource().isEmpty() && beskyttetRessurs.ressurs() == BeskyttetRessursResourceAttributt.DUMMY) {
-            throw new IllegalArgumentException("Beskyttet ressurs må være satt");
-        }
-        if(beskyttetRessurs.ressurs() != BeskyttetRessursResourceAttributt.DUMMY)
-            attributter.setResource(beskyttetRessurs.ressurs().getEksternKode());
-        if(!beskyttetRessurs.resource().isEmpty())
+        if (!beskyttetRessurs.resource().isEmpty()) {
             attributter.setResource(beskyttetRessurs.resource());
+        } else {
+            if (beskyttetRessurs.ressurs() == BeskyttetRessursResourceAttributt.DUMMY) {
+                throw new IllegalArgumentException("Beskyttet resource() må være satt");
+            } else if (beskyttetRessurs.ressurs() != BeskyttetRessursResourceAttributt.DUMMY) {
+                // Legacy fallback
+                attributter.setResource(beskyttetRessurs.ressurs().getEksternKode());
+            }
+        }
 
         attributter.setAction(utledAction(clazz, method));
         Parameter[] parameterDecl = method.getParameters();
@@ -129,9 +131,9 @@ public class BeskyttetRessursInterceptor {
         if (tilpassetAnnotering != null) {
             leggTil(attributter, tilpassetAnnotering, parameterValue);
         } else {
-            if (parameterValue instanceof AbacDto) { //NOSONAR for å støtte både enkelt-DTO-er og collection av DTO-er
+            if (parameterValue instanceof AbacDto) { // NOSONAR for å støtte både enkelt-DTO-er og collection av DTO-er
                 attributter.leggTil(((AbacDto) parameterValue).abacAttributter());
-            } else if (parameterValue instanceof Collection) { //NOSONAR for å støtte både enkelt-DTO-er og collection av DTO-er
+            } else if (parameterValue instanceof Collection) { // NOSONAR for å støtte både enkelt-DTO-er og collection av DTO-er
                 leggTilAbacDtoSamling(attributter, (Collection) parameterValue);
             }
         }
@@ -182,6 +184,5 @@ public class BeskyttetRessursInterceptor {
             throw new IllegalStateException(e.getCause());
         }
     }
-
 
 }

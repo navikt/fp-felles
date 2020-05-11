@@ -17,7 +17,8 @@ import javax.interceptor.InterceptorBinding;
 public @interface BeskyttetRessurs {
     @Nonbinding BeskyttetRessursActionAttributt action();
 
-    @Nonbinding @Deprecated BeskyttetRessursResourceAttributt ressurs() default BeskyttetRessursResourceAttributt.DUMMY;
+    /** @deprecated bruk #resource() i stedet. Definer egne abac attributter i egen applikasjon.*/
+    @Nonbinding @Deprecated(forRemoval=true) BeskyttetRessursResourceAttributt ressurs() default BeskyttetRessursResourceAttributt.DUMMY;
 
     @Nonbinding String resource() default "";
 
