@@ -129,7 +129,6 @@ public class Oppgave {
             ", journalpostId='" + journalpostId + '\'' +
             ", behandlesAvApplikasjon='" + behandlesAvApplikasjon + '\'' +
             ", saksreferanse='" + saksreferanse + '\'' +
-            ", aktoerId='" + aktoerId + '\'' +
             ", tema='" + tema + '\'' +
             ", behandlingstema='" + behandlingstema + '\'' +
             ", oppgavetype='" + oppgavetype + '\'' +
