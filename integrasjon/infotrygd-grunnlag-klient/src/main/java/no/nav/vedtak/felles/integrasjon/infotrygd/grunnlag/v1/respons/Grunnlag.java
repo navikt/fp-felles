@@ -165,7 +165,6 @@ public class Grunnlag {
                 + ", fødselsdatoBarn=" + fødselsdatoBarn + ", kategori=" + kategori + ", arbeidsforhold="
                 + arbeidsforhold + ", periode=" + periode + ", behandlingsTema=" + behandlingsTema + ", identdato="
                 + identdato + ", iverksatt=" + iverksatt + ", opphørFom=" + opphørFom + ", gradering=" + gradering
-                + ", opprinneligIdentdato=" + opprinneligIdentdato + ", registrert=" + registrert + ", saksbehandlerId="
-                + saksbehandlerId + ", vedtak=" + vedtak + "]";
+                + ", opprinneligIdentdato=" + opprinneligIdentdato + ", registrert=" + registrert + ", vedtak=" + vedtak + "]";
     }
 }

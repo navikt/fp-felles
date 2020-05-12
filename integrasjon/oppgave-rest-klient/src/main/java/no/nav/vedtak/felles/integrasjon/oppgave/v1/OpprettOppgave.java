@@ -145,7 +145,6 @@ public class OpprettOppgave {
                 ", journalpostId='" + journalpostId + '\'' +
                 ", behandlesAvApplikasjon='" + behandlesAvApplikasjon + '\'' +
                 ", saksreferanse='" + saksreferanse + '\'' +
-                ", aktoerId='" + aktoerId + '\'' +
                 ", beskrivelse='" + beskrivelse + '\'' +
                 ", temagruppe='" + temagruppe + '\'' +
                 ", tema='" + tema + '\'' +
