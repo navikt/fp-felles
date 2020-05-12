@@ -30,10 +30,8 @@
 		<module>behandlesak-klient</module>
         <module>infotrygd-grunnlag-klient</module>
         <module>infotrygd-saker-klient</module>
-		<module>behandleoppgave-klient</module>
 		<module>medl-klient</module>
 		<module>meldekortutbetalingsgrunnlag-klient</module>
-		<module>oppgave-klient</module>
 		<module>oppgave-rest-klient</module>
 		<module>arbeidsforhold-klient</module>
 		<module>organisasjon-klient</module>
@@ -42,7 +40,6 @@
 		<module>sigrun-klient</module>
 		<module>mottainngaaendeforsendelse-klient</module>
 		<module>unleash-klient</module>
-		<module>behandlejournal-klient</module>
 		<module>sakogbehandling-klient</module>
 		<module>okonomistotte-jms</module>
         <module>sensu-klient</module>
@@ -215,11 +212,6 @@
 			</dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>arbeidsfordeling-v1-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-infotrygdSak-v1-tjenestespesifikasjon</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
 			</dependency>
@@ -266,16 +258,6 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>behandlejournal-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-journal-v2-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-journal-v3-tjenestespesifikasjon</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
@@ -288,11 +270,6 @@
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-behandleInngaaendeJournal-v1-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-fim-behandleJournal-v3-tjenestespesifikasjon</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
 			</dependency>
 			<dependency>
@@ -313,23 +290,11 @@
 				<artifactId>behandlesak-klient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<!-- GSAK -->
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>behandleoppgave-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>oppgave-rest-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
-			<dependency>
-				<!-- GSAK -->
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>oppgave-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
 			<dependency>
 				<!-- SAKOGBEHANDLING (går videre til Modia) -->
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
@@ -341,11 +306,6 @@
                 <artifactId>nav-virksomhet-hendelsehandterer-behandlingstatus-v1-meldingsdefinisjon</artifactId>
                 <version>1.2019.12.18-12.22-ce897c4eb2c1</version>
             </dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>behandleoppgave-v1-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-fim-sak-v1-tjenestespesifikasjon</artifactId>
