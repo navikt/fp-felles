@@ -20,6 +20,7 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.loginmodule.SamlUtils;
+import no.nav.vedtak.util.env.Environment;
 
 @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, ressurs = BeskyttetRessursResourceAttributt.DUMMY, resource = "")
 @Interceptor
@@ -30,6 +31,7 @@ public class BeskyttetRessursInterceptor {
     private Pep pep;
     private AbacSporingslogg sporingslogg;
     private AbacAuditlogger abacAuditlogger;
+    private Environment env  = Environment.current();
 
     @Inject
     public BeskyttetRessursInterceptor(Pep pep, AbacSporingslogg sporingslogg, AbacAuditlogger abacAuditlogger) {
@@ -105,7 +107,10 @@ public class BeskyttetRessursInterceptor {
         BeskyttetRessurs beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         attributter.setActionType(beskyttetRessurs.action());
 
-        if (!beskyttetRessurs.resource().isEmpty()) {
+        if(!beskyttetRessurs.property().isEmpty()) {
+            var resource = env.getProperty(beskyttetRessurs.property());
+            attributter.setResource(resource);
+        } else if (!beskyttetRessurs.resource().isEmpty()) {
             attributter.setResource(beskyttetRessurs.resource());
         } else {
             if (beskyttetRessurs.ressurs() == BeskyttetRessursResourceAttributt.DUMMY) {

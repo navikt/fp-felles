@@ -21,6 +21,10 @@ public @interface BeskyttetRessurs {
     @Nonbinding @Deprecated(forRemoval=true) BeskyttetRessursResourceAttributt ressurs() default BeskyttetRessursResourceAttributt.DUMMY;
 
     @Nonbinding String resource() default "";
+    
+    /** Property hvor resource kan slås opp fra. Først og fremst for biblioteker der resource er forskjellig mellom applikasjoner.
+     * Property angis som java property (eks: "abac.rolle"). Dersom ikke tilgjengelig som property tolkes det som Env variabel på upper case (eks. "ABAC_ROLLE"). */
+    @Nonbinding String property() default "";
 
     /**
      * Sett til false for å unngå at det logges til sporingslogg ved tilgang. Det skal bare gjøres for tilfeller som ikke håndterer personopplysninger.
