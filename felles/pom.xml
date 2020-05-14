@@ -81,7 +81,7 @@
 				<!-- jaxb coordinater for java11 -->
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-bom</artifactId>
-                <version>2.4.0-b180830.0438</version>
+                <version>3.0.0-M3</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
