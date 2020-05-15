@@ -12,6 +12,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
@@ -77,8 +78,18 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return fromJson(entity, clazz);
     }
 
+    public <T> T delete(URI endpoint, Class<T> clazz) {
+        String entity = delete(endpoint, createResponseHandler(endpoint));
+        return fromJson(entity, clazz);
+    }
+
     public <T> T get(URI endpoint, Set<Header> headers, Class<T> clazz) {
         String entity = get(endpoint, headers, createResponseHandler(endpoint));
+        return fromJson(entity, clazz);
+    }
+
+    public <T> T delete(URI endpoint, Set<Header> headers, Class<T> clazz) {
+        String entity = delete(endpoint, headers, createResponseHandler(endpoint));
         return fromJson(entity, clazz);
     }
 
@@ -175,15 +186,34 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return get(endpoint, get, responseHandler);
     }
 
+    protected String delete(URI endpoint, ResponseHandler<String> responseHandler) {
+        HttpDelete delete = new HttpDelete(endpoint);
+        return delete(endpoint, delete, responseHandler);
+    }
+
     protected String get(URI endpoint, Set<Header> headers, ResponseHandler<String> responseHandler) {
         HttpGet get = new HttpGet(endpoint);
         headers.forEach(get::addHeader);
         return get(endpoint, get, responseHandler);
     }
 
+    protected String delete(URI endpoint, Set<Header> headers, ResponseHandler<String> responseHandler) {
+        HttpDelete delete = new HttpDelete(endpoint);
+        headers.forEach(delete::addHeader);
+        return delete(endpoint, delete, responseHandler);
+    }
+
     protected String get(URI endpoint, HttpGet get, ResponseHandler<String> responseHandler) {
         try {
             return this.execute(get, responseHandler);
+        } catch (IOException e) {
+            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
+        }
+    }
+
+    protected String delete(URI endpoint, HttpDelete delete, ResponseHandler<String> responseHandler) {
+        try {
+            return this.execute(delete, responseHandler);
         } catch (IOException e) {
             throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
         }
