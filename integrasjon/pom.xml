@@ -39,7 +39,6 @@
 		<module>sigrun-klient</module>
 		<module>mottainngaaendeforsendelse-klient</module>
 		<module>unleash-klient</module>
-		<module>sakogbehandling-klient</module>
 		<module>okonomistotte-jms</module>
         <module>sak-klient</module>
         <module>sensu-klient</module>
@@ -293,17 +292,6 @@
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>sak-klient</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-				<!-- SAKOGBEHANDLING (går videre til Modia) -->
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>sakogbehandling-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-            <dependency>
-                <groupId>no.nav.tjenestespesifikasjoner</groupId>
-                <artifactId>nav-virksomhet-hendelsehandterer-behandlingstatus-v1-meldingsdefinisjon</artifactId>
-                <version>1.2019.12.18-12.22-ce897c4eb2c1</version>
             </dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
