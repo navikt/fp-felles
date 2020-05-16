@@ -30,7 +30,6 @@
         <module>infotrygd-grunnlag-klient</module>
         <module>infotrygd-saker-klient</module>
 		<module>medl-klient</module>
-		<module>meldekortutbetalingsgrunnlag-klient</module>
 		<module>oppgave-rest-klient</module>
 		<module>arbeidsforhold-klient</module>
 		<module>organisasjon-klient</module>
@@ -217,11 +216,6 @@
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-infotrygdBeregningsgrunnlag-v1-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-meldekortUtbetalingsgrunnlag-v1-tjenestespesifikasjon</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
 			</dependency>
 			<dependency>
