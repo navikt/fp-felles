@@ -55,8 +55,7 @@ public class Kodeverk implements MarkupOutput {
     public static Set<String> toList(String property) {
         Set<String> list = new HashSet<>();
 
-        try (@SuppressWarnings("resource")
-        Scanner scanner = new Scanner(property).useDelimiter(",\\s*");) {
+        try (Scanner scanner = new Scanner(property).useDelimiter(",\\s*");) {
             while (scanner.hasNext()) {
                 list.add(scanner.next());
             }

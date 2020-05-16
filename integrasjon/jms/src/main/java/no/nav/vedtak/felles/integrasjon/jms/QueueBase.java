@@ -18,6 +18,8 @@ public abstract class QueueBase implements QueueSelftest {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
+    private final ToggleJms toggleJms = new ToggleJms();
+    
     private final JmsKonfig konfig;
     private final String username;
     private String password;
@@ -83,6 +85,10 @@ public abstract class QueueBase implements QueueSelftest {
 
     protected Queue getQueue() {
         return queue;
+    }
+    
+    public boolean isDisabled() {
+        return toggleJms.isDisabled();
     }
 
     @Override

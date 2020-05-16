@@ -88,6 +88,8 @@ public abstract class QueueConsumer extends QueueBase {
     }
 
     public void start() {
+        if(isDisabled()) return;
+        
         if (executorService != null) {
             QueueConsumerFeil.FACTORY.receiveLoopAlleredeStartet().log(log);
             return;
@@ -118,6 +120,8 @@ public abstract class QueueConsumer extends QueueBase {
     }
 
     public void stop() {
+        if(isDisabled()) return;
+        
         if (executorService == null) {
             QueueConsumerFeil.FACTORY.receiveLoopIkkeStartet().log(log);
             return;
@@ -155,6 +159,8 @@ public abstract class QueueConsumer extends QueueBase {
 
         @Override
         public void run() {
+            if(isDisabled()) return;
+            
             if (logger.isInfoEnabled()) {
                 logger.info("startet JMS: {}", LoggerUtils.toStringWithoutLineBreaks(getKonfig())); //$NON-NLS-1$ //NOSONAR
             }
@@ -275,7 +281,7 @@ public abstract class QueueConsumer extends QueueBase {
         }
 
         void oppdater(Message message, long timeoutMillis) {
-
+            
             if (message == null) {
                 timeout();
                 // ikke logg mer enn 1 gang per minutt
@@ -294,4 +300,5 @@ public abstract class QueueConsumer extends QueueBase {
             sistMottatt = FPDateUtil.nå();
         }
     }
+  
 }

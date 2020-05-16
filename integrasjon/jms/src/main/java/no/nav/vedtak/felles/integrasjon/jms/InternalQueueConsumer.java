@@ -24,6 +24,8 @@ public abstract class InternalQueueConsumer extends QueueConsumer {
 
     @Override
     public void testConnection() throws JMSException {
+        if (isDisabled()) return;
+        
         try (JMSContext context = createContext()) {
             try (QueueBrowser browser = context.createBrowser(getQueue())) {
                 // Se på max. 1 melding, uten å konsumere den:

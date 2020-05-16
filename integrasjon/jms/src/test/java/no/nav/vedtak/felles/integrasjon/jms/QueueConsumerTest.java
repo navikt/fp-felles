@@ -69,6 +69,11 @@ public class QueueConsumerTest {
             protected JMSContext createContext() {
                 return mockJMSContext;
             }
+            
+            @Override
+            public boolean isDisabled() {
+                return false;
+            }
         };
 
         when(mockJMSContext.createConsumer(any(Queue.class))).thenReturn(mockJMSConsumer);
@@ -369,6 +374,10 @@ public class QueueConsumerTest {
             return mockPreconditionChecker;
         }
 
+        @Override
+        public boolean isDisabled() {
+            return false;
+        }
     }
 
     class ExternalTestQueueConsumer extends ExternalQueueConsumer {
@@ -396,6 +405,11 @@ public class QueueConsumerTest {
         @Override
         public PreconditionChecker getPreconditionChecker() {
             return mockPreconditionChecker;
+        }
+        
+        @Override
+        public boolean isDisabled() {
+            return false;
         }
 
     }
@@ -425,6 +439,11 @@ public class QueueConsumerTest {
         @Override
         public PreconditionChecker getPreconditionChecker() {
             return mockPreconditionChecker;
+        }
+        
+        @Override
+        public boolean isDisabled() {
+            return false;
         }
 
     }

@@ -20,10 +20,14 @@ public class QueueConsumerManagerImpl implements QueueConsumerManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueueConsumerManagerImpl.class);
 
     private List<QueueConsumer> consumerList;
+    
+    private ToggleJms toggleJms = new ToggleJms();
 
     // Får inn (indirekte) liste over alle beans av type QueueConsumer
     @Inject
     public void initConsumers(@Any Instance<QueueConsumer> consumersInstance) { // NOSONAR Joda, kalles av CDI
+        if(isDisabled()) return;
+        
         consumerList = new ArrayList<>();
         for (QueueConsumer consumer : consumersInstance) {
             consumerList.add(consumer);
@@ -31,8 +35,14 @@ public class QueueConsumerManagerImpl implements QueueConsumerManager {
         LOGGER.info("initConsumers la til {} consumers", consumerList.size());
     }
 
+    public boolean isDisabled() {
+        return toggleJms.isDisabled();
+    }
+
     @Override
     public synchronized void start() {
+        if(isDisabled()) return;
+        
         LOGGER.debug("start ...");
         for (QueueConsumer consumer : consumerList) {
             consumer.start();
@@ -42,6 +52,8 @@ public class QueueConsumerManagerImpl implements QueueConsumerManager {
 
     @Override
     public synchronized void stop() {
+        if(isDisabled()) return;
+        
         LOGGER.debug("stop ...");
         for (QueueConsumer consumer : consumerList) {
             consumer.stop();

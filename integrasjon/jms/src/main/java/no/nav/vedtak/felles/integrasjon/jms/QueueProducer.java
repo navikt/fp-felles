@@ -34,6 +34,8 @@ public abstract class QueueProducer extends QueueBase {
     }
 
     protected void doWithContext(Consumer<JMSContext> consumer) {
+        if (isDisabled()) return;
+        
         // TODO (FC) : JMSContext kan caches per tråd i en ThreadLocal for å redusere turnover av ressurser hvis det
         // blir et ytelsesproblem. Bør antagelig da lages nytt ved Exception.
         try (JMSContext context = createContext()) {
@@ -49,6 +51,8 @@ public abstract class QueueProducer extends QueueBase {
     }
 
     protected void doSendMessage(Message message, JMSContext context) {
+        if (isDisabled()) return;
+        
         JMSProducer producer = context.createProducer();
         producer.send(getQueue(), message);
     }
@@ -58,6 +62,8 @@ public abstract class QueueProducer extends QueueBase {
     }
 
     protected void doSendTextMessage(JmsMessage message, JMSContext context) {
+        if (isDisabled()) return;
+        
         JMSProducer producer = context.createProducer();
         if (getKonfig().harReplyToQueue()) {
             registrerReplyToQueue(producer);
