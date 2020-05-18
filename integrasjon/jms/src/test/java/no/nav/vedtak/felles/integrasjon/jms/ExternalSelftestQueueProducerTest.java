@@ -115,5 +115,10 @@ public class ExternalSelftestQueueProducerTest {
         ExternalTestProducer(JmsKonfig konfig) {
             super(konfig);
         }
+
+        @Override
+        public boolean isDisabled() {
+            return false;
+        }
     }
 }

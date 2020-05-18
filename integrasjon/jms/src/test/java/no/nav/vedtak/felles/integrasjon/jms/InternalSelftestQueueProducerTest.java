@@ -95,5 +95,10 @@ public class InternalSelftestQueueProducerTest {
         TestInternalQueueProducer(JmsKonfig konfig) {
             super(konfig);
         }
+
+        @Override
+        public boolean isDisabled() {
+            return false;
+        }
     }
 }

@@ -354,8 +354,8 @@
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.woodstox</groupId>
-				<artifactId>woodstox-core-asl</artifactId>
-				<version>4.4.1</version>
+				<artifactId>woodstox-core</artifactId>
+				<version>6.2.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
@@ -454,19 +454,8 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>sakogbehandling-klient</artifactId>
-                <type>test-jar</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>okonomistotte-jms</artifactId>
                 <type>test-jar</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>sakogbehandling-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

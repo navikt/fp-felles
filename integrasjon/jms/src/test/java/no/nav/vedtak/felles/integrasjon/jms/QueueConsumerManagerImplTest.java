@@ -14,11 +14,18 @@ import org.junit.Test;
 
 public class QueueConsumerManagerImplTest {
 
+    private static final class TestQueueConsumerManagerImpl extends QueueConsumerManagerImpl {
+        @Override
+        public boolean isDisabled() {
+            return false;
+        }
+    }
+
     private QueueConsumerManagerImpl manager; // the object we're testing
 
     @Before
     public void setup() {
-        manager = new QueueConsumerManagerImpl();
+        manager = new TestQueueConsumerManagerImpl();
     }
 
     @Test
