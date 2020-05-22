@@ -14,8 +14,8 @@ public class XacmlAttributeSet {
     private JsonArrayBuilder attributes = Json.createArrayBuilder();
 
     public XacmlAttributeSet addAttribute(String id, String value) {
-        Objects.requireNonNull(id != null, "Name in JsonObject's name/value pair");
-        Objects.requireNonNull(value != null, "Value in JsonObject's name/value pair");
+        Objects.requireNonNull(id, "Name in JsonObject's name/value pair");
+        Objects.requireNonNull(value, "Value in JsonObject's name/value pair");
         attributes.add(createAttribute(id, value));
         return this;
     }
