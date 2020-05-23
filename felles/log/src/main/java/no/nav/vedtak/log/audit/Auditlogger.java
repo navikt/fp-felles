@@ -42,9 +42,12 @@ public class Auditlogger {
         if (enabled) {
             Objects.requireNonNull(defaultVendor, "defaultVendor == null");
             Objects.requireNonNull(defaultProduct, "defaultProduct == null");
-        } /*else {
-            LOG.warn("Denne applikasjonen bruker sporingslogg som har blitt deprecated. Bytt til bruk av \"no.nav.vedtak.log.audit.Auditlogger\".");
-        }*/
+        }
+        /*
+         * TODO(jol) Re-enable som warning etter flytt av apps til Auditlogger + Warning i SporingsloggHelper + fjerne Kibana-filtre
+         * else { LOG.warn("Denne applikasjonen bruker sporingslogg som har blitt deprecated. Bytt til bruk av \"no.nav.vedtak.log.audit.Auditlogger\"."); }
+         *
+         */
 
         this.enabled = enabled;
         this.defaultVendor = defaultVendor;

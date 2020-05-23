@@ -10,15 +10,11 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.vedtak.sikkerhet.abac.Decision;
 
 public class XacmlResponseWrapper {
 
     public static final String ATTRIBUTE_ASSIGNMENT = "AttributeAssignment";
-    private static final Logger logger = LoggerFactory.getLogger(XacmlResponseWrapper.class);
     private static final String RESPONSE = "Response";
     private static final String DECISION = "Decision";
     private static final String OBLIGATIONS = "Obligations";
@@ -134,7 +130,6 @@ public class XacmlResponseWrapper {
     private Optional<Advice> jsonToAdvice(JsonObject advice) {
         String attributeId = advice.getString("AttributeId");
         String attributeValue = advice.getString("Value");
-        logger.info("Deny advice AttributeId={} Value={}", attributeId, attributeValue);
 
         if (!POLICY_IDENTIFIER.equals(attributeId)) {
             return Optional.empty();

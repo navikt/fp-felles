@@ -41,8 +41,6 @@ import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
 
 public class OpenAMHelper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenAMHelper.class);
-
     public static final String OPEN_ID_CONNECT_ISSO_HOST = "OpenIdConnect.issoHost";
     public static final String OPEN_ID_CONNECT_USERNAME = "OpenIdConnect.username";
     public static final String OPEN_ID_CONNECT_PASSWORD = "OpenIdConnect.password";
@@ -147,15 +145,12 @@ public class OpenAMHelper {
             post.setEntity(new StringEntity(data, "UTF-8"));
         }
 
-        LOGGER.info("POST mot URL {}", url);
-
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
                     StandardCharsets.UTF_8)) {
                 try (BufferedReader br = new BufferedReader(isr)) {
                     String responseString = br.lines().collect(Collectors.joining("\n"));
                     if (response.getStatusLine().getStatusCode() == expectedHttpCode) {
-                        LOGGER.info("POST mot URL OK {}", url);
                         return resultTransformer.apply(responseString);
                     } else {
                         throw OpenAmFeil.FACTORY
@@ -182,14 +177,12 @@ public class OpenAMHelper {
         String url = getIssoHostUrl() + WELL_KNOWN_ENDPOINT;
         if (wellKnownConfig == null) {
             HttpGet get = new HttpGet(url);
-            LOGGER.info("GET mot URL {}", url);
             try (CloseableHttpResponse response = httpClient.execute(get)) {
                 try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
                         StandardCharsets.UTF_8)) {
                     try (BufferedReader br = new BufferedReader(isr)) {
                         String responseString = br.lines().collect(Collectors.joining("\n"));
                         if (response.getStatusLine().getStatusCode() == 200) {
-                            LOGGER.info("Successfully fetching well known oidc configuration from " + url);
                             setWellKnownConfig(responseString);
                         } else {
                             throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(
@@ -220,18 +213,15 @@ public class OpenAMHelper {
         HttpGet get = new HttpGet(url);
         get.setHeader("Content-type", "application/json");
 
-        LOGGER.info("GET mot URL {}", url);
         try (CloseableHttpResponse response = httpClient.execute(get)) {
             if (response.containsHeader("Location")) {
                 Pattern pattern = Pattern.compile("code=([^&]*)");
                 String locationHeader = response.getFirstHeader("Location").getValue();
                 Matcher matcher = pattern.matcher(locationHeader);
                 if (matcher.find()) {
-                    LOGGER.info("GET mot URL OK {}", url);
                     return matcher.group(1);
                 }
             }
-            LOGGER.info("GET mot URL feilet {}", url);
             throw OpenAmFeil.FACTORY.kunneIkkeFinneAuthCode(response.getStatusLine().getStatusCode(),
                     response.getStatusLine().getReasonPhrase()).toException();
         } finally {
