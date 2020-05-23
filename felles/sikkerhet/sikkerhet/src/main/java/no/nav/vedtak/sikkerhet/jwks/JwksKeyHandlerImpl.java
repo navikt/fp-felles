@@ -1,17 +1,6 @@
 package no.nav.vedtak.sikkerhet.jwks;
 
-import no.nav.vedtak.log.util.LoggerUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.jose4j.jwk.JsonWebKey;
-import org.jose4j.jwk.JsonWebKeySet;
-import org.jose4j.lang.JoseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static no.nav.vedtak.konfig.PropertyUtil.getProperty;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +13,19 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static no.nav.vedtak.konfig.PropertyUtil.getProperty;
+import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.jose4j.jwk.JsonWebKey;
+import org.jose4j.jwk.JsonWebKeySet;
+import org.jose4j.lang.JoseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.log.util.LoggerUtils;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
     public static final String PROXY_KEY = "proxy.url";
@@ -85,7 +86,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         try {
             String jwksString = jwksStringSupplier.get();
             setKeyCache(jwksString);
-            log.info("JWKs cache for {} updated with: {}", url, jwksString); //NOSONAR
+            // Enable ved behov log.debug("JWKs cache for {} updated with: {}", url, jwksString); //NOSONAR
         } catch (RuntimeException e) {
             JwksFeil.FACTORY.klarteIkkeOppdatereJwksCache(url, e).log(log);
         }
