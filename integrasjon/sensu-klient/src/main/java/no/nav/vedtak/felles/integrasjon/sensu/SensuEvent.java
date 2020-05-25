@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import org.influxdb.dto.Point;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -125,15 +127,29 @@ public class SensuEvent {
 
     public static class SensuRequest {
         private static final ObjectMapper OM = new ObjectMapper();
+
+        @JsonProperty(value = "name")
         private final String name;
+
+        @JsonProperty(value = "type")
         private final String type;
+
+        @JsonProperty(value = "handlers")
         private final List<String> handlers;
+
+        @JsonProperty(value = "status")
         private final int status = 0;
+
+        @JsonProperty(value = "output")
         private final String output;
+
+        @JsonIgnore
+        private int antallEvents;
 
         /** Genrerer batch request fra list av requests. */
         public SensuRequest(Collection<SensuRequest> list) {
             this(DEFAULT_SENSU_EVENT_NAME, list.stream().map(SensuRequest::getOutput).collect(Collectors.joining("\n")));
+            this.antallEvents = list.size();
         }
 
         public SensuRequest(String name, String output) {
@@ -141,6 +157,7 @@ public class SensuEvent {
             this.output = output;
             this.type = "metric";
             this.handlers = List.of("events_nano");
+            this.antallEvents = 1;
         }
 
         public String toJson() {
@@ -169,6 +186,11 @@ public class SensuEvent {
 
         public int getStatus() {
             return status;
+        }
+
+        @JsonIgnore
+        public int getAntallEvents() {
+            return antallEvents;
         }
     }
 
