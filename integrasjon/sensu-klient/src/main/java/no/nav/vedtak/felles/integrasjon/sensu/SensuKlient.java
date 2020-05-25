@@ -126,9 +126,9 @@ public class SensuKlient implements AppServiceHandler {
 
     private synchronized Socket establishSocketConnectionIfNeeded() throws Exception {
         Socket socket = new Socket();
-        socket.setSoTimeout(10000);
+        socket.setSoTimeout(60000);
         socket.setReuseAddress(true);
-        socket.connect(new InetSocketAddress(sensuHost, sensuPort), 5000);
+        socket.connect(new InetSocketAddress(sensuHost, sensuPort), 30000);
         return socket;
     }
 
