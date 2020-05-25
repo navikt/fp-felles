@@ -11,7 +11,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,7 +33,6 @@ public class SensuKlient implements AppServiceHandler {
     private final int maxRetrySendSensu = 2;
 
     private AtomicBoolean kanKobleTilSensu = new AtomicBoolean(false);
-    private AtomicLong counterEvents = new AtomicLong(0L);
 
     SensuKlient() {
         // CDI-proxy
@@ -59,14 +57,15 @@ public class SensuKlient implements AppServiceHandler {
 
     /**
      * @param sensuRequest - requst til å sende sensu. Kan inneholde mange metrikker
-    */
+     */
     public void logMetrics(SensuEvent.SensuRequest sensuRequest) {
         var callId = MDCOperations.getCallId();
         if (executorService != null) {
             if (!kanKobleTilSensu.get()) {
                 return; // ignorer, har skrudd av pga ingen tilkobling til sensu
             }
-            String json = sensuRequest.toJson();
+            final String json = sensuRequest.toJson();
+            final String jsonForEx = formatForException(json, sensuRequest.getAntallEvents());
             executorService.execute(() -> {
                 long startTs = System.nanoTime();
                 try {
@@ -80,16 +79,16 @@ public class SensuKlient implements AppServiceHandler {
                                 writer.flush();
                             }
                         } catch (UnknownHostException ex) {
-                            sjekkBroken(callId, json, ex);
+                            sjekkBroken(callId, jsonForEx, ex);
                             break;
                         } catch (IOException ex) {
                             // ink. SocketException
                             if (rounds <= 0) {
-                                LOG.warn("Feil ved tilkobling til metrikkendepunkt. Kan ikke publisere melding fra callId[" + callId + "]: " + json, ex);
+                                LOG.warn("Feil ved tilkobling til metrikkendepunkt. Kan ikke publisere melding fra callId[" + callId + "]: " + jsonForEx, ex);
                                 break;
                             }
                         } catch (Exception ex) {
-                            sjekkBroken(callId, json, ex);
+                            sjekkBroken(callId, jsonForEx, ex);
                             break;
                         }
 
@@ -104,6 +103,16 @@ public class SensuKlient implements AppServiceHandler {
             });
         } else {
             LOG.info("Sensu klienten er ikke startet ennå!");
+        }
+    }
+
+    private String formatForException(String json, int antallEvents) {
+        if (antallEvents > 1) {
+            int maxSubstrLen = 1000;
+            String substr = json.substring(0, Math.min(json.length(), maxSubstrLen)) + "....";
+            return String.format("events[%s]: ", antallEvents, substr);
+        } else {
+            return String.format("events[%s]: ", antallEvents, json);
         }
     }
 
