@@ -19,11 +19,8 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,15 +35,21 @@ import no.nav.vedtak.util.StringUtils;
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og callId
  */
 public abstract class AbstractOidcRestClient extends CloseableHttpClient {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractOidcRestClient.class);
+    private static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
+    private static final String DEFAULT_NAV_CALLID = "Nav-Callid";
+    public static final String ALT_NAV_CALL_ID = "nav-call-id";
 
     private static final String AUTH_HEADER = "Authorization";
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
+
+    /** @deprecated gammel call id header. Ser ikke ut til å være i bruk lenger. så bør kunne fjernes?*/
+    @Deprecated(forRemoval = true)
     private static final String CALL_ID = "xCALL_ID";
-    public static final String PERSONFEED_CONSUMER_ID = "nav-consumer-id";
-    public static final String PERSONFEED_CALL_ID = "nav-call-id";
-    public static final String PERSONIDENT_HEADER = "nav-personident";
+    /** @deprecated Ikke nye call Id, Den som aldri skulle vært. Brukes kun i SigrunRestClient(?) (der er den allerede inlinet), så bør kunne fjernes trygt herfra. */
+    @Deprecated(forRemoval = true)
     public static final String NYE_HEADER_CALL_ID = "no.nav.callid";
+    /** @deprecated Ikke nye consumer Id, Den som aldri skulle vært. Brukes kun i SigrunRestClient(?) (der er den allerede inlinet), så bør kunne fjernes trygt herfra. */
+    @Deprecated(forRemoval = true)
     public static final String NYE_HEADER_CONSUMER_ID = "no.nav.consumer.id";
 
     private CloseableHttpClient client;
@@ -62,11 +65,17 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         client.close();
     }
 
+    /** @deprecated for kompatibilitet med CloseableHttpClient.  IKKE BRUK. */
+    @SuppressWarnings("deprecation")
+    @Deprecated(forRemoval = true)
     @Override
     public ClientConnectionManager getConnectionManager() {
         return client.getConnectionManager();
     }
 
+    /** @deprecated for kompatibilitet med CloseableHttpClient.  IKKE BRUK. */
+    @SuppressWarnings("deprecation")
+    @Deprecated(forRemoval = true)
     @Override
     public HttpParams getParams() {
         return client.getParams();
@@ -84,11 +93,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
 
     public String get(URI endpoint) {
         return get(endpoint, createResponseHandler(endpoint));
-    }
-
-    public <T> T getPersonidentHeader(URI endpoint, String personIdent, Class<T> clazz) {
-        String entity = get(endpoint, Set.of(new BasicHeader(PERSONIDENT_HEADER, personIdent)), createResponseHandler(endpoint));
-        return fromJson(entity, clazz);
     }
 
     public <T> Optional<T> getReturnsOptional(URI endpoint, Class<T> clazz) {
@@ -148,8 +152,8 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         String authHeaderValue = OIDC_AUTH_HEADER_PREFIX + getOIDCToken();
         request.setHeader(AUTH_HEADER, authHeaderValue);
 
-        request.setHeader(MDCOperations.HTTP_HEADER_CALL_ID, MDCOperations.getCallId());
-        request.setHeader(MDCOperations.HTTP_HEADER_CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
+        request.setHeader(DEFAULT_NAV_CALLID, MDCOperations.getCallId());
+        request.setHeader(DEFAULT_NAV_CONSUMERID, SubjectHandler.getSubjectHandler().getConsumerId());
 
         setObsoleteHeaders(request);
 
@@ -162,6 +166,11 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         } catch (IOException e) {
             throw DefaultJsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
         }
+    }
+
+    /** Få tak i en kopi av definert ObjectMapper. */
+    public ObjectMapper getMapper() {
+        return mapper.copy();
     }
 
     protected String get(URI endpoint, ResponseHandler<String> responseHandler) {
@@ -234,12 +243,12 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     }
 
     protected void setObsoleteHeaders(HttpRequest request) {
+        String callId = MDCOperations.getCallId();
+        request.setHeader(ALT_NAV_CALL_ID, callId);
+
         if (!Boolean.getBoolean("disable.obsolete.mdc.http.headers")) {
-            String callId = MDCOperations.getCallId();
             request.setHeader(CALL_ID, callId);
             request.setHeader(NYE_HEADER_CALL_ID, callId);
-            request.setHeader(PERSONFEED_CALL_ID, callId);
-            request.setHeader(PERSONFEED_CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
             request.setHeader(NYE_HEADER_CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
         }
     }
