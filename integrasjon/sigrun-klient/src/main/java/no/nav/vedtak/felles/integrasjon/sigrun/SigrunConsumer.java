@@ -6,8 +6,6 @@ public interface SigrunConsumer {
 
  SigrunResponse beregnetskatt(Long aktørId);
 
- SigrunResponse beregnetskattMedLogging(Long aktørId);
-
  SigrunSummertSkattegrunnlagResponse summertSkattegrunnlag(Long aktørId);
 
 }

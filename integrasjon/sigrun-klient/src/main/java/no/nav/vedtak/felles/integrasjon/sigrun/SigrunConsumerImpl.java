@@ -1,7 +1,24 @@
 package no.nav.vedtak.felles.integrasjon.sigrun;
 
-import static java.util.Arrays.asList;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.feil.LogLevel;
+import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SSGResponse;
+import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SigrunSummertSkattegrunnlagResponse;
+import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.vedtak.util.FPDateUtil;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Year;
@@ -13,33 +30,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SSGResponse;
-import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SigrunSummertSkattegrunnlagResponse;
-import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.FPDateUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.Arrays.asList;
 
 
 @ApplicationScoped
 public class SigrunConsumerImpl implements SigrunConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SigrunConsumerImpl.class);
 
     private static final ObjectMapper mapper = getObjectMapper();
     private static final String TEKNISK_NAVN = "skatteoppgjoersdato";
@@ -95,22 +90,6 @@ public class SigrunConsumerImpl implements SigrunConsumer {
 
         return new SigrunResponse(årTilListeMedSkatt);
     }
-
-    @Override
-    public SigrunResponse beregnetskattMedLogging(Long aktørId) {
-        Map<Year, List<BeregnetSkatt>> årTilListeMedSkatt = new HashMap<>();
-        ferdiglignedeBeregnetSkattÅr(aktørId)
-            .stream()
-            .collect(Collectors.toMap(år -> år, år -> {
-                String resultat = sigrunRestClient.hentBeregnetSkattForAktørOgÅr(aktørId, år.toString());
-                LOGGER.info("Resultat for år " + år + " var " + resultat);
-                return resultat != null ? resultat : "";
-            }))
-            .forEach((resulatÅr, skatt) -> leggTilBS(årTilListeMedSkatt, resulatÅr, skatt));
-
-        return new SigrunResponse(årTilListeMedSkatt);
-    }
-
 
     @Override
     public SigrunSummertSkattegrunnlagResponse summertSkattegrunnlag(Long aktørId) {

@@ -121,12 +121,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return fromJson(entity, clazz);
     }
 
-    public <T> T postAndLogRespons(URI endpoint, Object dto, Class<T> clazz) {
-        String entity = post(endpoint, dto, createResponseHandler(endpoint));
-        logger.info("Respons fra endepunkt " + endpoint + "var " + entity);
-        return fromJson(entity, clazz);
-    }
-
     public <T> Optional<T> postReturnsOptional(URI endpoint, Object dto, Class<T> clazz) {
         String entity = post(endpoint, dto, createResponseHandler(endpoint));
         if (StringUtils.nullOrEmpty(entity)) {
