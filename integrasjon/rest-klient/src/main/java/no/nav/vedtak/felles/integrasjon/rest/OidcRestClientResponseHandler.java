@@ -64,6 +64,7 @@ public abstract class OidcRestClientResponseHandler<T> implements ResponseHandle
             this.reader = reader;
         }
 
+        @SuppressWarnings("resource")
         @Override
         protected T readEntity(HttpEntity entity) throws IOException {
             return reader.readValue(entity.getContent());
