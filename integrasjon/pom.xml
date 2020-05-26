@@ -25,8 +25,6 @@
 		<module>aktoer-klient</module>
 		<module>person-klient</module>
 		<module>journal-klient</module>
-		<module>inngaaendejournal-klient</module>
-		<module>behandleinngaaendejournal-klient</module>
         <module>infotrygd-grunnlag-klient</module>
         <module>infotrygd-saker-klient</module>
 		<module>medl-klient</module>
@@ -36,7 +34,6 @@
 		<module>organisasjon-v5-klient</module>
 		<module>kodeverk-klient</module>
 		<module>sigrun-klient</module>
-		<module>mottainngaaendeforsendelse-klient</module>
 		<module>unleash-klient</module>
 		<module>okonomistotte-jms</module>
         <module>sak-klient</module>
@@ -236,38 +233,8 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>inngaaendejournal-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>behandleinngaaendejournal-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>mottainngaaendeforsendelse-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-journal-v3-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-inngaaendeJournal-v1-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-behandleInngaaendeJournal-v1-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>no-nav-dok-tjenester-mottainngaaendeforsendelse</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
 			</dependency>
             <dependency>
@@ -290,16 +257,6 @@
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-fim-sak-v1-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>behandlesak-v2-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-fim-oppgave-v3-tjenestespesifikasjon</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
 			</dependency>
 
