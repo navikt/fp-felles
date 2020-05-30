@@ -35,6 +35,15 @@ public class MdcExtendedLogContext {
         String cleanedValue = removeKeyValue(key, currentValue);
         String newValue = insertValue(cleanedValue, key, value);
         MDC.put(paramName, newValue);
+        if (value == null) {
+            MDC.remove(paramKey(key));
+        } else {
+            MDC.put(paramKey(key), value.toString());
+        }
+    }
+
+    private String paramKey(String key) {
+        return paramName + "_" + key;
     }
 
     public String getFullText() {
@@ -43,11 +52,11 @@ public class MdcExtendedLogContext {
 
     private String insertValue(String currentValue, String key, Object keyValue) {
         validateKey(key);
-        if(currentValue==null){
-            currentValue=this.baseFormat;
+        if (currentValue == null) {
+            currentValue = this.baseFormat;
         }
         String val = currentValue.substring(0, currentValue.length() - 1);
-        val = val + (val.endsWith("[") ? "" : ";") + (keyValue ==null ? "" : key + "=" + keyValue) + "]";
+        val = val + (val.endsWith("[") ? "" : ";") + (keyValue == null ? "" : key + "=" + keyValue) + "]";
         return val;
     }
 
@@ -56,23 +65,25 @@ public class MdcExtendedLogContext {
             throw new IllegalArgumentException("Ugyldig key: '" + key + "'");
         }
     }
-    
+
+    @Deprecated(forRemoval = true)
     public String getValue(String key) {
         validateKey(key);
         String currentValue = mdcKey();
         List<String> parts = splitParts(currentValue);
-        String keyPart = key+"=";
-        for(String part: parts) {
-            if(part.startsWith(keyPart)) {
+        String keyPart = key + "=";
+        for (String part : parts) {
+            if (part.startsWith(keyPart)) {
                 return part.substring(keyPart.length(), part.length());
             }
         }
-        
+
         return null;
     }
 
     public void remove(String key) {
         validateKey(key);
+        MDC.remove(paramKey(key));
         String currentValue = mdcKey();
         if (currentValue == null) {
             return;
@@ -110,7 +121,7 @@ public class MdcExtendedLogContext {
     }
 
     private List<String> splitParts(String orgValue) {
-        if(orgValue==null) {
+        if (orgValue == null) {
             return Collections.emptyList();
         }
         String content = orgValue.substring(paramName.length() + 1, orgValue.length() - 1);
@@ -118,6 +129,7 @@ public class MdcExtendedLogContext {
         return contentList;
     }
 
+    @Deprecated(forRemoval = true)
     public void clear() {
         MDC.remove(paramName);
     }
