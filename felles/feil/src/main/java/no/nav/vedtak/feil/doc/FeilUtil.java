@@ -2,6 +2,7 @@ package no.nav.vedtak.feil.doc;
 
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
+import no.nav.vedtak.feil.deklarasjon.IkkeImplementertFeil;
 import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
 import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
@@ -14,6 +15,7 @@ public class FeilUtil {
         FunksjonellFeil f = method.getAnnotation(FunksjonellFeil.class);
         IntegrasjonFeil i = method.getAnnotation(IntegrasjonFeil.class);
         ManglerTilgangFeil m = method.getAnnotation(ManglerTilgangFeil.class);
+        IkkeImplementertFeil k = method.getAnnotation(IkkeImplementertFeil.class);
         if (t != null) {
             return t.feilkode();
         }
@@ -26,6 +28,9 @@ public class FeilUtil {
         if (m != null) {
             return m.feilkode();
         }
+        if (k != null) {
+            return k.feilkode();
+        }
         return null;
     }
 
@@ -34,6 +39,7 @@ public class FeilUtil {
         FunksjonellFeil f = method.getAnnotation(FunksjonellFeil.class);
         IntegrasjonFeil i = method.getAnnotation(IntegrasjonFeil.class);
         ManglerTilgangFeil m = method.getAnnotation(ManglerTilgangFeil.class);
+        IkkeImplementertFeil k = method.getAnnotation(IkkeImplementertFeil.class);
         if (t != null) {
             return t.logLevel();
         }
@@ -46,6 +52,9 @@ public class FeilUtil {
         if (m != null) {
             return m.logLevel();
         }
+        if (k != null) {
+            return k.logLevel();
+        }
         return null;
     }
 
@@ -54,6 +63,7 @@ public class FeilUtil {
         FunksjonellFeil f = method.getAnnotation(FunksjonellFeil.class);
         IntegrasjonFeil i = method.getAnnotation(IntegrasjonFeil.class);
         ManglerTilgangFeil m = method.getAnnotation(ManglerTilgangFeil.class);
+        IkkeImplementertFeil k = method.getAnnotation(IkkeImplementertFeil.class);
         if (t != null) {
             return TekniskFeil.class.getSimpleName();
         }
@@ -66,6 +76,9 @@ public class FeilUtil {
         if (m != null) {
             return ManglerTilgangFeil.class.getSimpleName();
         }
+        if (k != null) {
+            return IkkeImplementertFeil.class.getSimpleName();
+        }
         return null;
     }
 
@@ -74,6 +87,7 @@ public class FeilUtil {
         FunksjonellFeil f = method.getAnnotation(FunksjonellFeil.class);
         IntegrasjonFeil i = method.getAnnotation(IntegrasjonFeil.class);
         ManglerTilgangFeil m = method.getAnnotation(ManglerTilgangFeil.class);
+        IkkeImplementertFeil k = method.getAnnotation(IkkeImplementertFeil.class);
         if (t != null) {
             return t.feilmelding();
         }
@@ -85,6 +99,9 @@ public class FeilUtil {
         }
         if (m != null) {
             return m.feilmelding();
+        }
+        if (k != null) {
+            return k.feilmelding();
         }
         return null;
     }

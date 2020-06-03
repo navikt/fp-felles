@@ -1,6 +1,7 @@
 package no.nav.vedtak.feil;
 
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.IkkeImplementertFeil;
 import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
@@ -29,6 +30,9 @@ public abstract class FeilFactory { //NOSONAR ikke noe poeng å bytte til interf
                 }
                 if (method.getAnnotation(ManglerTilgangFeil.class) != null) {
                     return lagIkkeTilgangFeil(method, args, cause);
+                }
+                if (method.getAnnotation(IkkeImplementertFeil.class) != null) {
+                    return lagIkkeImplememtertFeil(method, args, cause);
                 }
                 if (method.getAnnotation(no.nav.vedtak.feil.deklarasjon.FunksjonellFeil.class) != null) {
                     return lagFunksjonellFeil(method, args, cause);
@@ -63,6 +67,12 @@ public abstract class FeilFactory { //NOSONAR ikke noe poeng å bytte til interf
 
     private static Object lagIkkeTilgangFeil(Method method, Object[] metodeargumenter, Throwable cause) {
         ManglerTilgangFeil annotering = method.getAnnotation(ManglerTilgangFeil.class);
+        String feilmelding = String.format(annotering.feilmelding(), metodeargumenter);
+        return new Feil(annotering.feilkode(), feilmelding, annotering.logLevel(), annotering.exceptionClass(), cause);
+    }
+
+    private static Object lagIkkeImplememtertFeil(Method method, Object[] metodeargumenter, Throwable cause) {
+        IkkeImplementertFeil annotering = method.getAnnotation(IkkeImplementertFeil.class);
         String feilmelding = String.format(annotering.feilmelding(), metodeargumenter);
         return new Feil(annotering.feilkode(), feilmelding, annotering.logLevel(), annotering.exceptionClass(), cause);
     }

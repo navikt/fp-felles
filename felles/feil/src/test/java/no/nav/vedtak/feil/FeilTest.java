@@ -12,6 +12,7 @@ import org.slf4j.event.Level;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.exception.IkkeImplementertException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
 
@@ -81,6 +82,20 @@ public class FeilTest {
     public void skal_kunne_konvertere_feil_til_mangler_tilgang_exception() {
         RuntimeException cause = new RuntimeException("Væææ!");
         Feil feil = new Feil(FEIL_KODE, "manglerTilgangFeil", LogLevel.ERROR, ManglerTilgangException.class, cause);
+        assertThat(feil.getLogLevel()).isSameAs(Level.ERROR);
+        VLException exception = feil.toException();
+        exception.log(logger);
+        assertThat(exception.toString()).isNotEmpty();
+        assertThat(exception.getMessage()).isEqualTo(feil.toLogString());
+        assertThat(exception.getCause()).isEqualTo(cause);
+        assertThat(exception.getStackTrace()).isNotNull().isNotEmpty();
+        assertThat(exception.getFeil().getKode()).isEqualTo(FEIL_KODE);
+    }
+
+    @Test
+    public void skal_kunne_konvertere_feil_til_ikke_implementert_exception() {
+        RuntimeException cause = new RuntimeException("Væææ!");
+        Feil feil = new Feil(FEIL_KODE, "ikkeImplementertFeil", LogLevel.ERROR, IkkeImplementertException.class, cause);
         assertThat(feil.getLogLevel()).isSameAs(Level.ERROR);
         VLException exception = feil.toException();
         exception.log(logger);
