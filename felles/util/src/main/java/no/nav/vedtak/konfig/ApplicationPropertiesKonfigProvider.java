@@ -14,13 +14,13 @@ import org.slf4j.LoggerFactory;
 
 @Dependent
 public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiProvider {
-    
+
     static class Init {
         // lazy init singleton
         static final Properties PROPS = lesFra();
         private static final String SUFFIX = ".properties";
         private static final String PREFIX = "application";
-        
+
         private static Properties lesFra() {
             return lesFra(namespaceKonfig(), lesFra(clusterKonfig(), lesFra("", new Properties())));
         }
@@ -48,7 +48,7 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
     private static final int PRIORITET = EnvPropertiesKonfigVerdiProvider.PRIORITET + 1;
     private static final String LOCAL = "local";
     private static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
-    private static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE";
+    private static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE_NAME";
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPropertiesKonfigProvider.class);
 

@@ -10,7 +10,7 @@ import no.nav.vedtak.konfig.PropertyUtil;
 
 public class EnvironmentProperty {
 
-    public static final String NAIS_NAMESPACE = "NAIS_NAMESPACE";
+    public static final String NAIS_NAMESPACE = "NAIS_NAMESPACE_NAME";
     public static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
     public static final List<String> PROD_CLUSTERS = List.of("prod-fss", "prod-sbs");
     public static final List<String> PREPROD_CLUSTERS = List.of("dev-fss", "dev-sbs");
