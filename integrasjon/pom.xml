@@ -32,6 +32,7 @@
 		<module>arbeidsforhold-klient</module>
 		<module>organisasjon-klient</module>
 		<module>organisasjon-v5-klient</module>
+        <module>ereg-klient</module>
 		<module>kodeverk-klient</module>
 		<module>sigrun-klient</module>
 		<module>unleash-klient</module>
