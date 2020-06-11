@@ -206,6 +206,11 @@
 				<artifactId>organisasjon-klient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>ereg-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-infotrygdSak-v1-tjenestespesifikasjon</artifactId>
