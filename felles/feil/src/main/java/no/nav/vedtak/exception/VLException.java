@@ -1,6 +1,7 @@
 package no.nav.vedtak.exception;
 
 import no.nav.vedtak.feil.Feil;
+
 import org.slf4j.Logger;
 
 public abstract class VLException extends RuntimeException {
@@ -29,6 +30,9 @@ public abstract class VLException extends RuntimeException {
                 break;
             case WARN:
                 logger.warn(text, this);
+                break;
+            case INFO:
+                logger.info(text);
                 break;
             default:
                 throw new IllegalArgumentException("Ikke-støttet LogLevel: " + feil.getLogLevel());
