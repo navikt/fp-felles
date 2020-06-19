@@ -32,7 +32,7 @@ public abstract class VLException extends RuntimeException {
                 logger.warn(text, this);
                 break;
             case INFO:
-                logger.info(text, this);
+                logger.info(text);
                 break;
             default:
                 throw new IllegalArgumentException("Ikke-støttet LogLevel: " + feil.getLogLevel());
