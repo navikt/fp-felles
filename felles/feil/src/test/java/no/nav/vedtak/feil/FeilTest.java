@@ -24,7 +24,7 @@ public class FeilTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void skal_kunne_konvertere_feil_til_exception() throws Exception {
+    public void skal_kunne_konvertere_feil_til_exception()  {
         Feil feil = new Feil(FEIL_KODE, "noe gikk galt", LogLevel.ERROR, TekniskException.class, null);
         VLException exception = feil.toException();
         assertThat(exception.getMessage()).isEqualTo(feil.toLogString());
@@ -32,7 +32,7 @@ public class FeilTest {
     }
 
     @Test
-    public void skal_kunne_konvertere_feil_til_exception_og_ta_med_cause() throws Exception {
+    public void skal_kunne_konvertere_feil_til_exception_og_ta_med_cause()  {
         RuntimeException cause = new RuntimeException("Væææ!");
         Feil feil = new Feil(FEIL_KODE, "noe gikk galt", LogLevel.ERROR, TekniskException.class, cause);
         VLException exception = feil.toException();
@@ -63,9 +63,7 @@ public class FeilTest {
     }
 
     @Test
-    public void skal_kunne_konvertere_feil_til_integrasjon_exception() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Ikke-støttet LogLevel: INFO");
+    public void skal_støtte_feil_med_loglevel_INFO() {
         RuntimeException cause = new RuntimeException("Væææ!");
         Feil feil = new Feil(FEIL_KODE, "integrasjonFeil", LogLevel.INFO, IntegrasjonException.class, cause);
         assertThat(feil.getLogLevel()).isSameAs(Level.INFO);
