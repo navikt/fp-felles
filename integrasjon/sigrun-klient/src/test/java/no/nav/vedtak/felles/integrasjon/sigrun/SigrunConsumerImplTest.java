@@ -2,20 +2,13 @@ package no.nav.vedtak.felles.integrasjon.sigrun;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.Year;
 import java.util.Map;
 import java.util.Optional;
 
-import org.assertj.core.api.Assertions;
-import org.jose4j.json.internal.json_simple.JSONObject;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SSGGrunnlag;
 import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SSGResponse;
 import no.nav.vedtak.felles.integrasjon.sigrun.summertskattegrunnlag.SigrunSummertSkattegrunnlagResponse;
 

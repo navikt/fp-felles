@@ -1,6 +1,5 @@
 package no.nav.vedtak.log.sporingslogg;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;

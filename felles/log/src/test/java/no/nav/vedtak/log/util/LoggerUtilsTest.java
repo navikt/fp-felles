@@ -1,6 +1,5 @@
 package no.nav.vedtak.log.util;
 
-import no.nav.vedtak.log.util.LoggerUtils;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

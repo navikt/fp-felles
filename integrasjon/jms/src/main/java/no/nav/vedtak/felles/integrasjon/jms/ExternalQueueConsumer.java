@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.jms;
 
-import javax.jms.JMSContext;
 import javax.jms.JMSException;
 
 /**

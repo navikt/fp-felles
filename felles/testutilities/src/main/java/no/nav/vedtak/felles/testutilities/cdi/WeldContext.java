@@ -12,6 +12,7 @@ import javax.enterprise.inject.spi.InjectionTargetFactory;
 import org.jboss.weld.context.RequestContext;
 import org.jboss.weld.context.unbound.UnboundLiteral;
 import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.environment.se.WeldContainer;
 
 /**
  * Instantierer Weld (CDI container) for enhetstesting.
@@ -21,6 +22,9 @@ public class WeldContext {
     private static WeldContext INSTANCE;
 
     private final Weld weld;
+
+    @SuppressWarnings("unused")
+    private WeldContainer initialize;
 
     public static synchronized WeldContext getInstance() {
         if (INSTANCE == null) {
@@ -33,7 +37,7 @@ public class WeldContext {
         // syntetisk bean
         this.weld = new Weld();
         this.weld.property("org.jboss.weld.se.archive.isolation", false);
-        this.weld.initialize();
+        initialize = this.weld.initialize();
 
     }
 

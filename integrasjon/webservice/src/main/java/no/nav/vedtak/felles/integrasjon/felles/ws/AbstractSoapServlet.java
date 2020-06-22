@@ -24,6 +24,7 @@ public abstract class AbstractSoapServlet extends CXFNonSpringServlet implements
     private final VLFaultListener faultListener = new VLFaultListener();
     private final Map<String, EndpointImpl> map = new HashMap<>();
 
+    @SuppressWarnings("resource")
     protected void publish(Object implementor) {
         ensureWeGotSoapBus();
         // Bør ikke lukkes fordi da server vi ikke endepunktet lenger.
@@ -43,6 +44,7 @@ public abstract class AbstractSoapServlet extends CXFNonSpringServlet implements
         }
     }
 
+    @SuppressWarnings("resource")
     @Override
     public boolean isProtectedWithAction(String pathInfo, String requiredAction) {
         if (map.containsKey(pathInfo)) {

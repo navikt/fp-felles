@@ -32,6 +32,7 @@ public class RestClientSupportProdusent {
         return sigrunRestClient;
     }
 
+    @SuppressWarnings("resource")
     private SigrunRestClient createSigrunRestClient() {
         // Create connection configuration
         ConnectionConfig defaultConnectionConfig = ConnectionConfig.custom()

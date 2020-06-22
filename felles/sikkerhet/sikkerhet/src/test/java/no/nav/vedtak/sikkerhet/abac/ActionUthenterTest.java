@@ -8,8 +8,6 @@ import javax.ws.rs.Path;
 
 import org.junit.Test;
 
-import no.nav.vedtak.sikkerhet.abac.ActionUthenter;
-
 public class ActionUthenterTest {
 
     @Test

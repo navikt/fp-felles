@@ -7,7 +7,6 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.sikkerhet.oidc.Fikk40xKodeException;
 import no.nav.vedtak.sikkerhet.oidc.VlIOException;
 

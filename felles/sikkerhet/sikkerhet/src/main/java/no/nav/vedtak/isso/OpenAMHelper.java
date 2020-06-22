@@ -28,9 +28,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.glassfish.json.JsonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -78,6 +75,7 @@ public class OpenAMHelper {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public IdTokenAndRefreshToken getToken() throws IOException {
         return getToken(getProperty("systembruker.username"), getProperty("systembruker.password"));
     }
@@ -172,6 +170,7 @@ public class OpenAMHelper {
         wellKnownConfig = null;
     }
 
+    @SuppressWarnings("resource")
     public static JsonObject getWellKnownConfig() {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         String url = getIssoHostUrl() + WELL_KNOWN_ENDPOINT;
@@ -229,10 +228,12 @@ public class OpenAMHelper {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static String getIssoHostUrl() {
         return getProperty(OPEN_ID_CONNECT_ISSO_HOST);
     }
 
+    @SuppressWarnings("deprecation")
     public static String getIssoUserName() {
         return getProperty(OPEN_ID_CONNECT_USERNAME);
     }

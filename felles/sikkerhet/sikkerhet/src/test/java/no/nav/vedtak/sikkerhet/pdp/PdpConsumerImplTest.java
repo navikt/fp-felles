@@ -34,6 +34,7 @@ public class PdpConsumerImplTest {
     @Rule
     public LogSniffer sniffer = new LogSniffer();
 
+    @SuppressWarnings("resource")
     @BeforeClass
     public static void setUp() throws Exception {
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);

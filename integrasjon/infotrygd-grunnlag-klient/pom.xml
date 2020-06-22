@@ -10,7 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>infotrygd-grunnlag-klient</artifactId>
-    <version>${revision}${sha1}${changelist}</version>
     <packaging>jar</packaging>
     <name>Felles :: Integrasjonsendepunkt - infotrygd-grunnlag rest-klient</name>
 

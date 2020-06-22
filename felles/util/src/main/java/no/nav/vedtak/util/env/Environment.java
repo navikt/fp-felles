@@ -102,6 +102,7 @@ public final class Environment {
                 .orElseThrow(() -> ikkeFunnet(key));
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getProperty(String key, Class<T> targetType, T defaultVerdi) {
         var converter = converterFor(targetType);
         if (converter == null && !targetType.equals(String.class)) {

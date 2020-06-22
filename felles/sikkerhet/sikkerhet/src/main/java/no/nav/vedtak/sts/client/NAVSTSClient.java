@@ -12,7 +12,6 @@ import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 
 public class NAVSTSClient extends STSClient {
     private static final Logger logger = LoggerFactory.getLogger(NAVSTSClient.class);

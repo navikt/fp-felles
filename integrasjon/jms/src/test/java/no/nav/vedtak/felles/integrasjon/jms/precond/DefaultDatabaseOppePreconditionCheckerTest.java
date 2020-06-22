@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 
+@SuppressWarnings("resource")
 public class DefaultDatabaseOppePreconditionCheckerTest {
 
     private DefaultDatabaseOppePreconditionChecker preconditionChecker; // objektet vi tester

@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
+@SuppressWarnings("resource")
 public class ExternalSelftestQueueProducerTest {
     private static final String MSG_TEXT = "beskjeden";
     private ExternalQueueProducer helper; // the object we're testing

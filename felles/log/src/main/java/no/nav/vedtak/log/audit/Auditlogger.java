@@ -25,8 +25,6 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @Dependent
 public class Auditlogger {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Auditlogger.class);
-
     private static final Logger auditLogger = LoggerFactory.getLogger("auditLogger");
 
     private final boolean enabled;

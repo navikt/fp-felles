@@ -89,6 +89,7 @@ public class StsConfigurationUtil {
         return property;
     }
 
+    @SuppressWarnings("resource")
     private static STSClient createBasicSTSClient(StsClientType type, Bus bus, String location, String username, String password) {
         STSClient stsClient = new NAVSTSClient(bus, type);
         stsClient.setWsdlLocation("wsdl/ws-trust-1.4-service.wsdl");
