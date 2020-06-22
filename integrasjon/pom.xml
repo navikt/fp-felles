@@ -30,8 +30,6 @@
 		<module>medl-klient</module>
 		<module>oppgave-rest-klient</module>
 		<module>arbeidsforhold-klient</module>
-		<module>organisasjon-klient</module>
-		<module>organisasjon-v5-klient</module>
         <module>ereg-klient</module>
 		<module>kodeverk-klient</module>
 		<module>sigrun-klient</module>
@@ -201,11 +199,6 @@
 				<artifactId>arbeidsforhold-klient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>organisasjon-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>ereg-klient</artifactId>
@@ -226,11 +219,6 @@
 				<artifactId>nav-arbeidsforhold-v3-tjenestespesifikasjon</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-fim-organisasjon-v4-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
 
 			<!-- Klienter for Dokument og journalføring -->
 			<dependency>
@@ -243,11 +231,6 @@
 				<artifactId>nav-journal-v3-tjenestespesifikasjon</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
 			</dependency>
-            <dependency>
-                <groupId>no.nav.tjenestespesifikasjoner</groupId>
-                <artifactId>nav-fim-organisasjon-v5-tjenestespesifikasjon</artifactId>
-                <version>${tjenestespesifikasjoner.version}</version>
-            </dependency>
 
 			<!-- Klienter for Produksjonsstyring -->
             <dependency>
