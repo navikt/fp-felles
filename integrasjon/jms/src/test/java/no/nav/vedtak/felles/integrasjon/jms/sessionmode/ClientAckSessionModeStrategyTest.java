@@ -9,6 +9,7 @@ import javax.jms.JMSContext;
 import org.junit.Before;
 import org.junit.Test;
 
+@SuppressWarnings("resource")
 public class ClientAckSessionModeStrategyTest {
 
     private ClientAckSessionModeStrategy strategy; // the object we're testing

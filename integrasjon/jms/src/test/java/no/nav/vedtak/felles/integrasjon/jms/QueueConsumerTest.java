@@ -35,6 +35,7 @@ import no.nav.vedtak.felles.integrasjon.jms.precond.PreconditionCheckerResult;
 import no.nav.vedtak.felles.integrasjon.jms.sessionmode.SessionModeStrategy;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
+@SuppressWarnings("resource")
 public class QueueConsumerTest {
 
     private static final int SLEEP = 200;

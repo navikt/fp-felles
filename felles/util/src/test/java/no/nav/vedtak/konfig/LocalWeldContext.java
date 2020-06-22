@@ -21,6 +21,7 @@ class LocalWeldContext {
         return INSTANCE;
     }
 
+    @SuppressWarnings("resource")
     LocalWeldContext() {
         this.weld = new Weld();
         this.weld.initialize();
