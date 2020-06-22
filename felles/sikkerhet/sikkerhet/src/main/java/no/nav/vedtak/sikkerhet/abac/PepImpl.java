@@ -91,7 +91,7 @@ public class PepImpl implements Pep {
             + pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR);
     }
 
-    protected int getAntallResources(PdpRequest pdpRequest) {
+    protected int getAntallResources(@SuppressWarnings("unused") PdpRequest pdpRequest) {
         // Template method. Regn evt ut antall aksjonspunkter el andre typer ressurser som behandles i denne requesten (hvis mer enn 1)
         return 1;
     }

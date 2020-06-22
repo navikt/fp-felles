@@ -42,7 +42,7 @@ public class MedlemskapsunntakTest {
         try {
             return OM.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw ((Feil)feilFactory.apply(e)).toException();
+            throw (feilFactory.apply(e)).toException();
         }
     }
 

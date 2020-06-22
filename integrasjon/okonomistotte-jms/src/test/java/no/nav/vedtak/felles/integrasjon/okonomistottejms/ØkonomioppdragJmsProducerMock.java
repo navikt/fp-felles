@@ -44,6 +44,7 @@ public class ØkonomioppdragJmsProducerMock extends ØkonomioppdragJmsProducer {
         }
     }
 
+    @SuppressWarnings("resource")
     private String getInput(String filename) throws IOException, URISyntaxException {
         return new String(getClass().getClassLoader().getResourceAsStream(filename).readAllBytes());
     }

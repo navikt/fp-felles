@@ -15,6 +15,7 @@ public class JettySubjectHandler extends ThreadLocalSubjectHandler {
         return subject;
     }
 
+    @SuppressWarnings("resource")
     private Subject getSubjectFromRequest() {
         HttpConnection httpConnection = HttpConnection.getCurrentConnection();
         if (httpConnection == null) {
