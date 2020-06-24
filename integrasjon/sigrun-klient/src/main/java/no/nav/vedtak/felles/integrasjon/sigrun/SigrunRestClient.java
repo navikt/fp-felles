@@ -143,7 +143,7 @@ public class SigrunRestClient {
             } else if (status == HttpStatus.SC_FORBIDDEN) {
                 throw SigrunRestClientFeil.FACTORY.manglerTilgang().toException();
             } else if (status == HttpStatus.SC_NOT_FOUND) {
-                LOG.info("Sigrun: " + response.getStatusLine().getReasonPhrase());
+                LOG.trace("Sigrun: {}", response.getStatusLine().getReasonPhrase());
                 return null;
             } else {
                 throw SigrunRestClientFeil.FACTORY.serverSvarteMedFeilkode(status, response.getStatusLine().getReasonPhrase()).toException();
