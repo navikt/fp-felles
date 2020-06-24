@@ -85,7 +85,7 @@ public class RestClientSupportProdusent {
     }
 
     @SuppressWarnings("resource")
-    private CloseableHttpClient createHttpClient() {
+    static CloseableHttpClient createHttpClient() {
         // Create connection configuration
         ConnectionConfig defaultConnectionConfig = ConnectionConfig.custom()
                 .setCharset(Consts.UTF_8)
