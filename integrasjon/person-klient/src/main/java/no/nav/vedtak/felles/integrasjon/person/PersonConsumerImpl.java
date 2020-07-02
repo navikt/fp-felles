@@ -1,6 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.person;
 
 
+import java.net.SocketException;
+
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
@@ -33,6 +36,8 @@ public class PersonConsumerImpl implements PersonConsumer {
             return port.hentPerson(request);
         } catch (SOAPFaultException e) { // NOSONAR
             throw SoapWebServiceFeil.FACTORY.soapFaultIwebserviceKall(SERVICE_IDENTIFIER, e).toException();
+        } catch (WebServiceException e) {
+            throw mapWebServiceException(e);
         }
     }
 
@@ -42,6 +47,8 @@ public class PersonConsumerImpl implements PersonConsumer {
             return port.hentPersonhistorikk(request);
         } catch (SOAPFaultException e) { // NOSONAR
             throw SoapWebServiceFeil.FACTORY.soapFaultIwebserviceKall(SERVICE_IDENTIFIER, e).toException();
+        } catch (WebServiceException e) {
+            throw mapWebServiceException(e);
         }
     }
 
@@ -51,7 +58,29 @@ public class PersonConsumerImpl implements PersonConsumer {
             return port.hentGeografiskTilknytning(request);
         } catch (SOAPFaultException e) { // NOSONAR
             throw SoapWebServiceFeil.FACTORY.soapFaultIwebserviceKall(SERVICE_IDENTIFIER, e).toException();
+        } catch (WebServiceException e) {
+            throw mapWebServiceException(e);
         }
     }
+    
 
+    private static final RuntimeException mapWebServiceException(WebServiceException e) {
+        if (isConnectionReset(e)) {
+            return SoapWebServiceFeil.FACTORY.midlertidigFeil("TPS", e).toException();
+        } else {
+            return e;
+        }
+    }
+    
+    private static final boolean isConnectionReset(Throwable e) {
+        if (e == null) {
+            return false;
+        }
+        if (e instanceof SocketException
+                && ("Connection reset".equals(e.getMessage())
+                    || "Unexpected end of file from server".equals(e.getMessage()))) {
+            return true;
+        }
+        return isConnectionReset(e.getCause());
+    }
 }
