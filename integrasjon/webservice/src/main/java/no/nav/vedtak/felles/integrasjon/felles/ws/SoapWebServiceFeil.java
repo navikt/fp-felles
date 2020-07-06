@@ -18,4 +18,7 @@ public interface SoapWebServiceFeil extends DeklarerteFeil {
 
     @TekniskFeil(feilkode = "F-668217", feilmelding = "Feilet utlogging.", logLevel = LogLevel.WARN)
     Feil feiletUtlogging(LoginException e);
+    
+    @IntegrasjonFeil(feilkode = "F-134134", feilmelding = "SOAP tjenesten [ %s ] returnerte en feil som trolig er midlertidig: %s", logLevel = LogLevel.INFO)
+    Feil midlertidigFeil(String webservice, WebServiceException exception);
 }
