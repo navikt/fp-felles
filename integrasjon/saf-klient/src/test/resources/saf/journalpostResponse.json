@@ -1,0 +1,83 @@
+{
+  "data": {
+    "journalpost": {
+      "journalpostId": "467013658",
+      "tittel": "Syntetisk Inntektsmelding",
+      "journalposttype": "I",
+      "journalstatus": "JOURNALFOERT",
+      "tema": "OMS",
+      "temanavn": "Omsorgspenger, pleiepenger og opplæringspenger",
+      "behandlingstema": null,
+      "behandlingstemanavn": null,
+      "avsenderMottaker": {
+        "id": "928497704",
+        "navn": "Dolly Dollesen",
+        "land": null,
+        "erLikBruker": false
+      },
+      "avsenderMottakerId": "928497704",
+      "avsenderMottakerNavn": "Dolly Dollesen",
+      "avsenderMottakerLand": null,
+      "journalforendeEnhet": "9999",
+      "journalfoerendeEnhet": "9999",
+      "journalfortAvNavn": "srvk9-fordel",
+      "opprettetAvNavn": "srvtestnorge-inntekt",
+      "kanal": "ALTINN",
+      "kanalnavn": "Altinn",
+      "datoOpprettet": "2020-04-14T11:32:41",
+      "eksternReferanseId": "INGEN",
+      "relevanteDatoer": [
+        {
+          "dato": "2020-04-14T11:32:41",
+          "datotype": "DATO_DOKUMENT"
+        },
+        {
+          "dato": "2020-04-14T11:32:45",
+          "datotype": "DATO_JOURNALFOERT"
+        },
+        {
+          "dato": "2020-04-14T11:31:26",
+          "datotype": "DATO_REGISTRERT"
+        }
+      ],
+      "tilleggsopplysninger": [],
+      "sak": {
+        "arkivsaksnummer": "142651612",
+        "arkivsaksystem": "GSAK",
+        "datoOpprettet": "2020-04-14T09:32:45",
+        "fagsakId": "5YNW6",
+        "fagsaksystem": "FS22"
+      },
+      "bruker": {
+        "id": "1859745733474",
+        "type": "AKTOERID"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": "485230778",
+          "tittel": "Syntetisk Inntektsmelding",
+          "brevkode": "4936",
+          "dokumentstatus": null,
+          "originalJournalpostId": "467013658",
+          "logiskeVedlegg": [],
+          "dokumentvarianter": [
+            {
+              "variantformat": "ARKIV",
+              "saksbehandlerHarTilgang": true,
+              "filuuid": "2ef58e88-52d2-494c-a7ef-b9b98123a43b",
+              "filnavn": null,
+              "filtype": "PDF"
+            },
+            {
+              "variantformat": "ORIGINAL",
+              "saksbehandlerHarTilgang": true,
+              "filuuid": "5ed90179-f97e-4a2b-8a14-f27212b12d71",
+              "filnavn": null,
+              "filtype": "XML"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

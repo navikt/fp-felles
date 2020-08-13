@@ -1,0 +1,31 @@
+query ($journalpostId: String!) {
+  journalpost(journalpostId: $journalpostId) {
+    journalpostId
+    tittel
+    journalposttype
+    journalstatus
+    kanal
+    tema
+    behandlingstema
+    sak {
+      arkivsaksnummer
+      arkivsaksystem
+      fagsaksystem
+      fagsakId
+    }
+    bruker {
+      id
+      type
+    }
+    journalforendeEnhet
+    dokumenter {
+       dokumentInfoId
+       tittel
+       brevkode
+       dokumentvarianter {
+           variantformat
+           filnavn
+       }
+    }
+  }
+}

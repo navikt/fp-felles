@@ -1,0 +1,38 @@
+query ($fagsakId: String!, $fagsaksystem: String!) {
+    dokumentoversiktFagsak(fagsak: {fagsakId: $fagsakId, fagsaksystem: $fagsaksystem}, foerste: 1000) {
+        journalposter {
+            journalpostId
+            tittel
+            journalposttype
+            journalstatus
+            kanal
+            tema
+            behandlingstema
+            sak {
+                arkivsaksnummer
+                arkivsaksystem
+                fagsaksystem
+                fagsakId
+            }
+            bruker {
+                id
+                type
+            }
+            journalforendeEnhet
+            dokumenter {
+                dokumentInfoId
+                tittel
+                brevkode
+                dokumentvarianter {
+                    variantformat
+                    saksbehandlerHarTilgang
+                    filnavn
+                }
+            }
+            relevanteDatoer {
+                dato
+                datotype
+            }
+        }
+    }
+}

@@ -34,6 +34,7 @@
 		<module>kodeverk-klient</module>
 		<module>unleash-klient</module>
 		<module>okonomistotte-jms</module>
+        <module>saf-klient</module>
         <module>sak-klient</module>
         <module>sensu-klient</module>
     </modules>
