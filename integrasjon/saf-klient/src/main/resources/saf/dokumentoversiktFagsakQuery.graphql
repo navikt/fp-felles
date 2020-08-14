@@ -18,6 +18,11 @@ query ($fagsakId: String!, $fagsaksystem: String!) {
                 id
                 type
             }
+            avsenderMottaker {
+                id
+                type
+                navn
+            }
             journalforendeEnhet
             dokumenter {
                 dokumentInfoId
@@ -28,11 +33,16 @@ query ($fagsakId: String!, $fagsaksystem: String!) {
                     saksbehandlerHarTilgang
                     filnavn
                 }
+                logiskeVedlegg {
+                    tittel
+                }
             }
+            datoOpprettet
             relevanteDatoer {
                 dato
                 datotype
             }
+            eksternReferanseId
         }
     }
 }

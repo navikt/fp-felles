@@ -17,6 +17,11 @@ query ($journalpostId: String!) {
       id
       type
     }
+    avsenderMottaker {
+        id
+        type
+        navn
+    }
     journalforendeEnhet
     dokumenter {
        dokumentInfoId
@@ -26,6 +31,15 @@ query ($journalpostId: String!) {
            variantformat
            filnavn
        }
+       logiskeVedlegg {
+           tittel
     }
+  }
+  datoOpprettet
+  relevanteDatoer {
+      dato
+      datotype
+  }
+  eksternReferanseId
   }
 }

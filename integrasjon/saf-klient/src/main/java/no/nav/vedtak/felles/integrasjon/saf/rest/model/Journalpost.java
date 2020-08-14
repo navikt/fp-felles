@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.saf.rest.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -31,13 +32,18 @@ public class Journalpost {
     private Sak sak;
     @JsonProperty("bruker")
     private Bruker bruker;
+    @JsonProperty("avsenderMottaker")
+    private AvsenderMottaker avsenderMottaker;
     @JsonProperty("journalforendeEnhet")
     private String journalforendeEnhet;
     @JsonProperty("dokumenter")
     private List<DokumentInfo> dokumenter;
+    @JsonProperty("datoOpprettet")
+    private LocalDateTime datoOpprettet;
     @JsonProperty("relevanteDatoer")
     private List<RelevantDato> relevanteDatoer;
-
+    @JsonProperty("eksternReferanseId")
+    private String eksternReferanseId;
 
     @JsonCreator
     public Journalpost(@JsonProperty("journalpostId") String journalpostId,
@@ -49,9 +55,12 @@ public class Journalpost {
                        @JsonProperty("behandlingstema") String behandlingstema,
                        @JsonProperty("sak") Sak sak,
                        @JsonProperty("bruker") Bruker bruker,
+                       @JsonProperty("avsenderMottaker") AvsenderMottaker avsenderMottaker,
                        @JsonProperty("journalforendeEnhet") String journalforendeEnhet,
                        @JsonProperty("dokumenter") List<DokumentInfo> dokumenter,
-                       @JsonProperty("relevanteDatoer") List<RelevantDato> relevanteDatoer) {
+                       @JsonProperty("datoOpprettet") LocalDateTime datoOpprettet,
+                       @JsonProperty("relevanteDatoer") List<RelevantDato> relevanteDatoer,
+                       @JsonProperty("eksternReferanseId") String eksternReferanseId) {
         this.journalpostId = journalpostId;
         this.tittel = tittel;
         this.journalposttype = journalposttype;
@@ -61,9 +70,12 @@ public class Journalpost {
         this.behandlingstema = behandlingstema;
         this.sak = sak;
         this.bruker = bruker;
+        this.avsenderMottaker = avsenderMottaker;
         this.journalforendeEnhet = journalforendeEnhet;
         this.dokumenter = dokumenter;
+        this.datoOpprettet = datoOpprettet;
         this.relevanteDatoer = relevanteDatoer;
+        this.eksternReferanseId = eksternReferanseId;
     }
 
     public String getJournalpostId() {
@@ -102,6 +114,10 @@ public class Journalpost {
         return bruker;
     }
 
+    public AvsenderMottaker getAvsenderMottaker() {
+        return avsenderMottaker;
+    }
+
     public String getJournalforendeEnhet() {
         return journalforendeEnhet;
     }
@@ -115,23 +131,36 @@ public class Journalpost {
         return sak.getArkivsaksnummer() != null && !sak.getArkivsaksnummer().trim().isEmpty();
     }
 
-    @Override
-    public String toString() {
-        return "Journalpost{" +
-                "journalpostId='" + journalpostId + '\'' +
-                ", tittel='" + tittel + '\'' +
-                ", journalposttype='" + journalposttype + '\'' +
-                ", journalstatus='" + journalstatus + '\'' +
-                ", kanal='" + kanal + '\'' +
-                ", tema='" + tema + '\'' +
-                ", behandlingstema='" + behandlingstema + '\'' +
-                ", sak=" + sak +
-                ", bruker=" + "<anonymisert>" +
-                ", journalforendeEnhet='" + journalforendeEnhet + '\'' +
-                '}';
-    }
-
     public List<RelevantDato> getRelevanteDatoer() {
         return relevanteDatoer;
     }
+
+    public LocalDateTime getDatoOpprettet() {
+        return datoOpprettet;
+    }
+
+    public String getEksternReferanseId() {
+        return eksternReferanseId;
+    }
+
+    @Override
+    public String toString() {
+        return "Journalpost{" +
+            "journalpostId='" + journalpostId + '\'' +
+            ", datoOpprettet=" + datoOpprettet +
+            ", eksternReferanseId='" + eksternReferanseId + '\'' +
+            ", tittel='" + tittel + '\'' +
+            ", journalposttype='" + journalposttype + '\'' +
+            ", journalstatus='" + journalstatus + '\'' +
+            ", kanal='" + kanal + '\'' +
+            ", tema='" + tema + '\'' +
+            ", behandlingstema='" + behandlingstema + '\'' +
+            ", sak=" + sak +
+            ", bruker=" + bruker +
+            ", journalforendeEnhet='" + journalforendeEnhet + '\'' +
+            ", dokumenter=" + dokumenter +
+            ", relevanteDatoer=" + relevanteDatoer +
+            '}';
+    }
+
 }

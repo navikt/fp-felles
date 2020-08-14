@@ -20,15 +20,19 @@ public class DokumentInfo {
     private String brevkode;
     @JsonProperty("dokumentvarianter")
     private List<Dokumentvariant> dokumentvarianter;
+    @JsonProperty("logiskeVedlegg")
+    private List<LogiskVedlegg> logiskeVedlegg;
 
     public DokumentInfo(@JsonProperty("dokumentInfoId") String dokumentInfoId,
                         @JsonProperty("tittel") String tittel,
                         @JsonProperty("brevkode") String brevkode,
-                        @JsonProperty("dokumentvarianter") List<Dokumentvariant> dokumentvarianter) {
+                        @JsonProperty("dokumentvarianter") List<Dokumentvariant> dokumentvarianter,
+                        @JsonProperty("logiskeVedlegg") List<LogiskVedlegg> logiskeVedlegg) {
         this.dokumentInfoId = dokumentInfoId;
         this.tittel = tittel;
         this.brevkode = brevkode;
         this.dokumentvarianter = dokumentvarianter;
+        this.logiskeVedlegg = logiskeVedlegg;
     }
 
     public String getDokumentInfoId() {
@@ -47,6 +51,11 @@ public class DokumentInfo {
         return dokumentvarianter;
     }
 
+
+    public List<LogiskVedlegg> getLogiskeVedlegg() {
+        return logiskeVedlegg;
+    }
+
     @Override
     public String toString() {
         return "DokumentInfo{" +
@@ -54,6 +63,7 @@ public class DokumentInfo {
             ", tittel='" + tittel + '\'' +
             ", brevkode='" + brevkode + '\'' +
             ", dokumentvarianter=" + dokumentvarianter +
+            ", logiskeVedlegg=" + logiskeVedlegg +
             '}';
     }
 }
