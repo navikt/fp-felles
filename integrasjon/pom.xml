@@ -216,6 +216,11 @@
 			</dependency>
 
 			<!-- Klienter for Dokument og journalføring -->
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>saf-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 				<artifactId>journal-klient</artifactId>
