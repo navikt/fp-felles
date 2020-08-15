@@ -1,0 +1,73 @@
+{
+  "data": {
+    "dokumentoversiktFagsak": {
+      "journalposter": [
+        {
+          "journalpostId": "464053024",
+          "eksternReferanseId": null,
+          "dokumenter": [
+            {
+              "dokumentvarianter": [
+                {
+                  "saksbehandlerHarTilgang": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "journalpostId": "460025122",
+          "eksternReferanseId": "s3010190002NAV988024.pdf",
+          "dokumenter": [
+            {
+              "dokumentvarianter": [
+                {
+                  "saksbehandlerHarTilgang": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "journalpostId": "459738705",
+          "eksternReferanseId": null,
+          "dokumenter": [
+            {
+              "dokumentvarianter": [
+                {
+                  "saksbehandlerHarTilgang": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "journalpostId": "457478374",
+          "eksternReferanseId": null,
+          "dokumenter": [
+            {
+              "dokumentvarianter": [
+                {
+                  "saksbehandlerHarTilgang": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "journalpostId": "456124248",
+          "eksternReferanseId": null,
+          "dokumenter": [
+            {
+              "dokumentvarianter": [
+                {
+                  "saksbehandlerHarTilgang": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

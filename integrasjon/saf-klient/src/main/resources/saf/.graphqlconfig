@@ -1,0 +1,15 @@
+{
+  "name": "SAF",
+  "schemaPath": "./graphql.schema.json",
+  "extensions": {
+    "endpoints": {
+      "q1": {
+        "url": "https://saf-q1.nais.preprod.local/graphiql",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": false
+      }
+    }
+  }
+}
