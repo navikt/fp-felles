@@ -32,6 +32,7 @@ query ($fagsakId: String!, $fagsaksystem: String!) {
                     variantformat
                     saksbehandlerHarTilgang
                     filnavn
+                    filtype
                 }
                 logiskeVedlegg {
                     tittel
