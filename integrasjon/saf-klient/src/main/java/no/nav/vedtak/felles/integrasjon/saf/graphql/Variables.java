@@ -19,6 +19,12 @@ public class Variables {
     @JsonProperty("fagsaksystem")
     private String fagsaksystem;
 
+    @JsonProperty("dokumentInfoId")
+    private String dokumentInfoId;
+
+    @JsonProperty("tilknytning")
+    private Tilknytning tilknytning;
+
     public Variables(String journalpostId) {
         this.journalpostId = journalpostId;
     }
@@ -28,12 +34,19 @@ public class Variables {
         this.fagsaksystem = fagsaksystem;
     }
 
+    public Variables(String dokumentInfoId, Tilknytning tilknytning) {
+        this.dokumentInfoId = dokumentInfoId;
+        this.tilknytning = tilknytning;
+    }
+
     @Override
     public String toString() {
         return "Variables{" +
             "journalpostId='" + journalpostId + '\'' +
             ", fagsakId='" + fagsakId + '\'' +
             ", fagsaksystem='" + fagsaksystem + '\'' +
+            ", dokumentInfoId='" + dokumentInfoId + '\'' +
+            ", tilknytning=" + tilknytning +
             '}';
     }
 }
