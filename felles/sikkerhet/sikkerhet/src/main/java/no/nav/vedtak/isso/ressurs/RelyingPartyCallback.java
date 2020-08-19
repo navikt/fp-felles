@@ -14,6 +14,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
@@ -25,23 +26,27 @@ import javax.ws.rs.core.UriInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.filter.DoNotCache;
 import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
-import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorResult;
 
 @Path("")
-@DoNotCache
 public class RelyingPartyCallback {
     private static final Logger log = LoggerFactory.getLogger(RelyingPartyCallback.class);
 
     private IdTokenAndRefreshTokenProvider tokenProvider = new IdTokenAndRefreshTokenProvider();
+    
+    private static CacheControl noCache() {
+        CacheControl cc = new CacheControl();
+        cc.setMustRevalidate(true);
+        cc.setPrivate(true);
+        cc.setNoCache(true);
+        cc.setNoStore(true);
+        
+        return cc;
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -61,13 +66,13 @@ public class RelyingPartyCallback {
             return Response.status(BAD_REQUEST).build();
         }
 
-        IdTokenAndRefreshToken tokens = tokenProvider.getToken(authorizationCode, uri);
-        OidcCredential token = tokens.getIdToken();
+        var tokens = tokenProvider.getToken(authorizationCode, uri);
+        var token = tokens.getIdToken();
         String refreshToken = tokens.getRefreshToken();
 
         String issuser = JwtUtil.getIssuser(token.getToken());
-        OidcTokenValidator validator = OidcTokenValidatorProvider.instance().getValidator(issuser);
-        OidcTokenValidatorResult result = validator.validate(new OidcTokenHolder(token.getToken(), false));
+        var validator = OidcTokenValidatorProvider.instance().getValidator(issuser);
+        var result = validator.validate(new OidcTokenHolder(token.getToken(), false));
 
         if (!result.isValid()) {
             return Response.status(FORBIDDEN).build();
@@ -75,17 +80,17 @@ public class RelyingPartyCallback {
 
         boolean sslOnlyCookie = ServerInfo.instance().isUsingTLS();
         String cookieDomain = ServerInfo.instance().getCookieDomain();
-        NewCookie tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token.getToken(), "/", cookieDomain, "", NewCookie.DEFAULT_MAX_AGE, sslOnlyCookie, true);
-        NewCookie refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, "/", cookieDomain, "", NewCookie.DEFAULT_MAX_AGE, sslOnlyCookie, true);
-        NewCookie deleteOldStateCookie = new NewCookie(state, "", "/", null, "", 0, sslOnlyCookie, true);
+        var tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token.getToken(), "/", cookieDomain, "", NewCookie.DEFAULT_MAX_AGE, sslOnlyCookie, true);
+        var refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, "/", cookieDomain, "", NewCookie.DEFAULT_MAX_AGE, sslOnlyCookie, true);
+        var deleteOldStateCookie = new NewCookie(state, "", "/", null, "", 0, sslOnlyCookie, true);
 
-        Response.ResponseBuilder responseBuilder;
         //TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the state-cookie containing redirectURL shold be encrypted to avoid tampering)
         String originalUrl = urlDecode(redirect.getValue());
-        responseBuilder = Response.temporaryRedirect(URI.create(originalUrl));
+        var responseBuilder = Response.temporaryRedirect(URI.create(originalUrl));
         responseBuilder.cookie(tokenCookie);
         responseBuilder.cookie(refreshTokenCookie);
         responseBuilder.cookie(deleteOldStateCookie);
+        responseBuilder.cacheControl(noCache());
         return responseBuilder.build();
     }
 
