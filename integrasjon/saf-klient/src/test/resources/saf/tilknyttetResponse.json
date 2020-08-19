@@ -1,0 +1,14 @@
+{
+  "data": {
+    "tilknyttedeJournalposter": [
+      {
+        "journalpostId": "452676760",
+        "eksternReferanseId": "AR325412583"
+      },
+      {
+        "journalpostId": "439560100",
+        "eksternReferanseId": null
+      }
+    ]
+  }
+}

@@ -153,7 +153,7 @@ public class SafTjeneste {
     }
 
     private List<Journalpost> ekstraherTilknyttedeJournalposter(TilknyttedeJournalposterQuery query, GraphQlResponse graphQlResponse) {
-        if (graphQlResponse.getData() == null || graphQlResponse.getData().getJournalpost() == null) {
+        if (graphQlResponse.getData() == null || graphQlResponse.getData().getTilknyttedeJournalposter() == null) {
             throw FEILFACTORY.safResponsTom(query).toException();
         }
         return graphQlResponse.getData().getTilknyttedeJournalposter();

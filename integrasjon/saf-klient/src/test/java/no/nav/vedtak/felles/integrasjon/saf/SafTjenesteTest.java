@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
+import java.util.Objects;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -23,6 +25,7 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.saf.graphql.DokumentoversiktFagsakQuery;
 import no.nav.vedtak.felles.integrasjon.saf.graphql.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.graphql.JournalpostQuery;
+import no.nav.vedtak.felles.integrasjon.saf.graphql.TilknyttedeJournalposterQuery;
 import no.nav.vedtak.felles.integrasjon.saf.rest.model.Journalpost;
 import no.nav.vedtak.felles.integrasjon.saf.rest.model.VariantFormat;
 
@@ -82,6 +85,19 @@ public class SafTjenesteTest {
         Journalpost journalpost = safTjeneste.hentJournalpostInfo(query);
 
         assertThat(journalpost.getJournalpostId()).isNotEmpty();
+    }
+
+    @SuppressWarnings("resource")
+    @Test
+    public void skal_returnere_tilknyttet_journalpost() throws IOException {
+        // tilknyttedeJournalposter(dokumentInfoId:"469211538", tilknytning:GJENBRUK)
+        var query = new TilknyttedeJournalposterQuery("dokumentInfoId");
+        when(entity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("saf/tilknyttetResponse.json"));
+
+        List<Journalpost> journalposter = safTjeneste.hentTilknyttedeJournalposter(query);
+
+        assertThat(journalposter).hasSize(2);
+        assertThat(journalposter.stream().map(Journalpost::getEksternReferanseId).filter(Objects::nonNull).findFirst()).isPresent();
     }
 
     @SuppressWarnings("resource")
