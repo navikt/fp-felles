@@ -41,6 +41,8 @@ import no.nav.vedtak.felles.integrasjon.saf.graphql.GraphQlResponse;
 import no.nav.vedtak.felles.integrasjon.saf.graphql.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.graphql.JournalpostQuery;
 import no.nav.vedtak.felles.integrasjon.saf.graphql.SafQuery;
+import no.nav.vedtak.felles.integrasjon.saf.graphql.Tilknytning;
+import no.nav.vedtak.felles.integrasjon.saf.graphql.TilknyttedeJournalposterQuery;
 import no.nav.vedtak.felles.integrasjon.saf.graphql.Variables;
 import no.nav.vedtak.felles.integrasjon.saf.rest.model.DokumentoversiktFagsak;
 import no.nav.vedtak.felles.integrasjon.saf.rest.model.Journalpost;
@@ -60,6 +62,7 @@ public class SafTjeneste {
 
     private String journalpostQueryDef;
     private String dokumentoversiktFagsakQueryDef;
+    private String tilknyttedeJournalposterQueryDef;
 
     private final ObjectMapper objectMapper = createObjectMapper();
     private final ObjectReader objectReader = objectMapper.readerFor(GraphQlResponse.class);
@@ -78,6 +81,7 @@ public class SafTjeneste {
 
         this.journalpostQueryDef = ReadFileFromClassPathHelper.hent("saf/journalpostQuery.graphql");
         this.dokumentoversiktFagsakQueryDef = ReadFileFromClassPathHelper.hent("saf/dokumentoversiktFagsakQuery.graphql");
+        this.tilknyttedeJournalposterQueryDef = ReadFileFromClassPathHelper.hent("saf/tilknyttedeJournalposterQuery.graphql");
     }
 
     public DokumentoversiktFagsak dokumentoversiktFagsak(DokumentoversiktFagsakQuery query) {
@@ -94,6 +98,14 @@ public class SafTjeneste {
         var graphQlResponse = utførSpørring(query, graphQlRequest);
 
         return ektraherJournalpost(query, graphQlResponse);
+    }
+
+    public List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQuery query) {
+        var graphQlRequest = new GraphQlRequest(tilknyttedeJournalposterQueryDef, new Variables(query.getDokumentInfoId(), Tilknytning.GJENBRUK));
+
+        var graphQlResponse = utførSpørring(query, graphQlRequest);
+
+        return ekstraherTilknyttedeJournalposter(query, graphQlResponse);
     }
 
     public byte[] hentDokument(HentDokumentQuery query) {
@@ -138,7 +150,13 @@ public class SafTjeneste {
             throw FEILFACTORY.safResponsTom(query).toException();
         }
         return graphQlResponse.getData().getJournalpost();
+    }
 
+    private List<Journalpost> ekstraherTilknyttedeJournalposter(TilknyttedeJournalposterQuery query, GraphQlResponse graphQlResponse) {
+        if (graphQlResponse.getData() == null || graphQlResponse.getData().getJournalpost() == null) {
+            throw FEILFACTORY.safResponsTom(query).toException();
+        }
+        return graphQlResponse.getData().getTilknyttedeJournalposter();
     }
 
     private <T> T utførForespørsel(HttpPost request, OidcRestClientResponseHandler.ObjectReaderResponseHandler<T> responseHandler) throws IOException {
