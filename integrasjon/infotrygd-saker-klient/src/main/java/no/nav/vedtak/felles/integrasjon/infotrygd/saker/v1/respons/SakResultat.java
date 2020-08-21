@@ -20,6 +20,7 @@ public enum SakResultat {
     IT,
     MO,
     MT,
+    NB,
     O,
     PA,
     R,
