@@ -37,6 +37,8 @@ import no.nav.saf.Journalpost;
 import no.nav.saf.JournalpostQueryRequest;
 import no.nav.saf.JournalpostQueryResponse;
 import no.nav.saf.JournalpostResponseProjection;
+import no.nav.saf.TilknyttedeJournalposterQueryRequest;
+import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -60,6 +62,7 @@ public class SafTjeneste {
     private final ObjectMapper objectMapper = createObjectMapper();
     private final ObjectReader objectReaderJournalpostResponse = objectMapper.readerFor(JournalpostQueryResponse.class);
     private final ObjectReader objectReaderDokumentoversiktFagsakResponse = objectMapper.readerFor(DokumentoversiktFagsakQueryResponse.class);
+    private final ObjectReader objectReaderTilknyttedeJournalposteResponse = objectMapper.readerFor(TilknyttedeJournalposterQueryResponse.class);
 
     SafTjeneste() {
         // CDI
@@ -87,6 +90,15 @@ public class SafTjeneste {
         JournalpostQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderJournalpostResponse);
 
         return graphQlResponse.journalpost();
+    }
+
+
+    public List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQueryRequest query, JournalpostResponseProjection projection) {
+        GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
+
+        TilknyttedeJournalposterQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderTilknyttedeJournalposteResponse);
+
+        return graphQlResponse.tilknyttedeJournalposter();
     }
 
 

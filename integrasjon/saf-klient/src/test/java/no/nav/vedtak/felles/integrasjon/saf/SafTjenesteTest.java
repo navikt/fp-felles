@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
+import java.util.Objects;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -27,11 +29,14 @@ import no.nav.saf.DokumentoversiktFagsakQueryRequest;
 import no.nav.saf.DokumentoversiktResponseProjection;
 import no.nav.saf.DokumentvariantResponseProjection;
 import no.nav.saf.FagsakInput;
+import no.nav.saf.Journalpost;
 import no.nav.saf.JournalpostQueryRequest;
 import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.LogiskVedleggResponseProjection;
 import no.nav.saf.RelevantDatoResponseProjection;
 import no.nav.saf.SakResponseProjection;
+import no.nav.saf.Tilknytning;
+import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
 public class SafTjenesteTest {
@@ -98,6 +103,25 @@ public class SafTjenesteTest {
 
         assertThat(journalpost.getJournalpostId()).isNotEmpty();
     }
+    @SuppressWarnings("resource")
+    @Test
+    public void skal_returnere_tilknyttet_journalpost() throws IOException {
+        // query-eksempel: tilknyttedeJournalposter(dokumentInfoId:"469211538", tilknytning:GJENBRUK)
+        when(entity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("saf/tilknyttetResponse.json"));
+
+        var query = new TilknyttedeJournalposterQueryRequest();
+        query.setDokumentInfoId("dokumentInfoId");
+        query.setTilknytning(Tilknytning.GJENBRUK);
+        var projection = new JournalpostResponseProjection()
+            .journalpostId()
+            .eksternReferanseId();
+
+        List<Journalpost> journalposter = safTjeneste.hentTilknyttedeJournalposter(query, projection);
+
+        assertThat(journalposter).hasSize(2);
+        assertThat(journalposter.stream().map(Journalpost::getEksternReferanseId).filter(Objects::nonNull).findFirst()).isPresent();
+    }
+
 
     @SuppressWarnings("resource")
     @Test
