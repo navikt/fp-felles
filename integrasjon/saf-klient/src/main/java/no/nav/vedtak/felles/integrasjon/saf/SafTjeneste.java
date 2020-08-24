@@ -22,12 +22,21 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
+import no.nav.saf.Dokumentoversikt;
+import no.nav.saf.DokumentoversiktFagsakQueryRequest;
+import no.nav.saf.DokumentoversiktFagsakQueryResponse;
+import no.nav.saf.DokumentoversiktResponseProjection;
+import no.nav.saf.Journalpost;
+import no.nav.saf.JournalpostQueryRequest;
+import no.nav.saf.JournalpostQueryResponse;
+import no.nav.saf.JournalpostResponseProjection;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -35,17 +44,6 @@ import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.DokumentoversiktFagsakQuery;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.GraphQlRequest;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.GraphQlResponse;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.HentDokumentQuery;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.JournalpostQuery;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.SafQuery;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.Tilknytning;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.TilknyttedeJournalposterQuery;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.Variables;
-import no.nav.vedtak.felles.integrasjon.saf.rest.model.DokumentoversiktFagsak;
-import no.nav.vedtak.felles.integrasjon.saf.rest.model.Journalpost;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
@@ -59,14 +57,9 @@ public class SafTjeneste {
     private URI graphqlEndpoint;
     private URI hentDokumentEndpoint;
     private CloseableHttpClient restKlient;
-
-    private String journalpostQueryDef;
-    private String dokumentoversiktFagsakQueryDef;
-    private String tilknyttedeJournalposterQueryDef;
-
     private final ObjectMapper objectMapper = createObjectMapper();
-    private final ObjectReader objectReader = objectMapper.readerFor(GraphQlResponse.class);
-    private final ObjectWriter objectWriter = objectMapper.writer();
+    private final ObjectReader objectReaderJournalpostResponse = objectMapper.readerFor(JournalpostQueryResponse.class);
+    private final ObjectReader objectReaderDokumentoversiktFagsakResponse = objectMapper.readerFor(DokumentoversiktFagsakQueryResponse.class);
 
     SafTjeneste() {
         // CDI
@@ -78,35 +71,24 @@ public class SafTjeneste {
         this.graphqlEndpoint = URI.create(endpoint.toString() + "/graphql");
         this.hentDokumentEndpoint = URI.create(endpoint.toString() + "/rest/hentdokument");
         this.restKlient = restKlient;
-
-        this.journalpostQueryDef = ReadFileFromClassPathHelper.hent("saf/journalpostQuery.graphql");
-        this.dokumentoversiktFagsakQueryDef = ReadFileFromClassPathHelper.hent("saf/dokumentoversiktFagsakQuery.graphql");
-        this.tilknyttedeJournalposterQueryDef = ReadFileFromClassPathHelper.hent("saf/tilknyttedeJournalposterQuery.graphql");
     }
 
-    public DokumentoversiktFagsak dokumentoversiktFagsak(DokumentoversiktFagsakQuery query) {
-        var graphQlRequest = new GraphQlRequest(dokumentoversiktFagsakQueryDef, new Variables(query.getFagsakId(), query.getFagsaksystem()));
+    public Dokumentoversikt dokumentoversiktFagsak(DokumentoversiktFagsakQueryRequest query, DokumentoversiktResponseProjection projection) {
+        GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
-        var graphQlResponse = utførSpørring(query, graphQlRequest);
+        DokumentoversiktFagsakQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderDokumentoversiktFagsakResponse);
 
-        return ektraherDokumentoversiktFagsak(query, graphQlResponse);
+        return graphQlResponse.dokumentoversiktFagsak();
     }
 
-    public Journalpost hentJournalpostInfo(JournalpostQuery query) {
-        var graphQlRequest = new GraphQlRequest(journalpostQueryDef, new Variables(query.getJournalpostId()));
+    public Journalpost hentJournalpostInfo(JournalpostQueryRequest query, JournalpostResponseProjection projection) {
+        GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
-        var graphQlResponse = utførSpørring(query, graphQlRequest);
+        JournalpostQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderJournalpostResponse);
 
-        return ektraherJournalpost(query, graphQlResponse);
+        return graphQlResponse.journalpost();
     }
 
-    public List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQuery query) {
-        var graphQlRequest = new GraphQlRequest(tilknyttedeJournalposterQueryDef, new Variables(query.getDokumentInfoId(), Tilknytning.GJENBRUK));
-
-        var graphQlResponse = utførSpørring(query, graphQlRequest);
-
-        return ekstraherTilknyttedeJournalposter(query, graphQlResponse);
-    }
 
     public byte[] hentDokument(HentDokumentQuery query) {
         var uri = URI.create(hentDokumentEndpoint.toString() +
@@ -116,50 +98,29 @@ public class SafTjeneste {
         try {
             return utførForespørselDokumentinnhold(getRequest);
         } catch (Exception e) {
-            throw FEILFACTORY.safForespørselFeilet(query, e).toException();
+            throw FEILFACTORY.safForespørselFeilet(query.toString(), e).toException();
         }
     }
 
-    private GraphQlResponse utførSpørring(SafQuery query, GraphQlRequest graphQlRequest) {
-        var responseHandler = new OidcRestClientResponseHandler.ObjectReaderResponseHandler<GraphQlResponse>(graphqlEndpoint, objectReader);
+    private <T extends GraphQLResult> T utførSpørring(GraphQLRequest request, ObjectReader objectReader) {
+        var responseHandler = new OidcRestClientResponseHandler.ObjectReaderResponseHandler<T>(graphqlEndpoint, objectReader);
 
-        GraphQlResponse graphQlResponse;
+        T graphQlResponse;
         try {
             var httpPost = new HttpPost(graphqlEndpoint);
-            httpPost.setEntity(new StringEntity(objectWriter.writeValueAsString(graphQlRequest)));
+            httpPost.setEntity(new StringEntity(request.toHttpJsonBody()));
             graphQlResponse = utførForespørsel(httpPost, responseHandler);
         } catch (Exception e) {
-            throw FEILFACTORY.safForespørselFeilet(query, e).toException();
+            throw FEILFACTORY.safForespørselFeilet(request.toQueryString(), e).toException();
         }
 
         if (graphQlResponse.getErrors() != null && graphQlResponse.getErrors().size() > 0) {
-            throw FEILFACTORY.forespørselReturnerteFeil(graphQlResponse).toException();
+            throw FEILFACTORY.forespørselReturnerteFeil(graphQlResponse.toString()).toException();
         }
         return graphQlResponse;
-     }
-
-    private DokumentoversiktFagsak ektraherDokumentoversiktFagsak(DokumentoversiktFagsakQuery query, GraphQlResponse graphQlResponse) {
-        if (graphQlResponse.getData() == null || graphQlResponse.getData().getDokumentoversiktFagsak() == null) {
-            throw FEILFACTORY.safResponsTom(query).toException();
-        }
-        return graphQlResponse.getData().getDokumentoversiktFagsak();
     }
 
-    private Journalpost ektraherJournalpost(JournalpostQuery query, GraphQlResponse graphQlResponse) {
-        if (graphQlResponse.getData() == null || graphQlResponse.getData().getJournalpost() == null) {
-            throw FEILFACTORY.safResponsTom(query).toException();
-        }
-        return graphQlResponse.getData().getJournalpost();
-    }
-
-    private List<Journalpost> ekstraherTilknyttedeJournalposter(TilknyttedeJournalposterQuery query, GraphQlResponse graphQlResponse) {
-        if (graphQlResponse.getData() == null || graphQlResponse.getData().getTilknyttedeJournalposter() == null) {
-            throw FEILFACTORY.safResponsTom(query).toException();
-        }
-        return graphQlResponse.getData().getTilknyttedeJournalposter();
-    }
-
-    private <T> T utførForespørsel(HttpPost request, OidcRestClientResponseHandler.ObjectReaderResponseHandler<T> responseHandler) throws IOException {
+    private <T extends GraphQLResult> T utførForespørsel(HttpPost request, OidcRestClientResponseHandler.ObjectReaderResponseHandler<T> responseHandler) throws IOException {
         try (var httpResponse = restKlient.execute(request)) {
             var responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode == HttpStatus.SC_OK) {
@@ -172,7 +133,8 @@ public class SafTjeneste {
                     + ", HTTP request=" + request.getEntity()
                     + ", HTTP status=" + httpResponse.getStatusLine()
                     + ". HTTP Errormessage=" + responseBody;
-                throw new SafException(feilmelding);
+                //throw new SafException(feilmelding);
+                throw new RuntimeException(feilmelding);
             }
         }
     }
@@ -214,12 +176,9 @@ public class SafTjeneste {
         SafTjenesteFeil FEILFACTORY = FeilFactory.create(SafTjenesteFeil.class); // NOSONAR ok med konstant
 
         @TekniskFeil(feilkode = "K9-240613", feilmelding = "Forespørsel til SAF feilet for spørring %s", logLevel = LogLevel.WARN)
-        Feil safForespørselFeilet(SafQuery query, Throwable t);
-
-        @TekniskFeil(feilkode = "K9-240614", feilmelding = "Respons fra SAF var uten innhold for spørring %s", logLevel = LogLevel.WARN)
-        Feil safResponsTom(SafQuery query);
+        Feil safForespørselFeilet(String query, Throwable t);
 
         @TekniskFeil(feilkode = "K9-588730", feilmelding = "Feil fra SAF ved utført query: %s", logLevel = LogLevel.WARN)
-        Feil forespørselReturnerteFeil(GraphQlResponse response);
+        Feil forespørselReturnerteFeil(String response);
     }
 }

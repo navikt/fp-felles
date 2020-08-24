@@ -8,8 +8,6 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
-import java.util.Objects;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -21,13 +19,20 @@ import org.apache.http.message.BasicStatusLine;
 import org.junit.Before;
 import org.junit.Test;
 
+import no.nav.saf.AvsenderMottakerResponseProjection;
+import no.nav.saf.BrukerResponseProjection;
+import no.nav.saf.DokumentInfoResponseProjection;
+import no.nav.saf.Dokumentoversikt;
+import no.nav.saf.DokumentoversiktFagsakQueryRequest;
+import no.nav.saf.DokumentoversiktResponseProjection;
+import no.nav.saf.DokumentvariantResponseProjection;
+import no.nav.saf.FagsakInput;
+import no.nav.saf.JournalpostQueryRequest;
+import no.nav.saf.JournalpostResponseProjection;
+import no.nav.saf.LogiskVedleggResponseProjection;
+import no.nav.saf.RelevantDatoResponseProjection;
+import no.nav.saf.SakResponseProjection;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.DokumentoversiktFagsakQuery;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.HentDokumentQuery;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.JournalpostQuery;
-import no.nav.vedtak.felles.integrasjon.saf.graphql.TilknyttedeJournalposterQuery;
-import no.nav.vedtak.felles.integrasjon.saf.rest.model.Journalpost;
-import no.nav.vedtak.felles.integrasjon.saf.rest.model.VariantFormat;
 
 public class SafTjenesteTest {
 
@@ -67,10 +72,14 @@ public class SafTjenesteTest {
     @Test
     public void skal_returnere_dokumentoversikt_fagsak() throws IOException {
         //query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111", fagsaksystem: "AO01"}, foerste: 5)
-        DokumentoversiktFagsakQuery query = new DokumentoversiktFagsakQuery("fagsakId", "fagsystem");
         when(entity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("saf/documentResponse.json"));
 
-        var dokumentoversiktFagsak = safTjeneste.dokumentoversiktFagsak(query);
+        var query = new DokumentoversiktFagsakQueryRequest();
+        query.setFagsak(new FagsakInput("fagsakId", "fagsaksystem"));
+        query.setFoerste(1000);
+        DokumentoversiktResponseProjection projection = byggDokumentoversiktResponseProjection();
+
+        Dokumentoversikt dokumentoversiktFagsak = safTjeneste.dokumentoversiktFagsak(query, projection);
 
         assertThat(dokumentoversiktFagsak.getJournalposter()).isNotEmpty();
     }
@@ -79,36 +88,109 @@ public class SafTjenesteTest {
     @Test
     public void skal_returnere_journalpost() throws IOException {
         // query-eksempel: journalpost(journalpostId: "439560100")
-        JournalpostQuery query = new JournalpostQuery("journalpostId");
         when(entity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("saf/journalpostResponse.json"));
 
-        Journalpost journalpost = safTjeneste.hentJournalpostInfo(query);
+        var query = new JournalpostQueryRequest();
+        query.setJournalpostId("journalpostId");
+        var projection = byggJournalpostResponseProjection();
+
+        var journalpost = safTjeneste.hentJournalpostInfo(query, projection);
 
         assertThat(journalpost.getJournalpostId()).isNotEmpty();
     }
 
     @SuppressWarnings("resource")
     @Test
-    public void skal_returnere_tilknyttet_journalpost() throws IOException {
-        // tilknyttedeJournalposter(dokumentInfoId:"469211538", tilknytning:GJENBRUK)
-        var query = new TilknyttedeJournalposterQuery("dokumentInfoId");
-        when(entity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("saf/tilknyttetResponse.json"));
-
-        List<Journalpost> journalposter = safTjeneste.hentTilknyttedeJournalposter(query);
-
-        assertThat(journalposter).hasSize(2);
-        assertThat(journalposter.stream().map(Journalpost::getEksternReferanseId).filter(Objects::nonNull).findFirst()).isPresent();
-    }
-
-    @SuppressWarnings("resource")
-    @Test
     public void skal_returnere_dokument() throws IOException {
         // GET-eksempel: hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}
-        HentDokumentQuery query = new HentDokumentQuery("journalpostId", "dokumentInfoId", VariantFormat.ARKIV.name());
+        HentDokumentQuery query = new HentDokumentQuery("journalpostId", "dokumentInfoId", "ARKIVF");
         when(entity.getContent()).thenReturn(new ByteArrayInputStream("<dokument_as_bytes>".getBytes()));
 
         byte[] dokument = safTjeneste.hentDokument(query);
 
         assertThat(dokument).isEqualTo("<dokument_as_bytes>".getBytes());
+    }
+
+    private DokumentoversiktResponseProjection byggDokumentoversiktResponseProjection() {
+        return new DokumentoversiktResponseProjection()
+            .journalposter(new JournalpostResponseProjection()
+                .journalpostId()
+                .tittel()
+                .journalposttype()
+                .journalstatus()
+                .kanal()
+                .tema()
+                .behandlingstema()
+                .sak(new SakResponseProjection()
+                    .arkivsaksnummer()
+                    .arkivsaksystem()
+                    .fagsaksystem()
+                    .fagsakId())
+                .bruker(new BrukerResponseProjection()
+                    .id()
+                    .type())
+                .avsenderMottaker(new AvsenderMottakerResponseProjection()
+                    .id()
+                    .type()
+                    .navn())
+                .journalfoerendeEnhet()
+                .dokumenter(new DokumentInfoResponseProjection()
+                    .dokumentInfoId()
+                    .tittel()
+                    .brevkode()
+                    .dokumentvarianter(new DokumentvariantResponseProjection()
+                        .variantformat()
+                        .filnavn()
+                        .filtype()
+                        .saksbehandlerHarTilgang()
+                    )
+                    .logiskeVedlegg(new LogiskVedleggResponseProjection()
+                        .tittel()))
+                .datoOpprettet()
+                .relevanteDatoer(new RelevantDatoResponseProjection()
+                    .dato()
+                    .datotype()
+                )
+                .eksternReferanseId());
+    }
+
+    private JournalpostResponseProjection byggJournalpostResponseProjection() {
+        return new JournalpostResponseProjection()
+            .journalpostId()
+            .tittel()
+            .journalposttype()
+            .journalstatus()
+            .kanal()
+            .tema()
+            .behandlingstema()
+            .sak(new SakResponseProjection()
+                .arkivsaksnummer()
+                .arkivsaksystem()
+                .fagsaksystem()
+                .fagsakId())
+            .bruker(new BrukerResponseProjection()
+                .id()
+                .type())
+            .avsenderMottaker(new AvsenderMottakerResponseProjection()
+                .id()
+                .type()
+                .navn())
+            .journalfoerendeEnhet()
+            .dokumenter(new DokumentInfoResponseProjection()
+                .dokumentInfoId()
+                .tittel()
+                .brevkode()
+                .dokumentvarianter(new DokumentvariantResponseProjection()
+                    .variantformat()
+                    .filnavn()
+                )
+                .logiskeVedlegg(new LogiskVedleggResponseProjection()
+                    .tittel()))
+            .datoOpprettet()
+            .relevanteDatoer(new RelevantDatoResponseProjection()
+                .dato()
+                .datotype()
+            )
+            .eksternReferanseId();
     }
 }
