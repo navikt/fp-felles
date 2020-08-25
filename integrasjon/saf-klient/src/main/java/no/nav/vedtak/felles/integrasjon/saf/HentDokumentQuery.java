@@ -1,8 +1,8 @@
-package no.nav.vedtak.felles.integrasjon.saf.graphql;
+package no.nav.vedtak.felles.integrasjon.saf;
 
 import javax.validation.constraints.NotNull;
 
-public class HentDokumentQuery implements SafQuery {
+public class HentDokumentQuery {
 
     @NotNull
     private final String journalpostId;
