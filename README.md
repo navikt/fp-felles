@@ -7,7 +7,6 @@
 ![GitHub](https://img.shields.io/github/license/navikt/fp-felles)
 
 # Felles kode / bibliotek for vedtaksløsninger (foreldrepenger, sykdom-i-familien)
-
 Inneholder følgende hovedmoduler
 ## Felles
 * JPA / Database utilities: For å kunne dynamisk oppdage og sette sammen orm mapping fra flere moduler.  For å sette opp lokale transaksjoner uten eksternt JTA bibliotek
