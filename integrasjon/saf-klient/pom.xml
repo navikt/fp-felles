@@ -54,9 +54,10 @@
                             <graphqlSchemaPaths>${project.basedir}/src/main/resources/saf/schema.graphql</graphqlSchemaPaths>
                             <outputDir>${project.build.directory}/generated-sources/client-saf</outputDir>
                             <modelPackageName>no.nav.saf</modelPackageName>
-                            <!--<customTypesMapping>
+                            <customTypesMapping>
                                 <DateTime>java.util.Date</DateTime>
-                            </customTypesMapping>-->
+                                <!-- <Price.amount>java.math.BigDecimal</Price.amount> -->
+                            </customTypesMapping>
                             <generateClient>true</generateClient>
                             <generateApis>false</generateApis>
                             <generateBuilder>false</generateBuilder>
