@@ -56,7 +56,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
 
     private ObjectMapper mapper = DefaultJsonMapper.getObjectMapper();
 
-    AbstractOidcRestClient(CloseableHttpClient client) {
+    public AbstractOidcRestClient(CloseableHttpClient client) {
         this.client = client;
     }
 
@@ -87,7 +87,12 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     }
 
     public <T> T get(URI endpoint, Set<Header> headers, Class<T> clazz) {
-        String entity = get(endpoint, headers, createResponseHandler(endpoint));
+        String entity = get(endpoint, headers, Set.of(), createResponseHandler(endpoint));
+        return fromJson(entity, clazz);
+    }
+
+    public <T> T get(URI endpoint, Set<Header> headers, Set<String> extraAuthHeaders, Class<T> clazz) {
+        String entity = get(endpoint, headers, extraAuthHeaders, createResponseHandler(endpoint));
         return fromJson(entity, clazz);
     }
 
@@ -178,9 +183,10 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return get(endpoint, get, responseHandler);
     }
 
-    protected String get(URI endpoint, Set<Header> headers, ResponseHandler<String> responseHandler) {
+    protected String get(URI endpoint, Set<Header> headers, Set<String> extraAuthHeaders, ResponseHandler<String> responseHandler) {
         HttpGet get = new HttpGet(endpoint);
         headers.forEach(get::addHeader);
+        extraAuthHeaders.forEach(h -> get.addHeader(h, OIDC_AUTH_HEADER_PREFIX + getOIDCToken()));
         return get(endpoint, get, responseHandler);
     }
 
