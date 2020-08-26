@@ -18,7 +18,7 @@ public class OidcRestClient extends AbstractOidcRestClient {
     }
 
     @Override
-    String getOIDCToken() {
+    protected String getOIDCToken() {
         String oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
         if (oidcToken != null) {
             return oidcToken;
