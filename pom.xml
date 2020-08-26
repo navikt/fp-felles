@@ -225,7 +225,7 @@
                             <goal>jandex</goal>
                         </goals>
                         <configuration>
-                            <!-- Nothing needed here for simple cases -->
+                            <!-- Nothing needed here for simple cases  -->
                         </configuration>
                     </execution>
                 </executions>
