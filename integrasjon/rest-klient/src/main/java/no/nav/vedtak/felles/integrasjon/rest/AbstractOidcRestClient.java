@@ -156,7 +156,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         request.setHeader(DEFAULT_NAV_CONSUMERID, SubjectHandler.getSubjectHandler().getConsumerId());
 
         setObsoleteHeaders(request);
-        setExtraAuthHeaders(request);
 
         return client.execute(target, request, context);
     }
@@ -264,6 +263,4 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
 
     abstract String getOIDCToken();
 
-    protected void setExtraAuthHeaders(HttpRequest request) { // NOSONaR
-    }
 }
