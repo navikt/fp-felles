@@ -29,7 +29,6 @@
         <module>infotrygd-saker-klient</module>
 		<module>medl-klient</module>
 		<module>oppgave-rest-klient</module>
-		<module>arbeidsforhold-klient</module>
         <module>ereg-klient</module>
 		<module>kodeverk-klient</module>
 		<module>unleash-klient</module>
@@ -190,11 +189,6 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>arbeidsforhold-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-            <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>ereg-klient</artifactId>
                 <version>${project.version}</version>
