@@ -5,3 +5,5 @@ queries:
 
 path-ignore:
   - '**/src/test/**'
+  - 'src/test/**'
+  - '**/testutilities/**'
