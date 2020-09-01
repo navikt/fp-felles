@@ -1,0 +1,68 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [master]
+  schedule:
+    - cron: '0 0 * * 1'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Override automatic language detection by changing the below list
+        # Supported options are ['csharp', 'cpp', 'go', 'java', 'javascript', 'python']
+        language: ['java']
+        # Learn more...
+        # https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#overriding-automatic-language-detection
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # We must fetch at least the immediate parents so that if this is
+        # a pull request then we can checkout the head.
+        fetch-depth: 2
+
+      # If this run was triggered by a pull request event, then checkout
+      # the head of the pull request instead of the merge commit.
+    - run: git checkout HEAD^2
+      if: ${{ github.event_name == 'pull_request' }}
+
+    - name: Set cache key
+      run: |
+        echo "::set-env name=CACHE_KEY::$(expr $(date +%V) - 1 + 1)"
+        echo "::set-env name=PREVIOUS_CACHE_KEY::$(expr $(date +%V) - 1)"
+    - uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
+        restore-keys: |
+          ${{ runner.os }}-maven-${{ env.PREVIOUS_CACHE_KEY }}
+
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 1.11
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+         languages: ${{ matrix.language }}
+
+    - name: Build
+      shell: bash
+      run: |
+        mvn package -B -V -e --settings ./.m2/settings.xml --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) -Dfindbugs.skip -Dcheckstyle.skip -Dpmd.skip=true -Denforcer.skip -Dmaven.javadoc.skip -DskipTests -Dmaven.test.skip.exec -Dlicense.skip=true -Drat.skip=true 
+      env:
+        GITHUB_USERNAME: x-access-token
+        GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
