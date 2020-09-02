@@ -7,7 +7,9 @@ import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.konfig.ApplicationPropertiesKonfigProvider;
@@ -73,10 +75,28 @@ public final class Environment {
         return cluster.clusterName();
     }
 
+    public Properties getPropertiesWithPrefix(String prefix) {
+        Properties props = new Properties();
+        props.putAll(getProperties(StandardPropertySource.SYSTEM_PROPERTIES).getVerdier());
+        props.putAll(getProperties(StandardPropertySource.ENV_PROPERTIES).getVerdier());
+        props.putAll(getProperties(StandardPropertySource.APP_PROPERTIES).getVerdier());
+
+        var filtered = new Properties();
+        filtered.putAll(props.entrySet()
+                .stream()
+                .filter(k -> k.getKey().toString().startsWith(prefix))
+                .collect(
+                        Collectors.toMap(
+                                e -> (String) e.getKey(),
+                                e -> (String) e.getValue())));
+        return filtered;
+    }
+
     public PropertySourceMetaData getProperties(StandardPropertySource source) {
         return propertySources.stream()
                 .filter(p -> p.getSource().equals(source))
-                .findFirst().map(p -> p.getAllProperties())
+                .findFirst()
+                .map(p -> p.getAllProperties())
                 .orElseThrow();
     }
 
@@ -97,7 +117,7 @@ public final class Environment {
     }
 
     public String getRequiredProperty(String key) {
-        return getRequiredProperty(key, ikkeFunnet(key));
+        return getRequiredProperty(key, () -> new IllegalStateException(key + " ble ikke funnet"));
     }
 
     public String getRequiredProperty(String key, Feil feil) {
@@ -111,7 +131,7 @@ public final class Environment {
 
     public <T> T getRequiredProperty(String key, Class<T> targetType) {
         return Optional.ofNullable(getProperty(key, targetType))
-                .orElseThrow(ikkeFunnet(key));
+                .orElseThrow(() -> new IllegalStateException(key + " ble ikke funnet"));
     }
 
     @SuppressWarnings("unchecked")
@@ -168,10 +188,6 @@ public final class Environment {
 
     private static <T> Converter<T> construct(Class<? extends Converter<T>> clazz) throws Exception {
         return clazz.getDeclaredConstructor().newInstance();
-    }
-
-    private static Supplier<? extends RuntimeException> ikkeFunnet(String key) {
-        return () -> new IllegalStateException(key + " ble ikke funnet");
     }
 
     @Override
