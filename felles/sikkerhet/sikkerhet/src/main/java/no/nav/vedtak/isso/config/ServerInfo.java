@@ -67,12 +67,8 @@ public final class ServerInfo {
 
     private static String schemeHostPortFromSystemProperties() {
 
-        String verdi = ENV.getProperty(PROPERTY_KEY_LOADBALANCER_URL);
-        LOG.info("Fikk verdi " + verdi + " for " + PROPERTY_KEY_LOADBALANCER_URL);
-        if (verdi == null || verdi.isEmpty()) {
-            throw ServerInfoFeil.FACTORY.manglerNødvendigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL).toException();
-        }
-        return verdi;
+        return ENV.getRequiredProperty(PROPERTY_KEY_LOADBALANCER_URL,
+                ServerInfoFeil.FACTORY.manglerNødvendigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL));
     }
 
     private static String cookieDomain(String schemeHostPort) {

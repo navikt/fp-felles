@@ -77,7 +77,6 @@ public class OpenAMHelper {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public IdTokenAndRefreshToken getToken() throws IOException {
         return getToken(ENV.getProperty("systembruker.username"), ENV.getProperty("systembruker.password"));
     }

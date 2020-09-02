@@ -95,13 +95,8 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
     }
 
     private static RequestConfig createProxyConfig() {
-        String proxyUrl = ENV.getProperty(PROXY_KEY);
-        if (proxyUrl == null) {
-            proxyUrl = DEFAULT_PROXY_URL;
-        }
-        HttpHost proxy = HttpHost.create(proxyUrl);
         return RequestConfig.custom()
-                .setProxy(proxy)
+                .setProxy(HttpHost.create(ENV.getProperty(PROXY_KEY, DEFAULT_PROXY_URL)))
                 .build();
     }
 

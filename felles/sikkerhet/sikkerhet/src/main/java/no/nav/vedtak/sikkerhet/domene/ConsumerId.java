@@ -18,12 +18,8 @@ public final class ConsumerId implements Principal, Destroyable {
     }
 
     public ConsumerId() {
-        consumerIdString = ENV.getProperty(SecurityConstants.SYSTEMUSER_USERNAME);
-
-        if (consumerIdString == null) {
-            throw new IllegalStateException(
-                    SecurityConstants.SYSTEMUSER_USERNAME + " is not set, failed to set " + ConsumerId.class.getName());
-        }
+        consumerIdString = ENV.getRequiredProperty(SecurityConstants.SYSTEMUSER_USERNAME, () -> new IllegalStateException(
+                SecurityConstants.SYSTEMUSER_USERNAME + " is not set, failed to set " + ConsumerId.class.getName()));
     }
 
     @Override

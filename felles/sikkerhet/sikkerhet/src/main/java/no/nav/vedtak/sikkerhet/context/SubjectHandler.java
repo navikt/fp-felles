@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.domene.ConsumerId;
 import no.nav.vedtak.sikkerhet.domene.IdentType;
@@ -29,12 +28,8 @@ public abstract class SubjectHandler {
 
     public static SubjectHandler getSubjectHandler() {
 
-        String subjectHandlerImplementationClass = resolveProperty(SUBJECTHANDLER_KEY);
+        String subjectHandlerImplementationClass = ENV.getProperty(SUBJECTHANDLER_KEY,JettySubjectHandler.class.getName());
 
-        if (subjectHandlerImplementationClass == null) {
-            subjectHandlerImplementationClass = JettySubjectHandler.class.getName();
-            logger.debug("SubjectHandler not configured, will use default: {}", subjectHandlerImplementationClass);
-        }
 
         try {
             Class<?> clazz = Class.forName(subjectHandlerImplementationClass);
@@ -158,14 +153,6 @@ public abstract class SubjectHandler {
                 .map(Class::getName)
                 .collect(Collectors.toSet());
         throw SubjectHandlerFeil.FACTORY.forventet0Eller1(set.size(), classNames).toException();
-    }
-
-    private static String resolveProperty(String key) {
-        String value = ENV.getProperty(key);
-        if (value != null) {
-            logger.debug("Setting {}={} from System.properties", key, LoggerUtils.removeLineBreaks(value)); // NOSONAR
-        }
-        return value;
     }
 
     private Boolean hasSubject() {
