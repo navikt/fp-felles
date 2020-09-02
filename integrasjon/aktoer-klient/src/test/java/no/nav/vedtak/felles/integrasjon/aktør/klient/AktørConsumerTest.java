@@ -49,7 +49,8 @@ public class AktørConsumerTest {
         // expectedException.expectMessage("F-502945");
 
         var e = assertThrows(IntegrasjonException.class, () -> consumer.hentAktørIdForPersonIdent("123"));
-        assertTrue(e.getMessage().contains("FP-502945"));
+        System.out.println(e.getMessage());
+        assertTrue(e.getMessage().contains("F-502945"));
 
     }
 
