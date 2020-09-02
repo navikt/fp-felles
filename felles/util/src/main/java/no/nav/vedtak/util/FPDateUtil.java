@@ -8,12 +8,19 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 
+import no.nav.vedtak.util.env.Environment;
+
 /**
- * Returner funksjonelt tidsoffset, Brukes med LocalDate og LocalDateTime. eks. LocalDate.now(FPDateUtil.getOffset)
- * @deprecated  Overstyring av clock er ikke et test behov lenger (gjøres bedre gjennom docker/kubernetes).
+ * Returner funksjonelt tidsoffset, Brukes med LocalDate og LocalDateTime. eks.
+ * LocalDate.now(FPDateUtil.getOffset)
+ *
+ * @deprecated Overstyring av clock er ikke et test behov lenger (gjøres bedre
+ *             gjennom docker/kubernetes).
  */
 @Deprecated(forRemoval = true)
 public class FPDateUtil {
+
+    private static final Environment ENV = Environment.current();
     private static volatile ClockProvider clockProvider; // NOSONAR
 
     /**
@@ -39,6 +46,7 @@ public class FPDateUtil {
 
     /**
      * Ikke bruk denne metoden direkte, kall på iDag() eller nå()
+     *
      * @deprecated Metoden vil bli private i en fremtidig versjon
      */
     @Deprecated
@@ -60,7 +68,7 @@ public class FPDateUtil {
     public static LocalDateTime nå() {
         return LocalDateTime.now(getMyClock());
     }
-    
+
     public static Instant nåInstant() {
         return Instant.now(getMyClock());
     }
@@ -73,9 +81,9 @@ public class FPDateUtil {
     }
 
     /**
-     * System clock, med optional offset aktivert og duration i tid.
-     * Konfigurasjon:
-     * funksjonelt.tidsoffset.offset (Duration) angir offset i Duration format f.eks. P-2D / P2D (2 dager bakover/frem) - parameter settes i databasen
+     * System clock, med optional offset aktivert og duration i tid. Konfigurasjon:
+     * funksjonelt.tidsoffset.offset (Duration) angir offset i Duration format
+     * f.eks. P-2D / P2D (2 dager bakover/frem) - parameter settes i databasen
      * funksjonell tidsoffset aktiveres kun dersom parameteren er satt
      **/
     public static class SystemConfiguredClockProvider implements ClockProvider {
@@ -86,7 +94,7 @@ public class FPDateUtil {
         private volatile Clock clock;
 
         public SystemConfiguredClockProvider() {
-            String offsetPeriode = getProperty(PROPERTY_KEY_OFFSET_PERIODE);
+            String offsetPeriode = ENV.getProperty(PROPERTY_KEY_OFFSET_PERIODE);
 
             if (offsetPeriode != null && !offsetPeriode.isEmpty()) {
                 this.offsetPeriod = Period.parse(offsetPeriode);
@@ -94,7 +102,7 @@ public class FPDateUtil {
 
             } else {
                 this.offsetPeriod = Period.ofDays(0);
-                this.offsetAktivert=false;
+                this.offsetAktivert = false;
             }
             initClock(offsetPeriod);
         }
@@ -125,19 +133,9 @@ public class FPDateUtil {
                 return date;
             }
             return date.plusYears(period.getYears())
-                .plusMonths(period.getMonths())
-                .plusDays(period.getDays());
+                    .plusMonths(period.getMonths())
+                    .plusDays(period.getDays());
         }
-        
-        /** Gjør eget oppslag her for å ikke koble denne koden til EnvironmentProperty eller annet rammeverk. */
-        private String getProperty(String key) {
-            // sjekk system props først.
-            String val = System.getProperty(key); // NOSONAR
-            if (val == null) {
-                // sjekk env hvis ikke fins som system prop
-                val = System.getenv(key.toUpperCase().replace('.', '_')); // NOSONAR 
-            }
-            return val;
-        }
+
     }
 }
