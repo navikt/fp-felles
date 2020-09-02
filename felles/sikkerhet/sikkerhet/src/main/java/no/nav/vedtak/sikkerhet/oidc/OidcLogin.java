@@ -4,8 +4,12 @@ import java.time.Instant;
 import java.util.Optional;
 
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
+import no.nav.vedtak.util.env.Environment;
 
 public class OidcLogin {
+
+    private static final Environment ENV = Environment.current();
+
     public enum LoginResult {
         SUCCESS,
         ID_TOKEN_MISSING,
@@ -53,9 +57,9 @@ public class OidcLogin {
 
     private boolean needToRefreshToken(OidcTokenHolder idToken, OidcTokenValidatorResult validateResult) {
         if (validateResult.isValid()) {
-            if(idToken.isFromCookie()) {
+            if (idToken.isFromCookie()) {
                 return tokenIsSoonExpired(validateResult);
-            }else {
+            } else {
                 return false;
             }
         }
@@ -67,6 +71,6 @@ public class OidcLogin {
     }
 
     public static int getMinimumTimeToExpiryBeforeRefresh() {
-        return Integer.parseInt(System.getProperty(REFRESH_TIME, DEFAULT_REFRESH_TIME)) * 1000;
+        return Integer.parseInt(ENV.getProperty(REFRESH_TIME, DEFAULT_REFRESH_TIME)) * 1000;
     }
 }

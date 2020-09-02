@@ -7,9 +7,11 @@ import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import no.nav.vedtak.konfig.PropertyUtil;
+import no.nav.vedtak.util.env.Environment;
 
 public class LdapInnlogging {
+
+    private static final Environment ENV = Environment.current();
 
     private LdapInnlogging() {
         throw new IllegalArgumentException("skal ikke instansieres");
@@ -31,7 +33,8 @@ public class LdapInnlogging {
         } else if ("none".equals(authMode)) {
             // do nothing
         } else {
-            // støtter ikke [java.naming.security.authentication]="strong" eller andre. Ignorerer også foreløpig.
+            // støtter ikke [java.naming.security.authentication]="strong" eller andre.
+            // Ignorerer også foreløpig.
         }
 
         try {
@@ -42,7 +45,7 @@ public class LdapInnlogging {
     }
 
     static String getRequiredProperty(String navn) {
-        String verdi = PropertyUtil.getProperty(navn);
+        String verdi = ENV.getProperty(navn);
         if (verdi == null || verdi.isEmpty()) {
             throw LdapFeil.FACTORY.manglerLdapKonfigurasjon(navn).toException();
         }
@@ -51,11 +54,6 @@ public class LdapInnlogging {
     }
 
     static String getProperty(String navn, String def) {
-        String prop = PropertyUtil.getProperty(navn);
-        if (prop == null) {
-            return def;
-        } else {
-            return prop;
-        }
+        return ENV.getProperty(navn, def);
     }
 }

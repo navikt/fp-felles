@@ -32,16 +32,20 @@ import no.nav.vedtak.sikkerhet.loginmodule.LoginConfigNames;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleFeil;
 import no.nav.vedtak.sikkerhet.loginmodule.SamlUtils;
+import no.nav.vedtak.util.env.Environment;
 
 /**
- * CXF Soap interceptor som validerer SAML-token og logger caller inn i containeren.
- * Legger også til en Interceptor som logger ut igjen fra containeren.
+ * CXF Soap interceptor som validerer SAML-token og logger caller inn i
+ * containeren. Legger også til en Interceptor som logger ut igjen fra
+ * containeren.
+ *
  * @see SAMLLogoutInterceptor
  */
 public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
 
+    private static final Environment ENV = Environment.current();
+
     public SAMLTokenSignedInInterceptor() {
-        super();
         setProperty(WSHandlerConstants.ACTION, WSHandlerConstants.SAML_TOKEN_SIGNED);
     }
 
@@ -59,8 +63,9 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
     public Crypto loadSignatureCrypto(RequestData requestData) throws WSSecurityException {
 
         Properties signatureProperties = new Properties();
-        signatureProperties.setProperty("org.apache.ws.security.crypto.merlin.truststore.file", System.getProperty("javax.net.ssl.trustStore"));
-        signatureProperties.setProperty("org.apache.ws.security.crypto.merlin.truststore.password", System.getProperty("javax.net.ssl.trustStorePassword")); // NOSONAR ikke et hardkodet passord
+        signatureProperties.setProperty("org.apache.ws.security.crypto.merlin.truststore.file", ENV.getProperty("javax.net.ssl.trustStore"));
+        signatureProperties.setProperty("org.apache.ws.security.crypto.merlin.truststore.password",
+                ENV.getProperty("javax.net.ssl.trustStorePassword")); // NOSONAR ikke et hardkodet passord
 
         Crypto crypto = CryptoFactory.getInstance(signatureProperties);
         cryptos.put(WSHandlerConstants.SIG_PROP_REF_ID, crypto);

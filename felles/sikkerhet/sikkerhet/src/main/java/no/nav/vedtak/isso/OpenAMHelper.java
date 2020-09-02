@@ -1,7 +1,5 @@
 package no.nav.vedtak.isso;
 
-import static no.nav.vedtak.konfig.PropertyUtil.getProperty;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,6 +26,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.glassfish.json.JsonUtil;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -35,8 +34,11 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
+import no.nav.vedtak.util.env.Environment;
 
 public class OpenAMHelper {
+
+    private static final Environment ENV = Environment.current();
 
     public static final String OPEN_ID_CONNECT_ISSO_HOST = "OpenIdConnect.issoHost";
     public static final String OPEN_ID_CONNECT_USERNAME = "OpenIdConnect.username";
@@ -75,9 +77,8 @@ public class OpenAMHelper {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public IdTokenAndRefreshToken getToken() throws IOException {
-        return getToken(getProperty("systembruker.username"), getProperty("systembruker.password"));
+        return getToken(ENV.getProperty("systembruker.username"), ENV.getProperty("systembruker.password"));
     }
 
     IdTokenAndRefreshToken getToken(String brukernavn, String passord) throws IOException {
@@ -230,16 +231,16 @@ public class OpenAMHelper {
 
     @SuppressWarnings("deprecation")
     public static String getIssoHostUrl() {
-        return getProperty(OPEN_ID_CONNECT_ISSO_HOST);
+        return ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST);
     }
 
     @SuppressWarnings("deprecation")
     public static String getIssoUserName() {
-        return getProperty(OPEN_ID_CONNECT_USERNAME);
+        return ENV.getProperty(OPEN_ID_CONNECT_USERNAME);
     }
 
     public static String getIssoPassword() {
-        return getProperty(OPEN_ID_CONNECT_PASSWORD);
+        return ENV.getProperty(OPEN_ID_CONNECT_PASSWORD);
     }
 
     public static String getIssoIssuerUrl() {

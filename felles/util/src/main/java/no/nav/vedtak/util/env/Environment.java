@@ -7,7 +7,9 @@ import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
+import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.konfig.ApplicationPropertiesKonfigProvider;
 import no.nav.vedtak.konfig.EnvPropertiesKonfigVerdiProvider;
 import no.nav.vedtak.konfig.KonfigVerdi.BooleanConverter;
@@ -25,9 +27,11 @@ import no.nav.vedtak.konfig.StandardPropertySource;
 import no.nav.vedtak.konfig.SystemPropertiesKonfigVerdiProvider;
 
 public final class Environment {
-    
+
     static final class Init {
-        // Josh Bloch's lazy load singleton (ref "Effective Java").  Siden Init ikke lastes før den referes blir feltet her initiert først når den aksesseres første gang.
+        // Josh Bloch's lazy load singleton (ref "Effective Java"). Siden Init ikke
+        // lastes før den referes blir feltet her initiert først når den aksesseres
+        // første gang.
         static final Environment CURRENT = of(Cluster.current(), Namespace.current());
 
         private static Environment of(Cluster cluster, Namespace namespace) {
@@ -84,11 +88,6 @@ public final class Environment {
         return propertySources;
     }
 
-    public String getRequiredProperty(String key) {
-        return Optional.ofNullable(getProperty(key))
-                .orElseThrow(() -> ikkeFunnet(key));
-    }
-
     public String getProperty(String key, String defaultVerdi) {
         return getProperty(key, String.class, defaultVerdi);
     }
@@ -97,9 +96,22 @@ public final class Environment {
         return getProperty(key, targetType, null);
     }
 
+    public String getRequiredProperty(String key) {
+        return getRequiredProperty(key, ikkeFunnet(key));
+    }
+
+    public String getRequiredProperty(String key, Feil feil) {
+        return getRequiredProperty(key, () -> feil.toException());
+    }
+
+    public String getRequiredProperty(String key, Supplier<? extends RuntimeException> exceptionSupplier) {
+        return Optional.ofNullable(getProperty(key))
+                .orElseThrow(exceptionSupplier);
+    }
+
     public <T> T getRequiredProperty(String key, Class<T> targetType) {
         return Optional.ofNullable(getProperty(key, targetType))
-                .orElseThrow(() -> ikkeFunnet(key));
+                .orElseThrow(ikkeFunnet(key));
     }
 
     @SuppressWarnings("unchecked")
@@ -158,8 +170,8 @@ public final class Environment {
         return clazz.getDeclaredConstructor().newInstance();
     }
 
-    private static IllegalStateException ikkeFunnet(String key) {
-        throw new IllegalStateException(key + " ble ikke funnet");
+    private static Supplier<? extends RuntimeException> ikkeFunnet(String key) {
+        return () -> new IllegalStateException(key + " ble ikke funnet");
     }
 
     @Override

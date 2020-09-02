@@ -1,7 +1,9 @@
 package no.nav.vedtak.sts.client;
 
-import no.nav.vedtak.konfig.PropertyUtil;
-import no.nav.vedtak.sts.client.NAVSTSClient.StsClientType;
+import java.util.HashMap;
+
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.soap.Soap12;
@@ -23,11 +25,13 @@ import org.apache.cxf.ws.policy.attachment.reference.RemoteReferenceResolver;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.neethi.Policy;
 
-import javax.xml.namespace.QName;
-import java.util.HashMap;
+import no.nav.vedtak.sts.client.NAVSTSClient.StsClientType;
+import no.nav.vedtak.util.env.Environment;
 
 @SuppressWarnings("deprecation")
 public class StsConfigurationUtil {
+
+    private static final Environment ENV = Environment.current();
 
     private StsConfigurationUtil() {
         throw new IllegalAccessError("Skal ikke instansieres");
@@ -82,7 +86,7 @@ public class StsConfigurationUtil {
     }
 
     private static String requireProperty(String key) {
-        String property = PropertyUtil.getProperty(key);
+        String property = ENV.getProperty(key);
         if (property == null) {
             throw StsFeil.FACTORY.påkrevdSystemPropertyMangler(key).toException();
         }
@@ -109,7 +113,6 @@ public class StsConfigurationUtil {
 
         stsClient.getOutInterceptors().add(new LoggingOutInterceptor());
         stsClient.getInInterceptors().add(new LoggingInInterceptor());
-
 
         HashMap<String, Object> properties = new HashMap<>();
         properties.put(org.apache.cxf.ws.security.SecurityConstants.USERNAME, username);
