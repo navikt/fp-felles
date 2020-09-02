@@ -1,7 +1,5 @@
 package no.nav.vedtak.sikkerhet.jwks;
 
-import static no.nav.vedtak.konfig.PropertyUtil.getProperty;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,8 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.log.util.LoggerUtils;
+import no.nav.vedtak.util.env.Environment;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
+    private static final Environment ENV = Environment.current();
+
     public static final String PROXY_KEY = "proxy.url";
 
     private static final Logger log = LoggerFactory.getLogger(JwksKeyHandlerImpl.class);
@@ -39,7 +40,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
 
     private JsonWebKeySet keyCache;
 
-    public JwksKeyHandlerImpl(URL url, boolean useProxyForJwks){
+    public JwksKeyHandlerImpl(URL url, boolean useProxyForJwks) {
         this(() -> httpGet(url, useProxyForJwks));
         this.url = url;
     }
@@ -63,10 +64,10 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
             return null;
         }
         List<JsonWebKey> jwks = keyCache.findJsonWebKeys(header.getKid(), "RSA", "sig", null);
-        if(jwks.isEmpty()){
+        if (jwks.isEmpty()) {
             return null;
         }
-        if(jwks.size() == 1){
+        if (jwks.size() == 1) {
             return jwks.get(0).getKey();
         }
         Optional<JsonWebKey> jsonWebKey = jwks.stream().filter(jwk -> jwk.getAlgorithm().equals(header.getAlgorithm())).findFirst();
@@ -86,14 +87,15 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         try {
             String jwksString = jwksStringSupplier.get();
             setKeyCache(jwksString);
-            // Enable ved behov log.debug("JWKs cache for {} updated with: {}", url, jwksString); //NOSONAR
+            // Enable ved behov log.debug("JWKs cache for {} updated with: {}", url,
+            // jwksString); //NOSONAR
         } catch (RuntimeException e) {
             JwksFeil.FACTORY.klarteIkkeOppdatereJwksCache(url, e).log(log);
         }
     }
 
     private static RequestConfig createProxyConfig() {
-        String proxyUrl = getProperty(PROXY_KEY);
+        String proxyUrl = ENV.getProperty(PROXY_KEY);
         if (proxyUrl == null) {
             proxyUrl = DEFAULT_PROXY_URL;
         }
@@ -107,10 +109,10 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         if (url == null) {
             throw JwksFeil.FACTORY.manglerKonfigurasjonAvJwksUrl().toException();
         }
-        log.debug("Starting JWKS update from {}", LoggerUtils.removeLineBreaks(url.toExternalForm())); //NOSONAR
+        log.debug("Starting JWKS update from {}", LoggerUtils.removeLineBreaks(url.toExternalForm())); // NOSONAR
         HttpGet httpGet = new HttpGet(url.toExternalForm());
         httpGet.addHeader("accept", "application/json");
-        if(useProxyForJwks){
+        if (useProxyForJwks) {
             httpGet.setConfig(proxyConfig);
         }
 

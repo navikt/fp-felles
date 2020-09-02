@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import no.nav.vedtak.konfig.PropertyUtil;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.domene.ConsumerId;
@@ -18,8 +17,12 @@ import no.nav.vedtak.sikkerhet.domene.IdentType;
 import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 import no.nav.vedtak.sikkerhet.domene.SluttBruker;
+import no.nav.vedtak.util.env.Environment;
 
 public abstract class SubjectHandler {
+
+    private static final Environment ENV = Environment.current();
+
     private static final Logger logger = LoggerFactory.getLogger(SubjectHandler.class);
 
     public static final String SUBJECTHANDLER_KEY = "no.nav.modig.core.context.subjectHandlerImplementationClass";
@@ -57,12 +60,12 @@ public abstract class SubjectHandler {
         return null;
     }
 
-    public SluttBruker getSluttBruker(){
+    public SluttBruker getSluttBruker() {
         return getSluttBruker(getSubject());
     }
 
     public static SluttBruker getSluttBruker(Subject subject) {
-        if (subject  == null) {
+        if (subject == null) {
             return null;
         }
 
@@ -91,13 +94,13 @@ public abstract class SubjectHandler {
         if (!hasSubject()) {
             return null;
         }
-        //TODO (u139158): PK-41761 Flyttes til privateCredentials
+        // TODO (u139158): PK-41761 Flyttes til privateCredentials
         OidcCredential tokenCredential = getTheOnlyOneInSet(getSubject().getPublicCredentials(OidcCredential.class));
         return tokenCredential != null ? tokenCredential.getToken() : null;
     }
 
     public Element getSamlToken() {
-        if(!hasSubject()) {
+        if (!hasSubject()) {
             return null;
         }
         SAMLAssertionCredential samlCredential = getTheOnlyOneInSet(getSubject().getPublicCredentials(SAMLAssertionCredential.class));
@@ -112,7 +115,8 @@ public abstract class SubjectHandler {
             return null;
         }
 
-        AuthenticationLevelCredential authenticationLevelCredential = getTheOnlyOneInSet(getSubject().getPublicCredentials(AuthenticationLevelCredential.class));
+        AuthenticationLevelCredential authenticationLevelCredential = getTheOnlyOneInSet(
+                getSubject().getPublicCredentials(AuthenticationLevelCredential.class));
         if (authenticationLevelCredential != null) {
             return authenticationLevelCredential.getAuthenticationLevel();
         }
@@ -147,8 +151,8 @@ public abstract class SubjectHandler {
             return first;
         }
 
-        //logging class names to the log to help debug. Cannot log actual objects,
-        //since then ID_tokens may be logged
+        // logging class names to the log to help debug. Cannot log actual objects,
+        // since then ID_tokens may be logged
         Set<String> classNames = set.stream()
                 .map(Object::getClass)
                 .map(Class::getName)
@@ -157,9 +161,9 @@ public abstract class SubjectHandler {
     }
 
     private static String resolveProperty(String key) {
-        String value = PropertyUtil.getProperty(key);
+        String value = ENV.getProperty(key);
         if (value != null) {
-            logger.debug("Setting {}={} from System.properties", key, LoggerUtils.removeLineBreaks(value));  //NOSONAR
+            logger.debug("Setting {}={} from System.properties", key, LoggerUtils.removeLineBreaks(value)); // NOSONAR
         }
         return value;
     }

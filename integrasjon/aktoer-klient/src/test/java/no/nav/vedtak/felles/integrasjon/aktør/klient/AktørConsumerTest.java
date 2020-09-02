@@ -1,6 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.aktør.klient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -14,18 +16,13 @@ import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import no.nav.tjeneste.virksomhet.aktoer.v2.binding.AktoerV2;
 import no.nav.tjeneste.virksomhet.aktoer.v2.binding.HentAktoerIdForIdentPersonIkkeFunnet;
 import no.nav.vedtak.exception.IntegrasjonException;
 
 public class AktørConsumerTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     AktoerV2 mockAktoerV2 = mock(AktoerV2.class);
     AktørConsumer consumer;
@@ -48,23 +45,27 @@ public class AktørConsumerTest {
     public void skalKasteIntegrasjonExceptionNårServiceKasterFeilMedStatusS511002F() throws Exception {
         when(mockAktoerV2.hentAktoerIdForIdent(any())).thenThrow(opprettSOAPFaultException("status: S511002F"));
 
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("F-502945");
+        // expectedException.expect(IntegrasjonException.class);
+        // expectedException.expectMessage("F-502945");
 
-        consumer.hentAktørIdForPersonIdent("123");
+        var e = assertThrows(IntegrasjonException.class, () -> consumer.hentAktørIdForPersonIdent("123"));
+        assertTrue(e.getMessage().contains("FP-502945"));
+
     }
 
     @Test
     public void skalKasteIntegrasjonExceptionMedFeilmeldingForAndreFeil() throws Exception {
         when(mockAktoerV2.hentAktoerIdForIdent(any())).thenThrow(opprettSOAPFaultException("annen feil"));
 
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-942048");
+        var e = assertThrows(IntegrasjonException.class, () -> consumer.hentAktørIdForPersonIdent("123"));
+        assertTrue(e.getMessage().contains("FP-942048"));
 
-        consumer.hentAktørIdForPersonIdent("123");
+        // expectedException.expect(IntegrasjonException.class);
+        // expectedException.expectMessage("FP-942048");
+
     }
 
-    private SOAPFaultException opprettSOAPFaultException(String faultString) throws SOAPException {
+    private static SOAPFaultException opprettSOAPFaultException(String faultString) throws SOAPException {
         SOAPFault fault = SOAPFactory.newInstance().createFault();
         fault.setFaultString(faultString);
         fault.setFaultCode(new QName("local"));

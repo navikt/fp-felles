@@ -1,9 +1,5 @@
 package no.nav.vedtak.sts.client;
 
-import no.nav.vedtak.konfig.PropertyUtil;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.domene.IdentType;
-import no.nav.vedtak.sikkerhet.domene.SluttBruker;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -13,11 +9,18 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.domene.IdentType;
+import no.nav.vedtak.sikkerhet.domene.SluttBruker;
+import no.nav.vedtak.util.env.Environment;
+
 public class NAVSTSClient extends STSClient {
+    private static final Environment ENV = Environment.current();
+
     private static final Logger logger = LoggerFactory.getLogger(NAVSTSClient.class);
     public static final String DISABLE_CACHE_KEY = "NAVSTSClient.DISABLE_CACHE";
     private static TokenStore tokenStore;
-    private static SluttBruker systemSluttBruker = new SluttBruker(PropertyUtil.getProperty("systembruker.username"), IdentType.Systemressurs);
+    private static SluttBruker systemSluttBruker = new SluttBruker(ENV.getProperty("systembruker.username"), IdentType.Systemressurs);
 
     private StsClientType type;
 
@@ -42,13 +45,13 @@ public class NAVSTSClient extends STSClient {
         var samlToken = subjectHandler.getSamlToken();
         String userId = subjectHandler.getUid();
 
-        if(userId == null){
+        if (userId == null) {
             userId = "unauthenticated";
         }
 
         String key;
         SluttBruker principal;
-        if(StsClientType.SYSTEM_SAML == type) {
+        if (StsClientType.SYSTEM_SAML == type) {
             key = "systemSAML";
             principal = systemSluttBruker;
         } else {
@@ -56,10 +59,10 @@ public class NAVSTSClient extends STSClient {
             principal = SubjectHandler.getSubjectHandler().getSluttBruker();
         }
 
-        if(samlToken != null) {
+        if (samlToken != null) {
             SecurityToken token = new SecurityToken(samlToken.getAttribute("ID"), samlToken, null);
             token.setPrincipal(principal);
-            if(logger.isTraceEnabled()){
+            if (logger.isTraceEnabled()) {
                 logger.trace("Will use SAML-token found in subjectHandler: {}", tokenToString(token));
             }
             return token;
@@ -69,7 +72,7 @@ public class NAVSTSClient extends STSClient {
             logger.debug("Cache is disabled, fetching from STS for user {}", userId);
             SecurityToken token = super.requestSecurityToken(appliesTo, action, requestType, binaryExchange);
             token.setPrincipal(principal);
-            if(logger.isTraceEnabled()){
+            if (logger.isTraceEnabled()) {
                 logger.trace("Retrived token from STS: {}", tokenToString(token));
             }
             return token;
@@ -83,29 +86,32 @@ public class NAVSTSClient extends STSClient {
         SecurityToken token = tokenStore.getToken(key);
         String keyUtenSignatur = stripJwtSignatur(key);
         if (token == null) {
-            logger.debug("Missing token for user {}, cache key {}, fetching it from STS", userId, keyUtenSignatur);  //NOSONAR
+            logger.debug("Missing token for user {}, cache key {}, fetching it from STS", userId, keyUtenSignatur); // NOSONAR
             token = super.requestSecurityToken(appliesTo, action, requestType, binaryExchange);
             token.setPrincipal(principal);
             tokenStore.add(key, token);
         } else if (token.isExpired()) {
-            logger.debug("Token for user {}, cache key {} is expired ({}) fetching a new one from STS", userId, keyUtenSignatur, token.getExpires());  //NOSONAR
+            logger.debug("Token for user {}, cache key {} is expired ({}) fetching a new one from STS", userId, keyUtenSignatur, token.getExpires()); // NOSONAR
             tokenStore.remove(key);
             token = super.requestSecurityToken(appliesTo, action, requestType, binaryExchange);
             token.setPrincipal(principal);
             tokenStore.add(key, token);
         } else {
-            logger.debug("Retrived token for user {}, cache key {} from tokenStore", userId, keyUtenSignatur);  //NOSONAR
+            logger.debug("Retrived token for user {}, cache key {} from tokenStore", userId, keyUtenSignatur); // NOSONAR
         }
-        if(logger.isTraceEnabled()){
+        if (logger.isTraceEnabled()) {
             logger.trace("Retrived token: {}", tokenToString(token));
         }
         return token;
     }
 
     /**
-     * A JWT consists of &lt;base64 encoded header&gt;.&lt;base64 encoded body&gt;.&lt;base64 encoded signature&gt;
-     * @return if key is JWT - &lt;base64 encoded header&gt;.&lt;base64 encoded body&gt; <br>
-     *     else -  {@code key}
+     * A JWT consists of &lt;base64 encoded header&gt;.&lt;base64 encoded
+     * body&gt;.&lt;base64 encoded signature&gt;
+     *
+     * @return if key is JWT - &lt;base64 encoded header&gt;.&lt;base64 encoded
+     *         body&gt; <br>
+     *         else - {@code key}
      */
     private String stripJwtSignatur(String key) {
         final int lastDot = key.lastIndexOf('.');
