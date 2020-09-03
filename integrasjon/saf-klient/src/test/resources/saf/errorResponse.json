@@ -1,0 +1,21 @@
+{
+  "errors": [
+    {
+      "message": "Journalpost med journalpostId=xxx ikke funnet.",
+      "locations": [],
+      "extensions": {
+        "classification": "DataFetchingException"
+      }
+    },
+    {
+      "message": "Annen feilmelding",
+      "locations": [],
+      "extensions": {
+        "classification": "DataFetchingException"
+      }
+    }
+  ],
+  "data": {
+    "journalpost": null
+  }
+}

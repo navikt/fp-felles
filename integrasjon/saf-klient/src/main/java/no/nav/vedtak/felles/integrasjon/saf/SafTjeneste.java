@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
@@ -127,7 +129,11 @@ public class SafTjeneste {
         }
 
         if (graphQlResponse.getErrors() != null && graphQlResponse.getErrors().size() > 0) {
-            throw FEILFACTORY.forespørselReturnerteFeil(graphQlResponse.toString()).toException();
+            var errors = (List<GraphQLError>) graphQlResponse.getErrors();
+            var feilmelding = errors.stream()
+                .map(error -> error.getMessage())
+                .collect(Collectors.joining("\n Error: "));
+            throw FEILFACTORY.forespørselReturnerteFeil(feilmelding).toException();
         }
         return graphQlResponse;
     }
@@ -190,7 +196,7 @@ public class SafTjeneste {
         @TekniskFeil(feilkode = "K9-240613", feilmelding = "Forespørsel til SAF feilet for spørring %s", logLevel = LogLevel.WARN)
         Feil safForespørselFeilet(String query, Throwable t);
 
-        @TekniskFeil(feilkode = "K9-588730", feilmelding = "Feil fra SAF ved utført query: %s", logLevel = LogLevel.WARN)
+        @TekniskFeil(feilkode = "K9-588730", feilmelding = "Feil fra SAF ved utført query. Error: %s", logLevel = LogLevel.WARN)
         Feil forespørselReturnerteFeil(String response);
     }
 }
