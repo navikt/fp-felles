@@ -1,6 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,6 +38,7 @@ import no.nav.saf.RelevantDatoResponseProjection;
 import no.nav.saf.SakResponseProjection;
 import no.nav.saf.Tilknytning;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
 public class SafTjenesteTest {
@@ -120,6 +122,21 @@ public class SafTjenesteTest {
 
         assertThat(journalposter).hasSize(2);
         assertThat(journalposter.stream().map(Journalpost::getEksternReferanseId).filter(Objects::nonNull).findFirst()).isPresent();
+    }
+
+    @SuppressWarnings("resource")
+    @Test(expected = TekniskException.class)
+    public void skal_konvertere_feilmelding_til_feil() throws IOException {
+        // query-eksempel: journalpost(journalpostId: "439560100")
+        when(entity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("saf/errorResponse.json"));
+
+        var query = new JournalpostQueryRequest();
+        query.setJournalpostId("journalpostId");
+        var projection = byggJournalpostResponseProjection();
+
+        safTjeneste.hentJournalpostInfo(query, projection);
+
+        fail("Forventer at SAF-feilmelding konverteres til TekniskException");
     }
 
 
