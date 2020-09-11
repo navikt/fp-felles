@@ -1,8 +1,8 @@
 package no.nav.vedtak.exception;
 
-import no.nav.vedtak.feil.Feil;
-
 import org.slf4j.Logger;
+
+import no.nav.vedtak.feil.Feil;
 
 public abstract class VLException extends RuntimeException {
 
@@ -15,6 +15,10 @@ public abstract class VLException extends RuntimeException {
 
     public Feil getFeil() {
         return feil;
+    }
+
+    public String getKode() {
+        return feil.getKode();
     }
 
     @Override
