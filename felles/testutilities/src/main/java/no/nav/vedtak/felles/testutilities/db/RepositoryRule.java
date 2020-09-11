@@ -14,13 +14,18 @@ import no.nav.vedtak.felles.testutilities.sikkerhet.DummySubjectHandler;
 import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
 
 /**
- * JUnit Rule som initialiserer Repository (med PersistenceUnit og EntityManager) for bruk i tester som aksessererer
- * datalageret.
+ * JUnit Rule som initialiserer Repository (med PersistenceUnit og
+ * EntityManager) for bruk i tester som aksessererer datalageret.
+ * <p>
+ * Bruk {@link EntityManagerAwareExtension} med JUnit 5.
+ * 
  */
+@Deprecated(forRemoval = true, since = "2.1.x")
 public abstract class RepositoryRule extends PersistenceUnitInitializer implements MethodRule {
 
     static {
-        // trenger en subject handler i alle tester som endrer i database pga at det brukes i BaseEntitet ved enhver endring
+        // trenger en subject handler i alle tester som endrer i database pga at det
+        // brukes i BaseEntitet ved enhver endring
         SubjectHandlerUtils.useSubjectHandler(DummySubjectHandler.class);
     }
 
