@@ -24,9 +24,4 @@
 
     </dependencies>
 
-
-    <properties>
-        <e2e.test.group>no.nav.vedtak.felles.testutilities.End2EndTest</e2e.test.group>
-    </properties>
-
 </project>

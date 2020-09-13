@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
-			<artifactId>felles-sikkerhet</artifactId>
+			<artifactId>felles-sikkerhet-soap</artifactId>
 		</dependency>
 
 		<dependency>

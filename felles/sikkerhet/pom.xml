@@ -18,6 +18,7 @@
 	<modules>
 		<module>sikkerhet</module>
 		<module>testutilities</module>
+		<module>soap</module>
 	</modules>
 
 </project>

@@ -14,10 +14,6 @@
     <name>Felles :: Sikkerhet</name>
     <packaging>jar</packaging>
 
-    <properties>
-        <e2e.test.group>no.nav.vedtak.isso.End2EndTest</e2e.test.group>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>

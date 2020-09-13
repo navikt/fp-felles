@@ -1,0 +1,1 @@
+Innholdet i filen org.apache.cxf.Logger instruerer CXF til å logge vha Slf4j
