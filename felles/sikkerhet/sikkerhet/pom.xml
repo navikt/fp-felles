@@ -46,34 +46,6 @@
         </dependency>
 
         <dependency>
-            <!-- This artifact contains Slf4jLogger which is nessecary for 
-                managing loggin -->
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-ws-security</artifactId>
-            <exclusions>
-            	<exclusion>
-            		<groupId>org.codehaus.woodstox</groupId>
-            		<artifactId>woodstox-core-asl</artifactId>
-            	</exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
@@ -99,6 +71,20 @@
                     <groupId>xml-apis</groupId>
                     <artifactId>xml-apis</artifactId>
                 </exclusion>
+                <exclusion>
+                	<groupId>org.hibernate</groupId>
+                	<artifactId>hibernate-entitymanager</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>org.hibernate</groupId>
+                	<artifactId>hibernate-core</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>org.hibernate.common</groupId>
+                	<artifactId>
+                		hibernate-commons-annotations
+                	</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -115,7 +101,7 @@
         </dependency>
 
         <dependency>
-            <!-- dette er fjernet fra SE i Java11 -->
+            <!-- dette er fjernet fra SE i Java11. Brukes for å kunne plukke parametere fra @WebService annotering. -->
             <groupId>javax.jws</groupId>
             <artifactId>jsr181-api</artifactId>
         </dependency>
