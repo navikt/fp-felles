@@ -16,7 +16,9 @@ import no.nav.vedtak.util.FPDateUtil;
 /**
  * JUnit Rule for å stille tiden til en bestemt tid (offset). Resetter etter at testen er kjørt. Kan også endre tiden i løpet av testen for
  * å simulere at tiden løper fortere.
+ * @deprecated Fjernes, FPDateUtil er ikke i tilstrekkelig bruk og gir p.t. ikke mening (kan heller stille tid på docker/verdikjede nivå
  */
+@Deprecated(forRemoval=true)
 public class StillTid implements MethodRule {
 
     private final AtomicReference<LocalDateTime> tidRef = new AtomicReference<>();

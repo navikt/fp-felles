@@ -15,8 +15,11 @@ import no.nav.vedtak.felles.testutilities.db.FlywayKonfig;
 
 /**
  * Støtte for migrering av databaseskjema lokalt (brukes til jetty, enhetstester, og jenkins)
- * Setter opp JDNI-oppslag
+ * Setter opp JDNI-oppslag.
+ * 
+ * @deprecated Kjør heller Flyway direkte fra app som benytter
  */
+@Deprecated(forRemoval = true)
 public final class DatabaseStøtte {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseStøtte.class);

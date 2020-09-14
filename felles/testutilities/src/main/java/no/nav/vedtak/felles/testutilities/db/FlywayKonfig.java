@@ -17,7 +17,9 @@ import no.nav.vedtak.feil.FeilFactory;
 
 /**
  * Setter opp Flyway og databasemigreringer for enhetstester og testdata.
+ * @deprecated Sett heller opp i app som benytter direkte
  */
+@Deprecated(forRemoval=true)
 public class FlywayKonfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlywayKonfig.class);
