@@ -13,9 +13,9 @@ public class ArbeidsfordelingResponse {
 
     @JsonCreator
     public ArbeidsfordelingResponse(@JsonProperty("enhetNr") String enhetNr,
-                                    @JsonProperty("navn") String enhetNavn,
-                                    @JsonProperty("status") String status,
-                                    @JsonProperty("type") String enhetType) {
+            @JsonProperty("navn") String enhetNavn,
+            @JsonProperty("status") String status,
+            @JsonProperty("type") String enhetType) {
         this.status = status;
         this.enhetNavn = enhetNavn;
         this.enhetNr = enhetNr;
@@ -50,7 +50,7 @@ public class ArbeidsfordelingResponse {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof ArbeidsfordelingResponse)) {
+        if ((obj == null) || !(obj instanceof ArbeidsfordelingResponse)) {
             return false;
         }
         if (this == obj) {
@@ -63,10 +63,10 @@ public class ArbeidsfordelingResponse {
     @Override
     public String toString() {
         return "ArbeidsfordelingResponse{" +
-            "enhetNr='" + enhetNr + '\'' +
-            ", enhetNavn='" + enhetNavn + '\'' +
-            ", enhetType='" + enhetType + '\'' +
-            ", status='" + status + '\'' +
-            '}';
+                "enhetNr='" + enhetNr + '\'' +
+                ", enhetNavn='" + enhetNavn + '\'' +
+                ", enhetType='" + enhetType + '\'' +
+                ", status='" + status + '\'' +
+                '}';
     }
 }

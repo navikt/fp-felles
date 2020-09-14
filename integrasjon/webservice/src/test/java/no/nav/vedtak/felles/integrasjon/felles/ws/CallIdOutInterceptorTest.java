@@ -1,7 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,40 +26,26 @@ public class CallIdOutInterceptorTest {
     @BeforeEach
     public void setup() {
         interceptor = new CallIdOutInterceptor();
-
         mockMessage = mock(SoapMessage.class);
         headers = new ArrayList<>();
         when(mockMessage.getHeaders()).thenReturn(headers);
-
         MDCOperations.remove(MDCOperations.MDC_CALL_ID);
     }
 
     @Test
     public void test_handleMessage_ok() {
         MDCOperations.putCallId("id123");
-
         interceptor.handleMessage(mockMessage);
-
         assertThat(headers.size()).isEqualTo(1);
     }
 
     @Test
     public void test_handleMessage_noCallId() {
-        try {
-            interceptor.handleMessage(mockMessage);
-            fail("forventet exception");
-        } catch (IllegalStateException e) {
-            // ok
-        }
+        assertThrows(IllegalStateException.class, () -> interceptor.handleMessage(mockMessage));
     }
 
     @Test
     public void test_handleMessage_badMessage() {
-        try {
-            interceptor.handleMessage(mock(Message.class));
-            fail("forventet exception");
-        } catch (IllegalStateException e) {
-            // ok
-        }
+        assertThrows(IllegalStateException.class, () -> interceptor.handleMessage(mock(Message.class)));
     }
 }

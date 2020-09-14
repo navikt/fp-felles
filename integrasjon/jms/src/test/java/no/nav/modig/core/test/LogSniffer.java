@@ -5,11 +5,10 @@
 
 package no.nav.modig.core.test;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -26,6 +25,9 @@ import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.core.spi.FilterReply;
 
+/*
+ * I serien grisete kode presenterer vi denne, som heldigvis snart skal dø
+ */
 @Deprecated(forRemoval = true, since = "2.1.x")
 public class LogSniffer implements TestRule {
     private final Map<ILoggingEvent, Boolean> logbackAppender;
@@ -73,26 +75,26 @@ public class LogSniffer implements TestRule {
     }
 
     public void assertHasWarnMessage(String substring) {
-        if (!this.hasLogEntry(substring, (Class) null, Level.WARN)) {
+        if (!this.hasLogEntry(substring, (Class<? extends Throwable>) null, Level.WARN)) {
             throw new AssertionError(String.format("Could not find log message matching [%s], with level WARN.  Has [%s]", substring, this));
         } else {
-            this.markEntryAsserted(substring, (Class) null, Level.WARN);
+            this.markEntryAsserted(substring, (Class<? extends Throwable>) null, Level.WARN);
         }
     }
 
     public void assertHasErrorMessage(String substring) {
-        if (!this.hasLogEntry(substring, (Class) null, Level.ERROR)) {
+        if (!this.hasLogEntry(substring, (Class<? extends Throwable>) null, Level.ERROR)) {
             throw new AssertionError(String.format("Could not find log message matching [%s], with level WARN.  Has [%s]", substring, this));
         } else {
-            this.markEntryAsserted(substring, (Class) null, Level.ERROR);
+            this.markEntryAsserted(substring, (Class<? extends Throwable>) null, Level.ERROR);
         }
     }
 
     public void assertHasInfoMessage(String substring) {
-        if (!this.hasLogEntry(substring, (Class) null, Level.INFO)) {
+        if (!this.hasLogEntry(substring, (Class<? extends Throwable>) null, Level.INFO)) {
             throw new AssertionError(String.format("Could not find log message matching [%s], with level INFO.  Has [%s]", substring, this));
         } else {
-            this.markEntryAsserted(substring, (Class) null, Level.INFO);
+            this.markEntryAsserted(substring, (Class<? extends Throwable>) null, Level.INFO);
         }
     }
 
@@ -120,7 +122,7 @@ public class LogSniffer implements TestRule {
     }
 
     private void markEntryAsserted(String substring, Class<? extends Throwable> t, Level level) {
-        Iterator i$ = (new ArrayList(this.logbackAppender.keySet())).iterator();
+        var i$ = (Set.of(this.logbackAppender.keySet())).iterator();
 
         while (i$.hasNext()) {
             ILoggingEvent loggingEvent = (ILoggingEvent) i$.next();
@@ -144,10 +146,10 @@ public class LogSniffer implements TestRule {
 
     private int countErrors() {
         int logErrors = 0;
-        Iterator i$ = this.logbackAppender.entrySet().iterator();
+        var i$ = this.logbackAppender.entrySet().iterator();
 
         while (i$.hasNext()) {
-            Entry<ILoggingEvent, Boolean> entry = (Entry) i$.next();
+            Entry<ILoggingEvent, Boolean> entry = i$.next();
             if (entry.getKey().getLevel().equals(Level.ERROR) && entry.getValue() != Boolean.TRUE) {
                 ++logErrors;
             }
@@ -158,10 +160,10 @@ public class LogSniffer implements TestRule {
 
     private int countWarnings() {
         int logWarnings = 0;
-        Iterator i$ = this.logbackAppender.entrySet().iterator();
+        var i$ = this.logbackAppender.entrySet().iterator();
 
         while (i$.hasNext()) {
-            Entry<ILoggingEvent, Boolean> entry = (Entry) i$.next();
+            Entry<ILoggingEvent, Boolean> entry = i$.next();
             if (entry.getKey().getLevel().equals(Level.WARN) && entry.getValue() != Boolean.TRUE) {
                 ++logWarnings;
             }
@@ -171,7 +173,7 @@ public class LogSniffer implements TestRule {
     }
 
     public int countEntries(String substring) {
-        return this.countLogbackEntries(substring, (Class) null, (Level) null);
+        return this.countLogbackEntries(substring, (Class<? extends Throwable>) null, (Level) null);
     }
 
     private boolean hasLogEntry(String substring, Class<? extends Throwable> t, Level level) {
@@ -180,10 +182,10 @@ public class LogSniffer implements TestRule {
 
     private int countLogbackEntries(String substring, Class<? extends Throwable> t, Level level) {
         int count = 0;
-        Iterator i$ = this.logbackAppender.keySet().iterator();
+        var i$ = this.logbackAppender.keySet().iterator();
 
         while (i$.hasNext()) {
-            ILoggingEvent loggingEvent = (ILoggingEvent) i$.next();
+            ILoggingEvent loggingEvent = i$.next();
             if (this.eventMatches(loggingEvent, substring, t, level)) {
                 ++count;
             }
@@ -215,10 +217,10 @@ public class LogSniffer implements TestRule {
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        Iterator i$ = this.logbackAppender.keySet().iterator();
+        var i$ = this.logbackAppender.keySet().iterator();
 
         while (i$.hasNext()) {
-            ILoggingEvent event = (ILoggingEvent) i$.next();
+            ILoggingEvent event = i$.next();
             buf.append(event.getLevel() + ":" + event.getFormattedMessage()).append('\n');
         }
 

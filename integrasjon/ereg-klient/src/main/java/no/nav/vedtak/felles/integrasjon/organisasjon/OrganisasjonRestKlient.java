@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-
 @ApplicationScoped
 public class OrganisasjonRestKlient {
 
@@ -23,7 +22,7 @@ public class OrganisasjonRestKlient {
 
     @Inject
     public OrganisasjonRestKlient(OidcRestClient oidcRestClient,
-                                  @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
+            @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
         this.endpoint = endpoint;
     }
