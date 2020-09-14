@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 
-import javax.enterprise.inject.spi.CDI;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -80,7 +79,7 @@ public class OidcAuthModule implements ServerAuthModule {
     public OidcAuthModule() {
         this.tokenProvider = new IdTokenProvider();
         this.tokenLocator = new TokenLocator();
-        this.loginConfiguration = findLoginContextConfiguration();
+        this.loginConfiguration = new LoginContextConfiguration();
 
         this.delegatedProtectedList = new ArrayList<>();
         ServiceLoader.load(DelegatedProtectedResource.class, OidcAuthModule.class.getClassLoader()).forEach(delegatedProtectedList::add);
@@ -360,11 +359,6 @@ public class OidcAuthModule implements ServerAuthModule {
         if (subject != null) {
             subject.getPrincipals().clear();
         }
-    }
-
-    private LoginContextConfiguration findLoginContextConfiguration() {
-        // No need for bean.destroy(instance) since it's ApplicationScoped
-        return CDI.current().select(LoginContextConfiguration.class).get();
     }
 
 }
