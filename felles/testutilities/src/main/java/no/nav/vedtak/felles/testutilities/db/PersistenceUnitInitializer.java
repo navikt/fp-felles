@@ -11,6 +11,7 @@ import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceProviderResolver;
 import javax.persistence.spi.PersistenceProviderResolverHolder;
 
+import no.nav.vedtak.felles.jpa.VLPersistenceUnitProvider;
 import no.nav.vedtak.felles.testutilities.UnitTestConfiguration;
 
 /**
@@ -39,7 +40,7 @@ public abstract class PersistenceUnitInitializer {
     protected abstract void init();
 
     private static void initPersistenceProvider() {
-        final UnitTestPersistenceUnitProvider provider = new UnitTestPersistenceUnitProvider();
+        var provider = new VLPersistenceUnitProvider();
 
         PersistenceProviderResolverHolder.setPersistenceProviderResolver(new PersistenceProviderResolver() {
 

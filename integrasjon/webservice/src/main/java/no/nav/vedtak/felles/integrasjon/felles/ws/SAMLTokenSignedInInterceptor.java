@@ -1,11 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
-import static no.nav.vedtak.sikkerhet.loginmodule.LoginConfigNames.SAML;
-
+import java.io.StringWriter;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.enterprise.inject.spi.CDI;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -13,7 +11,11 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.security.SecurityContext;
@@ -25,13 +27,12 @@ import org.apache.wss4j.common.principal.SAMLTokenPrincipal;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.w3c.dom.Element;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.loginmodule.LoginConfigNames;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleFeil;
-import no.nav.vedtak.sikkerhet.loginmodule.SamlUtils;
 import no.nav.vedtak.util.env.Environment;
 
 /**
@@ -43,6 +44,22 @@ import no.nav.vedtak.util.env.Environment;
  */
 public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
 
+    private static final String LOGIN_CONFIG_NAME = "SAML";
+
+    private static final TransformerFactory transformerFactory;
+    
+    private LoginContextConfiguration loginContextConfiguration = new LoginContextConfiguration();
+    
+    static {
+        transformerFactory = TransformerFactory.newInstance();
+        try {
+            transformerFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (TransformerException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    
     private static final Environment ENV = Environment.current();
 
     public SAMLTokenSignedInInterceptor() {
@@ -81,11 +98,9 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
         SAMLTokenPrincipal samlTokenPrincipal = (SAMLTokenPrincipal) securityContext.getUserPrincipal();
         Assertion assertion = samlTokenPrincipal.getToken().getSaml2();
 
-        // No need for bean.destroy(instance) since it's ApplicationScoped
-        LoginContextConfiguration loginContextConfiguration = CDI.current().select(LoginContextConfiguration.class).get();
         try {
-            String result = SamlUtils.getSamlAssertionAsString(assertion);
-            LoginContext loginContext = createLoginContext(SAML, loginContextConfiguration, result);
+            String result = getSamlAssertionAsString(assertion);
+            LoginContext loginContext = createLoginContext(loginContextConfiguration, result);
             loginContext.login();
             msg.getInterceptorChain().add(new SAMLLogoutInterceptor(loginContext));
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
@@ -95,12 +110,12 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
         }
     }
 
-    private LoginContext createLoginContext(LoginConfigNames loginConfigName, LoginContextConfiguration loginContextConfiguration, String assertion) {
+    private LoginContext createLoginContext(LoginContextConfiguration loginContextConfiguration, String assertion) {
         CallbackHandler callbackHandler = new PaswordCallbackHandler(assertion);
         try {
-            return new LoginContext(loginConfigName.name(), new Subject(), callbackHandler, loginContextConfiguration);
+            return new LoginContext(LOGIN_CONFIG_NAME, new Subject(), callbackHandler, loginContextConfiguration);
         } catch (LoginException le) {
-            throw LoginModuleFeil.FACTORY.kunneIkkeFinneLoginmodulen(loginConfigName.name(), le).toException();
+            throw LoginModuleFeil.FACTORY.kunneIkkeFinneLoginmodulen(LOGIN_CONFIG_NAME, le).toException();
         }
     }
 
@@ -122,5 +137,16 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
                 }
             }
         }
+    }
+    
+    private String getSamlAssertionAsString(Assertion assertion) throws TransformerException {
+        return getSamlAssertionAsString(assertion.getDOM());
+    }
+    
+    private static String getSamlAssertionAsString(Element element) throws TransformerException {
+        StringWriter writer = new StringWriter();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.transform(new DOMSource(element), new StreamResult(writer));
+        return writer.toString();
     }
 }

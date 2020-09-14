@@ -1,13 +1,13 @@
 package no.nav.vedtak.felles.integrasjon.aktør.klient;
 
-import static no.nav.vedtak.sts.client.NAVSTSClient.StsClientType.SECURITYCONTEXT_TIL_SAML;
-import static no.nav.vedtak.sts.client.NAVSTSClient.StsClientType.SYSTEM_SAML;
+import static no.nav.vedtak.sts.client.StsClientType.SECURITYCONTEXT_TIL_SAML;
+import static no.nav.vedtak.sts.client.StsClientType.SYSTEM_SAML;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.tjeneste.virksomhet.aktoer.v2.binding.AktoerV2;
-import no.nav.vedtak.sts.client.NAVSTSClient;
+import no.nav.vedtak.sts.client.StsClientType;
 import no.nav.vedtak.sts.client.StsConfigurationUtil;
 
 @ApplicationScoped
@@ -29,7 +29,7 @@ public class AktørConsumerProducer {
         return new AktørSelftestConsumerImpl(port, consumerConfig.getEndpointUrl());
     }
 
-    AktoerV2 wrapWithSts(AktoerV2 port, NAVSTSClient.StsClientType samlTokenType) {
+    AktoerV2 wrapWithSts(AktoerV2 port, StsClientType samlTokenType) {
         return StsConfigurationUtil.wrapWithSts(port, samlTokenType);
     }
 

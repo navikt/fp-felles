@@ -4,10 +4,11 @@ import java.security.Principal;
 
 import javax.security.auth.Destroyable;
 
-import no.nav.vedtak.sts.client.SecurityConstants;
 import no.nav.vedtak.util.env.Environment;
 
 public final class ConsumerId implements Principal, Destroyable {
+    public static final String SYSTEMUSER_USERNAME = "systembruker.username";
+
     private static final Environment ENV = Environment.current();
 
     private String consumerIdString;
@@ -18,8 +19,8 @@ public final class ConsumerId implements Principal, Destroyable {
     }
 
     public ConsumerId() {
-        consumerIdString = ENV.getRequiredProperty(SecurityConstants.SYSTEMUSER_USERNAME, () -> new IllegalStateException(
-                SecurityConstants.SYSTEMUSER_USERNAME + " is not set, failed to set " + ConsumerId.class.getName()));
+        consumerIdString = ENV.getRequiredProperty(ConsumerId.SYSTEMUSER_USERNAME, () -> new IllegalStateException(
+            ConsumerId.SYSTEMUSER_USERNAME + " is not set, failed to set " + ConsumerId.class.getName()));
     }
 
     @Override
