@@ -1,6 +1,5 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -14,16 +13,9 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import javax.jws.WebService;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-import org.w3c.dom.Element;
 
-import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.env.Environment;
@@ -108,7 +100,7 @@ public class BeskyttetRessursInterceptor {
         Method method = invocationContext.getMethod();
 
         AbacAttributtSamling attributter = clazz.getAnnotation(WebService.class) != null
-            ? AbacAttributtSamling.medSamlToken(SamlUtils.hentSamlToken())
+            ? AbacAttributtSamling.medSamlToken(hentSamlToken())
             : AbacAttributtSamling.medJwtToken(hentOidcTOken());
         BeskyttetRessurs beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         attributter.setActionType(beskyttetRessurs.action());
@@ -172,6 +164,10 @@ public class BeskyttetRessursInterceptor {
     private static String hentOidcTOken() {
         return SubjectHandler.getSubjectHandler().getInternSsoToken();
     }
+    
+    private static String hentSamlToken() {
+        return SubjectHandler.getSubjectHandler().getSamlToken().getTokenAsString();
+    }
 
     private static String utledAction(Class<?> clazz, Method method) {
         return ActionUthenter.action(clazz, method);
@@ -188,38 +184,4 @@ public class BeskyttetRessursInterceptor {
         }
     }
 
-    
-    private static class SamlUtils {
-
-        private static final TransformerFactory transformerFactory;
-
-        static {
-            transformerFactory = TransformerFactory.newInstance();
-            try {
-                transformerFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            } catch (TransformerException e) {
-                throw new ExceptionInInitializerError(e);
-            }
-        }
-
-        private SamlUtils() {
-            throw new IllegalStateException("Utility class");
-        }
-        
-        private static String hentSamlToken() {
-            try {
-                return getSamlAssertionAsString(SubjectHandler.getSubjectHandler().getSamlToken());
-            } catch (Exception e) {
-                throw FeilFactory.create(BeskyttetRessursFeil.class).kunneIkkeGjøreSamlTokenOmTilStreng(e).toException();
-            }
-        }
-
-        private static String getSamlAssertionAsString(Element element) throws TransformerException {
-            StringWriter writer = new StringWriter();
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.transform(new DOMSource(element), new StreamResult(writer));
-            return writer.toString();
-        }
-
-    }
 }

@@ -23,6 +23,7 @@ import org.opensaml.saml.saml2.core.Attribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import no.nav.vedtak.log.util.LoggerUtils;
@@ -34,7 +35,8 @@ import no.nav.vedtak.sikkerhet.domene.SluttBruker;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 
 /**
- * <p> This <code>LoginModule</code> authenticates users using
+ * <p>
+ * This <code>LoginModule</code> authenticates users using
  * the custom SAML token.
  */
 public class SamlLoginModule extends LoginModuleBase {
@@ -92,7 +94,8 @@ public class SamlLoginModule extends LoginModuleBase {
     public void doCommit() throws LoginException {
         sluttBruker = new SluttBruker(samlInfo.getUid(), getIdentType());
         authenticationLevelCredential = new AuthenticationLevelCredential(samlInfo.getAuthLevel());
-        samlAssertionCredential = new SAMLAssertionCredential(samlAssertion.getDOM());
+        Element samlElement = samlAssertion.getDOM();
+        samlAssertionCredential = new SAMLAssertionCredential(samlElement);
         consumerId = new ConsumerId(samlInfo.getConsumerId());
 
         subject.getPrincipals().add(sluttBruker);
@@ -101,7 +104,7 @@ public class SamlLoginModule extends LoginModuleBase {
         subject.getPublicCredentials().add(samlAssertionCredential);
 
         logger.trace("Login committed for subject with uid: {} authentication level: {} and consumerId: {}",
-                sluttBruker.getName(), authenticationLevelCredential.getAuthenticationLevel(), consumerId);
+            sluttBruker.getName(), authenticationLevelCredential.getAuthenticationLevel(), consumerId);
     }
 
     private IdentType getIdentType() throws LoginException {
@@ -117,8 +120,8 @@ public class SamlLoginModule extends LoginModuleBase {
     }
 
     @Override
-    protected void cleanUpSubject(){
-        if(!subject.isReadOnly()){
+    protected void cleanUpSubject() {
+        if (!subject.isReadOnly()) {
             subject.getPrincipals().remove(sluttBruker);
             subject.getPrincipals().remove(consumerId);
             subject.getPublicCredentials().remove(samlAssertionCredential);
@@ -153,7 +156,7 @@ public class SamlLoginModule extends LoginModuleBase {
         }
         samlAssertionCredential = null;
     }
-    
+
     private static SamlInfo getSamlInfo(Assertion samlToken) {
         String uid = samlToken.getSubject().getNameID().getValue();
         String identType = null;
@@ -163,7 +166,7 @@ public class SamlLoginModule extends LoginModuleBase {
         for (Attribute attribute : attributes) {
             String attributeName = attribute.getName();
             String attributeValue = attribute.getAttributeValues().get(0)
-                    .getDOM().getFirstChild().getTextContent();
+                .getDOM().getFirstChild().getTextContent();
 
             if (IDENT_TYPE.equalsIgnoreCase(attributeName)) {
                 identType = attributeValue;
@@ -172,7 +175,8 @@ public class SamlLoginModule extends LoginModuleBase {
             } else if (CONSUMER_ID.equalsIgnoreCase(attributeName)) {
                 consumerId = attributeValue;
             } else if (logger.isDebugEnabled()) {
-                logger.debug("Skipping SAML Attribute name: {} value: {}", LoggerUtils.removeLineBreaks(attribute.getName()), LoggerUtils.removeLineBreaks(attributeValue)); //NOSONAR
+                logger.debug("Skipping SAML Attribute name: {} value: {}", LoggerUtils.removeLineBreaks(attribute.getName()),
+                    LoggerUtils.removeLineBreaks(attributeValue)); // NOSONAR
             }
         }
         if (uid == null || identType == null || authLevel == null || consumerId == null) {
@@ -188,7 +192,7 @@ public class SamlLoginModule extends LoginModuleBase {
 
         return new SamlInfo(uid, identType, iAuthLevel, consumerId);
     }
-    
+
     private static Assertion toSamlAssertion(String assertion) {
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -199,12 +203,12 @@ public class SamlLoginModule extends LoginModuleBase {
 
             Document document = documentBuilder.parse(new ByteArrayInputStream(assertion.getBytes(StandardCharsets.UTF_8)));
 
-
             SamlAssertionWrapper assertionWrapper = new SamlAssertionWrapper(document.getDocumentElement());
             return assertionWrapper.getSaml2();
-        } catch (WSSecurityException|ParserConfigurationException|IOException|SAXException e) {
+        } catch (WSSecurityException | ParserConfigurationException | IOException | SAXException e) {
             throw new IllegalArgumentException("Could not deserialize SAML assertion", e);
         }
 
     }
+
 }

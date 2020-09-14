@@ -60,7 +60,7 @@ public class NAVSTSClient extends STSClient {
         }
 
         if (samlToken != null) {
-            SecurityToken token = new SecurityToken(samlToken.getAttribute("ID"), samlToken, null);
+            SecurityToken token = new SecurityToken(samlToken.getSamlId(), samlToken.getTokenAsElement(), null);
             token.setPrincipal(principal);
             if (logger.isTraceEnabled()) {
                 logger.trace("Will use SAML-token found in subjectHandler: {}", tokenToString(token));

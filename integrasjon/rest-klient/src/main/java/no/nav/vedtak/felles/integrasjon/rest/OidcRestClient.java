@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 
 import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
 /**
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og callId
@@ -24,7 +25,7 @@ public class OidcRestClient extends AbstractOidcRestClient {
             return oidcToken;
         }
 
-        Element samlToken = SubjectHandler.getSubjectHandler().getSamlToken();
+        var samlToken = SubjectHandler.getSubjectHandler().getSamlToken();
         if (samlToken != null) {
             return veksleSamlTokenTilOIDCToken(samlToken);
         }
@@ -33,7 +34,7 @@ public class OidcRestClient extends AbstractOidcRestClient {
 
     //FIXME (u139158): PK-50281 STS for SAML til OIDC
     // I mellomtiden bruker vi systemets OIDC-token, dvs vi propagerer ikke sikkerhetskonteksten
-    private String veksleSamlTokenTilOIDCToken(@SuppressWarnings("unused") Element samlToken) {
+    private String veksleSamlTokenTilOIDCToken(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
         try {
             return new OpenAMHelper().getToken().getIdToken().getToken();
         } catch (IOException e) {

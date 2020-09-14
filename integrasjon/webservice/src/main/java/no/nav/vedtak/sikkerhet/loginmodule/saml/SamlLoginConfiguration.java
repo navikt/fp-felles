@@ -8,7 +8,7 @@ import no.nav.vedtak.sikkerhet.loginmodule.LoginConfiguration;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 
 /** Pluggbar login config for SAML. Plugges inn i {@link LoginContextConfiguration} vha. ServiceLoader. */
-public class SAMLLoginConfiguration implements LoginConfiguration {
+public class SamlLoginConfiguration implements LoginConfiguration {
 
     @Override
     public String getName() {
