@@ -1,10 +1,9 @@
 package no.nav.vedtak.feil;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -20,11 +19,8 @@ public class FeilTest {
     private static final Logger logger = LoggerFactory.getLogger(FeilTest.class);
     private static final String FEIL_KODE = "DUMMY_FEIL_KODE";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Test
-    public void skal_kunne_konvertere_feil_til_exception()  {
+    public void skal_kunne_konvertere_feil_til_exception() {
         Feil feil = new Feil(FEIL_KODE, "noe gikk galt", LogLevel.ERROR, TekniskException.class, null);
         VLException exception = feil.toException();
         assertThat(exception.getMessage()).isEqualTo(feil.toLogString());
@@ -32,7 +28,7 @@ public class FeilTest {
     }
 
     @Test
-    public void skal_kunne_konvertere_feil_til_exception_og_ta_med_cause()  {
+    public void skal_kunne_konvertere_feil_til_exception_og_ta_med_cause() {
         RuntimeException cause = new RuntimeException("Væææ!");
         Feil feil = new Feil(FEIL_KODE, "noe gikk galt", LogLevel.ERROR, TekniskException.class, cause);
         VLException exception = feil.toException();
@@ -58,8 +54,7 @@ public class FeilTest {
     public void skal_ikke_kunne_konvertere_feil_til_funksjonell_exception() {
         RuntimeException cause = new RuntimeException("Væææ!");
         Feil feil = new Feil(FEIL_KODE, "funksjonellFeil", LogLevel.WARN, FunksjonellException.class, cause);
-        expectedException.expect(IllegalStateException.class);
-        feil.toException();
+        assertThrows(IllegalStateException.class, () -> feil.toException());
     }
 
     @Test

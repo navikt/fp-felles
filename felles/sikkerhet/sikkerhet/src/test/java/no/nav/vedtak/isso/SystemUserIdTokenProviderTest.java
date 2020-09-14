@@ -1,7 +1,7 @@
 package no.nav.vedtak.isso;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 
@@ -36,7 +36,7 @@ public class SystemUserIdTokenProviderTest {
     public void skal_gjøre_retry_når_henting_av_token_feiler_og_til_slutt_feile() throws Exception {
         OpenAMHelper openAMHelper = mock(OpenAMHelper.class);
         Random random = mock(Random.class);
-        Mockito.when(random.nextInt(anyInt())).thenReturn(-1); //HAXX setter -1 for at testen skal slippe å sove
+        Mockito.when(random.nextInt(anyInt())).thenReturn(-1); // HAXX setter -1 for at testen skal slippe å sove
         when(openAMHelper.getToken()).thenThrow(mock(VlIOException.class));
         try {
             SystemUserIdTokenProvider.fetchIdToken(0, openAMHelper, random);

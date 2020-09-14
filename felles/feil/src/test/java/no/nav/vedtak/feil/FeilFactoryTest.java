@@ -1,15 +1,16 @@
 package no.nav.vedtak.feil;
 
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
-import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import org.junit.Test;
-import org.slf4j.event.Level;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
+
+import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
+import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
+import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 public class FeilFactoryTest {
 
@@ -60,17 +61,13 @@ public class FeilFactoryTest {
 
     interface TestFeil extends DeklarerteFeil {
 
-        @TekniskFeil(feilkode = "TestFeil-1", logLevel = LogLevel.ERROR,
-                feilmelding = "Kunne ikke starte delsystem %s")
+        @TekniskFeil(feilkode = "TestFeil-1", logLevel = LogLevel.ERROR, feilmelding = "Kunne ikke starte delsystem %s")
         Feil kritiskOppstartsfeil(String delsystem, Exception cause);
 
-        @no.nav.vedtak.feil.deklarasjon.FunksjonellFeil(feilkode = "TestFeil-2", logLevel = LogLevel.WARN,
-                feilmelding = "Søknaden (saks-id=%s) kan ikke godkjennes før termindato er satt",
-                løsningsforslag = "Bestill termindato og sett sak på vent.")
+        @no.nav.vedtak.feil.deklarasjon.FunksjonellFeil(feilkode = "TestFeil-2", logLevel = LogLevel.WARN, feilmelding = "Søknaden (saks-id=%s) kan ikke godkjennes før termindato er satt", løsningsforslag = "Bestill termindato og sett sak på vent.")
         Feil manglerFødselsvilkår(Integer saksId);
 
-        @IntegrasjonFeil(feilkode = "TestFeil-3", logLevel = LogLevel.WARN,
-                feilmelding = "TPS svarte ikke (timeout=%s sekunder)")
+        @IntegrasjonFeil(feilkode = "TestFeil-3", logLevel = LogLevel.WARN, feilmelding = "TPS svarte ikke (timeout=%s sekunder)")
         Feil tpsTimeout(Integer timeoutSekunder);
 
         @TekniskFeil(feilkode = "TestFeil-5", logLevel = LogLevel.ERROR, feilmelding = "Argumentet var helt feil")

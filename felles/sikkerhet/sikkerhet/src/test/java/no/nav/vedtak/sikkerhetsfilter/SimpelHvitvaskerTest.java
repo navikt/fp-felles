@@ -1,24 +1,24 @@
 package no.nav.vedtak.sikkerhetsfilter;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SimpelHvitvaskerTest {
     private String input_UfarligTekst = "Helt ufarilig string med diverse noe < > ping plongæøåÆØÅ";
     private String input_scriptTekst = "<Script kiddi=pingo> Noe helt greit <script/>";
     private String input_TagTekst = "<tag> tagging </tag>";
 
-    //skal brukes som default vasking
+    // skal brukes som default vasking
     private String resultatAvKunBokstaverHvitvasking_UfarligTekst = "Helt ufarilig string med diverse noe _ _ ping plongæøåÆØÅ";
     private String resultatAvKunBokstaverHvitvasking_ScriptTekst = "_Script kiddi_pingo_ Noe helt greit _script__";
     private String resultatAvKunBokstaverHvitvasking_TagTekst = "_tag_ tagging __tag_";
 
-    //skal brukes for å vaske query string.
+    // skal brukes for å vaske query string.
     private String resultatAvBokstaverOgVanligeTegn_UfarligTekst = "Helt ufarilig string med diverse noe _ _ ping plongæøåÆØÅ";
     private String resultatAvBokstaverOgVanligeTegn_ScriptTekst = "_Script kiddi=pingo_ Noe helt greit _script__";
     private String resultatAvBokstaverOgVanligeTegn_TagTekst = "_tag_ tagging __tag_";
 
-    //skal brukes for å vaske cookie.
+    // skal brukes for å vaske cookie.
     private String resultatAvCookie_UfarligTekst = "Helt_ufarilig_string_med_diverse_noe_<_>_ping_plong______";
     private String resultatAvCookie_ScriptTekst = "<Script_kiddi=pingo>_Noe_helt_greit_<script/>";
     private String resultatAvCookie_TagTekst = "<tag>_tagging_</tag>";

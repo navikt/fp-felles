@@ -39,7 +39,6 @@ import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
 public class EntityManagerAwareExtension extends PersistenceUnitInitializer implements InvocationInterceptor, TestInstancePostProcessor {
 
     static {
-
         SubjectHandlerUtils.useSubjectHandler(DummySubjectHandler.class);
     }
 

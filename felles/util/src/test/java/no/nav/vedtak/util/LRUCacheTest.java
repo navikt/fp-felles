@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LRUCacheTest {
 
@@ -58,7 +58,7 @@ public class LRUCacheTest {
     public void cache_innslag_skal_expire() throws Exception {
         this.cache = new LRUCache<>(CACHE_STØRRELSE, 2L);
         cache.put(1L, "1");
-        Thread.sleep(4L); //NOSONAR
+        Thread.sleep(4L); // NOSONAR
         assertThat(cache.get(1L)).isNull();
     }
 

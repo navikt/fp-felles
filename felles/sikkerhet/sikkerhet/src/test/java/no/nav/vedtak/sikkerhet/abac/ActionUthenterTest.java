@@ -6,20 +6,23 @@ import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.ws.rs.Path;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActionUthenterTest {
 
     @Test
     public void skalLageActionForRestMethod() throws NoSuchMethodException {
-        assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod1", String.class))).isEqualTo("/root1/resource1");
-        assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod2", String.class))).isEqualTo("/root1/resource2");
+        assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod1", String.class)))
+                .isEqualTo("/root1/resource1");
+        assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod2", String.class)))
+                .isEqualTo("/root1/resource2");
         assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod3", String.class))).isEqualTo("/root1");
     }
 
     @Test
     public void skal_ha_at_action_for_webservice_er_action_i_webmethod() throws Exception {
-        assertThat(ActionUthenter.action(MyWebService.class, MyWebService.class.getDeclaredMethod("coinToss"))).isEqualTo("http://foobar.com/biased/coin/toss/v1");
+        assertThat(ActionUthenter.action(MyWebService.class, MyWebService.class.getDeclaredMethod("coinToss")))
+                .isEqualTo("http://foobar.com/biased/coin/toss/v1");
     }
 
     @Path("/root1")
