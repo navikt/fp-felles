@@ -55,7 +55,7 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             } finally {
-                if (trans != null) {
+                if (trans != null && trans.isActive()) {
                     trans.rollback();
                 }
                 getEntityManager().clear();
