@@ -11,10 +11,13 @@ import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 import no.nav.vedtak.felles.testutilities.cdi.WeldContext;
+import no.nav.vedtak.felles.testutilities.sikkerhet.DummySubjectHandler;
+import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
 
 /**
  * Denne erstatter {@link RepositoryRule} i JUnit 5 tester o gir lett tilgang
- * til en EntityManager. Brukes slik
+ * til en EntityManager. Hvis egen initialisering er nødvendig, subklass og
+ * override {@link #init()} Brukes slik
  *
  * <pre>
  * &#64;ExtendWith(EntityManagerAwareExtension.class)
@@ -34,6 +37,11 @@ import no.nav.vedtak.felles.testutilities.cdi.WeldContext;
  * </pre>
  */
 public class EntityManagerAwareExtension extends PersistenceUnitInitializer implements InvocationInterceptor, TestInstancePostProcessor {
+
+    static {
+
+        SubjectHandlerUtils.useSubjectHandler(DummySubjectHandler.class);
+    }
 
     @Override
     public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
@@ -69,6 +77,9 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
     }
 
     @Override
+    /**
+     * Her kan spesifikk initialisering gjøres i en subklasse
+     */
     protected void init() {
     }
 
