@@ -22,7 +22,6 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.message.AuthStatus;
 import javax.security.auth.message.MessageInfo;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,6 +43,7 @@ import no.nav.vedtak.isso.config.ServerInfoTestUtil;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.context.StaticSubjectHandler;
 import no.nav.vedtak.sikkerhet.context.SubjectHandlerUtils;
+import no.nav.vedtak.sikkerhet.domene.ConsumerId;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
@@ -51,7 +51,6 @@ import no.nav.vedtak.sikkerhet.oidc.OidcTokenGenerator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProviderForTest;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorResult;
-import no.nav.vedtak.sts.client.SecurityConstants;
 
 public class OidcAuthModuleTest {
 
@@ -64,8 +63,7 @@ public class OidcAuthModuleTest {
     private CallbackHandler callbackHandler = Mockito.mock(CallbackHandler.class);
     private final Configuration configuration = new LoginContextConfiguration();
 
-    private WSS4JProtectedServlet wsServlet = new WSS4JProtectedServletTestImpl();
-    private OidcAuthModule authModule = new OidcAuthModule(idTokenProvider, tokenLocator, configuration, wsServlet);
+    private OidcAuthModule authModule = new OidcAuthModule(idTokenProvider, tokenLocator, configuration, Mockito.mock(DelegatedProtectedResource.class));
     private HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     private HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
@@ -80,7 +78,7 @@ public class OidcAuthModuleTest {
 
         System.setProperty(OPEN_ID_CONNECT_USERNAME, "OIDC");
         System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://bar.devillo.no/isso/oauth2");
-        System.setProperty(SecurityConstants.SYSTEMUSER_USERNAME, "JUnit Test");
+        System.setProperty(ConsumerId.SYSTEMUSER_USERNAME, "JUnit Test");
 
 
         Map<String, String> testData = new HashMap<>() {
@@ -341,8 +339,8 @@ public class OidcAuthModuleTest {
 
         authModule.validateRequest(request, subject, serviceSubject);
 
-        Mockito.verifyZeroInteractions(idTokenProvider); // skal ikke hente refresh-token
-        Mockito.verifyZeroInteractions(response); // skal ikke sette cookie
+        Mockito.verifyNoInteractions(idTokenProvider); // skal ikke hente refresh-token
+        Mockito.verifyNoInteractions(response); // skal ikke sette cookie
     }
 
     @Test
@@ -395,8 +393,8 @@ public class OidcAuthModuleTest {
 
         authModule.validateRequest(request, subject, serviceSubject);
 
-        Mockito.verifyZeroInteractions(idTokenProvider); // skal ikke hente refresh-token
-        Mockito.verifyZeroInteractions(response); // skal ikke sette cookie
+        Mockito.verifyNoInteractions(idTokenProvider); // skal ikke hente refresh-token
+        Mockito.verifyNoInteractions(response); // skal ikke sette cookie
     }
 
     @Test
@@ -497,13 +495,4 @@ public class OidcAuthModuleTest {
         }
     }
 
-
-    @WebServlet(urlPatterns = { "/tjenester", "/tjenester/", "/tjenester/*" }, loadOnStartup = 1)
-    private class WSS4JProtectedServletTestImpl implements WSS4JProtectedServlet {
-
-        @Override
-        public boolean isProtectedWithAction(String pathInfo, String requiredAction) {
-            return true;
-        }
-    }
 }

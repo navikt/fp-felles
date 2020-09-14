@@ -16,10 +16,8 @@ import javax.jws.WebService;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
-import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.loginmodule.SamlUtils;
 import no.nav.vedtak.util.env.Environment;
 
 @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, ressurs = BeskyttetRessursResourceAttributt.DUMMY, resource = "")
@@ -166,13 +164,9 @@ public class BeskyttetRessursInterceptor {
     private static String hentOidcTOken() {
         return SubjectHandler.getSubjectHandler().getInternSsoToken();
     }
-
+    
     private static String hentSamlToken() {
-        try {
-            return SamlUtils.getSamlAssertionAsString(SubjectHandler.getSubjectHandler().getSamlToken());
-        } catch (Exception e) {
-            throw FeilFactory.create(BeskyttetRessursFeil.class).kunneIkkeGjøreSamlTokenOmTilStreng(e).toException();
-        }
+        return SubjectHandler.getSubjectHandler().getSamlToken().getTokenAsString();
     }
 
     private static String utledAction(Class<?> clazz, Method method) {

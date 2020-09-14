@@ -116,7 +116,7 @@ public class SafTjeneste {
         }
     }
 
-    private <T extends GraphQLResult> T utførSpørring(GraphQLRequest request, ObjectReader objectReader) {
+    private <T extends GraphQLResult<?>> T utførSpørring(GraphQLRequest request, ObjectReader objectReader) {
         var responseHandler = new OidcRestClientResponseHandler.ObjectReaderResponseHandler<T>(graphqlEndpoint, objectReader);
 
         T graphQlResponse;
@@ -138,7 +138,7 @@ public class SafTjeneste {
         return graphQlResponse;
     }
 
-    private <T extends GraphQLResult> T utførForespørsel(HttpPost request, OidcRestClientResponseHandler.ObjectReaderResponseHandler<T> responseHandler) throws IOException {
+    private <T extends GraphQLResult<?>> T utførForespørsel(HttpPost request, OidcRestClientResponseHandler.ObjectReaderResponseHandler<T> responseHandler) throws IOException {
         try (var httpResponse = restKlient.execute(request)) {
             var responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode == HttpStatus.SC_OK) {

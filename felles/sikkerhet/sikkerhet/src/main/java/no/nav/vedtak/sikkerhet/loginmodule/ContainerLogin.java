@@ -1,13 +1,13 @@
 package no.nav.vedtak.sikkerhet.loginmodule;
 
-import static no.nav.vedtak.sikkerhet.loginmodule.LoginConfigNames.TASK_OIDC;
+import java.util.Collections;
 
-import javax.enterprise.inject.spi.CDI;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -20,6 +20,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 
+/** Programmatisk innlogging på en tråd i containeren. Brukes av bakgrunnsjobber (eks. prosesstask) slik at disse er autentisert. */
 public class ContainerLogin {
     private static final Logger log = LoggerFactory.getLogger(ContainerLogin.class);
 
@@ -28,9 +29,7 @@ public class ContainerLogin {
     private OidcTokenHolder tokenHolder;
 
     public ContainerLogin() {
-        // No need for bean.destroy(instance) since it's ApplicationScoped
-        LoginContextConfiguration loginContextConfiguration = CDI.current().select(LoginContextConfiguration.class).get();
-        loginContext = createLoginContext(TASK_OIDC, loginContextConfiguration);
+        loginContext = createLoginContext();
     }
 
     public void login() {
@@ -54,30 +53,55 @@ public class ContainerLogin {
         MDCOperations.removeConsumerId();
     }
 
-    private LoginContext createLoginContext(LoginConfigNames loginConfigName, LoginContextConfiguration loginContextConfiguration) {
+    private LoginContext createLoginContext() {
         CallbackHandler callbackHandler = new CallbackHandler() {
             @Override
             public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
-                for (Callback callback : callbacks) {
+                for (var callback : callbacks) {
                     if (callback instanceof TokenCallback) {
                         ((TokenCallback) callback).setToken(tokenHolder);
                     } else {
                         // Should never happen
-                        throw new UnsupportedCallbackException(callback, PasswordCallback.class + " is the only supported Callback");
+                        throw new UnsupportedCallbackException(callback, TokenCallback.class + " is the only supported Callback");
                     }
                 }
             }
         };
+        var loginContextConfiguration = new ContainerLoginConfiguration();
+        String loginAppConfiguration = ContainerLoginConfiguration.LOGIN_APP_CONFIGURATION;
         try {
-            return new LoginContext(loginConfigName.name(), new Subject(), callbackHandler, loginContextConfiguration);
+            return new LoginContext(loginAppConfiguration, new Subject(), callbackHandler, loginContextConfiguration);
         } catch (LoginException le) {
-            throw LoginModuleFeil.FACTORY.kunneIkkeFinneLoginmodulen(loginConfigName.name(), le).toException();
+            throw LoginModuleFeil.FACTORY.kunneIkkeFinneLoginmodulen(loginAppConfiguration, le).toException();
         }
     }
 
     private void ensureWeHaveTokens() {
         if (tokenHolder == null) {
             tokenHolder = new OidcTokenHolder(SystemUserIdTokenProvider.getSystemUserIdToken().getToken(), false);
+        }
+    }
+
+    private static class ContainerLoginConfiguration extends Configuration {
+
+        private static final String LOGIN_APP_CONFIGURATION = "TASK_OIDC";
+        private static final AppConfigurationEntry[] APP_CONFIGURATION = new AppConfigurationEntry[] {
+                new AppConfigurationEntry(
+                    "no.nav.vedtak.sikkerhet.loginmodule.oidc.OIDCLoginModule",
+                    AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
+                    Collections.emptyMap()),
+                new AppConfigurationEntry(
+                    "no.nav.vedtak.sikkerhet.loginmodule.ThreadLocalLoginModule",
+                    AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+                    Collections.emptyMap())
+        };
+
+        @Override
+        public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
+            if (!LOGIN_APP_CONFIGURATION.equals(name)) {
+                throw new IllegalArgumentException("Støtter kun app configuration name: " + LOGIN_APP_CONFIGURATION);
+            }
+            return APP_CONFIGURATION;
         }
     }
 

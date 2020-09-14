@@ -7,12 +7,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import no.nav.vedtak.felles.testutilities.VariablePlaceholderReplacer;
 
 /**
  * Enkel representasjon av properties for migrering av skjema med flyway.
@@ -36,10 +33,9 @@ import no.nav.vedtak.felles.testutilities.VariablePlaceholderReplacer;
  * defaultDataSource: får JDNI-oppslag som 'java/defaultDS' hvis satt til true (default false)<br>
  * migrateClean: fullmigrering av skjema (default false)<br>
  * </p>
- * <p>
- * Kan også inneholde placeholdere som leses inn via <code>System.getProperties()</code>
- * </p>
+ * @deprecated Dette kan nå kodes direkte i apps som benytter istedt for å lese fra json
  */
+@Deprecated(forRemoval = true)
 public final class DBConnectionProperties {
 
     private static final ObjectMapper OM = new ObjectMapper();
@@ -124,31 +120,7 @@ public final class DBConnectionProperties {
     }
 
     private static DBConnectionProperties read(JsonNode db) {
-
-        DBConnectionProperties raw = readRaw(db);
-
-        Properties placeholders = System.getProperties();
-        VariablePlaceholderReplacer replacer = new VariablePlaceholderReplacer(placeholders);
-
-        // FIXME (GS): dumt å fange opp runtimeexception
-        // Håndtering av verdier som kan inneholde placeholdere
-        String schema;
-        String user;
-        String password;
-        try {
-            schema = replacer.replacePlaceholders(raw.getSchema());
-            user = replacer.replacePlaceholders(raw.getUser());
-            password = replacer.replacePlaceholders(raw.getPassword());
-        } catch (IllegalStateException e) { // NOSONAR
-            user = password = schema = raw.getDefaultSchema();
-        }
-
-        return new DBConnectionProperties.Builder().fromPrototype(raw)
-            .datasource(replacer.replacePlaceholders(raw.getDatasource()))
-            .schema(schema)
-            .user(user)
-            .password(password)
-            .build();
+        return readRaw(db);
     }
 
     private static DBConnectionProperties readRaw(JsonNode sc) {

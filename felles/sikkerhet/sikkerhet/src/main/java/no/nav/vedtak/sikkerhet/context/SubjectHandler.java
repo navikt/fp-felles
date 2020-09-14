@@ -8,7 +8,6 @@ import javax.security.auth.Subject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 
 import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.domene.ConsumerId;
@@ -94,15 +93,11 @@ public abstract class SubjectHandler {
         return tokenCredential != null ? tokenCredential.getToken() : null;
     }
 
-    public Element getSamlToken() {
+    public SAMLAssertionCredential getSamlToken() {
         if (!hasSubject()) {
             return null;
         }
-        SAMLAssertionCredential samlCredential = getTheOnlyOneInSet(getSubject().getPublicCredentials(SAMLAssertionCredential.class));
-        if (samlCredential != null) {
-            return samlCredential.getElement();
-        }
-        return null;
+        return getTheOnlyOneInSet(getSubject().getPublicCredentials(SAMLAssertionCredential.class));
     }
 
     public Integer getAuthenticationLevel() {
