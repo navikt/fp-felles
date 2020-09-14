@@ -43,6 +43,7 @@ import no.nav.vedtak.isso.config.ServerInfoTestUtil;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.context.StaticSubjectHandler;
 import no.nav.vedtak.sikkerhet.context.SubjectHandlerUtils;
+import no.nav.vedtak.sikkerhet.domene.ConsumerId;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
@@ -50,7 +51,6 @@ import no.nav.vedtak.sikkerhet.oidc.OidcTokenGenerator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProviderForTest;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorResult;
-import no.nav.vedtak.sts.client.SecurityConstants;
 
 public class OidcAuthModuleTest {
 
@@ -78,7 +78,7 @@ public class OidcAuthModuleTest {
 
         System.setProperty(OPEN_ID_CONNECT_USERNAME, "OIDC");
         System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://bar.devillo.no/isso/oauth2");
-        System.setProperty(SecurityConstants.SYSTEMUSER_USERNAME, "JUnit Test");
+        System.setProperty(ConsumerId.SYSTEMUSER_USERNAME, "JUnit Test");
 
 
         Map<String, String> testData = new HashMap<>() {

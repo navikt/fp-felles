@@ -1,13 +1,13 @@
 package no.nav.vedtak.isso;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import no.nav.modig.core.test.LogSniffer;
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.sikkerhet.ContextPathHolder;
-import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
-import no.nav.vedtak.sts.client.SecurityConstants;
+import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
+import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_PASSWORD;
+import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jose4j.json.JsonUtil;
 import org.junit.After;
@@ -18,14 +18,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_PASSWORD;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import no.nav.modig.core.test.LogSniffer;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.isso.config.ServerInfo;
+import no.nav.vedtak.sikkerhet.ContextPathHolder;
+import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
 
 public class OpenAMHelperTest {
 
@@ -74,8 +73,6 @@ public class OpenAMHelperTest {
     public static void tearDownClass() {
         System.clearProperty(OPEN_ID_CONNECT_USERNAME);
         System.clearProperty(OPEN_ID_CONNECT_PASSWORD);
-        System.clearProperty(SecurityConstants.SYSTEMUSER_USERNAME);
-        System.clearProperty(SecurityConstants.SYSTEMUSER_PASSWORD);
         System.clearProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL);
         HTTP_CLIENT_LOGGER.setLevel(ORG_HTTP_CLIENT_LOG_LEVEL);
     }
@@ -87,7 +84,6 @@ public class OpenAMHelperTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void skalFeileVedManglendeProperties() throws Exception {
-        System.setProperty(SecurityConstants.SYSTEMUSER_USERNAME, "");
         helper.getToken();
     }
 
@@ -101,7 +97,7 @@ public class OpenAMHelperTest {
         assertThat(tokens.getRefreshToken()).isNotNull();
         logSniffer.assertHasWarnMessage("Cookie rejected");
         int entries = logSniffer.countEntries("F-050157:Uventet format for host");
-        if (entries > 0) { //HACK (u139158): ServerInfo.cookieDomain beregnes kun en gang så når man kjører alle testene i modulen blir denne spist tidligere
+        if (entries > 0) { // HACK (u139158): ServerInfo.cookieDomain beregnes kun en gang så når man kjører alle testene i modulen blir denne spist tidligere
             logSniffer.assertHasWarnMessage("F-050157:Uventet format for host");
         }
     }
@@ -159,8 +155,6 @@ public class OpenAMHelperTest {
     }
 
     private void ignoreTestHvisPropertiesIkkeErsatt() {
-        assumeTrue("Systembruker: Brukernavn må være satt som VM-property", erSatt(SecurityConstants.SYSTEMUSER_USERNAME));
-        assumeTrue("Systembruker: Passord må være satt som VM-property", erSatt(SecurityConstants.SYSTEMUSER_PASSWORD));
         assumeTrue("RP-bruker: Brukernavn må være satt som VM-property", erSatt(OPEN_ID_CONNECT_USERNAME));
         assumeTrue("RP-bruker: Passord må være satt som VM-property", erSatt(OPEN_ID_CONNECT_PASSWORD));
     }
@@ -173,16 +167,11 @@ public class OpenAMHelperTest {
     private void backupSystemProperties() {
         rpUsername = System.getProperty(OPEN_ID_CONNECT_USERNAME);
         rpPassword = System.getProperty(OPEN_ID_CONNECT_PASSWORD);
-        systembrukerUsername = System.getProperty(SecurityConstants.SYSTEMUSER_USERNAME);
-        systembrukerPassword = System.getProperty(SecurityConstants.SYSTEMUSER_PASSWORD);
     }
 
     private void restoreSystemProperties() {
         setProperty(OPEN_ID_CONNECT_USERNAME, rpUsername);
         setProperty(OPEN_ID_CONNECT_PASSWORD, rpPassword);
-        setProperty(SecurityConstants.SYSTEMUSER_USERNAME, systembrukerUsername);
-        setProperty(SecurityConstants.SYSTEMUSER_PASSWORD, systembrukerPassword);
     }
-
 
 }

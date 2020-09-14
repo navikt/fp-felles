@@ -1,7 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.aktør.klient;
 
-import static no.nav.vedtak.sts.client.NAVSTSClient.StsClientType.SECURITYCONTEXT_TIL_SAML;
-import static no.nav.vedtak.sts.client.NAVSTSClient.StsClientType.SYSTEM_SAML;
+import static no.nav.vedtak.sts.client.StsClientType.SECURITYCONTEXT_TIL_SAML;
+import static no.nav.vedtak.sts.client.StsClientType.SYSTEM_SAML;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
