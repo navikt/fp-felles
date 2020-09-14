@@ -7,7 +7,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.tjeneste.virksomhet.kodeverk.v2.KodeverkPortType;
-import no.nav.vedtak.sts.client.NAVSTSClient;
+import no.nav.vedtak.sts.client.StsClientType;
 import no.nav.vedtak.sts.client.StsConfigurationUtil;
 
 @Dependent
@@ -29,7 +29,7 @@ public class KodeverkConsumerProducer {
         return new KodeverkSelftestConsumerImpl(port, consumerConfig.getEndpointUrl());
     }
 
-    KodeverkPortType wrapWithSts(KodeverkPortType port, NAVSTSClient.StsClientType samlTokenType) {
+    KodeverkPortType wrapWithSts(KodeverkPortType port, StsClientType samlTokenType) {
         return StsConfigurationUtil.wrapWithSts(port, samlTokenType);
     }
 }

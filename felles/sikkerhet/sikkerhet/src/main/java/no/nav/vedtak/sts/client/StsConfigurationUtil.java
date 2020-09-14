@@ -25,7 +25,6 @@ import org.apache.cxf.ws.policy.attachment.reference.RemoteReferenceResolver;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.neethi.Policy;
 
-import no.nav.vedtak.sts.client.NAVSTSClient.StsClientType;
 import no.nav.vedtak.util.env.Environment;
 
 @SuppressWarnings("deprecation")
@@ -38,7 +37,7 @@ public class StsConfigurationUtil {
     }
 
     @SuppressWarnings("resource")
-    public static <T> T wrapWithSts(T port, NAVSTSClient.StsClientType samlTokenType) {
+    public static <T> T wrapWithSts(T port, StsClientType samlTokenType) {
         Client client = ClientProxy.getClient(port);
         switch (samlTokenType) {
             case SECURITYCONTEXT_TIL_SAML:

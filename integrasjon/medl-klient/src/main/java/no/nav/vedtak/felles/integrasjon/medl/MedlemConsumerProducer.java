@@ -7,7 +7,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.tjeneste.virksomhet.medlemskap.v2.MedlemskapV2;
-import no.nav.vedtak.sts.client.NAVSTSClient;
+import no.nav.vedtak.sts.client.StsClientType;
 import no.nav.vedtak.sts.client.StsConfigurationUtil;
 
 @Dependent
@@ -30,7 +30,7 @@ public class MedlemConsumerProducer {
         return new MedlemSelftestConsumerImpl(port, consumerConfig.getEndpointUrl());
     }
 
-    MedlemskapV2 wrapWithSts(MedlemskapV2 port, NAVSTSClient.StsClientType samlTokenType) {
+    MedlemskapV2 wrapWithSts(MedlemskapV2 port, StsClientType samlTokenType) {
         return StsConfigurationUtil.wrapWithSts(port, samlTokenType);
     }
 

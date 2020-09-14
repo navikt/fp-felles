@@ -7,7 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.tjeneste.virksomhet.aktoer.v2.binding.AktoerV2;
-import no.nav.vedtak.sts.client.NAVSTSClient;
+import no.nav.vedtak.sts.client.StsClientType;
 import no.nav.vedtak.sts.client.StsConfigurationUtil;
 
 @ApplicationScoped
@@ -29,7 +29,7 @@ public class AktørConsumerProducer {
         return new AktørSelftestConsumerImpl(port, consumerConfig.getEndpointUrl());
     }
 
-    AktoerV2 wrapWithSts(AktoerV2 port, NAVSTSClient.StsClientType samlTokenType) {
+    AktoerV2 wrapWithSts(AktoerV2 port, StsClientType samlTokenType) {
         return StsConfigurationUtil.wrapWithSts(port, samlTokenType);
     }
 

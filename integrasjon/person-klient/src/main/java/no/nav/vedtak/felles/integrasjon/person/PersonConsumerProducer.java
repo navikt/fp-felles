@@ -7,7 +7,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3;
-import no.nav.vedtak.sts.client.NAVSTSClient;
+import no.nav.vedtak.sts.client.StsClientType;
 import no.nav.vedtak.sts.client.StsConfigurationUtil;
 
 @Dependent
@@ -29,7 +29,7 @@ public class PersonConsumerProducer {
         return new PersonSelftestConsumerImpl(port, consumerConfig.getEndpointUrl());
     }
 
-    PersonV3 wrapWithSts(PersonV3 port, NAVSTSClient.StsClientType samlTokenType) {
+    PersonV3 wrapWithSts(PersonV3 port, StsClientType samlTokenType) {
         return StsConfigurationUtil.wrapWithSts(port, samlTokenType);
     }
 

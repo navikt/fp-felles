@@ -24,11 +24,6 @@ public class NAVSTSClient extends STSClient {
 
     private StsClientType type;
 
-    public enum StsClientType {
-        SYSTEM_SAML,
-        SECURITYCONTEXT_TIL_SAML
-    }
-
     public NAVSTSClient(Bus b, StsClientType type) {
         super(b);
         this.type = type;
