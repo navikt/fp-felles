@@ -1,21 +1,19 @@
 package no.nav.vedtak.felles.integrasjon.jms.pausing;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
-import no.nav.modig.core.test.LogSniffer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DefaultErrorHandlingStrategyTest {
 
     private DefaultErrorHandlingStrategy strategy; // the object we're testing
 
-    @Rule
-    public final LogSniffer logSniffer = new LogSniffer();
-
-    @Before
+    @BeforeEach
     public void setup() {
         strategy = new DefaultErrorHandlingStrategy();
     }
@@ -23,28 +21,44 @@ public class DefaultErrorHandlingStrategyTest {
     @Test
     public void test_handleExceptionOnCreateContext() {
         Exception e = new RuntimeException("oida");
-        doAndAssertPause(() -> strategy.handleExceptionOnCreateContext(e));
-        logSniffer.assertHasErrorMessage("F-158357");
+        doAndAssertPause(() -> {
+            var stdout = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(stdout));
+            strategy.handleExceptionOnCreateContext(e);
+            assertTrue(stdout.toString().contains("F-158357"));
+        });
     }
 
     @Test
     public void test_handleUnfulfilledPrecondition() {
-        doAndAssertPause(() -> strategy.handleUnfulfilledPrecondition("test_handleUnfulfilledPrecondition"));
-        logSniffer.assertHasErrorMessage("F-310549");
+        doAndAssertPause(() -> {
+            var stdout = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(stdout));
+            strategy.handleUnfulfilledPrecondition("test_handleUnfulfilledPrecondition");
+            assertTrue(stdout.toString().contains("F-310549"));
+        });
     }
 
     @Test
     public void test_handleExceptionOnReceive() {
         Exception e = new RuntimeException("uffda");
-        doAndAssertPause(() -> strategy.handleExceptionOnReceive(e));
-        logSniffer.assertHasErrorMessage("F-266229");
+        doAndAssertPause(() -> {
+            var stdout = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(stdout));
+            strategy.handleExceptionOnReceive(e);
+            assertTrue(stdout.toString().contains("F-266229"));
+        });
     }
 
     @Test
     public void test_handleExceptionOnHandle() {
         Exception e = new RuntimeException("auda");
-        doAndAssertPause(() -> strategy.handleExceptionOnHandle(e));
-        logSniffer.assertHasErrorMessage("F-848912");
+        doAndAssertPause(() -> {
+            var stdout = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(stdout));
+            strategy.handleExceptionOnHandle(e);
+            assertTrue(stdout.toString().contains("F-848912"));
+        });
     }
 
     private void doAndAssertPause(Runnable pausingAction) {
@@ -53,5 +67,6 @@ public class DefaultErrorHandlingStrategyTest {
         long after = System.currentTimeMillis();
         long actualPause = after - before;
         assertThat(actualPause).isGreaterThanOrEqualTo(2000L);
+
     }
 }
