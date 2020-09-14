@@ -1,12 +1,12 @@
 package no.nav.vedtak.util;
 
-import org.junit.Test;
-
 import static no.nav.vedtak.util.InputValideringRegex.ADRESSE;
 import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
-import static no.nav.vedtak.util.InputValideringRegex.NAVN;
 import static no.nav.vedtak.util.InputValideringRegex.KODEVERK;
+import static no.nav.vedtak.util.InputValideringRegex.NAVN;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 public class InputValideringRegexTest {
 
@@ -19,10 +19,10 @@ public class InputValideringRegexTest {
         assertThat("Günther").matches(NAVN);
         assertThat("Åsne").matches(NAVN);
 
-        //for å enklere teste, bør antagelig fjernes
+        // for å enklere teste, bør antagelig fjernes
         assertThat("Andersen Syntetisk 134").matches(NAVN);
 
-        //samisk navn
+        // samisk navn
         assertThat("Áigesárri").matches(NAVN);
         assertThat("Bážá").matches(NAVN);
     }

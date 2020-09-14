@@ -7,26 +7,24 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.sikkerhet.context.SubjectHandlerUtils;
 
 public class PepImplTest {
 
-
     private PepImpl pep;
     private PdpKlient pdpKlientMock;
 
-
-    @Before
+    @BeforeEach
     public void setUp() {
         pdpKlientMock = mock(PdpKlient.class);
         pep = new PepImpl(pdpKlientMock, new DummyRequestBuilder(), new DefaultAbacSporingslogg(), "SRVFPLOS,SRVPDP");
     }
 
-    @After
+    @AfterEach
     public void clearSubjectHandler() {
         SubjectHandlerUtils.reset();
     }
@@ -56,7 +54,7 @@ public class PepImplTest {
     }
 
     @Test
-    public void skal_kalle_pdp_for_annet_enn_pip_tjenester(){
+    public void skal_kalle_pdp_for_annet_enn_pip_tjenester() {
         SubjectHandlerUtils.setInternBruker("z142443");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
                 .setResource(BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode())

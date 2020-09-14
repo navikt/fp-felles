@@ -1,5 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.person;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -10,10 +12,8 @@ import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest;
@@ -25,12 +25,9 @@ public class PersonConsumerTest {
 
     private PersonConsumer consumer;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     private PersonV3 mockWebservice = mock(PersonV3.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         consumer = new PersonConsumerImpl(mockWebservice);
     }
@@ -38,31 +35,24 @@ public class PersonConsumerTest {
     @Test
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFault_hentPerson() throws Exception {
         when(mockWebservice.hentPerson(any(HentPersonRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
-
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-942048");
-
-        consumer.hentPersonResponse(mock(HentPersonRequest.class));
+        assertTrue(assertThrows(IntegrasjonException.class, () -> consumer.hentPersonResponse(mock(HentPersonRequest.class))).getKode()
+                .equals("FP-942048"));
     }
 
     @Test
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFault_hentPersonHistorikk() throws Exception {
         when(mockWebservice.hentPersonhistorikk(any(HentPersonhistorikkRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
+        assertTrue(assertThrows(IntegrasjonException.class, () -> consumer.hentPersonhistorikkResponse(mock(HentPersonhistorikkRequest.class)))
+                .getKode().equals("FP-942048"));
 
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-942048");
-
-        consumer.hentPersonhistorikkResponse(mock(HentPersonhistorikkRequest.class));
     }
 
     @Test
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFault_hentGeografiskTilknytning() throws Exception {
         when(mockWebservice.hentGeografiskTilknytning(any(HentGeografiskTilknytningRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
 
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-942048");
-
-        consumer.hentGeografiskTilknytning(mock(HentGeografiskTilknytningRequest.class));
+        assertTrue(assertThrows(IntegrasjonException.class, () -> consumer.hentGeografiskTilknytning(mock(HentGeografiskTilknytningRequest.class)))
+                .getKode().equals("FP-942048"));
     }
 
     private SOAPFaultException opprettSOAPFaultException(String faultString) throws SOAPException {

@@ -10,7 +10,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class KonfigverdiDocletTest {
     @Test
@@ -21,7 +21,7 @@ public class KonfigverdiDocletTest {
 
         try (StandardJavaFileManager fm = compiler.getStandardFileManager(diagnostics, null, null)) {
             Iterable<? extends JavaFileObject> javaFileObjects = fm
-                .getJavaFileObjects(new File("src/test/java/no/nav/vedtak/konfig/doc/DummyKonfigVerdi.java"));
+                    .getJavaFileObjects(new File("src/test/java/no/nav/vedtak/konfig/doc/DummyKonfigVerdi.java"));
             DocumentationTask task = documentationTool.getTask(null, fm, null, KonfigverdiDoclet.class, null, javaFileObjects);
 
             task.call();

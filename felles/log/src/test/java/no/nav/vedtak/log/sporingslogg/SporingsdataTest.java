@@ -2,7 +2,7 @@ package no.nav.vedtak.log.sporingslogg;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SporingsdataTest {
 
@@ -24,9 +24,9 @@ public class SporingsdataTest {
         sporingsdata.leggTilId(StandardSporingsloggId.FNR, "1239487");
         sporingsdata.leggTilId(StandardSporingsloggId.ABAC_RESOURCE_TYPE, "3003");
 
-        assertThat(sporingsdata.keySet()).containsOnly(StandardSporingsloggId.FNR.getSporingsloggKode(), 
-            StandardSporingsloggId.AKTOR_ID.getSporingsloggKode(),
-            StandardSporingsloggId.ABAC_RESOURCE_TYPE.getSporingsloggKode());
+        assertThat(sporingsdata.keySet()).containsOnly(StandardSporingsloggId.FNR.getSporingsloggKode(),
+                StandardSporingsloggId.AKTOR_ID.getSporingsloggKode(),
+                StandardSporingsloggId.ABAC_RESOURCE_TYPE.getSporingsloggKode());
         assertThat(sporingsdata.getVerdi(StandardSporingsloggId.FNR)).isEqualTo("1239487");
         assertThat(sporingsdata.getVerdi(StandardSporingsloggId.AKTOR_ID)).isEqualTo("2002");
         assertThat(sporingsdata.getVerdi(StandardSporingsloggId.ABAC_RESOURCE_TYPE)).isEqualTo("3003");

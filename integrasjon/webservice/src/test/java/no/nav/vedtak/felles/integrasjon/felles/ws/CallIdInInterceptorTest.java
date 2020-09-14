@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.headers.Header;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
 import no.nav.vedtak.log.mdc.MDCOperations;

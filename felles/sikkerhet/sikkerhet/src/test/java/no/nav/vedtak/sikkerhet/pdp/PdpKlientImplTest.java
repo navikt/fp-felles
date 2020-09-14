@@ -21,8 +21,8 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.vedtak.exception.VLException;
@@ -45,7 +45,7 @@ public class PdpKlientImplTest {
     private PdpConsumer pdpConsumerMock;
     private XacmlRequestBuilderTjenesteImpl xamlRequestBuilderTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         pdpConsumerMock = mock(PdpConsumer.class);
         xamlRequestBuilderTjeneste = new XacmlRequestBuilderTjenesteImpl();
@@ -191,7 +191,8 @@ public class PdpKlientImplTest {
         JsonObject environment = request.getJsonObject("Environment");
         JsonArray attributes = environment.getJsonArray("Attribute");
 
-        assertHasAttribute(attributes, NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN, Base64.getEncoder().encodeToString("<dummy SAML token>".getBytes(StandardCharsets.UTF_8)));
+        assertHasAttribute(attributes, NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN,
+                Base64.getEncoder().encodeToString("<dummy SAML token>".getBytes(StandardCharsets.UTF_8)));
 
         attributes.getJsonObject(0).getJsonString("AttributeId");
     }
@@ -267,9 +268,12 @@ public class PdpKlientImplTest {
 
         String xacmlRequestString = captor.getValue().build().toString();
 
-        assertThat(xacmlRequestString.contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.fnr\",\"Value\":\"12345678900\"}")).isTrue();
-        assertThat(xacmlRequestString.contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"11111\"}")).isTrue();
-        assertThat(xacmlRequestString.contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"22222\"}")).isTrue();
+        assertThat(xacmlRequestString.contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.fnr\",\"Value\":\"12345678900\"}"))
+                .isTrue();
+        assertThat(xacmlRequestString
+                .contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"11111\"}")).isTrue();
+        assertThat(xacmlRequestString
+                .contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"22222\"}")).isTrue();
     }
 
     private PdpRequest lagPdpRequest() {

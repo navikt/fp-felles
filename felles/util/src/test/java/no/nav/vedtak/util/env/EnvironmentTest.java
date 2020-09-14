@@ -4,6 +4,7 @@ import static no.nav.vedtak.util.env.Cluster.PROD_FSS;
 import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -11,7 +12,8 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.time.Duration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +26,7 @@ public class EnvironmentTest {
     private static Environment ENV = Environment.current();
     private static PrintStream SYSOUT = System.out;
 
-    @org.junit.After
+    @AfterEach
     public void after() throws Exception {
         // reset
         System.setOut(SYSOUT);
@@ -89,13 +91,13 @@ public class EnvironmentTest {
         assertEquals("test2.intproperty", Integer.valueOf(10), ENV.getProperty("test2.intproperty", int.class));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testPropertiesFraEnvUkjentConverter() {
-        ENV.getProperty("finnes.ikke", Tid.class);
+        assertThrows(IllegalArgumentException.class, () -> ENV.getProperty("finnes.ikke", Tid.class));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testPropertiesIkkeFunnet() {
-        ENV.getRequiredProperty("finnes.ikke");
+        assertThrows(IllegalStateException.class, () -> ENV.getRequiredProperty("finnes.ikke"));
     }
 }

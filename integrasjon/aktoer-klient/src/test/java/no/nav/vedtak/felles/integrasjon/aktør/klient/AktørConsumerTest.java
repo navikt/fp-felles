@@ -15,8 +15,8 @@ import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.tjeneste.virksomhet.aktoer.v2.binding.AktoerV2;
 import no.nav.tjeneste.virksomhet.aktoer.v2.binding.HentAktoerIdForIdentPersonIkkeFunnet;
@@ -27,7 +27,7 @@ public class AktørConsumerTest {
     AktoerV2 mockAktoerV2 = mock(AktoerV2.class);
     AktørConsumer consumer;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         consumer = new AktørConsumerImpl(mockAktoerV2);
     }

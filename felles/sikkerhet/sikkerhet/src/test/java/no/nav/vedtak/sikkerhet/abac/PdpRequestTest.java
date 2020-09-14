@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PdpRequestTest {
 
@@ -27,14 +27,18 @@ public class PdpRequestTest {
         aktørId.add("2222");
         req.put(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, aktørId);
 
-        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 0)).hasValueSatisfying(it -> assertThat(it).isEqualTo("11111111111"));
-        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 1)).hasValueSatisfying(it -> assertThat(it).isEqualTo("22222222222"));
-        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 2)).hasValueSatisfying(it -> assertThat(it).isEqualTo("33333333333"));
-        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 3)).hasValueSatisfying(it -> assertThat(it).isEqualTo("44444444444"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 0))
+                .hasValueSatisfying(it -> assertThat(it).isEqualTo("11111111111"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 1))
+                .hasValueSatisfying(it -> assertThat(it).isEqualTo("22222222222"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 2))
+                .hasValueSatisfying(it -> assertThat(it).isEqualTo("33333333333"));
+        assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 3))
+                .hasValueSatisfying(it -> assertThat(it).isEqualTo("44444444444"));
         assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, 0))
-            .hasValueSatisfying(it -> assertThat(it).isEqualTo("1111"));
+                .hasValueSatisfying(it -> assertThat(it).isEqualTo("1111"));
         assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, 1))
-            .hasValueSatisfying(it -> assertThat(it).isEqualTo("2222"));
+                .hasValueSatisfying(it -> assertThat(it).isEqualTo("2222"));
         assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 4)).isNotPresent();
         assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 5)).isNotPresent();
         assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 6)).isNotPresent();

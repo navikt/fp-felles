@@ -9,8 +9,8 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("resource")
 public class DefaultDatabaseOppePreconditionCheckerTest {
@@ -19,7 +19,7 @@ public class DefaultDatabaseOppePreconditionCheckerTest {
 
     private DataSource mockDataSource;
 
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
 
         mockDataSource = mock(DataSource.class);

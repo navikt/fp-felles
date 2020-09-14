@@ -14,8 +14,8 @@ import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.TextMessage;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
@@ -33,7 +33,7 @@ public class InternalSelftestQueueProducerTest {
 
     private static final String MSG_TEXT = "beskjeden";
 
-    @Before
+    @BeforeEach
     public void setup() throws JMSException {
 
         mockContext = mock(JMSContext.class);

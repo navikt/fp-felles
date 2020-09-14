@@ -1,8 +1,7 @@
 package no.nav.vedtak.sikkerhet.jwks;
 
-import no.nav.modig.core.test.LogSniffer;
-import org.junit.Rule;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -11,12 +10,9 @@ import java.security.Key;
 import java.security.interfaces.RSAPublicKey;
 import java.util.function.Supplier;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class JwksKeyHandlerTest {
-
-    @Rule
-    public LogSniffer logSniffer = new LogSniffer();
 
     @Test
     public void skal_parse_jwks_og_hente_ut_key() throws Exception {
@@ -52,13 +48,13 @@ public class JwksKeyHandlerTest {
         String jwks2 = les("example2-jwks.json");
         TestKeySupplier keySupplier = new TestKeySupplier(jwks2, jwks1);
 
-        //first time a key is requested, jwks2 will be downloaded
+        // first time a key is requested, jwks2 will be downloaded
         JwksKeyHandler handler = new JwksKeyHandlerImpl(keySupplier);
         Key key = handler.getValidationKey(new JwtHeader("8d3074d68906276778eb3aea6a4b698e893d934b", "RS256"));
         assertThat(key).isInstanceOf(RSAPublicKey.class);
         assertThat(keySupplier.getCounter()).isEqualTo(1);
 
-        //asking for a key which is in jwks2 will use cache
+        // asking for a key which is in jwks2 will use cache
         handler.getValidationKey(new JwtHeader("98f252c36ece673b2609f8d2d1b387a00de68e51", "RS256"));
         handler.getValidationKey(new JwtHeader("8d3074d68906276778eb3aea6a4b698e893d934b", "RS256"));
 
@@ -71,13 +67,13 @@ public class JwksKeyHandlerTest {
         String jwks2 = les("example2-jwks.json");
         TestKeySupplier keySupplier = new TestKeySupplier(jwks1, jwks2);
 
-        //asks for key with blank kid, will download jwks1 (which has one entry)
+        // asks for key with blank kid, will download jwks1 (which has one entry)
         JwksKeyHandler handler = new JwksKeyHandlerImpl(keySupplier);
         Key key = handler.getValidationKey(new JwtHeader("", "RS256"));
         assertThat(key).isInstanceOf(RSAPublicKey.class);
         assertThat(keySupplier.getCounter()).isEqualTo(1);
 
-        //asking for key which is not in jwks1 key store, will download jwks2
+        // asking for key which is not in jwks1 key store, will download jwks2
         key = handler.getValidationKey(new JwtHeader("98f252c36ece673b2609f8d2d1b387a00de68e51", "RS256"));
         assertThat(key).isInstanceOf(RSAPublicKey.class);
         assertThat(keySupplier.getCounter()).isEqualTo(2);
