@@ -1,18 +1,17 @@
 package no.nav.vedtak.felles.integrasjon.sensu;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SensuEventTest {
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void toSensuRequest_illegal_state_exception_metrikk_felter_kan_ikke_være_tomt() {
-        SensuEvent.createSensuEvent("testMetric", Map.of()).toSensuRequest();
-        fail("Forventer exception");
+        assertThrows(IllegalStateException.class, () -> SensuEvent.createSensuEvent("testMetric", Map.of()).toSensuRequest());
     }
 
     @Test

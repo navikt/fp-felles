@@ -2,7 +2,7 @@ package no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -15,10 +15,10 @@ public class ArbeidsfordelingRestTest {
     @Test
     public void test_request() throws Exception {
         var request = ArbeidsfordelingRequest.ny()
-            .medTema("FOR")
-            .medOppgavetype("BEH_SAK_VL")
-            .medBehandlingstype("ae0028")
-            .build();
+                .medTema("FOR")
+                .medOppgavetype("BEH_SAK_VL")
+                .medBehandlingstype("ae0028")
+                .build();
 
         String json = WRITER.writeValueAsString(request);
         System.out.println(json);
@@ -31,7 +31,7 @@ public class ArbeidsfordelingRestTest {
     }
 
     @Test
-    public void  test_response() throws Exception {
+    public void test_response() throws Exception {
         var respons = new ArbeidsfordelingResponse("4806", "Drammen", "Aktiv", "FPY");
 
         String json = WRITER.writeValueAsString(respons);

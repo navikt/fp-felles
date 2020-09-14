@@ -1,6 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.ldap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,9 +18,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -26,9 +26,6 @@ import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
 
 public class LdapBrukeroppslagTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     LdapContext context = Mockito.mock(LdapContext.class);
     LdapName baseSearch = new LdapName("ou=ServiceAccounts,dc=test,dc=local");
@@ -65,51 +62,48 @@ public class LdapBrukeroppslagTest {
 
     @Test
     public void skal_gi_exception_når_søket_gir_ingen_treff() throws Exception {
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("F-418891:Fikk ingen treff på søk mot LDAP etter ident L999999");
+        // expectedException.expectMessage("F-418891:Fikk ingen treff på søk mot LDAP
+        // etter ident L999999");
 
         SearchMock heleResultatet = new SearchMock(Collections.emptyList());
-        Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class))).thenReturn(heleResultatet);
+        Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
+                .thenReturn(heleResultatet);
 
         LdapBrukeroppslag ldap = new LdapBrukeroppslag(context, baseSearch);
-        ldap.hentBrukerinformasjon("L999999");
+        var e = assertThrows(IntegrasjonException.class, () -> ldap.hentBrukerinformasjon("L999999"));
     }
-
 
     @Test
     public void skal_gi_exception_når_søket_gir_to_treff() throws Exception {
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("F-137440:Forventet ett unikt resultat på søk mot LDAP etter ident L999999, men fikk flere treff");
-
-        Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class))).thenThrow(new LimitExceededException("This is a test"));
+        Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
+                .thenThrow(new LimitExceededException("This is a test"));
 
         LdapBrukeroppslag ldap = new LdapBrukeroppslag(context, baseSearch);
-        ldap.hentBrukerinformasjon("L999999");
+        var e = assertThrows(IntegrasjonException.class, () -> ldap.hentBrukerinformasjon("L999999"));
+        assertTrue(e.getKode().equals("F-137440"));
+
     }
 
     @Test
     public void skal_gi_exception_når_svaret_mangler_forventet_attibutt() throws Exception {
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("Resultat fra LDAP manglet påkrevet attributtnavn displayName");
 
         BasicAttributes attributes = new BasicAttributes();
         attributes.put("cn", "L999999");
         SearchResult resultat = new SearchResult("CN=L999999,OU=ApplAccounts", null, attributes);
         SearchMock heleResultatet = new SearchMock(Collections.singletonList(resultat));
-        Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class))).thenReturn(heleResultatet);
+        Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
+                .thenReturn(heleResultatet);
 
         LdapBrukeroppslag ldap = new LdapBrukeroppslag(context, baseSearch);
-        ldap.hentBrukerinformasjon("L999999");
+        var e = assertThrows(IntegrasjonException.class, () -> ldap.hentBrukerinformasjon("L999999"));
+        assertTrue(e.getMessage().contains("Resultat fra LDAP manglet påkrevet attributtnavn displayName"));
     }
 
     @Test
     public void skal_gi_exception_når_det_søkes_med_spesialtegn() throws Exception {
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("F-271934:Mulig LDAP-injection forsøk. Søkte med ugyldig ident 'L999999) or (cn=A*'");
-
         LdapBrukeroppslag ldap = new LdapBrukeroppslag(context, baseSearch);
-        ldap.hentBrukerinformasjon("L999999) or (cn=A*");
-
+        var e = assertThrows(TekniskException.class, () -> ldap.hentBrukerinformasjon("L999999) or (cn=A*"));
+        assertTrue(e.getKode().equals("F-271934"));
     }
 
     private static class SearchMock implements NamingEnumeration<SearchResult> {
@@ -147,4 +141,3 @@ public class LdapBrukeroppslagTest {
         }
     }
 }
-

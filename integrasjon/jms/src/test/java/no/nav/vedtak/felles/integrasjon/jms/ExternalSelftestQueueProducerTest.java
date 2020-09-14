@@ -18,8 +18,8 @@ import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
@@ -35,7 +35,7 @@ public class ExternalSelftestQueueProducerTest {
     private TextMessage mockMessage;
     private Session session;
 
-    @Before
+    @BeforeEach
     public void setup() throws JMSException {
 
         mockContext = mock(JMSContext.class);

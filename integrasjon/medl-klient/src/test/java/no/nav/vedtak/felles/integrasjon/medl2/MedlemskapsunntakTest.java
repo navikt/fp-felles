@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -55,18 +55,18 @@ public class MedlemskapsunntakTest {
     }
 
     @Test
-    public void roundtrip_rest_1()  {
+    public void roundtrip_rest_1() {
         var mrest = new Medlemskapsunntak(MEDL_ID_1,
-            LocalDate.of(2019, 8, 1),
-            LocalDate.of(2019, 12, 31),
-            "Full",
-            "MEDFT",
-            "ENDL",
-            "UZB",
-            null,
-            true,
-            new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2020, 5, 26), "AVGSYS"),
-            new Medlemskapsunntak.Studieinformasjon("VUT"));
+                LocalDate.of(2019, 8, 1),
+                LocalDate.of(2019, 12, 31),
+                "Full",
+                "MEDFT",
+                "ENDL",
+                "UZB",
+                null,
+                true,
+                new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2020, 5, 26), "AVGSYS"),
+                new Medlemskapsunntak.Studieinformasjon("VUT"));
         var json = toJson(mrest, null);
         var dser = fromJson(json, Medlemskapsunntak.class);
         assertThat(mrest).isEqualTo(dser);
@@ -75,18 +75,18 @@ public class MedlemskapsunntakTest {
     }
 
     @Test
-    public void roundtrip_rest_2()  {
+    public void roundtrip_rest_2() {
         var mrest = new Medlemskapsunntak(MEDL_ID_2,
-            LocalDate.of(2019, 8, 1),
-            LocalDate.of(2019, 12, 31),
-            "FTL_2_9_1_a",
-            "MEDFT",
-            "ENDL",
-            null,
-            null,
-            true,
-            new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2020, 5, 26), "AVGSYS"),
-            null);
+                LocalDate.of(2019, 8, 1),
+                LocalDate.of(2019, 12, 31),
+                "FTL_2_9_1_a",
+                "MEDFT",
+                "ENDL",
+                null,
+                null,
+                true,
+                new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2020, 5, 26), "AVGSYS"),
+                null);
         var json = toJson(mrest, null);
         var dser = fromJson(json, Medlemskapsunntak.class);
         assertThat(mrest).isEqualTo(dser);
@@ -97,18 +97,18 @@ public class MedlemskapsunntakTest {
     }
 
     @Test
-    public void roundtrip_rest_3()  {
+    public void roundtrip_rest_3() {
         var mrest = new Medlemskapsunntak(MEDL_ID_3,
-            LocalDate.of(2019, 1, 1),
-            LocalDate.of(2019, 2, 28),
-            "Full",
-            "MEDFT",
-            "UAVK",
-            null,
-            null,
-            true,
-            new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2019, 5, 26), "LAANEKASSEN"),
-            new Medlemskapsunntak.Studieinformasjon("SWE"));
+                LocalDate.of(2019, 1, 1),
+                LocalDate.of(2019, 2, 28),
+                "Full",
+                "MEDFT",
+                "UAVK",
+                null,
+                null,
+                true,
+                new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2019, 5, 26), "LAANEKASSEN"),
+                new Medlemskapsunntak.Studieinformasjon("SWE"));
         var json = toJson(mrest, null);
         var dser = fromJson(json, Medlemskapsunntak.class);
         assertThat(mrest).isEqualTo(dser);

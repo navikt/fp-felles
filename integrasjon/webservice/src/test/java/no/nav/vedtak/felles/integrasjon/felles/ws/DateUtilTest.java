@@ -9,7 +9,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DateUtilTest {
 

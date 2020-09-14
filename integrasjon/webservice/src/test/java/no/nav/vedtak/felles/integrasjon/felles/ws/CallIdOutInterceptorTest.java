@@ -11,8 +11,8 @@ import java.util.List;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.message.Message;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
 
@@ -23,7 +23,7 @@ public class CallIdOutInterceptorTest {
     private SoapMessage mockMessage;
     private List<Header> headers;
 
-    @Before
+    @BeforeEach
     public void setup() {
         interceptor = new CallIdOutInterceptor();
 

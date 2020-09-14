@@ -24,8 +24,8 @@ import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.TextMessage;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -53,7 +53,7 @@ public class QueueConsumerTest {
 
     private JmsKonfig konfig;
 
-    @Before
+    @BeforeEach
     public void setup() throws JMSException {
         konfig = mock(JmsKonfig.class);
         mockJMSContext = mock(JMSContext.class);
@@ -70,7 +70,7 @@ public class QueueConsumerTest {
             protected JMSContext createContext() {
                 return mockJMSContext;
             }
-            
+
             @Override
             public boolean isDisabled() {
                 return false;
@@ -407,7 +407,7 @@ public class QueueConsumerTest {
         public PreconditionChecker getPreconditionChecker() {
             return mockPreconditionChecker;
         }
-        
+
         @Override
         public boolean isDisabled() {
             return false;
@@ -441,7 +441,7 @@ public class QueueConsumerTest {
         public PreconditionChecker getPreconditionChecker() {
             return mockPreconditionChecker;
         }
-        
+
         @Override
         public boolean isDisabled() {
             return false;

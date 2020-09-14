@@ -10,7 +10,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class WebServiceDocletTest {
 
@@ -22,7 +22,7 @@ public class WebServiceDocletTest {
 
         try (StandardJavaFileManager fm = compiler.getStandardFileManager(diagnostics, null, null)) {
             Iterable<? extends JavaFileObject> javaFileObjects = fm
-                .getJavaFileObjects(new File("src/test/java/no/nav/vedtak/felles/integrasjon/felles/ws/DummyWebService.java"));
+                    .getJavaFileObjects(new File("src/test/java/no/nav/vedtak/felles/integrasjon/felles/ws/DummyWebService.java"));
             DocumentationTask task = documentationTool.getTask(null, fm, null, WebServiceDoclet.class, null, javaFileObjects);
 
             task.call();
