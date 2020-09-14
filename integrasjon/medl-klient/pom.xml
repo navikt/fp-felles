@@ -15,15 +15,6 @@
     <dependencies>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-webservice</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.tjenestespesifikasjoner</groupId>
-            <artifactId>nav-medlemskap-v2-tjenestespesifikasjon</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>felles-integrasjon-rest-klient</artifactId>
         </dependency>
         <dependency>
