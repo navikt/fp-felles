@@ -5,14 +5,9 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Properties;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 public class PropertiesToStringConverterTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void test_method_convertToDatabaseColumn() {
