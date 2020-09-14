@@ -17,7 +17,7 @@ import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.wss4j.common.ConfigurationConstants;
 
-import no.nav.vedtak.sikkerhet.jaspic.WSS4JProtectedServlet;
+import no.nav.vedtak.sikkerhet.jaspic.soap.WSS4JProtectedServlet;
 
 public abstract class AbstractSoapServlet extends CXFNonSpringServlet implements WSS4JProtectedServlet {
 

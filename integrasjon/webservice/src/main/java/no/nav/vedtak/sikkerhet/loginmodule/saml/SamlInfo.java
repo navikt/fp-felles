@@ -1,4 +1,4 @@
-package no.nav.vedtak.sikkerhet.loginmodule;
+package no.nav.vedtak.sikkerhet.loginmodule.saml;
 
 /**
 * Contains info from SAML token

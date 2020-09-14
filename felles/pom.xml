@@ -141,11 +141,6 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-                <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
-                <artifactId>felles-sikkerhet-soap</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-			<dependency>
 				<groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
 				<artifactId>felles-sikkerhet-testutilities</artifactId>
 				<version>${project.version}</version>

@@ -1,4 +1,4 @@
-package no.nav.vedtak.sikkerhet.loginmodule;
+package no.nav.vedtak.sikkerhet.loginmodule.oidc;
 
 import java.io.IOException;
 import java.util.Map;
@@ -21,6 +21,7 @@ import no.nav.vedtak.sikkerhet.domene.ConsumerId;
 import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 import no.nav.vedtak.sikkerhet.domene.SluttBruker;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
+import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;

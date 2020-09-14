@@ -5,19 +5,19 @@ import static javax.security.auth.message.AuthStatus.SEND_CONTINUE;
 import static javax.security.auth.message.AuthStatus.SEND_SUCCESS;
 import static javax.security.auth.message.AuthStatus.SUCCESS;
 import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
-import static no.nav.vedtak.sikkerhet.loginmodule.LoginConfigNames.OIDC;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 
-import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.CDI;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -32,12 +32,12 @@ import javax.security.auth.message.AuthStatus;
 import javax.security.auth.message.MessageInfo;
 import javax.security.auth.message.MessagePolicy;
 import javax.security.auth.message.callback.CallerPrincipalCallback;
+import javax.security.auth.message.config.ServerAuthContext;
 import javax.security.auth.message.module.ServerAuthModule;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -48,7 +48,6 @@ import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
-import no.nav.vedtak.sikkerhet.loginmodule.LoginConfigNames;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleFeil;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
@@ -56,12 +55,15 @@ import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
 /**
  * Stjålet mye fra https://github.com/omnifaces/omnisecurity
  *
- * Klassen er og må være thread-safe da den vil brukes til å kalle på subjects samtidig. Se {@link ServerAuthModule}.  Skal derfor ikke inneholde felter som holder Subject, token eller andre parametere som kommer med en request eller session.
+ * Klassen er og må være thread-safe da den vil brukes til å kalle på subjects samtidig. Se {@link ServerAuthModule}. Skal derfor ikke
+ * inneholde felter som holder Subject, token eller andre parametere som kommer med en request eller session.
  */
 public class OidcAuthModule implements ServerAuthModule {
+    
+    private static final String OIDC_LOGIN_CONFIG = "OIDC";
     private static final Logger LOG = LoggerFactory.getLogger(OidcAuthModule.class);
 
-    private static final Class<?>[] SUPPORTED_MESSAGE_TYPES = new Class[]{HttpServletRequest.class, HttpServletResponse.class};
+    private static final Class<?>[] SUPPORTED_MESSAGE_TYPES = new Class[] { HttpServletRequest.class, HttpServletResponse.class };
     // Key in the MessageInfo Map that when present AND set to true indicated a protected resource is being accessed.
     // When the resource is not protected, GlassFish omits the key altogether. WebSphere does insert the key and sets
     // it to false.
@@ -70,28 +72,29 @@ public class OidcAuthModule implements ServerAuthModule {
     private final IdTokenProvider tokenProvider;
     private final TokenLocator tokenLocator;
     private final Configuration loginConfiguration;
-    private final WSS4JProtectedServlet wsServlet;
-    private final Set<String> wsServletPaths;
 
     private CallbackHandler containerCallbackHandler;
 
+    private final List<DelegatedProtectedResource> delegatedProtectedList;
+
     public OidcAuthModule() {
-        tokenProvider = new IdTokenProvider();
-        tokenLocator = new TokenLocator();
-        loginConfiguration = findLoginContextConfiguration();
-        wsServlet = findWSS4JProtectedServlet();
-        wsServletPaths = findWsServletPaths(wsServlet);
+        this.tokenProvider = new IdTokenProvider();
+        this.tokenLocator = new TokenLocator();
+        this.loginConfiguration = findLoginContextConfiguration();
+
+        this.delegatedProtectedList = new ArrayList<>();
+        ServiceLoader.load(DelegatedProtectedResource.class, OidcAuthModule.class.getClassLoader()).forEach(delegatedProtectedList::add);
     }
 
     /**
      * used for unit-testing
      */
-    OidcAuthModule(IdTokenProvider tokenProvider, TokenLocator tokenLocator, Configuration loginConfiguration, WSS4JProtectedServlet wsServlet) {
+    OidcAuthModule(IdTokenProvider tokenProvider, TokenLocator tokenLocator, Configuration loginConfiguration,
+                   DelegatedProtectedResource delegatedProtectedResource) {
         this.tokenProvider = tokenProvider;
         this.tokenLocator = tokenLocator;
         this.loginConfiguration = loginConfiguration;
-        this.wsServlet = wsServlet;
-        wsServletPaths = findWsServletPaths(wsServlet);
+        this.delegatedProtectedList = delegatedProtectedResource == null ? List.of() : List.of(delegatedProtectedResource);
     }
 
     @SuppressWarnings("rawtypes")
@@ -114,11 +117,7 @@ public class OidcAuthModule implements ServerAuthModule {
         AuthStatus authStatus;
 
         if (isProtected(messageInfo)) {
-            if (usingSamlForAuthentication(originalRequest)) {
-                authStatus = verifyProtectedLater(originalRequest, clientSubject);
-            } else {
-                authStatus = oidcLogin(messageInfo, clientSubject, originalRequest);
-            }
+            authStatus = handleProtectedResource(messageInfo, clientSubject, originalRequest);
         } else {
             authStatus = handleUnprotectedResource(clientSubject);
         }
@@ -133,7 +132,7 @@ public class OidcAuthModule implements ServerAuthModule {
         return authStatus;
     }
 
-    private void validateCleanSubjecthandler() {
+    protected void validateCleanSubjecthandler() {
         final Subject subject = SubjectHandler.getSubjectHandler().getSubject();
         if (subject != null) {
             if (SubjectHandler.getSubjectHandler() instanceof ThreadLocalSubjectHandler) {
@@ -148,37 +147,17 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     public void setCallAndConsumerId(HttpServletRequest request) {
-        String callId = request.getHeader(MDCOperations.HTTP_HEADER_CALL_ID); //NOSONAR Akseptertet headere
+        String callId = request.getHeader(MDCOperations.HTTP_HEADER_CALL_ID); // NOSONAR Akseptertet headere
         if (callId != null) {
             MDCOperations.putCallId(callId);
         } else {
             MDCOperations.putCallId();
         }
 
-        String consumerId = request.getHeader(MDCOperations.HTTP_HEADER_CONSUMER_ID); //NOSONAR Akseptertet headere
+        String consumerId = request.getHeader(MDCOperations.HTTP_HEADER_CONSUMER_ID); // NOSONAR Akseptertet headere
         if (consumerId != null) {
             MDCOperations.putConsumerId(consumerId);
         }
-    }
-
-    private AuthStatus verifyProtectedLater(HttpServletRequest request, Subject clientSubject) {
-        if (wsServlet.isProtectedWithAction(request.getPathInfo(), WSHandlerConstants.SAML_TOKEN_SIGNED)) {
-            return handleProtectedLaterResource(clientSubject);
-        }
-        return FAILURE;
-    }
-
-    private boolean usingSamlForAuthentication(HttpServletRequest request) {
-        return !isGET(request) && request.getServletPath()!=null && wsServletPaths.contains(request.getServletPath());
-    }
-
-    /**
-     * JAX-WS only supports SOAP over POST
-     *
-     * @see org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor#isGET(SoapMessage)
-     */
-    private final boolean isGET(HttpServletRequest request) {
-        return "GET".equals(request.getMethod());
     }
 
     protected AuthStatus oidcLogin(MessageInfo messageInfo, Subject clientSubject, HttpServletRequest request) {
@@ -194,7 +173,7 @@ public class OidcAuthModule implements ServerAuthModule {
         }
 
         // Setup login context
-        LoginContext loginContext = createLoginContext(OIDC, clientSubject, tokenHolder);
+        LoginContext loginContext = createLoginContext(clientSubject, tokenHolder);
 
         // Do login
         try {
@@ -204,7 +183,7 @@ public class OidcAuthModule implements ServerAuthModule {
                 Optional<OidcTokenHolder> tokenRefreshed = idTokenRefreshed(tokenHolder, refreshToken);
                 if (tokenRefreshed.isPresent()) {
                     OidcTokenHolder newToken = tokenRefreshed.get();
-                    LoginContext loginContextRefresh = createLoginContext(OIDC, clientSubject, newToken);
+                    LoginContext loginContextRefresh = createLoginContext(clientSubject, newToken);
                     loginContextRefresh.login();
                     registerUpdatedTokenAtUserAgent(messageInfo, newToken);
                 } else {
@@ -227,7 +206,7 @@ public class OidcAuthModule implements ServerAuthModule {
         return Optional.empty();
     }
 
-    private LoginContext createLoginContext(LoginConfigNames loginConfigName, Subject clientSubject, OidcTokenHolder tokenHolder) {
+    private LoginContext createLoginContext(Subject clientSubject, OidcTokenHolder tokenHolder) {
         class TokenCallbackHandler implements CallbackHandler {
             @Override
             public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
@@ -244,9 +223,9 @@ public class OidcAuthModule implements ServerAuthModule {
 
         CallbackHandler callbackHandler = new TokenCallbackHandler();
         try {
-            return new LoginContext(loginConfigName.name(), clientSubject, callbackHandler, loginConfiguration);
+            return new LoginContext(OIDC_LOGIN_CONFIG, clientSubject, callbackHandler, loginConfiguration);
         } catch (LoginException le) {
-            throw FeilFactory.create(LoginModuleFeil.class).kunneIkkeFinneLoginmodulen(loginConfigName.name(), le).toException();
+            throw FeilFactory.create(LoginModuleFeil.class).kunneIkkeFinneLoginmodulen(OIDC_LOGIN_CONFIG, le).toException();
         }
     }
 
@@ -263,7 +242,8 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     private Cookie lagCookie(String name, String value, String path, String domain) {
-        Cookie cookie = new Cookie(name, value); //NOSONAR findsecbugs:HTTP_RESPONSE_SPLITTING, Fikset i JBoss EAP 7.0.2, ref https://access.redhat.com/security/cve/CVE-2016-4993
+        Cookie cookie = new Cookie(name, value); // NOSONAR findsecbugs:HTTP_RESPONSE_SPLITTING, Fikset i JBoss EAP 7.0.2, ref
+                                                 // https://access.redhat.com/security/cve/CVE-2016-4993
         cookie.setSecure(ServerInfo.instance().isUsingTLS());
         cookie.setHttpOnly(true);
         cookie.setPath(path);
@@ -273,36 +253,48 @@ public class OidcAuthModule implements ServerAuthModule {
         return cookie;
     }
 
-    private AuthStatus handleUnprotectedResource(Subject clientSubject) {
+    protected AuthStatus handleProtectedResource(MessageInfo messageInfo, Subject clientSubject, HttpServletRequest originalRequest) {
+        var delegatedAuthStatus = delegatedProtectedList.stream()
+            .map(d -> d.handleProtectedResource(originalRequest, clientSubject, containerCallbackHandler))
+            .filter(Optional::isPresent)
+            .findFirst()
+            .map(m -> m.get());
+
+        if (delegatedAuthStatus.isEmpty()) {
+            return oidcLogin(messageInfo, clientSubject, originalRequest);
+        } else {
+            // delegert autentisering
+            return delegatedAuthStatus.get();
+        }
+    }
+
+    protected AuthStatus handleUnprotectedResource(Subject clientSubject) {
         return notifyContainerAboutLogin(clientSubject, null);
     }
 
-    private AuthStatus handleProtectedLaterResource(Subject clientSubject) {
-        return notifyContainerAboutLogin(clientSubject, "SAML");
-    }
-
-    private AuthStatus handleValidatedToken(Subject clientSubject, String username) {
+    protected AuthStatus handleValidatedToken(Subject clientSubject, String username) {
         AuthStatus authStatus = notifyContainerAboutLogin(clientSubject, username);
-        //HACK (u139158): Must be taken from clientSubject @see OidcAuthModule#notifyContainerAboutLogin(Subject, String)
+        // HACK (u139158): Must be taken from clientSubject @see OidcAuthModule#notifyContainerAboutLogin(Subject, String)
         MDCOperations.putUserId(SubjectHandler.getUid(clientSubject));
-        if(MDCOperations.getConsumerId() == null) {
+        if (MDCOperations.getConsumerId() == null) {
             MDCOperations.putConsumerId(SubjectHandler.getConsumerId(clientSubject));
         }
         return authStatus;
     }
 
-    private AuthStatus responseUnAuthorized(MessageInfo messageInfo) {
+    protected AuthStatus responseUnAuthorized(MessageInfo messageInfo) {
         HttpServletRequest request = (HttpServletRequest) messageInfo.getRequestMessage();
         HttpServletResponse response = (HttpServletResponse) messageInfo.getResponseMessage();
         String acceptHeader = request.getHeader("Accept");
-        String authorizationHeader = request.getHeader("Authorization"); //NOSONAR Akseptertet headere
+        String authorizationHeader = request.getHeader("Authorization"); // NOSONAR Akseptertet headere
         try {
             if ((acceptHeader != null && acceptHeader.contains("application/json"))
-                    || (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))) {
+                || (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
             } else {
                 AuthorizationRequestBuilder builder = new AuthorizationRequestBuilder();
-                //TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the state-cookie containing redirectURL shold be encrypted to avoid tampering)
+                // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the state-cookie containing redirectURL shold be encrypted to avoid
+                // tampering)
                 response.addCookie(lagCookie(builder.getStateIndex(), encode(getOriginalUrl(request)), ServerInfo.instance().getRelativeCallbackUrl(), null));
                 response.sendRedirect(builder.buildRedirectString());
             }
@@ -320,12 +312,12 @@ public class OidcAuthModule implements ServerAuthModule {
         String requestUrl = req.getRequestURL().toString();
         // Scheme i request vi mottar er ikke det samme som det sluttbrukeren ser når TLS termineres underveis i kallkjeden
         // https -> http -> appserver
-        if(ServerInfo.instance().isUsingTLS() && !requestUrl.toLowerCase().startsWith("https")){
-            requestUrl = requestUrl.replaceFirst("http","https");
+        if (ServerInfo.instance().isUsingTLS() && !requestUrl.toLowerCase().startsWith("https")) {
+            requestUrl = requestUrl.replaceFirst("http", "https");
         }
         return req.getQueryString() == null
-                ? requestUrl
-                : requestUrl + "?" + req.getQueryString();
+            ? requestUrl
+            : requestUrl + "?" + req.getQueryString();
     }
 
     /**
@@ -345,7 +337,7 @@ public class OidcAuthModule implements ServerAuthModule {
      */
     private AuthStatus notifyContainerAboutLogin(Subject clientSubject, String username) {
         try {
-            containerCallbackHandler.handle(new Callback[]{new CallerPrincipalCallback(clientSubject, username)});
+            containerCallbackHandler.handle(new Callback[] { new CallerPrincipalCallback(clientSubject, username) });
         } catch (IOException | UnsupportedCallbackException e) {
             // Should not happen
             throw new IllegalStateException(e);
@@ -373,20 +365,6 @@ public class OidcAuthModule implements ServerAuthModule {
     private LoginContextConfiguration findLoginContextConfiguration() {
         // No need for bean.destroy(instance) since it's ApplicationScoped
         return CDI.current().select(LoginContextConfiguration.class).get();
-    }
-
-    private static Set<String> findWsServletPaths(WSS4JProtectedServlet wsServlet) {
-        return wsServlet == null ? Collections.emptySet() : Set.copyOf(wsServlet.getUrlPatterns());
-    }
-
-    private WSS4JProtectedServlet findWSS4JProtectedServlet() {
-        Set<Bean<?>> beans = CDI.current().getBeanManager().getBeans(WSS4JProtectedServlet.class);
-        if (beans.isEmpty()) {
-            //hvis applikasjonen ikke tilbyr webservice, har den heller ikke WSS4JProtectedServlet
-            return null;
-        }
-        // No need for bean.destroy(instance) since it's ApplicationScoped
-        return CDI.current().select(WSS4JProtectedServlet.class).get();
     }
 
 }

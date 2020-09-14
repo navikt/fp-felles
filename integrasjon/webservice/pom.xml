@@ -21,13 +21,23 @@
 		</dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
-			<artifactId>felles-sikkerhet-soap</artifactId>
+			<artifactId>felles-sikkerhet</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-core</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.wss4j</groupId>
+			<artifactId>wss4j-ws-security-common</artifactId>
+		</dependency>
+		
+	    <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-core</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>org.apache.cxf</groupId>

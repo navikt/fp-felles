@@ -1,4 +1,4 @@
-package no.nav.vedtak.sikkerhet.jaspic;
+package no.nav.vedtak.sikkerhet.jaspic.soap;
 
 import javax.servlet.annotation.WebServlet;
 import java.util.Arrays;
