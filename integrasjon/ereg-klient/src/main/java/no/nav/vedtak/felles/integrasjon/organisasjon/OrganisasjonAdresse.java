@@ -51,14 +51,14 @@ public class OrganisasjonAdresse {
     }
 
     public LocalDate getRegistreringsdato() {
-        return organisasjonDetaljer != null && organisasjonDetaljer.getRegistreringsdato() != null
-            ? organisasjonDetaljer.getRegistreringsdato().toLocalDate() : null;
+        return (organisasjonDetaljer != null) && (organisasjonDetaljer.getRegistreringsdato() != null)
+                ? organisasjonDetaljer.getRegistreringsdato().toLocalDate()
+                : null;
     }
 
     public LocalDate getOpphørsdato() {
         return organisasjonDetaljer != null ? organisasjonDetaljer.getOpphoersdato() : null;
     }
-
 
     private static class Navn {
 
@@ -78,10 +78,10 @@ public class OrganisasjonAdresse {
 
         private String getNavn() {
             return Stream.of(navnelinje1, navnelinje2, navnelinje3, navnelinje4, navnelinje5)
-                .filter(Objects::nonNull)
-                .map(String::trim)
-                .filter(n -> !n.isEmpty())
-                .reduce("", (a, b) -> a + " " + b).trim();
+                    .filter(Objects::nonNull)
+                    .map(String::trim)
+                    .filter(n -> !n.isEmpty())
+                    .reduce("", (a, b) -> a + " " + b).trim();
         }
     }
 
@@ -114,4 +114,3 @@ public class OrganisasjonAdresse {
     }
 
 }
-

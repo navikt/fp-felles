@@ -2,10 +2,10 @@ package no.nav.vedtak.felles.integrasjon.jms;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import javax.jms.Connection;
 import javax.jms.JMSConsumer;
@@ -20,32 +20,34 @@ import javax.jms.TextMessage;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-@SuppressWarnings("resource")
+@ExtendWith(MockitoExtension.class)
 public class ExternalSelftestQueueProducerTest {
     private static final String MSG_TEXT = "beskjeden";
     private ExternalQueueProducer helper; // the object we're testing
+    @Mock
     private JMSContext mockContext;
+    @Mock
     private Queue mockQueue;
+    @Mock
     private JMSConsumer mockConsumer;
+    @Mock
     private JMSProducer mockProducer;
+    @Mock
     private QueueBrowser mockBrowser;
+    @Mock
     private TextMessage mockMessage;
     private Session session;
 
     @BeforeEach
     public void setup() throws JMSException {
 
-        mockContext = mock(JMSContext.class);
-        mockQueue = mock(Queue.class);
-        mockConsumer = mock(JMSConsumer.class);
-        mockProducer = mock(JMSProducer.class);
-        mockMessage = mock(TextMessage.class);
-        mockBrowser = mock(QueueBrowser.class);
-
-        BaseJmsKonfig jmsKonfig = mock(BaseJmsKonfig.class);
+        var jmsKonfig = mock(BaseJmsKonfig.class);
         helper = new ExternalTestProducer(jmsKonfig) {
             @Override
             protected JMSContext createContext() {
@@ -53,25 +55,23 @@ public class ExternalSelftestQueueProducerTest {
             }
         };
 
-        when(mockContext.createConsumer(mockQueue)).thenReturn(mockConsumer);
-        when(mockContext.createProducer()).thenReturn(mockProducer);
-        when(mockContext.createBrowser(mockQueue)).thenReturn(mockBrowser);
+        lenient().when(mockContext.createConsumer(mockQueue)).thenReturn(mockConsumer);
+        lenient().when(mockContext.createProducer()).thenReturn(mockProducer);
+        lenient().when(mockContext.createBrowser(mockQueue)).thenReturn(mockBrowser);
         Connection connection = mock(Connection.class);
         session = mock(Session.class);
         MessageProducer messageProducer = mock(MessageProducer.class);
-        when(session.createProducer(any(Queue.class))).thenReturn(messageProducer);
-        when(connection.createSession()).thenReturn(session);
+        lenient().when(session.createProducer(any(Queue.class))).thenReturn(messageProducer);
+        lenient().when(connection.createSession()).thenReturn(session);
 
-        when(mockMessage.getText()).thenReturn(MSG_TEXT);
+        lenient().when(mockMessage.getText()).thenReturn(MSG_TEXT);
 
         Whitebox.setInternalState(helper, "queue", mockQueue);
     }
 
     @Test
     public void test_sendMessage() {
-
         helper.sendMessage(mockMessage);
-
         verify(mockProducer).send(mockQueue, mockMessage);
     }
 
@@ -79,7 +79,6 @@ public class ExternalSelftestQueueProducerTest {
     public void test_sendTextMessage() {
         final JmsMessage build = JmsMessage.builder().withMessage(MSG_TEXT).build();
         helper.sendTextMessage(build);
-
         verify(mockProducer).send(mockQueue, MSG_TEXT);
     }
 

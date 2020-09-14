@@ -11,19 +11,20 @@ import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@SuppressWarnings("resource")
+@ExtendWith(MockitoExtension.class)
 public class DefaultDatabaseOppePreconditionCheckerTest {
 
     private DefaultDatabaseOppePreconditionChecker preconditionChecker; // objektet vi tester
 
+    @Mock
     private DataSource mockDataSource;
 
     @BeforeEach
-    public void setup() throws SQLException {
-
-        mockDataSource = mock(DataSource.class);
-
+    public void setup() {
         preconditionChecker = new DefaultDatabaseOppePreconditionChecker();
         preconditionChecker.setDataSource(mockDataSource);
     }
@@ -41,7 +42,6 @@ public class DefaultDatabaseOppePreconditionCheckerTest {
     @Test
     public void test_isFulfilled_dbNede() throws SQLException {
         when(mockDataSource.getConnection()).thenThrow(new SQLException("ikke-tom-feilmelding"));
-
         PreconditionCheckerResult checkerResult = preconditionChecker.check();
         assertThat(checkerResult.isFulfilled()).isFalse();
         assertThat(checkerResult.getErrorMessage().isPresent()).isTrue();

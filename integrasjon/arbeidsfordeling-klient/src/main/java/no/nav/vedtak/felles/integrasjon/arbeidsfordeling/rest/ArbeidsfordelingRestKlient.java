@@ -29,7 +29,7 @@ public class ArbeidsfordelingRestKlient {
 
     @Inject
     public ArbeidsfordelingRestKlient(OidcRestClient restClient,
-                                      @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
+            @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
         this.restClient = restClient;
         this.alleEnheterUri = uri;
         this.besteEnhetUri = URI.create(uri + BEST_MATCH);
@@ -47,13 +47,12 @@ public class ArbeidsfordelingRestKlient {
         return hentEnheterFor(request, besteEnhetUri);
     }
 
-
     private List<ArbeidsfordelingResponse> hentEnheterFor(ArbeidsfordelingRequest request, URI uri) {
         try {
             var respons = restClient.post(uri, request, ArbeidsfordelingResponse[].class);
             return Arrays.stream(respons)
-                .filter(response -> "AKTIV".equalsIgnoreCase(response.getStatus()))
-                .collect(Collectors.toList());
+                    .filter(response -> "AKTIV".equalsIgnoreCase(response.getStatus()))
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw ArbeidsfordelingRestKlientFeil.FACTORY.feilfratjeneste(uriString, e.getMessage(), e).toException();
         }

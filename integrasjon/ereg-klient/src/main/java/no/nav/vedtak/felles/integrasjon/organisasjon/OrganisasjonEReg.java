@@ -39,8 +39,9 @@ public class OrganisasjonEReg {
     }
 
     public LocalDate getRegistreringsdato() {
-        return organisasjonDetaljer != null && organisasjonDetaljer.getRegistreringsdato() != null
-            ? organisasjonDetaljer.getRegistreringsdato().toLocalDate() : null;
+        return (organisasjonDetaljer != null) && (organisasjonDetaljer.getRegistreringsdato() != null)
+                ? organisasjonDetaljer.getRegistreringsdato().toLocalDate()
+                : null;
     }
 
     public LocalDate getOpphørsdato() {
@@ -54,7 +55,6 @@ public class OrganisasjonEReg {
     public LocalDate getNedleggelsesdato() {
         return virksomhetDetaljer != null ? virksomhetDetaljer.getNedleggelsesdato() : null;
     }
-
 
     private static class Navn {
 
@@ -74,10 +74,10 @@ public class OrganisasjonEReg {
 
         private String getNavn() {
             return Stream.of(navnelinje1, navnelinje2, navnelinje3, navnelinje4, navnelinje5)
-                .filter(Objects::nonNull)
-                .map(String::trim)
-                .filter(n -> !n.isEmpty())
-                .reduce("", (a, b) -> a + " " + b).trim();
+                    .filter(Objects::nonNull)
+                    .map(String::trim)
+                    .filter(n -> !n.isEmpty())
+                    .reduce("", (a, b) -> a + " " + b).trim();
         }
     }
 
@@ -118,4 +118,3 @@ public class OrganisasjonEReg {
     }
 
 }
-

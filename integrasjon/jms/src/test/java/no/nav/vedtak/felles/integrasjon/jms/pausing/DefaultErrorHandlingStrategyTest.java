@@ -61,7 +61,7 @@ public class DefaultErrorHandlingStrategyTest {
         });
     }
 
-    private void doAndAssertPause(Runnable pausingAction) {
+    private static void doAndAssertPause(Runnable pausingAction) {
         long before = System.currentTimeMillis();
         pausingAction.run();
         long after = System.currentTimeMillis();

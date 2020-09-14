@@ -63,14 +63,14 @@ public class ArbeidsfordelingRequest {
     @Override
     public String toString() {
         return "ArbeidsfordelingRequest{" +
-            "behandlingstema='" + behandlingstema + '\'' +
-            ", behandlingstype='" + behandlingstype + '\'' +
-            ", diskresjonskode='" + diskresjonskode + '\'' +
-            ", geografiskOmraade='" + geografiskOmraade + '\'' +
-            ", oppgavetype='" + oppgavetype + '\'' +
-            ", tema='" + tema + '\'' +
-            ", temagruppe='" + temagruppe + '\'' +
-            '}';
+                "behandlingstema='" + behandlingstema + '\'' +
+                ", behandlingstype='" + behandlingstype + '\'' +
+                ", diskresjonskode='" + diskresjonskode + '\'' +
+                ", geografiskOmraade='" + geografiskOmraade + '\'' +
+                ", oppgavetype='" + oppgavetype + '\'' +
+                ", tema='" + tema + '\'' +
+                ", temagruppe='" + temagruppe + '\'' +
+                '}';
     }
 
     public static class Builder {
@@ -84,6 +84,7 @@ public class ArbeidsfordelingRequest {
             arbeidsfordelingRequest.behandlingstema = behandlingstema;
             return this;
         }
+
         public Builder medBehandlingstype(String behandlingstype) {
             arbeidsfordelingRequest.behandlingstype = behandlingstype;
             return this;

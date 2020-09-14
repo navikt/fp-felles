@@ -25,7 +25,6 @@ public class AdresseEReg {
     @JsonProperty("poststed")
     private String poststed;
 
-
     public String getAdresselinje1() {
         return adresselinje1;
     }
@@ -61,4 +60,3 @@ public class AdresseEReg {
                 '}';
     }
 }
-
