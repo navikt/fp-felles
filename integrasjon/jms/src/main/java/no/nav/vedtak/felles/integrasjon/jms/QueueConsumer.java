@@ -25,13 +25,14 @@ import no.nav.vedtak.felles.integrasjon.jms.sessionmode.ClientAckSessionModeStra
 import no.nav.vedtak.felles.integrasjon.jms.sessionmode.SessionModeStrategy;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
- * Baseklasse for meldingsdrevne beans, dvs. beans som eksekverer på en egen tråd
- * og konsumerer meldinger fra en kø.
+ * Baseklasse for meldingsdrevne beans, dvs. beans som eksekverer på en egen
+ * tråd og konsumerer meldinger fra en kø.
  *
- * @see <a href="https://confluence.adeo.no/pages/viewpage.action?pageId=218415758">Asynkron lesing fra meldingskø</a>
+ * @see <a href=
+ *      "https://confluence.adeo.no/pages/viewpage.action?pageId=218415758">Asynkron
+ *      lesing fra meldingskø</a>
  */
 public abstract class QueueConsumer extends QueueBase {
 
@@ -88,8 +89,9 @@ public abstract class QueueConsumer extends QueueBase {
     }
 
     public void start() {
-        if(isDisabled()) return;
-        
+        if (isDisabled())
+            return;
+
         if (executorService != null) {
             QueueConsumerFeil.FACTORY.receiveLoopAlleredeStartet().log(log);
             return;
@@ -120,8 +122,9 @@ public abstract class QueueConsumer extends QueueBase {
     }
 
     public void stop() {
-        if(isDisabled()) return;
-        
+        if (isDisabled())
+            return;
+
         if (executorService == null) {
             QueueConsumerFeil.FACTORY.receiveLoopIkkeStartet().log(log);
             return;
@@ -159,8 +162,9 @@ public abstract class QueueConsumer extends QueueBase {
 
         @Override
         public void run() {
-            if(isDisabled()) return;
-            
+            if (isDisabled())
+                return;
+
             if (logger.isInfoEnabled()) {
                 logger.info("startet JMS: {}", LoggerUtils.toStringWithoutLineBreaks(getKonfig())); //$NON-NLS-1$ //NOSONAR
             }
@@ -204,7 +208,8 @@ public abstract class QueueConsumer extends QueueBase {
                 message = receiveMessage(context, getQueue(), RECEIVE_TIMEOUT_MS);
             } catch (RuntimeException e) {
                 getErrorHandlingStrategy().handleExceptionOnReceive(e);
-                // Dette kan skje hvis connection er blitt stengt/ødelagt av andre, så signaliser at context skal
+                // Dette kan skje hvis connection er blitt stengt/ødelagt av andre, så
+                // signaliser at context skal
                 // stenges:
                 return false; // NOSONAR
             }
@@ -245,10 +250,10 @@ public abstract class QueueConsumer extends QueueBase {
             String messageId = message.getJMSMessageID();
             String correlationId = message.getJMSCorrelationID();
             log.info("Mottar melding. QueueName={}, Channel={}, MessageId={}, CorrelationId={}",
-                getKonfig().getQueueName(),
-                getKonfig().getQueueManagerChannelName(),
-                messageId,
-                correlationId);
+                    getKonfig().getQueueName(),
+                    getKonfig().getQueueManagerChannelName(),
+                    messageId,
+                    correlationId);
         }
 
         void resetCallid() {
@@ -281,13 +286,13 @@ public abstract class QueueConsumer extends QueueBase {
         }
 
         void oppdater(Message message, long timeoutMillis) {
-            
+
             if (message == null) {
                 timeout();
                 // ikke logg mer enn 1 gang per minutt
                 if (timeoutMillis > 0 && timeoutCount.incrementAndGet() % ((60 * 1000L) / timeoutMillis) == 0 && log.isDebugEnabled()) {
                     log.debug("Timeout - ingen melding mottatt siden {} på JMS queue: {}", sistMottatt, //$NON-NLS-1$
-                        LoggerUtils.removeLineBreaks(getKonfig().getQueueName())); // NOSONAR
+                            LoggerUtils.removeLineBreaks(getKonfig().getQueueName())); // NOSONAR
                 }
             } else {
                 mottattMelding();
@@ -297,8 +302,8 @@ public abstract class QueueConsumer extends QueueBase {
         private void mottattMelding() {
             meldingCount.incrementAndGet();
             timeoutCount.set(0L);
-            sistMottatt = FPDateUtil.nå();
+            sistMottatt = LocalDateTime.now();
         }
     }
-  
+
 }

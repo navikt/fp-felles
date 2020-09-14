@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -14,7 +13,7 @@ import org.junit.jupiter.api.Test;
 public class DateUtilTest {
 
     @Test
-    public void test_convertToXMLGregorianCalendar_LocalDateTime() throws DatatypeConfigurationException {
+    public void test_convertToXMLGregorianCalendar_LocalDateTime() {
 
         LocalDateTime localDateTime = LocalDateTime.now();
         XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDateTime);
@@ -26,7 +25,7 @@ public class DateUtilTest {
     }
 
     @Test
-    public void test_convertToXMLGregorianCalendar_LocalDate() throws DatatypeConfigurationException {
+    public void test_convertToXMLGregorianCalendar_LocalDate() {
 
         LocalDate localDate = LocalDate.now();
         XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDate);
@@ -38,7 +37,7 @@ public class DateUtilTest {
     }
 
     @Test
-    public void test_convertToXMLGregorianCalendarRemoveTimezone() throws DatatypeConfigurationException {
+    public void test_convertToXMLGregorianCalendarRemoveTimezone() {
 
         LocalDate localDate = LocalDate.now();
         XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendarRemoveTimezone(localDate);
@@ -51,7 +50,7 @@ public class DateUtilTest {
     }
 
     @Test
-    public void test_convertToLocalDateTime() throws DatatypeConfigurationException {
+    public void test_convertToLocalDateTime() {
 
         final LocalDateTime localDateTime1 = LocalDateTime.now();
         XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDateTime1);
@@ -64,7 +63,7 @@ public class DateUtilTest {
     }
 
     @Test
-    public void test_convertToLocalDate() throws DatatypeConfigurationException {
+    public void test_convertToLocalDate() {
 
         final LocalDate localDate1 = LocalDate.now();
         XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDate1);

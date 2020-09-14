@@ -14,7 +14,7 @@ public class MdcExtendedLogContextTest {
 
     @AfterEach
     public void clear() {
-        context.clear();
+        context.remove("prosess");
     }
 
     @Test
