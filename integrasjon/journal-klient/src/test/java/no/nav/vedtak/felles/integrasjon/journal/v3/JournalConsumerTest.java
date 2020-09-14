@@ -1,5 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.journal.v3;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -10,10 +12,11 @@ import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.tjeneste.virksomhet.journal.v3.JournalV3;
 import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentDokumentRequest;
@@ -21,16 +24,15 @@ import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentDokumentURLRequest;
 import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentKjerneJournalpostListeRequest;
 import no.nav.vedtak.exception.IntegrasjonException;
 
+@ExtendWith(MockitoExtension.class)
 public class JournalConsumerTest {
 
     private JournalConsumer consumer;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    @Mock
+    private JournalV3 mockWebservice;
 
-    private JournalV3 mockWebservice = mock(JournalV3.class);
-
-    @Before
+    @BeforeEach
     public void setUp() {
         consumer = new JournalConsumerImpl(mockWebservice);
     }
@@ -38,34 +40,26 @@ public class JournalConsumerTest {
     @Test
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFaul_hentDokument() throws Exception {
         when(mockWebservice.hentDokument(any(HentDokumentRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
-
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-942048");
-
-        consumer.hentDokument(mock(HentDokumentRequest.class));
+        var e = assertThrows(IntegrasjonException.class, () -> consumer.hentDokument(mock(HentDokumentRequest.class)));
+        assertEquals(e.getKode(), "FP-942048");
     }
 
     @Test
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFault_kjerneJournalpostListe() throws Exception {
         when(mockWebservice.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
+        var e = assertThrows(IntegrasjonException.class, () -> consumer.hentKjerneJournalpostListe(mock(HentKjerneJournalpostListeRequest.class)));
+        assertEquals(e.getKode(), "FP-942048");
 
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-942048");
-
-        consumer.hentKjerneJournalpostListe(mock(HentKjerneJournalpostListeRequest.class));
     }
 
     @Test
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFault_hentDokumentUrl() throws Exception {
         when(mockWebservice.hentDokumentURL(any(HentDokumentURLRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
-
-        expectedException.expect(IntegrasjonException.class);
-        expectedException.expectMessage("FP-942048");
-
-        consumer.hentDokumentURL(mock(HentDokumentURLRequest.class));
+        var e = assertThrows(IntegrasjonException.class, () -> consumer.hentDokumentURL(mock(HentDokumentURLRequest.class)));
+        assertEquals(e.getKode(), "FP-942048");
     }
 
-    private SOAPFaultException opprettSOAPFaultException(String faultString) throws SOAPException {
+    private static SOAPFaultException opprettSOAPFaultException(String faultString) throws SOAPException {
         SOAPFault fault = SOAPFactory.newInstance().createFault();
         fault.setFaultString(faultString);
         fault.setFaultCode(new QName("local"));

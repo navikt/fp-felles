@@ -40,11 +40,8 @@
 
 	<properties>
 		<ibmmq.version>9.2.0.0</ibmmq.version>
-
 		<jms-api.version>2.0.1</jms-api.version>
-
 		<sob.melding.version>1.1.0</sob.melding.version>
-
 		<felles.adapter.version>0.1.8</felles.adapter.version>
 		<unleash.version>3.3.3</unleash.version>
 		<influxdb-java.version>2.20</influxdb-java.version>
@@ -271,20 +268,6 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
+		
 	</dependencies>
 </project>
