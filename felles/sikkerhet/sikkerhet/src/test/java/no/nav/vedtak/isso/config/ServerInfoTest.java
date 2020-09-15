@@ -1,10 +1,19 @@
 package no.nav.vedtak.isso.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 public class ServerInfoTest {
@@ -19,10 +28,7 @@ public class ServerInfoTest {
         System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, "http://localhost:8080");
         ServerInfo serverinfo = new ServerInfo();
         assertThat(serverinfo.getCallbackUrl()).isEqualTo("http://localhost:8080/fpsak/cb");
-
         System.clearProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL);
-
-        // sniffer.clearLog();
     }
 
     @Test
@@ -37,14 +43,21 @@ public class ServerInfoTest {
 
     @Test
     public void skal_sett_cookie_domain_til_null_når_domenet_er_for_smalt_til_å_utvides_og_logge_dette() throws Exception {
+        var listAppender = new ListAppender<ILoggingEvent>();
+        listAppender.start();
+        Logger.class.cast(LoggerFactory.getLogger(ServerInfo.class)).addAppender(listAppender);
         System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, "https://nav.no");
         assertThat(new ServerInfo().getCookieDomain()).isNull();
         System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, "http://localhost:8080");
         assertThat(new ServerInfo().getCookieDomain()).isNull();
 
         System.clearProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL);
+        var meldinger = listAppender.list.stream().collect(Collectors.toMap(ILoggingEvent::getFormattedMessage, ILoggingEvent::getLevel));
+        assertEquals(2, meldinger.size());
+        meldinger.entrySet().stream().forEach(e -> {
+            assertEquals(Level.WARN, e.getValue());
+            assertTrue(e.getKey().contains("Uventet format for host"));
+        });
 
-        // sniffer.assertHasWarnMessage("Uventet format for host, klarer ikke å utvide
-        // cookie domain");
     }
 }

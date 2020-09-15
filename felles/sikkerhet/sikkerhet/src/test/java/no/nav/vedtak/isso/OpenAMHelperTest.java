@@ -5,8 +5,8 @@ import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_PASSWORD;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.jose4j.json.JsonUtil;
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
 
-@Disabled
+/* Dette er bare tull, assumeTrue sørger for at 3 av testene aldri kjøres fullstending. LogSniffing er derfor meningsløst */
 public class OpenAMHelperTest {
 
     private OpenAMHelper helper;
@@ -88,7 +87,6 @@ public class OpenAMHelperTest {
     @Test
     public void skalReturnereGyldigTokenVedGyldigBrukernavnOgPassord() throws Exception {
         ignoreTestHvisPropertiesIkkeErsatt();
-
         IdTokenAndRefreshToken tokens = helper.getToken();
 
         assertThat(tokens.getIdToken()).isNotNull();
@@ -105,34 +103,24 @@ public class OpenAMHelperTest {
     public void skalFeilePåTokenVedFeilIRPUserMenGyldigBrukernavnOgPassord() throws Exception {
         ignoreTestHvisPropertiesIkkeErsatt();
         System.setProperty(OPEN_ID_CONNECT_USERNAME, ""); // Settes til ugyldig verdi slik at det vil feile på access_token.
-        try {
-            helper.getToken();
-        } catch (TekniskException e) {
-            assertThat(e.getMessage()).isEqualTo("F-909480:Fant ikke auth-code på responsen, får respons: '400 - Bad Request'");
-            // logSniffer.assertHasWarnMessage("Cookie rejected");
-        }
+        assertThat(assertThrows(TekniskException.class, () -> helper.getToken()).getMessage())
+                .isEqualTo("F-909480:Fant ikke auth-code på responsen, får respons: '400 - Bad Request'");
+        // logSniffer.assertHasWarnMessage("Cookie rejected");
     }
 
     @Test
     public void skalFåHTTP401FraOpenAM_VedUgyldigBrukernavnOgEllerPassord() throws Exception {
         ignoreTestHvisPropertiesIkkeErsatt();
-        try {
-            helper.getToken("NA", "NA");
-        } catch (TekniskException e) {
-            assertThat(e.getMessage()).startsWith("F-011609:Ikke-forventet respons fra OpenAm, statusCode 401");
-            // logSniffer.assertHasWarnMessage("Cookie rejected");
-        }
+        assertThat(assertThrows(TekniskException.class, () -> helper.getToken("NA", "NA")).getMessage())
+                .startsWith("F-011609:Ikke-forventet respons fra OpenAm, statusCode 401");
+        // logSniffer.assertHasWarnMessage("Cookie rejected");
     }
 
     @Test
     public void well_known_config_should_fail_gracefully() {
-        try {
-            System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "http://should.not.exist:23442/rest/isso/oauth2");
-            String url = OpenAMHelper.getIssoIssuerUrl();
-            assertThat(url).isNull();
-        } catch (TekniskException e) {
-            assertThat(e.getMessage()).startsWith(OpenAmFeil.SERVICE_DISCOVERY_FAILED_CODE);
-        }
+        System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "http://should.not.exist:23442/rest/isso/oauth2");
+        assertThat(assertThrows(TekniskException.class, () -> OpenAMHelper.getIssoIssuerUrl()).getMessage())
+                .startsWith(OpenAmFeil.SERVICE_DISCOVERY_FAILED_CODE);
     }
 
     @Test
@@ -140,27 +128,23 @@ public class OpenAMHelperTest {
         String expectedIssuer = "http://isso.example.com/rest/isso/oauth2";
         String expextedJwks = "http://isso.example.com/rest/isso/oauth2/connect/jwk_uri";
         String expectedAutorizationEndpoint = "http://isso.example.com/rest/isso/oauth2/authorize";
-        Map<String, String> testData = new HashMap<>() {
-            {
-                put(OpenAMHelper.ISSUER_KEY, expectedIssuer);
-                put(OpenAMHelper.JWKS_URI_KEY, expextedJwks);
-                put(OpenAMHelper.AUTHORIZATION_ENDPOINT_KEY, expectedAutorizationEndpoint);
-            }
-        };
+        Map<String, String> testData = Map.of(
+                OpenAMHelper.ISSUER_KEY, expectedIssuer,
+                OpenAMHelper.JWKS_URI_KEY, expextedJwks,
+                OpenAMHelper.AUTHORIZATION_ENDPOINT_KEY, expectedAutorizationEndpoint);
+
         OpenAMHelper.setWellKnownConfig(JsonUtil.toJson(testData));
         assertThat(OpenAMHelper.getIssoIssuerUrl()).isEqualTo(expectedIssuer);
         assertThat(OpenAMHelper.getIssoJwksUrl()).isEqualTo(expextedJwks);
         assertThat(OpenAMHelper.getAuthorizationEndpoint()).isEqualTo(expectedAutorizationEndpoint);
     }
 
-    private void ignoreTestHvisPropertiesIkkeErsatt() {
-        // assumeTrue("RP-bruker: Brukernavn må være satt som VM-property",
-        // erSatt(OPEN_ID_CONNECT_USERNAME));
-        // assumeTrue("RP-bruker: Passord må være satt som VM-property",
-        // erSatt(OPEN_ID_CONNECT_PASSWORD));
+    private static void ignoreTestHvisPropertiesIkkeErsatt() {
+        assumeTrue(erSatt(OPEN_ID_CONNECT_USERNAME), "RP-bruker: Brukernavn må være satt som VM-property");
+        assumeTrue(erSatt(OPEN_ID_CONNECT_PASSWORD), "RP-bruker: Passord må være satt som VM-property");
     }
 
-    private boolean erSatt(String key) {
+    private static boolean erSatt(String key) {
         String property = System.getProperty(key);
         return property != null && !property.isEmpty();
     }

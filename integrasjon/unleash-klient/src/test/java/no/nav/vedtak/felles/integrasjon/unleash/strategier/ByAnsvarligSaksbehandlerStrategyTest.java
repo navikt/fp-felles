@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.finn.unleash.UnleashContext;
 import no.finn.unleash.strategy.Strategy;
@@ -17,7 +17,7 @@ public class ByAnsvarligSaksbehandlerStrategyTest {
     private UnleashContext unleashContext;
     private Strategy strategy;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         System.setProperty(EnvironmentProperty.NAIS_NAMESPACE, "t10");
         unleashContext = UnleashContext.builder()

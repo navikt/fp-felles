@@ -15,9 +15,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SensuKlientTest {
 
@@ -33,7 +33,7 @@ public class SensuKlientTest {
             "\"status\":0," +
             "\"output\":\"local-app.registrert.task,application=local-app,cluster=local,namespace=default,task_type=task.registerSøknad counter=1i";
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         serverSocket = new ServerSocket(0);
         serverSocket.setSoTimeout(1000);
@@ -58,7 +58,7 @@ public class SensuKlientTest {
 
     }
 
-    @After
+    @AfterEach
     public void teardown() throws IOException {
         sensuKlient.stop();
         serverSocket.close();

@@ -5,17 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.finn.unleash.strategy.Strategy;
 import no.nav.vedtak.felles.integrasjon.unleash.EnvironmentProperty;
 
 public class ByEnvironmentStrategyTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
-      System.setProperty(EnvironmentProperty.NAIS_NAMESPACE, "t10");
+        System.setProperty(EnvironmentProperty.NAIS_NAMESPACE, "t10");
     }
 
     @Test

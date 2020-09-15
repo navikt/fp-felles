@@ -477,7 +477,7 @@ public class OidcAuthModuleTest {
         return messageInfo;
     }
 
-    private OidcTokenHolder getGyldigToken(boolean fraCookie) {
+    private static OidcTokenHolder getGyldigToken(boolean fraCookie) {
         if (fraCookie) {
             return new OidcTokenGenerator().createCookieTokenHolder();
         } else {
@@ -485,7 +485,7 @@ public class OidcAuthModuleTest {
         }
     }
 
-    private OidcTokenHolder getUtløptToken(boolean fraCookie) {
+    private static OidcTokenHolder getUtløptToken(boolean fraCookie) {
         if (fraCookie) {
             return new OidcTokenGenerator().withExpiration(NumericDate.fromMilliseconds(System.currentTimeMillis() - 1)).createCookieTokenHolder();
         } else {

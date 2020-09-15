@@ -8,8 +8,7 @@ public class SporingsdataTest {
 
     @Test
     public void skalInitialisereForMedGyldigeArgs() {
-        Sporingsdata sporingsdata = Sporingsdata.opprett("login");
-        assertThat(sporingsdata.keySet()).isEmpty();
+        assertThat(Sporingsdata.opprett("login").keySet()).isEmpty();
     }
 
     @Test

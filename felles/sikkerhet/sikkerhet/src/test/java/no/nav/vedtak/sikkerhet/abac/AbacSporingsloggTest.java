@@ -1,12 +1,45 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.TreeSet;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import no.nav.vedtak.log.util.MemoryAppender;
+import no.nav.vedtak.util.AppLoggerFactory;
+
 public class AbacSporingsloggTest {
+
+    private static MemoryAppender appender;
+    private static Logger LOG;
+
+    @BeforeAll
+    public static void beforeAll() {
+        LOG = Logger.class.cast(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
+        LOG.setLevel(Level.INFO);
+        appender = new MemoryAppender(LOG.getName());
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        LOG.addAppender(appender);
+        appender.start();
+    }
+
+    @AfterEach
+    public void afterEach() {
+        appender.stop();
+        LOG.detachAppender(appender);
+    }
 
     @Test
     public void skal_logge_fra_attributter() throws Exception {
@@ -19,10 +52,7 @@ public class AbacSporingsloggTest {
                 .leggTil(StandardAbacAttributtType.SAKSNUMMER, "SNR0001"));
 
         sporing.loggTilgang(r, attributter);
-
-        // sniffer.assertHasInfoMessage("action=foobar abac_action=null
-        // abac_resource_type=null behandlingId=1234 saksnummer=SNR0001 ");
-        // assertThat(sniffer.countEntries("action")).isEqualTo(1);
+        assertNotNull(appender.search("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 saksnummer=SNR0001 ", Level.INFO));
     }
 
     @Test
@@ -38,14 +68,13 @@ public class AbacSporingsloggTest {
                 .leggTil(StandardAbacAttributtType.BEHANDLING_ID, 1234L));
 
         sporing.loggTilgang(r, attributter);
-
-        // sniffer.assertHasInfoMessage("action=foobar abac_action=null
-        // abac_resource_type=null aksjonspunktKode=A behandlingId=1234");
-        // sniffer.assertHasInfoMessage("action=foobar abac_action=null
-        // abac_resource_type=null aksjonspunktKode=B behandlingId=1234");
-        // sniffer.assertHasInfoMessage("action=foobar abac_action=null
-        // abac_resource_type=null aksjonspunktKode=C behandlingId=1234");
-        // assertThat(sniffer.countEntries("action")).isEqualTo(3);
+        assertEquals(3, appender.countEventsForLogger());
+        assertNotNull(appender.searchInfo(
+                "action=foobar abac_action=null abac_resource_type=null aksjonspunktKode=A behandlingId=1234 saksnummer=SNR0001 "));
+        assertNotNull(appender.searchInfo(
+                "action=foobar abac_action=null abac_resource_type=null aksjonspunktKode=B behandlingId=1234 saksnummer=SNR0001 "));
+        assertNotNull(appender.searchInfo(
+                "action=foobar abac_action=null abac_resource_type=null aksjonspunktKode=C behandlingId=1234 saksnummer=SNR0001 "));
     }
 
     @Test
@@ -63,21 +92,13 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        /*
-         * sniffer.
-         * assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktKode=B saksnummer=SNR0001 "
-         * ); sniffer.
-         * assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktKode=B saksnummer=SNR0002 "
-         * ); sniffer.
-         * assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktKode=B saksnummer=SNR0003 "
-         * ); sniffer.
-         * assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktKode=A saksnummer=SNR0001 "
-         * ); sniffer.
-         * assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktKode=A saksnummer=SNR0002 "
-         * ); sniffer.
-         * assertHasInfoMessage("foobar abac_action=null abac_resource_type=null aksjonspunktKode=A saksnummer=SNR0003 "
-         * ); assertThat(sniffer.countEntries("action")).isEqualTo(6);
-         */
+        assertNotNull(appender.searchInfo("foobar abac_action=null abac_resource_type=null aksjonspunktKode=B saksnummer=SNR0001 "));
+        assertNotNull(appender.searchInfo("foobar abac_action=null abac_resource_type=null aksjonspunktKode=B saksnummer=SNR0002 "));
+        assertNotNull(appender.searchInfo("foobar abac_action=null abac_resource_type=null aksjonspunktKode=B saksnummer=SNR0003 "));
+        assertNotNull(appender.searchInfo("foobar abac_action=null abac_resource_type=null aksjonspunktKode=A saksnummer=SNR0001 "));
+        assertNotNull(appender.searchInfo("foobar abac_action=null abac_resource_type=null aksjonspunktKode=A saksnummer=SNR0002 "));
+        assertNotNull(appender.searchInfo("foobar abac_action=null abac_resource_type=null aksjonspunktKode=A saksnummer=SNR0003 "));
+        // assertThat(sniffer.countEntries("action")).isEqualTo(6);
     }
 
     @Test
@@ -88,8 +109,7 @@ public class AbacSporingsloggTest {
         r.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111"));
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token").setAction("foobar");
         sporing.loggTilgang(r, attributter);
-        // sniffer.assertHasInfoMessage("action=foobar abac_action=null
-        // abac_resource_type=null fnr=11111111111");
+        assertNotNull(appender.searchInfo("action=foobar abac_action=null abac_resource_type=null fnr=11111111111"));
         // assertThat(sniffer.countEntries("action")).isEqualTo(1);
     }
 
@@ -106,9 +126,8 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        // sniffer.assertHasInfoMessage("action=foobar abac_action=null
-        // abac_resource_type=null behandlingId=1234 fnr=11111111111 saksnummer=SNR0001
-        // ");
+        assertNotNull(
+                appender.searchInfo("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 fnr=11111111111 saksnummer=SNR0001 "));
         // assertThat(sniffer.countEntries("action")).isEqualTo(1);
     }
 
@@ -125,15 +144,15 @@ public class AbacSporingsloggTest {
                 .leggTil(StandardAbacAttributtType.BEHANDLING_ID, 1236L));
 
         sporing.loggTilgang(r, attributter);
-        /*
-         * sniffer.
-         * assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 fnr=11111111111"
-         * ); sniffer.
-         * assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null behandlingId=1235 fnr=11111111111"
-         * ); sniffer.
-         * assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null behandlingId=1236 fnr=11111111111"
-         * ); assertThat(sniffer.countEntries("action")).isEqualTo(3);
-         */
+
+        assertNotNull(
+                appender.searchInfo("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 fnr=11111111111"));
+        assertNotNull(
+                appender.searchInfo("action=foobar abac_action=null abac_resource_type=null behandlingId=1235 fnr=11111111111"));
+        assertNotNull(
+                appender.searchInfo("action=foobar abac_action=null abac_resource_type=null behandlingId=1236 fnr=11111111111"));
+        // assertThat(sniffer.countEntries("action")).isEqualTo(3);
+
     }
 
     @Test
@@ -148,15 +167,13 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        /*
-         * sniffer.
-         * assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 fnr=11111111111"
-         * ); sniffer.
-         * assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 fnr=22222222222"
-         * ); sniffer.
-         * assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 fnr=33333333333"
-         * ); assertThat(sniffer.countEntries("action")).isEqualTo(3);
-         */
+        assertNotNull(
+                appender.searchInfo("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 fnr=11111111111"));
+        assertNotNull(
+                appender.searchInfo("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 fnr=22222222222"));
+        assertNotNull(
+                appender.searchInfo("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 fnr=33333333333"));
+        // assertThat(sniffer.countEntries("action")).isEqualTo(3);
     }
 
     @Test
@@ -173,16 +190,18 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        /*
-         * sniffer.
-         * assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null fnr=11111111111 "
-         * ); sniffer.
-         * assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null fnr=22222222222 "
-         * ); sniffer.assertHasInfoMessage("action=foobar behandlingId=1234");
-         * sniffer.assertHasInfoMessage("action=foobar behandlingId=1235");
-         * sniffer.assertHasInfoMessage("action=foobar behandlingId=1236");
-         * assertThat(sniffer.countEntries("action")).isEqualTo(5);
-         */
+        assertNotNull(
+                appender.searchInfo("action=foobar abac_action=null abac_resource_type=null fnr=11111111111 "));
+        assertNotNull(
+                appender.searchInfo("action=foobar abac_action=null abac_resource_type=null fnr=22222222222 "));
+        assertNotNull(
+                appender.searchInfo("action=foobar behandlingId=1234"));
+        assertNotNull(
+                appender.searchInfo("action=foobar behandlingId=1235"));
+        assertNotNull(
+                appender.searchInfo("action=foobar behandlingId=1236"));
+        // assertThat(sniffer.countEntries("action")).isEqualTo(5);
+
     }
 
     @Test
@@ -195,10 +214,10 @@ public class AbacSporingsloggTest {
 
         sporing.loggTilgang(r, attributter);
 
-        /*
-         * sniffer.assertHasInfoMessage("saksnummer=SNR_0001");
-         * assertThat(sniffer.countEntries("action")).isEqualTo(1);
-         */
+        assertNotNull(
+                appender.searchInfo("saksnummer=SNR_0001"));
+        // assertThat(sniffer.countEntries("action")).isEqualTo(1);
+
     }
 
     @Test
@@ -212,11 +231,10 @@ public class AbacSporingsloggTest {
 
         sporing.loggDeny(pdpRequest, Collections.singletonList(Decision.Deny), attributter);
 
-        /*
-         * sniffer.
-         * assertHasInfoMessage("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 decision=Deny fnr=11111111111 "
-         * ); assertThat(sniffer.countEntries("action")).isEqualTo(1);
-         */
+        assertNotNull(
+                appender.searchInfo("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 decision=Deny fnr=11111111111 "));
+        // assertThat(sniffer.countEntries("action")).isEqualTo(1);
+
     }
 
 }

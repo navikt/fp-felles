@@ -45,7 +45,6 @@ public class MdcExtendedLogContextTest {
 
     @Test
     public void skal_fjerne_verdi() throws Exception {
-        // Arrange
         context.add("behandling", 1L);
         context.add("fagsak", 2L);
         context.add("prosess", 3L);
@@ -65,7 +64,6 @@ public class MdcExtendedLogContextTest {
 
     @Test
     public void skal_fjerne_verdi_i_midten() throws Exception {
-        // Arrange
         context.add("behandling", 1L);
         context.add("fagsak", 2L);
         context.add("prosess", 3L);
