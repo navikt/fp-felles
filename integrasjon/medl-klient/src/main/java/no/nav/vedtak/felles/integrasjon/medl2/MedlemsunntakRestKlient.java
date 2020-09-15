@@ -48,25 +48,25 @@ public class MedlemsunntakRestKlient {
 
     @Inject
     public MedlemsunntakRestKlient(OidcRestClient oidcRestClient,
-                                   @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
-        this.oidcRestClient = oidcRestClient ;
+            @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
+        this.oidcRestClient = oidcRestClient;
         this.endpoint = endpoint;
     }
 
     public List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom) throws Exception {
         URIBuilder builder = new URIBuilder(this.endpoint)
-            .addParameter(PARAM_INKLUDER_SPORINGSINFO, String.valueOf(true))
-            .addParameter(PARAM_FRA_OG_MED, d2s(fom))
-            .addParameter(PARAM_TIL_OG_MED, d2s(tom))
-            .addParameter(PARAM_STATUSER, KODE_PERIODESTATUS_GYLD)
-            .addParameter(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK);
-        var match = this.oidcRestClient.get(builder.build(), this.lagHeader(aktørId), Medlemskapsunntak[].class);
+                .addParameter(PARAM_INKLUDER_SPORINGSINFO, String.valueOf(true))
+                .addParameter(PARAM_FRA_OG_MED, d2s(fom))
+                .addParameter(PARAM_TIL_OG_MED, d2s(tom))
+                .addParameter(PARAM_STATUSER, KODE_PERIODESTATUS_GYLD)
+                .addParameter(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK);
+        var match = this.oidcRestClient.get(builder.build(), lagHeader(aktørId), Medlemskapsunntak[].class);
         return Arrays.asList(match);
     }
 
-    private Set<Header> lagHeader(String aktørId) {
+    private static Set<Header> lagHeader(String aktørId) {
         return Set.of(new BasicHeader(HEADER_NAV_CALL_ID, MDCOperations.getCallId()),
-            new BasicHeader(HEADER_NAV_PERSONIDENT, aktørId));
+                new BasicHeader(HEADER_NAV_PERSONIDENT, aktørId));
     }
 
     private static String d2s(LocalDate dato) {

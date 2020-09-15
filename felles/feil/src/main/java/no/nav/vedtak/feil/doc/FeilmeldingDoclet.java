@@ -52,7 +52,7 @@ public class FeilmeldingDoclet implements Doclet {
 
         Set<TypeElement> types = ElementFilter.typesIn(docEnv.getIncludedElements());
         Stream<TypeElement> feilFilter = types.stream().filter(te -> te.getInterfaces().stream()
-            .anyMatch(tei -> ((DeclaredType) tei).asElement().getSimpleName().toString().equals(DeklarerteFeil.class.getSimpleName())));
+                .anyMatch(tei -> ((DeclaredType) tei).asElement().getSimpleName().toString().equals(DeklarerteFeil.class.getSimpleName())));
         feilFilter.forEach(te -> resultat.leggTil(te));
 
         try {
@@ -66,7 +66,7 @@ public class FeilmeldingDoclet implements Doclet {
         return false;
     }
 
-    private File getOutputLocation() {
+    private static File getOutputLocation() {
         File dir = new File(System.getProperty("destDir", "target/docs"));
         if (!dir.exists()) {
             if (!dir.mkdirs()) {

@@ -39,7 +39,8 @@ public abstract class AbstractSoapServlet extends CXFNonSpringServlet implements
     private void ensureWeGotSoapBus() {
         if (getBus() == null) {
             loadBus(null);
-            getBus().getProperties().put(FaultListener.class.getName(), faultListener); // FIXME: FaultListener gir Nullpointer ved ukjent mustUnderstand header f.eks
+            getBus().getProperties().put(FaultListener.class.getName(), faultListener); // FIXME: FaultListener gir Nullpointer ved ukjent
+                                                                                        // mustUnderstand header f.eks
             getBus().getFeatures().add(new WSAddressingFeature());
         }
     }
@@ -63,7 +64,7 @@ public abstract class AbstractSoapServlet extends CXFNonSpringServlet implements
         return false;
     }
 
-    private boolean hasInterceptorWithRequiredAction(List<Interceptor<? extends Message>> interceptors, String requiredAction) {
+    private static boolean hasInterceptorWithRequiredAction(List<Interceptor<? extends Message>> interceptors, String requiredAction) {
         for (Interceptor<? extends Message> interceptor : interceptors) {
             if (interceptor instanceof WSS4JInInterceptor) {
                 String action = (String) ((WSS4JInInterceptor) interceptor).getOption(ConfigurationConstants.ACTION);
@@ -82,7 +83,7 @@ public abstract class AbstractSoapServlet extends CXFNonSpringServlet implements
         }
     }
 
-    private String getEndpointFromAnnotation(Class<?> clazz) {
+    private static String getEndpointFromAnnotation(Class<?> clazz) {
         if (clazz.isAnnotationPresent(SoapWebService.class)) {
             return clazz.getAnnotation(SoapWebService.class).endpoint();
         }

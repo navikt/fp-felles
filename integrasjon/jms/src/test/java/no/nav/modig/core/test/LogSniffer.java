@@ -28,7 +28,7 @@ import ch.qos.logback.core.spi.FilterReply;
 /*
  * I serien grisete kode presenterer vi denne, som heldigvis snart skal dø
  */
-@Deprecated(forRemoval = true, since = "2.1.x")
+@Deprecated(forRemoval = true, since = "2.0.x")
 public class LogSniffer implements TestRule {
     private final Map<ILoggingEvent, Boolean> logbackAppender;
     private final Level minimumLevel;

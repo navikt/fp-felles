@@ -108,21 +108,21 @@ public class NAVSTSClient extends STSClient {
      *         body&gt; <br>
      *         else - {@code key}
      */
-    private String stripJwtSignatur(String key) {
+    private static String stripJwtSignatur(String key) {
         final int lastDot = key.lastIndexOf('.');
         final int end = lastDot == -1 ? key.length() : lastDot;
         return key.substring(0, end);
     }
 
-    private String tokenToString(SecurityToken token) {
-        return token.getClass().getSimpleName() + "<" + //$NON-NLS-1$
-                "id=" + token.getId() + ", " //$NON-NLS-2$ //$NON-NLS-3$
-                + "wsuId=" + token.getWsuId() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "principal=" + token.getPrincipal() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "created=" + token.getCreated() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "expires=" + token.getExpires() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "isExpired=" + token.isExpired() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + ">"; //$NON-NLS-1$
+    private static String tokenToString(SecurityToken token) {
+        return token.getClass().getSimpleName() + "<" +
+                "id=" + token.getId() + ", "
+                + "wsuId=" + token.getWsuId() + ", "
+                + "principal=" + token.getPrincipal() + ", "
+                + "created=" + token.getCreated() + ", "
+                + "expires=" + token.getExpires() + ", "
+                + "isExpired=" + token.isExpired() + ", "
+                + ">";
     }
 
     private void ensureTokenStoreExists() {

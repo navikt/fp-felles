@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 import org.slf4j.MDC;
 
 /**
- * {@link MDC} backet parameter som tillater en semi-colon separert liste av sub-keys.
- * Kan dermed legge til og fjerne ekstra-kontekst data dynamisk.
- * 
+ * {@link MDC} backet parameter som tillater en semi-colon separert liste av
+ * sub-keys. Kan dermed legge til og fjerne ekstra-kontekst data dynamisk.
+ *
  */
 public class MdcExtendedLogContext {
 
@@ -60,7 +60,7 @@ public class MdcExtendedLogContext {
         return val;
     }
 
-    private void validateKey(String key) {
+    private static void validateKey(String key) {
         if (key == null || ILLEGAL_CHARS.matcher(key).find()) {
             throw new IllegalArgumentException("Ugyldig key: '" + key + "'");
         }
@@ -127,10 +127,5 @@ public class MdcExtendedLogContext {
         String content = orgValue.substring(paramName.length() + 1, orgValue.length() - 1);
         List<String> contentList = new ArrayList<>(Arrays.asList(content.split(";")));
         return contentList;
-    }
-
-    @Deprecated(forRemoval = true)
-    public void clear() {
-        MDC.remove(paramName);
     }
 }

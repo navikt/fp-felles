@@ -56,8 +56,10 @@ public class FeilmeldingModell implements MarkupOutput {
         }
     }
 
-    private void buildCells(MarkupDocBuilder doc, String qualifiedName, List<MarkupTableColumn> columnSpecs, final List<java.util.List<String>> cells) {
-        // TODO - dette kan skrives om til å bruke javax.lang.model direkte slik at en slipper 
+    private static void buildCells(MarkupDocBuilder doc, String qualifiedName, List<MarkupTableColumn> columnSpecs,
+            final List<java.util.List<String>> cells) {
+        // TODO - dette kan skrives om til å bruke javax.lang.model direkte slik at en
+        // slipper
         // å ha kompilerte klasser tilgjengelig for å få reflection.
         Class<?> targetCls;
         try {
@@ -71,23 +73,23 @@ public class FeilmeldingModell implements MarkupOutput {
 
             int antallVanligeParametre = FeilUtil.tellParametreUtenomCause(method);
             List<String> parametre = Arrays.asList(Arrays.copyOf(method.getParameters(), antallVanligeParametre)).stream()
-                .map(p -> p.getName() + ": " + p.getType().getSimpleName()).collect(Collectors.toList());
+                    .map(p -> p.getName() + ": " + p.getType().getSimpleName()).collect(Collectors.toList());
 
             String deklarertCause = FeilUtil.harMedCause(method) ? FeilUtil.deklarertCause(method).getSimpleName() : "";
 
             List<String> data = Arrays.asList(
-                FeilUtil.feilkode(method),
-                String.valueOf(FeilUtil.logLevel(method)),
-                FeilUtil.type(method),
-                FeilUtil.feilmelding(method),
-                løsningsforslag,
-                String.join(", ", parametre),
-                deklarertCause,
-                method.getName());
+                    FeilUtil.feilkode(method),
+                    String.valueOf(FeilUtil.logLevel(method)),
+                    FeilUtil.type(method),
+                    FeilUtil.feilmelding(method),
+                    løsningsforslag,
+                    String.join(", ", parametre),
+                    deklarertCause,
+                    method.getName());
             List<String> rowNoNulls = data
-                .stream()
-                .map(c -> c == null ? "" : c)
-                .collect(Collectors.toList());
+                    .stream()
+                    .map(c -> c == null ? "" : c)
+                    .collect(Collectors.toList());
             cells.add(rowNoNulls);
         });
 
@@ -97,7 +99,7 @@ public class FeilmeldingModell implements MarkupOutput {
         doc.tableWithColumnSpecs(columnSpecs, cells);
     }
 
-    private String shortName(String name) {
+    private static String shortName(String name) {
         // fjerner 3 første ledd i pakkenavn
         return name.replaceAll("^([a-z0-9]+\\.){3}", "");
     }

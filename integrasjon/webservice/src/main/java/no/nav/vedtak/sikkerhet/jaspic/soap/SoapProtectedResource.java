@@ -22,7 +22,10 @@ import org.apache.wss4j.dom.handler.WSHandlerConstants;
 
 import no.nav.vedtak.sikkerhet.jaspic.DelegatedProtectedResource;
 
-/** Delegert protection fra OIDC Auth Module for håndtering av Soap på egen servlet. */
+/**
+ * Delegert protection fra OIDC Auth Module for håndtering av Soap på egen
+ * servlet.
+ */
 public class SoapProtectedResource implements DelegatedProtectedResource {
 
     private static class LazyInit {
@@ -32,7 +35,7 @@ public class SoapProtectedResource implements DelegatedProtectedResource {
             wsServlet = findWSS4JProtectedServlet();
             wsServletPaths = findWsServletPaths(wsServlet);
         }
-        
+
         private static Set<String> findWsServletPaths(WSS4JProtectedServlet wsServlet) {
             return wsServlet == null ? Collections.emptySet() : Set.copyOf(wsServlet.getUrlPatterns());
         }
@@ -43,7 +46,8 @@ public class SoapProtectedResource implements DelegatedProtectedResource {
             if (instance.isResolvable()) {
                 return instance.get();
             } else {
-                // hvis applikasjonen ikke tilbyr webservice, har den heller ikke WSS4JProtectedServlet
+                // hvis applikasjonen ikke tilbyr webservice, har den heller ikke
+                // WSS4JProtectedServlet
                 return null;
             }
         }
@@ -54,7 +58,8 @@ public class SoapProtectedResource implements DelegatedProtectedResource {
     }
 
     @Override
-    public Optional<AuthStatus> handleProtectedResource(HttpServletRequest originalRequest, Subject clientSubject, CallbackHandler containerCallbackHandler) {
+    public Optional<AuthStatus> handleProtectedResource(HttpServletRequest originalRequest, Subject clientSubject,
+            CallbackHandler containerCallbackHandler) {
         if (usingSamlForAuthentication(originalRequest)) {
             if (LazyInit.wsServlet.isProtectedWithAction(originalRequest.getPathInfo(), WSHandlerConstants.SAML_TOKEN_SIGNED)) {
                 try {
@@ -71,7 +76,7 @@ public class SoapProtectedResource implements DelegatedProtectedResource {
         return Optional.empty(); // ikke håndtert av denne
     }
 
-    private boolean usingSamlForAuthentication(HttpServletRequest request) {
+    private static boolean usingSamlForAuthentication(HttpServletRequest request) {
         return !isGET(request) && request.getServletPath() != null && LazyInit.wsServletPaths.contains(request.getServletPath());
     }
 
@@ -80,7 +85,7 @@ public class SoapProtectedResource implements DelegatedProtectedResource {
      *
      * @see org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor#isGET(SoapMessage)
      */
-    private final boolean isGET(HttpServletRequest request) {
+    private static final boolean isGET(HttpServletRequest request) {
         return "GET".equals(request.getMethod());
     }
 

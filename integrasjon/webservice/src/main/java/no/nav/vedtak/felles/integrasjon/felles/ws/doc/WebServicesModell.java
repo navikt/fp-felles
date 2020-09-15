@@ -27,15 +27,14 @@ class WebServicesModell implements MarkupOutput {
         });
     }
 
-    private String generateTjenesteBeskrivelse(Entry entry) {
+    private static String generateTjenesteBeskrivelse(Entry entry) {
         return "\n" + entry.getTjenesteBeskrivelse() + "[Tjenestebeskrivelse]";
     }
 
-
-    private String generateKonfigurasjonsBeskrivelse(Entry entry) {
+    private static String generateKonfigurasjonsBeskrivelse(Entry entry) {
         String konfig = ".Konfigurasjon" +
-            "\n* *Endepunkt:* " + entry.getEndpoint() +
-            "\n* *Klasse:* " + entry.targetClassQualifiedName;
+                "\n* *Endepunkt:* " + entry.getEndpoint() +
+                "\n* *Klasse:* " + entry.targetClassQualifiedName;
         if (entry.getEndpointInterface() != null) {
             konfig += "\n* *Interface:* " + entry.getEndpointInterface();
         }

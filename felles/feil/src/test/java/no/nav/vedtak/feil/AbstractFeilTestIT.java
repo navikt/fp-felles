@@ -1,11 +1,6 @@
 package no.nav.vedtak.feil;
 
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
-import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
-import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -17,7 +12,13 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
+
+import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
+import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
+import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
+import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 public abstract class AbstractFeilTestIT {
 
@@ -26,9 +27,10 @@ public abstract class AbstractFeilTestIT {
     /**
      * Forventede prefix kommer an på bruken.
      * <p>
-     * Tanken er at hvert git-repository kjører unikt prefix for å unngå unødvendig styr ved konflikter.
-     * Dvs dette git-repositiet bruker 'F' som prefix, foreldrepenger bruker 'FP' som prefix.
-     * Siden foreldrepenger bruker 'FP' som prefix, må denne testen hos foreldrepenger inkludere både 'F' og 'FP'.
+     * Tanken er at hvert git-repository kjører unikt prefix for å unngå unødvendig
+     * styr ved konflikter. Dvs dette git-repositiet bruker 'F' som prefix,
+     * foreldrepenger bruker 'FP' som prefix. Siden foreldrepenger bruker 'FP' som
+     * prefix, må denne testen hos foreldrepenger inkludere både 'F' og 'FP'.
      */
     protected abstract List<String> getForventedePrefix();
 
@@ -39,7 +41,8 @@ public abstract class AbstractFeilTestIT {
         for (Class<? extends DeklarerteFeil> deklareringsinterface : deklarerteFeil) {
             for (Method method : deklareringsinterface.getDeclaredMethods()) {
                 @SuppressWarnings("unchecked")
-                List<Class<? extends Annotation>> annoteringer = finnAnnoteringer(method, TekniskFeil.class, FunksjonellFeil.class, IntegrasjonFeil.class, ManglerTilgangFeil.class);
+                List<Class<? extends Annotation>> annoteringer = finnAnnoteringer(method, TekniskFeil.class, FunksjonellFeil.class,
+                        IntegrasjonFeil.class, ManglerTilgangFeil.class);
                 if (annoteringer.isEmpty()) {
                     error.append("Mangler feil-annotering på ")
                             .append(prettyPrint(deklareringsinterface, method))
@@ -66,7 +69,7 @@ public abstract class AbstractFeilTestIT {
             for (Method method : deklareringsinterface.getDeclaredMethods()) {
                 String feilkode = FeilUtil.feilkode(method);
                 if (feilkode == null) {
-                    break; //håndtert av test som sjekker at alt er annotert
+                    break; // håndtert av test som sjekker at alt er annotert
                 }
                 Matcher m = mønster.matcher(feilkode);
                 if (!m.find()) {
@@ -85,7 +88,7 @@ public abstract class AbstractFeilTestIT {
             for (Method method : deklareringsinterface.getDeclaredMethods()) {
                 String feilkode = FeilUtil.feilkode(method);
                 if (feilkode == null) {
-                    break; //håndtert av test som sjekker at alt er annotert
+                    break; // håndtert av test som sjekker at alt er annotert
                 }
                 if (!feilPrFeilkode.containsKey(feilkode)) {
                     feilPrFeilkode.put(feilkode, new ArrayList<>(1));
@@ -135,10 +138,10 @@ public abstract class AbstractFeilTestIT {
         return funnet;
     }
 
-    private String sjekkParametrisertStreng(Class<? extends DeklarerteFeil> deklareringsinterface, Method method) {
+    private static String sjekkParametrisertStreng(Class<? extends DeklarerteFeil> deklareringsinterface, Method method) {
         String streng = FeilUtil.feilmelding(method);
         if (streng == null) {
-            return ""; //sjekker i annen test at annotering er tilstede
+            return ""; // sjekker i annen test at annotering er tilstede
         }
         Pattern gyldigParameter = Pattern.compile("%[1-9s]");
         Matcher m = gyldigParameter.matcher(streng);
@@ -147,7 +150,8 @@ public abstract class AbstractFeilTestIT {
             count++;
         }
         if (count != FeilUtil.tellParametreUtenomCause(method)) {
-            return String.format("Parameter mismatch: Deklarert feil har %d parametre(%s), mens metoden har %d parametre (i tillegg til evt. cause som kan oppgis som siste parameter)",
+            return String.format(
+                    "Parameter mismatch: Deklarert feil har %d parametre(%s), mens metoden har %d parametre (i tillegg til evt. cause som kan oppgis som siste parameter)",
                     count,
                     streng,
                     method.getParameterCount(),
@@ -156,7 +160,7 @@ public abstract class AbstractFeilTestIT {
         return "";
     }
 
-    private String prettyPrint(Class<?> klass, Method method) {
+    private static String prettyPrint(Class<?> klass, Method method) {
         StringBuilder b = new StringBuilder();
         b.append(klass.getName());
         b.append(".");
@@ -194,6 +198,4 @@ public abstract class AbstractFeilTestIT {
         }
     }
 
-
 }
-

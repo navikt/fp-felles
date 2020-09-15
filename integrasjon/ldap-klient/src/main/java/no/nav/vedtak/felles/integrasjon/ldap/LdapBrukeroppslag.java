@@ -80,24 +80,46 @@ public class LdapBrukeroppslag {
 
     /**
      * <BLOCKQUOTE>
-     * <p>The memberOf attribute is a multi-valued attribute that contains groups of which the user is a direct member, except for the primary group, which is represented by the primaryGroupId. Group membership is dependent on the domain controller (DC) from which this attribute is retrieved:</p>
+     * <p>
+     * The memberOf attribute is a multi-valued attribute that contains groups of
+     * which the user is a direct member, except for the primary group, which is
+     * represented by the primaryGroupId. Group membership is dependent on the
+     * domain controller (DC) from which this attribute is retrieved:
+     * </p>
      * <ul>
-     * <li>At a DC for the domain that contains the user, memberOf for the user is complete with respect to membership for groups in that domain; however, memberOf does not contain the user's membership in domain local and global groups in other domains.</li>
-     * <li>•At a GC server, memberOf for the user is complete with respect to all universal group memberships.</li>
+     * <li>At a DC for the domain that contains the user, memberOf for the user is
+     * complete with respect to membership for groups in that domain; however,
+     * memberOf does not contain the user's membership in domain local and global
+     * groups in other domains.</li>
+     * <li>•At a GC server, memberOf for the user is complete with respect to all
+     * universal group memberships.</li>
      * </ul>
      * <p>
-     * If both conditions are true for the DC, both sets of data are contained in memberOf.</p>
+     * If both conditions are true for the DC, both sets of data are contained in
+     * memberOf.
+     * </p>
      * <p>
-     * Be aware that this attribute lists the groups that contain the user in their member attribute—it does not contain the recursive list of nested predecessors. For example, if user O is a member of group C and group B and group B were nested in group A, the memberOf attribute of user O would list group C and group B, but not group A.</p>
+     * Be aware that this attribute lists the groups that contain the user in their
+     * member attribute—it does not contain the recursive list of nested
+     * predecessors. For example, if user O is a member of group C and group B and
+     * group B were nested in group A, the memberOf attribute of user O would list
+     * group C and group B, but not group A.
+     * </p>
      * <p>
-     * This attribute is not stored—it is a computed back-link attribute</p>
-     * </BLOCKQUOTE>
-     * Source: <a href="https://msdn.microsoft.com/en-us/library/ms677943.aspx">MSDN > ... > Using Active Directory Domain Services > Managing Users > User Object Attributes</a>
-     * <p></p>
+     * This attribute is not stored—it is a computed back-link attribute
+     * </p>
+     * </BLOCKQUOTE> Source:
+     * <a href="https://msdn.microsoft.com/en-us/library/ms677943.aspx">MSDN > ... >
+     * Using Active Directory Domain Services > Managing Users > User Object
+     * Attributes</a>
      * <p>
-     * OBS! Nøstede grupper vil <strong>ikke</strong> ligge i memberOf</p>
+     * </p>
+     * <p>
+     * OBS! Nøstede grupper vil <strong>ikke</strong> ligge i memberOf
+     * </p>
      *
-     * @return CN-value av alle grupper brukere er <strong>direkte</strong> medlem av
+     * @return CN-value av alle grupper brukere er <strong>direkte</strong> medlem
+     *         av
      */
     protected Collection<String> getMemberOf(SearchResult result) {
         String attributeName = "memberOf";
@@ -117,7 +139,7 @@ public class LdapBrukeroppslag {
         return groups;
     }
 
-    private Attribute find(SearchResult element, String attributeName) {
+    private static Attribute find(SearchResult element, String attributeName) {
         Attribute attribute = element.getAttributes().get(attributeName);
         if (attribute == null) {
             throw LdapFeil.FACTORY.resultatFraLdapMangletAttributt(attributeName).toException();
@@ -125,7 +147,7 @@ public class LdapBrukeroppslag {
         return attribute;
     }
 
-    private LdapName lagLdapSearchBase() {
+    private static LdapName lagLdapSearchBase() {
         String userBaseDn = LdapInnlogging.getRequiredProperty("ldap.user.basedn");
         try {
             return new LdapName(userBaseDn); // NOSONAR

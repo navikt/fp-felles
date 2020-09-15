@@ -32,8 +32,8 @@ public class SakRestKlient {
 
     @Inject
     public SakRestKlient(OidcRestClient oidcRestClient,
-                         @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
-        this.oidcRestClient = oidcRestClient ;
+            @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
+        this.oidcRestClient = oidcRestClient;
         this.endpoint = endpoint;
     }
 
@@ -43,7 +43,7 @@ public class SakRestKlient {
 
     public Optional<SakJson> finnForSaksnummer(String saksnummer) throws Exception {
         URIBuilder builder = new URIBuilder(this.endpoint)
-            .addParameter("fagsakNr", saksnummer);
+                .addParameter("fagsakNr", saksnummer);
         var match = this.oidcRestClient.get(builder.build(), this.lagHeader(), SakJson[].class);
         return Arrays.stream(match).findFirst();
     }
@@ -53,7 +53,7 @@ public class SakRestKlient {
         return oidcRestClient.get(request, lagHeader(), SakJson.class);
     }
 
-    private Set<Header> lagHeader() {
+    private static Set<Header> lagHeader() {
         return Collections.singleton(new BasicHeader(HEADER_CORRELATION_ID, MDCOperations.getCallId()));
     }
 

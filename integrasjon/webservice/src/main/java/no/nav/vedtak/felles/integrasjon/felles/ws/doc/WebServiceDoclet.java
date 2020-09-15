@@ -58,7 +58,7 @@ public class WebServiceDoclet implements Doclet {
         }
     }
 
-    private void doRun(DocletEnvironment docEnv) {
+    private static void doRun(DocletEnvironment docEnv) {
         WebServicesModell resultat = new WebServicesModell();
 
         Set<TypeElement> types = ElementFilter.typesIn(docEnv.getIncludedElements());
@@ -76,7 +76,7 @@ public class WebServiceDoclet implements Doclet {
         new AsciidocMapper().writeTo(outputFile.toPath(), resultat);
     }
 
-    private File getOutputLocation() {
+    private static File getOutputLocation() {
         File dir = new File(System.getProperty("destDir", "target/docs"));
         if (!dir.exists()) {
             if (!dir.mkdirs()) {

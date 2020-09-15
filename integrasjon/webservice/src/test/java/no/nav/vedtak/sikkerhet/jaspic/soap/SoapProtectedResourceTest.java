@@ -11,15 +11,12 @@ import org.junit.jupiter.api.Test;
 import no.nav.vedtak.sikkerhet.jaspic.DelegatedProtectedResource;
 
 public class SoapProtectedResourceTest {
-    
-    private WSS4JProtectedServlet wsServlet = new WSS4JProtectedServletTestImpl();
-    
+
     @Test
     void load_service() throws Exception {
         ClassLoader classLoader = SoapProtectedResourceTest.class.getClassLoader();
         assertThat(ServiceLoader.load(DelegatedProtectedResource.class, classLoader)).anyMatch(p -> SoapProtectedResource.class.equals(p.getClass()));
     }
-    
 
     @WebServlet(urlPatterns = { "/tjenester", "/tjenester/", "/tjenester/*" }, loadOnStartup = 1)
     private class WSS4JProtectedServletTestImpl implements WSS4JProtectedServlet {

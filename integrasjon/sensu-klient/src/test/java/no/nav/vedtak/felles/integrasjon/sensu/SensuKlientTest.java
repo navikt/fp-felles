@@ -27,11 +27,11 @@ public class SensuKlientTest {
     private BlockingQueue<String> socketOutput = new ArrayBlockingQueue<>(100);
 
     private static final String expectedJsonBeforeTimestamp = "{" +
-        "\"name\":\"sensu-event-local-app\"," +
-        "\"type\":\"metric\"," +
-        "\"handlers\":[\"events_nano\"]," +
-        "\"status\":0," +
-        "\"output\":\"local-app.registrert.task,application=local-app,cluster=local,namespace=default,task_type=task.registerSøknad counter=1i";
+            "\"name\":\"sensu-event-local-app\"," +
+            "\"type\":\"metric\"," +
+            "\"handlers\":[\"events_nano\"]," +
+            "\"status\":0," +
+            "\"output\":\"local-app.registrert.task,application=local-app,cluster=local,namespace=default,task_type=task.registerSøknad counter=1i";
 
     @Before
     public void init() throws IOException {
@@ -39,12 +39,12 @@ public class SensuKlientTest {
         serverSocket.setSoTimeout(1000);
         sensuKlient = new SensuKlient("localhost", serverSocket.getLocalPort());
         sensuKlient.start();
-        
+
         new Thread(() -> {
             try (Socket socket = serverSocket.accept()) {
                 StringBuilder sb = new StringBuilder();
-                try (Reader reader = new BufferedReader(new InputStreamReader
-                  (socket.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
+                try (Reader reader = new BufferedReader(
+                        new InputStreamReader(socket.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
                     int c = 0;
                     while ((c = reader.read()) != -1) {
                         sb.append((char) c);
@@ -55,7 +55,6 @@ public class SensuKlientTest {
                 throw new IllegalStateException("Kunne ikke lese fra socket", e);
             }
         }).start();
-        
 
     }
 
@@ -69,9 +68,9 @@ public class SensuKlientTest {
     public void logMetrics() throws Exception {
         // Perform
         sensuKlient.logMetrics(SensuEvent.createSensuEvent(
-            "registrert.task",
-            Map.of("task_type", "task.registerSøknad"),
-            Map.of("counter", 1)));
+                "registrert.task",
+                Map.of("task_type", "task.registerSøknad"),
+                Map.of("counter", 1)));
 
         // Assert
         String resultat = readFromSocket();
@@ -79,7 +78,7 @@ public class SensuKlientTest {
         assertThat(resultat).startsWith(expectedJsonBeforeTimestamp);
     }
 
-    private String readFromSocket() throws IOException, InterruptedException {
+    private String readFromSocket() throws InterruptedException {
         return socketOutput.poll(10, TimeUnit.SECONDS);
     }
 }
