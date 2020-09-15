@@ -3,9 +3,10 @@ package no.nav.vedtak.log.audit;
 import java.util.Objects;
 
 public class AuditdataHeader {
-    
+
     /**
-     * Loggversjon som endres ved nye felter. Ved bytte avtales nytt format med Arcsight-gjengen.
+     * Loggversjon som endres ved nye felter. Ved bytte avtales nytt format med
+     * Arcsight-gjengen.
      */
     private static final String logVersion = "1.0";
 
@@ -15,7 +16,6 @@ public class AuditdataHeader {
     private final String name;
     private final String severity;
 
-    
     private AuditdataHeader(String vendor, String product, EventClassId eventClassId, String name, String severity) {
         this.vendor = Objects.requireNonNull(vendor);
         this.product = Objects.requireNonNull(product);
@@ -23,8 +23,7 @@ public class AuditdataHeader {
         this.name = Objects.requireNonNull(name);
         this.severity = Objects.requireNonNull(severity);
     }
-    
-    
+
     public String getVendor() {
         return vendor;
     }
@@ -44,12 +43,13 @@ public class AuditdataHeader {
     public String getSeverity() {
         return severity;
     }
-    
+
     /**
      * Loggheader i "Commen Event Format (CEF)".
      */
+    @Override
     public String toString() {
-        return String.format("CEF:0|%s|%s|%s|%s|%s|%s|", 
+        return String.format("CEF:0|%s|%s|%s|%s|%s|%s|",
                 cefHeaderEscape(vendor),
                 cefHeaderEscape(product),
                 cefHeaderEscape(logVersion),
@@ -57,11 +57,10 @@ public class AuditdataHeader {
                 cefHeaderEscape(name),
                 cefHeaderEscape(severity));
     }
-    
+
     private static final String cefHeaderEscape(String s) {
         return s.replace("\\", "\\\\").replace("|", "\\|").replace("\n", "").replace("\r", "");
     }
-
 
     public static final class Builder {
         private String vendor;
@@ -69,35 +68,35 @@ public class AuditdataHeader {
         private EventClassId eventClassId;
         private String name;
         private String severity = "INFO";
-        
+
         public Builder medVendor(String vendor) {
             this.vendor = vendor;
             return this;
         }
-        
+
         public Builder medProduct(String product) {
             this.product = product;
             return this;
         }
-        
+
         public Builder medEventClassId(EventClassId eventClassId) {
             this.eventClassId = eventClassId;
             return this;
         }
-        
+
         public Builder medName(String name) {
             this.name = name;
             return this;
         }
-        
+
         public Builder medSeverity(String severity) {
             this.severity = severity;
             return this;
         }
-        
-        public AuditdataHeader build() {            
+
+        public AuditdataHeader build() {
             return new AuditdataHeader(vendor, product, eventClassId, name, severity);
         }
     }
-    
+
 }

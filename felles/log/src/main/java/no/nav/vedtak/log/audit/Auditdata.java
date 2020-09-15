@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
  * Data som utgjør et innslag i sporingsloggen i "Common Event Format (CEF)".
  */
 public class Auditdata {
-    
+
     private static final String FIELD_SEPARATOR = " ";
-    
+
     private final AuditdataHeader header;
     private final Set<CefField> fields;
 
@@ -18,11 +18,11 @@ public class Auditdata {
         this.header = header;
         this.fields = new HashSet<>(fields);
     }
-    
-    
+
     /**
      * Loggstreng i "Commen Event Format (CEF)".
      */
+    @Override
     public String toString() {
         return header.toString() + fields.stream()
                 .map(f -> f.toString())
@@ -30,4 +30,3 @@ public class Auditdata {
                 .collect(Collectors.joining(FIELD_SEPARATOR));
     }
 }
-    

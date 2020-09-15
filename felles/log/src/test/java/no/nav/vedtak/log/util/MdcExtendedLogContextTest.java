@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
 
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 
@@ -14,7 +15,7 @@ public class MdcExtendedLogContextTest {
 
     @AfterEach
     public void clear() {
-        context.clear();
+        MDC.clear();
     }
 
     @Test
