@@ -53,7 +53,7 @@ public class QueueConsumerTest {
     private JmsKonfig konfig;
 
     @BeforeEach
-    public void setup() throws JMSException {
+    public void setup() {
         konfig = mock(JmsKonfig.class);
         mockJMSContext = mock(JMSContext.class);
         mockQueue = mock(Queue.class);
@@ -121,7 +121,7 @@ public class QueueConsumerTest {
     }
 
     @Test
-    public void test_receiveLoop_typical() throws InterruptedException, JMSException {
+    public void test_receiveLoop_typical() throws InterruptedException {
 
         final int initialMsgsOnQueue = 3;
         mockMessagesOnQueue(initialMsgsOnQueue);
@@ -151,7 +151,7 @@ public class QueueConsumerTest {
     }
 
     @Test
-    public void test_receiveLoop_exceptionWhenCreatingContext() throws InterruptedException, JMSException {
+    public void test_receiveLoop_exceptionWhenCreatingContext() throws InterruptedException {
 
         asyncJmsConsumer = new InternalTestQueueConsumer(konfig) {
             @Override
@@ -185,7 +185,7 @@ public class QueueConsumerTest {
     }
 
     @Test
-    public void test_receiveLoop_precondNotFulfilled() throws InterruptedException, JMSException {
+    public void test_receiveLoop_precondNotFulfilled() throws InterruptedException {
 
         final int initialMsgsOnQueue = 2; // men vi skal aldri faktisk lese dem, pga false precond
         when(mockPreconditionChecker.check()).thenReturn(PreconditionCheckerResult.notFullfilled("Feilmelding"));
@@ -215,7 +215,7 @@ public class QueueConsumerTest {
     }
 
     @Test
-    public void test_receiveLoop_exceptionWhenReceivingMessage() throws InterruptedException, JMSException {
+    public void test_receiveLoop_exceptionWhenReceivingMessage() throws InterruptedException {
 
         when(mockJMSConsumer.receive(anyLong())).thenThrow(new JMSRuntimeException("!!!!"));
 
@@ -243,7 +243,7 @@ public class QueueConsumerTest {
     }
 
     @Test
-    public void test_receiveLoop_exceptionInHandler() throws InterruptedException, JMSException {
+    public void test_receiveLoop_exceptionInHandler() throws InterruptedException {
 
         final int initialMsgsOnQueue = 99999999; // slik at vi alltid kaller messageHandler.handle()
         mockMessagesOnQueue(initialMsgsOnQueue);
@@ -309,7 +309,7 @@ public class QueueConsumerTest {
     }
 
     @Test
-    public void test_getConnectionEndpoint() throws JMSException {
+    public void test_getConnectionEndpoint() {
 
         BaseJmsKonfig eksternKonfig = new BaseJmsKonfig("qu");
         eksternKonfig.setQueueManagerName("someMgr");

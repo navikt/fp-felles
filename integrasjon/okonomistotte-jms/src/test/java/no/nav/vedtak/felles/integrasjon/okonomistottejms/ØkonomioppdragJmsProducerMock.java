@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.okonomistottejms;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,24 +38,24 @@ public class ØkonomioppdragJmsProducerMock extends ØkonomioppdragJmsProducer {
             String kvittering = lagInputFraOppdragFraOutputTilOppdrag(getInput("statusOk.xml"), oppdragXML);
             LOG.debug(kvittering);
             økonomioppdragAsyncJmsConsumer.handle(kvittering);
-        } catch (IOException | URISyntaxException e){
+        } catch (IOException e) {
             LOG.warn("Kunne ikke opprette oppgave mot mottak av økonomimelding.");
         }
     }
 
     @SuppressWarnings("resource")
-    private String getInput(String filename) throws IOException, URISyntaxException {
+    private String getInput(String filename) throws IOException {
         return new String(getClass().getClassLoader().getResourceAsStream(filename).readAllBytes());
     }
 
-    private String lagInputFraOppdragFraOutputTilOppdrag(String template, String oppdragXML){
-        String fagsystem = hentFørsteTreff(FAGSYSTEM_PATTERN,oppdragXML);
+    private String lagInputFraOppdragFraOutputTilOppdrag(String template, String oppdragXML) {
+        String fagsystem = hentFørsteTreff(FAGSYSTEM_PATTERN, oppdragXML);
         String oppdragGjelderInfo = hentFørsteTreff(OPPDRAG_GJELDER_ID_PATTERN, oppdragXML);
         String henvisning = hentFørsteTreff(HENVISNING_PATTERN, oppdragXML);
-        return String.format(template,fagsystem,oppdragGjelderInfo, henvisning);
+        return String.format(template, fagsystem, oppdragGjelderInfo, henvisning);
     }
 
-    private String hentFørsteTreff(Pattern pattern, String søkestreng) {
+    private static String hentFørsteTreff(Pattern pattern, String søkestreng) {
         Matcher matcher = pattern.matcher(søkestreng);
         if (matcher.find()) {
             return matcher.group(1);
@@ -64,6 +63,5 @@ public class ØkonomioppdragJmsProducerMock extends ØkonomioppdragJmsProducer {
             throw new IllegalArgumentException(String.format("Ingen match for pattern: %s", pattern));
         }
     }
-
 
 }

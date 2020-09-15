@@ -62,15 +62,13 @@ public class LdapBrukeroppslagTest {
 
     @Test
     public void skal_gi_exception_når_søket_gir_ingen_treff() throws Exception {
-        // expectedException.expectMessage("F-418891:Fikk ingen treff på søk mot LDAP
-        // etter ident L999999");
 
         SearchMock heleResultatet = new SearchMock(Collections.emptyList());
         Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
                 .thenReturn(heleResultatet);
 
         LdapBrukeroppslag ldap = new LdapBrukeroppslag(context, baseSearch);
-        var e = assertThrows(IntegrasjonException.class, () -> ldap.hentBrukerinformasjon("L999999"));
+        assertThrows(IntegrasjonException.class, () -> ldap.hentBrukerinformasjon("L999999"));
     }
 
     @Test

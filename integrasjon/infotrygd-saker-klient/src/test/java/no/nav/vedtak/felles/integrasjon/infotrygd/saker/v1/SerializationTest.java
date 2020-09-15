@@ -35,7 +35,7 @@ public class SerializationTest {
     private static ObjectMapper mapper;
 
     @BeforeAll
-    public static void setup() throws IOException {
+    public static void setup() {
         mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(WRITE_DATES_AS_TIMESTAMPS);
@@ -81,11 +81,11 @@ public class SerializationTest {
         testJson(jsonFra("rest/svprespons.json"), Saker.class);
     }
 
-    private void testJson(String json, Class<?> clazz) throws Exception {
+    private static void testJson(String json, Class<?> clazz) throws Exception {
         testJson(json, clazz, true);
     }
 
-    private void testJson(String json, Class<?> clazz, boolean log) throws Exception {
+    private static void testJson(String json, Class<?> clazz, boolean log) throws Exception {
         var deser = mapper.readValue(json, clazz);
         if (log) {
             System.out.println("##");

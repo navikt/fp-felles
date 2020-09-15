@@ -47,9 +47,9 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
     private static final String LOGIN_CONFIG_NAME = "SAML";
 
     private static final TransformerFactory transformerFactory;
-    
+
     private LoginContextConfiguration loginContextConfiguration = new LoginContextConfiguration();
-    
+
     static {
         transformerFactory = TransformerFactory.newInstance();
         try {
@@ -59,7 +59,6 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
         }
     }
 
-    
     private static final Environment ENV = Environment.current();
 
     public SAMLTokenSignedInInterceptor() {
@@ -110,7 +109,7 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
         }
     }
 
-    private LoginContext createLoginContext(LoginContextConfiguration loginContextConfiguration, String assertion) {
+    private static LoginContext createLoginContext(LoginContextConfiguration loginContextConfiguration, String assertion) {
         CallbackHandler callbackHandler = new PaswordCallbackHandler(assertion);
         try {
             return new LoginContext(LOGIN_CONFIG_NAME, new Subject(), callbackHandler, loginContextConfiguration);
@@ -138,11 +137,11 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
             }
         }
     }
-    
-    private String getSamlAssertionAsString(Assertion assertion) throws TransformerException {
+
+    private static String getSamlAssertionAsString(Assertion assertion) throws TransformerException {
         return getSamlAssertionAsString(assertion.getDOM());
     }
-    
+
     private static String getSamlAssertionAsString(Element element) throws TransformerException {
         StringWriter writer = new StringWriter();
         Transformer transformer = transformerFactory.newTransformer();

@@ -40,7 +40,7 @@ public class SensuKlient implements AppServiceHandler {
 
     @Inject
     public SensuKlient(@KonfigVerdi(value = "sensu.host", defaultVerdi = "sensu.nais") String sensuHost,
-                       @KonfigVerdi(value = "sensu.port", defaultVerdi = "3030") Integer sensuPort) {
+            @KonfigVerdi(value = "sensu.port", defaultVerdi = "3030") Integer sensuPort) {
         this.sensuHost = sensuHost;
         this.sensuPort = sensuPort;
     }
@@ -72,7 +72,8 @@ public class SensuKlient implements AppServiceHandler {
                     int rounds = maxRetrySendSensu; // prøver par ganger hvis broken pipe, uten å logge første gang
                     while (rounds > 0 && kanKobleTilSensu.get() && !Thread.currentThread().isInterrupted()) {
                         rounds--;
-                        // sensu har en ping/pong/heartbeat protokol, men støtter ikke det p.t., så åpner ny socket/outputstream for hver melding
+                        // sensu har en ping/pong/heartbeat protokol, men støtter ikke det p.t., så
+                        // åpner ny socket/outputstream for hver melding
                         try (Socket socket = establishSocketConnectionIfNeeded()) {
                             try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
                                 writer.write(json, 0, json.length());
@@ -84,7 +85,8 @@ public class SensuKlient implements AppServiceHandler {
                         } catch (IOException ex) {
                             // ink. SocketException
                             if (rounds <= 0) {
-                                LOG.warn("Feil ved tilkobling til metrikkendepunkt. Kan ikke publisere melding fra callId[" + callId + "]: " + jsonForEx, ex);
+                                LOG.warn("Feil ved tilkobling til metrikkendepunkt. Kan ikke publisere melding fra callId[" + callId + "]: "
+                                        + jsonForEx, ex);
                                 break;
                             }
                         } catch (Exception ex) {
@@ -106,7 +108,7 @@ public class SensuKlient implements AppServiceHandler {
         }
     }
 
-    private String formatForException(String json, int antallEvents) {
+    private static String formatForException(String json, int antallEvents) {
         if (antallEvents > 1) {
             int maxSubstrLen = 1000;
             String substr = json.substring(0, Math.min(json.length(), maxSubstrLen)) + "....";

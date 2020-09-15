@@ -72,19 +72,16 @@ public class RestClientSupportProdusent {
         return systemUserOidcRestClient;
     }
 
-    @SuppressWarnings("resource")
     private OidcRestClient createOidcRestClient() {
         CloseableHttpClient closeableHttpClient = createHttpClient();
         return new OidcRestClient(closeableHttpClient);
     }
 
-    @SuppressWarnings("resource")
     private SystemUserOidcRestClient creatSystemUserOidcRestClient() {
         CloseableHttpClient closeableHttpClient = createHttpClient();
         return new SystemUserOidcRestClient(closeableHttpClient);
     }
 
-    @SuppressWarnings("resource")
     static CloseableHttpClient createHttpClient() {
         // Create connection configuration
         ConnectionConfig defaultConnectionConfig = ConnectionConfig.custom()

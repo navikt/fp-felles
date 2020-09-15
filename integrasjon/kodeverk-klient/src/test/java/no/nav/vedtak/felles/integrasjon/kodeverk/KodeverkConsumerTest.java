@@ -48,7 +48,7 @@ public class KodeverkConsumerTest {
 
     }
 
-    private SOAPFaultException opprettSOAPFaultException(String faultString) throws SOAPException {
+    private static SOAPFaultException opprettSOAPFaultException(String faultString) throws SOAPException {
         SOAPFault fault = SOAPFactory.newInstance().createFault();
         fault.setFaultString(faultString);
         fault.setFaultCode(new QName("local"));

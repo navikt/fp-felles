@@ -32,8 +32,8 @@ public class OppgaveRestKlient {
 
     @Inject
     public OppgaveRestKlient(OidcRestClient oidcRestClient,
-                             @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
-        this.oidcRestClient = oidcRestClient ;
+            @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
+        this.oidcRestClient = oidcRestClient;
         this.endpoint = endpoint;
     }
 
@@ -51,8 +51,8 @@ public class OppgaveRestKlient {
 
     public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
         var builder = new URIBuilder(endpoint)
-            .addParameter("aktoerId", aktørId)
-            .addParameter("statuskategori", STATUSKATEGORI_AAPEN);
+                .addParameter("aktoerId", aktørId)
+                .addParameter("statuskategori", STATUSKATEGORI_AAPEN);
         if (tema != null)
             builder.addParameter("tema", tema);
         oppgaveTyper.forEach(ot -> builder.addParameter("oppgavetype", ot));
@@ -79,7 +79,7 @@ public class OppgaveRestKlient {
         return URI.create(endpoint.toString() + "/" + oppgaveId);
     }
 
-    private Set<Header> lagHeader() {
+    private static Set<Header> lagHeader() {
         return Collections.singleton(new BasicHeader(HEADER_CORRELATION_ID, MDCOperations.getCallId()));
     }
 
