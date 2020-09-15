@@ -1,12 +1,12 @@
 package no.nav.vedtak.felles.db.doc;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class DocletTest {
 
     @Test
-    @Ignore("unødvendig normalt, kan brukes til feilsøking")
+    @Disabled("unødvendig normalt, kan brukes til feilsøking")
     public void test_migrate_ddl() throws Exception {
         initDatabase();
     }

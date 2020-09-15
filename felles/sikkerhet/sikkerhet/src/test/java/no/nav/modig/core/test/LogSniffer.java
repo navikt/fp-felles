@@ -13,9 +13,6 @@ import java.util.Map.Entry;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 
@@ -27,7 +24,7 @@ import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.core.spi.FilterReply;
 
 @Deprecated(forRemoval = true, since = "2.1.x")
-public class LogSniffer implements TestRule {
+public class LogSniffer /* implements TestRule */ {
     private final Map<ILoggingEvent, Boolean> logbackAppender;
     private final Level minimumLevel;
     private final boolean denyOthersWhenMatched;
@@ -188,21 +185,16 @@ public class LogSniffer implements TestRule {
         this.logbackAppender.clear();
     }
 
-    @Override
-    public Statement apply(final Statement base, Description description) {
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                try {
-                    base.evaluate();
-                    LogSniffer.this.assertNoErrorsOrWarnings();
-                } finally {
-                    LogSniffer.this.getLoggerContext().resetTurboFilterList();
-                }
-
-            }
-        };
-    }
+    /*
+     * @Override public Statement apply(final Statement base, Description
+     * description) { return new Statement() {
+     * 
+     * @Override public void evaluate() throws Throwable { try { base.evaluate();
+     * LogSniffer.this.assertNoErrorsOrWarnings(); } finally {
+     * LogSniffer.this.getLoggerContext().resetTurboFilterList(); }
+     * 
+     * } }; }
+     */
 
     @Override
     public String toString() {

@@ -28,15 +28,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
-import no.nav.modig.core.test.LogSniffer;
 import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.isso.config.ServerInfoTestUtil;
@@ -54,16 +52,14 @@ import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorResult;
 
 public class OidcAuthModuleTest {
 
-    @Rule
-    public LogSniffer logSniffer = new LogSniffer();
-
     private OidcTokenValidator tokenValidator = Mockito.mock(OidcTokenValidator.class);
     private IdTokenProvider idTokenProvider = Mockito.mock(IdTokenProvider.class);
     private TokenLocator tokenLocator = Mockito.mock(TokenLocator.class);
     private CallbackHandler callbackHandler = Mockito.mock(CallbackHandler.class);
     private final Configuration configuration = new LoginContextConfiguration();
 
-    private OidcAuthModule authModule = new OidcAuthModule(idTokenProvider, tokenLocator, configuration, Mockito.mock(DelegatedProtectedResource.class));
+    private OidcAuthModule authModule = new OidcAuthModule(idTokenProvider, tokenLocator, configuration,
+            Mockito.mock(DelegatedProtectedResource.class));
     private HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     private HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
@@ -80,7 +76,6 @@ public class OidcAuthModuleTest {
         System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://bar.devillo.no/isso/oauth2");
         System.setProperty(ConsumerId.SYSTEMUSER_USERNAME, "JUnit Test");
 
-
         Map<String, String> testData = new HashMap<>() {
             {
                 put(OpenAMHelper.ISSUER_KEY, OidcTokenGenerator.ISSUER);
@@ -92,12 +87,12 @@ public class OidcAuthModuleTest {
         OidcTokenValidatorProviderForTest.setValidators(map);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         OpenAMHelper.unsetWellKnownConfig();
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void classSetup() {
         ServerInfoTestUtil.clearServerInfoInstance();
         SubjectHandlerUtils.useSubjectHandler(StaticSubjectHandler.class);
@@ -105,7 +100,7 @@ public class OidcAuthModuleTest {
         ContextPathHolder.instance("/fpsak");
     }
 
-    @AfterClass
+    @AfterAll
     public static void classTeardown() {
         SubjectHandlerUtils.unsetSubjectHandler();
         System.clearProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL);
@@ -139,7 +134,7 @@ public class OidcAuthModuleTest {
         OidcTokenHolder utløptIdToken = getUtløptToken(false);
 
         when(request.getHeader("Accept")).thenReturn(null);
-        when(request.getHeader("Authorization")).thenReturn("Bearer "+utløptIdToken);
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + utløptIdToken);
         MessageInfo request = createRequestForProtectedResource();
 
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(utløptIdToken));
@@ -164,8 +159,10 @@ public class OidcAuthModuleTest {
         CookieCollector cookieCollector = new CookieCollector();
         verify(response).addCookie(Mockito.argThat(cookieCollector));
 
-        // hvor redirect skal til slutt, legges i en cookie på browseren. Dette gjør at dersom noen
-        // legger sensitiv informajon i parametre eller lignende, vil det ikke sendes til OpenAM
+        // hvor redirect skal til slutt, legges i en cookie på browseren. Dette gjør at
+        // dersom noen
+        // legger sensitiv informajon i parametre eller lignende, vil det ikke sendes
+        // til OpenAM
         Cookie stateCookie = cookieCollector.getCookieWhereNameMatches("state_.*");
         assertThat(stateCookie.getValue()).isEqualTo("https%3A%2F%2Ffoo.devillo.no%2Ffpsak%2F");
         assertThat(stateCookie.getDomain()).isNull(); // bare denne serveren
@@ -335,7 +332,8 @@ public class OidcAuthModuleTest {
         when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
         when(tokenValidator.validate(gyldigIdToken))
                 .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
-        when(idTokenProvider.getToken(gyldigIdToken, gyldigRefreshToken)).thenReturn(Optional.of(new OidcTokenHolder("nok et token som validerer :-)", true)));
+        when(idTokenProvider.getToken(gyldigIdToken, gyldigRefreshToken))
+                .thenReturn(Optional.of(new OidcTokenHolder("nok et token som validerer :-)", true)));
 
         authModule.validateRequest(request, subject, serviceSubject);
 
