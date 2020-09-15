@@ -7,7 +7,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.feature.LoggingFeature;
+import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.apache.cxf.ws.security.SecurityConstants;
@@ -23,7 +23,7 @@ public class KodeverkConsumerConfig {
     private static final QName SERVICE = new QName(NAMESPACE, "Kodeverk_v2");
     private static final QName PORT = new QName(NAMESPACE, "Kodeverk_v2");
 
-    private String endpointUrl;  // NOSONAR
+    private String endpointUrl; // NOSONAR
 
     @Inject
     public KodeverkConsumerConfig(@KonfigVerdi("Kodeverk.v2.url") String endpointUrl) {
@@ -32,7 +32,8 @@ public class KodeverkConsumerConfig {
 
     KodeverkPortType getPort() {
         Map<String, Object> properties = new HashMap<>();
-        // FIXME (E149421): Tjeneren for kodeverk forstår ikke security-headeren vi sender
+        // FIXME (E149421): Tjeneren for kodeverk forstår ikke security-headeren vi
+        // sender
         properties.put(SecurityConstants.MUST_UNDERSTAND, false);
 
         JaxWsProxyFactoryBean factoryBean = new JaxWsProxyFactoryBean();
