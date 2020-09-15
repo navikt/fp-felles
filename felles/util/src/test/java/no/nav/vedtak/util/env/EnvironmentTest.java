@@ -2,10 +2,10 @@ package no.nav.vedtak.util.env;
 
 import static no.nav.vedtak.util.env.Cluster.PROD_FSS;
 import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -67,28 +67,28 @@ public class EnvironmentTest {
 
     @Test
     public void testDuration() {
-        assertEquals("duration.property", Duration.ofDays(42), ENV.getProperty("duration.property", Duration.class));
-        assertEquals("ikke.funnet", Duration.ofDays(2),
+        assertEquals(Duration.ofDays(42), ENV.getProperty("duration.property", Duration.class));
+        assertEquals(Duration.ofDays(2),
                 ENV.getProperty("ikke.funnet", Duration.class, Duration.ofDays(2)));
     }
 
     @Test
     public void testString() {
-        assertEquals("finnes.ikke", "42", ENV.getProperty("finnes.ikke", "42"));
+        assertEquals("42", ENV.getProperty("finnes.ikke", "42"));
         assertNull(ENV.getProperty("finnes.ikke"));
     }
 
     @Test
     public void testBoolean() {
-        assertTrue("test4.boolean", ENV.getProperty("test4.boolean", boolean.class));
-        assertTrue("test4.boolean", ENV.getProperty("test4.boolean", Boolean.class));
+        assertTrue(ENV.getProperty("test4.boolean", boolean.class));
+        assertTrue(ENV.getProperty("test4.boolean", Boolean.class));
     }
 
     @Test
     public void testInt() {
         LOG.info("Application property verdier {}", ENV.getProperties(StandardPropertySource.APP_PROPERTIES));
-        assertEquals("test2.intproperty", Integer.valueOf(10), ENV.getProperty("test2.intproperty", Integer.class));
-        assertEquals("test2.intproperty", Integer.valueOf(10), ENV.getProperty("test2.intproperty", int.class));
+        assertEquals(Integer.valueOf(10), ENV.getProperty("test2.intproperty", Integer.class));
+        assertEquals(Integer.valueOf(10), ENV.getProperty("test2.intproperty", int.class));
     }
 
     @Test
