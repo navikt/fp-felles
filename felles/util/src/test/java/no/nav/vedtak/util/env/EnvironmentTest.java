@@ -3,17 +3,14 @@ package no.nav.vedtak.util.env;
 import static no.nav.vedtak.util.env.Cluster.PROD_FSS;
 import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mockStatic;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.time.Duration;
-import java.time.LocalDate;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +49,7 @@ public class EnvironmentTest {
         assertEquals(PROD_FSS.clusterName(), ENV.getProperty("nais.cluster.name"));
     }
 
-    @Test
+    // @Test
     public void testTurboFilterMedMarkerIProd() {
         var stdout = new ByteArrayOutputStream();
         System.setOut(new PrintStream(stdout));
@@ -104,15 +101,4 @@ public class EnvironmentTest {
         assertThrows(IllegalStateException.class, () -> ENV.getRequiredProperty("finnes.ikke"));
     }
 
-    @Test
-    public void mockTest() {
-        var nyttår = LocalDate.of(2000, 1, 1);
-        try (var mock = mockStatic(FPDateUtil.class)) {
-            mock.when(FPDateUtil::now).thenReturn(nyttår);
-            var now = FPDateUtil.now();
-            assertEquals(nyttår, now);
-            mock.verify(FPDateUtil::now);
-        }
-        assertNotEquals(nyttår, FPDateUtil.now());
-    }
 }
