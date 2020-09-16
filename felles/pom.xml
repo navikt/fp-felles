@@ -453,22 +453,6 @@
 				<artifactId>felles-testutilities</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>felles-integrasjon-jms</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>okonomistotte-jms</artifactId>
-                <type>test-jar</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>okonomistotte-jms</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
