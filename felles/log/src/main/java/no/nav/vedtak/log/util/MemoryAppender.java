@@ -2,6 +2,7 @@ package no.nav.vedtak.log.util;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import ch.qos.logback.classic.Level;
@@ -58,4 +59,16 @@ public class MemoryAppender extends ListAppender<ILoggingEvent> {
         return Collections.unmodifiableList(this.list);
     }
 
+    public long countEntries(String substring) {
+        return list.stream()
+                .map(ILoggingEvent.class::cast)
+                .filter(e -> eventMatches(e, substring)).count();
+    }
+
+    private static boolean eventMatches(ILoggingEvent event, String substring) {
+        return Optional.ofNullable(substring)
+                .filter(s -> event.getFormattedMessage().contains(s))
+                .isPresent();
+
+    }
 }

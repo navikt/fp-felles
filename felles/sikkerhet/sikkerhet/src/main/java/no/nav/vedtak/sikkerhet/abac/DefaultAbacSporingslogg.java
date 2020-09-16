@@ -17,11 +17,14 @@ import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.util.AppLoggerFactory;
 
 /**
- * Default eksempel på AbacSporingslogg implementasjon.
- * Vil benyttes med mindre applikasjonen definerer en {@link javax.enterprise.inject.Alternative} implementasjon.
- * 
- * Bør overrides i egen applikasjon dersom en har egne ABAC attributter eller nøkler som skal spores. Her håndteres kun
- * felles som {@link NavAbacCommonAttributter} og {@link StandardSporingsloggId}.  Outputformat konsumeres av MF ArcSight.
+ * Default eksempel på AbacSporingslogg implementasjon. Vil benyttes med mindre
+ * applikasjonen definerer en {@link javax.enterprise.inject.Alternative}
+ * implementasjon.
+ *
+ * Bør overrides i egen applikasjon dersom en har egne ABAC attributter eller
+ * nøkler som skal spores. Her håndteres kun felles som
+ * {@link NavAbacCommonAttributter} og {@link StandardSporingsloggId}.
+ * Outputformat konsumeres av MF ArcSight.
  */
 @Default
 @ApplicationScoped
@@ -40,8 +43,8 @@ public class DefaultAbacSporingslogg implements AbacSporingslogg {
             int i = 1;
             for (T attributtVerdi : attributtVerdier) {
                 Sporingsdata sd = i++ < attributtVerdier.size()
-                    ? sporingsdata.kopi()
-                    : sporingsdata;
+                        ? sporingsdata.kopi()
+                        : sporingsdata;
                 output.add(sd.leggTilId(id, attributtVerdi.toString()));
             }
         }
@@ -65,11 +68,11 @@ public class DefaultAbacSporingslogg implements AbacSporingslogg {
         loggDeny(beslutning.getPdpRequest(), beslutning.getDelbeslutninger(), attributter);
     }
 
-    private int antallSporingsrader(AbacAttributtSamling attributter) {
+    private static int antallSporingsrader(AbacAttributtSamling attributter) {
         return attributter.kryssProduktAntallAttributter();
     }
 
-    private List<Sporingsdata> byggIkkeSammensatteSporingsdata(AbacAttributtSamling attributter, List<Sporingsdata> pdpRequestSporingsdata) {
+    private static List<Sporingsdata> byggIkkeSammensatteSporingsdata(AbacAttributtSamling attributter, List<Sporingsdata> pdpRequestSporingsdata) {
         // egne linjer, for å unngå store kryssprodukter
         List<Sporingsdata> resultat = new ArrayList<>();
         resultat.addAll(pdpRequestSporingsdata);
@@ -77,7 +80,7 @@ public class DefaultAbacSporingslogg implements AbacSporingslogg {
         return resultat;
     }
 
-    private List<Sporingsdata> byggSammensattSporingsdata(AbacAttributtSamling attributter, List<Sporingsdata> pdpRequestSporingsdata) {
+    private static List<Sporingsdata> byggSammensattSporingsdata(AbacAttributtSamling attributter, List<Sporingsdata> pdpRequestSporingsdata) {
         // logg på samme linje(r)
         List<Sporingsdata> resultat = new ArrayList<>();
         for (Sporingsdata sporingsdatum : pdpRequestSporingsdata) {
@@ -95,19 +98,19 @@ public class DefaultAbacSporingslogg implements AbacSporingslogg {
 
         int antallRaderFraAttributter = antallSporingsrader(attributter);
         return antallRaderFraAttributter == 1 || antallRaderFraPdpRequest == 1
-            ? byggSammensattSporingsdata(attributter, pdpRequestSporingsdata)
-            : byggIkkeSammensatteSporingsdata(attributter, pdpRequestSporingsdata);
+                ? byggSammensattSporingsdata(attributter, pdpRequestSporingsdata)
+                : byggIkkeSammensatteSporingsdata(attributter, pdpRequestSporingsdata);
     }
 
     private Sporingsdata byggSporingsdata(String action, PdpRequest pdpRequest, int index, Decision decision) {
         return byggSporingsdata(action, pdpRequest, index).leggTilId(StandardSporingsloggId.ABAC_DECISION, decision.getEksternKode());
     }
 
-    private String fjernMellomrom(String verdi) {
+    private static String fjernMellomrom(String verdi) {
         return verdi != null ? verdi.replace(' ', '_') : null;
     }
 
-    private List<Sporingsdata> leggPåAttributter(Sporingsdata original, AbacAttributtSamling attributter) {
+    private static List<Sporingsdata> leggPåAttributter(Sporingsdata original, AbacAttributtSamling attributter) {
         List<Sporingsdata> sporingsdata = new ArrayList<>();
         sporingsdata.add(original);
 
@@ -118,25 +121,25 @@ public class DefaultAbacSporingslogg implements AbacSporingslogg {
         return sporingsdata;
     }
 
-    private void logg(Sporingsdata sporingsdata) {
+    private static void logg(Sporingsdata sporingsdata) {
         StringBuilder msg = new StringBuilder()
-            .append("action=").append(sporingsdata.getAction()).append(SPACE_SEPARATOR);
+                .append("action=").append(sporingsdata.getAction()).append(SPACE_SEPARATOR);
         for (var entry : sporingsdata.entrySet()) {
             String nøkkel = entry.getKey();
             String verdi = entry.getValue();
             msg.append(nøkkel)
-                .append('=')
-                .append(fjernMellomrom(verdi))
-                .append(SPACE_SEPARATOR);
+                    .append('=')
+                    .append(fjernMellomrom(verdi))
+                    .append(SPACE_SEPARATOR);
         }
         String sanitizedMsg = LoggerUtils.toStringWithoutLineBreaks(msg);
-        SPORINGSLOGG.info(sanitizedMsg); // NOSONAR
+        SPORINGSLOGG.info(sanitizedMsg);
     }
 
     /** Antall identer (aktørId, fnr) som behandles i denne requesten. */
     protected int antallIdenter(PdpRequest pdpRequest) {
         return pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)
-            + pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR);
+                + pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR);
     }
 
     protected int antallResources(PdpRequest pdpRequest) {
@@ -147,21 +150,30 @@ public class DefaultAbacSporingslogg implements AbacSporingslogg {
 
     protected Sporingsdata byggSporingsdata(String action, PdpRequest pdpRequest, int index) {
         Sporingsdata sporingsdata = Sporingsdata.opprett(action)
-            .leggTilId(StandardSporingsloggId.ABAC_ACTION, pdpRequest.getString(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID))
-            .leggTilId(StandardSporingsloggId.ABAC_RESOURCE_TYPE, pdpRequest.getString(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
+                .leggTilId(StandardSporingsloggId.ABAC_ACTION,
+                        pdpRequest.getString(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID))
+                .leggTilId(StandardSporingsloggId.ABAC_RESOURCE_TYPE,
+                        pdpRequest.getString(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
 
         // hent ut fnr og aksjonpspunkt-typer vha indexer pga kryssprodukt mellom disse
         setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR,
-            index % Math.max(pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR), 1), StandardSporingsloggId.FNR);
-        
-        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest, no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE,
-            index % Math.max(pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE), 1), StandardSporingsloggId.AKTOR_ID);
+                index % Math.max(pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR), 1),
+                StandardSporingsloggId.FNR);
+
+        setOptionalListValueinAttributeSet(sporingsdata, pdpRequest,
+                no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE,
+                index % Math.max(pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE),
+                        1),
+                StandardSporingsloggId.AKTOR_ID);
 
         setCustomSporingsdata(pdpRequest, index, sporingsdata);
         return sporingsdata;
     }
 
-    /** Eks. antall akjonspunkter, mottate dokumenter, el. som behandles i denne requesten. */
+    /**
+     * Eks. antall akjonspunkter, mottate dokumenter, el. som behandles i denne
+     * requesten.
+     */
     protected int getAntallResources(@SuppressWarnings("unused") PdpRequest pdpRequest) {
         return 1; // default - override etter behov
     }
@@ -176,6 +188,10 @@ public class DefaultAbacSporingslogg implements AbacSporingslogg {
 
         List<Sporingsdata> sporingsdata = byggSammensattSporingsdata(attributter, pdpRequestSporingsdata);
         logg(sporingsdata);
+    }
+
+    protected void loggTilgang(AbacAttributtSamling attributter) {
+        loggTilgang(new PdpRequest(), attributter);
     }
 
     protected void loggTilgang(PdpRequest pdpRequest, AbacAttributtSamling attributter) {

@@ -37,7 +37,6 @@ public class ServerInfoTest {
         assertThat(new ServerInfo().getCookieDomain()).isEqualTo("nav.no");
         System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, "https://baz.devillo.no");
         assertThat(new ServerInfo().getCookieDomain()).isEqualTo("devillo.no");
-
         System.clearProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL);
     }
 

@@ -40,8 +40,7 @@ public class AktørConsumerTest {
     public void skalReturnereTomOptionalNårServiceKasterHentAktoerIdForIdenPersonIkkeFunnet() throws Exception {
         var fault = new HentAktoerIdForIdentPersonIkkeFunnet("status: S511002F", null);
         when(mockAktoerV2.hentAktoerIdForIdent(any())).thenThrow(fault);
-        Optional<String> res = consumer.hentAktørIdForPersonIdent("123");
-        assertThat(res).isEmpty();
+        assertThat(consumer.hentAktørIdForPersonIdent("123")).isEmpty();
     }
 
     @Test

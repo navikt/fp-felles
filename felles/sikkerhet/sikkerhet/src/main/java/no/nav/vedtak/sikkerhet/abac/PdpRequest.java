@@ -14,7 +14,11 @@ public class PdpRequest {
     private final Map<String, Object> attributeMap;
 
     public PdpRequest() {
-        this.attributeMap = new HashMap<>();
+        this(new HashMap<>());
+    }
+
+    PdpRequest(Map<String, Object> attributeMap) {
+        this.attributeMap = attributeMap;
     }
 
     public void put(String key, Object value) {
@@ -48,6 +52,11 @@ public class PdpRequest {
 
     public int getAntall(String key) {
         return getListOfString(key).size();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [attributeMap=" + attributeMap + "]";
     }
 
 }
