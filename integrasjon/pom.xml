@@ -16,7 +16,6 @@
 		<module>webservice</module>
 		<module>rest</module>
 		<module>rest-klient</module>
-		<module>jms</module>
 
 		<!-- spesifikke klienter -->
 		<module>ldap-klient</module>
@@ -32,15 +31,12 @@
         <module>ereg-klient</module>
 		<module>kodeverk-klient</module>
 		<module>unleash-klient</module>
-		<module>okonomistotte-jms</module>
         <module>saf-klient</module>
         <module>sak-klient</module>
         <module>sensu-klient</module>
     </modules>
 
 	<properties>
-		<ibmmq.version>9.2.0.0</ibmmq.version>
-		<jms-api.version>2.0.1</jms-api.version>
 		<sob.melding.version>1.1.0</sob.melding.version>
 		<felles.adapter.version>0.1.8</felles.adapter.version>
 		<unleash.version>3.3.3</unleash.version>
@@ -66,24 +62,12 @@
 			</dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>felles-integrasjon-jms</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 				<artifactId>felles-integrasjon-rest-klient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 				<artifactId>felles-integrasjon-webservice</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-
-			<!-- Økonomi, tilbakekreving -->
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>okonomistotte-jms</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -238,18 +222,6 @@
 				<groupId>no.nav.tjenestespesifikasjoner</groupId>
 				<artifactId>nav-fim-sak-v1-tjenestespesifikasjon</artifactId>
 				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-
-			<!-- JMS -->
-			<dependency>
-				<groupId>javax.jms</groupId>
-				<artifactId>javax.jms-api</artifactId>
-				<version>${jms-api.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ibm.mq</groupId>
-				<artifactId>com.ibm.mq.allclient</artifactId>
-				<version>${ibmmq.version}</version>
 			</dependency>
 
 			<!-- SENSU klient -->
