@@ -26,6 +26,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.DefaultJsonMapperFeil;
+import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ByteArrayResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -94,26 +95,26 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     }
 
     public <T> T get(URI endpoint, Class<T> clazz) {
-        String entity = get(endpoint, createResponseHandler(endpoint));
+        String entity = get(endpoint, createStringResponseHandler(endpoint));
         return fromJson(entity, clazz);
     }
 
     public <T> T get(URI endpoint, Set<Header> headers, Class<T> clazz) {
-        String entity = get(endpoint, headers, Set.of(), createResponseHandler(endpoint));
+        String entity = get(endpoint, headers, Set.of(), createStringResponseHandler(endpoint));
         return fromJson(entity, clazz);
     }
 
     public <T> T get(URI endpoint, Set<Header> headers, Set<String> extraAuthHeaders, Class<T> clazz) {
-        String entity = get(endpoint, headers, extraAuthHeaders, createResponseHandler(endpoint));
+        String entity = get(endpoint, headers, extraAuthHeaders, createStringResponseHandler(endpoint));
         return fromJson(entity, clazz);
     }
 
     public String get(URI endpoint) {
-        return get(endpoint, createResponseHandler(endpoint));
+        return get(endpoint, createStringResponseHandler(endpoint));
     }
 
     public <T> Optional<T> getReturnsOptional(URI endpoint, Class<T> clazz) {
-        String entity = get(endpoint, createResponseHandler(endpoint));
+        String entity = get(endpoint, createStringResponseHandler(endpoint));
         if (StringUtils.nullOrEmpty(entity)) {
             return Optional.empty();
         }
@@ -121,45 +122,54 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     }
 
     public String patch(URI endpoint, Object dto) {
-        return patch(endpoint, dto, Collections.emptySet(), createResponseHandler(endpoint));
+        return patch(endpoint, dto, Collections.emptySet(), createStringResponseHandler(endpoint));
     }
 
     public String patch(URI endpoint, Object dto, Set<Header> headers) {
-        return patch(endpoint, dto, headers, createResponseHandler(endpoint));
+        return patch(endpoint, dto, headers, createStringResponseHandler(endpoint));
     }
 
     public String post(URI endpoint, Object dto) {
-        return post(endpoint, dto, createResponseHandler(endpoint));
+        return post(endpoint, dto, createStringResponseHandler(endpoint));
     }
 
     public <T> T post(URI endpoint, Object dto, Class<T> clazz) {
-        String entity = post(endpoint, dto, createResponseHandler(endpoint));
+        String entity = post(endpoint, dto, createStringResponseHandler(endpoint));
         return fromJson(entity, clazz);
     }
 
     public <T> T post(URI endpoint, Object dto, Set<Header> headers, Class<T> clazz) {
-        String entity = post(endpoint, dto, headers, createResponseHandler(endpoint));
+        String entity = post(endpoint, dto, headers, createStringResponseHandler(endpoint));
         return fromJson(entity, clazz);
     }
 
     public <T> Optional<T> postReturnsOptional(URI endpoint, Object dto, Class<T> clazz) {
-        String entity = post(endpoint, dto, createResponseHandler(endpoint));
+        String entity = post(endpoint, dto, createStringResponseHandler(endpoint));
         if (StringUtils.nullOrEmpty(entity)) {
             return Optional.empty();
         }
         return Optional.of(fromJson(entity, clazz));
     }
 
+    public Optional<byte[]> postReturnsOptionalOfByteArray(URI endpoint, Object dto) {
+        byte[] entity = post(endpoint, dto, createByteArrayResponseHandler(endpoint));
+        return Optional.ofNullable(entity);
+    }
+
     public String put(URI endpoint, Object dto) {
-        return put(endpoint, dto, Collections.emptySet(), createResponseHandler(endpoint));
+        return put(endpoint, dto, Collections.emptySet(), createStringResponseHandler(endpoint));
     }
 
     public String put(URI endpoint, Object dto, Set<Header> headers) {
-        return put(endpoint, dto, headers, createResponseHandler(endpoint));
+        return put(endpoint, dto, headers, createStringResponseHandler(endpoint));
     }
 
-    protected ResponseHandler<String> createResponseHandler(URI endpoint) {
+    protected ResponseHandler<String> createStringResponseHandler(URI endpoint) {
         return new StringResponseHandler(endpoint);
+    }
+
+    protected ResponseHandler<byte[]> createByteArrayResponseHandler(URI endpoint) {
+        return new ByteArrayResponseHandler(endpoint);
     }
 
     @Override
@@ -242,7 +252,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return post;
     }
 
-    protected String post(URI endpoint, Object dto, ResponseHandler<String> responseHandler) {
+    protected <T> T post(URI endpoint, Object dto, ResponseHandler<T> responseHandler) {
         HttpPost post = getJsonPost(endpoint, dto, Collections.emptySet());
         try {
             return this.execute(post, responseHandler);
