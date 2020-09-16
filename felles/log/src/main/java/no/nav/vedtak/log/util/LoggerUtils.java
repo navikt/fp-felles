@@ -1,16 +1,22 @@
 package no.nav.vedtak.log.util;
 
-public class LoggerUtils {
+import java.util.Optional;
+
+public final class LoggerUtils {
 
     private LoggerUtils() {
-        // skjult
     }
 
     public static String removeLineBreaks(String string) {
-        return string != null ? string.replaceAll("(\\r|\\n)", "") : null;
+        return Optional.ofNullable(string)
+                .map(s -> s.replaceAll("(\\r|\\n)", ""))
+                .orElse(null);
     }
 
     public static String toStringWithoutLineBreaks(Object object) {
-        return object != null ? removeLineBreaks(object.toString()) : null;
+        return Optional.ofNullable(object)
+                .map(Object::toString)
+                .map(LoggerUtils::removeLineBreaks)
+                .orElse(null);
     }
 }

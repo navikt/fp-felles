@@ -11,15 +11,20 @@ import java.util.List;
 import javax.json.JsonObject;
 
 import org.glassfish.json.JsonUtil;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sun.net.httpserver.HttpServer;
 
-import no.nav.modig.core.test.LogSniffer;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.log.util.MemoryAppender;
+import no.nav.vedtak.sikkerhet.abac.DefaultAbacSporingslogg;
+import no.nav.vedtak.util.AppLoggerFactory;
 
 public class PdpConsumerImplTest {
     private static HttpServer httpServer;
@@ -29,12 +34,15 @@ public class PdpConsumerImplTest {
     private static String context = "/asm-pdp/authorize";
     private static final String fakeEndPoint = server + context;
     private final JsonObject jsonRequest = JsonUtil.toJson("{\"Request\": \"dummy\"}").asJsonObject();
-    @Rule
-    public LogSniffer sniffer = new LogSniffer();
 
-    @SuppressWarnings("resource")
-    @BeforeClass
+    private static MemoryAppender logSniffer;
+    private static Logger LOG;
+
+    @BeforeAll
     public static void setUp() throws Exception {
+        LOG = Logger.class.cast(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
+        LOG.setLevel(Level.INFO);
+        logSniffer = new MemoryAppender(LOG.getName());
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.createContext(context, exchange -> {
             final Object[] resp = responses.remove(0);
@@ -46,7 +54,20 @@ public class PdpConsumerImplTest {
         httpServer.start();
     }
 
-    @AfterClass
+    @BeforeEach
+    public void beforeEach() {
+        logSniffer.reset();
+        LOG.addAppender(logSniffer);
+        logSniffer.start();
+    }
+
+    @AfterEach
+    public void afterEach() {
+        logSniffer.stop();
+        LOG.detachAppender(logSniffer);
+    }
+
+    @AfterAll
     public static void tearDown() throws Exception {
         httpServer.stop(0);
     }
@@ -65,7 +86,7 @@ public class PdpConsumerImplTest {
 
         assertThat(impl.execute(jsonRequest).toString()).isEqualTo(response1);
         assertThat(impl.execute(jsonRequest).toString()).isEqualTo(response3);
-        sniffer.assertHasWarnMessage("F-563467");
+        assertThat(logSniffer.searchInfo("F-563467")).isNotNull();
     }
 
     @Test
@@ -81,7 +102,7 @@ public class PdpConsumerImplTest {
 
         assertThat(impl.execute(jsonRequest).toString()).isEqualTo(response1);
         assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> impl.execute(jsonRequest))
-            .withMessageStartingWith("F-867412");
-        sniffer.assertHasWarnMessage("F-563467");
+                .withMessageStartingWith("F-867412");
+        assertThat(logSniffer.searchInfo("F-563467")).isNotNull();
     }
 }

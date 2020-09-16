@@ -238,8 +238,4 @@
 			<!-- End SENSU klient -->
 		</dependencies>
 	</dependencyManagement>
-
-	<dependencies>
-		
-	</dependencies>
 </project>

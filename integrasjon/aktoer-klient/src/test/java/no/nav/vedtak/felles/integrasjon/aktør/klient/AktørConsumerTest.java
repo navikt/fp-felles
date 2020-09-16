@@ -1,12 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.aktør.klient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
-import java.util.Optional;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
@@ -40,8 +38,7 @@ public class AktørConsumerTest {
     public void skalReturnereTomOptionalNårServiceKasterHentAktoerIdForIdenPersonIkkeFunnet() throws Exception {
         var fault = new HentAktoerIdForIdentPersonIkkeFunnet("status: S511002F", null);
         when(mockAktoerV2.hentAktoerIdForIdent(any())).thenThrow(fault);
-        Optional<String> res = consumer.hentAktørIdForPersonIdent("123");
-        assertThat(res).isEmpty();
+        assertThat(consumer.hentAktørIdForPersonIdent("123")).isEmpty();
     }
 
     @Test

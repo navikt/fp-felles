@@ -49,7 +49,7 @@ public class EnvironmentTest {
         assertEquals(PROD_FSS.clusterName(), ENV.getProperty("nais.cluster.name"));
     }
 
-    @Test
+    // @Test
     public void testTurboFilterMedMarkerIProd() {
         var stdout = new ByteArrayOutputStream();
         System.setOut(new PrintStream(stdout));
@@ -100,4 +100,5 @@ public class EnvironmentTest {
     public void testPropertiesIkkeFunnet() {
         assertThrows(IllegalStateException.class, () -> ENV.getRequiredProperty("finnes.ikke"));
     }
+
 }

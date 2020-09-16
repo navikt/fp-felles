@@ -1,23 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import ch.qos.logback.classic.Level;
-import no.nav.modig.core.test.LogSniffer;
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.isso.OpenAMHelper;
-import no.nav.vedtak.sikkerhet.domene.IdentType;
-import org.jose4j.json.JsonUtil;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_PASSWORD;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
@@ -31,6 +13,28 @@ import static no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider.PROVIDERNA
 import static no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider.PROVIDERNAME_OPEN_AM;
 import static no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider.PROVIDERNAME_STS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.jose4j.json.JsonUtil;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.isso.OpenAMHelper;
+import no.nav.vedtak.log.util.MemoryAppender;
+import no.nav.vedtak.sikkerhet.domene.IdentType;
 
 public class OidcTokenValidatorProviderTest {
 
@@ -47,21 +51,24 @@ public class OidcTokenValidatorProviderTest {
     private static String OPPRINNELIG_OPEN_ID_CONNECT_PASSWORD;
     private static String OPPRINNELIG_OPEN_ID_CONNECT_ISSO_HOST;
 
+    private static MemoryAppender logSniffer;
+    private static Logger LOG;
 
-    @Rule
-    public LogSniffer logSniffer = new LogSniffer(Level.DEBUG);
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @BeforeClass
-    public static void saveState() {
+    @BeforeAll
+    public static void beforeAll() {
         OPPRINNELIG_OPEN_ID_CONNECT_USERNAME = OpenAMHelper.getIssoUserName();
         OPPRINNELIG_OPEN_ID_CONNECT_PASSWORD = OpenAMHelper.getIssoPassword();
         OPPRINNELIG_OPEN_ID_CONNECT_ISSO_HOST = OpenAMHelper.getIssoHostUrl();
+        LOG = Logger.class.cast(LoggerFactory.getLogger(OidcTokenValidatorProvider.class));
+        LOG.setLevel(Level.INFO);
+        logSniffer = new MemoryAppender(LOG.getName());
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void beforeEach() {
+        logSniffer.reset();
+        LOG.addAppender(logSniffer);
+        logSniffer.start();
         OpenAMHelper.unsetWellKnownConfig();
 
         System.setProperty(PROVIDERNAME_OPEN_AM + AGENT_NAME_KEY, openam_agent);
@@ -86,12 +93,18 @@ public class OidcTokenValidatorProviderTest {
         OidcTokenValidatorProvider.clearInstance();
     }
 
-    @AfterClass
+    @AfterEach
+    public void afterEach() {
+        logSniffer.stop();
+        LOG.detachAppender(logSniffer);
+    }
+
+    @AfterAll
     public static void cleanupState() {
         for (String key : System.getProperties().stringPropertyNames()) {
             if (key.startsWith(PROVIDERNAME_OPEN_AM) ||
-                key.startsWith(PROVIDERNAME_STS) ||
-                key.startsWith(PROVIDERNAME_AAD_B2C)) {
+                    key.startsWith(PROVIDERNAME_STS) ||
+                    key.startsWith(PROVIDERNAME_AAD_B2C)) {
                 System.clearProperty(key);
             }
         }
@@ -118,10 +131,11 @@ public class OidcTokenValidatorProviderTest {
         assertThat(OidcTokenValidatorProvider.instance().getValidator(openam_iss)).isNotNull();
         assertThat(OidcTokenValidatorProvider.instance().getValidator(sts_iss)).isNotNull();
         assertThat(OidcTokenValidatorProvider.instance().getValidator(aad_b2c_iss)).isNotNull();
-        logSniffer.assertHasInfoMessage("Opprettet OidcTokenValidator for ");
-        logSniffer.assertHasInfoMessage("OpenIDProviderConfig<issuer=https://sts.no>");
-        logSniffer.assertHasInfoMessage("OpenIDProviderConfig<issuer=https://aad.b2c.no>");
-        logSniffer.assertHasInfoMessage("OpenIDProviderConfig<issuer=https://openam.no>");
+        assertLogged("Opprettet OidcTokenValidator for ");
+        assertLogged("Opprettet OidcTokenValidator for ");
+        assertLogged("OpenIDProviderConfig<issuer=https://sts.no>");
+        assertLogged("OpenIDProviderConfig<issuer=https://aad.b2c.no>");
+        assertLogged("OpenIDProviderConfig<issuer=https://openam.no>");
     }
 
     @Test
@@ -145,54 +159,53 @@ public class OidcTokenValidatorProviderTest {
     @Test
     public void feilkonfigurert_issuer_urler_gir_feil() {
         System.setProperty(PROVIDERNAME_OPEN_AM + ISSUER_URL_KEY, invalidUrl);
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("Syntaksfeil i OIDC konfigurasjonen av 'issuer' for '" + PROVIDERNAME_OPEN_AM);
-
-        OidcTokenValidatorProvider.instance();
+        var e = assertThrows(TekniskException.class, () -> OidcTokenValidatorProvider.instance());
+        assertTrue(e.getMessage().contains("Syntaksfeil i OIDC konfigurasjonen av 'issuer' for '" + PROVIDERNAME_OPEN_AM));
     }
 
     @Test
     public void feilkonfigurert_jwks_urler_gir_feil() {
         System.setProperty(PROVIDERNAME_OPEN_AM + JWKS_URL_KEY, invalidUrl);
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("Syntaksfeil i OIDC konfigurasjonen av 'jwks' for '" + PROVIDERNAME_OPEN_AM);
+        var e = assertThrows(TekniskException.class, () -> OidcTokenValidatorProvider.instance());
+        assertTrue(e.getMessage().contains("Syntaksfeil i OIDC konfigurasjonen av 'jwks' for '" + PROVIDERNAME_OPEN_AM));
 
-        OidcTokenValidatorProvider.instance();
     }
 
     @Test
     public void feilkonfigurert_host_urler_gir_feil() {
         System.setProperty(PROVIDERNAME_OPEN_AM + HOST_URL_KEY, invalidUrl);
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("Syntaksfeil i OIDC konfigurasjonen av 'host' for '" + PROVIDERNAME_OPEN_AM);
-
-        OidcTokenValidatorProvider.instance();
+        var e = assertThrows(TekniskException.class, () -> OidcTokenValidatorProvider.instance());
+        assertTrue(e.getMessage().contains("Syntaksfeil i OIDC konfigurasjonen av 'host' for '" + PROVIDERNAME_OPEN_AM));
     }
 
     @Test
     public void interne_providere_skal_IKKE_validere_aud() {
         Set<OpenIDProviderConfig> configs = new OidcTokenValidatorProvider.OpenIDProviderConfigProvider().getConfigs();
-        Set<OpenIDProviderConfig> configForInternBruker = configs.stream().filter(config -> config.getIdentTyper().contains(IdentType.InternBruker)).collect(Collectors.toSet());
+        Set<OpenIDProviderConfig> configForInternBruker = configs.stream().filter(config -> config.getIdentTyper().contains(IdentType.InternBruker))
+                .collect(Collectors.toSet());
         assertThat(configForInternBruker).allSatisfy(config -> config.isSkipAudienceValidation());
     }
 
     @Test
     public void eksterne_providere_skal_validere_aud() {
         Set<OpenIDProviderConfig> configs = new OidcTokenValidatorProvider.OpenIDProviderConfigProvider().getConfigs();
-        Set<OpenIDProviderConfig> configForEksternBruker = configs.stream().filter(config -> config.getIdentTyper().contains(IdentType.EksternBruker)).collect(Collectors.toSet());
+        Set<OpenIDProviderConfig> configForEksternBruker = configs.stream().filter(config -> config.getIdentTyper().contains(IdentType.EksternBruker))
+                .collect(Collectors.toSet());
 
-        assertThat(configForEksternBruker).allSatisfy(config ->
-            assertThat(config.isSkipAudienceValidation()).isFalse());
+        assertThat(configForEksternBruker).allSatisfy(config -> assertThat(config.isSkipAudienceValidation()).isFalse());
     }
 
     @Test
     public void providere_skal_støtte_enten_InternBruker_eller_EksternBruker() {
         Set<OpenIDProviderConfig> configs = new OidcTokenValidatorProvider.OpenIDProviderConfigProvider().getConfigs();
         assertThat(configs.stream()
-            .filter(config -> !config.getIdentTyper().contains(IdentType.InternBruker) && !config.getIdentTyper().contains(IdentType.EksternBruker))
-            .collect(Collectors.toSet()))
-            .isEmpty();
+                .filter(config -> !config.getIdentTyper().contains(IdentType.InternBruker)
+                        && !config.getIdentTyper().contains(IdentType.EksternBruker))
+                .collect(Collectors.toSet()))
+                        .isEmpty();
     }
 
-
+    private static void assertLogged(String string) {
+        assertThat(logSniffer.searchInfo(string)).isNotNull();
+    }
 }

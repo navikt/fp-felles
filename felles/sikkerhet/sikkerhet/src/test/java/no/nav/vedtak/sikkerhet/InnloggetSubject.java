@@ -5,17 +5,12 @@ import java.util.List;
 
 import javax.security.auth.Subject;
 
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
-
 import no.nav.vedtak.sikkerhet.context.SubjectHandlerUtils;
-import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.domene.IdentType;
 import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
-public class InnloggetSubject implements MethodRule {
+public class InnloggetSubject /* implements MethodRule */ {
 
     private String ident = "A000000";
     private IdentType identType = IdentType.InternBruker;
@@ -48,22 +43,20 @@ public class InnloggetSubject implements MethodRule {
         return this;
     }
 
-    @Override
-    public Statement apply(Statement base, FrameworkMethod method, Object target) {
-
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                SubjectHandlerUtils.useSubjectHandler(ThreadLocalSubjectHandler.class);
-                Subject subject = buildSubject();
-                SubjectHandlerUtils.setSubject(subject);
-
-                base.evaluate();
-
-                SubjectHandlerUtils.unsetSubjectHandler();
-            }
-        };
-    }
+    /*
+     * @Override public Statement apply(Statement base, FrameworkMethod method,
+     * Object target) {
+     * 
+     * return new Statement() {
+     * 
+     * @Override public void evaluate() throws Throwable {
+     * SubjectHandlerUtils.useSubjectHandler(ThreadLocalSubjectHandler.class);
+     * Subject subject = buildSubject(); SubjectHandlerUtils.setSubject(subject);
+     * 
+     * base.evaluate();
+     * 
+     * SubjectHandlerUtils.unsetSubjectHandler(); } }; }
+     */
 
     private Subject buildSubject() {
         Subject subject = new SubjectHandlerUtils.SubjectBuilder(ident, identType).getSubject();

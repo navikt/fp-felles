@@ -26,11 +26,12 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
         XacmlRequestBuilder xacmlBuilder = new XacmlRequestBuilder();
 
         XacmlAttributeSet actionAttributeSet = new XacmlAttributeSet();
-        actionAttributeSet.addAttribute(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID, pdpRequest.getString(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID));
+        actionAttributeSet.addAttribute(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID,
+                pdpRequest.getString(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID));
         xacmlBuilder.addActionAttributeSet(actionAttributeSet);
 
         List<Tuple<String, String>> identer = hentIdenter(pdpRequest, NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR,
-            NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
+                NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
 
         if (identer.isEmpty()) {
             populerResources(xacmlBuilder, pdpRequest, null);
@@ -55,10 +56,10 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
         XacmlAttributeSet resourceAttributeSet = new XacmlAttributeSet();
 
         resourceAttributeSet.addAttribute(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE,
-            pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE));
+                pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE));
 
         resourceAttributeSet.addAttribute(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE,
-            pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
+                pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
 
         return resourceAttributeSet;
     }
@@ -67,7 +68,7 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
         pdpRequest.getOptional(key).ifPresent(s -> resourceAttributeSet.addAttribute(key, s));
     }
 
-    private List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
+    private static List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
         List<Tuple<String, String>> identer = new ArrayList<>();
         for (String key : identNøkler) {
             identer.addAll(pdpRequest.getListOfString(key).stream().map(it -> new Tuple<>(key, it)).collect(Collectors.toList()));

@@ -10,7 +10,10 @@ import static org.mockito.Mockito.when;
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.event.Level;
 
 import no.nav.vedtak.exception.IntegrasjonException;
@@ -18,12 +21,15 @@ import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
 import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 import no.nav.vedtak.sikkerhet.oidc.VlIOException;
 
+@ExtendWith(MockitoExtension.class)
 public class SystemUserIdTokenProviderTest {
+
+    @Mock
+    Random random;
 
     @Test
     public void skal_hente_token() throws Exception {
         OpenAMHelper openAMHelper = mock(OpenAMHelper.class);
-        Random random = mock(Random.class);
         OidcCredential oidcToken = new OidcCredential("dummy.oidc.token");
         when(openAMHelper.getToken()).thenReturn(new IdTokenAndRefreshToken(oidcToken, "dummy.refresh.token"));
 
@@ -35,7 +41,6 @@ public class SystemUserIdTokenProviderTest {
     @Test
     public void skal_gjøre_retry_når_henting_av_token_feiler_og_til_slutt_feile() throws Exception {
         OpenAMHelper openAMHelper = mock(OpenAMHelper.class);
-        Random random = mock(Random.class);
         Mockito.when(random.nextInt(anyInt())).thenReturn(-1); // HAXX setter -1 for at testen skal slippe å sove
         when(openAMHelper.getToken()).thenThrow(mock(VlIOException.class));
         try {
@@ -50,7 +55,6 @@ public class SystemUserIdTokenProviderTest {
 
     @Test
     public void sovetid_skal_være_minimum_forventet_tid_for_å_hente_token() throws Exception {
-        Random random = mock(Random.class);
         when(random.nextInt(anyInt())).thenReturn(0);
         assertThat(SystemUserIdTokenProvider.sovetid(random)).isEqualTo(SystemUserIdTokenProvider.ESTIMERT_TID_FOR_Å_HENTE_TOKEN_MILLIS);
 
@@ -58,7 +62,6 @@ public class SystemUserIdTokenProviderTest {
 
     @Test
     public void sovetid_skal_et_tilfeldig_heltall_ganget_med_forventet_tid_For_å_hente_token() throws Exception {
-        Random random = mock(Random.class);
         when(random.nextInt(anyInt())).thenReturn(1);
         assertThat(SystemUserIdTokenProvider.sovetid(random)).isEqualTo(SystemUserIdTokenProvider.ESTIMERT_TID_FOR_Å_HENTE_TOKEN_MILLIS * 2);
         when(random.nextInt(anyInt())).thenReturn(2);

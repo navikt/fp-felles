@@ -15,7 +15,7 @@
     </modules>
 
     <properties>
-        <revision>2.2.0</revision>
+        <revision>2.3.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
         <java.version>11</java.version>
@@ -57,12 +57,14 @@
                 <version>${assertj.version}</version>
                 <scope>test</scope>
             </dependency>
+
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit4.version}</version>
                 <scope>test</scope>
             </dependency>
+
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
@@ -288,10 +290,17 @@
         </repository>
     </distributionManagement>
     <dependencies>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>

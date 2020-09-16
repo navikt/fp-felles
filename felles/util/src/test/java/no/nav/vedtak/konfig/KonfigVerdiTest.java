@@ -4,22 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import no.nav.vedtak.util.env.Environment;
 
-import no.nav.vedtak.konfig.KonfigVerdi.StringDuplicator;
-
-@RunWith(LocalCdiRunner.class)
 public class KonfigVerdiTest {
 
     private static final String NAV = "http://www.nav.no";
@@ -34,86 +24,24 @@ public class KonfigVerdiTest {
 
     private static final String KEY_LOCAL_DATE = "my.local.date.test";
     private static final String VALUE_LOCAL_DATE = "1989-09-29";
+    private static final Environment ENV = Environment.current();
 
-    @Inject
-    @Any
-    private Instance<KonfigVerdiProvider> providers;
+    private int propFraFil = ENV.getProperty("test.property", int.class);
+    private int propFraFilOverride = ENV.getProperty("test1.property", int.class);
+    private int systemVinner = ENV.getProperty("test2.property", int.class);
+    private int namespaceVerdi = ENV.getProperty("test3.property", int.class);
+    private String javaHome = ENV.getProperty("user.home");
+    private String myProperty = ENV.getProperty(KonfigVerdiTest.KEY);
+    private Integer myIntegerPropertyValue = ENV.getProperty(KonfigVerdiTest.KEY_INT, Integer.class);
+    private Boolean myBooleanPropertyValue = ENV.getProperty(KonfigVerdiTest.KEY_BOOLEAN, Boolean.class);
+    private LocalDate myLocalDateValue = ENV.getProperty(KonfigVerdiTest.KEY_LOCAL_DATE, LocalDate.class);
+    private String stringProperty = ENV.getProperty("my.property", "42");
+    private Integer intDefaultProperty = ENV.getProperty("my.property", Integer.class, 42);
+    private boolean booleanDefaultProperty = ENV.getProperty("my.property", boolean.class, true);
+    private URI uriDefaultProperty = ENV.getProperty("my.property", URI.class, URI.create(NAV));
+    private int defaultNotUsed = ENV.getProperty("my.property.notdefault", int.class, 42);
 
-    @Inject
-    @KonfigVerdi(value = "test.property")
-    private int propFraFil;
-    @Inject
-    @KonfigVerdi(value = "test1.property")
-    private int propFraFilOverride;
-    @Inject
-    @KonfigVerdi(value = "test2.property")
-    private int systemVinner;
-    @Inject
-    @KonfigVerdi(value = "test3.property")
-    private int namespaceVerdi;
-
-    @Inject
-    @KonfigVerdi("user.home")
-    private String javaHome;
-
-    @Inject
-    @KonfigVerdi(KonfigVerdiTest.KEY)
-    private String myProperty;
-
-    @Inject
-    @KonfigVerdi(KonfigVerdiTest.KEY)
-    private List<String> myPropertyList;
-
-    @Inject
-    @KonfigVerdi(KonfigVerdiTest.KEY)
-    private Map<String, String> myPropertyMap;
-
-    @Inject
-    @KonfigVerdi(value = KonfigVerdiTest.KEY, converter = KonfigVerdi.BooleanConverter.class)
-    private Map<String, Boolean> myPropertyBooleanMap;
-
-    @Inject
-    @KonfigVerdi(KonfigVerdiTest.KEY_INT)
-    private String myIntegerProperty;
-
-    @Inject
-    @KonfigVerdi(value = KonfigVerdiTest.KEY_INT, converter = KonfigVerdi.IntegerConverter.class)
-    private Integer myIntegerPropertyValue;
-
-    @Inject
-    @KonfigVerdi(KonfigVerdiTest.KEY_BOOLEAN)
-    private String myBooleanProperty;
-
-    @Inject
-    @KonfigVerdi(value = KonfigVerdiTest.KEY_BOOLEAN, converter = KonfigVerdi.BooleanConverter.class)
-    private Boolean myBooleanPropertyValue;
-
-    @Inject
-    @KonfigVerdi(value = KonfigVerdiTest.KEY_LOCAL_DATE, converter = KonfigVerdi.LocalDateConverter.class)
-    private LocalDate myLocalDateValue;
-
-    @Inject
-    @KonfigVerdi(value = "my.property", defaultVerdi = "42")
-    private String stringProperty;
-    @Inject
-    @KonfigVerdi(value = "my.property", defaultVerdi = "42", converter = StringDuplicator.class)
-    private String stringDefaultWithConversionProperty;
-    @Inject
-    @KonfigVerdi(value = "my.property", defaultVerdi = "42")
-    private Integer intDefaultProperty;
-    @Inject
-    @KonfigVerdi(value = "my.property", defaultVerdi = "true")
-    private boolean booleanDefaultProperty;
-
-    @Inject
-    @KonfigVerdi(value = "my.property", defaultVerdi = NAV)
-    private URI uriDefaultProperty;
-
-    @Inject
-    @KonfigVerdi(value = "my.property.notdefault", defaultVerdi = "42")
-    private int defaultNotUsed;
-
-    @BeforeClass
+    @BeforeAll
     public static void setupSystemPropertyForTest() {
         System.setProperty("my.property.notdefault", "0");
         System.setProperty(KEY, VALUE);
@@ -140,67 +68,31 @@ public class KonfigVerdiTest {
         assertThat(stringProperty).isEqualTo("42");
         assertThat(booleanDefaultProperty).isEqualTo(true);
         assertThat(intDefaultProperty).isEqualTo(42);
-        assertThat(stringDefaultWithConversionProperty).isEqualTo("4242");
         assertThat(uriDefaultProperty).isEqualTo(URI.create(NAV));
-
     }
 
     @Test
     public void skal_injisere_konfig() throws Exception {
-        assertThat(providers).isNotEmpty();
         assertThat(javaHome).isNotNull();
     }
 
     @Test
     public void skal_injisere_verdi_fra_systemproperties() throws Exception {
-        assertThat(providers).isNotEmpty();
         assertThat(myProperty).isEqualTo(VALUE);
     }
 
     @Test
-    public void skal_injisere_liste_fra_systemproperties() throws Exception {
-        assertThat(providers).isNotEmpty();
-        assertThat(myPropertyList).isEqualTo(Arrays.asList("key1:true", "key2:false"));
-    }
-
-    @Test
-    public void skal_injisere_map_fra_systemproperties() throws Exception {
-        assertThat(providers).isNotEmpty();
-        Map<String, String> expected = new HashMap<>();
-        expected.put("key1", "true");
-        expected.put("key2", "false");
-
-        assertThat(myPropertyMap).isEqualTo(expected);
-    }
-
-    @Test
-    public void skal_injisere_boolean_map_fra_systemproperties() throws Exception {
-        assertThat(providers).isNotEmpty();
-        Map<String, Boolean> expected = new HashMap<>();
-        expected.put("key1", Boolean.TRUE);
-        expected.put("key2", Boolean.FALSE);
-
-        assertThat(myPropertyBooleanMap).isEqualTo(expected);
-    }
-
-    @Test
     public void skal_injisere_integer_fra_systemproperties() throws Exception {
-        assertThat(providers).isNotEmpty();
-        int expected = 39;
-        assertThat(myIntegerPropertyValue).isEqualTo(expected);
+        assertThat(myIntegerPropertyValue).isEqualTo(39);
     }
 
     @Test
     public void skal_injisere_boolean_fra_systemproperties() throws Exception {
-        assertThat(providers).isNotEmpty();
-        boolean expected = false;
-        assertThat(myBooleanPropertyValue).isEqualTo(expected);
+        assertThat(myBooleanPropertyValue).isEqualTo(false);
     }
 
     @Test
     public void skal_injisere_local_date_fra_systemproperties() throws Exception {
-        assertThat(providers).isNotEmpty();
-        LocalDate randomDato = LocalDate.of(1989, 9, 29);
-        assertThat(myLocalDateValue).isEqualTo(randomDato);
+        assertThat(myLocalDateValue).isEqualTo(LocalDate.of(1989, 9, 29));
     }
 }

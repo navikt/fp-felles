@@ -70,7 +70,7 @@ public class PdpRequestTest {
         assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_NAVN, 0)).isNotPresent();
     }
 
-    private Optional<String> getElementFromListByKeyAndIndex(PdpRequest pdpRequest, String key, int index) {
+    private static Optional<String> getElementFromListByKeyAndIndex(PdpRequest pdpRequest, String key, int index) {
         List<String> list = pdpRequest.getListOfString(key);
         if (list.size() >= index + 1) {
             return Optional.ofNullable(list.get(index));

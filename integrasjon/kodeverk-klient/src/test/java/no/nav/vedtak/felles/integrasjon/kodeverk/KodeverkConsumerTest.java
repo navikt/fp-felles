@@ -14,17 +14,22 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.tjeneste.virksomhet.kodeverk.v2.KodeverkPortType;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.FinnKodeverkListeRequest;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkRequest;
 import no.nav.vedtak.exception.IntegrasjonException;
 
+@ExtendWith(MockitoExtension.class)
 public class KodeverkConsumerTest {
 
     private KodeverkConsumer consumer;
 
-    private KodeverkPortType mockWebservice = mock(KodeverkPortType.class);
+    @Mock
+    private KodeverkPortType mockWebservice;
 
     @BeforeEach
     public void setUp() {
