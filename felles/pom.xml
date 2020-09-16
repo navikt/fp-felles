@@ -448,39 +448,23 @@
                 <version>1.5.0</version>
             </dependency>
 
-            <!-- Andre 3djepart avhengigheter -->
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-testutilities</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>felles-integrasjon-jms</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>okonomistotte-jms</artifactId>
-                <type>test-jar</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>okonomistotte-jms</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.github.classgraph</groupId>
-                <artifactId>classgraph</artifactId>
-                <version>4.8.90</version>
-            </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>1.4.200</version>
-                <scope>test</scope>
-            </dependency>
+			<!-- Andre 3djepart avhengigheter -->
+			<dependency>
+				<groupId>no.nav.foreldrepenger.felles</groupId>
+				<artifactId>felles-testutilities</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.classgraph</groupId>
+				<artifactId>classgraph</artifactId>
+				<version>4.8.90</version>
+			</dependency>
+			<dependency>
+	            <groupId>com.h2database</groupId>
+	            <artifactId>h2</artifactId>
+	            <version>1.4.200</version>
+	            <scope>test</scope>
+	        </dependency>
 
             <dependency>
                 <!-- fjernet fra SE i Java11 -->
