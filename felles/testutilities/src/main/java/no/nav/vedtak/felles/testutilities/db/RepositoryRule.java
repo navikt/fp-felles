@@ -18,9 +18,9 @@ import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
  * EntityManager) for bruk i tester som aksessererer datalageret.
  * <p>
  * Bruk {@link EntityManagerAwareExtension} med JUnit 5.
- * 
+ *
  */
-@Deprecated(forRemoval = true, since = "2.1.x")
+@Deprecated(forRemoval = true, since = "2.3.x")
 public abstract class RepositoryRule extends PersistenceUnitInitializer implements MethodRule {
 
     static {

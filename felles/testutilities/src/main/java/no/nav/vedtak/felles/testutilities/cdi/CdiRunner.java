@@ -10,6 +10,7 @@ import org.junit.runners.model.InitializationError;
  * <p>
  * Gjør at CDI enabled beans kan injectes direkte i enhetstestklasser.
  */
+@Deprecated(forRemoval = true, since = "2.3.x")
 public class CdiRunner extends BlockJUnit4ClassRunner {
 
     private WeldContext weldContext;

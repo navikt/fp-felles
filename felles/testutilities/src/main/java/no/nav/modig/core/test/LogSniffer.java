@@ -26,7 +26,7 @@ import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.core.spi.FilterReply;
 
-@Deprecated(forRemoval = true, since = "2.1.x")
+@Deprecated(forRemoval = true, since = "2.3.x")
 public class LogSniffer implements TestRule {
     private final Map<ILoggingEvent, Boolean> logbackAppender;
     private final Level minimumLevel;
