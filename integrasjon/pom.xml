@@ -16,7 +16,6 @@
 		<module>webservice</module>
 		<module>rest</module>
 		<module>rest-klient</module>
-		<module>jms</module>
 
 		<!-- spesifikke klienter -->
 		<module>ldap-klient</module>
@@ -32,7 +31,6 @@
         <module>ereg-klient</module>
 		<module>kodeverk-klient</module>
 		<module>unleash-klient</module>
-		<module>okonomistotte-jms</module>
         <module>saf-klient</module>
         <module>sak-klient</module>
         <module>sensu-klient</module>
@@ -66,24 +64,12 @@
 			</dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>felles-integrasjon-jms</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 				<artifactId>felles-integrasjon-rest-klient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 				<artifactId>felles-integrasjon-webservice</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-
-			<!-- Økonomi, tilbakekreving -->
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>okonomistotte-jms</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
