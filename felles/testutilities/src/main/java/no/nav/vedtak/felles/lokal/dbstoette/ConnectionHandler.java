@@ -12,7 +12,7 @@ import com.zaxxer.hikari.HikariDataSource;
 /**
  * @deprecated Sett heller opp connection pooldirekte fra app som benytter
  */
-@Deprecated(forRemoval = true)
+@Deprecated(forRemoval = true, since = "2.3.x")
 public class ConnectionHandler {
 
     private static Map<String, DataSource> cache = new ConcurrentHashMap<>();
@@ -42,7 +42,8 @@ public class ConnectionHandler {
         config.setMinimumIdle(0);
         config.setMaximumPoolSize(4);
 
-        config.setAutoCommit(false); // setter til false (default er true), slik at vi kan optimalisere JPA/Hibernate conn mgmt
+        config.setAutoCommit(false); // setter til false (default er true), slik at vi kan optimalisere JPA/Hibernate
+                                     // conn mgmt
 
         Properties dsProperties = new Properties();
         config.setDataSourceProperties(dsProperties);

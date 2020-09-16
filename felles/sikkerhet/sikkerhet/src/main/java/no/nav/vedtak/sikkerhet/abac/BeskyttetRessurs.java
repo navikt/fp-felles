@@ -18,7 +18,7 @@ public @interface BeskyttetRessurs {
     @Nonbinding BeskyttetRessursActionAttributt action();
 
     /** @deprecated bruk #resource() i stedet. Definer egne abac attributter i egen applikasjon.*/
-    @Nonbinding @Deprecated(forRemoval=true) BeskyttetRessursResourceAttributt ressurs() default BeskyttetRessursResourceAttributt.DUMMY;
+    @Nonbinding @Deprecated(forRemoval=true,since="2.3.x") BeskyttetRessursResourceAttributt ressurs() default BeskyttetRessursResourceAttributt.DUMMY;
 
     @Nonbinding String resource() default "";
     

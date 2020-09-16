@@ -1,8 +1,10 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-/** @deprecated bruk #resource() i stedet. Definer egne abac attributter i egen applikasjon. 
- * Kun for Legacy.   */
-@Deprecated(forRemoval = true)
+/**
+ * @deprecated bruk #resource() i stedet. Definer egne abac attributter i egen
+ *             applikasjon. Kun for Legacy.
+ */
+@Deprecated(forRemoval = true, since = "2.3.x")
 public enum BeskyttetRessursResourceAttributt {
     APPLIKASJON("no.nav.abac.attributter.foreldrepenger"),
     FAGSAK("no.nav.abac.attributter.foreldrepenger.fagsak"),
@@ -17,8 +19,10 @@ public enum BeskyttetRessursResourceAttributt {
     RISIKOKLASSIFISERING("no.nav.abac.attributter.foreldrepenger.risikoklassifisering"),
     UTTAKSPLAN("no.nav.abac.attributter.resource.foreldrepenger.uttaksplan"),
 
-    /** 🎺 ♫ ♫ IKKE LEGG INN FLERE ATTRIBUTTER HER.  DE VIL SLETTES VILKÅRLIG.  ♫ ♫ 🎺 */
-    
+    /**
+     * 🎺 ♫ ♫ IKKE LEGG INN FLERE ATTRIBUTTER HER. DE VIL SLETTES VILKÅRLIG. ♫ ♫ 🎺
+     */
+
     /**
      * Skal kun brukes av Interceptor
      */

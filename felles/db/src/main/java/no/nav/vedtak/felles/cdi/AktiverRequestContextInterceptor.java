@@ -17,7 +17,7 @@ import org.jboss.weld.manager.BeanManagerImpl;
  * Implementasjon som setter opp {@link RequestContext} når {@link AktiverRequestContext} CDI Scope skal aktiveres.
  * @deprecated Trengs ikke lenger - Bytt til {@link ActivateRequestContext} i stedet (CDI 2.0 har innebygd støtte for dette).
  */
-@Deprecated(forRemoval = true)
+@Deprecated(forRemoval = true,since="2.3.x")
 @Interceptor
 @AktiverRequestContext
 @Priority(Interceptor.Priority.APPLICATION)

@@ -12,10 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Oppsett av konfigurasjon spesielt for enhetstester (inklusiv JUnit Integration Tests)
+ * Oppsett av konfigurasjon spesielt for enhetstester (inklusiv JUnit
+ * Integration Tests)
+ *
  * @deprecated Sett opp i egen applikasjon hvis nødvendig.
  */
-@Deprecated(forRemoval=true)
+@Deprecated(forRemoval = true, since = "2.3.x")
 public class UnitTestConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(UnitTestConfiguration.class);

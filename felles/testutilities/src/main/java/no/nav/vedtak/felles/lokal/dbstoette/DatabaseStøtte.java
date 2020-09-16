@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 import no.nav.vedtak.felles.testutilities.db.FlywayKonfig;
 
 /**
- * Støtte for migrering av databaseskjema lokalt (brukes til jetty, enhetstester, og jenkins)
- * Setter opp JDNI-oppslag.
- * 
+ * Støtte for migrering av databaseskjema lokalt (brukes til jetty,
+ * enhetstester, og jenkins) Setter opp JDNI-oppslag.
+ *
  * @deprecated Kjør heller Flyway direkte fra app som benytter
  */
-@Deprecated(forRemoval = true)
+@Deprecated(forRemoval = true, since = "2.3.x")
 public final class DatabaseStøtte {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseStøtte.class);
@@ -28,8 +28,8 @@ public final class DatabaseStøtte {
     }
 
     /**
-     * Migrering kjøres i vilkårlig rekkefølge. Hvis bruker/skjema angitt i {@link DBConnectionProperties}
-     * ikke finnes, opprettes den
+     * Migrering kjøres i vilkårlig rekkefølge. Hvis bruker/skjema angitt i
+     * {@link DBConnectionProperties} ikke finnes, opprettes den
      */
     public static void kjørMigreringFor(List<DBConnectionProperties> connectionProperties) {
         connectionProperties.forEach(DatabaseStøtte::kjørerMigreringFor);
@@ -66,31 +66,31 @@ public final class DatabaseStøtte {
     }
 
     private static void migrer(DataSource dataSource,
-                               DBConnectionProperties connectionProperties,
-                               boolean cleanup) {
+            DBConnectionProperties connectionProperties,
+            boolean cleanup) {
         String scriptLocation;
         if (connectionProperties.getMigrationScriptsClasspathRoot() != null) {
             scriptLocation = "classpath:/" + connectionProperties.getMigrationScriptsClasspathRoot() + "/"
-                + connectionProperties.getSchema();
+                    + connectionProperties.getSchema();
         } else {
             scriptLocation = getMigrationScriptLocation(connectionProperties);
         }
 
         boolean migreringOk = FlywayKonfig.lagKonfig(dataSource)
-            .medSqlLokasjon(scriptLocation)
-            .medCleanup(cleanup, connectionProperties.getUser())
-            .medMetadataTabell(connectionProperties.getVersjonstabell())
-            .migrerDb();
+                .medSqlLokasjon(scriptLocation)
+                .medCleanup(cleanup, connectionProperties.getUser())
+                .medMetadataTabell(connectionProperties.getVersjonstabell())
+                .migrerDb();
 
         if (!migreringOk) {
             LOGGER.warn(
-                "\n\nKunne ikke starte inkrementell oppdatering av databasen. Det finnes trolig endringer i allerede kjørte script.\nKjører full migrering...");
+                    "\n\nKunne ikke starte inkrementell oppdatering av databasen. Det finnes trolig endringer i allerede kjørte script.\nKjører full migrering...");
 
             migreringOk = FlywayKonfig.lagKonfig(dataSource)
-                .medCleanup(true, connectionProperties.getUser())
-                .medSqlLokasjon(scriptLocation)
-                .medMetadataTabell(connectionProperties.getVersjonstabell())
-                .migrerDb();
+                    .medCleanup(true, connectionProperties.getUser())
+                    .medSqlLokasjon(scriptLocation)
+                    .medMetadataTabell(connectionProperties.getVersjonstabell())
+                    .migrerDb();
             if (!migreringOk) {
                 throw new IllegalStateException("\n\nFeil i script. Avslutter...");
             }
@@ -111,6 +111,5 @@ public final class DatabaseStøtte {
 
         return "filesystem:" + location.getPath();
     }
-
 
 }

@@ -21,7 +21,7 @@ import javax.interceptor.InterceptorBinding;
  * @see RequestScoped
  * @deprecated Denne trengs ikke lenger. bytt til {@link ActivateRequestContext}
  */
-@Deprecated(forRemoval = true)
+@Deprecated(forRemoval = true,since="2.3.x")
 @Inherited
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)

@@ -32,7 +32,8 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.StringUtils;
 
 /**
- * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og callId
+ * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og
+ * callId
  */
 public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     private static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
@@ -42,14 +43,25 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     private static final String AUTH_HEADER = "Authorization";
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
 
-    /** @deprecated gammel call id header. Ser ikke ut til å være i bruk lenger. så bør kunne fjernes?*/
-    @Deprecated(forRemoval = true)
+    /**
+     * @deprecated gammel call id header. Ser ikke ut til å være i bruk lenger. så
+     *             bør kunne fjernes?
+     */
+    @Deprecated(forRemoval = true, since = "2.3.x")
     private static final String CALL_ID = "xCALL_ID";
-    /** @deprecated Ikke nye call Id, Den som aldri skulle vært. Brukes kun i SigrunRestClient(?) (der er den allerede inlinet), så bør kunne fjernes trygt herfra. */
-    @Deprecated(forRemoval = true)
+    /**
+     * @deprecated Ikke nye call Id, Den som aldri skulle vært. Brukes kun i
+     *             SigrunRestClient(?) (der er den allerede inlinet), så bør kunne
+     *             fjernes trygt herfra.
+     */
+    @Deprecated(forRemoval = true, since = "2.3.x")
     public static final String NYE_HEADER_CALL_ID = "no.nav.callid";
-    /** @deprecated Ikke nye consumer Id, Den som aldri skulle vært. Brukes kun i SigrunRestClient(?) (der er den allerede inlinet), så bør kunne fjernes trygt herfra. */
-    @Deprecated(forRemoval = true)
+    /**
+     * @deprecated Ikke nye consumer Id, Den som aldri skulle vært. Brukes kun i
+     *             SigrunRestClient(?) (der er den allerede inlinet), så bør kunne
+     *             fjernes trygt herfra.
+     */
+    @Deprecated(forRemoval = true, since = "2.3.x")
     public static final String NYE_HEADER_CONSUMER_ID = "no.nav.consumer.id";
 
     private CloseableHttpClient client;
@@ -65,17 +77,17 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         client.close();
     }
 
-    /** @deprecated for kompatibilitet med CloseableHttpClient.  IKKE BRUK. */
+    /** @deprecated for kompatibilitet med CloseableHttpClient. IKKE BRUK. */
     @SuppressWarnings("deprecation")
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = true, since = "2.3.x")
     @Override
     public ClientConnectionManager getConnectionManager() {
         return client.getConnectionManager();
     }
 
-    /** @deprecated for kompatibilitet med CloseableHttpClient.  IKKE BRUK. */
+    /** @deprecated for kompatibilitet med CloseableHttpClient. IKKE BRUK. */
     @SuppressWarnings("deprecation")
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = true, since = "2.3.x")
     @Override
     public HttpParams getParams() {
         return client.getParams();

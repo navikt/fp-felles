@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Enkel representasjon av properties for migrering av skjema med flyway.
  * Tilhørende json ser ca slik ut:
  * <p>
- * 
+ *
  * <pre>
  * {
  *  "datasource" : "spsak",
@@ -28,14 +28,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * </p>
  * <p>
  * testdataClasspathRoot: pathen til java-klasser for testdata<br>
- * migrationScriptsFilesystemRoot: filsystemsti hvor migreringsfilene for angitt skjema ligger<br>
- * migrationScriptsClasspathRoot: classpath sti hvor migreringsfilene for angitt skjema ligger<br>
- * defaultDataSource: får JDNI-oppslag som 'java/defaultDS' hvis satt til true (default false)<br>
+ * migrationScriptsFilesystemRoot: filsystemsti hvor migreringsfilene for angitt
+ * skjema ligger<br>
+ * migrationScriptsClasspathRoot: classpath sti hvor migreringsfilene for angitt
+ * skjema ligger<br>
+ * defaultDataSource: får JDNI-oppslag som 'java/defaultDS' hvis satt til true
+ * (default false)<br>
  * migrateClean: fullmigrering av skjema (default false)<br>
  * </p>
- * @deprecated Dette kan nå kodes direkte i apps som benytter istedt for å lese fra json
+ *
+ * @deprecated Dette kan nå kodes direkte i apps som benytter istedt for å lese
+ *             fra json
  */
-@Deprecated(forRemoval = true)
+@Deprecated(forRemoval = true, since = "2.3.x")
 public final class DBConnectionProperties {
 
     private static final ObjectMapper OM = new ObjectMapper();
@@ -139,18 +144,18 @@ public final class DBConnectionProperties {
         boolean migrateClean2 = Boolean.valueOf(getString(sc, "migrateClean"));
 
         return new Builder()
-            .datasource(datasource)
-            .schema(schema)
-            .defaultSchema(defaultSchema)
-            .user(user)
-            .password(password)
-            .migrationScriptsClasspathRoot(migrationScriptsClasspathRoot)
-            .migrationScriptsFilesystemRoot(migrationScriptsFilesystemRoot)
-            .versjonstabell(tabell)
-            .url(url)
-            .defaultDataSource(isDefaultDataSource)
-            .migrateClean(migrateClean2)
-            .build();
+                .datasource(datasource)
+                .schema(schema)
+                .defaultSchema(defaultSchema)
+                .user(user)
+                .password(password)
+                .migrationScriptsClasspathRoot(migrationScriptsClasspathRoot)
+                .migrationScriptsFilesystemRoot(migrationScriptsFilesystemRoot)
+                .versjonstabell(tabell)
+                .url(url)
+                .defaultDataSource(isDefaultDataSource)
+                .migrateClean(migrateClean2)
+                .build();
     }
 
     private static String getString(JsonNode jo, String key, String defaultValue) {
@@ -159,7 +164,8 @@ public final class DBConnectionProperties {
     }
 
     private static String getString(JsonNode sc, String key) {
-        // fordi glassfish impl sux sjekker vi for nulls først slik at ikke det spruter interne NPE is JsonObject
+        // fordi glassfish impl sux sjekker vi for nulls først slik at ikke det spruter
+        // interne NPE is JsonObject
         var val = sc.get(key);
         return val == null ? null : val.asText();
     }

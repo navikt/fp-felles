@@ -5,10 +5,10 @@ import java.lang.reflect.Field;
 /**
  * Erstatning for fjernet Whitebox i Mockito 2, slik at koden kan migreres.
  * Anbefales å unngå å skrive intern tilstand i objektene.
- * 
+ *
  * @deprecated - vurder om test designet bør sette intern tilstand.
  */
-@Deprecated
+@Deprecated(forRemoval = true, since = "2.3.x")
 public class Whitebox {
 
     public static Object getInternalState(Object target, String field) {

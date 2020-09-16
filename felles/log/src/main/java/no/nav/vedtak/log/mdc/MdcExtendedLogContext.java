@@ -66,7 +66,7 @@ public class MdcExtendedLogContext {
         }
     }
 
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = true, since = "2.3.x")
     public String getValue(String key) {
         validateKey(key);
         String currentValue = mdcKey();

@@ -17,7 +17,7 @@ import no.nav.vedtak.util.env.Environment;
  * @deprecated Overstyring av clock er ikke et test behov lenger (gjøres bedre
  *             gjennom docker/kubernetes).
  */
-@Deprecated(forRemoval = true, since = "lenge siden")
+@Deprecated(forRemoval = true, since = "2.3.x")
 public class FPDateUtil {
 
     private static final Environment ENV = Environment.current();
@@ -49,7 +49,7 @@ public class FPDateUtil {
      *
      * @deprecated Metoden vil bli private i en fremtidig versjon
      */
-    @Deprecated
+    @Deprecated(forRemoval = true, since = "2.3.x")
     public static Clock getOffset() {
         return getMyClock();
     }

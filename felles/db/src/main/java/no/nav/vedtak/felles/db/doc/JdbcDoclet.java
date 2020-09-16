@@ -33,11 +33,14 @@ import no.nav.vedtak.felles.db.doc.model.Kodeverk;
 import no.nav.vedtak.felles.db.doc.model.Table;
 
 /**
- * Migrer mot en H2 db (hvis tilgjengelig på classpath), og dokumenterer struktur.
- * 
- * @deprecated Skal flyttes til eget repo / modul og generaliseres slik at ikke trenge å dra med avhengigheter til markdown. (gjelder hele pakken db.doc)
+ * Migrer mot en H2 db (hvis tilgjengelig på classpath), og dokumenterer
+ * struktur.
+ *
+ * @deprecated Skal flyttes til eget repo / modul og generaliseres slik at ikke
+ *             trenge å dra med avhengigheter til markdown. (gjelder hele pakken
+ *             db.doc)
  */
-@Deprecated(forRemoval = true)
+@Deprecated(forRemoval = true, since = "2.3.x")
 public class JdbcDoclet implements Doclet {
 
     private static final String INMEMORY_DB_JDBC_URL = "jdbc:h2:./TEST;MODE=Oracle";
@@ -164,7 +167,7 @@ public class JdbcDoclet implements Doclet {
 
     private String getSchemaName(String dsName) {
         return this.schemaOverride != null ? this.schemaOverride
-            : getEnvOrDefaultValue("doc.plugin.jdbc.schema." + dsName, getJdbcUserName(dsName).toUpperCase());
+                : getEnvOrDefaultValue("doc.plugin.jdbc.schema." + dsName, getJdbcUserName(dsName).toUpperCase());
     }
 
     private String getJdbcUrl() {
@@ -252,7 +255,7 @@ public class JdbcDoclet implements Doclet {
                 boolean isNullable = "YES".equals(columns.getString("IS_NULLABLE"));
 
                 Column column = new Column(colName, colType, colSize, defaultValue, isNullable, remarks,
-                    primaryKeyColumns.contains(colName));
+                        primaryKeyColumns.contains(colName));
                 table.addColumn(column);
             }
         }
