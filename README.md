@@ -9,7 +9,7 @@
 # Felles kode / bibliotek for vedtaksløsninger (foreldrepenger, sykdom-i-familien)
 Inneholder følgende hovedmoduler
 ## Felles
-* JPA / Database utilities: For å kunne dynamisk oppdage og sette sammen orm mapping fra flere moduler.  For å sette opp lokale transaksjoner uten eksternt JTA bibliotek
+* JPA / Database utilities: For å kunne dynamisk oppdage og sette sammen orm-mapping fra flere moduler.  For å sette opp lokale transaksjoner uten eksternt JTA bibliotek
 * Logging / Logback utilities : For å definere log meldinger på en strukturert måte, med feilmeldingskoder (avhenger av SLF4J + Logback)
 * Sikkerhet : OIDC + SAML Login moduler.  PEP/PDP biblioteker for ABAC tilgangskontroll.
 
