@@ -8,12 +8,10 @@
     <version>${revision}${sha1}${changelist}</version>
     <packaging>pom</packaging>
     <name>Felles-root</name>
-
     <modules>
         <module>felles</module>
         <module>integrasjon</module>
     </modules>
-
     <properties>
         <revision>2.3.0</revision>
         <sha1 />
