@@ -62,13 +62,13 @@ public class OidcTokenValidatorProviderTest {
         LOG = Logger.class.cast(LoggerFactory.getLogger(OidcTokenValidatorProvider.class));
         LOG.setLevel(Level.INFO);
         logSniffer = new MemoryAppender(LOG.getName());
+        LOG.addAppender(logSniffer);
+        logSniffer.start();
     }
 
     @BeforeEach
     public void beforeEach() {
-        logSniffer.reset();
-        LOG.addAppender(logSniffer);
-        logSniffer.start();
+
         OpenAMHelper.unsetWellKnownConfig();
 
         System.setProperty(PROVIDERNAME_OPEN_AM + AGENT_NAME_KEY, openam_agent);
@@ -95,8 +95,7 @@ public class OidcTokenValidatorProviderTest {
 
     @AfterEach
     public void afterEach() {
-        logSniffer.stop();
-        LOG.detachAppender(logSniffer);
+        logSniffer.reset();
     }
 
     @AfterAll

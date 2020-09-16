@@ -24,21 +24,18 @@ public class ServerInfoTest {
         LOG = Logger.class.cast(LoggerFactory.getLogger(ServerInfo.class));
         LOG.setLevel(Level.INFO);
         logSniffer = new MemoryAppender(LOG.getName());
+        LOG.addAppender(logSniffer);
+        logSniffer.start();
     }
 
     @BeforeEach
     public void beforeEach() {
-        logSniffer.reset();
-        LOG.addAppender(logSniffer);
-        logSniffer.start();
         ContextPathHolder.instance("/fpsak");
-
     }
 
     @AfterEach
     public void afterEach() {
-        logSniffer.stop();
-        LOG.detachAppender(logSniffer);
+        logSniffer.reset();
     }
 
     @Test

@@ -15,7 +15,6 @@ import java.util.TreeSet;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ch.qos.logback.classic.Level;
@@ -35,19 +34,13 @@ public class AbacSporingsloggTest {
         LOG = Logger.class.cast(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
         LOG.setLevel(Level.INFO);
         logSniffer = new MemoryAppender(LOG.getName());
-    }
-
-    @BeforeEach
-    public void beforeEach() {
-        logSniffer.reset();
         LOG.addAppender(logSniffer);
         logSniffer.start();
     }
 
     @AfterEach
     public void afterEach() {
-        logSniffer.stop();
-        LOG.detachAppender(logSniffer);
+        logSniffer.reset();
     }
 
     @Test

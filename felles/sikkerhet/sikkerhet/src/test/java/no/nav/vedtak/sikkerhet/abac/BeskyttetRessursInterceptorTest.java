@@ -18,7 +18,6 @@ import javax.ws.rs.Path;
 import org.assertj.core.api.Fail;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -53,19 +52,13 @@ public class BeskyttetRessursInterceptorTest {
         LOG = Logger.class.cast(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
         LOG.setLevel(Level.INFO);
         sniffer = new MemoryAppender(LOG.getName());
-    }
-
-    @BeforeEach
-    public void beforeEach() {
-        sniffer.reset();
         LOG.addAppender(sniffer);
         sniffer.start();
     }
 
     @AfterEach
     public void afterEach() {
-        sniffer.stop();
-        LOG.detachAppender(sniffer);
+        sniffer.reset();
     }
 
     @Test

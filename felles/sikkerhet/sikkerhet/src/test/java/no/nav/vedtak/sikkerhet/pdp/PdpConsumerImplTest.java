@@ -14,7 +14,6 @@ import org.glassfish.json.JsonUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sun.net.httpserver.HttpServer;
@@ -43,6 +42,8 @@ public class PdpConsumerImplTest {
         LOG = Logger.class.cast(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
         LOG.setLevel(Level.INFO);
         logSniffer = new MemoryAppender(LOG.getName());
+        LOG.addAppender(logSniffer);
+        logSniffer.start();
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.createContext(context, exchange -> {
             final Object[] resp = responses.remove(0);
@@ -54,17 +55,9 @@ public class PdpConsumerImplTest {
         httpServer.start();
     }
 
-    @BeforeEach
-    public void beforeEach() {
-        logSniffer.reset();
-        LOG.addAppender(logSniffer);
-        logSniffer.start();
-    }
-
     @AfterEach
     public void afterEach() {
-        logSniffer.stop();
-        LOG.detachAppender(logSniffer);
+        logSniffer.reset();
     }
 
     @AfterAll
