@@ -14,6 +14,9 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest;
@@ -21,11 +24,13 @@ import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonhistorikkRequest;
 import no.nav.vedtak.exception.IntegrasjonException;
 
+@ExtendWith(MockitoExtension.class)
 public class PersonConsumerTest {
 
     private PersonConsumer consumer;
 
-    private PersonV3 mockWebservice = mock(PersonV3.class);
+    @Mock
+    private PersonV3 mockWebservice;
 
     @BeforeEach
     public void setUp() {
