@@ -79,7 +79,7 @@ public class JwksKeyHandlerTest {
         assertThat(keySupplier.getCounter()).isEqualTo(2);
     }
 
-    private String les(String filnavn) throws IOException {
+    private static String les(String filnavn) throws IOException {
         return new String(Files.readAllBytes(Paths.get("src/test/resources/" + filnavn)));
     }
 

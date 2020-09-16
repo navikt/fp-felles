@@ -1,5 +1,7 @@
 package no.nav.vedtak.sikkerhet.context;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,21 +22,16 @@ public class SubjectHandlerTest {
     @Test
     public void testGetDefaultSubjectHandler() {
         SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
-
-        // assertThat(subjectHandler, CoreMatchers.notNullValue());
-        // assertThat(subjectHandler,
-        // CoreMatchers.instanceOf(ThreadLocalSubjectHandler.class));
+        assertThat(subjectHandler).isNotNull();
+        assertThat(subjectHandler).isInstanceOf(ThreadLocalSubjectHandler.class);
     }
 
     @Test
     public void testGetConfiguredSubjectHandler() {
         SubjectHandlerUtils.useSubjectHandler(StaticSubjectHandler.class);
-
         SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
-
-        // assertThat(subjectHandler, CoreMatchers.notNullValue());
-        // assertThat(subjectHandler,
-        // CoreMatchers.instanceOf(StaticSubjectHandler.class));
+        assertThat(subjectHandler).isNotNull();
+        assertThat(subjectHandler).isInstanceOf(StaticSubjectHandler.class);
     }
 
     @Test
@@ -43,15 +40,10 @@ public class SubjectHandlerTest {
         SubjectHandlerUtils.setInternBruker(USER_ID);
 
         SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
-
-        /*
-         * assertThat(subjectHandler, CoreMatchers.notNullValue());
-         * assertThat(subjectHandler.getUid(), CoreMatchers.is(USER_ID));
-         * assertThat(subjectHandler.getAuthenticationLevel(),
-         * CoreMatchers.is(AUTH_LEVEL)); assertThat(subjectHandler.getIdentType(),
-         * CoreMatchers.is(IDENT_TYPE)); assertThat(subjectHandler.getConsumerId(),
-         * CoreMatchers.is(SubjectHandlerUtils.class.getSimpleName()));
-         */
+        assertThat(subjectHandler).isNotNull();
+        assertThat(subjectHandler.getAuthenticationLevel()).isEqualTo(AUTH_LEVEL);
+        assertThat(subjectHandler.getIdentType()).isEqualTo(IDENT_TYPE);
+        assertThat(subjectHandler.getConsumerId()).isEqualTo(SubjectHandlerUtils.class.getSimpleName());
     }
 
 }

@@ -16,37 +16,63 @@ import javax.interceptor.InvocationContext;
 import javax.ws.rs.Path;
 
 import org.assertj.core.api.Fail;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.log.audit.Auditdata;
 import no.nav.vedtak.log.audit.Auditlogger;
-import no.nav.vedtak.sikkerhet.InnloggetSubject;
+import no.nav.vedtak.log.util.MemoryAppender;
+import no.nav.vedtak.sikkerhet.InnloggetSubjectExtension;
+import no.nav.vedtak.util.AppLoggerFactory;
 
-@Disabled
+@ExtendWith(InnloggetSubjectExtension.class)
 public class BeskyttetRessursInterceptorTest {
 
     private final RestClass tjeneste = new RestClass();
-    // @Rule
-    public InnloggetSubject innloggetSubject = new InnloggetSubject().medOidcToken("dummy.oidc.token");
 
     private AktørDto aktør1 = new AktørDto("00000000000");
     private BehandlingIdDto behandlingIdDto = new BehandlingIdDto(1234L);
 
     private final ArgumentCaptor<Auditdata> auditdataCaptor = ArgumentCaptor.forClass(Auditdata.class);
 
-    private AbacAuditlogger noAuditLogger = Mockito.mock(AbacAuditlogger.class);
+    private AbacAuditlogger noAuditLogger = new AbacAuditlogger(new Auditlogger(true, "felles", "felles-test"));
+
+    private static MemoryAppender sniffer;
+    private static Logger LOG;
+
+    @BeforeAll
+    public static void beforeAll() {
+        LOG = Logger.class.cast(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
+        LOG.setLevel(Level.INFO);
+        sniffer = new MemoryAppender(LOG.getName());
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        sniffer.reset();
+        LOG.addAppender(sniffer);
+        sniffer.start();
+    }
+
+    @AfterEach
+    public void afterEach() {
+        sniffer.stop();
+        LOG.detachAppender(sniffer);
+    }
 
     @Test
     public void sporingslogg_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit() throws Exception {
         skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(noAuditLogger);
-        // sniffer.assertHasInfoMessage(
-        // "action=/foo/aktoer_in abac_action=create
-        // abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker
-        // aktorId=00000000000");
+        assertLogged(
+                "action=/foo/aktoer_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000");
     }
 
     @Test
@@ -81,10 +107,8 @@ public class BeskyttetRessursInterceptorTest {
     @Test
     public void sporingslogg_skal_også_logge_input_parametre_til_sporingslogg_ved_permit() throws Exception {
         skal_også_logge_input_parametre_til_sporingslogg_ved_permit(noAuditLogger);
-        // sniffer.assertHasInfoMessage(
-        // "action=/foo/behandling_id_in abac_action=create
-        // abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker
-        // aktorId=00000000000 behandlingId=1234");
+        assertLogged(
+                "action=/foo/behandling_id_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000 behandlingId=1234");
     }
 
     @Test
@@ -118,7 +142,7 @@ public class BeskyttetRessursInterceptorTest {
     public void sporingslogg_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering()
             throws Exception {
         skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering(noAuditLogger);
-        // assertThat(sniffer.countEntries("action")).isZero();
+        assertThat(sniffer.countEntries("action")).isZero();
     }
 
     @Test
@@ -152,10 +176,8 @@ public class BeskyttetRessursInterceptorTest {
     @Test
     public void sporingslog_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny() throws Exception {
         skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny(noAuditLogger);
-        // sniffer.assertHasInfoMessage(
-        // "action=/foo/aktoer_in abac_action=create
-        // abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker
-        // aktorId=00000000000 decision=Deny");
+        assertLogged(
+                "action=/foo/aktoer_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000 decision=Deny");
     }
 
     @Test
@@ -197,7 +219,7 @@ public class BeskyttetRessursInterceptorTest {
         assertThat(actual).matches(toAuditdataPattern(expected));
     }
 
-    private Auditlogger mockAuditLogger() {
+    private static Auditlogger mockAuditLogger() {
         final Auditlogger auditlogger = mock(Auditlogger.class);
         when(auditlogger.isEnabled()).thenReturn(true);
         when(auditlogger.getDefaultVendor()).thenReturn("felles");
@@ -319,4 +341,7 @@ public class BeskyttetRessursInterceptorTest {
         }
     }
 
+    private static void assertLogged(String string) {
+        assertThat(sniffer.searchInfo(string)).isNotNull();
+    }
 }

@@ -23,12 +23,17 @@ import java.util.stream.Collectors;
 
 import org.jose4j.json.JsonUtil;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.OpenAMHelper;
+import no.nav.vedtak.log.util.MemoryAppender;
 import no.nav.vedtak.sikkerhet.domene.IdentType;
 
 public class OidcTokenValidatorProviderTest {
@@ -46,15 +51,24 @@ public class OidcTokenValidatorProviderTest {
     private static String OPPRINNELIG_OPEN_ID_CONNECT_PASSWORD;
     private static String OPPRINNELIG_OPEN_ID_CONNECT_ISSO_HOST;
 
+    private static MemoryAppender logSniffer;
+    private static Logger LOG;
+
     @BeforeAll
-    public static void saveState() {
+    public static void beforeAll() {
         OPPRINNELIG_OPEN_ID_CONNECT_USERNAME = OpenAMHelper.getIssoUserName();
         OPPRINNELIG_OPEN_ID_CONNECT_PASSWORD = OpenAMHelper.getIssoPassword();
         OPPRINNELIG_OPEN_ID_CONNECT_ISSO_HOST = OpenAMHelper.getIssoHostUrl();
+        LOG = Logger.class.cast(LoggerFactory.getLogger(OidcTokenValidatorProvider.class));
+        LOG.setLevel(Level.INFO);
+        logSniffer = new MemoryAppender(LOG.getName());
     }
 
     @BeforeEach
-    public void setUp() {
+    public void beforeEach() {
+        logSniffer.reset();
+        LOG.addAppender(logSniffer);
+        logSniffer.start();
         OpenAMHelper.unsetWellKnownConfig();
 
         System.setProperty(PROVIDERNAME_OPEN_AM + AGENT_NAME_KEY, openam_agent);
@@ -77,6 +91,12 @@ public class OidcTokenValidatorProviderTest {
         System.clearProperty("fasit.environment.name");
 
         OidcTokenValidatorProvider.clearInstance();
+    }
+
+    @AfterEach
+    public void afterEach() {
+        logSniffer.stop();
+        LOG.detachAppender(logSniffer);
     }
 
     @AfterAll
@@ -111,10 +131,11 @@ public class OidcTokenValidatorProviderTest {
         assertThat(OidcTokenValidatorProvider.instance().getValidator(openam_iss)).isNotNull();
         assertThat(OidcTokenValidatorProvider.instance().getValidator(sts_iss)).isNotNull();
         assertThat(OidcTokenValidatorProvider.instance().getValidator(aad_b2c_iss)).isNotNull();
-        // logSniffer.assertHasInfoMessage("Opprettet OidcTokenValidator for ");
-        // logSniffer.assertHasInfoMessage("OpenIDProviderConfig<issuer=https://sts.no>");
-        // logSniffer.assertHasInfoMessage("OpenIDProviderConfig<issuer=https://aad.b2c.no>");
-        // logSniffer.assertHasInfoMessage("OpenIDProviderConfig<issuer=https://openam.no>");
+        assertLogged("Opprettet OidcTokenValidator for ");
+        assertLogged("Opprettet OidcTokenValidator for ");
+        assertLogged("OpenIDProviderConfig<issuer=https://sts.no>");
+        assertLogged("OpenIDProviderConfig<issuer=https://aad.b2c.no>");
+        assertLogged("OpenIDProviderConfig<issuer=https://openam.no>");
     }
 
     @Test
@@ -184,4 +205,7 @@ public class OidcTokenValidatorProviderTest {
                         .isEmpty();
     }
 
+    private static void assertLogged(String string) {
+        assertThat(logSniffer.searchInfo(string)).isNotNull();
+    }
 }
