@@ -55,7 +55,7 @@ import no.nav.vedtak.log.util.MemoryAppender;
  *             &#64;Test
  *              public void testStuff {
  *                metodeSomLogger();
- *                assertThat(logSniffer.search("Noe som skal logges som WARN to ganger", Level.WARN)).hasSize(2);
+ *                assertThat(logSniffer.search("Noe gikk galt", Level.WARN)).hasSize(2);
  *              }
  *             </pre>
  *
