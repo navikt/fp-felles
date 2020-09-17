@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package no.nav.modig.core.test;
 
 import java.util.ArrayList;
@@ -35,6 +30,9 @@ import no.nav.vedtak.log.util.MemoryAppender;
  *
  *
  *             <pre>
+ *             private static MemoryAppender logSniffer;
+ *             private static Logger LOG;
+ *
  *             &#64;BeforeAll
  *             public static void beforeAll() {
  *                 LOG = Logger.class.cast(LoggerFactory.getLogger(MyClass.class));
