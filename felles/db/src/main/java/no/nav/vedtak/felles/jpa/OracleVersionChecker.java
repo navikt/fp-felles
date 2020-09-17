@@ -34,7 +34,7 @@ public class OracleVersionChecker {
 
     @Inject
     public OracleVersionChecker(EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -45,7 +45,6 @@ public class OracleVersionChecker {
         return cachedRunningOnExpressEdition;
     }
 
-    @SuppressWarnings("resource")
     private boolean internalIsRunningOnExpressEdition() {
 
         // workaround for hibernate issue HHH-11020:

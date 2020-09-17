@@ -16,11 +16,32 @@ import no.nav.vedtak.util.FPDateUtil;
 /**
  * JUnit Rule for å stille tiden til en bestemt tid (offset). Resetter etter at
  * testen er kjørt. Kan også endre tiden i løpet av testen for å simulere at
- * tiden løper fortere.
+ * tiden løper fortere. Denne brukes primært som en tidsmaskin i enkelte tester
+ * for å forsikre seg om at {@link LocalDate#now} & friends returnerer en tid i
+ * framtiden. Dette kan oppnås på mange andre måter, feks med {@link FixedClock}
+ * Man kan også bruke <i>mockito-inline</i> for å mocke {@link LocalDate#now}
+ * som under. Hver gang man finenr at man trenger å mocke statiske metoder bør
+ * man imidlertid vurdere om disse hjelpeklassene/metodene kan erstattes med en
+ * "ordentlig" objekt
  *
- * @deprecated Fjernes, FPDateUtil er ikke i tilstrekkelig bruk og gir p.t. ikke
- *             mening (kan heller stille tid på docker/verdikjede nivå
+ * <pre>
+ * &#64;Test
+ * public void mockTest() {
+ *     var nyttår = LocalDate.of(2000, 1, 1);
+ *     try (var mock = mockStatic(FPDateUtil.class)) {
+ *         mock.when(FPDateUtil::iDag).thenReturn(nyttår);
+ *         var now = FPDateUtil.iDag();
+ *         assertEquals(nyttår, now);
+ *         mock.verify(FPDateUtil::iDag);
+ *     }
+ *     assertNotEquals(nyttår, FPDateUtil.iDag());
+ * }
+ * </pre>
+ *
+ * @see FixedClock
+ *
  */
+
 @Deprecated(forRemoval = true, since = "2.2.x")
 public class StillTid implements MethodRule {
 
