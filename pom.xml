@@ -8,10 +8,12 @@
     <version>${revision}${sha1}${changelist}</version>
     <packaging>pom</packaging>
     <name>Felles-root</name>
+
     <modules>
         <module>felles</module>
         <module>integrasjon</module>
     </modules>
+
     <properties>
         <revision>2.3.0</revision>
         <sha1 />
@@ -112,7 +114,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.6</version>
+                    <version>0.8.5</version>
                     <executions>
                         <execution>
                             <goals>

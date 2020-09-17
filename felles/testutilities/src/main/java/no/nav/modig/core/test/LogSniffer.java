@@ -25,6 +25,45 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.core.spi.FilterReply;
+import no.nav.vedtak.log.util.MemoryAppender;
+
+/**
+ *
+ * @deprecated Kan erstattes av følgende kode som hekter en ekstra appender inn
+ *             på den aktuelle loggeren. Denne appenderen samler opp logging i
+ *             en liste, som så kan inspiseres når testen er ferdig.
+ *
+ *
+ *             <pre>
+ *             &#64;BeforeAll
+ *             public static void beforeAll() {
+ *                 LOG = Logger.class.cast(LoggerFactory.getLogger(MyClass.class));
+ *                 LOG.setLevel(Level.INFO);
+ *                 logSniffer = new MemoryAppender(LOG.getName());
+ *                 LOG.addAppender(logSniffer);
+ *                 logSniffer.start();
+ *             }
+ *
+ *             &#64;BeforeEach
+ *             public void beforeEach() {
+ *                 ContextPathHolder.instance("/fpsak");
+ *             }
+ *
+ *             &#64;AfterEach
+ *             public void afterEach() {
+ *                 logSniffer.reset();
+ *             }
+ *
+ *             &#64;Test
+ *              public void testStuff {
+ *                metodeSomLogger();
+ *                assertThat(logSniffer.search("Noe som skal logges som WARN to ganger", Level.WARN)).hasSize(2);
+ *              }
+ *             </pre>
+ *
+ * @see MemoryAppender
+ *
+ */
 
 @Deprecated(forRemoval = true, since = "2.3.x")
 public class LogSniffer implements TestRule {
