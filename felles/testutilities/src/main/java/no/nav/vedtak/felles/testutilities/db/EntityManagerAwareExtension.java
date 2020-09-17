@@ -48,7 +48,9 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
     @Override
     public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
             ExtensionContext extensionContext) throws Throwable {
-
+        if (!isTransactional(extensionContext) && shouldCommit(extensionContext)) {
+            throw new IllegalStateException("En ikke-transaksjonell test kan ikke commites");
+        }
         WeldContext.getInstance().doWithScope(() -> {
             EntityTransaction trans = null;
             try {
