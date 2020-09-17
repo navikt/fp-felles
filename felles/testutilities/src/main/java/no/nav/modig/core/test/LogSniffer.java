@@ -42,10 +42,6 @@ import no.nav.vedtak.log.util.MemoryAppender;
  *                 logSniffer.start();
  *             }
  *
- *             &#64;BeforeEach
- *             public void beforeEach() {
- *                 ContextPathHolder.instance("/fpsak");
- *             }
  *
  *             &#64;AfterEach
  *             public void afterEach() {
@@ -53,10 +49,10 @@ import no.nav.vedtak.log.util.MemoryAppender;
  *             }
  *
  *             &#64;Test
- *              public void testStuff {
+ *             public void testStuff {
  *                metodeSomLogger();
  *                assertThat(logSniffer.search("Noe gikk galt", Level.WARN)).hasSize(2);
- *              }
+ *             }
  *             </pre>
  *
  * @see MemoryAppender
