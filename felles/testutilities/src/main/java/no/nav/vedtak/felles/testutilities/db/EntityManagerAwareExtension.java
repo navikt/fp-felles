@@ -62,10 +62,10 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
             } finally {
                 if (trans != null && trans.isActive()) {
                     if (shouldCommit(extensionContext)) {
-                        LOG.info("Ruller tilbake transaksjonen etter test");
+                        LOG.info("Rollback transaksjonen etter test");
                         trans.rollback();
                     } else {
-                        LOG.info("Commiter transaksjonen etter test");
+                        LOG.info("Commit transaksjonen etter test");
                         trans.commit();
                     }
                 }
