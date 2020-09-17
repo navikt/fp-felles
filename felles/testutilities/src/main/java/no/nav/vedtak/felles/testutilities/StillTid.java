@@ -20,9 +20,10 @@ import no.nav.vedtak.util.FPDateUtil;
  * for å forsikre seg om at {@link LocalDate#now} & friends returnerer en tid i
  * framtiden. Dette kan oppnås på mange andre måter, feks med {@link FixedClock}
  * Man kan også bruke <i>mockito-inline</i> for å mocke {@link LocalDate#now}
- * som under. Hver gang man finenr at man trenger å mocke statiske metoder bør
+ * som under. Hver gang man finner at man trenger å mocke statiske metoder bør
  * man imidlertid vurdere om disse hjelpeklassene/metodene kan erstattes med en
- * "ordentlig" objekt
+ * "ordentlig" objekt. I hvertfall i de tilfellene hvor man kontrollerer disse
+ * klassene og metodene selv.
  *
  * <pre>
  * &#64;Test
