@@ -43,6 +43,65 @@ public class OpprettOppgave {
     @JsonProperty("fristFerdigstillelse")
     private LocalDate fristFerdigstillelse;
 
+    public String getTildeltEnhetsnr() {
+        return tildeltEnhetsnr;
+    }
+
+    public String getOpprettetAvEnhetsnr() {
+        return opprettetAvEnhetsnr;
+    }
+
+    public String getJournalpostId() {
+        return journalpostId;
+    }
+
+    public String getBehandlesAvApplikasjon() {
+        return behandlesAvApplikasjon;
+    }
+
+    public String getSaksreferanse() {
+        return saksreferanse;
+    }
+
+    public String getAktoerId() {
+        return aktoerId;
+    }
+
+    public String getBeskrivelse() {
+        return beskrivelse;
+    }
+
+    public String getTemagruppe() {
+        return temagruppe;
+    }
+
+    public String getTema() {
+        return tema;
+    }
+
+    public String getBehandlingstema() {
+        return behandlingstema;
+    }
+
+    public String getOppgavetype() {
+        return oppgavetype;
+    }
+
+    public String getBehandlingstype() {
+        return behandlingstype;
+    }
+
+    public LocalDate getAktivDato() {
+        return aktivDato;
+    }
+
+    public Prioritet getPrioritet() {
+        return prioritet;
+    }
+
+    public LocalDate getFristFerdigstillelse() {
+        return fristFerdigstillelse;
+    }
 
     public OpprettOppgave() {
     }
@@ -53,6 +112,7 @@ public class OpprettOppgave {
 
     public static class Builder {
         OpprettOppgave oppgave;
+
         Builder() {
             oppgave = new OpprettOppgave();
         }
