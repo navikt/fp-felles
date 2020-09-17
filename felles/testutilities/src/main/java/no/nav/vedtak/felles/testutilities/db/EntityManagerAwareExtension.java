@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.felles.testutilities.cdi.WeldContext;
 import no.nav.vedtak.felles.testutilities.sikkerhet.DummySubjectHandler;
@@ -38,6 +40,7 @@ import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
  */
 public class EntityManagerAwareExtension extends PersistenceUnitInitializer implements InvocationInterceptor, TestInstancePostProcessor {
 
+    private static final Logger LOG = LoggerFactory.getLogger(EntityManagerAwareExtension.class);
     static {
         SubjectHandlerUtils.useSubjectHandler(DummySubjectHandler.class);
     }
@@ -49,19 +52,37 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
         WeldContext.getInstance().doWithScope(() -> {
             EntityTransaction trans = null;
             try {
-                trans = startTransaction();
+                if (isTransactional(extensionContext)) {
+                    LOG.info("Testen er transaksjonell");
+                    trans = startTransaction();
+                }
                 invocation.proceed();
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             } finally {
                 if (trans != null && trans.isActive()) {
-                    trans.rollback();
+                    if (shouldCommit(extensionContext)) {
+                        LOG.info("Ruller tilbake transaksjonen etter test");
+                        trans.rollback();
+                    } else {
+                        LOG.info("Commiter transaksjonen etter test");
+                        trans.commit();
+                    }
                 }
                 getEntityManager().clear();
             }
             return null;
         });
 
+    }
+
+    private static boolean shouldCommit(ExtensionContext ctx) {
+        return ctx.getRequiredTestMethod().getAnnotation(Commit.class) != null;
+    }
+
+    private static boolean isTransactional(ExtensionContext ctx) {
+        return ctx.getRequiredTestMethod().getAnnotation(NonTransactional.class) == null
+                && ctx.getRequiredTestClass().getAnnotation(NonTransactional.class) == null;
     }
 
     private EntityTransaction startTransaction() {
