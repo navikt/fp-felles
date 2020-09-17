@@ -8,7 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.util.env.Environment;
 
-@Deprecated(forRemoval = true, since = "2.1.x")
+/**
+ *
+ * Må skrives om til å bruke {@link Environment}
+ *
+ */
+@Deprecated(since = "2.1.x")
 public class EnvironmentProperty {
 
     public static final String NAIS_NAMESPACE = "NAIS_NAMESPACE";

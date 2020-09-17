@@ -1,7 +1,6 @@
 package no.nav.vedtak.sikkerhet;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
 import javax.security.auth.Subject;
 
@@ -20,10 +19,6 @@ public class InnloggetSubjectExtension implements InvocationInterceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(InnloggetSubjectExtension.class);
 
-    private String ident = "A000000";
-    private IdentType identType = IdentType.InternBruker;
-    private List<Object> publicCredentials = List.of(new OidcCredential("dummy.oidc.token"));
-
     @Override
     public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
             ExtensionContext extensionContext) throws Throwable {
@@ -38,11 +33,9 @@ public class InnloggetSubjectExtension implements InvocationInterceptor {
         }
     }
 
-    private Subject buildSubject() {
-        Subject subject = new SubjectHandlerUtils.SubjectBuilder(ident, identType).getSubject();
-        for (Object publicCredential : publicCredentials) {
-            subject.getPublicCredentials().add(publicCredential);
-        }
+    private static Subject buildSubject() {
+        Subject subject = new SubjectHandlerUtils.SubjectBuilder("A000000", IdentType.InternBruker).getSubject();
+        subject.getPublicCredentials().add(new OidcCredential("dummy.oidc.token"));
         return subject;
 
     }
