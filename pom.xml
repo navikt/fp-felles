@@ -26,8 +26,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <junit5.version>5.7.0</junit5.version>
         <junit4.version>4.13</junit4.version>
-        <mockito.junit5.version>3.5.10</mockito.junit5.version>
-        <mockito.version>3.5.11</mockito.version>
+        <mockito.version>3.5.10</mockito.version>
         <assertj.version>3.17.2</assertj.version>
 
         <tjenestespesifikasjoner.version>1.2020.01.27-14.53-7065a2d75840</tjenestespesifikasjoner.version>
@@ -85,7 +84,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>${mockito.junit5.version}</version>
+                <version>${mockito.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
