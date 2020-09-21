@@ -52,7 +52,17 @@ public abstract class OidcRestClientResponseHandler<T> implements ResponseHandle
         protected String readEntity(HttpEntity entity) throws IOException {
             return EntityUtils.toString(entity, StandardCharsets.UTF_8);
         }
+    }
 
+    public static class ByteArrayResponseHandler extends OidcRestClientResponseHandler<byte[]> {
+        public ByteArrayResponseHandler(URI endpoint) {
+            super(endpoint);
+        }
+
+        @Override
+        protected byte[] readEntity(HttpEntity entity) throws IOException {
+            return EntityUtils.toByteArray(entity);
+        }
     }
 
     public static class ObjectReaderResponseHandler<T> extends OidcRestClientResponseHandler<T> {
