@@ -1,31 +1,26 @@
 package no.nav.vedtak.isso.config;
 
 import static no.nav.vedtak.isso.config.ServerInfo.PROPERTY_KEY_LOADBALANCER_URL;
+import static no.nav.vedtak.log.util.MemoryAppender.sniff;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.log.util.MemoryAppender;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 public class ServerInfoTest {
 
     private static MemoryAppender logSniffer;
-    private static Logger LOG;
 
     @BeforeAll
     public static void beforeAll() {
-        LOG = Logger.class.cast(LoggerFactory.getLogger(ServerInfo.class));
-        LOG.setLevel(Level.INFO);
-        logSniffer = new MemoryAppender(LOG.getName());
-        LOG.addAppender(logSniffer);
-        logSniffer.start();
+        logSniffer = sniff(ServerInfo.class);
+
     }
 
     @BeforeEach

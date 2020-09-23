@@ -3,6 +3,7 @@ package no.nav.vedtak.sikkerhet.oidc;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_PASSWORD;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
+import static no.nav.vedtak.log.util.MemoryAppender.sniff;
 import static no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider.AGENT_NAME_KEY;
 import static no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider.ALT_ISSUER_URL_KEY;
 import static no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider.ALT_JWKS_URL_KEY;
@@ -27,10 +28,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.log.util.MemoryAppender;
@@ -52,18 +50,14 @@ public class OidcTokenValidatorProviderTest {
     private static String OPPRINNELIG_OPEN_ID_CONNECT_ISSO_HOST;
 
     private static MemoryAppender logSniffer;
-    private static Logger LOG;
 
     @BeforeAll
     public static void beforeAll() {
         OPPRINNELIG_OPEN_ID_CONNECT_USERNAME = OpenAMHelper.getIssoUserName();
         OPPRINNELIG_OPEN_ID_CONNECT_PASSWORD = OpenAMHelper.getIssoPassword();
         OPPRINNELIG_OPEN_ID_CONNECT_ISSO_HOST = OpenAMHelper.getIssoHostUrl();
-        LOG = Logger.class.cast(LoggerFactory.getLogger(OidcTokenValidatorProvider.class));
-        LOG.setLevel(Level.INFO);
-        logSniffer = new MemoryAppender(LOG.getName());
-        LOG.addAppender(logSniffer);
-        logSniffer.start();
+        logSniffer = sniff(OidcTokenValidatorProvider.class);
+
     }
 
     @BeforeEach

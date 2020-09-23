@@ -1,5 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import static no.nav.vedtak.log.util.MemoryAppender.sniff;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
 import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.AKSJONSPUNKT_KODE;
 import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.BEHANDLING_ID;
@@ -20,22 +21,19 @@ import org.junit.jupiter.api.Test;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.log.util.MemoryAppender;
+import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider;
 import no.nav.vedtak.util.AppLoggerFactory;
 
 public class AbacSporingsloggTest {
 
     private static MemoryAppender logSniffer;
     private static DefaultAbacSporingslogg sporing;
-    private static Logger LOG;
 
     @BeforeAll
     public static void beforeAll() {
+        logSniffer = sniff(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
         sporing = new DefaultAbacSporingslogg();
-        LOG = Logger.class.cast(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
-        LOG.setLevel(Level.INFO);
-        logSniffer = new MemoryAppender(LOG.getName());
-        LOG.addAppender(logSniffer);
-        logSniffer.start();
+       
     }
 
     @AfterEach

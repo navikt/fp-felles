@@ -1,5 +1,6 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
+import static no.nav.vedtak.log.util.MemoryAppender.sniff;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -18,8 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import com.sun.net.httpserver.HttpServer;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.util.MemoryAppender;
 import no.nav.vedtak.sikkerhet.abac.DefaultAbacSporingslogg;
@@ -35,15 +34,10 @@ public class PdpConsumerImplTest {
     private final JsonObject jsonRequest = JsonUtil.toJson("{\"Request\": \"dummy\"}").asJsonObject();
 
     private static MemoryAppender logSniffer;
-    private static Logger LOG;
 
     @BeforeAll
     public static void setUp() throws Exception {
-        LOG = Logger.class.cast(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
-        LOG.setLevel(Level.INFO);
-        logSniffer = new MemoryAppender(LOG.getName());
-        LOG.addAppender(logSniffer);
-        logSniffer.start();
+        logSniffer = sniff(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.createContext(context, exchange -> {
             final Object[] resp = responses.remove(0);
