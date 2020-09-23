@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.LoggerFactory;
+
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 
@@ -71,4 +74,18 @@ public class MemoryAppender extends ListAppender<ILoggingEvent> {
                 .isPresent();
 
     }
+
+    public static MemoryAppender sniff(Class<?> clazz) {
+        return sniff(LoggerFactory.getLogger(clazz));
+    }
+
+    public static MemoryAppender sniff(org.slf4j.Logger logger) {
+        var log = Logger.class.cast(logger);
+        log.setLevel(Level.INFO);
+        var sniffer = new MemoryAppender(log.getName());
+        log.addAppender(sniffer);
+        sniffer.start();
+        return sniffer;
+    }
+
 }
