@@ -72,6 +72,7 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
                         // trans.rollback();
                     }
                 }
+
                 getEntityManager().clear();
             }
             return null;
