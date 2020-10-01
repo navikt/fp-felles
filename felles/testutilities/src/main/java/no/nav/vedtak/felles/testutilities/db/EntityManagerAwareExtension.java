@@ -55,7 +55,7 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
             EntityTransaction trans = null;
             try {
                 if (isTransactional(extensionContext)) {
-                    LOG.info("Testen er transaksjonell");
+                    LOG.trace("Test {} er transaksjonell", target(invocationContext));
                     trans = startTransaction();
                 }
                 invocation.proceed();
@@ -67,8 +67,9 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
                         LOG.info("Commit transaksjonen etter test");
                         trans.commit();
                     } else {
-                        LOG.info("Rollback transaksjonen etter test");
-                        trans.rollback();
+                        LOG.info("{} rollback transaksjonen etter test", target(invocationContext));
+                        trans.setRollbackOnly();
+                        // trans.rollback();
                     }
                 }
                 getEntityManager().clear();
@@ -76,6 +77,10 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
             return null;
         });
 
+    }
+
+    private String target(ReflectiveInvocationContext<Method> ctx) {
+        return ctx.getTarget().isPresent() ? ctx.getTarget().get().getClass().getSimpleName() : ctx.getTargetClass().getSimpleName();
     }
 
     private static boolean shouldCommit(ExtensionContext ctx) {
