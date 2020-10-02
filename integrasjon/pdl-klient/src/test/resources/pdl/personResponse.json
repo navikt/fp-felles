@@ -1,0 +1,13 @@
+{
+  "data": {
+    "hentPerson": {
+      "navn": [
+        {
+          "fornavn": "Jul",
+          "etternavn": "Nissen",
+          "mellomnavn": "E."
+        }
+      ]
+    }
+  }
+}
