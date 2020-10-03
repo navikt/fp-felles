@@ -28,6 +28,7 @@
         <module>infotrygd-saker-klient</module>
 		<module>medl-klient</module>
 		<module>oppgave-rest-klient</module>
+		<module>pdl-klient</module>
         <module>ereg-klient</module>
 		<module>kodeverk-klient</module>
 		<module>unleash-klient</module>
@@ -147,6 +148,11 @@
 				<artifactId>nav-tjenestespesifikasjoner-felles-adapter</artifactId>
 				<version>${felles.adapter.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>pdl-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
 			<!-- Klienter for inntekter, arbeidsforhold, ytelser -->
 			<dependency>

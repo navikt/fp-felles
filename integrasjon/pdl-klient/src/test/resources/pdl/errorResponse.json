@@ -1,0 +1,21 @@
+{
+  "errors": [
+    {
+      "message": "Person ikke funnet",
+      "locations": [],
+      "extensions": {
+        "classification": "DataFetchingException"
+      }
+    },
+    {
+      "message": "Annen feilmelding",
+      "locations": [],
+      "extensions": {
+        "classification": "DataFetchingException"
+      }
+    }
+  ],
+  "data": {
+    "person": null
+  }
+}
