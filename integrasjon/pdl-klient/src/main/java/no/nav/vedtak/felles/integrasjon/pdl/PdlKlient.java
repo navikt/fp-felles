@@ -39,6 +39,7 @@ import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
+import no.nav.vedtak.felles.integrasjon.rest.UserAndSystemOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
@@ -61,7 +62,7 @@ public class PdlKlient {
 
     @Inject
     public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "https://localhost:8063/rest/api/pdl") URI endpoint,
-                     OidcRestClient restKlient) {
+                     UserAndSystemOidcRestClient restKlient) {
         this.graphqlEndpoint = URI.create(endpoint.toString() + "/graphql");
         this.restKlient = restKlient;
     }
