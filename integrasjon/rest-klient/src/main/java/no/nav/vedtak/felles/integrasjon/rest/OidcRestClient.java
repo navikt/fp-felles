@@ -1,10 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import java.io.IOException;
-
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import no.nav.vedtak.isso.OpenAMHelper;
+import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
@@ -32,15 +30,10 @@ public class OidcRestClient extends AbstractOidcRestClient {
         throw OidcRestClientFeil.FACTORY.klarteIkkeSkaffeOIDCToken().toException();
     }
 
-    // FIXME (u139158): PK-50281 STS for SAML til OIDC
-    // I mellomtiden bruker vi systemets OIDC-token, dvs vi propagerer ikke
-    // sikkerhetskonteksten
+    // TODO fra P2: Kalle STS for å veksle SAML til OIDC.
+    // Gammel - bør heller sanere WS som tilbys
     private String veksleSamlTokenTilOIDCToken(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
-        try {
-            return new OpenAMHelper().getToken().getIdToken().getToken();
-        } catch (IOException e) {
-            throw OidcRestClientFeil.FACTORY.feilVedHentingAvSystemToken(e).toException();
-        }
+        return SystemUserIdTokenProvider.getSystemUserIdToken().getToken();
     }
 
 }

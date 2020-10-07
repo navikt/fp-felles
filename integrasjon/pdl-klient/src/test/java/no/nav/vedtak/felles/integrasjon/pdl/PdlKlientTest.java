@@ -22,12 +22,13 @@ import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.UserAndSystemOidcRestClient;
 
 public class PdlKlientTest {
 
     private PdlKlient pdlKlient;
 
-    private OidcRestClient restClient;
+    private UserAndSystemOidcRestClient restClient;
     private CloseableHttpResponse response;
     private HttpEntity entity;
 
@@ -36,7 +37,7 @@ public class PdlKlientTest {
     @BeforeEach
     public void setUp() throws IOException {
         // Service setup
-        restClient = mock(OidcRestClient.class);
+        restClient = mock(UserAndSystemOidcRestClient.class);
         URI endpoint = URI.create("dummyendpoint/graphql");
         pdlKlient = new PdlKlient(endpoint, restClient);
 
