@@ -66,7 +66,7 @@ public class PdlKlient {
         this.restKlient = restKlient;
     }
 
-    public Person hentPerson(HentPersonQueryRequest query, PersonResponseProjection projection, String consumerTemaKode) {
+    public Person hentPerson(HentPersonQueryRequest query, PersonResponseProjection projection, Tema consumerTemaKode) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
         HentPersonQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderHentPersonResponse, consumerTemaKode);
@@ -74,16 +74,14 @@ public class PdlKlient {
         return graphQlResponse.hentPerson();
     }
 
-    private <T extends GraphQLResult> T utførSpørring(GraphQLRequest request, ObjectReader objectReader, String consumerTemaKode) {
+    private <T extends GraphQLResult> T utførSpørring(GraphQLRequest request, ObjectReader objectReader, Tema consumerTemaKode) {
         var responseHandler = new OidcRestClientResponseHandler.ObjectReaderResponseHandler<T>(graphqlEndpoint, objectReader);
 
         T graphQlResponse;
         try {
             var httpPost = new HttpPost(graphqlEndpoint);
             httpPost.setEntity(new StringEntity(request.toHttpJsonBody()));
-            if (consumerTemaKode != null) {
-                httpPost.setHeader("TEMA", consumerTemaKode);
-            }
+            httpPost.setHeader("TEMA", consumerTemaKode.name());
             graphQlResponse = utførForespørsel(httpPost, responseHandler);
         } catch (Exception e) {
             throw PdlTjenesteFeil.FEILFACTORY.safForespørselFeilet(request.toQueryString(), e).toException();

@@ -69,7 +69,7 @@ public class PdlKlientTest {
             .navn(new NavnResponseProjection()
                 .fornavn());
 
-        var person = pdlKlient.hentPerson(query, projection, "SYK");
+        var person = pdlKlient.hentPerson(query, projection, Tema.OMS);
 
         assertThat(person.getNavn().get(0).getFornavn()).isNotEmpty();
     }
