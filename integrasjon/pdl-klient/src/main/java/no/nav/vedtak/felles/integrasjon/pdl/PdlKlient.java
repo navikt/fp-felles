@@ -66,23 +66,24 @@ public class PdlKlient {
         this.restKlient = restKlient;
     }
 
-    public Person hentPerson(HentPersonQueryRequest query, PersonResponseProjection projection) {
+    public Person hentPerson(HentPersonQueryRequest query, PersonResponseProjection projection, String consumerTemaKode) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
-        HentPersonQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderHentPersonResponse);
+        HentPersonQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderHentPersonResponse, consumerTemaKode);
 
         return graphQlResponse.hentPerson();
     }
 
-    private <T extends GraphQLResult> T utførSpørring(GraphQLRequest request, ObjectReader objectReader) {
+    private <T extends GraphQLResult> T utførSpørring(GraphQLRequest request, ObjectReader objectReader, String consumerTemaKode) {
         var responseHandler = new OidcRestClientResponseHandler.ObjectReaderResponseHandler<T>(graphqlEndpoint, objectReader);
 
         T graphQlResponse;
         try {
             var httpPost = new HttpPost(graphqlEndpoint);
             httpPost.setEntity(new StringEntity(request.toHttpJsonBody()));
-            // TODO: La tema være konfigurerbart
-            httpPost.setHeader("TEMA", "SYK");
+            if (consumerTemaKode != null) {
+                httpPost.setHeader("TEMA", consumerTemaKode);
+            }
             graphQlResponse = utførForespørsel(httpPost, responseHandler);
         } catch (Exception e) {
             throw PdlTjenesteFeil.FEILFACTORY.safForespørselFeilet(request.toQueryString(), e).toException();
