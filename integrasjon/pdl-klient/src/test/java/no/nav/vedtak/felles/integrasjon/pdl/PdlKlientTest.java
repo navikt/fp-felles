@@ -15,8 +15,8 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.NavnResponseProjection;
@@ -33,7 +33,7 @@ public class PdlKlientTest {
 
 
     @SuppressWarnings("resource")
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         // Service setup
         restClient = mock(OidcRestClient.class);
@@ -69,7 +69,7 @@ public class PdlKlientTest {
             .navn(new NavnResponseProjection()
                 .fornavn());
 
-        var person = pdlKlient.hentPerson(query, projection);
+        var person = pdlKlient.hentPerson(query, projection, Tema.OMS);
 
         assertThat(person.getNavn().get(0).getFornavn()).isNotEmpty();
     }
