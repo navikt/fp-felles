@@ -32,12 +32,10 @@ public class RestClientSupportProdusent {
 
     private final OidcRestClient oidcRestClient;
     private final SystemUserOidcRestClient systemUserOidcRestClient;
-    private final UserAndSystemOidcRestClient userAndSystemOidcRestClient;
 
     public RestClientSupportProdusent() {
         this.oidcRestClient = createOidcRestClient();
         this.systemUserOidcRestClient = creatSystemUserOidcRestClient();
-        this.userAndSystemOidcRestClient = createUserAndSystemOidcRestClient();
     }
 
     /**
@@ -74,11 +72,6 @@ public class RestClientSupportProdusent {
         return systemUserOidcRestClient;
     }
 
-    @Produces
-    public UserAndSystemOidcRestClient getUserAndSystemOidcRestClient() {
-        return userAndSystemOidcRestClient;
-    }
-
     private OidcRestClient createOidcRestClient() {
         CloseableHttpClient closeableHttpClient = createHttpClient();
         return new OidcRestClient(closeableHttpClient);
@@ -87,11 +80,6 @@ public class RestClientSupportProdusent {
     private SystemUserOidcRestClient creatSystemUserOidcRestClient() {
         CloseableHttpClient closeableHttpClient = createHttpClient();
         return new SystemUserOidcRestClient(closeableHttpClient);
-    }
-
-    private UserAndSystemOidcRestClient createUserAndSystemOidcRestClient() {
-        CloseableHttpClient closeableHttpClient = createHttpClient();
-        return new UserAndSystemOidcRestClient(closeableHttpClient);
     }
 
     static CloseableHttpClient createHttpClient() {

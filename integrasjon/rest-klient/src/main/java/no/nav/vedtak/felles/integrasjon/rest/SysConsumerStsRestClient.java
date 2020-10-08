@@ -1,26 +1,33 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createHttpClient;
+
 import java.io.IOException;
+import java.time.Duration;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 
-import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.util.LRUCache;
 
-/**
- * Blir til PGA PDL som skal ha både userToken og consumerToken - de kan være like eller ulike
- */
-public class UserAndSystemOidcRestClient extends AbstractOidcRestClient {
+public class SysConsumerStsRestClient extends AbstractOidcRestClient {
 
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     private static final String NAV_CONSUMER_TOKEN_HEADER = "Nav-Consumer-Token";
+    private static final String CACHE_KEY = "StsRestClient";
 
-    public UserAndSystemOidcRestClient(CloseableHttpClient client) {
-        super(client);
+    private final StsAccessTokenClient stsAccessTokenClient;
+    private final LRUCache<String, String> cache;
+
+    public SysConsumerStsRestClient(StsAccessTokenConfig config) {
+        super(createHttpClient());
+        // Bruker default client for tokens da client konfigurert i RestClientSupportProdusent feiler mot Azure p.g.a. headere som blir satt by default.
+        this.stsAccessTokenClient = new StsAccessTokenClient(HttpClients.createDefault(), config);
+        this.cache = new LRUCache<>(1, Duration.ofMinutes(1).toMillis());
     }
 
     @Override
@@ -29,7 +36,6 @@ public class UserAndSystemOidcRestClient extends AbstractOidcRestClient {
 
         return super.doExecute(target, request, context);
     }
-
 
     @Override
     protected String getOIDCToken() {
@@ -47,6 +53,12 @@ public class UserAndSystemOidcRestClient extends AbstractOidcRestClient {
     }
 
     private String systemUserOIDCToken() {
-        return SystemUserIdTokenProvider.getSystemUserIdToken().getToken();
+        var cachedAccessToken = cache.get(CACHE_KEY);
+        if (cachedAccessToken != null) {
+            return cachedAccessToken;
+        }
+        var nyttAccessToken = stsAccessTokenClient.hentAccessToken();
+        cache.put(CACHE_KEY, nyttAccessToken);
+        return nyttAccessToken;
     }
 }

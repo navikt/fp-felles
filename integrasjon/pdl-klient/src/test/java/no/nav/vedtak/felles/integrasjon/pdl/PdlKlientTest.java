@@ -21,14 +21,13 @@ import org.junit.jupiter.api.Test;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
-import no.nav.vedtak.felles.integrasjon.rest.UserAndSystemOidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.SysConsumerStsRestClient;
 
 public class PdlKlientTest {
 
     private PdlKlient pdlKlient;
 
-    private UserAndSystemOidcRestClient restClient;
+    private SysConsumerStsRestClient restClient;
     private CloseableHttpResponse response;
     private HttpEntity entity;
 
@@ -37,7 +36,7 @@ public class PdlKlientTest {
     @BeforeEach
     public void setUp() throws IOException {
         // Service setup
-        restClient = mock(UserAndSystemOidcRestClient.class);
+        restClient = mock(SysConsumerStsRestClient.class);
         URI endpoint = URI.create("dummyendpoint/graphql");
         pdlKlient = new PdlKlient(endpoint, restClient);
 
