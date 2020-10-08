@@ -37,9 +37,9 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
-import no.nav.vedtak.felles.integrasjon.rest.UserAndSystemOidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
+import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
@@ -60,11 +60,16 @@ public class PdlKlient {
         // CDI
     }
 
-    @Inject
-    public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "https://localhost:8063/rest/api/pdl") URI endpoint,
-                     UserAndSystemOidcRestClient restKlient) {
+    PdlKlient(URI endpoint, SystemConsumerStsRestClient restKlient) {
         this.graphqlEndpoint = URI.create(endpoint.toString() + "/graphql");
         this.restKlient = restKlient;
+    }
+
+    @Inject
+    public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "https://localhost:8063/rest/api/pdl") URI endpoint,
+                     StsAccessTokenConfig config) {
+        this.graphqlEndpoint = URI.create(endpoint.toString() + "/graphql");
+        this.restKlient = new SystemConsumerStsRestClient(config);
     }
 
     public Person hentPerson(HentPersonQueryRequest query, PersonResponseProjection projection, Tema consumerTemaKode) {
