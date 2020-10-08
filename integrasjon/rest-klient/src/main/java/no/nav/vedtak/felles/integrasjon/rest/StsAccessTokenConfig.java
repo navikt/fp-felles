@@ -11,7 +11,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @Dependent
 public class StsAccessTokenConfig {
 
-    private static final String DEFAULT_PATH = "rest/v1/sts/token";
+    private static final String DEFAULT_PATH = "/rest/v1/sts/token";
     private static final String GRANT_TYPE = "grant_type";
     private static final String SCOPE = "scope";
     private String username;

@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 class StsAccessTokenClient {
     private static final ObjectMapper mapper = DefaultJsonMapper.getObjectMapper();
@@ -44,9 +43,10 @@ class StsAccessTokenClient {
     private HttpPost httpPost() {
 
         HttpPost post = new HttpPost(config.getStsURI());
-        post.addHeader("Authorization", basicCredentials(config.getUsername(), config.getPassword()));
-        post.addHeader("Nav-Call-Id", MDCOperations.getCallId());
-        post.addHeader("Nav-Consumer-Id", SubjectHandler.getSubjectHandler().getConsumerId());
+        post.setHeader("Authorization", basicCredentials(config.getUsername(), config.getPassword()));
+        post.setHeader("Nav-Call-Id", MDCOperations.getCallId());
+        post.setHeader("Cache-Control", "no-cache");
+        post.setHeader("Nav-Consumer-Id", config.getUsername());
         return post;
     }
 

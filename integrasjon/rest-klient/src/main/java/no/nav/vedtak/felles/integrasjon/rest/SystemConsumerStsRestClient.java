@@ -14,7 +14,7 @@ import org.apache.http.protocol.HttpContext;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.LRUCache;
 
-public class SysConsumerStsRestClient extends AbstractOidcRestClient {
+public class SystemConsumerStsRestClient extends AbstractOidcRestClient {
 
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     private static final String NAV_CONSUMER_TOKEN_HEADER = "Nav-Consumer-Token";
@@ -23,11 +23,11 @@ public class SysConsumerStsRestClient extends AbstractOidcRestClient {
     private final StsAccessTokenClient stsAccessTokenClient;
     private final LRUCache<String, String> cache;
 
-    public SysConsumerStsRestClient(StsAccessTokenConfig config) {
+    public SystemConsumerStsRestClient(StsAccessTokenConfig config) {
         super(createHttpClient());
-        // Bruker default client for tokens da client konfigurert i RestClientSupportProdusent feiler mot Azure p.g.a. headere som blir satt by default.
+        // Bruker default client basert på AAD-versjonen OAuth2RestClient (brukes for SPokelse)
         this.stsAccessTokenClient = new StsAccessTokenClient(HttpClients.createDefault(), config);
-        this.cache = new LRUCache<>(1, Duration.ofMinutes(1).toMillis());
+        this.cache = new LRUCache<>(1, Duration.ofMinutes(29).toMillis());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class SysConsumerStsRestClient extends AbstractOidcRestClient {
         throw OidcRestClientFeil.FACTORY.klarteIkkeSkaffeOIDCToken().toException();
     }
 
-    private String systemUserOIDCToken() {
+    private synchronized String systemUserOIDCToken() {
         var cachedAccessToken = cache.get(CACHE_KEY);
         if (cachedAccessToken != null) {
             return cachedAccessToken;
