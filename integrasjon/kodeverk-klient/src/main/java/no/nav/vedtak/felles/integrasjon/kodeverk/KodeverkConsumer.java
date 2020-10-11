@@ -47,7 +47,7 @@ public class KodeverkConsumer {
         try {
             return port.finnKodeverkListe(finnKodeverkListeRequest);
         } catch (SOAPFaultException e) { // NOSONAR
-            throw KodeverkWebServiceFeil.FACTORY.soapFaultIwebserviceKall(SERVICE_IDENTIFIER, e).toException();
+            throw KodeverkWebServiceFeil.FACTORY.soapFaultFraKall(SERVICE_IDENTIFIER, e).toException();
         }
     }
 
@@ -55,7 +55,7 @@ public class KodeverkConsumer {
         try {
             return port.hentKodeverk(hentKodeverkRequest);
         } catch (SOAPFaultException e) { // NOSONAR
-            throw KodeverkWebServiceFeil.FACTORY.soapFaultIwebserviceKall(SERVICE_IDENTIFIER, e).toException();
+            throw KodeverkWebServiceFeil.FACTORY.soapFaultFraKall(SERVICE_IDENTIFIER, e).toException();
         }
     }
 
@@ -73,8 +73,8 @@ public class KodeverkConsumer {
     interface KodeverkWebServiceFeil extends DeklarerteFeil {
         KodeverkWebServiceFeil FACTORY = FeilFactory.create(KodeverkWebServiceFeil.class);
 
-        @IntegrasjonFeil(feilkode = "FP-942048", feilmelding = "SOAP tjenesten [ %s ] returnerte en SOAP Fault: %s", logLevel = LogLevel.WARN)
-        Feil soapFaultIwebserviceKall(String webservice, WebServiceException soapException);
+        @IntegrasjonFeil(feilkode = "FP-942049", feilmelding = "Kodeverktjenesten returnerte en SOAP Fault: %s", logLevel = LogLevel.WARN)
+        Feil soapFaultFraKall(String webservice, WebServiceException soapException);
     }
 
 }
