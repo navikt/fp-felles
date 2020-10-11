@@ -34,6 +34,9 @@ public class KodeverkConsumer {
 
     private KodeverkPortType port;
 
+    public KodeverkConsumer() {
+        // CDI
+    }
 
     @Inject
     public KodeverkConsumer(@KonfigVerdi("Kodeverk.v2.url") String endpointUrl) {
