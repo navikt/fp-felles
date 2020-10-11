@@ -23,7 +23,6 @@ import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.util.env.Environment;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
@@ -104,7 +103,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         if (url == null) {
             throw JwksFeil.FACTORY.manglerKonfigurasjonAvJwksUrl().toException();
         }
-        log.debug("Starting JWKS update from {}", LoggerUtils.removeLineBreaks(url.toExternalForm())); // NOSONAR
+        // Enable ved behov log.debug("Starting JWKS update from {}", LoggerUtils.removeLineBreaks(url.toExternalForm())); // NOSONAR
         HttpGet httpGet = new HttpGet(url.toExternalForm());
         httpGet.addHeader("accept", "application/json");
         if (useProxyForJwks) {

@@ -32,7 +32,7 @@ public abstract class SubjectHandler {
 
         try {
             Class<?> clazz = Class.forName(subjectHandlerImplementationClass);
-            logger.debug("Creating a SubjectHandler of type: {}", subjectHandlerImplementationClass);
+            // For mye støy. Slå på ved behov. logger.debug("Creating a SubjectHandler of type: {}", subjectHandlerImplementationClass);
             return (SubjectHandler) clazz.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new IllegalStateException("Klarte ikke å konfigurere plattformavhengig SubjectHandler", e);

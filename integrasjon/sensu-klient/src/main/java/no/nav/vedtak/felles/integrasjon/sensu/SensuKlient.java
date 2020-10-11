@@ -100,7 +100,7 @@ public class SensuKlient implements AppServiceHandler {
                     Thread.currentThread().interrupt();
                 } finally {
                     long tidBrukt = System.nanoTime() - startTs;
-                    LOG.debug("Ferdig med logging av metrikker for callId {}. Tid brukt: {}ms", callId, TimeUnit.NANOSECONDS.toMillis(tidBrukt));
+                    // Enable ved behov LOG.debug("Ferdig med logging av metrikker for callId {}. Tid brukt: {}ms", callId, TimeUnit.NANOSECONDS.toMillis(tidBrukt));
                 }
             });
         } else {
