@@ -180,11 +180,15 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         request.setHeader(AUTH_HEADER, authHeaderValue);
 
         request.setHeader(DEFAULT_NAV_CALLID, MDCOperations.getCallId());
-        request.setHeader(DEFAULT_NAV_CONSUMERID, SubjectHandler.getSubjectHandler().getConsumerId());
+        request.setHeader(DEFAULT_NAV_CONSUMERID, getConsumerId());
 
         setObsoleteHeaders(request);
 
         return client.execute(target, request, context);
+    }
+
+    protected String getConsumerId() {
+        return SubjectHandler.getSubjectHandler().getConsumerId();
     }
 
     protected <T> T fromJson(String json, Class<T> clazz) {
