@@ -14,6 +14,9 @@ import org.apache.http.protocol.HttpContext;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.LRUCache;
 
+/*
+ * Tilpasset PDL sin konvensjon med doble tokens bruker i Authorization og systembruker i Nav-Consumer-Token
+ */
 public class SystemConsumerStsRestClient extends AbstractOidcRestClient {
 
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
@@ -27,7 +30,7 @@ public class SystemConsumerStsRestClient extends AbstractOidcRestClient {
         super(createHttpClient());
         // Bruker default client basert på AAD-versjonen OAuth2RestClient (brukes for SPokelse)
         this.stsAccessTokenClient = new StsAccessTokenClient(HttpClients.createDefault(), config);
-        this.cache = new LRUCache<>(1, Duration.ofMinutes(29).toMillis());
+        this.cache = new LRUCache<>(1, Duration.ofMinutes(55).toMillis());
     }
 
     @Override
