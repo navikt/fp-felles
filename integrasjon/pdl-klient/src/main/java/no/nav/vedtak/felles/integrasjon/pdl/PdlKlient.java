@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import no.nav.pdl.*;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -28,10 +29,6 @@ import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
-import no.nav.pdl.HentPersonQueryRequest;
-import no.nav.pdl.HentPersonQueryResponse;
-import no.nav.pdl.Person;
-import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -54,6 +51,7 @@ public class PdlKlient {
     private CloseableHttpClient restKlient;
     private final ObjectMapper objectMapper = createObjectMapper();
     private final ObjectReader objectReaderHentPersonResponse = objectMapper.readerFor(HentPersonQueryResponse.class);
+    private final ObjectReader objectReaderHentIdenterResponse = objectMapper.readerFor(HentIdenterQueryResponse.class);
 
 
     PdlKlient() {
@@ -79,6 +77,16 @@ public class PdlKlient {
 
         return graphQlResponse.hentPerson();
     }
+
+    public Identliste hentIdenter(HentIdenterQueryRequest query, IdentlisteResponseProjection projection, Tema consumerTemaKode) {
+        GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
+
+        HentIdenterQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderHentIdenterResponse, consumerTemaKode);
+
+        return graphQlResponse.hentIdenter();
+    }
+
+
 
     private <T extends GraphQLResult> T utførSpørring(GraphQLRequest request, ObjectReader objectReader, Tema consumerTemaKode) {
         var responseHandler = new OidcRestClientResponseHandler.ObjectReaderResponseHandler<T>(graphqlEndpoint, objectReader);
