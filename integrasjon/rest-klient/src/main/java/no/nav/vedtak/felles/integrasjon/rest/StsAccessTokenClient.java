@@ -20,7 +20,7 @@ class StsAccessTokenClient {
     private final StsAccessTokenConfig config;
 
     StsAccessTokenClient(CloseableHttpClient closeableHttpClient,
-                         StsAccessTokenConfig config) {
+            StsAccessTokenConfig config) {
         this.closeableHttpClient = closeableHttpClient;
         this.config = config;
     }
@@ -31,7 +31,7 @@ class StsAccessTokenClient {
         try {
             responseEntity = closeableHttpClient.execute(httpPost, new BasicResponseHandler());
         } catch (IOException e) {
-            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(config.getStsURI()), e).toException();
+            throw OidcRestClientFeil.FACTORY.ioException(config.getStsURI(), e).toException();
         }
         try {
             return mapper.readTree(responseEntity).get("access_token").asText();

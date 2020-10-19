@@ -1,8 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
@@ -12,12 +14,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Set;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-class OAuth2AccessTokenClient  {
+class OAuth2AccessTokenClient {
     private static final ObjectMapper mapper = DefaultJsonMapper.getObjectMapper();
 
     private final CloseableHttpClient closeableHttpClient;
@@ -28,11 +29,11 @@ class OAuth2AccessTokenClient  {
     private final RequestConfig requestConfig;
 
     OAuth2AccessTokenClient(
-        CloseableHttpClient closeableHttpClient,
-        URI tokenEndpoint,
-        URI tokenEndpointProxy,
-        String clientId,
-        String clientSecret) {
+            CloseableHttpClient closeableHttpClient,
+            URI tokenEndpoint,
+            URI tokenEndpointProxy,
+            String clientId,
+            String clientSecret) {
         this.closeableHttpClient = closeableHttpClient;
         this.tokenEndpoint = tokenEndpoint;
         this.tokenEndpointProxy = tokenEndpointProxy;
@@ -52,7 +53,7 @@ class OAuth2AccessTokenClient  {
         try {
             responseEntity = closeableHttpClient.execute(httpPost, new BasicResponseHandler());
         } catch (IOException e) {
-            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(tokenEndpoint), e).toException();
+            throw OidcRestClientFeil.FACTORY.ioException(tokenEndpoint, e).toException();
         }
         try {
             return (ObjectNode) mapper.readTree(responseEntity);
@@ -66,11 +67,12 @@ class OAuth2AccessTokenClient  {
     }
 
     private static RequestConfig requestConfig(URI tokenEndpointProxy) {
-        if (tokenEndpointProxy == null) return null;
+        if (tokenEndpointProxy == null)
+            return null;
         HttpHost httpHostProxy = HttpHost.create(tokenEndpointProxy.toString());
         return RequestConfig.custom()
-            .setProxy(httpHostProxy)
-            .build();
+                .setProxy(httpHostProxy)
+                .build();
     }
 
     private HttpPost httpPost(String entity) {
@@ -85,6 +87,7 @@ class OAuth2AccessTokenClient  {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<tokenEndpoint=" + tokenEndpoint + ", clientId=" + clientId + ", clientSecret=***, tokenEndpointProxy=" + tokenEndpointProxy + ">";
+        return getClass().getSimpleName() + "<tokenEndpoint=" + tokenEndpoint + ", clientId=" + clientId + ", clientSecret=***, tokenEndpointProxy="
+                + tokenEndpointProxy + ">";
     }
 }
