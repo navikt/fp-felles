@@ -14,8 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.json.JsonObject;
-
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -25,8 +23,9 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
-import org.glassfish.json.JsonUtil;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -37,6 +36,8 @@ import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
 import no.nav.vedtak.util.env.Environment;
 
 public class OpenAMHelper {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private static final Environment ENV = Environment.current();
 
@@ -54,7 +55,7 @@ public class OpenAMHelper {
 
     private String redirectUriEncoded;
 
-    private static JsonObject wellKnownConfig;
+    private static JsonNode wellKnownConfig;
 
     public OpenAMHelper() {
         try {
@@ -67,7 +68,7 @@ public class OpenAMHelper {
     }
 
     private static Map<String, String> parseJSON(String response) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = OBJECT_MAPPER;
         TypeFactory factory = TypeFactory.defaultInstance();
         MapType type = factory.constructMapType(HashMap.class, String.class, String.class);
         try {
@@ -102,7 +103,7 @@ public class OpenAMHelper {
 
         String template = post(httpClient, jsonAuthUrl, null, Function.identity(),
                 "Authorization: Negotiate");
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = OBJECT_MAPPER;
         String utfyltTemplate;
         try {
             EndUserAuthorizationTemplate json = mapper.readValue(template, EndUserAuthorizationTemplate.class);
@@ -164,7 +165,11 @@ public class OpenAMHelper {
     }
 
     public static void setWellKnownConfig(String jsonAsString) {
-        wellKnownConfig = JsonUtil.toJson(jsonAsString).asJsonObject();
+        try {
+            wellKnownConfig = OBJECT_MAPPER.reader().readTree(jsonAsString);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Ugyldig json: ", e);
+        }
     }
 
     public static void unsetWellKnownConfig() {
@@ -172,7 +177,7 @@ public class OpenAMHelper {
     }
 
     @SuppressWarnings("resource")
-    public static JsonObject getWellKnownConfig() {
+    public static JsonNode getWellKnownConfig() {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         String url = getIssoHostUrl() + WELL_KNOWN_ENDPOINT;
         if (wellKnownConfig == null) {
@@ -200,8 +205,9 @@ public class OpenAMHelper {
     }
 
     public static String getStringFromWellKnownConfig(String key) {
-        if (getWellKnownConfig().containsKey(key)) {
-            return getWellKnownConfig().getString(key);
+        var wkc = getWellKnownConfig();
+        if (wkc.has(key)) {
+            return wkc.get(key).asText();
         } else {
             return null;
         }
@@ -229,12 +235,10 @@ public class OpenAMHelper {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static String getIssoHostUrl() {
         return ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST);
     }
 
-    @SuppressWarnings("deprecation")
     public static String getIssoUserName() {
         return ENV.getProperty(OPEN_ID_CONNECT_USERNAME);
     }

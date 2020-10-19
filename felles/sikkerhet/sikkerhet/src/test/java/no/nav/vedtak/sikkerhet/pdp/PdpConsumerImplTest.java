@@ -35,6 +35,7 @@ public class PdpConsumerImplTest {
 
     private static MemoryAppender logSniffer;
 
+    @SuppressWarnings("resource")
     @BeforeAll
     public static void setUp() throws Exception {
         logSniffer = sniff(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
