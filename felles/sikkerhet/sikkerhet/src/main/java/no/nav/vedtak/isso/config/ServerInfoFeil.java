@@ -15,6 +15,6 @@ interface ServerInfoFeil extends DeklarerteFeil {
     @TekniskFeil(feilkode = "F-836622", feilmelding = "Ugyldig system property '%s'='%s'", logLevel = LogLevel.ERROR)
     Feil ugyldigSystemProperty(String key, String value);
 
-    @TekniskFeil(feilkode = "F-050157", feilmelding = "Uventet format for host, klarer ikke å utvide cookie domain. Forventet format var xx.xx.xx, fikk '%s'. (OK hvis kjører lokalt).", logLevel = LogLevel.WARN)
+    @TekniskFeil(feilkode = "F-050157", feilmelding = "Uventet format for host, klarer ikke å utvide cookie domain. Forventet format var xx.xx.xx, fikk '%s'", logLevel = LogLevel.WARN)
     Feil uventetHostFormat(String host);
 }

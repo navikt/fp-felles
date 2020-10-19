@@ -83,7 +83,9 @@ public final class ServerInfo {
             if (hostname.split("\\.").length >= 3) {
                 return hostname.substring(hostname.indexOf('.') + 1);
             } else {
-                ServerInfoFeil.FACTORY.uventetHostFormat(hostname).log(LOG);
+                if (!ENV.isLocal()) {
+                    ServerInfoFeil.FACTORY.uventetHostFormat(hostname).log(LOG);
+                }
                 return null; // null er det strengeste i cookie domain, betyr 'kun denne server'
             }
         } else {
