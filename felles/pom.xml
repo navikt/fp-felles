@@ -27,7 +27,6 @@
 
         <cxf.version>3.3.6</cxf.version>
         <logback.version>1.2.3</logback.version>
-        <resteasy.version>3.13.2.Final</resteasy.version>
         <slf4j.version>1.7.30</slf4j.version>
         <swagger.version>2.1.5</swagger.version>
 
@@ -56,28 +55,11 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-            <dependency>
-                <groupId>org.jboss.resteasy</groupId>
-                <artifactId>resteasy-servlet-initializer</artifactId>
-                <version>${resteasy.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.jboss.spec.javax.ws.rs</groupId>
-                        <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.jboss.spec.javax.servlet</groupId>
-                        <artifactId>jboss-servlet-api_3.1_spec</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.resteasy</groupId>
-                <artifactId>resteasy-bom</artifactId>
-                <version>${resteasy.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
+			<dependency>
+				<groupId>org.jboss.resteasy</groupId>
+				<artifactId>resteasy-json-p-provider</artifactId>
+				<version>4.5.8.Final</version>
+			</dependency>
             <dependency>
                 <!-- jaxb coordinater for java11 -->
                 <groupId>org.glassfish.jaxb</groupId>
@@ -87,12 +69,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <dependency>
-                <!-- er ikke i resteasy-bom, så må defineres separat -->
-                <groupId>org.jboss.resteasy</groupId>
-                <artifactId>resteasy-cdi</artifactId>
-                <version>${resteasy.version}</version>
-            </dependency>
             <dependency>
                 <!-- setter scope provided for globalt å ekskludere denne fra pakking -->
                 <groupId>org.jboss.logging</groupId>

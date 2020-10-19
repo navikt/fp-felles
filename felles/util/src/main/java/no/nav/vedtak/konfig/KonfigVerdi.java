@@ -36,6 +36,9 @@ public @interface KonfigVerdi {
 
     @Nonbinding
     String defaultVerdi() default "";
+    
+    @Nonbinding
+    String beskrivelse() default "";
 
     @Nonbinding
     Class<? extends KonfigVerdi.Converter<?>> converter() default NoConverter.class;
@@ -152,6 +155,11 @@ public @interface KonfigVerdi {
         @Override
         public boolean required() {
             return false;
+        }
+        
+        @Override
+        public String beskrivelse() {
+            return "";
         }
 
         @Override

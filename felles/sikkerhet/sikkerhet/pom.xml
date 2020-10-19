@@ -96,6 +96,7 @@
             <artifactId>javax.json-api</artifactId>
         </dependency>
         <dependency>
+        	<!-- kun for Xacml - kan erstattes ved å bytte JsonUtil til Jackson ObjectMapper -->
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-json-p-provider</artifactId>
         </dependency>
