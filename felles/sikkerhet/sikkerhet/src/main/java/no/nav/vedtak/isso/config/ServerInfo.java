@@ -79,14 +79,12 @@ public final class ServerInfo {
     }
 
     private static String removeSchemeAndPort(String schemeHostPort) {
-        var r = Optional.ofNullable(domainName(schemeHostPort))
+        return Optional.ofNullable(domainName(schemeHostPort))
                 .filter(not(InternetDomainName::isTopPrivateDomain))
                 .filter(InternetDomainName::isUnderPublicSuffix)
                 .map(InternetDomainName::topPrivateDomain)
                 .map(Object::toString)
                 .orElse(null);
-        System.out.println(schemeHostPort + " -> " + r);
-        return r;
     }
 
     private static <R> Predicate<R> not(Predicate<R> predicate) {
@@ -95,8 +93,12 @@ public final class ServerInfo {
 
     private static InternetDomainName domainName(String schemeHostPort) {
         try {
-            return InternetDomainName.from(URI.create(schemeHostPort).getHost());
-        } catch (Exception e) {
+            return Optional.ofNullable(schemeHostPort)
+                    .map(URI::create)
+                    .map(URI::getHost)
+                    .map(InternetDomainName::from)
+                    .orElse(null);
+        } catch (IllegalArgumentException e) {
             LOG.warn("Uventet format for host,  kunne ikke parse {} til domain name", schemeHostPort);
             return null;
         }
