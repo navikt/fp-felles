@@ -15,15 +15,14 @@ public enum Cluster {
     PROD_FSS("prod-fss");
 
     private static final String PROD = "prod";
+    private static final String DEV = "dev";
 
     public static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
 
     private final String name;
-    private final boolean isProd;
 
     Cluster(String name) {
         this.name = name;
-        this.isProd = name.startsWith(PROD);
     }
 
     public String clusterName() {
@@ -31,7 +30,15 @@ public enum Cluster {
     }
 
     public boolean isProd() {
-        return isProd;
+        return name.startsWith(PROD);
+    }
+
+    public boolean isDev() {
+        return name.startsWith(DEV);
+    }
+
+    public boolean isLocal() {
+        return !isProd() && !isDev();
     }
 
     public static Cluster current() {

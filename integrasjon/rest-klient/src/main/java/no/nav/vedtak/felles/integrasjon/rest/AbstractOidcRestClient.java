@@ -25,6 +25,7 @@ import org.apache.http.protocol.HttpContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.DefaultJsonMapperFeil;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ByteArrayResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
@@ -79,7 +80,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     }
 
     /** @deprecated for kompatibilitet med CloseableHttpClient. IKKE BRUK. */
-    @SuppressWarnings("deprecation")
     @Deprecated(forRemoval = true, since = "2.3.x")
     @Override
     public ClientConnectionManager getConnectionManager() {
@@ -87,7 +87,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     }
 
     /** @deprecated for kompatibilitet med CloseableHttpClient. IKKE BRUK. */
-    @SuppressWarnings("deprecation")
     @Deprecated(forRemoval = true, since = "2.3.x")
     @Override
     public HttpParams getParams() {
@@ -220,7 +219,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return this.execute(get, responseHandler);
         } catch (IOException e) {
-            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
+            throw new TekniskException("F-432937", endpoint, e);
         }
     }
 
@@ -232,7 +231,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return this.execute(patch, responseHandler);
         } catch (IOException e) {
-            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
+            throw new TekniskException("F-432937", endpoint, e);
         }
     }
 
@@ -244,7 +243,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return this.execute(put, responseHandler);
         } catch (IOException e) {
-            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
+            throw new TekniskException("F-432937", endpoint, e);
         }
     }
 
@@ -261,7 +260,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return this.execute(post, responseHandler);
         } catch (IOException e) {
-            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
+            throw new TekniskException("F-432937", endpoint, e);
         }
     }
 
@@ -270,7 +269,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return this.execute(post, responseHandler);
         } catch (IOException e) {
-            throw OidcRestClientFeil.FACTORY.ioException(OidcRestClientFeil.formatterURI(endpoint), e).toException();
+            throw new TekniskException("F-432937", endpoint, e);
         }
     }
 

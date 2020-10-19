@@ -15,7 +15,7 @@ public class Feil {
     private final Class<? extends VLException> exceptionClass;
     private final Throwable cause;
 
-    Feil(String kode, String feilmelding, LogLevel logLevel, Class<? extends VLException> exceptionClass, Throwable cause) {
+    public Feil(String kode, String feilmelding, LogLevel logLevel, Class<? extends VLException> exceptionClass, Throwable cause) {
         this.kode = kode;
         this.feilmelding = feilmelding;
         this.logLevel = logLevel;

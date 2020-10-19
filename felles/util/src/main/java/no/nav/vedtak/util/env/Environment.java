@@ -71,6 +71,14 @@ public final class Environment {
         return cluster.isProd();
     }
 
+    public boolean isDev() {
+        return cluster.isDev();
+    }
+
+    public boolean isLocal() {
+        return cluster.isLocal();
+    }
+
     public String clusterName() {
         return cluster.clusterName();
     }

@@ -1,6 +1,5 @@
 package no.nav.vedtak.exception;
 
-
 import no.nav.vedtak.feil.FunksjonellFeil;
 
 public class FunksjonellException extends VLException {
@@ -11,6 +10,6 @@ public class FunksjonellException extends VLException {
 
     @Override
     public FunksjonellFeil getFeil() {
-        return (FunksjonellFeil) super.getFeil(); //NOSONAR Uproblematisk cast, finnes bare constructorer som tar inn denne typen
+        return (FunksjonellFeil) super.getFeil();
     }
 }

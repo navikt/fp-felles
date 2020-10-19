@@ -12,9 +12,12 @@ import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
+
 public abstract class OidcRestClientResponseHandler<T> implements ResponseHandler<T> {
 
-    private URI endpoint;
+    private final URI endpoint;
 
     public OidcRestClientResponseHandler(URI endpoint) {
         this.endpoint = endpoint;
@@ -25,17 +28,16 @@ public abstract class OidcRestClientResponseHandler<T> implements ResponseHandle
         int status = response.getStatusLine().getStatusCode();
         if (status == HttpStatus.SC_NO_CONTENT) {
             return null;
-        } else if (status >= HttpStatus.SC_OK && status < HttpStatus.SC_MULTIPLE_CHOICES) {
+        }
+        if (status >= HttpStatus.SC_OK && status < HttpStatus.SC_MULTIPLE_CHOICES) {
             HttpEntity entity = response.getEntity();
             return entity != null ? readEntity(entity) : null;
-        } else if (status == HttpStatus.SC_FORBIDDEN) {
-            throw OidcRestClientFeil.FACTORY.manglerTilgang(OidcRestClientFeil.formatterURI(endpoint)).toException();
-        } else {
-            throw OidcRestClientFeil.FACTORY.serverSvarteMedFeilkode(
-                OidcRestClientFeil.formatterURI(endpoint),
-                status,
-                response.getStatusLine().getReasonPhrase()).toException();
         }
+        if (status == HttpStatus.SC_FORBIDDEN) {
+            throw new ManglerTilgangException(endpoint);
+        }
+
+        throw new IntegrasjonException(endpoint, status, response.getStatusLine().getReasonPhrase());
     }
 
     protected abstract T readEntity(HttpEntity entity) throws IOException;
@@ -74,7 +76,6 @@ public abstract class OidcRestClientResponseHandler<T> implements ResponseHandle
             this.reader = reader;
         }
 
-        @SuppressWarnings("resource")
         @Override
         protected T readEntity(HttpEntity entity) throws IOException {
             return reader.readValue(entity.getContent());
