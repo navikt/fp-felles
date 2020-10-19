@@ -92,16 +92,11 @@ public final class ServerInfo {
     }
 
     private static InternetDomainName domainName(String schemeHostPort) {
-        try {
-            return Optional.ofNullable(schemeHostPort)
-                    .map(URI::create)
-                    .map(URI::getHost)
-                    .map(InternetDomainName::from)
-                    .orElse(null);
-        } catch (IllegalArgumentException e) {
-            LOG.warn("Uventet format for host,  kunne ikke parse {} til domain name", schemeHostPort);
-            return null;
-        }
+        return Optional.ofNullable(schemeHostPort)
+                .map(URI::create)
+                .map(URI::getHost)
+                .map(InternetDomainName::from)
+                .orElse(null);
     }
 
     @Override
