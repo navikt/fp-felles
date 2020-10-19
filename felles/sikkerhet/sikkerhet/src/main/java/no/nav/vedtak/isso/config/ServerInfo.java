@@ -1,10 +1,13 @@
 package no.nav.vedtak.isso.config;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.net.URI;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.net.InternetDomainName;
 
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.util.env.Environment;
@@ -76,21 +79,26 @@ public final class ServerInfo {
     }
 
     private static String removeSchemeAndPort(String schemeHostPort) {
-        Pattern pattern = Pattern.compile("^https?://([\\w\\-.]+)(:\\d+)?$");
-        Matcher m = pattern.matcher(schemeHostPort);
-        if (m.find()) {
-            String hostname = m.group(1);
-            if (hostname.split("\\.").length >= 3) {
-                return hostname.substring(hostname.indexOf('.') + 1);
-            } else {
-                if (!ENV.isLocal()) {
-                    ServerInfoFeil.FACTORY.uventetHostFormat(hostname).log(LOG);
-                }
-                return null; // null er det strengeste i cookie domain, betyr 'kun denne server'
-            }
-        } else {
-            throw ServerInfoFeil.FACTORY.ugyldigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL, schemeHostPort)
-                    .toException();
+        var r = Optional.ofNullable(domainName(schemeHostPort))
+                .filter(not(InternetDomainName::isTopPrivateDomain))
+                .filter(InternetDomainName::isUnderPublicSuffix)
+                .map(InternetDomainName::topPrivateDomain)
+                .map(Object::toString)
+                .orElse(null);
+        System.out.println(schemeHostPort + " -> " + r);
+        return r;
+    }
+
+    private static <R> Predicate<R> not(Predicate<R> predicate) {
+        return predicate.negate();
+    }
+
+    private static InternetDomainName domainName(String schemeHostPort) {
+        try {
+            return InternetDomainName.from(URI.create(schemeHostPort).getHost());
+        } catch (Exception e) {
+            LOG.warn("Uventet format for host,  kunne ikke parse {} til domain name", schemeHostPort);
+            return null;
         }
     }
 
