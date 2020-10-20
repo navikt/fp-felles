@@ -1,6 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -8,7 +11,6 @@ import javax.inject.Inject;
 
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.IdentGruppe;
-import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
@@ -110,6 +112,25 @@ public class PdlKlientMedCache {
             return fraCache;
         }
 
+        Optional<String> aktørId = getIdenter(IdentGruppe.AKTORID, Tema.OMS);
+
+        cacheIdentTilAktørId.put(personIdent, aktørId);
+
+        return aktørId;
+    }
+
+    public Optional<String> hentPersonIdentForAktørId(String aktørId) {
+        Optional<String> fraCache = cacheAktørIdTilIdent.get(aktørId);
+        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
+            return fraCache;
+        }
+        Optional<String> ident = getIdenter(IdentGruppe.FOLKEREGISTERIDENT, Tema.OMS);
+        cacheAktørIdTilIdent.put(aktørId, ident);
+        return ident;
+    }
+
+    public Optional<String> getIdenter(IdentGruppe identGruppe, Tema tema) {
+
         HentIdenterQueryRequest request = new HentIdenterQueryRequest();
 
         IdentlisteResponseProjection projeksjon = new IdentlisteResponseProjection()
@@ -119,25 +140,20 @@ public class PdlKlientMedCache {
                     .gruppe()
             );
 
-        Tema team = Tema.OMS;
+        Identliste identliste = pdlKlient.hentIdenter(request, projeksjon, tema);
 
-        Identliste identliste = pdlKlient.hentIdenter(request, projeksjon, team);
-
-        Optional<String> aktørId = identliste.getIdenter().stream().filter(s -> s.getGruppe().equals(IdentGruppe.AKTORID)).findFirst().map(i -> i.getIdent());
-
-        cacheIdentTilAktørId.put(personIdent, aktørId);
-
-        return aktørId;
+        return identliste.getIdenter().stream().filter(s -> s.getGruppe().equals(identGruppe)).findFirst().map(i -> i.getIdent());
     }
 
-    /*
-    public Optional<String> hentPersonIdentForAktørId(String aktørId) {
-        Optional<String> fraCache = cacheAktørIdTilIdent.get(aktørId);
-        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
-            return fraCache;
-        }
-        Optional<String> ident = pdlKlient.hentPersonIdentForAktørId(aktørId);
-        cacheAktørIdTilIdent.put(aktørId, ident);
-        return ident;
-    }*/
+    public Set<String> hentAktørIdForPersonIdentSet(Set<String> personIdentSet) {
+        return Collections.emptySet();
+    }
+
+    public Map<String, String> hentAktørIdMapForPersonIdent(Set<String> personIdentSet) {
+        return Collections.emptyMap();
+    }
 }
+
+
+
+

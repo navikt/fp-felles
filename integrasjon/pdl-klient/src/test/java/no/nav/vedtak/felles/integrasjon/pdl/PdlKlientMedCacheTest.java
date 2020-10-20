@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -7,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -61,6 +63,29 @@ public class PdlKlientMedCacheTest {
 
         Optional<String> s = testSubject.hentAktørIdForPersonIdent("16047439276");
 
-        Assertions.assertThat(s).isNotEmpty();
+        assertThat(s).isNotEmpty();
     }
+
+    @Test
+    void skal_hente_personIdent_for_aktørId() throws IOException {
+
+        when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerResponse.json"));
+
+        PdlKlientMedCache testSubject = new PdlKlientMedCache(pdlKlient);
+
+        Optional<String> s = testSubject.hentPersonIdentForAktørId("9916047439276");
+
+        assertThat(s).isNotEmpty();
+    }
+
+
+//    @Test
+//    void skal_hent_aktørId_for_set_med_personIdent() {
+//
+//        PdlKlientMedCache testSubject = new PdlKlientMedCache(pdlKlient);
+//        Set<String> aktørIds = testSubject.hentAktørIdForPersonIdentSet(Set.of("16047439276"));
+//
+//        assertThat(aktørIds).hasSize(1);
+//        assertThat(aktørIds).contains("9916047439276");
+//    }
 }
