@@ -112,7 +112,7 @@ public class PdlKlientMedCache {
             return fraCache;
         }
 
-        Optional<String> aktørId = getIdenter(IdentGruppe.AKTORID, Tema.OMS);
+        Optional<String> aktørId = getIdenter(IdentGruppe.AKTORID, Tema.OMS, personIdent);
 
         cacheIdentTilAktørId.put(personIdent, aktørId);
 
@@ -124,14 +124,15 @@ public class PdlKlientMedCache {
         if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
             return fraCache;
         }
-        Optional<String> ident = getIdenter(IdentGruppe.FOLKEREGISTERIDENT, Tema.OMS);
+        Optional<String> ident = getIdenter(IdentGruppe.FOLKEREGISTERIDENT, Tema.OMS, aktørId);
         cacheAktørIdTilIdent.put(aktørId, ident);
         return ident;
     }
 
-    public Optional<String> getIdenter(IdentGruppe identGruppe, Tema tema) {
+    public Optional<String> getIdenter(IdentGruppe identGruppe, Tema tema, String aktørId) {
 
         HentIdenterQueryRequest request = new HentIdenterQueryRequest();
+        request.setIdent(aktørId);
 
         IdentlisteResponseProjection projeksjon = new IdentlisteResponseProjection()
             .identer(
@@ -146,6 +147,10 @@ public class PdlKlientMedCache {
     }
 
     public Set<String> hentAktørIdForPersonIdentSet(Set<String> personIdentSet) {
+
+
+
+
         return Collections.emptySet();
     }
 
