@@ -47,68 +47,11 @@ public class PdlKlientMedCache {
         this.cacheIdentTilAktørId = cacheIdentTilAktørId;
     }
 
-    /*
-    public Set<String> hentAktørIdForPersonIdentSet(Set<String> personIdentSet) {
-        Set<String> resultSet = new HashSet<>();
-        Set<String> requestSet = new HashSet<>();
-        for (String personIdent : personIdentSet) {
-            Optional<String> fraCache = cacheIdentTilAktørId.get(personIdent);
-            if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
-                fraCache.ifPresent(resultSet::add);
-            } else {
-                requestSet.add(personIdent);
-            }
-        }
-        if (!requestSet.isEmpty()) {
-            List<AktoerIder> aktoerIder = pdlKlient.hentAktørIdForPersonIdentSet(requestSet);
-            for (AktoerIder aktør : aktoerIder) {
-                Optional<String> aktørId = Optional.of(aktør.getAktoerId());
-                cacheIdentTilAktørId.put(aktør.getGjeldendeIdent().getTpsId(), aktørId);
-                aktør.getHistoriskIdentListe().stream().map(a -> a.getTpsId()).forEach(a -> cacheIdentTilAktørId.put(a, aktørId));
-                resultSet.add(aktør.getAktoerId());
-            }
-        }
-        return resultSet;
-    }
-
-    public Map<String, String> hentAktørIdMapForPersonIdent(Set<String> personIdentSet) {
-        Map<String, String> resultMap = new HashMap<>();
-        Set<String> requestSet = new HashSet<>();
-        for (String personIdent : personIdentSet) {
-            Optional<String> fraCache = cacheIdentTilAktørId.get(personIdent);
-            if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
-                fraCache.ifPresent(a -> resultMap.put(personIdent, a));
-            } else {
-                requestSet.add(personIdent);
-            }
-        }
-        if (!requestSet.isEmpty()) {
-            List<AktoerIder> aktoerIder = pdlKlient.hentAktørIdForPersonIdentSet(requestSet);
-
-            for (String ident : requestSet) {
-
-                Optional<AktoerIder> aktør = aktoerIder.stream().filter(a -> a.getGjeldendeIdent().getTpsId().matches(ident)).findFirst();
-                if (!aktør.isPresent()) {
-                    aktør = aktoerIder.stream().filter(a -> a.getHistoriskIdentListe().stream().anyMatch(i -> i.getTpsId().matches(ident))).findFirst();
-                }
-                if (aktør.isPresent()) {
-
-                    Optional<String> aktørId = Optional.of(aktør.get().getAktoerId());
-                    cacheIdentTilAktørId.put(aktør.get().getGjeldendeIdent().getTpsId(), aktørId);
-                    aktør.get().getHistoriskIdentListe().stream().map(IdentDetaljer::getTpsId).forEach(a -> cacheIdentTilAktørId.put(a, aktørId));
-                    resultMap.put(ident, aktør.get().getAktoerId());
-                }
-            }
-        }
-        return resultMap;
-    }
-*/
-
     public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
 
         Optional<String> fraCache = cacheIdentTilAktørId.get(personIdent);
 
-        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
+        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i PDL"
             return fraCache;
         }
 
@@ -120,12 +63,17 @@ public class PdlKlientMedCache {
     }
 
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
+
         Optional<String> fraCache = cacheAktørIdTilIdent.get(aktørId);
-        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
+
+        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i PDL"
             return fraCache;
         }
+
         Optional<String> ident = getIdenter(IdentGruppe.FOLKEREGISTERIDENT, Tema.OMS, aktørId);
+
         cacheAktørIdTilIdent.put(aktørId, ident);
+
         return ident;
     }
 
