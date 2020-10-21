@@ -73,7 +73,7 @@ public class KodeverkConsumer {
     interface KodeverkWebServiceFeil extends DeklarerteFeil {
         KodeverkWebServiceFeil FACTORY = FeilFactory.create(KodeverkWebServiceFeil.class);
 
-        @IntegrasjonFeil(feilkode = "FP-942049", feilmelding = "Kodeverktjenesten returnerte en SOAP Fault: %s", logLevel = LogLevel.WARN)
+        @IntegrasjonFeil(feilkode = "F-942049", feilmelding = "Kodeverktjenesten returnerte en SOAP Fault: %s", logLevel = LogLevel.WARN)
         Feil soapFaultFraKall(String webservice, WebServiceException soapException);
     }
 

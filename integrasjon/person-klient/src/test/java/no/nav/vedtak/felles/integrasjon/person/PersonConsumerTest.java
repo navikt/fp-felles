@@ -41,14 +41,14 @@ public class PersonConsumerTest {
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFault_hentPerson() throws Exception {
         when(mockWebservice.hentPerson(any(HentPersonRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
         assertTrue(assertThrows(IntegrasjonException.class, () -> consumer.hentPersonResponse(mock(HentPersonRequest.class))).getKode()
-                .equals("FP-942048"));
+                .equals("F-942048"));
     }
 
     @Test
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFault_hentPersonHistorikk() throws Exception {
         when(mockWebservice.hentPersonhistorikk(any(HentPersonhistorikkRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
         assertTrue(assertThrows(IntegrasjonException.class, () -> consumer.hentPersonhistorikkResponse(mock(HentPersonhistorikkRequest.class)))
-                .getKode().equals("FP-942048"));
+                .getKode().equals("F-942048"));
 
     }
 
@@ -57,7 +57,7 @@ public class PersonConsumerTest {
         when(mockWebservice.hentGeografiskTilknytning(any(HentGeografiskTilknytningRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
 
         assertTrue(assertThrows(IntegrasjonException.class, () -> consumer.hentGeografiskTilknytning(mock(HentGeografiskTilknytningRequest.class)))
-                .getKode().equals("FP-942048"));
+                .getKode().equals("F-942048"));
     }
 
     private static SOAPFaultException opprettSOAPFaultException(String faultString) throws SOAPException {

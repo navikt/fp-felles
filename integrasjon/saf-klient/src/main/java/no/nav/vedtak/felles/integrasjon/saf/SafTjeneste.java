@@ -193,10 +193,10 @@ public class SafTjeneste {
     interface SafTjenesteFeil extends DeklarerteFeil { // NOSONAR - internt interface er ok her
         SafTjenesteFeil FEILFACTORY = FeilFactory.create(SafTjenesteFeil.class); // NOSONAR ok med konstant
 
-        @TekniskFeil(feilkode = "K9-240613", feilmelding = "Forespørsel til SAF feilet for spørring %s", logLevel = LogLevel.WARN)
+        @TekniskFeil(feilkode = "F-240613", feilmelding = "Forespørsel til SAF feilet for spørring %s", logLevel = LogLevel.WARN)
         Feil safForespørselFeilet(String query, Throwable t);
 
-        @TekniskFeil(feilkode = "K9-588730", feilmelding = "Feil fra SAF ved utført query. Error: %s", logLevel = LogLevel.WARN)
+        @TekniskFeil(feilkode = "F-588730", feilmelding = "Feil fra SAF ved utført query. Error: %s", logLevel = LogLevel.WARN)
         Feil forespørselReturnerteFeil(String response);
     }
 }

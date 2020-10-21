@@ -41,14 +41,14 @@ public class JournalConsumerTest {
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFaul_hentDokument() throws Exception {
         when(mockWebservice.hentDokument(any(HentDokumentRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
         var e = assertThrows(IntegrasjonException.class, () -> consumer.hentDokument(mock(HentDokumentRequest.class)));
-        assertEquals(e.getKode(), "FP-942048");
+        assertEquals(e.getKode(), "F-942048");
     }
 
     @Test
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFault_kjerneJournalpostListe() throws Exception {
         when(mockWebservice.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
         var e = assertThrows(IntegrasjonException.class, () -> consumer.hentKjerneJournalpostListe(mock(HentKjerneJournalpostListeRequest.class)));
-        assertEquals(e.getKode(), "FP-942048");
+        assertEquals(e.getKode(), "F-942048");
 
     }
 
@@ -56,7 +56,7 @@ public class JournalConsumerTest {
     public void skalKasteIntegrasjonsfeilNårWebserviceSenderSoapFault_hentDokumentUrl() throws Exception {
         when(mockWebservice.hentDokumentURL(any(HentDokumentURLRequest.class))).thenThrow(opprettSOAPFaultException("feil"));
         var e = assertThrows(IntegrasjonException.class, () -> consumer.hentDokumentURL(mock(HentDokumentURLRequest.class)));
-        assertEquals(e.getKode(), "FP-942048");
+        assertEquals(e.getKode(), "F-942048");
     }
 
     private static SOAPFaultException opprettSOAPFaultException(String faultString) throws SOAPException {
