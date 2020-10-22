@@ -50,7 +50,7 @@ public class AktørConsumerTest {
     @Test
     public void skalKasteIntegrasjonExceptionMedFeilmeldingForAndreFeil() throws Exception {
         when(mockAktoerV2.hentAktoerIdForIdent(any())).thenThrow(opprettSOAPFaultException("annen feil"));
-        assertTrue(assertThrows(IntegrasjonException.class, () -> consumer.hentAktørIdForPersonIdent("123")).getMessage().contains("FP-942048"));
+        assertTrue(assertThrows(IntegrasjonException.class, () -> consumer.hentAktørIdForPersonIdent("123")).getMessage().contains("F-942048"));
     }
 
     private static SOAPFaultException opprettSOAPFaultException(String faultString) throws SOAPException {

@@ -155,10 +155,10 @@ public class PdlKlient {
     interface PdlTjenesteFeil extends DeklarerteFeil { // NOSONAR - internt interface er ok her
         PdlTjenesteFeil FEILFACTORY = FeilFactory.create(PdlTjenesteFeil.class); // NOSONAR ok med konstant
 
-        @TekniskFeil(feilkode = "K9-539237", feilmelding = "Forespørsel til PDL feilet for spørring %s", logLevel = LogLevel.WARN)
+        @TekniskFeil(feilkode = "F-539237", feilmelding = "Forespørsel til PDL feilet for spørring %s", logLevel = LogLevel.WARN)
         Feil safForespørselFeilet(String query, Throwable t);
 
-        @TekniskFeil(feilkode = "K9-399735", feilmelding = "Feil fra PDL ved utført query. Error: %s", logLevel = LogLevel.WARN)
+        @TekniskFeil(feilkode = "F-399735", feilmelding = "Feil fra PDL ved utført query. Error: %s", logLevel = LogLevel.WARN)
         Feil forespørselReturnerteFeil(String response);
     }
 }

@@ -13,12 +13,12 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 public interface SoapWebServiceFeil extends DeklarerteFeil {
     SoapWebServiceFeil FACTORY = FeilFactory.create(SoapWebServiceFeil.class);
 
-    @IntegrasjonFeil(feilkode = "FP-942048", feilmelding = "SOAP tjenesten [ %s ] returnerte en SOAP Fault: %s", logLevel = LogLevel.WARN)
+    @IntegrasjonFeil(feilkode = "F-942048", feilmelding = "SOAP tjenesten [ %s ] returnerte en SOAP Fault: %s", logLevel = LogLevel.WARN)
     Feil soapFaultIwebserviceKall(String webservice, WebServiceException soapException);
 
     @TekniskFeil(feilkode = "F-668217", feilmelding = "Feilet utlogging.", logLevel = LogLevel.WARN)
     Feil feiletUtlogging(LoginException e);
-    
+
     @IntegrasjonFeil(feilkode = "F-134134", feilmelding = "SOAP tjenesten [ %s ] returnerte en feil som trolig er midlertidig: %s", logLevel = LogLevel.INFO)
     Feil midlertidigFeil(String webservice, WebServiceException exception);
 }
