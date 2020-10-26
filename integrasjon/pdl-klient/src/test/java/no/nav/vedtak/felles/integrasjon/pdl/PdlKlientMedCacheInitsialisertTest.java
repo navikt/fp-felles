@@ -26,7 +26,7 @@ public class PdlKlientMedCacheInitsialisertTest {
 
         PdlKlientMedCache testSubject = new PdlKlientMedCache(pdlKlientMock, enTomCache(), enCacheMed("16047439276", "9916047439276"));
 
-        Optional<String> s = testSubject.hentAktørIdForPersonIdent("16047439276");
+        Optional<String> s = testSubject.hentAktørIdForPersonIdent("16047439276", Tema.OMS);
 
         Assertions.assertThat(s).isNotEmpty();
 

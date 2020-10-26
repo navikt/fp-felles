@@ -47,7 +47,7 @@ public class PdlKlientMedCache {
         this.cacheIdentTilAktørId = cacheIdentTilAktørId;
     }
 
-    public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
+    public Optional<String> hentAktørIdForPersonIdent(String personIdent, Tema tema) {
 
         Optional<String> fraCache = cacheIdentTilAktørId.get(personIdent);
 
@@ -55,14 +55,14 @@ public class PdlKlientMedCache {
             return fraCache;
         }
 
-        Optional<String> aktørId = getIdenter(IdentGruppe.AKTORID, Tema.OMS, personIdent);
+        Optional<String> aktørId = getIdenter(IdentGruppe.AKTORID, tema, personIdent);
 
         cacheIdentTilAktørId.put(personIdent, aktørId);
 
         return aktørId;
     }
 
-    public Optional<String> hentPersonIdentForAktørId(String aktørId) {
+    public Optional<String> hentPersonIdentForAktørId(String aktørId, Tema tema) {
 
         Optional<String> fraCache = cacheAktørIdTilIdent.get(aktørId);
 
@@ -70,7 +70,7 @@ public class PdlKlientMedCache {
             return fraCache;
         }
 
-        Optional<String> ident = getIdenter(IdentGruppe.FOLKEREGISTERIDENT, Tema.OMS, aktørId);
+        Optional<String> ident = getIdenter(IdentGruppe.FOLKEREGISTERIDENT, tema, aktørId);
 
         cacheAktørIdTilIdent.put(aktørId, ident);
 
