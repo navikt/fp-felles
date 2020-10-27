@@ -51,6 +51,7 @@ import no.nav.vedtak.util.Tuple;
 @ApplicationScoped
 public class PdpConsumerImpl implements PdpConsumer {
 
+    private static final String DEFAULT_ABAC_URL = " http://abac-foreldrepenger.default/application/authorize";
     private static final String PDP_ENDPOINT_URL_KEY = "abac.pdp.endpoint.url";
     private static final String SYSTEMBRUKER_USERNAME = "systembruker.username";
     private static final String SYSTEMBRUKER_PASSWORD = "systembruker.password"; // NOSONAR
@@ -69,8 +70,9 @@ public class PdpConsumerImpl implements PdpConsumer {
     } // CDI
 
     @Inject
-    public PdpConsumerImpl(@KonfigVerdi(PDP_ENDPOINT_URL_KEY) String pdpUrl, @KonfigVerdi(SYSTEMBRUKER_USERNAME) String brukernavn,
-                           @KonfigVerdi(SYSTEMBRUKER_PASSWORD) String passord) {
+    public PdpConsumerImpl(@KonfigVerdi(value = PDP_ENDPOINT_URL_KEY, defaultVerdi = DEFAULT_ABAC_URL) String pdpUrl,
+            @KonfigVerdi(SYSTEMBRUKER_USERNAME) String brukernavn,
+            @KonfigVerdi(SYSTEMBRUKER_PASSWORD) String passord) {
         this.pdpUrl = pdpUrl;
         this.brukernavn = brukernavn;
         this.passord = passord;
@@ -88,17 +90,17 @@ public class PdpConsumerImpl implements PdpConsumer {
         credsProvider.setCredentials(new AuthScope(target.getHostName(), target.getPort()), new UsernamePasswordCredentials(brukernavn, passord));
 
         RequestConfig requestConfig = RequestConfig.custom()
-            .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
-            .setAuthenticationEnabled(true)
-            .build();
+                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                .setAuthenticationEnabled(true)
+                .build();
 
         CloseableHttpClient client = HttpClients.custom()
-            .setConnectionManager(cm)
-            .setDefaultCredentialsProvider(credsProvider)
-            .setDefaultRequestConfig(requestConfig)
-            .setRetryHandler(new StandardHttpRequestRetryHandler()) // idempotente HTTP kall kan gjentas
-            .setKeepAliveStrategy(createKeepAliveStrategy(30)) // keep max 30 sek keepalive på connections hvis ikke angitt av server
-            .build();
+                .setConnectionManager(cm)
+                .setDefaultCredentialsProvider(credsProvider)
+                .setDefaultRequestConfig(requestConfig)
+                .setRetryHandler(new StandardHttpRequestRetryHandler()) // idempotente HTTP kall kan gjentas
+                .setKeepAliveStrategy(createKeepAliveStrategy(30)) // keep max 30 sek keepalive på connections hvis ikke angitt av server
+                .build();
 
         AuthCache authCache = new BasicAuthCache();
         authCache.put(target, new BasicScheme());
@@ -128,8 +130,10 @@ public class PdpConsumerImpl implements PdpConsumer {
         if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
             synchronized (this) {
                 if (active == activeConfiguration) {
-                    // reset client bør sjelden skje, skal ikke havne i situasjonen at vi spør etter ting de ikke er authorized til, men 
-                    // det skjer at PDP server f.eks. er resatt og eneste vi kan gjøre er å resette vår egen tilstand.
+                    // reset client bør sjelden skje, skal ikke havne i situasjonen at vi spør etter
+                    // ting de ikke er authorized til, men
+                    // det skjer at PDP server f.eks. er resatt og eneste vi kan gjøre er å resette
+                    // vår egen tilstand.
                     activeConfiguration = buildClient();
                     PdpFeil.FACTORY.reinstansiertHttpClient().log(LOG);
                 }
@@ -182,7 +186,7 @@ public class PdpConsumerImpl implements PdpConsumer {
                 post.releaseConnection();
             }
         }
-        
+
         return new Tuple<>(statusLine, JsonValue.EMPTY_JSON_OBJECT);
     }
 
@@ -195,7 +199,10 @@ public class PdpConsumerImpl implements PdpConsumer {
         }
     }
 
-    /** Sørger for å droppe og starte nye connections innimellom også om server ikke sender keepalive header. */
+    /**
+     * Sørger for å droppe og starte nye connections innimellom også om server ikke
+     * sender keepalive header.
+     */
     private static ConnectionKeepAliveStrategy createKeepAliveStrategy(int seconds) {
         ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
             @Override
