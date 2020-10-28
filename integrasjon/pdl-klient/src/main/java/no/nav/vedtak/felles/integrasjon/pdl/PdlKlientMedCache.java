@@ -2,12 +2,10 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -28,8 +26,8 @@ public class PdlKlientMedCache {
     private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(8, TimeUnit.HOURS);
 
     private PdlKlient pdlKlient;
-    private LRUCache<String, Optional<String>> cacheAktørIdTilIdent;
-    private LRUCache<String, Optional<String>> cacheIdentTilAktørId;
+    private LRUCache<String, String> cacheAktørIdTilIdent;
+    private LRUCache<String, String> cacheIdentTilAktørId;
 
     PdlKlientMedCache() {
     }
@@ -45,7 +43,7 @@ public class PdlKlientMedCache {
         cacheIdentTilAktørId = new LRUCache<>(cacheSize, cacheTimeoutMillis);
     }
 
-    PdlKlientMedCache(PdlKlient pdlKlient, LRUCache<String, Optional<String>> cacheAktørIdTilIdent, LRUCache<String, Optional<String>> cacheIdentTilAktørId) {
+    PdlKlientMedCache(PdlKlient pdlKlient, LRUCache<String, String> cacheAktørIdTilIdent, LRUCache<String, String> cacheIdentTilAktørId) {
         this.pdlKlient = pdlKlient;
         this.cacheAktørIdTilIdent = cacheAktørIdTilIdent;
         this.cacheIdentTilAktørId = cacheIdentTilAktørId;
@@ -53,35 +51,34 @@ public class PdlKlientMedCache {
 
     public Optional<String> hentAktørIdForPersonIdent(String personIdent, Tema tema) {
 
-        Optional<String> fraCache = cacheIdentTilAktørId.get(personIdent);
+        Optional<String> aktørIdFraCache = Optional.ofNullable(cacheIdentTilAktørId.get(personIdent));
 
-        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i PDL"
-            return fraCache;
+        if (aktørIdFraCache.isPresent()) {
+            return aktørIdFraCache;
         }
 
-        Optional<String> aktørId = getIdenter(IdentGruppe.AKTORID, tema, personIdent);
+        Optional<String> aktørId = getIdente(IdentGruppe.AKTORID, tema, personIdent);
 
-        cacheIdentTilAktørId.put(personIdent, aktørId);
+        aktørId.ifPresent(s -> cacheIdentTilAktørId.put(personIdent, s));
 
         return aktørId;
     }
 
     public Optional<String> hentPersonIdentForAktørId(String aktørId, Tema tema) {
+        Optional<String> personIdentFraCache = Optional.ofNullable(cacheAktørIdTilIdent.get(aktørId));
 
-        Optional<String> fraCache = cacheAktørIdTilIdent.get(aktørId);
-
-        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i PDL"
-            return fraCache;
+        if (personIdentFraCache.isPresent()) {
+            return personIdentFraCache;
         }
 
-        Optional<String> ident = getIdenter(IdentGruppe.FOLKEREGISTERIDENT, tema, aktørId);
+        Optional<String> personident = getIdente(IdentGruppe.FOLKEREGISTERIDENT, tema, aktørId);
 
-        cacheAktørIdTilIdent.put(aktørId, ident);
+        personident.ifPresent(i -> cacheAktørIdTilIdent.put(aktørId, i));
 
-        return ident;
+        return personident;
     }
 
-    public Optional<String> getIdenter(IdentGruppe identGruppe, Tema tema, String aktørId) {
+    public Optional<String> getIdente(IdentGruppe identGruppe, Tema tema, String aktørId) {
 
         HentIdenterQueryRequest request = new HentIdenterQueryRequest();
         request.setIdent(aktørId);
@@ -111,12 +108,14 @@ public class PdlKlientMedCache {
         Set<String> resultset = new HashSet<>();
         Set<String> requestset = new HashSet<>();
 
+/*
         List<String> finnesICache = personIdentSet.stream()
             .filter(ident -> cacheIdentTilAktørId.get(ident) != null)
             .map(ident -> cacheIdentTilAktørId.get(ident))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toList());
+*/
 
 
         // kjør ny bolk-spørring mot pdlklient

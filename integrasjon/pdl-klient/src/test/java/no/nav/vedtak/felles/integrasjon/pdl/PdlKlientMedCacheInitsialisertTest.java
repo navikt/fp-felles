@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
-import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -31,13 +30,14 @@ public class PdlKlientMedCacheInitsialisertTest {
         verify(pdlKlientMock, never()).hentIdenter(any(HentIdenterQueryRequest.class), any(IdentlisteResponseProjection.class), any(Tema.class));
     }
 
-    private LRUCache enCacheMed(String key, String value) {
-        LRUCache c = new LRUCache(20, 3600L);
-        c.put(key, of(value));
+    @SuppressWarnings("SameParameterValue")
+    private LRUCache<String, String> enCacheMed(String key, String value) {
+        LRUCache<String, String> c = new LRUCache<>(20, 3600L);
+        c.put(key, value);
         return c;
     }
 
-    private LRUCache enTomCache() {
-        return new LRUCache(20, 3600L);
+    private LRUCache<String, String> enTomCache() {
+        return new LRUCache<>(20, 3600L);
     }
 }
