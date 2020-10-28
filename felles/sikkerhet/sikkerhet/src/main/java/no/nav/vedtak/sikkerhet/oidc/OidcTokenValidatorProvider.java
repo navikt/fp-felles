@@ -79,11 +79,14 @@ public class OidcTokenValidatorProvider {
     }
 
     static class OpenIDProviderConfigProvider {
+        private static final String LOGINSERVICE_IDPORTEN_DISCOVERY_URL = "loginservice.idporten.discovery.url";
+        private static final String LOGINSERVICE_IDPORTEN_AUDIENCE = "loginservice.idporten.audience";
+
         public Set<OpenIDProviderConfig> getConfigs() {
             Set<OpenIDProviderConfig> configs = new HashSet<>();
             configs.add(createOpenAmConfiguration(false, 30, true, interneIdentTyper));
             configs.add(createStsConfiguration(PROVIDERNAME_STS, false, 30, true, interneIdentTyper));
-            configs.add(createConfiguration(PROVIDERNAME_AAD_B2C, true, 30, false, eksterneIdentTyper));
+            configs.add(createOIDCConfiguration(PROVIDERNAME_AAD_B2C, true, 30, false, eksterneIdentTyper));
             configs.remove(null); // Fjerner en eventuell feilet konfigurasjon
             return configs;
         }
@@ -132,6 +135,40 @@ public class OidcTokenValidatorProvider {
             String jwks = ENV.getProperty(providerName + JWKS_URL_KEY);
             return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds,
                     skipAudienceValidation, identTyper);
+        }
+
+        private OpenIDProviderConfig createOIDCConfiguration(String providerName, boolean useProxyForJwks, int allowedClockSkewInSeconds,
+                boolean skipAudienceValidation, Set<IdentType> identTyper) {
+            String clientName = clientName(providerName);
+            String clientPassword = ENV.getProperty(providerName + PASSWORD_KEY);
+            String issuer = issuer(providerName);
+            String host = ENV.getProperty(providerName + HOST_URL_KEY);
+            String jwks = jwks(providerName);
+            return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds,
+                    skipAudienceValidation, identTyper);
+        }
+
+        private static String clientName(String providerName) {
+            var fraMap = ENV.getProperty(LOGINSERVICE_IDPORTEN_AUDIENCE);
+            var legacy = ENV.getProperty(providerName + AGENT_NAME_KEY);
+            LOG.info("OIDC Slå opp verdi fra config map {}, fra eksplistt konfig {}", legacy);
+            return legacy;
+        }
+
+        private static String jwks(String providerName) {
+            var fraMap = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
+            // todo, slå opp
+            var legacy = ENV.getProperty(providerName + JWKS_URL_KEY);
+            LOG.info("OIDC Slå opp verdi fra config map {}, fra eksplistt konfig {}", legacy);
+            return legacy;
+        }
+
+        private static String issuer(String providerName) {
+            var fraMap = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
+            // todo, slå opp
+            var legacy = ENV.getProperty(providerName + ISSUER_URL_KEY);
+            LOG.info("OIDC Slå opp verdi fra config map {}, fra eksplistt konfig {}", legacy);
+            return legacy;
         }
 
         private OpenIDProviderConfig createConfiguration(String providerName, String issuer, String jwks, boolean useProxyForJwks, String clientName,
