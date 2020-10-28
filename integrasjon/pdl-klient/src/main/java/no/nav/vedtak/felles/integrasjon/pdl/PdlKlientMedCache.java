@@ -1,16 +1,20 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.IdentGruppe;
+import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
@@ -91,12 +95,31 @@ public class PdlKlientMedCache {
 
         Identliste identliste = pdlKlient.hentIdenter(request, projeksjon, tema);
 
-        return identliste.getIdenter().stream().filter(s -> s.getGruppe().equals(identGruppe)).findFirst().map(i -> i.getIdent());
+        return identliste.getIdenter().stream().filter(s -> s.getGruppe().equals(identGruppe)).findFirst().map(IdentInformasjon::getIdent);
     }
 
     public Set<String> hentAktørIdForPersonIdentSet(Set<String> personIdentSet) {
+        /**
+         * sjekk om person finnes i cache og ta vare på aktøridentene
+         *
+         * for alle som ikke finnes i cache, samle opp disse personide'ne
+         *
+         * kjør ny bolk-spørring mot pdlklient, og hent ut resterende aktørid'er
+         *
+         * Lag set av aktørid'er og returner det
+         */
+        Set<String> resultset = new HashSet<>();
+        Set<String> requestset = new HashSet<>();
+
+        List<String> finnesICache = personIdentSet.stream()
+            .filter(ident -> cacheIdentTilAktørId.get(ident) != null)
+            .map(ident -> cacheIdentTilAktørId.get(ident))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
 
 
+        // kjør ny bolk-spørring mot pdlklient
 
 
         return Collections.emptySet();
