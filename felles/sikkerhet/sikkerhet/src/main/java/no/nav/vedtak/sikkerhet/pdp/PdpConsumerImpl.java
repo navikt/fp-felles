@@ -51,7 +51,7 @@ import no.nav.vedtak.util.Tuple;
 @ApplicationScoped
 public class PdpConsumerImpl implements PdpConsumer {
 
-    private static final String DEFAULT_ABAC_URL = " http://abac-foreldrepenger.default/application/authorize";
+    private static final String DEFAULT_ABAC_URL = "http://abac-foreldrepenger.default/application/authorize";
     private static final String PDP_ENDPOINT_URL_KEY = "abac.pdp.endpoint.url";
     private static final String SYSTEMBRUKER_USERNAME = "systembruker.username";
     private static final String SYSTEMBRUKER_PASSWORD = "systembruker.password"; // NOSONAR
