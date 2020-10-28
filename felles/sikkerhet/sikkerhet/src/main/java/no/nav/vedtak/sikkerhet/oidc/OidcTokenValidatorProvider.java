@@ -151,23 +151,24 @@ public class OidcTokenValidatorProvider {
         private static String clientName(String providerName) {
             var fraMap = ENV.getProperty(LOGINSERVICE_IDPORTEN_AUDIENCE);
             var legacy = ENV.getProperty(providerName + AGENT_NAME_KEY);
-            LOG.info("OIDC Slå opp verdi fra config map {}, fra eksplistt konfig {}", legacy);
+            LOG.info("OIDC Slå opp client name/audience fra config map {}, fra eksplistt konfig {}", legacy);
             return legacy;
         }
 
         private static String jwks(String providerName) {
-            var fraMap = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
-            // todo, slå opp
+
+            var discoveryURL = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
+            var ny = OpenAMHelper.getJwksFra(discoveryURL);
             var legacy = ENV.getProperty(providerName + JWKS_URL_KEY);
-            LOG.info("OIDC Slå opp verdi fra config map {}, fra eksplistt konfig {}", legacy);
+            LOG.info("OIDC Slo opp jwks url fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
 
         private static String issuer(String providerName) {
-            var fraMap = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
-            // todo, slå opp
+            var discoveryURL = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
+            var ny = OpenAMHelper.getIssuerFra(discoveryURL);
             var legacy = ENV.getProperty(providerName + ISSUER_URL_KEY);
-            LOG.info("OIDC Slå opp verdi fra config map {}, fra eksplistt konfig {}", legacy);
+            LOG.info("OIDC Slo opp issuer url fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
 

@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -176,10 +177,12 @@ public class OpenAMHelper {
         wellKnownConfig = null;
     }
 
-    @SuppressWarnings("resource")
     public static JsonNode getWellKnownConfig() {
+        return getWellKnownConfig(getIssoHostUrl() + WELL_KNOWN_ENDPOINT);
+    }
+
+    public static JsonNode getWellKnownConfig(String url) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-        String url = getIssoHostUrl() + WELL_KNOWN_ENDPOINT;
         if (wellKnownConfig == null) {
             HttpGet get = new HttpGet(url);
             try (CloseableHttpResponse response = httpClient.execute(get)) {
@@ -204,13 +207,16 @@ public class OpenAMHelper {
         return wellKnownConfig;
     }
 
-    public static String getStringFromWellKnownConfig(String key) {
-        var wkc = getWellKnownConfig();
+    public static String getStringFromWellKnownConfig(JsonNode wkc, String key) {
         if (wkc.has(key)) {
             return wkc.get(key).asText();
         } else {
             return null;
         }
+    }
+
+    public static String getStringFromWellKnownConfig(String key) {
+        return getStringFromWellKnownConfig(getWellKnownConfig(), key);
     }
 
     private String hentAuthorizationCode(CloseableHttpClient httpClient) throws IOException {
@@ -233,6 +239,18 @@ public class OpenAMHelper {
         } finally {
             get.reset();
         }
+    }
+
+    public static String getJwksFra(String discoveryURL) {
+        return Optional.ofNullable(discoveryURL)
+                .map(d -> getStringFromWellKnownConfig(getWellKnownConfig(d), JWKS_URI_KEY))
+                .orElse(null);
+    }
+
+    public static String getIssuerFra(String discoveryURL) {
+        return Optional.ofNullable(discoveryURL)
+                .map(d -> getStringFromWellKnownConfig(getWellKnownConfig(d), ISSUER_KEY))
+                .orElse(null);
     }
 
     public static String getIssoHostUrl() {
