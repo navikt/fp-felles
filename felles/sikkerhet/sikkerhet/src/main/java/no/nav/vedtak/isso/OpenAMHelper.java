@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import no.nav.vedtak.isso.config.ServerInfo;
@@ -73,15 +73,28 @@ public class OpenAMHelper {
         }
     }
 
-    private static Map<String, String> parseJSON(String response) {
-        ObjectMapper mapper = OBJECT_MAPPER;
-        TypeFactory factory = TypeFactory.defaultInstance();
-        MapType type = factory.constructMapType(HashMap.class, String.class, String.class);
-        try {
-            return mapper.readValue(response, type);
-        } catch (IOException e) {
-            throw OpenAmFeil.FACTORY.kunneIkkeParseJson(response, e).toException();
-        }
+    public static String getIssoHostUrl() {
+        return ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST);
+    }
+
+    public static String getIssoUserName() {
+        return ENV.getProperty(OPEN_ID_CONNECT_USERNAME);
+    }
+
+    public static String getIssoPassword() {
+        return ENV.getProperty(OPEN_ID_CONNECT_PASSWORD);
+    }
+
+    public static String getIssoIssuerUrl() {
+        return getStringFromWellKnownConfig(ISSUER_KEY);
+    }
+
+    public static String getIssoJwksUrl() {
+        return getStringFromWellKnownConfig(JWKS_URI_KEY);
+    }
+
+    public static String getAuthorizationEndpoint() {
+        return getStringFromWellKnownConfig(AUTHORIZATION_ENDPOINT_KEY);
     }
 
     public IdTokenAndRefreshToken getToken() throws IOException {
@@ -92,8 +105,8 @@ public class OpenAMHelper {
         if (brukernavn == null || passord == null || brukernavn.isEmpty() || passord.isEmpty()) {
             throw new IllegalArgumentException("Brukernavn og/eller passord mangler.");
         }
-        CookieStore cookieStore = new BasicCookieStore();
-        try (CloseableHttpClient httpClient = HttpClientBuilder.create().disableRedirectHandling()
+        var cookieStore = new BasicCookieStore();
+        try (var httpClient = HttpClientBuilder.create().disableRedirectHandling()
                 .setDefaultCookieStore(cookieStore).build()) {
             authenticateUser(httpClient, cookieStore, brukernavn, passord);
             String authorizationCode = hentAuthorizationCode(httpClient);
@@ -103,26 +116,90 @@ public class OpenAMHelper {
         }
     }
 
+    public static void setWellKnownConfig(String jsonAsString) {
+        try {
+            wellKnownConfig = OBJECT_MAPPER.reader().readTree(jsonAsString);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Ugyldig json: ", e);
+        }
+    }
+
+    public static void unsetWellKnownConfig() {
+        wellKnownConfig = null;
+    }
+
+    public static JsonNode getWellKnownConfig() {
+        return getWellKnownConfig(getIssoHostUrl() + WELL_KNOWN_ENDPOINT);
+    }
+
+    public static JsonNode getWellKnownConfig(String url) {
+        if (wellKnownConfig == null) {
+            return get(url, new HttpGet(url));
+        }
+        return wellKnownConfig;
+    }
+
+    private static JsonNode getWellKnownConfigUncached(String url) {
+
+        var get = new HttpGet(url);
+        var proxy = ENV.getProperty("http.proxy");
+        if (proxy != null) {
+            get.setConfig(proxy(proxy));
+        }
+        return get(url, get);
+    }
+
+    private static JsonNode get(String url, HttpGet get) {
+        try (var response = HttpClientBuilder.create().build().execute(get)) {
+            try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
+                    StandardCharsets.UTF_8)) {
+                try (BufferedReader br = new BufferedReader(isr)) {
+                    String responseString = br.lines().collect(Collectors.joining("\n"));
+                    if (response.getStatusLine().getStatusCode() == 200) {
+                        return OBJECT_MAPPER.reader().readTree(responseString);
+                    } else {
+                        throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(
+                                response.getStatusLine().getStatusCode(), responseString).toException();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw OpenAmFeil.FACTORY.serviceDiscoveryFailed(url, e).toException();
+        } finally {
+            get.reset();
+        }
+    }
+
+    public static String getStringFromWellKnownConfig(JsonNode node, String key) {
+        return Optional.ofNullable(node)
+                .map(n -> n.get(key))
+                .filter(Objects::nonNull)
+                .map(JsonNode::asText)
+                .orElse(null);
+    }
+
+    public static String getStringFromWellKnownConfig(String key) {
+        return getStringFromWellKnownConfig(getWellKnownConfig(), key);
+    }
+
     private void authenticateUser(CloseableHttpClient httpClient, CookieStore cookieStore, String brukernavn,
             String passord) throws IOException {
         String jsonAuthUrl = getIssoHostUrl().replace(OAUTH2_ENDPOINT, JSON_AUTH_ENDPOINT);
 
         String template = post(httpClient, jsonAuthUrl, null, Function.identity(),
                 "Authorization: Negotiate");
-        ObjectMapper mapper = OBJECT_MAPPER;
         String utfyltTemplate;
         try {
-            EndUserAuthorizationTemplate json = mapper.readValue(template, EndUserAuthorizationTemplate.class);
+            EndUserAuthorizationTemplate json = OBJECT_MAPPER.readValue(template, EndUserAuthorizationTemplate.class);
             json.setBrukernavn(brukernavn);
             json.setPassord(passord);
-            utfyltTemplate = mapper.writeValueAsString(json);
+            utfyltTemplate = OBJECT_MAPPER.writeValueAsString(json);
         } catch (IOException e) {
             throw OpenAmFeil.FACTORY.uventetFeilVedUtfyllingAvAuthorizationTemplate(e).toException();
         }
 
         Function<String, String> hentSessionTokenFraResult = result -> {
-            Map<String, String> stringStringMap = parseJSON(result);
-            return stringStringMap.get("tokenId");
+            return parseJSON(result).get("tokenId");
         };
 
         String issoCookieValue = post(httpClient, jsonAuthUrl, utfyltTemplate, hentSessionTokenFraResult);
@@ -170,97 +247,14 @@ public class OpenAMHelper {
         }
     }
 
-    public static void setWellKnownConfig(String jsonAsString) {
+    private static Map<String, String> parseJSON(String response) {
+        var factory = TypeFactory.defaultInstance();
+        var type = factory.constructMapType(HashMap.class, String.class, String.class);
         try {
-            wellKnownConfig = OBJECT_MAPPER.reader().readTree(jsonAsString);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Ugyldig json: ", e);
-        }
-    }
-
-    public static void unsetWellKnownConfig() {
-        wellKnownConfig = null;
-    }
-
-    public static JsonNode getWellKnownConfig() {
-        return getWellKnownConfig(getIssoHostUrl() + WELL_KNOWN_ENDPOINT);
-    }
-
-    public static JsonNode getWellKnownConfig(String url) {
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-        if (wellKnownConfig == null) {
-            HttpGet get = new HttpGet(url);
-            try (CloseableHttpResponse response = httpClient.execute(get)) {
-                try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
-                        StandardCharsets.UTF_8)) {
-                    try (BufferedReader br = new BufferedReader(isr)) {
-                        String responseString = br.lines().collect(Collectors.joining("\n"));
-                        if (response.getStatusLine().getStatusCode() == 200) {
-                            setWellKnownConfig(responseString);
-                        } else {
-                            throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(
-                                    response.getStatusLine().getStatusCode(), responseString).toException();
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                throw OpenAmFeil.FACTORY.serviceDiscoveryFailed(url, e).toException();
-            } finally {
-                get.reset();
-            }
-        }
-        return wellKnownConfig;
-    }
-
-    private static JsonNode getWellKnownConfigUncached(String url) {
-
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-        HttpGet get = new HttpGet(url);
-        var proxy = ENV.getProperty("http.proxy");
-        if (proxy != null) {
-            LOG.info("Setter proxy til {}", proxy);
-            get.setConfig(proxy(proxy));
-        } else {
-            LOG.info("Ingen proxy");
-        }
-        try (CloseableHttpResponse response = httpClient.execute(get)) {
-            try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
-                    StandardCharsets.UTF_8)) {
-                try (BufferedReader br = new BufferedReader(isr)) {
-                    String responseString = br.lines().collect(Collectors.joining("\n"));
-                    if (response.getStatusLine().getStatusCode() == 200) {
-                        var node = OBJECT_MAPPER.reader().readTree(responseString);
-                        LOG.info("Hentet well known konfig fra {} og fikk {}", url, node);
-                        return node;
-                    } else {
-                        throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(
-                                response.getStatusLine().getStatusCode(), responseString).toException();
-                    }
-                }
-            }
+            return OBJECT_MAPPER.readValue(response, type);
         } catch (IOException e) {
-            throw OpenAmFeil.FACTORY.serviceDiscoveryFailed(url, e).toException();
-        } finally {
-            get.reset();
+            throw OpenAmFeil.FACTORY.kunneIkkeParseJson(response, e).toException();
         }
-    }
-
-    private static RequestConfig proxy(String proxy) {
-        return RequestConfig.custom()
-                .setProxy(HttpHost.create(proxy))
-                .build();
-    }
-
-    public static String getStringFromWellKnownConfig(JsonNode wkc, String key) {
-        if (wkc.has(key)) {
-            return wkc.get(key).asText();
-        } else {
-            return null;
-        }
-    }
-
-    public static String getStringFromWellKnownConfig(String key) {
-        return getStringFromWellKnownConfig(getWellKnownConfig(), key);
     }
 
     private String hentAuthorizationCode(CloseableHttpClient httpClient) throws IOException {
@@ -286,55 +280,29 @@ public class OpenAMHelper {
     }
 
     public static String getJwksFra(String discoveryURL) {
-        try {
-            LOG.info("OIDC Henter jwks fra {}", discoveryURL);
-            var jwks = Optional.ofNullable(discoveryURL)
-                    .map(d -> getStringFromWellKnownConfig(getWellKnownConfigUncached(d), JWKS_URI_KEY))
-                    .orElse(null);
-            LOG.info("OIDC Hentet jwks fra {}", jwks);
-            return jwks;
-        } catch (Exception e) {
-            LOG.warn("OIDC jwks feil", e);
-            return null;
-        }
+        return getWellKnownFra(discoveryURL, JWKS_URI_KEY);
     }
 
     public static String getIssuerFra(String discoveryURL) {
+        return getWellKnownFra(discoveryURL, ISSUER_KEY);
+    }
+
+    private static String getWellKnownFra(String discoveryURL, String key) {
         try {
-            LOG.info("OIDC Henter issuer fra {}", discoveryURL);
-            var issuer = Optional.ofNullable(discoveryURL)
-                    .map(d -> getStringFromWellKnownConfig(getWellKnownConfigUncached(d), ISSUER_KEY))
+            return Optional.ofNullable(discoveryURL)
+                    .map(OpenAMHelper::getWellKnownConfigUncached)
+                    .map(c -> getStringFromWellKnownConfig(c, key))
                     .orElse(null);
-            LOG.info("OIDC Hentet issuer fra {}", issuer);
-            return issuer;
         } catch (Exception e) {
-            LOG.warn("OIDC issuer feil", e);
+            LOG.warn("OIDC oppslag av {} feilet", key, e);
             return null;
         }
     }
 
-    public static String getIssoHostUrl() {
-        return ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST);
-    }
-
-    public static String getIssoUserName() {
-        return ENV.getProperty(OPEN_ID_CONNECT_USERNAME);
-    }
-
-    public static String getIssoPassword() {
-        return ENV.getProperty(OPEN_ID_CONNECT_PASSWORD);
-    }
-
-    public static String getIssoIssuerUrl() {
-        return getStringFromWellKnownConfig(ISSUER_KEY);
-    }
-
-    public static String getIssoJwksUrl() {
-        return getStringFromWellKnownConfig(JWKS_URI_KEY);
-    }
-
-    public static String getAuthorizationEndpoint() {
-        return getStringFromWellKnownConfig(AUTHORIZATION_ENDPOINT_KEY);
+    private static RequestConfig proxy(String proxy) {
+        return RequestConfig.custom()
+                .setProxy(HttpHost.create(proxy))
+                .build();
     }
 
     @Override
