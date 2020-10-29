@@ -149,9 +149,9 @@ public class OidcTokenValidatorProvider {
         }
 
         private static String clientName(String providerName) {
-            var fraMap = ENV.getProperty(LOGINSERVICE_IDPORTEN_AUDIENCE);
+            var ny = ENV.getProperty(LOGINSERVICE_IDPORTEN_AUDIENCE);
             var legacy = ENV.getProperty(providerName + AGENT_NAME_KEY);
-            LOG.info("OIDC Slå opp client name/audience fra config map {}, fra eksplistt konfig {}", legacy);
+            LOG.info("OIDC Slo opp client name/audience fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
 
