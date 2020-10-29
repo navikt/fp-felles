@@ -36,6 +36,7 @@ import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
 import no.nav.vedtak.util.env.Environment;
 
+// TODO, denne klassen er en katastrofe
 public class OpenAMHelper {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -207,6 +208,29 @@ public class OpenAMHelper {
         return wellKnownConfig;
     }
 
+    public static JsonNode getWellKnownConfigUncached(String url) {
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        HttpGet get = new HttpGet(url);
+        try (CloseableHttpResponse response = httpClient.execute(get)) {
+            try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
+                    StandardCharsets.UTF_8)) {
+                try (BufferedReader br = new BufferedReader(isr)) {
+                    String responseString = br.lines().collect(Collectors.joining("\n"));
+                    if (response.getStatusLine().getStatusCode() == 200) {
+                        return OBJECT_MAPPER.reader().readTree(responseString);
+                    } else {
+                        throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(
+                                response.getStatusLine().getStatusCode(), responseString).toException();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw OpenAmFeil.FACTORY.serviceDiscoveryFailed(url, e).toException();
+        } finally {
+            get.reset();
+        }
+    }
+
     public static String getStringFromWellKnownConfig(JsonNode wkc, String key) {
         if (wkc.has(key)) {
             return wkc.get(key).asText();
@@ -243,13 +267,13 @@ public class OpenAMHelper {
 
     public static String getJwksFra(String discoveryURL) {
         return Optional.ofNullable(discoveryURL)
-                .map(d -> getStringFromWellKnownConfig(getWellKnownConfig(d), JWKS_URI_KEY))
+                .map(d -> getStringFromWellKnownConfig(getWellKnownConfigUncached(d), JWKS_URI_KEY))
                 .orElse(null);
     }
 
     public static String getIssuerFra(String discoveryURL) {
         return Optional.ofNullable(discoveryURL)
-                .map(d -> getStringFromWellKnownConfig(getWellKnownConfig(d), ISSUER_KEY))
+                .map(d -> getStringFromWellKnownConfig(getWellKnownConfigUncached(d), ISSUER_KEY))
                 .orElse(null);
     }
 
