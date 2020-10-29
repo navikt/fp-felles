@@ -15,7 +15,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -211,8 +213,16 @@ public class OpenAMHelper {
     }
 
     private static JsonNode getWellKnownConfigUncached(String url) {
+
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         HttpGet get = new HttpGet(url);
+        var proxy = ENV.getProperty("http.proxy");
+        if (proxy != null) {
+            LOG.info("Setter proxy til {}", proxy);
+            get.setConfig(proxy(proxy));
+        } else {
+            LOG.info("Ingen proxy");
+        }
         try (CloseableHttpResponse response = httpClient.execute(get)) {
             try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
                     StandardCharsets.UTF_8)) {
@@ -233,6 +243,12 @@ public class OpenAMHelper {
         } finally {
             get.reset();
         }
+    }
+
+    private static RequestConfig proxy(String proxy) {
+        return RequestConfig.custom()
+                .setProxy(HttpHost.create(proxy))
+                .build();
     }
 
     public static String getStringFromWellKnownConfig(JsonNode wkc, String key) {
