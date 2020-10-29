@@ -1,15 +1,25 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
+import static java.util.List.of;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.concat;
+
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.pdl.HentIdenterBolkQueryRequest;
+import no.nav.pdl.HentIdenterBolkResultResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
@@ -17,6 +27,7 @@ import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.vedtak.util.LRUCache;
+import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class PdlKlientMedCache {
@@ -25,12 +36,9 @@ public class PdlKlientMedCache {
     //Satt til 8 timer for å matche cache-lengde brukt i ABAC-løsningen (PDP).
     private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(8, TimeUnit.HOURS);
 
-    private PdlKlient pdlKlient;
-    private LRUCache<String, String> cacheAktørIdTilIdent;
-    private LRUCache<String, String> cacheIdentTilAktørId;
-
-    PdlKlientMedCache() {
-    }
+    private final PdlKlient pdlKlient;
+    private final LRUCache<String, String> cacheAktørIdTilIdent;
+    private final LRUCache<String, String> cacheIdentTilAktørId;
 
     @Inject
     public PdlKlientMedCache(PdlKlient pdlKlient) {
@@ -51,13 +59,13 @@ public class PdlKlientMedCache {
 
     public Optional<String> hentAktørIdForPersonIdent(String personIdent, Tema tema) {
 
-        Optional<String> aktørIdFraCache = Optional.ofNullable(cacheIdentTilAktørId.get(personIdent));
+        Optional<String> aktørIdFraCache = ofNullable(cacheIdentTilAktørId.get(personIdent));
 
         if (aktørIdFraCache.isPresent()) {
             return aktørIdFraCache;
         }
 
-        Optional<String> aktørId = getIdente(IdentGruppe.AKTORID, tema, personIdent);
+        Optional<String> aktørId = identFor(IdentGruppe.AKTORID, tema, personIdent);
 
         aktørId.ifPresent(s -> cacheIdentTilAktørId.put(personIdent, s));
 
@@ -65,21 +73,58 @@ public class PdlKlientMedCache {
     }
 
     public Optional<String> hentPersonIdentForAktørId(String aktørId, Tema tema) {
-        Optional<String> personIdentFraCache = Optional.ofNullable(cacheAktørIdTilIdent.get(aktørId));
+        Optional<String> personIdentFraCache = ofNullable(cacheAktørIdTilIdent.get(aktørId));
 
         if (personIdentFraCache.isPresent()) {
             return personIdentFraCache;
         }
 
-        Optional<String> personident = getIdente(IdentGruppe.FOLKEREGISTERIDENT, tema, aktørId);
+        Optional<String> personident = identFor(IdentGruppe.FOLKEREGISTERIDENT, tema, aktørId);
 
         personident.ifPresent(i -> cacheAktørIdTilIdent.put(aktørId, i));
 
         return personident;
     }
 
-    public Optional<String> getIdente(IdentGruppe identGruppe, Tema tema, String aktørId) {
+    public Set<String> hentAktørIdForPersonIdentSet(Set<String> personIdentSet, Tema tema) {
+        var personIdentIkkeICache =
+            personIdentSet.stream()
+                .filter(ident -> ofNullable(cacheIdentTilAktørId.get(ident)).isEmpty())
+                .collect(toList());
 
+        return concat(
+            personIdentSet.stream()
+                .map(ident -> ofNullable(cacheIdentTilAktørId.get(ident)))
+                .flatMap(Optional::stream),
+            hentBolkMedAktørId(tema, personIdentIkkeICache)
+                .peek(aktørInfo -> cacheIdentTilAktørId.put(aktørInfo.getElement1(), aktørInfo.getElement2().getIdent()))
+                .map(aktørinfo -> aktørinfo.getElement2().getIdent())
+        )
+            .collect(Collectors.toSet());
+    }
+
+    private Stream<Tuple<String, IdentInformasjon>> hentBolkMedAktørId(Tema tema, List<String> personIdents) {
+        HentIdenterBolkQueryRequest query = new HentIdenterBolkQueryRequest();
+        query.setIdenter(personIdents);
+        query.setGrupper(of(IdentGruppe.AKTORID));
+
+        var projection = new HentIdenterBolkResultResponseProjection()
+            .ident()
+            .identer(new IdentInformasjonResponseProjection()
+                .ident()
+                .gruppe()
+            )
+            .code();
+
+        Predicate<IdentInformasjon> erØnsketIdentgruppe = identInformasjon -> identInformasjon.getGruppe().equals(IdentGruppe.AKTORID);
+
+        //noinspection OptionalGetWithoutIsPresent
+        return pdlKlient.hentIdenterBolkResults(query, projection, tema).stream()
+            .filter(r -> r.getIdenter().stream().anyMatch(erØnsketIdentgruppe))
+            .map(r -> new Tuple<>(r.getIdent(), r.getIdenter().stream().filter(erØnsketIdentgruppe).findAny().get()));
+    }
+
+    private Optional<String> identFor(IdentGruppe identGruppe, Tema tema, String aktørId) {
         HentIdenterQueryRequest request = new HentIdenterQueryRequest();
         request.setIdent(aktørId);
 
@@ -95,35 +140,7 @@ public class PdlKlientMedCache {
         return identliste.getIdenter().stream().filter(s -> s.getGruppe().equals(identGruppe)).findFirst().map(IdentInformasjon::getIdent);
     }
 
-    public Set<String> hentAktørIdForPersonIdentSet(Set<String> personIdentSet) {
-        /**
-         * sjekk om person finnes i cache og ta vare på aktøridentene
-         *
-         * for alle som ikke finnes i cache, samle opp disse personide'ne
-         *
-         * kjør ny bolk-spørring mot pdlklient, og hent ut resterende aktørid'er
-         *
-         * Lag set av aktørid'er og returner det
-         */
-        Set<String> resultset = new HashSet<>();
-        Set<String> requestset = new HashSet<>();
-
-/*
-        List<String> finnesICache = personIdentSet.stream()
-            .filter(ident -> cacheIdentTilAktørId.get(ident) != null)
-            .map(ident -> cacheIdentTilAktørId.get(ident))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toList());
-*/
-
-
-        // kjør ny bolk-spørring mot pdlklient
-
-
-        return Collections.emptySet();
-    }
-
+    //TODO Trenger vi denne, er ekvivalenten i bruk noe sted Jens-Otto?
     public Map<String, String> hentAktørIdMapForPersonIdent(Set<String> personIdentSet) {
         return Collections.emptyMap();
     }

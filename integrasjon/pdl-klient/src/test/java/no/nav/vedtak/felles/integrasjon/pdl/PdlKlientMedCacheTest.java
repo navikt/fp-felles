@@ -16,7 +16,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicStatusLine;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -76,15 +75,15 @@ public class PdlKlientMedCacheTest {
     }
 
 
-    @Disabled
     @Test
-    void skal_hent_aktørId_for_set_med_personIdent() {
-
+    void skal_hent_aktørId_for_set_med_personIdent() throws IOException {
+        when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerBolkResponse.json"));
         PdlKlientMedCache testSubject = new PdlKlientMedCache(pdlKlient);
 
-        Set<String> aktørIds = testSubject.hentAktørIdForPersonIdentSet(Set.of("16047439276"));
+        Set<String> aktørIds = testSubject.hentAktørIdForPersonIdentSet(Set.of("16047439276", "25017312345"), Tema.OMS);
 
-        assertThat(aktørIds).hasSize(1);
+        assertThat(aktørIds).hasSize(2);
         assertThat(aktørIds).contains("9916047439276");
+        assertThat(aktørIds).contains("9925017312345");
     }
 }
