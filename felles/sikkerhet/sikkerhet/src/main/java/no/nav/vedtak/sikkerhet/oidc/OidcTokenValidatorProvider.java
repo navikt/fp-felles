@@ -147,7 +147,7 @@ public class OidcTokenValidatorProvider {
             LOG.info("OIDC slår opp issuer");
             String issuer = issuer(providerName);
             LOG.info("OIDC slår opp host");
-            String host = ENV.getRequiredProperty(providerName + HOST_URL_KEY);
+            String host = ENV.getProperty(providerName + HOST_URL_KEY);
             LOG.info("OIDC slår opp jwks");
             String jwks = jwks(providerName);
             LOG.info("OIDC lage konfig");
@@ -160,7 +160,7 @@ public class OidcTokenValidatorProvider {
 
         private static String clientName(String providerName) {
             var ny = ENV.getProperty(LOGINSERVICE_IDPORTEN_AUDIENCE);
-            var legacy = ENV.getRequiredProperty(providerName + AGENT_NAME_KEY);
+            var legacy = ENV.getProperty(providerName + AGENT_NAME_KEY);
             LOG.info("OIDC Slo opp client name/audience fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
@@ -169,7 +169,7 @@ public class OidcTokenValidatorProvider {
 
             var discoveryURL = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
             var ny = OpenAMHelper.getJwksFra(discoveryURL);
-            var legacy = ENV.getRequiredProperty(providerName + JWKS_URL_KEY);
+            var legacy = ENV.getProperty(providerName + JWKS_URL_KEY);
             LOG.info("OIDC Slo opp jwks url fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
@@ -177,7 +177,7 @@ public class OidcTokenValidatorProvider {
         private static String issuer(String providerName) {
             var discoveryURL = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
             var ny = OpenAMHelper.getIssuerFra(discoveryURL);
-            var legacy = ENV.getRequiredProperty(providerName + ISSUER_URL_KEY);
+            var legacy = ENV.getProperty(providerName + ISSUER_URL_KEY);
             LOG.info("OIDC Slo opp issuer url fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
