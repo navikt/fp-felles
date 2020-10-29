@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 
 import static java.util.List.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -29,6 +30,7 @@ import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
 
 @ExtendWith(MockitoExtension.class)
@@ -112,8 +114,26 @@ public class PdlKlientTest {
             identer.stream()
                 .flatMap(r -> r.getIdenter().stream())
                 .map(IdentInformasjon::getIdent)
-                //.collect(Collectors.toList())
+            //.collect(Collectors.toList())
         )
             .containsExactlyInAnyOrder("16047439276", "9916047439276", "25017312345", "9925017312345");
+    }
+
+    @SuppressWarnings("resource")
+    @Test
+    void skal_returnere_ikke_funnet() throws IOException {
+        when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/errorResponse.json"));
+
+        var queryRequest = new HentIdenterQueryRequest();
+        queryRequest.setIdent("12345678901");
+        var projection = new IdentlisteResponseProjection()
+            .identer(
+                new IdentInformasjonResponseProjection()
+                    .ident()
+                    .gruppe()
+            );
+
+        assertThrows(FunksjonellException.class, () -> pdlKlient.hentIdenter(queryRequest, projection, Tema.OMS));
+
     }
 }

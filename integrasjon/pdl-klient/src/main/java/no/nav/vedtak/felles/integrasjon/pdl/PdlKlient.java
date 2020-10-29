@@ -44,6 +44,7 @@ import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
@@ -52,6 +53,15 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
 public class PdlKlient {
+    public static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
+
+    private static final String PDL_ERROR_CODE = "code";
+    private static final String PDL_NOT_FOUND = "not_found";
+    private static final String PDL_UNAUTHORIZED = "unauthorized";
+    private static final String PDL_NOT_AUTHENTICATED = "unauthenticated";
+    private static final String PDL_BAD_REQUEST = "bad_request";
+    private static final String PDL_SERVER_ERROR = "server_error";
+
     private static final List<Integer> HTTP_KODER_TOM_RESPONS = List.of(
         HttpStatus.SC_NOT_MODIFIED,
         HttpStatus.SC_NO_CONTENT,
@@ -109,13 +119,17 @@ public class PdlKlient {
             httpPost.setHeader("TEMA", consumerTemaKode.name());
             graphQlResponse = utførForespørsel(httpPost, responseHandler);
         } catch (Exception e) {
-            throw PdlTjenesteFeil.FEILFACTORY.safForespørselFeilet(request.toQueryString(), e).toException();
+            throw PdlTjenesteFeil.FEILFACTORY.pdlForespørselFeilet(request.toQueryString(), e).toException();
         }
 
-        if (graphQlResponse.getErrors() != null && graphQlResponse.getErrors().size() > 0) {
+        if (graphQlResponse.getErrors() != null && !graphQlResponse.getErrors().isEmpty()) {
+            @SuppressWarnings("unchecked")
             var errors = (List<GraphQLError>) graphQlResponse.getErrors();
+            if (errors.stream().anyMatch(PdlKlient::not_found)) {
+                throw PdlTjenesteFeil.FEILFACTORY.personIkkeFunnet().toException();
+            }
             var feilmelding = errors.stream()
-                .map(error -> error.getMessage())
+                .map(GraphQLError::getMessage)
                 .collect(Collectors.joining("\n Error: "));
             throw PdlTjenesteFeil.FEILFACTORY.forespørselReturnerteFeil(feilmelding).toException();
         }
@@ -131,7 +145,7 @@ public class PdlKlient {
                 var responseBody = HTTP_KODER_TOM_RESPONS.contains(responseCode)
                     ? "<tom_respons>"
                     : EntityUtils.toString(httpResponse.getEntity());
-                var feilmelding = "Kunne ikke hente informasjon for query mot SAF: " + request.getURI()
+                var feilmelding = "Kunne ikke hente informasjon for query mot PDL: " + request.getURI()
                     + ", HTTP request=" + request.getEntity()
                     + ", HTTP status=" + httpResponse.getStatusLine()
                     + ". HTTP Errormessage=" + responseBody;
@@ -141,6 +155,12 @@ public class PdlKlient {
         }
     }
 
+    private static boolean not_found(GraphQLError error) {
+        if (error == null || error.getExtensions() == null) {
+            return false;
+        }
+        return PDL_NOT_FOUND.equals(error.getExtensions().get(PDL_ERROR_CODE));
+    }
 
     private static ObjectMapper createObjectMapper() {
         return new ObjectMapper()
@@ -160,9 +180,12 @@ public class PdlKlient {
         PdlTjenesteFeil FEILFACTORY = FeilFactory.create(PdlTjenesteFeil.class); // NOSONAR ok med konstant
 
         @TekniskFeil(feilkode = "F-539237", feilmelding = "Forespørsel til PDL feilet for spørring %s", logLevel = LogLevel.WARN)
-        Feil safForespørselFeilet(String query, Throwable t);
+        Feil pdlForespørselFeilet(String query, Throwable t);
 
         @TekniskFeil(feilkode = "F-399735", feilmelding = "Feil fra PDL ved utført query. Error: %s", logLevel = LogLevel.WARN)
         Feil forespørselReturnerteFeil(String response);
+
+        @FunksjonellFeil(feilkode = PDL_KLIENT_NOT_FOUND_KODE, feilmelding = "Feil fra PDL ved utført query. Error: Person ikke funnet", løsningsforslag = "Slå opp gyldig ident", logLevel = LogLevel.WARN)
+        Feil personIkkeFunnet();
     }
 }

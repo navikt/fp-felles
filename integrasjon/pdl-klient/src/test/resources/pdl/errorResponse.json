@@ -4,7 +4,8 @@
       "message": "Person ikke funnet",
       "locations": [],
       "extensions": {
-        "classification": "DataFetchingException"
+        "classification": "DataFetchingException",
+        "code": "not_found"
       }
     },
     {
