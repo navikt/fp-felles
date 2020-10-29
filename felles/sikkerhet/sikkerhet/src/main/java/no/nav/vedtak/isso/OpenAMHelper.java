@@ -270,17 +270,31 @@ public class OpenAMHelper {
     }
 
     public static String getJwksFra(String discoveryURL) {
-        LOG.info("Henter jwks fra {}", discoveryURL);
-        return Optional.ofNullable(discoveryURL)
-                .map(d -> getStringFromWellKnownConfig(getWellKnownConfigUncached(d), JWKS_URI_KEY))
-                .orElse(null);
+        try {
+            LOG.info("OIDC Henter jwks fra {}", discoveryURL);
+            var jwks = Optional.ofNullable(discoveryURL)
+                    .map(d -> getStringFromWellKnownConfig(getWellKnownConfigUncached(d), JWKS_URI_KEY))
+                    .orElse(null);
+            LOG.info("OIDC Hentet jwks fra {}", jwks);
+            return jwks;
+        } catch (Exception e) {
+            LOG.warn("OIDC jwks feil", e);
+            return null;
+        }
     }
 
     public static String getIssuerFra(String discoveryURL) {
-        LOG.info("Henter issuer fra {}", discoveryURL);
-        return Optional.ofNullable(discoveryURL)
-                .map(d -> getStringFromWellKnownConfig(getWellKnownConfigUncached(d), ISSUER_KEY))
-                .orElse(null);
+        try {
+            LOG.info("OIDC Henter issuer fra {}", discoveryURL);
+            var issuer = Optional.ofNullable(discoveryURL)
+                    .map(d -> getStringFromWellKnownConfig(getWellKnownConfigUncached(d), ISSUER_KEY))
+                    .orElse(null);
+            LOG.info("OIDC Hentet issuer fra {}", issuer);
+            return issuer;
+        } catch (Exception e) {
+            LOG.warn("OIDC issuer feil", e);
+            return null;
+        }
     }
 
     public static String getIssoHostUrl() {
