@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -142,7 +143,7 @@ public class OidcTokenValidatorProvider {
             String clientName = clientName(providerName);
             String clientPassword = ENV.getProperty(providerName + PASSWORD_KEY);
             String issuer = issuer(providerName);
-            String host = ENV.getProperty(providerName + HOST_URL_KEY);
+            String host = ENV.getRequiredProperty(providerName + HOST_URL_KEY);
             String jwks = jwks(providerName);
             var konfig = createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds,
                     skipAudienceValidation, identTyper);
@@ -152,7 +153,7 @@ public class OidcTokenValidatorProvider {
 
         private static String clientName(String providerName) {
             var ny = ENV.getProperty(LOGINSERVICE_IDPORTEN_AUDIENCE);
-            var legacy = ENV.getProperty(providerName + AGENT_NAME_KEY);
+            var legacy = ENV.getRequiredProperty(providerName + AGENT_NAME_KEY);
             LOG.info("OIDC Slå opp client name/audience fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
@@ -161,7 +162,7 @@ public class OidcTokenValidatorProvider {
 
             var discoveryURL = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
             var ny = OpenAMHelper.getJwksFra(discoveryURL);
-            var legacy = ENV.getProperty(providerName + JWKS_URL_KEY);
+            var legacy = ENV.getRequiredProperty(providerName + JWKS_URL_KEY);
             LOG.info("OIDC Slo opp jwks url fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
@@ -169,42 +170,33 @@ public class OidcTokenValidatorProvider {
         private static String issuer(String providerName) {
             var discoveryURL = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
             var ny = OpenAMHelper.getIssuerFra(discoveryURL);
-            var legacy = ENV.getProperty(providerName + ISSUER_URL_KEY);
+            var legacy = ENV.getRequiredProperty(providerName + ISSUER_URL_KEY);
             LOG.info("OIDC Slo opp issuer url fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
 
         private OpenIDProviderConfig createConfiguration(String providerName, String issuer, String jwks, boolean useProxyForJwks, String clientName,
                 String clientPassword, String host, int allowedClockSkewInSeconds, boolean skipAudienceValidation, Set<IdentType> identTyper) {
-            if (null == clientName) {
-                return null;
-            }
-            URL issuerUrl;
-            URL jwksUrl;
-            URL hostUrl;
-            String key = "";
+            return Optional.ofNullable(clientName).map(c -> new OpenIDProviderConfig(
+                    url(issuer, "issuer", providerName),
+                    url(jwks, "jwks", providerName),
+                    useProxyForJwks,
+                    c,
+                    clientPassword,
+                    url(host, "host", providerName),
+                    allowedClockSkewInSeconds,
+                    skipAudienceValidation,
+                    identTyper))
+                    .orElse(null);
+
+        }
+
+        private static URL url(String url, String key, String providerName) {
             try {
-                key = "issuer";
-                issuerUrl = new URL(issuer);
-                key = "jwks";
-                jwksUrl = new URL(jwks);
-                key = "host";
-                hostUrl = new URL(host);
+                return new URL(url);
             } catch (MalformedURLException e) {
                 throw TokenProviderFeil.FACTORY.feilIKonfigurasjonAvOidcProvider(key, providerName, e).toException();
             }
-            OpenIDProviderConfig config = new OpenIDProviderConfig(
-                    issuerUrl,
-                    jwksUrl,
-                    useProxyForJwks,
-                    clientName,
-                    clientPassword,
-                    hostUrl,
-                    allowedClockSkewInSeconds,
-                    skipAudienceValidation,
-                    identTyper);
-
-            return config;
         }
 
     }

@@ -24,6 +24,8 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,6 +42,7 @@ import no.nav.vedtak.util.env.Environment;
 public class OpenAMHelper {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Logger LOG = LoggerFactory.getLogger(OpenAMHelper.class);
 
     private static final Environment ENV = Environment.current();
 
@@ -50,7 +53,6 @@ public class OpenAMHelper {
     private static final String OAUTH2_ENDPOINT = "/oauth2";
     private static final String JSON_AUTH_ENDPOINT = "/json/authenticate";
     private static final String WELL_KNOWN_ENDPOINT = "/.well-known/openid-configuration";
-
     public static final String ISSUER_KEY = "issuer";
     public static final String JWKS_URI_KEY = "jwks_uri";
     public static final String AUTHORIZATION_ENDPOINT_KEY = "authorization_endpoint";
@@ -208,7 +210,7 @@ public class OpenAMHelper {
         return wellKnownConfig;
     }
 
-    public static JsonNode getWellKnownConfigUncached(String url) {
+    private static JsonNode getWellKnownConfigUncached(String url) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         HttpGet get = new HttpGet(url);
         try (CloseableHttpResponse response = httpClient.execute(get)) {
@@ -217,7 +219,9 @@ public class OpenAMHelper {
                 try (BufferedReader br = new BufferedReader(isr)) {
                     String responseString = br.lines().collect(Collectors.joining("\n"));
                     if (response.getStatusLine().getStatusCode() == 200) {
-                        return OBJECT_MAPPER.reader().readTree(responseString);
+                        var node = OBJECT_MAPPER.reader().readTree(responseString);
+                        LOG.info("Hentet well known konfig fra {} og fikk {}", url, node);
+                        return node;
                     } else {
                         throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(
                                 response.getStatusLine().getStatusCode(), responseString).toException();
@@ -266,12 +270,14 @@ public class OpenAMHelper {
     }
 
     public static String getJwksFra(String discoveryURL) {
+        LOG.info("Henter jwks fra {}", discoveryURL);
         return Optional.ofNullable(discoveryURL)
                 .map(d -> getStringFromWellKnownConfig(getWellKnownConfigUncached(d), JWKS_URI_KEY))
                 .orElse(null);
     }
 
     public static String getIssuerFra(String discoveryURL) {
+        LOG.info("Henter issuer fra {}", discoveryURL);
         return Optional.ofNullable(discoveryURL)
                 .map(d -> getStringFromWellKnownConfig(getWellKnownConfigUncached(d), ISSUER_KEY))
                 .orElse(null);
