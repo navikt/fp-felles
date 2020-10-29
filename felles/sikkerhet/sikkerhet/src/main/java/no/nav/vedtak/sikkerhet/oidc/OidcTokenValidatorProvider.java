@@ -144,14 +144,16 @@ public class OidcTokenValidatorProvider {
             String issuer = issuer(providerName);
             String host = ENV.getProperty(providerName + HOST_URL_KEY);
             String jwks = jwks(providerName);
-            return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds,
+            var konfig = createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds,
                     skipAudienceValidation, identTyper);
+            LOG.info("OIDC konfig er {}", konfig);
+            return konfig;
         }
 
         private static String clientName(String providerName) {
             var ny = ENV.getProperty(LOGINSERVICE_IDPORTEN_AUDIENCE);
             var legacy = ENV.getProperty(providerName + AGENT_NAME_KEY);
-            LOG.info("OIDC Slo opp client name/audience fra config map {}, fra eksplistt konfig {}", ny, legacy);
+            LOG.info("OIDC Slå opp client name/audience fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
 
