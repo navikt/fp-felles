@@ -140,13 +140,20 @@ public class OidcTokenValidatorProvider {
 
         private OpenIDProviderConfig createOIDCConfiguration(String providerName, boolean useProxyForJwks, int allowedClockSkewInSeconds,
                 boolean skipAudienceValidation, Set<IdentType> identTyper) {
+            LOG.info("OIDC slår opp audience");
             String clientName = clientName(providerName);
+            LOG.info("OIDC slår opp client pw");
             String clientPassword = ENV.getProperty(providerName + PASSWORD_KEY);
+            LOG.info("OIDC slår opp issuer");
             String issuer = issuer(providerName);
+            LOG.info("OIDC slår opp host");
             String host = ENV.getRequiredProperty(providerName + HOST_URL_KEY);
+            LOG.info("OIDC slår opp jwks");
             String jwks = jwks(providerName);
+            LOG.info("OIDC lage konfig");
             var konfig = createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds,
                     skipAudienceValidation, identTyper);
+
             LOG.info("OIDC konfig er {}", konfig);
             return konfig;
         }
@@ -154,7 +161,7 @@ public class OidcTokenValidatorProvider {
         private static String clientName(String providerName) {
             var ny = ENV.getProperty(LOGINSERVICE_IDPORTEN_AUDIENCE);
             var legacy = ENV.getRequiredProperty(providerName + AGENT_NAME_KEY);
-            LOG.info("OIDC Slå opp client name/audience fra config map {}, fra eksplistt konfig {}", ny, legacy);
+            LOG.info("OIDC Slo opp client name/audience fra config map {}, fra eksplistt konfig {}", ny, legacy);
             return legacy;
         }
 
