@@ -28,6 +28,10 @@ import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
+import no.nav.pdl.HentIdenterBolkQueryRequest;
+import no.nav.pdl.HentIdenterBolkQueryResponse;
+import no.nav.pdl.HentIdenterBolkResult;
+import no.nav.pdl.HentIdenterBolkResultResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentIdenterQueryResponse;
 import no.nav.pdl.HentPersonQueryRequest;
@@ -48,8 +52,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
 public class PdlKlient {
-
-    private static List<Integer> HTTP_KODER_TOM_RESPONS = List.of(
+    private static final List<Integer> HTTP_KODER_TOM_RESPONS = List.of(
         HttpStatus.SC_NOT_MODIFIED,
         HttpStatus.SC_NO_CONTENT,
         HttpStatus.SC_ACCEPTED);
@@ -59,7 +62,7 @@ public class PdlKlient {
     private final ObjectMapper objectMapper = createObjectMapper();
     private final ObjectReader objectReaderHentPersonResponse = objectMapper.readerFor(HentPersonQueryResponse.class);
     private final ObjectReader objectReaderHentIdenterResponse = objectMapper.readerFor(HentIdenterQueryResponse.class);
-
+    private final ObjectReader objectReaderHentIdenterBolkQueryResponse = objectMapper.readerFor(HentIdenterBolkQueryResponse.class);
 
     PdlKlient() {
         // CDI
@@ -79,21 +82,22 @@ public class PdlKlient {
 
     public Person hentPerson(HentPersonQueryRequest query, PersonResponseProjection projection, Tema consumerTemaKode) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
-
         HentPersonQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderHentPersonResponse, consumerTemaKode);
-
         return graphQlResponse.hentPerson();
     }
 
     public Identliste hentIdenter(HentIdenterQueryRequest query, IdentlisteResponseProjection projection, Tema consumerTemaKode) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
-
         HentIdenterQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderHentIdenterResponse, consumerTemaKode);
-
         return graphQlResponse.hentIdenter();
     }
 
-
+    public List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest query, HentIdenterBolkResultResponseProjection projection, Tema consumerTemaKode) {
+        //TODO Alle disse 3 metodene kan sikkert generaliseres
+        GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
+        HentIdenterBolkQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderHentIdenterBolkQueryResponse, consumerTemaKode);
+        return graphQlResponse.hentIdenterBolk();
+    }
 
     private <T extends GraphQLResult> T utførSpørring(GraphQLRequest request, ObjectReader objectReader, Tema consumerTemaKode) {
         var responseHandler = new OidcRestClientResponseHandler.ObjectReaderResponseHandler<T>(graphqlEndpoint, objectReader);

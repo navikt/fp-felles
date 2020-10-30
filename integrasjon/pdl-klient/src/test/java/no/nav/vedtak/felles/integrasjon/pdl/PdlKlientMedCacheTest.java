@@ -2,7 +2,6 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -16,7 +15,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicStatusLine;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +22,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
-import no.nav.vedtak.util.LRUCache;
 
 @ExtendWith(MockitoExtension.class)
 public class PdlKlientMedCacheTest {
@@ -38,7 +35,6 @@ public class PdlKlientMedCacheTest {
     @Mock
     private HttpEntity httpEntity;
 
-    @SuppressWarnings("resource")
     @BeforeEach
     public void setUp() throws IOException {
         // POST mock
@@ -56,36 +52,38 @@ public class PdlKlientMedCacheTest {
 
     @Test
     void skal_hente_aktørId_personIdent() throws IOException {
-
         when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerResponse.json"));
 
         PdlKlientMedCache testSubject = new PdlKlientMedCache(pdlKlient);
 
-        Optional<String> s = testSubject.hentAktørIdForPersonIdent("16047439276");
+        Optional<String> s = testSubject.hentAktørIdForPersonIdent("16047439276", Tema.OMS);
 
         assertThat(s).isNotEmpty();
+        assertThat(s).contains("9916047439276");
     }
 
     @Test
     void skal_hente_personIdent_for_aktørId() throws IOException {
-
         when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerResponse.json"));
 
         PdlKlientMedCache testSubject = new PdlKlientMedCache(pdlKlient);
 
-        Optional<String> s = testSubject.hentPersonIdentForAktørId("9916047439276");
+        Optional<String> s = testSubject.hentPersonIdentForAktørId("9916047439276", Tema.OMS);
 
         assertThat(s).isNotEmpty();
+        assertThat(s).contains("16047439276");
     }
 
 
-//    @Test
-//    void skal_hent_aktørId_for_set_med_personIdent() {
-//
-//        PdlKlientMedCache testSubject = new PdlKlientMedCache(pdlKlient);
-//        Set<String> aktørIds = testSubject.hentAktørIdForPersonIdentSet(Set.of("16047439276"));
-//
-//        assertThat(aktørIds).hasSize(1);
-//        assertThat(aktørIds).contains("9916047439276");
-//    }
+    @Test
+    void skal_hent_aktørId_for_set_med_personIdent() throws IOException {
+        when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerBolkResponse.json"));
+        PdlKlientMedCache testSubject = new PdlKlientMedCache(pdlKlient);
+
+        Set<String> aktørIds = testSubject.hentAktørIdForPersonIdentSet(Set.of("16047439276", "25017312345"), Tema.OMS);
+
+        assertThat(aktørIds).hasSize(2);
+        assertThat(aktørIds).contains("9916047439276");
+        assertThat(aktørIds).contains("9925017312345");
+    }
 }

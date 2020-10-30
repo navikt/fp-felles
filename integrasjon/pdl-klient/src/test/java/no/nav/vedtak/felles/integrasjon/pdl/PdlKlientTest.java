@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
+import static java.util.List.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -19,8 +20,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.pdl.HentIdenterBolkQueryRequest;
+import no.nav.pdl.HentIdenterBolkResultResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.NavnResponseProjection;
@@ -40,7 +44,6 @@ public class PdlKlientTest {
     private HttpEntity httpEntity;
 
 
-    @SuppressWarnings("resource")
     @BeforeEach
     public void setUp() throws IOException {
         // POST mock
@@ -56,7 +59,6 @@ public class PdlKlientTest {
     }
 
 
-    @SuppressWarnings("resource")
     @Test
     public void skal_returnere_person() throws IOException {
         //query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111", fagsaksystem: "AO01"}, foerste: 5)
@@ -73,7 +75,6 @@ public class PdlKlientTest {
         assertThat(person.getNavn().get(0).getFornavn()).isNotEmpty();
     }
 
-    @SuppressWarnings("resource")
     @Test
     void skal_returnere_ident() throws IOException {
         when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerResponse.json"));
@@ -90,5 +91,29 @@ public class PdlKlientTest {
         var identer = pdlKlient.hentIdenter(queryRequest, projection, Tema.OMS);
 
         assertThat(identer.getIdenter()).hasSizeGreaterThan(0);
+    }
+
+    @Test
+    void skal_returnere_bolk_med_identer() throws IOException {
+        when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerBolkResponse.json"));
+
+        var queryRequest = new HentIdenterBolkQueryRequest();
+        queryRequest.setIdenter(of("12345678901"));
+
+        var projection = new HentIdenterBolkResultResponseProjection()
+            .ident()
+            .identer(new IdentInformasjonResponseProjection()
+                .ident()
+                .gruppe()
+            );
+        var identer = pdlKlient.hentIdenterBolkResults(queryRequest, projection, Tema.OMS);
+
+        assertThat(
+            identer.stream()
+                .flatMap(r -> r.getIdenter().stream())
+                .map(IdentInformasjon::getIdent)
+                //.collect(Collectors.toList())
+        )
+            .containsExactlyInAnyOrder("16047439276", "9916047439276", "25017312345", "9925017312345");
     }
 }
