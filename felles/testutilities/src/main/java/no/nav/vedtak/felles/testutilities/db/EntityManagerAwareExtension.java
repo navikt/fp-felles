@@ -1,6 +1,8 @@
 package no.nav.vedtak.felles.testutilities.db;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -47,7 +49,8 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
 
     @Override
     public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
-            ExtensionContext extensionContext) throws Throwable {
+                                    ExtensionContext extensionContext)
+            throws Throwable {
         if (!isTransactional(extensionContext) && shouldCommit(extensionContext)) {
             throw new IllegalStateException("En ikke-transaksjonell test kan ikke commites");
         }
@@ -90,7 +93,7 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
 
     private static boolean isTransactional(ExtensionContext ctx) {
         return ctx.getRequiredTestMethod().getAnnotation(NonTransactional.class) == null
-                && ctx.getRequiredTestClass().getAnnotation(NonTransactional.class) == null;
+            && ctx.getRequiredTestClass().getAnnotation(NonTransactional.class) == null;
     }
 
     private EntityTransaction startTransaction() {
@@ -113,8 +116,13 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
 
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-        testInstance.getClass()
-                .getMethod("setEntityManager", EntityManager.class)
-                .invoke(testInstance, getEntityManager());
+
+        // kaller på hvis finnes
+        Optional<Method> methodToFind = Arrays.stream(testInstance.getClass().getMethods())
+            .filter(method -> "setEntityManager".equals(method.getName()))
+            .findFirst();
+        if (methodToFind.isPresent()) {
+            methodToFind.get().invoke(testInstance, getEntityManager());
+        }
     }
 }
