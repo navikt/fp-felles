@@ -5,9 +5,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -138,11 +136,6 @@ public class PdlKlientMedCache {
         Identliste identliste = pdlKlient.hentIdenter(request, projeksjon, tema);
 
         return identliste.getIdenter().stream().filter(s -> s.getGruppe().equals(identGruppe)).findFirst().map(IdentInformasjon::getIdent);
-    }
-
-    //TODO Trenger vi denne, er ekvivalenten i bruk noe sted Jens-Otto?
-    public Map<String, String> hentAktørIdMapForPersonIdent(Set<String> personIdentSet) {
-        return Collections.emptyMap();
     }
 }
 
