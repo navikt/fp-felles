@@ -1,28 +1,21 @@
 package no.nav.vedtak.isso;
 
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_PASSWORD;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
-import java.util.Map;
-
-import org.jose4j.json.JsonUtil;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
+import org.jose4j.json.JsonUtil;
+import org.junit.jupiter.api.*;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+import static no.nav.vedtak.isso.OpenAMHelper.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /* Dette er bare tull, assumeTrue sørger for at 3 av testene aldri kjøres fullstending. LogSniffing er derfor meningsløst */
 public class OpenAMHelperTest {
@@ -119,8 +112,7 @@ public class OpenAMHelperTest {
     @Test
     public void well_known_config_should_fail_gracefully() {
         System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "http://should.not.exist:23442/rest/isso/oauth2");
-        assertThat(assertThrows(TekniskException.class, () -> OpenAMHelper.getIssoIssuerUrl()).getMessage())
-                .startsWith(OpenAmFeil.SERVICE_DISCOVERY_FAILED_CODE);
+        assertThat(assertThrows(TekniskException.class, OpenAMHelper::getIssoIssuerUrl).getMessage());
     }
 
     @Test

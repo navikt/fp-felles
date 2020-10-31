@@ -1,24 +1,17 @@
 package no.nav.vedtak.isso;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.apache.http.HttpHost;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.nimbusds.jose.util.DefaultResourceRetriever;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.isso.config.ServerInfo;
+import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
+import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
+import no.nav.vedtak.util.env.Environment;
 import org.apache.http.client.CookieStore;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -30,15 +23,19 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-
-import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
-import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
-import no.nav.vedtak.util.env.Environment;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 // TODO, denne klassen er en katastrofe
 public class OpenAMHelper {
@@ -61,15 +58,15 @@ public class OpenAMHelper {
 
     private String redirectUriEncoded;
 
-    private static JsonNode wellKnownConfig;
+    private static AuthorizationServerMetadata wellKnownConfig;
 
     public OpenAMHelper() {
         try {
             redirectUriEncoded = URLEncoder.encode(ServerInfo.instance().getCallbackUrl(),
-                    StandardCharsets.UTF_8.name());
+                StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             throw OpenAmFeil.FACTORY.feilIKonfigurertRedirectUri(ServerInfo.instance().getCallbackUrl(), e)
-                    .toException();
+                .toException();
         }
     }
 
@@ -86,15 +83,15 @@ public class OpenAMHelper {
     }
 
     public static String getIssoIssuerUrl() {
-        return getStringFromWellKnownConfig(ISSUER_KEY);
+        return getWellKnownConfig().getIssuer().getValue();
     }
 
     public static String getIssoJwksUrl() {
-        return getStringFromWellKnownConfig(JWKS_URI_KEY);
+        return getWellKnownConfig().getJWKSetURI().toString();
     }
 
     public static String getAuthorizationEndpoint() {
-        return getStringFromWellKnownConfig(AUTHORIZATION_ENDPOINT_KEY);
+        return getWellKnownConfig().getAuthorizationEndpointURI().toString();
     }
 
     public IdTokenAndRefreshToken getToken() throws IOException {
@@ -107,19 +104,19 @@ public class OpenAMHelper {
         }
         var cookieStore = new BasicCookieStore();
         try (var httpClient = HttpClientBuilder.create().disableRedirectHandling()
-                .setDefaultCookieStore(cookieStore).build()) {
+            .setDefaultCookieStore(cookieStore).build()) {
             authenticateUser(httpClient, cookieStore, brukernavn, passord);
             String authorizationCode = hentAuthorizationCode(httpClient);
 
             return new IdTokenAndRefreshTokenProvider().getToken(authorizationCode,
-                    URI.create(ServerInfo.instance().getCallbackUrl()));
+                URI.create(ServerInfo.instance().getCallbackUrl()));
         }
     }
 
     public static void setWellKnownConfig(String jsonAsString) {
         try {
-            wellKnownConfig = OBJECT_MAPPER.reader().readTree(jsonAsString);
-        } catch (JsonProcessingException e) {
+            wellKnownConfig = AuthorizationServerMetadata.parse(jsonAsString);
+        } catch (ParseException e) {
             throw new IllegalArgumentException("Ugyldig json: ", e);
         }
     }
@@ -128,38 +125,32 @@ public class OpenAMHelper {
         wellKnownConfig = null;
     }
 
-    public static JsonNode getWellKnownConfig() {
+    public static AuthorizationServerMetadata getWellKnownConfig() {
         return getWellKnownConfig(getIssoHostUrl() + WELL_KNOWN_ENDPOINT);
     }
 
-    public static JsonNode getWellKnownConfig(String url) {
+    public static AuthorizationServerMetadata getWellKnownConfig(String url) {
         if (wellKnownConfig == null) {
-            return get(url, new HttpGet(url));
+            return retrieveAuthorizationServerMetadata(url);
         }
         return wellKnownConfig;
     }
 
-    private static JsonNode getWellKnownConfigUncached(String url) {
-
-        var get = new HttpGet(url);
-        var proxy = ENV.getProperty("http.proxy");
-        if (proxy != null) {
-            get.setConfig(proxy(proxy));
-        }
-        return get(url, get);
+    private static AuthorizationServerMetadata getWellKnownConfigUncached(String url) {
+        return retrieveAuthorizationServerMetadata(url);
     }
 
     private static JsonNode get(String url, HttpGet get) {
         try (var response = HttpClientBuilder.create().build().execute(get)) {
             try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
-                    StandardCharsets.UTF_8)) {
+                StandardCharsets.UTF_8)) {
                 try (BufferedReader br = new BufferedReader(isr)) {
                     String responseString = br.lines().collect(Collectors.joining("\n"));
                     if (response.getStatusLine().getStatusCode() == 200) {
                         return OBJECT_MAPPER.reader().readTree(responseString);
                     } else {
                         throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(
-                                response.getStatusLine().getStatusCode(), responseString).toException();
+                            response.getStatusLine().getStatusCode(), responseString).toException();
                     }
                 }
             }
@@ -170,24 +161,12 @@ public class OpenAMHelper {
         }
     }
 
-    public static String getStringFromWellKnownConfig(JsonNode node, String key) {
-        return Optional.ofNullable(node)
-                .map(n -> n.get(key))
-                .filter(Objects::nonNull)
-                .map(JsonNode::asText)
-                .orElse(null);
-    }
-
-    public static String getStringFromWellKnownConfig(String key) {
-        return getStringFromWellKnownConfig(getWellKnownConfig(), key);
-    }
-
     private void authenticateUser(CloseableHttpClient httpClient, CookieStore cookieStore, String brukernavn,
-            String passord) throws IOException {
+                                  String passord) throws IOException {
         String jsonAuthUrl = getIssoHostUrl().replace(OAUTH2_ENDPOINT, JSON_AUTH_ENDPOINT);
 
         String template = post(httpClient, jsonAuthUrl, null, Function.identity(),
-                "Authorization: Negotiate");
+            "Authorization: Negotiate");
         String utfyltTemplate;
         try {
             EndUserAuthorizationTemplate json = OBJECT_MAPPER.readValue(template, EndUserAuthorizationTemplate.class);
@@ -212,12 +191,12 @@ public class OpenAMHelper {
     }
 
     private <T> T post(CloseableHttpClient httpClient, String url, String data, Function<String, T> resultTransformer,
-            String... headers) throws IOException {
+                       String... headers) throws IOException {
         return post(httpClient, url, data, 200, resultTransformer, headers);
     }
 
     private <T> T post(CloseableHttpClient httpClient, String url, String data, int expectedHttpCode,
-            Function<String, T> resultTransformer, String... headers) throws IOException {
+                       Function<String, T> resultTransformer, String... headers) throws IOException {
         HttpPost post = new HttpPost(url);
         post.setHeader("Content-type", "application/json");
         for (String header : headers) {
@@ -230,15 +209,15 @@ public class OpenAMHelper {
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
-                    StandardCharsets.UTF_8)) {
+                StandardCharsets.UTF_8)) {
                 try (BufferedReader br = new BufferedReader(isr)) {
                     String responseString = br.lines().collect(Collectors.joining("\n"));
                     if (response.getStatusLine().getStatusCode() == expectedHttpCode) {
                         return resultTransformer.apply(responseString);
                     } else {
                         throw OpenAmFeil.FACTORY
-                                .uforventetResponsFraOpenAM(response.getStatusLine().getStatusCode(), responseString)
-                                .toException();
+                            .uforventetResponsFraOpenAM(response.getStatusLine().getStatusCode(), responseString)
+                            .toException();
                     }
                 }
             }
@@ -259,7 +238,7 @@ public class OpenAMHelper {
 
     private String hentAuthorizationCode(CloseableHttpClient httpClient) throws IOException {
         String url = getAuthorizationEndpoint() + "?response_type=code&scope=openid&client_id=" + getIssoUserName()
-                + "&state=dummy&redirect_uri=" + redirectUriEncoded;
+            + "&state=dummy&redirect_uri=" + redirectUriEncoded;
         HttpGet get = new HttpGet(url);
         get.setHeader("Content-type", "application/json");
 
@@ -273,36 +252,28 @@ public class OpenAMHelper {
                 }
             }
             throw OpenAmFeil.FACTORY.kunneIkkeFinneAuthCode(response.getStatusLine().getStatusCode(),
-                    response.getStatusLine().getReasonPhrase()).toException();
+                response.getStatusLine().getReasonPhrase()).toException();
         } finally {
             get.reset();
         }
     }
 
     public static String getJwksFra(String discoveryURL) {
-        return getWellKnownFra(discoveryURL, JWKS_URI_KEY);
+        return getWellKnownConfigUncached(discoveryURL).getJWKSetURI().toString();
     }
 
     public static String getIssuerFra(String discoveryURL) {
-        return getWellKnownFra(discoveryURL, ISSUER_KEY);
+        return getWellKnownConfigUncached(discoveryURL).getIssuer().getValue();
     }
 
-    private static String getWellKnownFra(String discoveryURL, String key) {
+    private static AuthorizationServerMetadata retrieveAuthorizationServerMetadata(String wellKnownUrl) {
         try {
-            return Optional.ofNullable(discoveryURL)
-                    .map(OpenAMHelper::getWellKnownConfigUncached)
-                    .map(c -> getStringFromWellKnownConfig(c, key))
-                    .orElse(null);
-        } catch (Exception e) {
-            LOG.warn("OIDC oppslag av {} feilet", key, e);
-            return null;
+            var resourceRetriever = new DefaultResourceRetriever();
+            var url = URI.create(wellKnownUrl).toURL();
+            return AuthorizationServerMetadata.parse(resourceRetriever.retrieveResource(url).getContent());
+        } catch (ParseException | IOException e) {
+            throw new TekniskException("exception when retrieving metadata from issuer", URI.create(wellKnownUrl), e);
         }
-    }
-
-    private static RequestConfig proxy(String proxy) {
-        return RequestConfig.custom()
-                .setProxy(HttpHost.create(proxy))
-                .build();
     }
 
     @Override
