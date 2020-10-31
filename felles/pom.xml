@@ -423,8 +423,13 @@
                 <artifactId>threeten-extra</artifactId>
                 <version>1.5.0</version>
             </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>oauth2-oidc-sdk</artifactId>
+                <version>8.23.1</version>
+            </dependency>
 
-			<!-- Andre 3djepart avhengigheter -->
+            <!-- Andre 3djepart avhengigheter -->
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles</groupId>
 				<artifactId>felles-testutilities</artifactId>
