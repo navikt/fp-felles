@@ -9,6 +9,9 @@ import javax.persistence.EntityTransaction;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 import org.slf4j.Logger;
@@ -40,7 +43,8 @@ import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
  * }
  * </pre>
  */
-public class EntityManagerAwareExtension extends PersistenceUnitInitializer implements InvocationInterceptor, TestInstancePostProcessor {
+public class EntityManagerAwareExtension extends PersistenceUnitInitializer
+        implements ParameterResolver, InvocationInterceptor, TestInstancePostProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityManagerAwareExtension.class);
     static {
@@ -49,7 +53,7 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
 
     @Override
     public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
-                                    ExtensionContext extensionContext)
+            ExtensionContext extensionContext)
             throws Throwable {
         if (!isTransactional(extensionContext) && shouldCommit(extensionContext)) {
             throw new IllegalStateException("En ikke-transaksjonell test kan ikke commites");
@@ -93,7 +97,7 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
 
     private static boolean isTransactional(ExtensionContext ctx) {
         return ctx.getRequiredTestMethod().getAnnotation(NonTransactional.class) == null
-            && ctx.getRequiredTestClass().getAnnotation(NonTransactional.class) == null;
+                && ctx.getRequiredTestClass().getAnnotation(NonTransactional.class) == null;
     }
 
     private EntityTransaction startTransaction() {
@@ -119,10 +123,20 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
 
         // kaller på hvis finnes
         Optional<Method> methodToFind = Arrays.stream(testInstance.getClass().getMethods())
-            .filter(method -> "setEntityManager".equals(method.getName()))
-            .findFirst();
+                .filter(method -> "setEntityManager".equals(method.getName()))
+                .findFirst();
         if (methodToFind.isPresent()) {
             methodToFind.get().invoke(testInstance, getEntityManager());
         }
+    }
+
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return parameterContext.getParameter().getType().equals(EntityManager.class);
+    }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return getEntityManager();
     }
 }
