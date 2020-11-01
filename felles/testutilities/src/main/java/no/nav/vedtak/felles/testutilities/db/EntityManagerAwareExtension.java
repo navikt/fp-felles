@@ -28,11 +28,11 @@ import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
  *
  * <pre>
  * &#64;ExtendWith(EntityManagerAwareExtension.class)
- * public class MyjUnit5Test extends EntityManagerAwareTest {
+ * public class MyjUnit5Test  {
  *
  *     &#64;BeforeEach
- *     public List&#60;String&#62; beforeEach() {
- *        repo = new MyRepo(getEntityManager);
+ *     public List&#60;String&#62; beforeEach(EntityManager em) {
+ *        repo = new MyRepo(em);
  *     }
  *
  *     &#64;Test
