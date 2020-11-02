@@ -23,7 +23,6 @@ public class WeldContext {
 
     private final Weld weld;
 
-    @SuppressWarnings("unused")
     private WeldContainer initialize;
 
     public static synchronized WeldContext getInstance() {
@@ -39,6 +38,10 @@ public class WeldContext {
         this.weld.property("org.jboss.weld.se.archive.isolation", false);
         initialize = this.weld.initialize();
 
+    }
+    
+    public BeanManager getBeanManager() {
+        return initialize.getBeanManager();
     }
 
     @SuppressWarnings("unchecked")
