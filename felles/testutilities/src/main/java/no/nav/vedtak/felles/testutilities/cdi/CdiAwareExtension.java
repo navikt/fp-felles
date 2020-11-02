@@ -12,7 +12,7 @@ public class CdiAwareExtension implements TestInstancePostProcessor {
 
     static class LazyContextSingleton {
         /** intialiseres ikke før faktisk bruk første gang. */
-        private static final BeanManager beanManager = WeldContext.getInstance().getBeanManager();
+        static final BeanManager beanManager = WeldContext.getInstance().getBeanManager();
     }
 
     static class IgnorantCreationalContext<T> implements CreationalContext<T> {
