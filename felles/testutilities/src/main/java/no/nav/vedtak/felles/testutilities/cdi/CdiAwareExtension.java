@@ -1,43 +1,38 @@
 package no.nav.vedtak.felles.testutilities.cdi;
 
-import java.lang.reflect.Method;
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.spi.AnnotatedType;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.InjectionTarget;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.InvocationInterceptor;
-import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
-import org.junit.jupiter.api.extension.TestInstanceFactory;
-import org.junit.jupiter.api.extension.TestInstanceFactoryContext;
-import org.junit.jupiter.api.extension.TestInstantiationException;
+import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
-public class CdiAwareExtension implements TestInstanceFactory, InvocationInterceptor {
+public class CdiAwareExtension implements TestInstancePostProcessor {
 
     static class LazyContextSingleton {
         /** intialiseres ikke før faktisk bruk første gang. */
-        static final WeldContext weldContext = WeldContext.getInstance();
+        private static final BeanManager beanManager = WeldContext.getInstance().getBeanManager();
     }
 
-    @Override
-    public Object createTestInstance(TestInstanceFactoryContext factoryContext, ExtensionContext extensionContext) throws TestInstantiationException {
+    static class IgnorantCreationalContext<T> implements CreationalContext<T> {
+        @Override
+        public void push(T incompleteInstance) {
+        }
 
-        Class<?> testClass = extensionContext.getTestClass()
-            .orElseThrow(() -> new TestInstantiationException("test class required"));
-
-        return LazyContextSingleton.weldContext.getBean(testClass);
+        @Override
+        public void release() {
+        }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext)
-            throws Throwable {
-
-        LazyContextSingleton.weldContext.doWithScope(() -> {
-            try {
-                return invocation.proceed();
-            } catch (RuntimeException | Error e) {
-                throw e;
-            } catch (Throwable e) {
-                throw new IllegalStateException(e);
-            }
-        });
+    public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
+        Class cls = testInstance.getClass();
+        AnnotatedType annotatedType = LazyContextSingleton.beanManager.createAnnotatedType(cls);
+        InjectionTarget injectionTarget = LazyContextSingleton.beanManager.createInjectionTarget(annotatedType);
+        injectionTarget.inject(testInstance, new IgnorantCreationalContext<>());
+        injectionTarget.postConstruct(testInstance);
     }
 
 }
