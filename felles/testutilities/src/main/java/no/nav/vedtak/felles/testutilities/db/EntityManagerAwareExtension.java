@@ -98,7 +98,7 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer
     public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
                                     ExtensionContext extensionContext)
             throws Throwable {
-
+        // start tx her i tilfelle BeforeEach method ikke var definert. Avventer rollback til preDestroy..
         startTransaction(extensionContext);
         invocation.proceed();
     }
