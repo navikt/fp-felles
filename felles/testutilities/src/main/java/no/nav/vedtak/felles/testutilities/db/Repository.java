@@ -6,6 +6,12 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
 
+/**
+ * Denne trengs ikke, unødvendig wrapper rundt EntityManager, som er lett
+ * tilgjengelig
+ *
+ */
+@Deprecated(since = "2.4.x", forRemoval = true)
 public class Repository {
 
     private EntityManager entityManager;
