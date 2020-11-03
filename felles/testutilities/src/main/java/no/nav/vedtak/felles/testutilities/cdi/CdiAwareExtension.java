@@ -3,17 +3,15 @@ package no.nav.vedtak.felles.testutilities.cdi;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.AnnotatedType;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.CDI;
 import javax.enterprise.inject.spi.InjectionTarget;
 
+import org.jboss.weld.context.RequestContext;
+import org.jboss.weld.context.unbound.UnboundLiteral;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 public class CdiAwareExtension implements TestInstancePostProcessor {
-
-    static class LazyContextSingleton {
-        /** intialiseres ikke før faktisk bruk første gang. */
-        static final BeanManager beanManager = WeldContext.getInstance().getBeanManager();
-    }
 
     static class IgnorantCreationalContext<T> implements CreationalContext<T> {
         @Override
@@ -28,11 +26,24 @@ public class CdiAwareExtension implements TestInstancePostProcessor {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
+        
+        var weld = WeldContext.getInstance();  // initialserer cdi container om det ikke har skedd
+        
+        var ctx = getRequestContext();
+        if (ctx.isActive()) {
+            // sørg for at requestcontext alltid er aktiv når denne brukes, også før initialiserer beanss
+            ctx.activate();
+        }
+        
+        var bm = weld.getBeanManager();
         Class cls = testInstance.getClass();
-        AnnotatedType annotatedType = LazyContextSingleton.beanManager.createAnnotatedType(cls);
-        InjectionTarget injectionTarget = LazyContextSingleton.beanManager.createInjectionTarget(annotatedType);
+        AnnotatedType annotatedType = bm.createAnnotatedType(cls);
+        InjectionTarget injectionTarget = bm.createInjectionTarget(annotatedType);
         injectionTarget.inject(testInstance, new IgnorantCreationalContext<>());
         injectionTarget.postConstruct(testInstance);
     }
 
+    private RequestContext getRequestContext() {
+        return CDI.current().select(RequestContext.class, UnboundLiteral.INSTANCE).get();
+    }
 }

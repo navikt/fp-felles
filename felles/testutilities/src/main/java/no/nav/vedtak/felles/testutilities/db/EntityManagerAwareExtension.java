@@ -54,8 +54,9 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer
 
     static {
         SubjectHandlerUtils.useSubjectHandler(DummySubjectHandler.class);
+        WeldContext.getInstance(); // init cdi container
     }
-    
+
     /**
      * Her kan spesifikk initialisering gjøres i en subklasse
      */
@@ -78,6 +79,7 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer
 
         var ctx = getRequestContext();
         if (!ctx.isActive()) {
+            // sørg for at RequestContext alltid er aktiv før initialserer mer
             ctx.activate();
         }
 
