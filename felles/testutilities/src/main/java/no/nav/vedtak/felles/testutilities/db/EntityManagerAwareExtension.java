@@ -4,9 +4,12 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
 
+import javax.enterprise.inject.spi.CDI;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import org.jboss.weld.context.RequestContext;
+import org.jboss.weld.context.unbound.UnboundLiteral;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -14,12 +17,11 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
+import org.junit.jupiter.api.extension.TestInstancePreDestroyCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.felles.testutilities.cdi.WeldContext;
-import no.nav.vedtak.felles.testutilities.sikkerhet.DummySubjectHandler;
-import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
 
 /**
  * Denne erstatter {@link RepositoryRule} i JUnit 5 tester o gir lett tilgang
@@ -44,89 +46,73 @@ import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
  * </pre>
  */
 public class EntityManagerAwareExtension extends PersistenceUnitInitializer
-        implements ParameterResolver, InvocationInterceptor, TestInstancePostProcessor {
+        implements ParameterResolver, InvocationInterceptor, TestInstancePostProcessor, TestInstancePreDestroyCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityManagerAwareExtension.class);
-    static {
-        SubjectHandlerUtils.useSubjectHandler(DummySubjectHandler.class);
-    }
 
+    /**
+     * Her kan spesifikk initialisering gjøres i en subklasse
+     */
     @Override
-    public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
-            ExtensionContext extensionContext)
-            throws Throwable {
-        if (!isTransactional(extensionContext) && shouldCommit(extensionContext)) {
-            throw new IllegalStateException("En ikke-transaksjonell test kan ikke commites");
-        }
-        WeldContext.getInstance().doWithScope(() -> {
-            EntityTransaction trans = null;
-            try {
-                if (isTransactional(extensionContext)) {
-                    LOG.trace("Test {} er transaksjonell", target(invocationContext));
-                    trans = startTransaction();
-                }
-                invocation.proceed();
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            } finally {
-                if (trans != null && trans.isActive()) {
-                    if (shouldCommit(extensionContext)) {
-                        LOG.info("Commit transaksjonen etter test");
-                        trans.commit();
-                    } else {
-                        LOG.info("{} rollback transaksjonen etter test", target(invocationContext));
-                        trans.setRollbackOnly();
-                        // trans.rollback();
-                    }
-                }
-
-                getEntityManager().clear();
-            }
-            return null;
-        });
-
-    }
-
-    private String target(ReflectiveInvocationContext<Method> ctx) {
-        return ctx.getTarget().isPresent() ? ctx.getTarget().get().getClass().getSimpleName() : ctx.getTargetClass().getSimpleName();
-    }
-
-    private static boolean shouldCommit(ExtensionContext ctx) {
-        return ctx.getRequiredTestMethod().getAnnotation(Commit.class) != null;
-    }
-
-    private static boolean isTransactional(ExtensionContext ctx) {
-        return ctx.getRequiredTestMethod().getAnnotation(NonTransactional.class) == null
-                && ctx.getRequiredTestClass().getAnnotation(NonTransactional.class) == null;
-    }
-
-    private EntityTransaction startTransaction() {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        transaction.begin();
-        return transaction;
+    protected void init() {
+        // NB: denne
     }
 
     @Override
     public EntityManager getEntityManager() {
-        return WeldContext.getInstance().doWithScope(super::getEntityManager);
+        /**
+         * trenger hente her med scope i tilfelle denne kalles i initialisering av felter (før *
+         * {@link #postProcessTestInstance(Object, ExtensionContext)} er kalt). Returnerer en proxy som kan aktiveres senere.
+         */
+        return WeldContext.getInstance().doWithScope(this::internalEntityManager);
     }
 
     @Override
-    /**
-     * Her kan spesifikk initialisering gjøres i en subklasse
-     */
-    protected void init() {
-    }
+    public void postProcessTestInstance(Object testInstance, ExtensionContext extensionContext) throws Exception {
 
-    @Override
-    public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
+        var ctx = getRequestContext();
+        if (!ctx.isActive()) {
+            ctx.activate();
+        }
 
         // kaller på hvis finnes
         Optional<Method> methodToFind = Arrays.stream(testInstance.getClass().getMethods())
-                .filter(method -> "setEntityManager".equals(method.getName()))
-                .findFirst();
+            .filter(method -> "setEntityManager".equals(method.getName()))
+            .findFirst();
         if (methodToFind.isPresent()) {
-            methodToFind.get().invoke(testInstance, getEntityManager());
+            methodToFind.get().invoke(testInstance, internalEntityManager());
+        }
+
+    }
+
+    @Override
+    public void interceptBeforeEachMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
+
+        // start tx her i tilfelle BeforeEach method er definert. Avventer rollback til preDestroy..
+        startTransaction(extensionContext);
+        invocation.proceed();
+
+    }
+
+    @Override
+    public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
+                                    ExtensionContext extensionContext)
+            throws Throwable {
+
+        startTransaction(extensionContext);
+        invocation.proceed();
+    }
+
+    @Override
+    public void preDestroyTestInstance(ExtensionContext extensionContext) throws Exception {
+        var ctx = getRequestContext();
+        var em = internalEntityManager();
+        try {
+            stopTransaction(extensionContext, em.getTransaction());
+        } finally {
+            if (ctx.isActive()) {
+                ctx.deactivate();
+            }
         }
     }
 
@@ -137,6 +123,49 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return getEntityManager();
+        return internalEntityManager();
+    }
+
+    private RequestContext getRequestContext() {
+        return CDI.current().select(RequestContext.class, UnboundLiteral.INSTANCE).get();
+    }
+
+    private EntityManager internalEntityManager() {
+        // henter uten scope (intern optimalisering)
+        return super.getEntityManager();
+    }
+
+    private void stopTransaction(ExtensionContext extensionContext, EntityTransaction trans) {
+        if (trans != null && trans.isActive()) {
+            if (shouldCommit(extensionContext)) {
+                LOG.debug("Commit transaksjonen etter test: {}", extensionContext.getRequiredTestMethod());
+                trans.commit();
+            } else {
+                LOG.debug("{} rollback transaksjonen etter test", extensionContext.getRequiredTestMethod());
+                trans.rollback();
+            }
+        }
+    }
+
+    private static boolean shouldCommit(ExtensionContext ctx) {
+        return ctx.getRequiredTestMethod().getAnnotation(Commit.class) != null;
+    }
+
+    private static boolean isTransactional(ExtensionContext ctx) {
+        return ctx.getRequiredTestClass().getAnnotation(NonTransactional.class) == null
+            && ctx.getRequiredTestMethod().getAnnotation(NonTransactional.class) == null;
+    }
+
+    private void startTransaction(ExtensionContext extensionContext) {
+        if (isTransactional(extensionContext)) {
+            var transaction = internalEntityManager().getTransaction();
+            if (!transaction.isActive()) {
+                transaction.begin();
+            } else {
+                // er allerede aktiv tx, do nothing
+            }
+        } else if (shouldCommit(extensionContext)) {
+            throw new IllegalStateException("En ikke-transaksjonell test kan ikke commites: " + extensionContext.getRequiredTestMethod());
+        }
     }
 }
