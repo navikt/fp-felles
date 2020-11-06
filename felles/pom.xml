@@ -473,7 +473,7 @@
                 <!-- fjernet fra SE i Java11 -->
                 <groupId>com.sun.xml.messaging.saaj</groupId>
                 <artifactId>saaj-impl</artifactId>
-                <version>1.5.2</version>
+                <version>2.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.jvnet.mimepull</groupId>
