@@ -1,28 +1,5 @@
 package no.nav.vedtak.isso;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.nimbusds.jose.util.DefaultResourceRetriever;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
-import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
-import no.nav.vedtak.util.env.Environment;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.cookie.BasicClientCookie;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,6 +13,30 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.cookie.BasicClientCookie;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.nimbusds.jose.util.DefaultResourceRetriever;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
+
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.isso.config.ServerInfo;
+import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
+import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
+import no.nav.vedtak.util.env.Environment;
 
 // TODO, denne klassen er en katastrofe
 public class OpenAMHelper {
@@ -63,10 +64,10 @@ public class OpenAMHelper {
     public OpenAMHelper() {
         try {
             redirectUriEncoded = URLEncoder.encode(ServerInfo.instance().getCallbackUrl(),
-                StandardCharsets.UTF_8.name());
+                    StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             throw OpenAmFeil.FACTORY.feilIKonfigurertRedirectUri(ServerInfo.instance().getCallbackUrl(), e)
-                .toException();
+                    .toException();
         }
     }
 
@@ -104,12 +105,12 @@ public class OpenAMHelper {
         }
         var cookieStore = new BasicCookieStore();
         try (var httpClient = HttpClientBuilder.create().disableRedirectHandling()
-            .setDefaultCookieStore(cookieStore).build()) {
+                .setDefaultCookieStore(cookieStore).build()) {
             authenticateUser(httpClient, cookieStore, brukernavn, passord);
             String authorizationCode = hentAuthorizationCode(httpClient);
 
             return new IdTokenAndRefreshTokenProvider().getToken(authorizationCode,
-                URI.create(ServerInfo.instance().getCallbackUrl()));
+                    URI.create(ServerInfo.instance().getCallbackUrl()));
         }
     }
 
@@ -140,33 +141,12 @@ public class OpenAMHelper {
         return retrieveAuthorizationServerMetadata(url);
     }
 
-    private static JsonNode get(String url, HttpGet get) {
-        try (var response = HttpClientBuilder.create().build().execute(get)) {
-            try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
-                StandardCharsets.UTF_8)) {
-                try (BufferedReader br = new BufferedReader(isr)) {
-                    String responseString = br.lines().collect(Collectors.joining("\n"));
-                    if (response.getStatusLine().getStatusCode() == 200) {
-                        return OBJECT_MAPPER.reader().readTree(responseString);
-                    } else {
-                        throw OpenAmFeil.FACTORY.uforventetResponsFraOpenAM(
-                            response.getStatusLine().getStatusCode(), responseString).toException();
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw OpenAmFeil.FACTORY.serviceDiscoveryFailed(url, e).toException();
-        } finally {
-            get.reset();
-        }
-    }
-
     private void authenticateUser(CloseableHttpClient httpClient, CookieStore cookieStore, String brukernavn,
-                                  String passord) throws IOException {
+            String passord) throws IOException {
         String jsonAuthUrl = getIssoHostUrl().replace(OAUTH2_ENDPOINT, JSON_AUTH_ENDPOINT);
 
         String template = post(httpClient, jsonAuthUrl, null, Function.identity(),
-            "Authorization: Negotiate");
+                "Authorization: Negotiate");
         String utfyltTemplate;
         try {
             EndUserAuthorizationTemplate json = OBJECT_MAPPER.readValue(template, EndUserAuthorizationTemplate.class);
@@ -191,12 +171,12 @@ public class OpenAMHelper {
     }
 
     private <T> T post(CloseableHttpClient httpClient, String url, String data, Function<String, T> resultTransformer,
-                       String... headers) throws IOException {
+            String... headers) throws IOException {
         return post(httpClient, url, data, 200, resultTransformer, headers);
     }
 
     private <T> T post(CloseableHttpClient httpClient, String url, String data, int expectedHttpCode,
-                       Function<String, T> resultTransformer, String... headers) throws IOException {
+            Function<String, T> resultTransformer, String... headers) throws IOException {
         HttpPost post = new HttpPost(url);
         post.setHeader("Content-type", "application/json");
         for (String header : headers) {
@@ -209,15 +189,15 @@ public class OpenAMHelper {
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(),
-                StandardCharsets.UTF_8)) {
+                    StandardCharsets.UTF_8)) {
                 try (BufferedReader br = new BufferedReader(isr)) {
                     String responseString = br.lines().collect(Collectors.joining("\n"));
                     if (response.getStatusLine().getStatusCode() == expectedHttpCode) {
                         return resultTransformer.apply(responseString);
                     } else {
                         throw OpenAmFeil.FACTORY
-                            .uforventetResponsFraOpenAM(response.getStatusLine().getStatusCode(), responseString)
-                            .toException();
+                                .uforventetResponsFraOpenAM(response.getStatusLine().getStatusCode(), responseString)
+                                .toException();
                     }
                 }
             }
@@ -238,7 +218,7 @@ public class OpenAMHelper {
 
     private String hentAuthorizationCode(CloseableHttpClient httpClient) throws IOException {
         String url = getAuthorizationEndpoint() + "?response_type=code&scope=openid&client_id=" + getIssoUserName()
-            + "&state=dummy&redirect_uri=" + redirectUriEncoded;
+                + "&state=dummy&redirect_uri=" + redirectUriEncoded;
         HttpGet get = new HttpGet(url);
         get.setHeader("Content-type", "application/json");
 
@@ -252,7 +232,7 @@ public class OpenAMHelper {
                 }
             }
             throw OpenAmFeil.FACTORY.kunneIkkeFinneAuthCode(response.getStatusLine().getStatusCode(),
-                response.getStatusLine().getReasonPhrase()).toException();
+                    response.getStatusLine().getReasonPhrase()).toException();
         } finally {
             get.reset();
         }
