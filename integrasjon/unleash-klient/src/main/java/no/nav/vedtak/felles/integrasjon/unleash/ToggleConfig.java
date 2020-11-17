@@ -21,7 +21,7 @@ public class ToggleConfig {
 
     public static final String PROD = "default";
     public static final String UNLEASH_API_OVERRIDE_KEY = "UNLEASH_API_OVERRIDE";
-    private static final String DEFAULT_UNLEASH_API = "https://unleash.nais.io/api/";
+    private static final String DEFAULT_UNLEASH_API = "http://unleash.default.svc.nais.local/api/";
     private static final Logger LOGGER = LoggerFactory.getLogger(ToggleConfig.class);
     private Optional<String> appName;
     private String instanceName;
