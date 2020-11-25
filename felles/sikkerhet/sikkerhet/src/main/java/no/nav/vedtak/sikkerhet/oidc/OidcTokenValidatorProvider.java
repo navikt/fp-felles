@@ -87,7 +87,7 @@ public class OidcTokenValidatorProvider {
             Set<OpenIDProviderConfig> configs = new HashSet<>();
             configs.add(createOpenAmConfiguration(false, 30, true, interneIdentTyper));
             configs.add(createStsConfiguration(PROVIDERNAME_STS, false, 30, true, interneIdentTyper));
-            configs.add(createOIDCConfiguration(PROVIDERNAME_AAD_B2C, true, 30, false, eksterneIdentTyper));
+            configs.add(createOIDCConfiguration(PROVIDERNAME_AAD_B2C, !ENV.isLocal(), 30, false, eksterneIdentTyper));
             configs.remove(null); // Fjerner en eventuell feilet konfigurasjon
             return configs;
         }

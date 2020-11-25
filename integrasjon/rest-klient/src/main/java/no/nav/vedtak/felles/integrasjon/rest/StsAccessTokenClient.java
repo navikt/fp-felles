@@ -1,9 +1,11 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -26,10 +28,9 @@ class StsAccessTokenClient {
     }
 
     String hentAccessToken() {
-        var httpPost = httpPost();
         String responseEntity;
         try {
-            responseEntity = closeableHttpClient.execute(httpPost, new BasicResponseHandler());
+            responseEntity = closeableHttpClient.execute(httpPost(), new BasicResponseHandler());
         } catch (IOException e) {
             throw OidcRestClientFeil.FACTORY.ioException(config.getStsURI(), e).toException();
         }
@@ -40,13 +41,14 @@ class StsAccessTokenClient {
         }
     }
 
-    private HttpPost httpPost() {
+    private HttpPost httpPost() throws UnsupportedEncodingException {
 
         HttpPost post = new HttpPost(config.getStsURI());
         post.setHeader("Authorization", basicCredentials(config.getUsername(), config.getPassword()));
         post.setHeader("Nav-Call-Id", MDCOperations.getCallId());
         post.setHeader("Cache-Control", "no-cache");
         post.setHeader("Nav-Consumer-Id", config.getUsername());
+        post.setEntity(new UrlEncodedFormEntity(config.getFormParams()));
         return post;
     }
 
