@@ -15,7 +15,11 @@
     </modules>
 
     <properties>
-        <revision>2.4.0</revision>
+        <cxf.version>3.3.6</cxf.version>
+        <logback.version>1.2.3</logback.version>
+        <slf4j.version>1.7.30</slf4j.version>
+        <swagger.version>2.1.5</swagger.version>
+        <revision>2.45.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
         <java.version>11</java.version>
@@ -25,7 +29,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <junit5.version>5.7.0</junit5.version>
-        <junit4.version>4.13.1</junit4.version>
         <mockito.version>3.6.28</mockito.version>
         <assertj.version>3.18.1</assertj.version>
 
@@ -289,17 +292,6 @@
         </repository>
     </distributionManagement>
     <dependencies>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>

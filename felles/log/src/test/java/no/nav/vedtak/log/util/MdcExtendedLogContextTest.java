@@ -37,10 +37,6 @@ public class MdcExtendedLogContextTest {
         context.add("fagsak", 2L);
         context.add("prosess", 3L);
         assertThat(context.getFullText()).isEqualTo("prosess[behandling=1;fagsak=2;prosess=3]");
-
-        assertThat(context.getValue("behandling")).isEqualTo("1");
-        assertThat(context.getValue("fagsak")).isEqualTo("2");
-        assertThat(context.getValue("prosess")).isEqualTo("3");
     }
 
     @Test

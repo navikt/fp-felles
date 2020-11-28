@@ -45,27 +45,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     private static final String AUTH_HEADER = "Authorization";
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
 
-    /**
-     * @deprecated gammel call id header. Ser ikke ut til å være i bruk lenger. så
-     *             bør kunne fjernes?
-     */
-    @Deprecated(forRemoval = true, since = "2.3.x")
-    private static final String CALL_ID = "xCALL_ID";
-    /**
-     * @deprecated Ikke nye call Id, Den som aldri skulle vært. Brukes kun i
-     *             SigrunRestClient(?) (der er den allerede inlinet), så bør kunne
-     *             fjernes trygt herfra.
-     */
-    @Deprecated(forRemoval = true, since = "2.3.x")
-    public static final String NYE_HEADER_CALL_ID = "no.nav.callid";
-    /**
-     * @deprecated Ikke nye consumer Id, Den som aldri skulle vært. Brukes kun i
-     *             SigrunRestClient(?) (der er den allerede inlinet), så bør kunne
-     *             fjernes trygt herfra.
-     */
-    @Deprecated(forRemoval = true, since = "2.3.x")
-    public static final String NYE_HEADER_CONSUMER_ID = "no.nav.consumer.id";
-
     private CloseableHttpClient client;
 
     private ObjectMapper mapper = DefaultJsonMapper.getObjectMapper();
@@ -276,12 +255,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     protected void setObsoleteHeaders(HttpRequest request) {
         String callId = MDCOperations.getCallId();
         request.setHeader(ALT_NAV_CALL_ID, callId);
-
-        if (!Boolean.getBoolean("disable.obsolete.mdc.http.headers")) {
-            request.setHeader(CALL_ID, callId);
-            request.setHeader(NYE_HEADER_CALL_ID, callId);
-            request.setHeader(NYE_HEADER_CONSUMER_ID, SubjectHandler.getSubjectHandler().getConsumerId());
-        }
     }
 
     protected String toJson(Object dto) {
