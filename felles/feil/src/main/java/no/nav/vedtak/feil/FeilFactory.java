@@ -1,23 +1,22 @@
 package no.nav.vedtak.feil;
 
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-public abstract class FeilFactory { //NOSONAR ikke noe poeng å bytte til interface, vil da ikke kunne ha private metoder (til java 9)
+import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
+import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
+import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
+import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
+public abstract class FeilFactory {
     private FeilFactory() {
         throw new IllegalAccessError("Skal ikke instansieres");
     }
 
     @SuppressWarnings("unchecked")
     public static <T extends DeklarerteFeil> T create(Class<T> theInterface) {
-        Object proxy = Proxy.newProxyInstance(theInterface.getClassLoader(), new Class[]{theInterface}, new InvocationHandler() {
+        Object proxy = Proxy.newProxyInstance(theInterface.getClassLoader(), new Class[] { theInterface }, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) {
                 Throwable cause = harMedCause(method) ? (Throwable) args[args.length - 1] : null;
@@ -50,9 +49,9 @@ public abstract class FeilFactory { //NOSONAR ikke noe poeng å bytte til interf
     }
 
     private static Object lagTekniskFeil(Method method, Object[] metodeargumenter, Throwable cause) {
-        TekniskFeil annotering = method.getAnnotation(TekniskFeil.class);
-        String feilmelding = String.format(annotering.feilmelding(), metodeargumenter);
-        return new Feil(annotering.feilkode(), feilmelding, annotering.logLevel(), annotering.exceptionClass(), cause);
+        TekniskFeil a = method.getAnnotation(TekniskFeil.class);
+        String feilmelding = String.format(a.feilmelding(), metodeargumenter);
+        return new Feil(a.feilkode(), feilmelding, a.logLevel(), a.exceptionClass(), cause);
     }
 
     private static Object lagIntegrasjonFeil(Method method, Object[] metodeargumenter, Throwable cause) {

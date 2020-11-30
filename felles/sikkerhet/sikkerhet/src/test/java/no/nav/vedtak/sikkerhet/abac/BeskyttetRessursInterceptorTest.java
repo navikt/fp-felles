@@ -237,13 +237,13 @@ public class BeskyttetRessursInterceptorTest {
 
         }
 
-        @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.PIP)
+        @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = "pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
         @Path("behandling_id_in")
         public void behandlingIdIn(@SuppressWarnings("unused") BehandlingIdDto param) {
 
         }
 
-        @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.PIP, sporingslogg = false)
+        @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = "pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker", sporingslogg = false)
         @Path("uten_sporingslogg")
         public void utenSporingslogg(@SuppressWarnings("unused") BehandlingIdDto param) {
 

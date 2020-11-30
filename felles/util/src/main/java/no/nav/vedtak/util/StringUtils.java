@@ -1,13 +1,15 @@
 package no.nav.vedtak.util;
 
 /**
- * Minimalistisk sett med string utils i bruk, slik at en ikke trenger avhengighet på commons-lang3, eller bruke et vilkårlig bibliotek
+ * Minimalistisk sett med string utils i bruk, slik at en ikke trenger
+ * avhengighet på commons-lang3, eller bruke et vilkårlig bibliotek
  */
+@Deprecated(since = "2.5.x", forRemoval = true)
 public final class StringUtils {
 
     private StringUtils() {
     }
-    
+
     /*
      * Sjekker om en CharSequence er whitespace, tom ("") eller null.
      */

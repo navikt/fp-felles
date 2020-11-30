@@ -20,7 +20,7 @@ import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.env.Environment;
 
-@BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, ressurs = BeskyttetRessursResourceAttributt.DUMMY, resource = "")
+@BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, resource = "")
 @Interceptor
 @Priority(Interceptor.Priority.APPLICATION + 11)
 @Dependent
@@ -29,7 +29,7 @@ public class BeskyttetRessursInterceptor {
     private Pep pep;
     private AbacSporingslogg sporingslogg;
     private AbacAuditlogger abacAuditlogger;
-    private Environment env  = Environment.current();
+    private Environment env = Environment.current();
 
     @Inject
     public BeskyttetRessursInterceptor(Pep pep, AbacSporingslogg sporingslogg, AbacAuditlogger abacAuditlogger) {
@@ -61,7 +61,8 @@ public class BeskyttetRessursInterceptor {
             }
 
             // bygger sporingsdata før kallet til invocationContext.proceed,
-            // da vi heller vil ha evt. exceptions fra sporing før forretningslogikk har kjørt
+            // da vi heller vil ha evt. exceptions fra sporing før forretningslogikk har
+            // kjørt
             List<Sporingsdata> sporingsdata = sporingslogg.byggSporingsdata(beslutning, attributter);
             Object resultat = invocationContext.proceed();
             // logger til slutt, det skal ikke logges dersom operasjonen ikke lot seg utføre
@@ -100,23 +101,18 @@ public class BeskyttetRessursInterceptor {
         Method method = invocationContext.getMethod();
 
         AbacAttributtSamling attributter = clazz.getAnnotation(WebService.class) != null
-            ? AbacAttributtSamling.medSamlToken(hentSamlToken())
-            : AbacAttributtSamling.medJwtToken(hentOidcTOken());
+                ? AbacAttributtSamling.medSamlToken(hentSamlToken())
+                : AbacAttributtSamling.medJwtToken(hentOidcTOken());
         BeskyttetRessurs beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         attributter.setActionType(beskyttetRessurs.action());
 
-        if(!beskyttetRessurs.property().isEmpty()) {
+        if (!beskyttetRessurs.property().isEmpty()) {
             var resource = env.getProperty(beskyttetRessurs.property());
             attributter.setResource(resource);
         } else if (!beskyttetRessurs.resource().isEmpty()) {
             attributter.setResource(beskyttetRessurs.resource());
         } else {
-            if (beskyttetRessurs.ressurs() == BeskyttetRessursResourceAttributt.DUMMY) {
-                throw new IllegalArgumentException("Beskyttet resource() må være satt");
-            } else if (beskyttetRessurs.ressurs() != BeskyttetRessursResourceAttributt.DUMMY) {
-                // Legacy fallback
-                attributter.setResource(beskyttetRessurs.ressurs().getEksternKode());
-            }
+
         }
 
         attributter.setAction(utledAction(clazz, method));
@@ -164,7 +160,7 @@ public class BeskyttetRessursInterceptor {
     private static String hentOidcTOken() {
         return SubjectHandler.getSubjectHandler().getInternSsoToken();
     }
-    
+
     private static String hentSamlToken() {
         return SubjectHandler.getSubjectHandler().getSamlToken().getTokenAsString();
     }
