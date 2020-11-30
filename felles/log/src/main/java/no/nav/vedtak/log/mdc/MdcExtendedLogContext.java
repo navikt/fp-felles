@@ -66,21 +66,6 @@ public class MdcExtendedLogContext {
         }
     }
 
-    @Deprecated(forRemoval = true, since = "2.3.x")
-    public String getValue(String key) {
-        validateKey(key);
-        String currentValue = mdcKey();
-        List<String> parts = splitParts(currentValue);
-        String keyPart = key + "=";
-        for (String part : parts) {
-            if (part.startsWith(keyPart)) {
-                return part.substring(keyPart.length(), part.length());
-            }
-        }
-
-        return null;
-    }
-
     public void remove(String key) {
         validateKey(key);
         MDC.remove(paramKey(key));

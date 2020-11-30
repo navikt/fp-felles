@@ -2,7 +2,6 @@ package no.nav.vedtak.felles.testutilities.cdi;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.AnnotatedType;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;
 import javax.enterprise.inject.spi.InjectionTarget;
 
@@ -26,15 +25,16 @@ public class CdiAwareExtension implements TestInstancePostProcessor {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-        
-        var weld = WeldContext.getInstance();  // initialserer cdi container om det ikke har skedd
-        
+
+        var weld = WeldContext.getInstance(); // initialserer cdi container om det ikke har skedd
+
         var ctx = getRequestContext();
         if (ctx.isActive()) {
-            // sørg for at requestcontext alltid er aktiv når denne brukes, også før initialiserer beanss
+            // sørg for at requestcontext alltid er aktiv når denne brukes, også før
+            // initialiserer beanss
             ctx.activate();
         }
-        
+
         var bm = weld.getBeanManager();
         Class cls = testInstance.getClass();
         AnnotatedType annotatedType = bm.createAnnotatedType(cls);

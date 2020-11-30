@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
-
 import static no.nav.vedtak.felles.integrasjon.saf.SafTjeneste.SafTjenesteFeil.FEILFACTORY;
 
 import java.io.IOException;
@@ -27,7 +26,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
@@ -54,9 +52,9 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class SafTjeneste {
 
     private static List<Integer> HTTP_KODER_TOM_RESPONS = List.of(
-        HttpStatus.SC_NOT_MODIFIED,
-        HttpStatus.SC_NO_CONTENT,
-        HttpStatus.SC_ACCEPTED);
+            HttpStatus.SC_NOT_MODIFIED,
+            HttpStatus.SC_NO_CONTENT,
+            HttpStatus.SC_ACCEPTED);
 
     private URI graphqlEndpoint;
     private URI hentDokumentEndpoint;
@@ -72,7 +70,7 @@ public class SafTjeneste {
 
     @Inject
     public SafTjeneste(@KonfigVerdi(value = "saf.base.url", defaultVerdi = "https://localhost:8063/rest/api/saf") URI endpoint,
-                       OidcRestClient restKlient) {
+            OidcRestClient restKlient) {
         this.graphqlEndpoint = URI.create(endpoint.toString() + "/graphql");
         this.hentDokumentEndpoint = URI.create(endpoint.toString() + "/rest/hentdokument");
         this.restKlient = restKlient;
@@ -94,7 +92,6 @@ public class SafTjeneste {
         return graphQlResponse.journalpost();
     }
 
-
     public List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQueryRequest query, JournalpostResponseProjection projection) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
@@ -103,10 +100,9 @@ public class SafTjeneste {
         return graphQlResponse.tilknyttedeJournalposter();
     }
 
-
     public byte[] hentDokument(HentDokumentQuery query) {
         var uri = URI.create(hentDokumentEndpoint.toString() +
-            String.format("/%s/%s/%s", query.getJournalpostId(), query.getDokumentInfoId(), query.getVariantFormat()));
+                String.format("/%s/%s/%s", query.getJournalpostId(), query.getDokumentInfoId(), query.getVariantFormat()));
         var getRequest = new HttpGet(uri);
 
         try {
@@ -129,34 +125,34 @@ public class SafTjeneste {
         }
 
         if (graphQlResponse.getErrors() != null && graphQlResponse.getErrors().size() > 0) {
-            var errors = (List<GraphQLError>) graphQlResponse.getErrors();
+            var errors = graphQlResponse.getErrors();
             var feilmelding = errors.stream()
-                .map(error -> error.getMessage())
-                .collect(Collectors.joining("\n Error: "));
+                    .map(error -> error.getMessage())
+                    .collect(Collectors.joining("\n Error: "));
             throw FEILFACTORY.forespørselReturnerteFeil(feilmelding).toException();
         }
         return graphQlResponse;
     }
 
-    private <T extends GraphQLResult<?>> T utførForespørsel(HttpPost request, OidcRestClientResponseHandler.ObjectReaderResponseHandler<T> responseHandler) throws IOException {
+    private <T extends GraphQLResult<?>> T utførForespørsel(HttpPost request,
+            OidcRestClientResponseHandler.ObjectReaderResponseHandler<T> responseHandler) throws IOException {
         try (var httpResponse = restKlient.execute(request)) {
             var responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode == HttpStatus.SC_OK) {
                 return responseHandler.handleResponse(httpResponse);
             } else {
                 var responseBody = HTTP_KODER_TOM_RESPONS.contains(responseCode)
-                    ? "<tom_respons>"
-                    : EntityUtils.toString(httpResponse.getEntity());
+                        ? "<tom_respons>"
+                        : EntityUtils.toString(httpResponse.getEntity());
                 var feilmelding = "Kunne ikke hente informasjon for query mot SAF: " + request.getURI()
-                    + ", HTTP request=" + request.getEntity()
-                    + ", HTTP status=" + httpResponse.getStatusLine()
-                    + ". HTTP Errormessage=" + responseBody;
-                //throw new SafException(feilmelding);
+                        + ", HTTP request=" + request.getEntity()
+                        + ", HTTP status=" + httpResponse.getStatusLine()
+                        + ". HTTP Errormessage=" + responseBody;
+                // throw new SafException(feilmelding);
                 throw new RuntimeException(feilmelding);
             }
         }
     }
-
 
     private byte[] utførForespørselDokumentinnhold(HttpGet request) throws IOException {
         try (var httpResponse = restKlient.execute(request)) {
@@ -169,8 +165,8 @@ public class SafTjeneste {
                 }
                 var responseBody = EntityUtils.toString(httpResponse.getEntity());
                 var feilmelding = "Kunne ikke hente informasjon for query mot SAF: " + request.getURI()
-                    + ", HTTP status=" + httpResponse.getStatusLine()
-                    + ". HTTP Errormessage=" + responseBody;
+                        + ", HTTP status=" + httpResponse.getStatusLine()
+                        + ". HTTP Errormessage=" + responseBody;
                 throw new SafException(feilmelding);
             }
         }
@@ -178,16 +174,16 @@ public class SafTjeneste {
 
     private static ObjectMapper createObjectMapper() {
         return new ObjectMapper()
-            .registerModule(new Jdk8Module())
-            .registerModule(new JavaTimeModule())
-            .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
-            .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-            .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
-            .enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
-            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+                .registerModule(new Jdk8Module())
+                .registerModule(new JavaTimeModule())
+                .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
+                .enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     interface SafTjenesteFeil extends DeklarerteFeil { // NOSONAR - internt interface er ok her

@@ -33,7 +33,7 @@ public class PepImplTest {
     public void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
         SubjectHandlerUtils.setInternBruker("srvpdp");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
-                .setResource(BeskyttetRessursResourceAttributt.PIP.getEksternKode())
+                .setResource("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
                 .setAction("READ");
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
@@ -45,7 +45,7 @@ public class PepImplTest {
     public void skal_nekte_tilgang_til_saksbehandler_for_piptjeneste() {
         SubjectHandlerUtils.setInternBruker("z142443");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
-                .setResource(BeskyttetRessursResourceAttributt.PIP.getEksternKode())
+                .setResource("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
                 .setAction("READ");
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
@@ -57,7 +57,7 @@ public class PepImplTest {
     public void skal_kalle_pdp_for_annet_enn_pip_tjenester() {
         SubjectHandlerUtils.setInternBruker("z142443");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
-                .setResource(BeskyttetRessursResourceAttributt.FAGSAK.getEksternKode())
+                .setResource("no.nav.abac.attributter.foreldrepenger.fagsak")
                 .setAction("READ");
 
         @SuppressWarnings("unused")
