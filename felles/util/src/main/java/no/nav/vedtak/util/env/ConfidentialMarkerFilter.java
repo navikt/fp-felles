@@ -14,10 +14,8 @@ import ch.qos.logback.core.spi.FilterReply;
 public class ConfidentialMarkerFilter extends MarkerFilter {
 
     public static final Marker CONFIDENTIAL = MarkerFactory.getMarker("CONFIDENTIAL");
-    private final boolean isProd;
 
     public ConfidentialMarkerFilter() {
-        this.isProd = Environment.current().isProd();
         super.setMarker(CONFIDENTIAL.getName());
     }
 
@@ -28,8 +26,12 @@ public class ConfidentialMarkerFilter extends MarkerFilter {
         }
 
         if (marker.equals(CONFIDENTIAL)) {
-            return isProd ? DENY : NEUTRAL;
+            return isProd() ? DENY : NEUTRAL;
         }
         return NEUTRAL;
+    }
+
+    private boolean isProd() {
+        return Environment.current().isProd();
     }
 }
