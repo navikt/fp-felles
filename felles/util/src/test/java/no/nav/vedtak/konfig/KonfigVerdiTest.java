@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import no.nav.vedtak.util.env.Environment;
 
@@ -54,7 +54,7 @@ public class KonfigVerdiTest {
     }
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "maven", matches = "true")
+    @EnabledIfSystemProperty(named = "maven", matches = "true")
     public void propertyFil() throws Exception {
         System.out.println("XXXXXXXXXXXXXXX");
         assertThat(propFraFil).isEqualTo(42);
