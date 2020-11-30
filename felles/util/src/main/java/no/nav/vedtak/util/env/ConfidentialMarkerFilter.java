@@ -31,7 +31,7 @@ public class ConfidentialMarkerFilter extends MarkerFilter {
         return NEUTRAL;
     }
 
-    private boolean isProd() {
+    private static boolean isProd() {
         return Environment.current().isProd();
     }
 }
