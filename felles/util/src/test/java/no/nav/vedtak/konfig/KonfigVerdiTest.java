@@ -54,9 +54,9 @@ public class KonfigVerdiTest {
     }
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "maven.cmd.line.args", matches = "*")
+    @EnabledIfEnvironmentVariable(named = "maven", matches = "true")
     public void propertyFil() throws Exception {
-
+        System.out.println("XXXXXXXXXXXXXXX");
         assertThat(propFraFil).isEqualTo(42);
         assertThat(propFraFilOverride).isEqualTo(200);
         assertThat(systemVinner).isEqualTo(50);
