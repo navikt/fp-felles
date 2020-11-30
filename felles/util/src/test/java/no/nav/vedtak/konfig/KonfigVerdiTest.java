@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import no.nav.vedtak.util.env.Environment;
 
@@ -53,7 +54,7 @@ public class KonfigVerdiTest {
     }
 
     @Test
-    // Denne testen vil bare virke om den kjøres via surfire plugin.
+    @EnabledIfSystemProperty(named = "maven.cmd.line.args", matches = "*")
     public void propertyFil() throws Exception {
         assertThat(propFraFil).isEqualTo(42);
         assertThat(propFraFilOverride).isEqualTo(200);
