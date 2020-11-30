@@ -19,7 +19,7 @@
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.30</slf4j.version>
         <swagger.version>2.1.5</swagger.version>
-        <revision>2.45.0</revision>
+        <revision>2.5.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
         <java.version>11</java.version>
