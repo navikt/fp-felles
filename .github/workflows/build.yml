@@ -41,26 +41,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Set changelog
-        # (Escape newlines see https://github.com/actions/create-release/issues/25)
-        run: |
-          text="$(git --no-pager log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"%h %s")"
-          text="${text//$'%'/%25}"
-          text="${text//$'\n'/%0A}"
-          text="${text//$'\r'/%0D}"
-          echo "CHANGELOG=$text" >> $GITHUB_ENV
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ env.MVN_VERSION }}
-          release_name: Release ${{ env.MVN_VERSION }}
-          draft: false
-          prerelease: false
-          body: |
-            Changes in this Release
-            ${{ env.CHANGELOG }}
-
