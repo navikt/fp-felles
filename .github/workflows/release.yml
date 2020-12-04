@@ -35,4 +35,4 @@ jobs:
           echo "-- Setting new release version ${NEW_VERSION} for ${REPO_NAME} --"
           mvn -B versions:set -DnewVersion="${NEW_VERSION}" -DgenerateBackupPoms=false -DprocessAllModules
           echo "-- Build, test and deploy release to GPR --"
-          mvn -B --settings /.m2/settings.xml clean deploy -Dmaven.wagon.http.pool=false
+          mvn -B --settings .m2/settings.xml clean deploy -Dmaven.wagon.http.pool=false
