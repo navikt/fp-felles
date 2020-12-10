@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.nav.foreldrepenger.felles</groupId>
     <artifactId>felles-root</artifactId>
-    <version>${revision}${sha1}${changelist}</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
     <name>Felles-root</name>
 
@@ -15,15 +15,12 @@
     </modules>
 
     <properties>
+        <revision>2.5.4-SNAPSHOT</revision>
         <cxf.version>3.3.6</cxf.version>
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.30</slf4j.version>
         <swagger.version>2.1.6</swagger.version>
-        <revision>2.5.4</revision>
-        <sha1 />
-        <changelist>-SNAPSHOT</changelist>
         <java.version>11</java.version>
-
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
