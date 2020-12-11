@@ -34,8 +34,6 @@ jobs:
         run: |
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
           mvn install --settings ./.m2/settings.xml
-          -- mvn jacoco:prepare-agent install -e --batch-mode --settings ./.m2/settings.xml --file pom.xml -Djacoco.destFile=$(pwd)/target/jacoco.exec
-          -- mvn jacoco:report sonar:sonar -e --batch-mode --settings ./.m2/settings.xml --file pom.xml -Djacoco.dataFile=$(pwd)/target/jacoco.exec -Dsonar.projectKey="navikt_fp-felles" -Dsonar.host.url='https://sonarcloud.io' -Dsonar.organization=navit -Dsonar.login=${SONAR_TOKEN} -Dsonar.exclusions="**/testutilities/**/*,**/pom.xml,**/src/test/**/*"
           echo "Bygget og testet OK"
         env:
           GITHUB_USERNAME: x-access-token
