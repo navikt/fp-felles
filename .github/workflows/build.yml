@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn install --settings ./.m2/settings.xml
+          mvn deploy --settings ./.m2/settings.xml
           echo "Bygget og testet OK"
         env:
           GITHUB_USERNAME: x-access-token
