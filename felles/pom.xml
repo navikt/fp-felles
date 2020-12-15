@@ -442,7 +442,7 @@
     </dependencyManagement>
 
     <dependencies>
-         
+          
      
         <!-- fjernet fra SE i Java11. legger derfor til -->
         <dependency>
