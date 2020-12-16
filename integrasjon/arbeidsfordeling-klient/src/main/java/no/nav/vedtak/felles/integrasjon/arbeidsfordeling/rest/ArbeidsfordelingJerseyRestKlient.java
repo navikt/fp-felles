@@ -10,10 +10,11 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.OidcRestJerseyClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.OIDCTokenRequestFilter;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-public class ArbeidsfordelingJerseyRestKlient extends OidcRestJerseyClient {
+public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyRestClient {
 
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
@@ -23,6 +24,7 @@ public class ArbeidsfordelingJerseyRestKlient extends OidcRestJerseyClient {
 
     public ArbeidsfordelingJerseyRestKlient(
             @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
+        super(OIDCTokenRequestFilter.class)
         this.alleEnheterUri = uri;
         this.besteEnhetUri = URI.create(uri + BEST_MATCH);
     }
