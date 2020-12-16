@@ -18,18 +18,13 @@ public class ArbeidsfordelingJerseyRestKlient extends OidcRestJerseyClient {
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
 
-    private URI alleEnheterUri;
-    private URI besteEnhetUri;
-    private String uriString;
+    private final URI alleEnheterUri;
+    private final URI besteEnhetUri;
 
     public ArbeidsfordelingJerseyRestKlient(
             @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
         this.alleEnheterUri = uri;
         this.besteEnhetUri = URI.create(uri + BEST_MATCH);
-        this.uriString = uri.toString();
-    }
-
-    ArbeidsfordelingJerseyRestKlient() {
     }
 
     public List<ArbeidsfordelingResponse> hentAlleAktiveEnheter(ArbeidsfordelingRequest request) {
@@ -42,12 +37,11 @@ public class ArbeidsfordelingJerseyRestKlient extends OidcRestJerseyClient {
 
     private List<ArbeidsfordelingResponse> hentEnheterFor(ArbeidsfordelingRequest request, URI uri) {
         try {
-            var respons = post(uri, request, ArbeidsfordelingResponse[].class);
-            return Arrays.stream(respons)
+            return Arrays.stream(post(uri, request, ArbeidsfordelingResponse[].class))
                     .filter(response -> "AKTIV".equalsIgnoreCase(response.getStatus()))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw ArbeidsfordelingRestKlientFeil.FACTORY.feilfratjeneste(uriString, e.getMessage(), e).toException();
+            throw ArbeidsfordelingRestKlientFeil.FACTORY.feilfratjeneste(alleEnheterUri.toString(), e.getMessage(), e).toException();
         }
     }
 

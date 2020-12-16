@@ -1,27 +1,28 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static javax.ws.rs.client.Entity.entity;
-import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
+import java.util.Arrays;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.Invocation.Builder;
 
 import org.glassfish.jersey.client.ClientConfig;
 
 public abstract class AbstractJerseyRestClient {
-    private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
-
-    protected abstract String getOIDCToken();
+    static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
 
     private final Client client;
 
-    public AbstractJerseyRestClient() {
-        client = ClientBuilder.newClient(new ClientConfig()
-                .register(StandardHeadersRequestFilter.class));
+    public AbstractJerseyRestClient(Class<? extends ClientRequestFilter>... filters) {
+        var cfg = new ClientConfig();
+        cfg.register(StandardHeadersRequestFilter.class);
+        Arrays.stream(filters).forEach(cfg::register);
+        client = ClientBuilder.newClient(cfg);
     }
 
     public <T> T get(URI uriTemplate, Class<T> clazz) {
@@ -37,7 +38,6 @@ public abstract class AbstractJerseyRestClient {
 
     private Builder builder(URI uriTemplate) {
         return client.target(uriTemplate)
-                .request(APPLICATION_JSON_TYPE)
-                .header(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + getOIDCToken());
+                .request(APPLICATION_JSON_TYPE);
     }
 }

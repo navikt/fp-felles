@@ -11,6 +11,14 @@ public class TekniskException extends VLException {
 
     private static final String DEFAULT_MSG = "Feil ved kommunikasjon med server [%s]";
 
+    public TekniskException(String kode, String msg) {
+        this(kode, msg, null);
+    }
+
+    public TekniskException(String kode, String msg, Throwable cause) {
+        this(kode, msg, WARN, TekniskException.class, cause);
+    }
+
     public TekniskException(String kode, URI server, Throwable cause) {
         this(kode, server, WARN, cause);
     }
