@@ -18,10 +18,10 @@ public class OIDCTokenRequestFilter implements ClientRequestFilter {
 
     @Override
     public void filter(ClientRequestContext ctx) throws IOException {
-        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + getOIDCToken());
+        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + oidcToken());
     }
 
-    private String getOIDCToken() {
+    private String oidcToken() {
         return Optional.ofNullable(suppliedToken()).orElse(exchangedToken());
     }
 
