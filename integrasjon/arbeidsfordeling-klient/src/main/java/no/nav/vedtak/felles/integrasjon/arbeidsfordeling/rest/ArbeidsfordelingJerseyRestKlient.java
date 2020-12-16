@@ -24,7 +24,7 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyRestClient {
 
     public ArbeidsfordelingJerseyRestKlient(
             @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
-        super(OIDCTokenRequestFilter.class)
+        super(OIDCTokenRequestFilter.class);
         this.alleEnheterUri = uri;
         this.besteEnhetUri = URI.create(uri + BEST_MATCH);
     }
