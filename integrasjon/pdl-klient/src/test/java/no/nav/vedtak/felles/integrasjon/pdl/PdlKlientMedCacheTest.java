@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,7 +50,6 @@ public class PdlKlientMedCacheTest {
         pdlKlient = new PdlKlient(endpoint, restClient);
     }
 
-
     @Test
     void skal_hente_aktørId_personIdent() throws IOException {
         when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerResponse.json"));
@@ -74,13 +74,12 @@ public class PdlKlientMedCacheTest {
         assertThat(s).contains("16047439276");
     }
 
-
     @Test
     void skal_hent_aktørId_for_set_med_personIdent() throws IOException {
         when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerBolkResponse.json"));
         PdlKlientMedCache testSubject = new PdlKlientMedCache(pdlKlient);
 
-        Set<String> aktørIds = testSubject.hentAktørIdForPersonIdentSet(Set.of("16047439276", "25017312345"), Tema.OMS);
+        Set<String> aktørIds = testSubject.hentAktørIdForPersonIdentSet(List.of("16047439276", "25017312345"), Tema.OMS);
 
         assertThat(aktørIds).hasSize(2);
         assertThat(aktørIds).contains("9916047439276");

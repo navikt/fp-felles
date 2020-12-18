@@ -57,9 +57,13 @@ public class PdlKlientMedCache {
     }
 
     public PdlKlientMedCache(PdlKlient pdlKlient, int cacheSize, long timeout, TimeUnit unit) {
+        this(pdlKlient, cache(cacheSize, timeout, unit), cache(cacheSize, timeout, unit));
+    }
+
+    PdlKlientMedCache(PdlKlient pdlKlient, Cache<String, String> cacheAktørIdTilIdent, Cache<String, String> cacheIdentTilAktørId) {
         this.pdlKlient = pdlKlient;
-        cacheAktørIdTilIdent = cache(cacheSize, timeout, unit);
-        cacheIdentTilAktørId = cache(cacheSize, timeout, unit);
+        this.cacheAktørIdTilIdent = cacheAktørIdTilIdent;
+        this.cacheIdentTilAktørId = cacheIdentTilAktørId;
     }
 
     public Optional<String> hentAktørIdForPersonIdent(String personIdent, Tema tema) {
@@ -74,7 +78,8 @@ public class PdlKlientMedCache {
 
     public Set<String> hentAktørIdForPersonIdentSet(List<String> ids, Tema tema) {
         return hentBolkMedAktørId(tema, ids)
-                .map(Tuple::getElement1)
+                .map(Tuple::getElement2)
+                .map(IdentInformasjon::getIdent)
                 .collect(toSet());
     }
 
