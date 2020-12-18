@@ -77,13 +77,13 @@ public class PdlKlientMedCache {
     }
 
     public Set<String> hentAktørIdForPersonIdentSet(List<String> ids, Tema tema) {
-        return hentBolkMedAktørId(tema, ids)
+        return hentBolkMedAktørId(ids, tema)
                 .map(Tuple::getElement2)
                 .map(IdentInformasjon::getIdent)
                 .collect(toSet());
     }
 
-    private Stream<Tuple<String, IdentInformasjon>> hentBolkMedAktørId(Tema tema, List<String> ids) {
+    private Stream<Tuple<String, IdentInformasjon>> hentBolkMedAktørId(List<String> ids, Tema tema) {
         var query = new HentIdenterBolkQueryRequest();
         query.setIdenter(ids);
         query.setGrupper(of(AKTORID));
@@ -95,7 +95,8 @@ public class PdlKlientMedCache {
                         .gruppe())
                 .code();
 
-        return pdlKlient.hentIdenterBolkResults(query, projection, tema).stream()
+        return pdlKlient.hentIdenterBolkResults(query, projection, tema)
+                .stream()
                 .filter(r -> r.getIdenter()
                         .stream().anyMatch(gruppe(AKTORID)))
                 .map(r -> new Tuple<>(r.getIdent(), r.getIdenter()
