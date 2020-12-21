@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +41,7 @@ public class RestClientSupportProdusent {
      * Sørger for å droppe og starte nye connections innimellom også om server ikke
      * sender keepalive header.
      */
-    private static ConnectionKeepAliveStrategy createKeepAliveStrategy(int seconds) {
+    public static ConnectionKeepAliveStrategy createKeepAliveStrategy(int seconds) {
         ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
             @Override
             public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
@@ -73,45 +72,58 @@ public class RestClientSupportProdusent {
     }
 
     private OidcRestClient createOidcRestClient() {
-        CloseableHttpClient closeableHttpClient = createHttpClient();
-        return new OidcRestClient(closeableHttpClient);
+        return new OidcRestClient(createHttpClient());
     }
 
     private SystemUserOidcRestClient creatSystemUserOidcRestClient() {
-        CloseableHttpClient closeableHttpClient = createHttpClient();
-        return new SystemUserOidcRestClient(closeableHttpClient);
+        return new SystemUserOidcRestClient(createHttpClient());
     }
 
-    static CloseableHttpClient createHttpClient() {
+    public static CloseableHttpClient createHttpClient() {
         // Create connection configuration
-        ConnectionConfig defaultConnectionConfig = ConnectionConfig.custom()
-                .setCharset(Consts.UTF_8)
-                .build();
 
         // Create a connection manager with custom configuration.
-        PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(55, TimeUnit.MINUTES);
-        connManager.setMaxTotal(100);
-        connManager.setDefaultConnectionConfig(defaultConnectionConfig);
-        connManager.setValidateAfterInactivity(100);
-
-        // Create global request configuration
-        RequestConfig defaultRequestConfig = RequestConfig.custom()
-                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
-                .build();
+        PoolingHttpClientConnectionManager connManager = connectionManager();
 
         // Create default headers
-        Header header = new BasicHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-        List<Header> defaultHeaders = Arrays.asList(header);
 
         // Create an HttpClient with the given custom dependencies and configuration.
         return HttpClients.custom()
                 .setSSLHostnameVerifier(new DefaultHostnameVerifier())
                 .setConnectionManager(connManager)
-                .setDefaultHeaders(defaultHeaders)
-                .setDefaultRequestConfig(defaultRequestConfig)
+                .setDefaultHeaders(defaultHeaders())
+                .setDefaultRequestConfig(defaultRequestConfig())
                 .setRetryHandler(new HttpRequestRetryHandler())
                 .setKeepAliveStrategy(createKeepAliveStrategy(30))
                 .build();
+    }
+
+    private static ConnectionConfig defaultConnectionConfig() {
+        ConnectionConfig defaultConnectionConfig = ConnectionConfig.custom()
+                .setCharset(Consts.UTF_8)
+                .build();
+        return defaultConnectionConfig;
+    }
+
+    public static RequestConfig defaultRequestConfig() {
+        RequestConfig defaultRequestConfig = RequestConfig.custom()
+                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                .build();
+        return defaultRequestConfig;
+    }
+
+    public static List<Header> defaultHeaders() {
+        return List.of(
+                new BasicHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
+    }
+
+    public static PoolingHttpClientConnectionManager connectionManager() {
+        ConnectionConfig defaultConnectionConfig = defaultConnectionConfig();
+        PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(55, TimeUnit.MINUTES);
+        connManager.setMaxTotal(100);
+        connManager.setDefaultConnectionConfig(defaultConnectionConfig);
+        connManager.setValidateAfterInactivity(100);
+        return connManager;
     }
 
 }

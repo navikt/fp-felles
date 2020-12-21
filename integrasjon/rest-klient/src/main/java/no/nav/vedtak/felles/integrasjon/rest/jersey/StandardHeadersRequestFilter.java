@@ -8,15 +8,17 @@ import java.io.IOException;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 
-public class StandardHeadersRequestFilter implements ClientRequestFilter {
+class StandardHeadersRequestFilter implements ClientRequestFilter {
     private static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
     private static final String DEFAULT_NAV_CALLID = "Nav-Callid";
     public static final String ALT_NAV_CALL_ID = "nav-call-id";
+    private static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     @Override
     public void filter(ClientRequestContext ctx) throws IOException {
         ctx.getHeaders().add(DEFAULT_NAV_CALLID, getCallId());
         ctx.getHeaders().add(ALT_NAV_CALL_ID, getCallId());
+        ctx.getHeaders().add(HEADER_CORRELATION_ID, getCallId());
         ctx.getHeaders().add(DEFAULT_NAV_CONSUMERID, getConsumerId());
     }
 

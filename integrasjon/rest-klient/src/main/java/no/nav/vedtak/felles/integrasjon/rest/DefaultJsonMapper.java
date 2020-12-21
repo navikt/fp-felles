@@ -18,10 +18,10 @@ import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
-class DefaultJsonMapper {
-    private static final ObjectMapper mapper = getObjectMapper();
+public class DefaultJsonMapper {
+    public static final ObjectMapper mapper = getObjectMapper();
 
-    static ObjectMapper getObjectMapper() {
+    public static ObjectMapper getObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new Jdk8Module());
         mapper.registerModule(new JavaTimeModule());
@@ -39,6 +39,14 @@ class DefaultJsonMapper {
         }
     }
 
+    public static String toJson(Object obj) {
+        try {
+            return mapper.writeValueAsString(obj);
+        } catch (IOException e) {
+            throw DefaultJsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+        }
+    }
+
     interface DefaultJsonMapperFeil extends DeklarerteFeil {
 
         public static final DefaultJsonMapperFeil FACTORY = FeilFactory.create(DefaultJsonMapperFeil.class);
@@ -51,8 +59,3 @@ class DefaultJsonMapper {
     }
 
 }
-
-
-
-
-
