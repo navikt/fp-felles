@@ -10,7 +10,7 @@ import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og
  * callId
  */
-@Deprecated
+@Deprecated(since = "3.0.x", forRemoval = true)
 public class OidcRestClient extends AbstractOidcRestClient {
 
     public OidcRestClient(CloseableHttpClient client) {

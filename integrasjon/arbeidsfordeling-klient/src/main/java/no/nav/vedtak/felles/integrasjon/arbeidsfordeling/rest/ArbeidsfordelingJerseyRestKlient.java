@@ -13,10 +13,10 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOIDCClient {
+public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOIDCRestClient {
 
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";

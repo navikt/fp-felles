@@ -18,12 +18,12 @@ import org.apache.http.Header;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicHeader;
 
-import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 //@ApplicationScoped
-public class OppgaveJerseyRestKlient extends AbstractJerseyOIDCClient {
+public class OppgaveJerseyRestKlient extends AbstractJerseyOIDCRestClient {
 
     private static final String ENDPOINT_KEY = "oppgave.rs.uri";
     private static final String DEFAULT_URI = "http://oppgave.default/api/v1/oppgaver";

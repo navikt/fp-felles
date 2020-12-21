@@ -6,11 +6,11 @@ import java.net.URI;
 
 import javax.inject.Inject;
 
-import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 //@ApplicationScoped
-public class OrganisasjonJerseyRestKlient extends AbstractJerseyOIDCClient {
+public class OrganisasjonJerseyRestKlient extends AbstractJerseyOIDCRestClient {
 
     private static final String ENDPOINT_KEY = "organisasjon.rs.url";
     private static final String DEFAULT_URI = "https://modapp.adeo.no/ereg/api/v1/organisasjon";

@@ -1,5 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
+import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.ALT_NAV_CALL_ID;
+import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
+import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
+import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.HEADER_CORRELATION_ID;
 import static no.nav.vedtak.log.mdc.MDCOperations.getCallId;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
@@ -9,10 +13,6 @@ import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 
 class StandardHeadersRequestFilter implements ClientRequestFilter {
-    private static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
-    private static final String DEFAULT_NAV_CALLID = "Nav-Callid";
-    public static final String ALT_NAV_CALL_ID = "nav-call-id";
-    private static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     @Override
     public void filter(ClientRequestContext ctx) throws IOException {

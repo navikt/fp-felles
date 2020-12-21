@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
-import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 /*
@@ -21,7 +21,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
  */
 
 //@ApplicationScoped
-public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOIDCClient {
+public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOIDCRestClient {
 
     private static final String ENDPOINT_KEY = "medl2.rs.url";
     private static final String DEFAULT_URI = "https://app.adeo.no/medl2/api/v1/medlemskapsunntak";

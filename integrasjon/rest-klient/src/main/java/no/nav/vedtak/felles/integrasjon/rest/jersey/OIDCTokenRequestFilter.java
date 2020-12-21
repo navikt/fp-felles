@@ -5,7 +5,6 @@ import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestCli
 import static no.nav.vedtak.isso.SystemUserIdTokenProvider.getSystemUserIdToken;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
-import java.io.IOException;
 import java.util.Optional;
 
 import javax.ws.rs.client.ClientRequestContext;
@@ -17,7 +16,7 @@ import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 class OIDCTokenRequestFilter implements ClientRequestFilter {
 
     @Override
-    public void filter(ClientRequestContext ctx) throws IOException {
+    public void filter(ClientRequestContext ctx) {
         ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + oidcToken());
     }
 

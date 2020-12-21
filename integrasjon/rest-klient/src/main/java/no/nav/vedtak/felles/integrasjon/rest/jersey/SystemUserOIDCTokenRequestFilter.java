@@ -19,5 +19,4 @@ class SystemUserOIDCTokenRequestFilter implements ClientRequestFilter {
     private static String oidcSystemToken() {
         return getSystemUserIdToken().getToken();
     }
-
 }
