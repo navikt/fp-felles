@@ -70,7 +70,7 @@ public class SafJerseyTjeneste extends AbstractJerseyOIDCClient {
     public byte[] hentDokument(HentDokumentQuery query) {
         try {
             return client.target(base)
-                    .path(GRAPHQL)
+                    .path(HENTDOKUMENT)
                     .resolveTemplate("journalpostId", query.getJournalpostId())
                     .resolveTemplate("dokumentInfoId", query.getDokumentInfoId())
                     .resolveTemplate("variantFormat", query.getVariantFormat())
