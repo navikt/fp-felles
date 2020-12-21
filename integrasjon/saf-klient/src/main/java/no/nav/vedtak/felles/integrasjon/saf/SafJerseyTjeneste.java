@@ -55,29 +55,29 @@ public class SafJerseyTjeneste extends AbstractJerseyOIDCClient {
         this.base = base;
     }
 
-    public Dokumentoversikt dokumentoversiktFagsak(DokumentoversiktFagsakQueryRequest query, DokumentoversiktResponseProjection projection) {
-        return utførSpørring(new GraphQLRequest(query, projection), DokumentoversiktFagsakQueryResponse.class).dokumentoversiktFagsak();
+    public Dokumentoversikt dokumentoversiktFagsak(DokumentoversiktFagsakQueryRequest q, DokumentoversiktResponseProjection p) {
+        return utførSpørring(new GraphQLRequest(q, p), DokumentoversiktFagsakQueryResponse.class).dokumentoversiktFagsak();
     }
 
-    public Journalpost hentJournalpostInfo(JournalpostQueryRequest query, JournalpostResponseProjection projection) {
-        return utførSpørring(new GraphQLRequest(query, projection), JournalpostQueryResponse.class).journalpost();
+    public Journalpost hentJournalpostInfo(JournalpostQueryRequest q, JournalpostResponseProjection p) {
+        return utførSpørring(new GraphQLRequest(q, p), JournalpostQueryResponse.class).journalpost();
     }
 
-    public List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQueryRequest query, JournalpostResponseProjection projection) {
-        return utførSpørring(new GraphQLRequest(query, projection), TilknyttedeJournalposterQueryResponse.class).tilknyttedeJournalposter();
+    public List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQueryRequest q, JournalpostResponseProjection p) {
+        return utførSpørring(new GraphQLRequest(q, p), TilknyttedeJournalposterQueryResponse.class).tilknyttedeJournalposter();
     }
 
-    public byte[] hentDokument(HentDokumentQuery query) {
+    public byte[] hentDokument(HentDokumentQuery q) {
         try {
             return client.target(base)
                     .path(HENTDOKUMENT)
-                    .resolveTemplate("journalpostId", query.getJournalpostId())
-                    .resolveTemplate("dokumentInfoId", query.getDokumentInfoId())
-                    .resolveTemplate("variantFormat", query.getVariantFormat())
+                    .resolveTemplate("journalpostId", q.getJournalpostId())
+                    .resolveTemplate("dokumentInfoId", q.getDokumentInfoId())
+                    .resolveTemplate("variantFormat", q.getVariantFormat())
                     .request()
                     .get(byte[].class);
         } catch (WebApplicationException e) {
-            throw FEILFACTORY.safForespørselFeilet(query.toString(), e).toException();
+            throw FEILFACTORY.safForespørselFeilet(q.toString(), e).toException();
         }
     }
 
