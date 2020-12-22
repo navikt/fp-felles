@@ -431,7 +431,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>8.28.4</version>
+                <version>8.29</version>
             </dependency>
 
             <!-- Andre 3djepart avhengigheter -->
