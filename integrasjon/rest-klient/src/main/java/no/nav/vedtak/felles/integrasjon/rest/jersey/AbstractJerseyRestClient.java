@@ -11,6 +11,7 @@ import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.d
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
 import static org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
+import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
 import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.ws.rs.client.Client;
@@ -48,28 +50,45 @@ abstract class AbstractJerseyRestClient {
 
     protected final Client client;
 
-    AbstractJerseyRestClient(Class<? extends ClientRequestFilter>... filters) throws Exception {
-        this(mapper, filters);
-    }
-
-    AbstractJerseyRestClient(ObjectMapper mapper, Class<? extends ClientRequestFilter>... filters) {
-        this(mapper, construct(filters));
-    }
-
     AbstractJerseyRestClient(ClientRequestFilter... filters) {
-        this(mapper, filters);
+        this(null, null, filters);
+    }
+
+    AbstractJerseyRestClient(Class<? extends ClientRequestFilter>... filterClasses) {
+        this(mapper, null, filterClasses);
+    }
+
+    AbstractJerseyRestClient(ObjectMapper mapper, Class<? extends ClientRequestFilter>... filterClasses) {
+        this(mapper, null, filterClasses);
+    }
+
+    AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, Class<? extends ClientRequestFilter>... filterClasses) {
+        this(mapper, proxy, construct(filterClasses));
+    }
+
+    AbstractJerseyRestClient(URI proxy, ClientRequestFilter... filters) {
+        this(mapper, proxy, filters);
+
     }
 
     AbstractJerseyRestClient(ObjectMapper mapper, ClientRequestFilter... filters) {
-        this(mapper, asList(filters));
+        this(mapper, null, filters);
     }
 
-    private AbstractJerseyRestClient(ObjectMapper mapper, List<? extends ClientRequestFilter> filters) {
+    AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, ClientRequestFilter... filters) {
+        this(mapper, proxy, asList(filters));
+    }
+
+    private AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, List<? extends ClientRequestFilter> filters) {
         var cfg = new ClientConfig();
-        cfg.register(new JacksonJaxbJsonProvider(mapper, DEFAULT_ANNOTATIONS));
+        if (proxy != null) {
+            cfg.property(PROXY_URI, proxy);
+        }
+        cfg.register(jacksonProvider(mapper));
         cfg.connectorProvider(new ApacheConnectorProvider());
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
             return b.setDefaultHeaders(defaultHeaders())
+                    .setProxy(null)
                     .setKeepAliveStrategy(createKeepAliveStrategy(30))
                     .setDefaultRequestConfig(defaultRequestConfig())
                     .setRetryHandler(new HttpRequestRetryHandler())
@@ -77,7 +96,12 @@ abstract class AbstractJerseyRestClient {
         });
         filters.stream().forEach(cfg::register);
         client = ClientBuilder.newClient(cfg);
+    }
 
+    private static JacksonJaxbJsonProvider jacksonProvider(ObjectMapper mapper) {
+        return Optional.ofNullable(mapper)
+                .map(m -> new JacksonJaxbJsonProvider(m, DEFAULT_ANNOTATIONS))
+                .orElse(new JacksonJaxbJsonProvider());
     }
 
     private static List<ClientRequestFilter> construct(Class<? extends ClientRequestFilter>... filters) {
@@ -94,7 +118,7 @@ abstract class AbstractJerseyRestClient {
         }
     }
 
-    public String patch(URI endpoint, Object obj, Set<Header> headers) {
+    protected String patch(URI endpoint, Object obj, Set<Header> headers) {
         try {
             var patch = new HttpPatch(endpoint);
             patch.setEntity(new StringEntity(toJson(obj), UTF_8));

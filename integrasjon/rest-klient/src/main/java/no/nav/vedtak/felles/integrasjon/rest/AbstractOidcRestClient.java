@@ -1,8 +1,12 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.http.HttpHeaders.ACCEPT;
+import static org.apache.http.HttpHeaders.AUTHORIZATION;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -42,7 +46,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     private static final String DEFAULT_NAV_CALLID = "Nav-Callid";
     public static final String ALT_NAV_CALL_ID = "nav-call-id";
 
-    private static final String AUTH_HEADER = "Authorization";
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
 
     private CloseableHttpClient client;
@@ -152,16 +155,11 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
 
     @Override
     protected CloseableHttpResponse doExecute(HttpHost target, HttpRequest request, HttpContext context) throws IOException {
-        request.setHeader("Accept", "application/json");
-
-        String authHeaderValue = OIDC_AUTH_HEADER_PREFIX + getOIDCToken();
-        request.setHeader(AUTH_HEADER, authHeaderValue);
-
+        request.setHeader(ACCEPT, APPLICATION_JSON.getMimeType());
+        request.setHeader(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + getOIDCToken());
         request.setHeader(DEFAULT_NAV_CALLID, MDCOperations.getCallId());
         request.setHeader(DEFAULT_NAV_CONSUMERID, getConsumerId());
-
-        setObsoleteHeaders(request);
-
+        request.setHeader(ALT_NAV_CALL_ID, MDCOperations.getCallId());
         return client.execute(target, request, context);
     }
 
@@ -205,7 +203,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     protected String patch(URI endpoint, Object dto, Set<Header> headers, ResponseHandler<String> responseHandler) {
         HttpPatch patch = new HttpPatch(endpoint);
         String json = toJson(dto);
-        patch.setEntity(new StringEntity(json, Charset.forName("UTF-8")));
+        patch.setEntity(new StringEntity(json, UTF_8));
         headers.forEach(patch::addHeader);
         try {
             return this.execute(patch, responseHandler);
@@ -217,7 +215,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     protected String put(URI endpoint, Object dto, Set<Header> headers, ResponseHandler<String> responseHandler) {
         HttpPut put = new HttpPut(endpoint);
         String json = toJson(dto);
-        put.setEntity(new StringEntity(json, Charset.forName("UTF-8")));
+        put.setEntity(new StringEntity(json, UTF_8));
         headers.forEach(put::addHeader);
         try {
             return this.execute(put, responseHandler);
@@ -228,14 +226,13 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
 
     protected HttpPost getJsonPost(URI endpoint, Object dto, Set<Header> headers) {
         HttpPost post = new HttpPost(endpoint);
-        String json = toJson(dto);
-        post.setEntity(new StringEntity(json, Charset.forName("UTF-8")));
+        post.setEntity(new StringEntity(toJson(dto), UTF_8));
         headers.forEach(post::addHeader);
         return post;
     }
 
     protected <T> T post(URI endpoint, Object dto, ResponseHandler<T> responseHandler) {
-        HttpPost post = getJsonPost(endpoint, dto, Collections.emptySet());
+        HttpPost post = getJsonPost(endpoint, dto, Set.of());
         try {
             return this.execute(post, responseHandler);
         } catch (IOException e) {
@@ -250,11 +247,6 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         } catch (IOException e) {
             throw new TekniskException("F-432937", endpoint, e);
         }
-    }
-
-    protected void setObsoleteHeaders(HttpRequest request) {
-        String callId = MDCOperations.getCallId();
-        request.setHeader(ALT_NAV_CALL_ID, callId);
     }
 
     protected String toJson(Object dto) {

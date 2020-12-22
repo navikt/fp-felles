@@ -7,9 +7,9 @@ import java.net.URI;
 import java.time.LocalDate;
 
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 
-public abstract class InfotrygdSakerJerseyConsumer extends AbstractJerseyOIDCRestClient {
+public abstract class InfotrygdSakerJerseyConsumer extends AbstractJerseyOidcRestClient {
 
     private final URI uri;
 

@@ -9,11 +9,11 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 // @ApplicationScoped
-public class SakJerseyRestKlient extends AbstractJerseyOIDCRestClient {
+public class SakJerseyRestKlient extends AbstractJerseyOidcRestClient {
 
     private static final String ENDPOINT_KEY = "sak.rs.url";
     private static final String DEFAULT_URI = "http://sak.default/api/v1/saker";

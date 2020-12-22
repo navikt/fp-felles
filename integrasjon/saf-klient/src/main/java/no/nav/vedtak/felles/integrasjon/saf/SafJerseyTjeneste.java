@@ -33,11 +33,11 @@ import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOIDCRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 //@Dependent
-public class SafJerseyTjeneste extends AbstractJerseyOIDCRestClient {
+public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient {
 
     private static final String F_240613 = "F-240613";
     private static final String DEFAULT_BASE = "https://localhost:8063/rest/api/saf";

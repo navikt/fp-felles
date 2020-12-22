@@ -13,14 +13,15 @@ import javax.ws.rs.client.ClientRequestFilter;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
-class OIDCTokenRequestFilter implements ClientRequestFilter {
+class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider {
 
     @Override
     public void filter(ClientRequestContext ctx) {
-        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + oidcToken());
+        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + accessToken());
     }
 
-    private String oidcToken() {
+    @Override
+    public String accessToken() {
         return Optional.ofNullable(suppliedToken())
                 .orElse(exchangedToken());
     }
@@ -31,7 +32,7 @@ class OIDCTokenRequestFilter implements ClientRequestFilter {
 
     private static String exchangedToken() {
         return Optional.ofNullable(samlToken())
-                .map(OIDCTokenRequestFilter::exchange)
+                .map(OidcTokenRequestFilter::exchange)
                 .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
     }
 
