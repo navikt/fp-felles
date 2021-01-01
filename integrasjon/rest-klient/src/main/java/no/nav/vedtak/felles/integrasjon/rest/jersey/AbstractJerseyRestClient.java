@@ -1,43 +1,135 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
-import static javax.ws.rs.client.Entity.entity;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.toJson;
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultHeaders;
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
+import static org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor;
+import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
+import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
+import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.client.Invocation.Builder;
 
+import org.apache.http.Header;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.entity.StringEntity;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
+import org.glassfish.jersey.apache.connector.ApacheHttpClientBuilderConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
-public abstract class AbstractJerseyRestClient {
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
+import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
+
+abstract class AbstractJerseyRestClient {
+
     static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
+    static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
+    static final String DEFAULT_NAV_CALLID = "Nav-Callid";
+    static final String ALT_NAV_CALL_ID = "nav-call-id";
+    static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
-    private final Client client;
+    protected final Client client;
 
-    public AbstractJerseyRestClient(Class<? extends ClientRequestFilter>... filters) {
+    AbstractJerseyRestClient(ClientRequestFilter... filters) {
+        this(null, null, filters);
+    }
+
+    AbstractJerseyRestClient(Class<? extends ClientRequestFilter>... filterClasses) {
+        this(mapper, null, filterClasses);
+    }
+
+    AbstractJerseyRestClient(ObjectMapper mapper, Class<? extends ClientRequestFilter>... filterClasses) {
+        this(mapper, null, filterClasses);
+    }
+
+    AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, Class<? extends ClientRequestFilter>... filterClasses) {
+        this(mapper, proxy, construct(filterClasses));
+    }
+
+    AbstractJerseyRestClient(URI proxy, ClientRequestFilter... filters) {
+        this(mapper, proxy, filters);
+
+    }
+
+    AbstractJerseyRestClient(ObjectMapper mapper, ClientRequestFilter... filters) {
+        this(mapper, null, filters);
+    }
+
+    AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, ClientRequestFilter... filters) {
+        this(mapper, proxy, asList(filters));
+    }
+
+    private AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, List<? extends ClientRequestFilter> filters) {
         var cfg = new ClientConfig();
-        cfg.register(StandardHeadersRequestFilter.class);
-        Arrays.stream(filters).forEach(cfg::register);
+        if (proxy != null) {
+            cfg.property(PROXY_URI, proxy);
+        }
+        cfg.register(jacksonProvider(mapper));
+        cfg.connectorProvider(new ApacheConnectorProvider());
+        cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
+            return b.setDefaultHeaders(defaultHeaders())
+                    .setProxy(null)
+                    .setKeepAliveStrategy(createKeepAliveStrategy(30))
+                    .setDefaultRequestConfig(defaultRequestConfig())
+                    .setRetryHandler(new HttpRequestRetryHandler())
+                    .setConnectionManager(connectionManager());
+        });
+        filters.stream().forEach(cfg::register);
         client = ClientBuilder.newClient(cfg);
     }
 
-    public <T> T get(URI uriTemplate, Class<T> clazz) {
-        return builder(uriTemplate)
-                .get(clazz);
+    private static JacksonJaxbJsonProvider jacksonProvider(ObjectMapper mapper) {
+        return Optional.ofNullable(mapper)
+                .map(m -> new JacksonJaxbJsonProvider(m, DEFAULT_ANNOTATIONS))
+                .orElse(new JacksonJaxbJsonProvider());
     }
 
-    public <T> T post(URI uriTemplate, Object entity, Class<T> clazz) {
-        return builder(uriTemplate)
-                .buildPost(entity(entity, APPLICATION_JSON_TYPE))
-                .invoke(clazz);
+    private static List<ClientRequestFilter> construct(Class<? extends ClientRequestFilter>... filters) {
+        return Arrays.stream(filters)
+                .map(AbstractJerseyRestClient::construct)
+                .collect(toList());
     }
 
-    private Builder builder(URI uriTemplate) {
-        return client.target(uriTemplate)
-                .request(APPLICATION_JSON_TYPE);
+    private static ClientRequestFilter construct(Class<? extends ClientRequestFilter> clazz) {
+        try {
+            return invokeConstructor(clazz);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    protected String patch(URI endpoint, Object obj, Set<Header> headers) {
+        try {
+            var patch = new HttpPatch(endpoint);
+            patch.setEntity(new StringEntity(toJson(obj), UTF_8));
+            headers.forEach(patch::addHeader);
+            return getHttpClient(client).execute(patch, new StringResponseHandler(endpoint));
+        } catch (IOException e) {
+            throw new TekniskException("F-432937", endpoint, e);
+        }
+    }
+
+    protected static ObjectMapper getObjectMapper() {
+        return mapper;
     }
 }

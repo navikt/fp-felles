@@ -12,7 +12,8 @@ import org.apache.http.client.utils.URIBuilder;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
-public abstract class InfotrygdGrunnlagConsumer  {
+@Deprecated(since = "3.0.x", forRemoval = true)
+public abstract class InfotrygdGrunnlagConsumer {
 
     private OidcRestClient restClient;
     private URI uri;
@@ -32,9 +33,9 @@ public abstract class InfotrygdGrunnlagConsumer  {
     public List<Grunnlag> getGrunnlag(String fnr, LocalDate fom, LocalDate tom) throws Exception {
         Objects.requireNonNull(fnr);
         var request = new URIBuilder(uri)
-            .addParameter("fnr", fnr)
-            .addParameter("fom", konverter(fom))
-            .addParameter("tom", konverter(tom)).build();
+                .addParameter("fnr", fnr)
+                .addParameter("fom", konverter(fom))
+                .addParameter("tom", konverter(tom)).build();
         var grunnlag = restClient.get(request, Grunnlag[].class);
 
         return Arrays.asList(grunnlag);

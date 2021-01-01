@@ -5,32 +5,35 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
 
-class StsAccessTokenClient {
+public class StsAccessTokenClient {
     private static final ObjectMapper mapper = DefaultJsonMapper.getObjectMapper();
 
-    private final CloseableHttpClient closeableHttpClient;
+    private final HttpClient httpClient;
     private final StsAccessTokenConfig config;
 
-    StsAccessTokenClient(CloseableHttpClient closeableHttpClient,
-            StsAccessTokenConfig config) {
-        this.closeableHttpClient = closeableHttpClient;
+    StsAccessTokenClient(HttpClient httpClient, StsAccessTokenConfig config) {
+        this.httpClient = httpClient;
         this.config = config;
     }
 
-    String hentAccessToken() {
+    public String getUsername() {
+        return config.getUsername();
+    }
+
+    public String hentAccessToken() {
         String responseEntity;
         try {
-            responseEntity = closeableHttpClient.execute(httpPost(), new BasicResponseHandler());
+            responseEntity = httpClient.execute(httpPost(), new BasicResponseHandler());
         } catch (IOException e) {
             throw OidcRestClientFeil.FACTORY.ioException(config.getStsURI(), e).toException();
         }

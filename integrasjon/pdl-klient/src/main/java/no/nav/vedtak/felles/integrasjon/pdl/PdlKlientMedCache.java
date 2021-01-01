@@ -41,6 +41,7 @@ public class PdlKlientMedCache {
     private static final int DEFAULT_CACHE_SIZE = 1000;
 
     // Satt til 8 timer for å matche cache-lengde brukt i ABAC-løsningen (PDP).
+
     private static final long DEFAULT_CACHE_TIMEOUT = MILLISECONDS.convert(8, HOURS);
 
     private final PdlKlient pdlKlient;
