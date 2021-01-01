@@ -5,7 +5,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
         <artifactId>felles-sikkerhet-pom</artifactId>
-		<version>${revision}</version>
+		<version>3.0.11-SNAPSHOT</version>
     </parent>
 
     <artifactId>felles-sikkerhet-testutilities</artifactId>

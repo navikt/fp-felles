@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>felles-root</artifactId>
-        <version>${revision}</version>
+        <version>3.0.11-SNAPSHOT</version>
     </parent>
 
     <artifactId>felles</artifactId>
@@ -250,13 +249,13 @@
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
-                <version>5.4.26.Final</version>
+                <version>5.4.27.Final</version>
             </dependency>
             <dependency>
                 <!-- transitiv fiks version, brukes av hibernate-core og mockito-core -->
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.10.18</version>
+                <version>1.10.19</version>
             </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
@@ -348,7 +347,7 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.67</version>
+                <version>1.68</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.santuario</groupId>
@@ -431,7 +430,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>8.28.3</version>
+                <version>8.29.1</version>
             </dependency>
 
             <!-- Andre 3djepart avhengigheter -->
@@ -443,7 +442,7 @@
 			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
-				<version>4.8.97</version>
+				<version>4.8.98</version>
 			</dependency>
 			<dependency>
 	            <groupId>com.h2database</groupId>
@@ -521,4 +520,5 @@
         </dependency>
     </dependencies>
 </project>
+
 

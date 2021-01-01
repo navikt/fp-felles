@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>no.nav.foreldrepenger.felles</groupId>
 		<artifactId>felles-root</artifactId>
-		<version>${revision}</version>
+		<version>3.0.11-SNAPSHOT</version>
 	</parent>
 
 	<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
@@ -40,7 +39,7 @@
 	<properties>
 		<sob.melding.version>1.1.0</sob.melding.version>
 		<felles.adapter.version>0.1.8</felles.adapter.version>
-		<unleash.version>3.3.3</unleash.version>
+		<unleash.version>3.3.4</unleash.version>
 		<influxdb-java.version>2.21</influxdb-java.version>
 	</properties>
 
