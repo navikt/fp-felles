@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
@@ -39,15 +40,15 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-bom</artifactId>
-                <version>10.0.0</version>
+                <version>9.4.35.v20201120</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-			<dependency>
-				<groupId>org.jboss.resteasy</groupId>
-				<artifactId>resteasy-json-p-provider</artifactId>
-				<version>4.5.8.Final</version>
-			</dependency>
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-json-p-provider</artifactId>
+                <version>4.5.8.Final</version>
+            </dependency>
             <dependency>
                 <!-- jaxb coordinater for java11 -->
                 <groupId>org.glassfish.jaxb</groupId>
@@ -56,7 +57,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
@@ -434,22 +435,22 @@
             </dependency>
 
             <!-- Andre 3djepart avhengigheter -->
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles</groupId>
-				<artifactId>felles-testutilities</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.classgraph</groupId>
-				<artifactId>classgraph</artifactId>
-				<version>4.8.98</version>
-			</dependency>
-			<dependency>
-	            <groupId>com.h2database</groupId>
-	            <artifactId>h2</artifactId>
-	            <version>1.4.200</version>
-	            <scope>test</scope>
-	        </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles-testutilities</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.classgraph</groupId>
+                <artifactId>classgraph</artifactId>
+                <version>4.8.98</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>1.4.200</version>
+                <scope>test</scope>
+            </dependency>
 
             <dependency>
                 <!-- fjernet fra SE i Java11 -->

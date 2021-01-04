@@ -7,13 +7,18 @@ import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
 import java.util.Optional;
 
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.ext.Provider;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
-class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider {
+@Priority(Priorities.AUTHENTICATION)
+@Provider
+public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider {
 
     @Override
     public void filter(ClientRequestContext ctx) {
