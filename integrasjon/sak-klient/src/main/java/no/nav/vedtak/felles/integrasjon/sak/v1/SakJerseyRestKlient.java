@@ -8,12 +8,13 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.ws.rs.client.ClientRequestFilter;
 
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 // @ApplicationScoped
-public class SakJerseyRestKlient extends AbstractJerseyOidcRestClient {
+public class SakJerseyRestKlient extends AbstractJerseyOidcRestClient implements SakClient {
 
     private static final String ENDPOINT_KEY = "sak.rs.url";
     private static final String DEFAULT_URI = "http://sak.default/api/v1/saker";
@@ -26,16 +27,29 @@ public class SakJerseyRestKlient extends AbstractJerseyOidcRestClient {
     @Inject
     public SakJerseyRestKlient(
             @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
+        super();
         this.endpoint = endpoint;
     }
 
+    SakJerseyRestKlient(URI endpoint, ClientRequestFilter... filters) {
+        super(filters);
+        this.endpoint = endpoint;
+    }
+
+    @Override
     public SakJson opprettSak(SakJson.Builder request) {
+        return opprettSak(request.build());
+    }
+
+    @Override
+    public SakJson opprettSak(SakJson sak) {
         return client.target(endpoint)
                 .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(request.build()))
+                .buildPost(json(sak))
                 .invoke(SakJson.class);
     }
 
+    @Override
     public Optional<SakJson> finnForSaksnummer(String saksnummer) throws Exception {
         return Arrays.stream(client.target(endpoint)
                 .queryParam("fagsakNr", saksnummer)
@@ -44,6 +58,7 @@ public class SakJerseyRestKlient extends AbstractJerseyOidcRestClient {
                 .findFirst();
     }
 
+    @Override
     public SakJson hentSakId(String sakId) {
         return client.target(endpoint)
                 .path(sakId)

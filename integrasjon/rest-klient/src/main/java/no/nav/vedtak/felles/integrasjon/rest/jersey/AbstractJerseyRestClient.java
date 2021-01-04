@@ -33,6 +33,8 @@ import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.apache.connector.ApacheHttpClientBuilderConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import org.glassfish.jersey.logging.LoggingFeature;
+import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -94,7 +96,9 @@ abstract class AbstractJerseyRestClient {
                     .setRetryHandler(new HttpRequestRetryHandler())
                     .setConnectionManager(connectionManager());
         });
+        cfg.register(new LoggingFeature(null, null, Verbosity.PAYLOAD_TEXT, null));
         filters.stream().forEach(cfg::register);
+        cfg.register(new StandardHeadersRequestFilter());
         client = ClientBuilder.newClient(cfg);
     }
 

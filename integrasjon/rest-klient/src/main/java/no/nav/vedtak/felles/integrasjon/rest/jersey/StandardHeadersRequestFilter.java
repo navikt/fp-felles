@@ -9,10 +9,15 @@ import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
 import java.io.IOException;
 
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.ext.Provider;
 
-class StandardHeadersRequestFilter implements ClientRequestFilter {
+@Priority(Priorities.HEADER_DECORATOR)
+@Provider
+public class StandardHeadersRequestFilter implements ClientRequestFilter {
 
     @Override
     public void filter(ClientRequestContext ctx) throws IOException {

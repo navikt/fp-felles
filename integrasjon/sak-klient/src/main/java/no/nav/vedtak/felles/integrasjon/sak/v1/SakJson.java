@@ -26,10 +26,10 @@ public class SakJson {
 
     @JsonCreator
     public SakJson(@JsonProperty("id") Long id,
-                   @JsonProperty("tema") String tema,
-                   @JsonProperty("applikasjon") String applikasjon,
-                   @JsonProperty("aktoerId") String aktoerId,
-                   @JsonProperty("fagsakNr") String fagsakNr) {
+            @JsonProperty("tema") String tema,
+            @JsonProperty("applikasjon") String applikasjon,
+            @JsonProperty("aktoerId") String aktoerId,
+            @JsonProperty("fagsakNr") String fagsakNr) {
         this.id = id;
         this.tema = tema;
         this.applikasjon = applikasjon;
@@ -37,7 +37,8 @@ public class SakJson {
         this.fagsakNr = fagsakNr;
     }
 
-    private SakJson() {}
+    private SakJson() {
+    }
 
     public Long getId() {
         return id;
@@ -60,13 +61,29 @@ public class SakJson {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(aktoerId, applikasjon, fagsakNr, id, tema);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        var that = SakJson.class.cast(o);
+        return id == that.id &&
+                tema.equals(that.tema)
+                && applikasjon.equals(that.applikasjon)
+                && aktoerId.equals(that.aktoerId)
+                && fagsakNr.equals(that.fagsakNr);
+
+    }
+
+    @Override
     public String toString() {
-        return "SakJson{" +
-                "id=" + id +
-                ", tema='" + tema + '\'' +
-                ", applikasjon='" + applikasjon + '\'' +
-                ", fagsakNr='" + fagsakNr + '\'' +
-                '}';
+        return getClass().getSimpleName() + " [id=" + id + ", tema=" + tema + ", applikasjon=" + applikasjon + ", aktoerId=" + aktoerId
+                + ", fagsakNr=" + fagsakNr + "]";
     }
 
     public static SakJson.Builder getBuilder() {
