@@ -10,7 +10,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.GenericType;
 
-class OAuth2AccessTokenJerseyClient extends AbstractJerseyRestClient implements AccessTokenProvider {
+public class OAuth2AccessTokenJerseyClient extends AbstractJerseyRestClient implements AccessTokenProvider {
 
     private final URI tokenEndpoint;
     private final String clientId;
@@ -22,7 +22,7 @@ class OAuth2AccessTokenJerseyClient extends AbstractJerseyRestClient implements 
             String clientId,
             String clientSecret,
             Set<String> scopes) {
-        super(new StandardHeadersRequestFilter());
+        super();
         this.tokenEndpoint = tokenEndpoint;
         this.clientId = clientId;
         this.clientSecret = clientSecret;

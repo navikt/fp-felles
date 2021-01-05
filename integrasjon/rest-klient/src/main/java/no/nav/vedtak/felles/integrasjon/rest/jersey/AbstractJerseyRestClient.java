@@ -1,8 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.toJson;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -33,8 +31,6 @@ import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.apache.connector.ApacheHttpClientBuilderConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import org.glassfish.jersey.logging.LoggingFeature;
-import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -51,6 +47,10 @@ abstract class AbstractJerseyRestClient {
     static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     protected final Client client;
+
+    AbstractJerseyRestClient() {
+        this(null, null, Set.of());
+    }
 
     AbstractJerseyRestClient(ClientRequestFilter... filters) {
         this(null, null, filters);
@@ -78,10 +78,10 @@ abstract class AbstractJerseyRestClient {
     }
 
     AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, ClientRequestFilter... filters) {
-        this(mapper, proxy, asList(filters));
+        this(mapper, proxy, Set.of(filters));
     }
 
-    private AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, List<? extends ClientRequestFilter> filters) {
+    private AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, Set<? extends ClientRequestFilter> filters) {
         var cfg = new ClientConfig();
         if (proxy != null) {
             cfg.property(PROXY_URI, proxy);
@@ -90,16 +90,15 @@ abstract class AbstractJerseyRestClient {
         cfg.connectorProvider(new ApacheConnectorProvider());
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
             return b.setDefaultHeaders(defaultHeaders())
-                    .setProxy(null)
                     .setKeepAliveStrategy(createKeepAliveStrategy(30))
                     .setDefaultRequestConfig(defaultRequestConfig())
                     .setRetryHandler(new HttpRequestRetryHandler())
                     .setConnectionManager(connectionManager());
         });
-        cfg.register(new LoggingFeature(null, null, Verbosity.PAYLOAD_TEXT, null));
         filters.stream().forEach(cfg::register);
         cfg.register(new StandardHeadersRequestFilter());
         client = ClientBuilder.newClient(cfg);
+
     }
 
     private static JacksonJaxbJsonProvider jacksonProvider(ObjectMapper mapper) {
@@ -108,13 +107,13 @@ abstract class AbstractJerseyRestClient {
                 .orElse(new JacksonJaxbJsonProvider());
     }
 
-    private static List<ClientRequestFilter> construct(Class<? extends ClientRequestFilter>... filters) {
+    private static Set<ClientRequestFilter> construct(Class<? extends ClientRequestFilter>... filters) {
         return Arrays.stream(filters)
                 .map(AbstractJerseyRestClient::construct)
-                .collect(toList());
+                .collect(toSet());
     }
 
-    private static ClientRequestFilter construct(Class<? extends ClientRequestFilter> clazz) {
+    protected static ClientRequestFilter construct(Class<? extends ClientRequestFilter> clazz) {
         try {
             return invokeConstructor(clazz);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {

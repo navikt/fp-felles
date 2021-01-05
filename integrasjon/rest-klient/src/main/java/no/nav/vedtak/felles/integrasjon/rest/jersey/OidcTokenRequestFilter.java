@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
+import static javax.ws.rs.Priorities.AUTHENTICATION;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.isso.SystemUserIdTokenProvider.getSystemUserIdToken;
@@ -8,7 +9,6 @@ import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 import java.util.Optional;
 
 import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.ext.Provider;
@@ -16,7 +16,7 @@ import javax.ws.rs.ext.Provider;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
-@Priority(Priorities.AUTHENTICATION)
+@Priority(AUTHENTICATION)
 @Provider
 public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider {
 
@@ -48,4 +48,5 @@ public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenP
     private static String exchange(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
         return getSystemUserIdToken().getToken();
     }
+
 }

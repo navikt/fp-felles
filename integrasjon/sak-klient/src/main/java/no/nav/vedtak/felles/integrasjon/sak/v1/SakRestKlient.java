@@ -38,11 +38,6 @@ public class SakRestKlient implements SakClient {
     }
 
     @Override
-    public SakJson opprettSak(SakJson.Builder request) {
-        return opprettSak(request.build());
-    }
-
-    @Override
     public SakJson opprettSak(SakJson sak) {
         return oidcRestClient.post(endpoint, sak, lagHeader(), SakJson.class);
     }

@@ -25,8 +25,7 @@ public class SakJerseyRestKlient extends AbstractJerseyOidcRestClient implements
     }
 
     @Inject
-    public SakJerseyRestKlient(
-            @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
+    public SakJerseyRestKlient(@KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
         super();
         this.endpoint = endpoint;
     }
@@ -34,11 +33,6 @@ public class SakJerseyRestKlient extends AbstractJerseyOidcRestClient implements
     SakJerseyRestKlient(URI endpoint, ClientRequestFilter... filters) {
         super(filters);
         this.endpoint = endpoint;
-    }
-
-    @Override
-    public SakJson opprettSak(SakJson.Builder request) {
-        return opprettSak(request.build());
     }
 
     @Override
@@ -66,4 +60,8 @@ public class SakJerseyRestKlient extends AbstractJerseyOidcRestClient implements
                 .get(SakJson.class);
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [endpoint=" + endpoint + "]";
+    }
 }

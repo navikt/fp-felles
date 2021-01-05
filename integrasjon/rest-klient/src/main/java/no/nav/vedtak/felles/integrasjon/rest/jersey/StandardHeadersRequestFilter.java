@@ -24,10 +24,6 @@ public class StandardHeadersRequestFilter implements ClientRequestFilter {
         ctx.getHeaders().add(DEFAULT_NAV_CALLID, getCallId());
         ctx.getHeaders().add(ALT_NAV_CALL_ID, getCallId());
         ctx.getHeaders().add(HEADER_CORRELATION_ID, getCallId());
-        ctx.getHeaders().add(DEFAULT_NAV_CONSUMERID, getConsumerId());
-    }
-
-    private static String getConsumerId() {
-        return getSubjectHandler().getConsumerId();
+        ctx.getHeaders().add(DEFAULT_NAV_CONSUMERID, getSubjectHandler().getConsumerId());
     }
 }
