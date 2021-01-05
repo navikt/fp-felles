@@ -8,6 +8,7 @@ import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.c
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultHeaders;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
+import static org.apache.commons.lang3.ArrayUtils.add;
 import static org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
@@ -128,5 +129,13 @@ abstract class AbstractJerseyRestClient {
         } catch (IOException e) {
             throw new TekniskException("F-432937", endpoint, e);
         }
+    }
+
+    protected static <T> T[] addIfRequiredNotPresent(final T[] filters, final T required) {
+        return Arrays.stream(filters)
+                .filter(e -> e.getClass().equals(required.getClass()))
+                .findFirst()
+                .map(m -> filters)
+                .orElseGet(() -> add(filters, required));
     }
 }

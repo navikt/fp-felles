@@ -1,9 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
-import static org.apache.commons.lang3.ArrayUtils.add;
-
-import java.util.Arrays;
 
 import javax.ws.rs.client.ClientRequestFilter;
 
@@ -61,11 +58,4 @@ public abstract class AbstractJerseyOidcRestClient extends AbstractJerseyRestCli
         super(mapper, addIfRequiredNotPresent(filters, new OidcTokenRequestFilter()));
     }
 
-    private static <T> T[] addIfRequiredNotPresent(final T[] filters, final T required) {
-        return Arrays.stream(filters)
-                .filter(e -> e.getClass().equals(required.getClass()))
-                .findFirst()
-                .map(m -> filters)
-                .orElseGet(() -> add(filters, required));
-    }
 }
