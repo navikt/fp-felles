@@ -106,12 +106,13 @@
                         </execution>
                     </executions>
                 </plugin>
+<!--
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
                     <version>1.2.5</version>
                 </plugin>
-
+-->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
@@ -187,6 +188,7 @@
         </pluginManagement>
 
         <plugins>
+<!--
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
@@ -211,7 +213,8 @@
                     </execution>
                 </executions>
             </plugin>
-
+-->
+<!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -224,7 +227,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
