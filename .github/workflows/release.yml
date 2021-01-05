@@ -33,7 +33,7 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions release"
-          mvn  --settings .m2/settings.xml --batch-mode -DreleaseVersion=${NEW_VERSION}  release:prepare release:perform
+          mvn  --settings .m2/settings.xml --batch-mode  -DadditionalJOption=-Xdoclint:none -DreleaseVersion=${NEW_VERSION}  release:prepare release:perform
 
       - name: Rollback release
         if: failure()
@@ -43,4 +43,4 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions release"
-          mvn  --settings .m2/settings.xml  release:clean release:rollback
+          mvn  --settings .m2/settings.xml  release:rollback
