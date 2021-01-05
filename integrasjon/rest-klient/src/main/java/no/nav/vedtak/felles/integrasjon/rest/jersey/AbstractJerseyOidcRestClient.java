@@ -22,21 +22,21 @@ import no.nav.vedtak.felles.integrasjon.rest.AbstractOidcRestClient;
  *
  * <pre>
  * MyRestService extends AbstractJerseyOidcRestClient...
- * {@code var myService = new MyRestService()}                // benytter innebygget mapper og ett filter av type {@link OidcTokenRequestFilter}
- * {@code var myService = new MyRestService(mapper)}.         // benytter custom mapper og ett filter av type {@link OidcTokenRequestFilter}
- * {@code var myService = new MyRestService(filters)}         // benytter innebygd mapper og et sett av  filters. Et filter av type {@link OidcTokenRequestFilter} blir alltid lagt til i tillegg
- * {@code var myService = new MyRestService(mapper, filters)} // benytter custom mapper og et sett av  filters. Et filter av type {@link OidcTokenRequestFilter} blir alltid lagt til i tillegg
+ * var myService = new MyRestService()                // benytter innebygget mapper og ett filter av type {@link OidcTokenRequestFilter}
+ * var myService = new MyRestService(mapper)          // benytter custom mapper og ett filter av type {@link OidcTokenRequestFilter}
+ * var myService = new MyRestService(filters)         // benytter innebygd mapper og et sett av  filters. Et filter av type {@link OidcTokenRequestFilter} blir alltid lagt til i tillegg
+ * var myService = new MyRestService(mapper, filters) // benytter custom mapper og et sett av  filters. Et filter av type {@link OidcTokenRequestFilter} blir alltid lagt til i tillegg
  * </pre>
  *
  * Typisk bruk vil da være
  *
  * <pre>
- * {@code public Sak hentSak(String id) {
+ * public Sak hentSak(String id) {
         return client.target(endpoint)
                 .path(id)
                 .request(APPLICATION_JSON_TYPE)
                 .get(Sak.class);
-</pre>
+ * </pre>
  *
  */
 public abstract class AbstractJerseyOidcRestClient extends AbstractJerseyRestClient {
