@@ -138,4 +138,8 @@ abstract class AbstractJerseyRestClient {
                 .map(m -> filters)
                 .orElseGet(() -> add(filters, required));
     }
+
+    protected static ObjectMapper getObjectMapper() {
+        return mapper;
+    }
 }

@@ -11,13 +11,19 @@ import java.util.Optional;
 import javax.annotation.Priority;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.ext.Provider;
 
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
+/**
+ * Dette filteret erstatter {@link OidcRestClient} og er funksjonelt ekvivalent
+ * med dette. Typisk bruk er i tjenster som trenger et OIDC bearer token i en
+ * AUTHORIZATION header og vil normalt brukes sammen med
+ * {@link AbstractJerseyOidcRestClient}, som automatisk registrer dette filteret
+ * *
+ */
 @Priority(AUTHENTICATION)
-@Provider
 public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider {
 
     @Override
