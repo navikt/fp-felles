@@ -19,7 +19,6 @@ import no.nav.vedtak.konfig.KonfigVerdi;
  *     <li>Undertrykk gammel sporingslogg i logback.xml med {@code <logger level="OFF" name="sporing" additivity="false" /> }</li>
  *     <li>Sett opp "auditLogger" som beskrevet her: https://github.com/navikt/naudit}</li>
  *     <li>Ta kontakt med Arcsight-gruppen for at de skal motta/endre format for loggen som kommer via "audit.nais".</li>
- *   </logger>
  * </ol>
  */
 @Dependent
