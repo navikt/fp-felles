@@ -83,9 +83,8 @@ abstract class AbstractJerseyRestClient {
 
     private AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, Set<? extends ClientRequestFilter> filters) {
         var cfg = new ClientConfig();
-        if (proxy != null) {
-            cfg.property(PROXY_URI, proxy);
-        }
+        Optional.ofNullable(proxy)
+                .ifPresent(p -> cfg.property(PROXY_URI, p));
         cfg.register(jacksonProvider(mapper));
         cfg.connectorProvider(new ApacheConnectorProvider());
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
@@ -98,7 +97,6 @@ abstract class AbstractJerseyRestClient {
         filters.stream().forEach(cfg::register);
         cfg.register(new StandardHeadersRequestFilter());
         client = ClientBuilder.newClient(cfg);
-
     }
 
     private static JacksonJaxbJsonProvider jacksonProvider(ObjectMapper mapper) {
@@ -130,9 +128,5 @@ abstract class AbstractJerseyRestClient {
         } catch (IOException e) {
             throw new TekniskException("F-432937", endpoint, e);
         }
-    }
-
-    protected static ObjectMapper getObjectMapper() {
-        return mapper;
     }
 }

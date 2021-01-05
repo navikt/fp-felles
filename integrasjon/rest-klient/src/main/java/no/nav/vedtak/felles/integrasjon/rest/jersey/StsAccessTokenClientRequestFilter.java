@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.ext.Provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,6 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 
 import no.nav.vedtak.exception.TekniskException;
 
-@Provider
 class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     private static final Logger LOG = LoggerFactory.getLogger(StsAccessTokenClientRequestFilter.class);
     private final StsAccessTokenJerseyClient sts;

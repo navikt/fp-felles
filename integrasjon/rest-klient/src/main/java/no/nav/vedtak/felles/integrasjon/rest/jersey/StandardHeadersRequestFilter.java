@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
+import static javax.ws.rs.Priorities.HEADER_DECORATOR;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.ALT_NAV_CALL_ID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
@@ -10,13 +11,10 @@ import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 import java.io.IOException;
 
 import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.ext.Provider;
 
-@Priority(Priorities.HEADER_DECORATOR)
-@Provider
+@Priority(HEADER_DECORATOR)
 public class StandardHeadersRequestFilter implements ClientRequestFilter {
 
     @Override

@@ -40,7 +40,10 @@ import no.nav.vedtak.util.StringUtils;
 /**
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og
  * callId
+ *
+ * @deprecated @see AbstractJerseyOidcRestClient
  */
+@Deprecated(since = "3.0.x", forRemoval = true)
 public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     private static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
     private static final String DEFAULT_NAV_CALLID = "Nav-Callid";
