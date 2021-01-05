@@ -34,3 +34,13 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions release"
           mvn  --settings .m2/settings.xml --batch-mode -DreleaseVersion=${NEW_VERSION}  release:prepare release:perform
+
+      - name: Rollback release
+        if: failure()
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions release"
+          mvn  --settings .m2/settings.xml  release:rollback
