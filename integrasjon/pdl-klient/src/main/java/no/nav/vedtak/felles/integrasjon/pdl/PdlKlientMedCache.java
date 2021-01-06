@@ -146,4 +146,8 @@ public class PdlKlientMedCache {
                 .build();
     }
 
+    public PdlKlient getDelegate() {
+        return pdlKlient;
+    }
+
 }
