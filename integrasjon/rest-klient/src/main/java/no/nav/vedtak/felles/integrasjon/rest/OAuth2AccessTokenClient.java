@@ -18,6 +18,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import no.nav.vedtak.felles.integrasjon.rest.jersey.OAuth2AccessTokenJerseyClient;
+
+/**
+ *
+ * @deprecated Erstattes av {@link OAuth2AccessTokenJerseyClient}
+ *
+ */
+@Deprecated(since = "3.0.x", forRemoval = true)
 class OAuth2AccessTokenClient {
     private static final ObjectMapper mapper = DefaultJsonMapper.getObjectMapper();
 
