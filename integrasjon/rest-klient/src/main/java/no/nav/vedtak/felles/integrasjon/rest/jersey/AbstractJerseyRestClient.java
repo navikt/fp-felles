@@ -60,13 +60,13 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.Strin
  * Patch operasjoner gjøres ved å falle ned på den underliggende
  * transport-provideren.
  */
-abstract class AbstractJerseyRestClient {
+public abstract class AbstractJerseyRestClient {
 
-    static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
-    static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
-    static final String DEFAULT_NAV_CALLID = "Nav-Callid";
-    static final String ALT_NAV_CALL_ID = "nav-call-id";
-    static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
+    public static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
+    public static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
+    public static final String DEFAULT_NAV_CALLID = "Nav-Callid";
+    public static final String ALT_NAV_CALL_ID = "nav-call-id";
+    public static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     protected final Client client;
 

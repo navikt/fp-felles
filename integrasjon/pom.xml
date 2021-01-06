@@ -1,159 +1,160 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>no.nav.foreldrepenger.felles</groupId>
-		<artifactId>felles-root</artifactId>
-                <version>3.0.22-SNAPSHOT</version>
-	</parent>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>no.nav.foreldrepenger.felles</groupId>
+        <artifactId>felles-root</artifactId>
+        <version>3.0.22-SNAPSHOT</version>
+    </parent>
 
-	<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-	<artifactId>felles-integrasjon-pom</artifactId>
-	<packaging>pom</packaging>
-	<name>Felles :: Integrasjon</name>
+    <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+    <artifactId>felles-integrasjon-pom</artifactId>
+    <packaging>pom</packaging>
+    <name>Felles :: Integrasjon</name>
 
-	<modules>
-		<module>webservice</module>
-		<module>rest</module>
-		<module>rest-klient</module>
+    <modules>
+        <module>webservice</module>
+        <module>rest</module>
+        <module>rest-klient</module>
 
-		<!-- spesifikke klienter -->
-		<module>ldap-klient</module>
+        <!-- spesifikke klienter -->
+        <module>ldap-klient</module>
 
-		<module>arbeidsfordeling-klient</module>
-		<module>aktoer-klient</module>
-		<module>person-klient</module>
-		<module>journal-klient</module>
+        <module>arbeidsfordeling-klient</module>
+        <module>aktoer-klient</module>
+        <module>person-klient</module>
+        <module>journal-klient</module>
         <module>infotrygd-grunnlag-klient</module>
         <module>infotrygd-saker-klient</module>
-		<module>medl-klient</module>
-		<module>oppgave-rest-klient</module>
-		<module>pdl-klient</module>
+        <module>medl-klient</module>
+        <module>oppgave-rest-klient</module>
+        <module>pdl-klient</module>
         <module>ereg-klient</module>
-		<module>kodeverk-klient</module>
-		<module>unleash-klient</module>
+        <module>kodeverk-klient</module>
+        <module>unleash-klient</module>
         <module>saf-klient</module>
         <module>sak-klient</module>
         <module>sensu-klient</module>
     </modules>
+    <properties>
+        <wiremock.version>2.27.2</wiremock.version>
+        <sob.melding.version>1.1.0</sob.melding.version>
+        <felles.adapter.version>0.1.8</felles.adapter.version>
+        <unleash.version>3.3.4</unleash.version>
+        <influxdb-java.version>2.21</influxdb-java.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles</artifactId>
+                <version>${project.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
 
-	<properties>
-		<sob.melding.version>1.1.0</sob.melding.version>
-		<felles.adapter.version>0.1.8</felles.adapter.version>
-		<unleash.version>3.3.4</unleash.version>
-		<influxdb-java.version>2.21</influxdb-java.version>
-	</properties>
+            <!-- Generelle tekniske moduler (ulike tekniske protokoller/apier) -->
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>felles-integrasjon-rest</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>felles-integrasjon-rest-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>felles-integrasjon-webservice</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles</groupId>
-				<artifactId>felles</artifactId>
-				<version>${project.version}</version>
-				<scope>import</scope>
-				<type>pom</type>
-			</dependency>
+            <!-- Sikkerhet, oppslag. Klienter for generell teknisk informasjon - kodeverk, feature toggles, etc -->
+            <dependency>
+                <!-- Oppslag bruker (saksbehandler) fra LDAP/AD for roller, etc. -->
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>ldap-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>kodeverk-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-fim-kodeverk-v2-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-kodeverk-v3-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>unleash-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>unleash-klient</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>no.finn.unleash</groupId>
+                <artifactId>unleash-client-java</artifactId>
+                <version>${unleash.version}</version>
+            </dependency>
 
-			<!-- Generelle tekniske moduler (ulike tekniske protokoller/apier) -->
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>felles-integrasjon-rest</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>felles-integrasjon-rest-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>felles-integrasjon-webservice</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-
-			<!-- Sikkerhet, oppslag. Klienter for generell teknisk informasjon - kodeverk, feature toggles, etc -->
-			<dependency>
-				<!-- Oppslag bruker (saksbehandler) fra LDAP/AD for roller, etc. -->
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>ldap-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>kodeverk-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-fim-kodeverk-v2-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-kodeverk-v3-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>unleash-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>unleash-klient</artifactId>
-				<version>${project.version}</version>
-				<type>test-jar</type>
-			</dependency>
-			<dependency>
-				<groupId>no.finn.unleash</groupId>
-				<artifactId>unleash-client-java</artifactId>
-				<version>${unleash.version}</version>
-			</dependency>
-
-			<!-- Klienter for person, medlemskap (registere) -->
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>medl-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>aktoer-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>person-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-fim-aktoer-v2-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>person-v3-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-medlemskap-v2-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<!--Denne er lagt inn på grunn av konflikt i versjonsnummer mellom medl og person -->
-				<groupId>no.nav.tjenester</groupId>
-				<artifactId>nav-tjenestespesifikasjoner-felles-adapter</artifactId>
-				<version>${felles.adapter.version}</version>
-			</dependency>
+            <!-- Klienter for person, medlemskap (registere) -->
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>medl-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>aktoer-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>person-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-fim-aktoer-v2-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>person-v3-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-medlemskap-v2-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
+            <dependency>
+                <!--Denne er lagt inn på grunn av konflikt i versjonsnummer mellom medl og person -->
+                <groupId>no.nav.tjenester</groupId>
+                <artifactId>nav-tjenestespesifikasjoner-felles-adapter</artifactId>
+                <version>${felles.adapter.version}</version>
+            </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>pdl-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
-			<!-- Klienter for inntekter, arbeidsforhold, ytelser -->
-			<dependency>
+            <!-- Klienter for inntekter, arbeidsforhold, ytelser -->
+            <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>infotrygd-grunnlag-klient</artifactId>
                 <version>${project.version}</version>
@@ -163,55 +164,55 @@
                 <artifactId>infotrygd-saker-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>meldekortutbetalingsgrunnlag-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>arbeidsfordeling-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>meldekortutbetalingsgrunnlag-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>arbeidsfordeling-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>ereg-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-infotrygdSak-v1-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-infotrygdBeregningsgrunnlag-v1-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-arbeidsforhold-v3-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-infotrygdSak-v1-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-infotrygdBeregningsgrunnlag-v1-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-arbeidsforhold-v3-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
 
-			<!-- Klienter for Dokument og journalføring -->
+            <!-- Klienter for Dokument og journalføring -->
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>saf-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>journal-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-journal-v3-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>journal-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-journal-v3-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
 
-			<!-- Klienter for Produksjonsstyring -->
+            <!-- Klienter for Produksjonsstyring -->
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>oppgave-rest-klient</artifactId>
@@ -222,24 +223,28 @@
                 <artifactId>sak-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
-			<dependency>
-				<groupId>no.nav.tjenestespesifikasjoner</groupId>
-				<artifactId>nav-fim-sak-v1-tjenestespesifikasjon</artifactId>
-				<version>${tjenestespesifikasjoner.version}</version>
-			</dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>nav-fim-sak-v1-tjenestespesifikasjon</artifactId>
+                <version>${tjenestespesifikasjoner.version}</version>
+            </dependency>
 
-			<!-- SENSU klient -->
-			<dependency>
-				<groupId>org.influxdb</groupId>
-				<artifactId>influxdb-java</artifactId>
-				<version>${influxdb-java.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-				<artifactId>sensu-klient</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<!-- End SENSU klient -->
-		</dependencies>
-	</dependencyManagement>
+            <dependency>
+                <groupId>org.influxdb</groupId>
+                <artifactId>influxdb-java</artifactId>
+                <version>${influxdb-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>sensu-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock</artifactId>
+                <version>${wiremock.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
