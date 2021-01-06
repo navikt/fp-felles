@@ -6,11 +6,16 @@ import java.time.Duration;
 
 import org.apache.http.impl.client.HttpClients;
 
+import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 import no.nav.vedtak.util.LRUCache;
 
-/*
- * Tilpasset DKIF sin on-behalf-of med systembruker og STS
+/**
+ *
+ * @deprecated Erstattes av {@link StsAccessTokenJerseyClient}
+ *
+ *             Tilpasset DKIF sin on-behalf-of med systembruker og STS
  */
+@Deprecated(since = "3.0.x", forRemoval = true)
 public class SystemStsRestClient extends AbstractOidcRestClient {
 
     private static final String CACHE_KEY = "StsRestClient";
@@ -21,7 +26,8 @@ public class SystemStsRestClient extends AbstractOidcRestClient {
 
     public SystemStsRestClient(StsAccessTokenConfig config) {
         super(createHttpClient());
-        // Bruker default client basert på AAD-versjonen OAuth2RestClient (brukes for SPokelse)
+        // Bruker default client basert på AAD-versjonen OAuth2RestClient (brukes for
+        // SPokelse)
         this.stsAccessTokenClient = new StsAccessTokenClient(HttpClients.createDefault(), config);
         this.cache = new LRUCache<>(1, Duration.ofMinutes(55).toMillis());
         this.systembruker = config.getUsername();

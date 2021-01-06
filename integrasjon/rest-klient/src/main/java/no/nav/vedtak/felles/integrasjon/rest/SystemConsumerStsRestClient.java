@@ -11,12 +11,18 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 
+import no.nav.vedtak.felles.integrasjon.rest.jersey.SystemConsumerJerseyStsRestClient;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.LRUCache;
 
-/*
- * Tilpasset PDL sin konvensjon med doble tokens bruker i Authorization og systembruker i Nav-Consumer-Token
+/**
+ *
+ * @deprecated Erstattes av {@link SystemConsumerJerseyStsRestClient}
+ *
+ *             Tilpasset PDL sin konvensjon med doble tokens bruker i
+ *             Authorization og systembruker i Nav-Consumer-Token
  */
+@Deprecated(since = "3.0.x", forRemoval = true)
 public class SystemConsumerStsRestClient extends AbstractOidcRestClient {
 
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
@@ -28,7 +34,8 @@ public class SystemConsumerStsRestClient extends AbstractOidcRestClient {
 
     public SystemConsumerStsRestClient(StsAccessTokenConfig config) {
         super(createHttpClient());
-        // Bruker default client basert på AAD-versjonen OAuth2RestClient (brukes for SPokelse)
+        // Bruker default client basert på AAD-versjonen OAuth2RestClient (brukes for
+        // SPokelse)
         this.stsAccessTokenClient = new StsAccessTokenClient(HttpClients.createDefault(), config);
         this.cache = new LRUCache<>(1, Duration.ofMinutes(55).toMillis());
     }
@@ -49,7 +56,8 @@ public class SystemConsumerStsRestClient extends AbstractOidcRestClient {
 
         var samlToken = SubjectHandler.getSubjectHandler().getSamlToken();
         if (samlToken != null) {
-            // Arv fra P2: Kalle STS for å veksle SAML til OIDC. Eller heller sanere WS som tilbys
+            // Arv fra P2: Kalle STS for å veksle SAML til OIDC. Eller heller sanere WS som
+            // tilbys
             return systemUserOIDCToken();
         }
         throw OidcRestClientFeil.FACTORY.klarteIkkeSkaffeOIDCToken().toException();

@@ -15,6 +15,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
 
+/**
+ *
+ * * @deprecated Erstattes av {@link StsAccessTokenClientRequestFilter}
+ *
+ * 
+ */
+@Deprecated
 public class StsAccessTokenClient {
     private static final ObjectMapper mapper = DefaultJsonMapper.getObjectMapper();
 

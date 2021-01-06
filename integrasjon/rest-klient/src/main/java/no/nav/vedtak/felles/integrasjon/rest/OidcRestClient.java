@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.rest;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 
+import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
@@ -9,6 +10,9 @@ import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 /**
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og
  * callId
+ *
+ * @deprecated Erstattes av {@link OIDCTokenRequestFilter} som settes på
+ *             {@link AbstractJerseyOidcRestClient}
  */
 @Deprecated(since = "3.0.x", forRemoval = true)
 public class OidcRestClient extends AbstractOidcRestClient {

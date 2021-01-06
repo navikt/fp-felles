@@ -36,9 +36,30 @@ import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonP
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
 
+/**
+ *
+ * Denne klassen er en felles superklasse for alle REST-klienter, uavhengig av
+ * hvordan de propagerer sikkerhetsheadere. Den tilgjengeliggjør en Jersey
+ * {@link Client} konfigurert på følgende måte:
+ * <ol>
+ * <li>Underliggende transport provider er {@link HttpClient} Denne konfigureres
+ * via {@link .RestClientSupportProdusent} slik at den har de samme egenskaper
+ * som tidligere</li>
+ * <li>Proxy er satt om subklasser konstrueres med en proxy-URL</li>
+ * <li>{@link StandardHeadersRequestFilter} registreres, denne sørger for
+ * propagering av callID (med et par navnevariasjoner)
+ * <li>Jackson mapping rgistreres. Det er mulig å sende inn sin egen mapper, om
+ * det ikke gjøres brukes {@link DefaultJsonMapper}
+ * <li>Øvrige filtere registres</li>
+ * </ol>
+ * Ved klassebasert konfigurasjon av filtere må disse ha en no-args constructor.
+ * Patch operasjoner gjøres ved å falle ned på den underliggende
+ * transport-provideren.
+ */
 abstract class AbstractJerseyRestClient {
 
     static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
@@ -140,6 +161,6 @@ abstract class AbstractJerseyRestClient {
     }
 
     protected static ObjectMapper getObjectMapper() {
-        return mapper;
+        return mapper; // TODO hent fra client elns
     }
 }

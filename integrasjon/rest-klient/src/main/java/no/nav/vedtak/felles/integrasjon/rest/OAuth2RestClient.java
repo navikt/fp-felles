@@ -1,16 +1,24 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import no.nav.vedtak.util.LRUCache;
-import org.apache.http.impl.client.HttpClients;
+import static java.util.Objects.requireNonNull;
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createHttpClient;
 
 import java.net.URI;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
-import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
+import no.nav.vedtak.felles.integrasjon.rest.jersey.OAuth2JerseyRestClient;
+import no.nav.vedtak.util.LRUCache;
+
+/**
+ *
+ * @deprecated Erstattes av {@link OAuth2JerseyRestClient}
+ *
+ */
+@Deprecated(since = "3.0.x", forRemoval = true)
 public class OAuth2RestClient extends AbstractOidcRestClient {
     private static final String CACHE_KEY = "OAuth2RestClient";
     private final Set<String> scopes;
@@ -19,14 +27,17 @@ public class OAuth2RestClient extends AbstractOidcRestClient {
     private final LRUCache<String, String> cache;
 
     private OAuth2RestClient(
-        URI tokenEndpoint,
-        URI tokenEndpointProxy,
-        String clientId,
-        String clientSecret,
-        Set<String> scopes) {
+            URI tokenEndpoint,
+            URI tokenEndpointProxy,
+            String clientId,
+            String clientSecret,
+            Set<String> scopes) {
         super(createHttpClient());
-        // Bruker default client for tokens da client konfigurert i RestClientSupportProdusent feiler mot Azure p.g.a. headere som blir satt by default.
-        this.oAuth2AccessTokenClient = new OAuth2AccessTokenClient(HttpClients.createDefault(), tokenEndpoint, tokenEndpointProxy, clientId, clientSecret);
+        // Bruker default client for tokens da client konfigurert i
+        // RestClientSupportProdusent feiler mot Azure p.g.a. headere som blir satt by
+        // default.
+        this.oAuth2AccessTokenClient = new OAuth2AccessTokenClient(HttpClients.createDefault(), tokenEndpoint, tokenEndpointProxy, clientId,
+                clientSecret);
         this.scopes = scopes;
         this.cache = new LRUCache<>(1, Duration.ofMinutes(15).toMillis());
     }
@@ -92,14 +103,14 @@ public class OAuth2RestClient extends AbstractOidcRestClient {
         }
 
         public OAuth2RestClient build() {
-            if (scopes.isEmpty()) throw new IllegalArgumentException("Må settes minst et scope.");
+            if (scopes.isEmpty())
+                throw new IllegalArgumentException("Må settes minst et scope.");
             return new OAuth2RestClient(
-                requireNonNull(tokenEndpoint),
-                tokenEndpointProxy,
-                requireNonNull(clientId),
-                requireNonNull(clientSecret),
-                scopes
-            );
+                    requireNonNull(tokenEndpoint),
+                    tokenEndpointProxy,
+                    requireNonNull(clientId),
+                    requireNonNull(clientSecret),
+                    scopes);
         }
     }
 }

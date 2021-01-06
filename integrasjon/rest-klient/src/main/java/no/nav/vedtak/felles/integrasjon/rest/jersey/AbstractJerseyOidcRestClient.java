@@ -50,12 +50,15 @@ public abstract class AbstractJerseyOidcRestClient extends AbstractJerseyRestCli
         this(mapper, filters);
     }
 
-    public AbstractJerseyOidcRestClient(ObjectMapper mapper, Class<? extends ClientRequestFilter>... filters) {
-        super(mapper, addIfRequiredNotPresent(filters, OidcTokenRequestFilter.class));
-    }
-
     public AbstractJerseyOidcRestClient(ClientRequestFilter... filters) {
         super(mapper, addIfRequiredNotPresent(filters, new OidcTokenRequestFilter()));
     }
 
+    public AbstractJerseyOidcRestClient(ObjectMapper mapper, Class<? extends ClientRequestFilter>... filters) {
+        super(mapper, addIfRequiredNotPresent(filters, OidcTokenRequestFilter.class));
+    }
+
+    public AbstractJerseyOidcRestClient(ObjectMapper mapper, ClientRequestFilter... filters) {
+        super(mapper, addIfRequiredNotPresent(filters, new OidcTokenRequestFilter()));
+    }
 }
