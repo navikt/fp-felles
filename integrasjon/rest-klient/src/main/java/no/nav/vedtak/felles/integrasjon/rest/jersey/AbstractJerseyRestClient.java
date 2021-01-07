@@ -152,9 +152,9 @@ public abstract class AbstractJerseyRestClient {
         }
     }
 
-    protected static <T> T[] addIfRequiredNotPresent(final T[] filters, final T required) {
+    protected static <T extends ClientRequestFilter> T[] addIfRequiredNotPresent(T[] filters, final T required) {
         return Arrays.stream(filters)
-                .filter(e -> e.getClass().equals(required.getClass()))
+                .filter(f -> required.getClass().isAssignableFrom(f.getClass()))
                 .findFirst()
                 .map(m -> filters)
                 .orElseGet(() -> add(filters, required));
