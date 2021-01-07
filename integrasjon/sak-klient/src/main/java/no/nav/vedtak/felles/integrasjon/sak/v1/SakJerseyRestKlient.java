@@ -26,8 +26,7 @@ public class SakJerseyRestKlient extends AbstractJerseyOidcRestClient implements
 
     @Inject
     public SakJerseyRestKlient(@KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
-        super();
-        this.endpoint = endpoint;
+        this(endpoint, new ClientRequestFilter[0]);
     }
 
     SakJerseyRestKlient(URI endpoint, ClientRequestFilter... filters) {
