@@ -141,6 +141,10 @@ public abstract class AbstractJerseyRestClient {
         }
     }
 
+    protected String patch(URI endpoint, Object obj) {
+        return patch(endpoint, obj, Set.of());
+    }
+
     protected String patch(URI endpoint, Object obj, Set<Header> headers) {
         try {
             var patch = new HttpPatch(endpoint);
