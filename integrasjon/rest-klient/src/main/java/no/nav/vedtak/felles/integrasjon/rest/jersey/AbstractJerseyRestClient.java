@@ -26,7 +26,9 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import org.apache.http.Header;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.apache.connector.ApacheHttpClientBuilderConfigurator;
@@ -146,13 +148,24 @@ public abstract class AbstractJerseyRestClient {
     }
 
     protected String patch(URI endpoint, Object obj, Set<Header> headers) {
+        return execute(new HttpPatch(endpoint), obj, headers);
+    }
+
+    protected String put(URI endpoint, Object obj) {
+        return put(endpoint, obj, Set.of());
+    }
+
+    protected String put(URI endpoint, Object obj, Set<Header> headers) {
+        return execute(new HttpPut(endpoint), obj, headers);
+    }
+
+    private String execute(HttpEntityEnclosingRequestBase entity, Object obj, Set<Header> headers) {
+        entity.setEntity(new StringEntity(toJson(obj), UTF_8));
         try {
-            var patch = new HttpPatch(endpoint);
-            patch.setEntity(new StringEntity(toJson(obj), UTF_8));
-            headers.forEach(patch::addHeader);
-            return getHttpClient(client).execute(patch, new StringResponseHandler(endpoint));
+            headers.forEach(entity::addHeader);
+            return getHttpClient(client).execute(entity, new StringResponseHandler(entity.getURI()));
         } catch (IOException e) {
-            throw new TekniskException("F-432937", endpoint, e);
+            throw new TekniskException("F-432937", entity.getURI(), e);
         }
     }
 
