@@ -71,6 +71,7 @@ public abstract class AbstractJerseyRestClient {
     public static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     protected final Client client;
+    private final ObjectMapper objectMapper;
 
     AbstractJerseyRestClient() {
         this(null, null, Set.of());
@@ -120,6 +121,7 @@ public abstract class AbstractJerseyRestClient {
         });
         filters.stream().forEach(cfg::register);
         cfg.register(new StandardHeadersRequestFilter());
+        this.objectMapper = mapper;
         client = ClientBuilder.newClient(cfg);
     }
 
@@ -177,7 +179,7 @@ public abstract class AbstractJerseyRestClient {
                 .orElseGet(() -> add(filters, required));
     }
 
-    protected static ObjectMapper getObjectMapper() {
-        return mapper; // TODO hent fra client elns
+    protected ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 }
