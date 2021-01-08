@@ -10,6 +10,7 @@ import static java.util.TimeZone.getTimeZone;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 
 import java.net.URI;
 import java.util.List;
@@ -100,7 +101,7 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient {
     }
 
     private static ObjectMapper objectMapper() {
-        return getObjectMapper()
+        return mapper
                 .copy()
                 .setPropertyNamingStrategy(LOWER_CAMEL_CASE)
                 .setTimeZone(getTimeZone("Europe/Oslo"))
