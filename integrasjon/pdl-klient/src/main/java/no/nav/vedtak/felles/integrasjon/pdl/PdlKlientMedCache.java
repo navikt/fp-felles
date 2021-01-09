@@ -44,9 +44,13 @@ public class PdlKlientMedCache {
 
     private static final long DEFAULT_CACHE_TIMEOUT = MILLISECONDS.convert(8, HOURS);
 
-    private final PdlKlient pdlKlient;
-    private final Cache<String, String> cacheAktørIdTilIdent;
-    private final Cache<String, String> cacheIdentTilAktørId;
+    private PdlKlient pdlKlient;
+    private Cache<String, String> cacheAktørIdTilIdent;
+    private Cache<String, String> cacheIdentTilAktørId;
+
+    PdlKlientMedCache() {
+
+    }
 
     @Inject
     public PdlKlientMedCache(PdlKlient pdlKlient) {
