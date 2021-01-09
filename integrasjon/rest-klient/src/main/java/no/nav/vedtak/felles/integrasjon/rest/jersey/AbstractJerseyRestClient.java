@@ -26,7 +26,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import org.apache.http.Header;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.StringEntity;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
@@ -145,7 +144,7 @@ public abstract class AbstractJerseyRestClient {
     }
 
     protected String patch(URI endpoint, Object obj, Header... headers) {
-        HttpEntityEnclosingRequestBase entity = new HttpPatch(endpoint);
+        var entity = new HttpPatch(endpoint);
         entity.setEntity(new StringEntity(toJson(obj), UTF_8));
         try {
             Arrays.stream(headers).forEach(entity::addHeader);
