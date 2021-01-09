@@ -28,7 +28,6 @@ import javax.ws.rs.client.ClientRequestFilter;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.apache.connector.ApacheHttpClientBuilderConfigurator;
@@ -52,7 +51,7 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.Strin
  * via {@link .RestClientSupportProdusent} slik at den har de samme egenskaper
  * som tidligere</li>
  * <li>Proxy er satt om subklasser konstrueres med en proxy-URL</li>
- * <li>{@link StandardHeadersRequestFilter} registreres, denne sørger for
+ * <li>{@link StandardHeadersRequestInterceptor} registreres, denne sørger for
  * propagering av callID (med et par navnevariasjoner)
  * <li>Jackson mapping rgistreres. Det er mulig å sende inn sin egen mapper, om
  * det ikke gjøres brukes {@link DefaultJsonMapper}
@@ -114,13 +113,13 @@ public abstract class AbstractJerseyRestClient {
         cfg.connectorProvider(new ApacheConnectorProvider());
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
             return b.setDefaultHeaders(defaultHeaders())
+                    .addInterceptorFirst(new StandardHeadersRequestInterceptor())
                     .setKeepAliveStrategy(createKeepAliveStrategy(30))
                     .setDefaultRequestConfig(defaultRequestConfig())
                     .setRetryHandler(new HttpRequestRetryHandler())
                     .setConnectionManager(connectionManager());
         });
         filters.stream().forEach(cfg::register);
-        cfg.register(new StandardHeadersRequestFilter());
         this.objectMapper = mapper;
         client = ClientBuilder.newClient(cfg);
     }
@@ -145,26 +144,11 @@ public abstract class AbstractJerseyRestClient {
         }
     }
 
-    protected String patch(URI endpoint, Object obj) {
-        return patch(endpoint, obj, Set.of());
-    }
-
-    protected String patch(URI endpoint, Object obj, Set<Header> headers) {
-        return execute(new HttpPatch(endpoint), obj, headers);
-    }
-
-    protected String put(URI endpoint, Object obj) {
-        return put(endpoint, obj, Set.of());
-    }
-
-    protected String put(URI endpoint, Object obj, Set<Header> headers) {
-        return execute(new HttpPut(endpoint), obj, headers);
-    }
-
-    private String execute(HttpEntityEnclosingRequestBase entity, Object obj, Set<Header> headers) {
+    protected String patch(URI endpoint, Object obj, Header... headers) {
+        HttpEntityEnclosingRequestBase entity = new HttpPatch(endpoint);
         entity.setEntity(new StringEntity(toJson(obj), UTF_8));
         try {
-            headers.forEach(entity::addHeader);
+            Arrays.stream(headers).forEach(entity::addHeader);
             return getHttpClient(client).execute(entity, new StringResponseHandler(entity.getURI()));
         } catch (IOException e) {
             throw new TekniskException("F-432937", entity.getURI(), e);

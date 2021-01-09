@@ -18,7 +18,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
-public class SakRestKlient implements SakClient {
+public class LegacySakRestKlient implements SakClient {
 
     private static final String ENDPOINT_KEY = "sak.rs.url";
     private static final String DEFAULT_URI = "http://sak.default/api/v1/saker";
@@ -27,11 +27,11 @@ public class SakRestKlient implements SakClient {
     private OidcRestClient oidcRestClient;
     private URI endpoint;
 
-    public SakRestKlient() {
+    public LegacySakRestKlient() {
     }
 
     @Inject
-    public SakRestKlient(OidcRestClient oidcRestClient,
+    public LegacySakRestKlient(OidcRestClient oidcRestClient,
             @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
         this.oidcRestClient = oidcRestClient;
         this.endpoint = endpoint;

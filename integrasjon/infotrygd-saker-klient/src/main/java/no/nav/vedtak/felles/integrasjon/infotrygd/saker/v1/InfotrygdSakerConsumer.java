@@ -10,6 +10,7 @@ import org.apache.http.client.utils.URIBuilder;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
+@Deprecated
 public abstract class InfotrygdSakerConsumer {
 
     private OidcRestClient restClient;
@@ -27,9 +28,9 @@ public abstract class InfotrygdSakerConsumer {
     public Saker getSaker(String fnr, LocalDate fom) throws Exception {
         Objects.requireNonNull(fnr);
         var request = new URIBuilder(uri)
-            .addParameter("fnr", fnr)
-            .addParameter("fom", fom(fom))
-            .build();
+                .addParameter("fnr", fnr)
+                .addParameter("fom", fom(fom))
+                .build();
         return restClient.get(request, Saker.class);
     }
 

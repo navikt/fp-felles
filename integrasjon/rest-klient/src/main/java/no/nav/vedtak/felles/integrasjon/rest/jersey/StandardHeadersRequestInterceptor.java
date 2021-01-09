@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
-import static javax.ws.rs.Priorities.HEADER_DECORATOR;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.ALT_NAV_CALL_ID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
@@ -10,18 +9,18 @@ import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
 import java.io.IOException;
 
-import javax.annotation.Priority;
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.protocol.HttpContext;
 
-@Priority(HEADER_DECORATOR)
-public class StandardHeadersRequestFilter implements ClientRequestFilter {
+public class StandardHeadersRequestInterceptor implements HttpRequestInterceptor {
 
     @Override
-    public void filter(ClientRequestContext ctx) throws IOException {
-        ctx.getHeaders().add(DEFAULT_NAV_CALLID, getCallId());
-        ctx.getHeaders().add(ALT_NAV_CALL_ID, getCallId());
-        ctx.getHeaders().add(HEADER_CORRELATION_ID, getCallId());
-        ctx.getHeaders().add(DEFAULT_NAV_CONSUMERID, getSubjectHandler().getConsumerId());
+    public void process(HttpRequest req, HttpContext context) throws HttpException, IOException {
+        req.addHeader(DEFAULT_NAV_CALLID, getCallId());
+        req.addHeader(ALT_NAV_CALL_ID, getCallId());
+        req.addHeader(HEADER_CORRELATION_ID, getCallId());
+        req.addHeader(DEFAULT_NAV_CONSUMERID, getSubjectHandler().getConsumerId());
     }
 }

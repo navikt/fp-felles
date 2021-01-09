@@ -1,8 +1,13 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static org.apache.http.HttpHeaders.AUTHORIZATION;
+
+import java.net.URI;
 
 import javax.ws.rs.client.ClientRequestFilter;
+
+import org.apache.http.message.BasicHeader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -38,19 +43,25 @@ import no.nav.vedtak.felles.integrasjon.rest.AbstractOidcRestClient;
  */
 public abstract class AbstractJerseyOidcRestClient extends AbstractJerseyRestClient {
 
+    private static final OidcTokenRequestFilter REQUIRED = new OidcTokenRequestFilter();
+
     public AbstractJerseyOidcRestClient() {
         this(mapper);
     }
 
     public AbstractJerseyOidcRestClient(ObjectMapper mapper) {
-        this(mapper, new OidcTokenRequestFilter());
+        this(mapper, REQUIRED);
     }
 
     public AbstractJerseyOidcRestClient(ClientRequestFilter... filters) {
-        super(mapper, addIfRequiredNotPresent(filters, new OidcTokenRequestFilter()));
+        super(mapper, addIfRequiredNotPresent(filters, REQUIRED));
     }
 
     public AbstractJerseyOidcRestClient(ObjectMapper mapper, ClientRequestFilter... filters) {
-        super(mapper, addIfRequiredNotPresent(filters, new OidcTokenRequestFilter()));
+        super(mapper, addIfRequiredNotPresent(filters, REQUIRED));
+    }
+
+    protected String patch(URI endpoint, Object obj) {
+        return patch(endpoint, obj, new BasicHeader(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + REQUIRED.accessToken()));
     }
 }
