@@ -14,22 +14,22 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 // @ApplicationScoped
-public class SakJerseyRestKlient extends AbstractJerseyOidcRestClient implements SakClient {
+public class JerseySakRestKlient extends AbstractJerseyOidcRestClient implements SakClient {
 
     private static final String ENDPOINT_KEY = "sak.rs.url";
     private static final String DEFAULT_URI = "http://sak.default/api/v1/saker";
 
     private URI endpoint;
 
-    public SakJerseyRestKlient() {
+    public JerseySakRestKlient() {
     }
 
     @Inject
-    public SakJerseyRestKlient(@KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
+    public JerseySakRestKlient(@KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
         this(endpoint, new ClientRequestFilter[0]);
     }
 
-    SakJerseyRestKlient(URI endpoint, ClientRequestFilter... filters) {
+    JerseySakRestKlient(URI endpoint, ClientRequestFilter... filters) {
         super(filters);
         this.endpoint = endpoint;
     }

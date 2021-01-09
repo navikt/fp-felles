@@ -45,7 +45,7 @@ public class TestJerseyClient {
     private static final String PATH = "/api/v1/saker";
     private static final String SAKNR = "123";
     private static final String ID = "42";
-    private SakJerseyRestKlient client;
+    private JerseySakRestKlient client;
     @Spy
     private OidcTokenRequestFilter provider;
     private String callId;
@@ -67,7 +67,7 @@ public class TestJerseyClient {
         callId = generateCallId();
         putCallId(callId);
         doReturn(TOKEN).when(provider).accessToken();
-        client = new SakJerseyRestKlient(URI.create("http://localhost:8080/api/v1/saker"), provider);
+        client = new JerseySakRestKlient(URI.create("http://localhost:8080/api/v1/saker"), provider);
     }
 
     @Test
