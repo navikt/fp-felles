@@ -41,17 +41,17 @@ public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenP
         return getSubjectHandler().getInternSsoToken();
     }
 
-    private static String exchangedToken() {
+    private String exchangedToken() {
         return Optional.ofNullable(samlToken())
-                .map(OidcTokenRequestFilter::exchange)
+                .map(this::exchange)
                 .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
     }
 
-    private static SAMLAssertionCredential samlToken() {
+    private SAMLAssertionCredential samlToken() {
         return getSubjectHandler().getSamlToken();
     }
 
-    private static String exchange(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
+    private String exchange(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
         return getSystemUserIdToken().getToken();
     }
 
