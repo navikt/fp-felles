@@ -43,25 +43,23 @@ import no.nav.vedtak.felles.integrasjon.rest.AbstractOidcRestClient;
  */
 public abstract class AbstractJerseyOidcRestClient extends AbstractJerseyRestClient {
 
-    private static final OidcTokenRequestFilter REQUIRED = new OidcTokenRequestFilter();
-
     public AbstractJerseyOidcRestClient() {
         this(mapper);
     }
 
     public AbstractJerseyOidcRestClient(ObjectMapper mapper) {
-        this(mapper, REQUIRED);
+        this(mapper, new OidcTokenRequestFilter());
     }
 
     public AbstractJerseyOidcRestClient(ClientRequestFilter... filters) {
-        super(mapper, addIfRequiredNotPresent(filters, REQUIRED));
+        super(mapper, addIfRequiredNotPresent(filters, new OidcTokenRequestFilter()));
     }
 
     public AbstractJerseyOidcRestClient(ObjectMapper mapper, ClientRequestFilter... filters) {
-        super(mapper, addIfRequiredNotPresent(filters, REQUIRED));
+        super(mapper, addIfRequiredNotPresent(filters, new OidcTokenRequestFilter()));
     }
 
     protected String patch(URI endpoint, Object obj) {
-        return patch(endpoint, obj, new BasicHeader(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + REQUIRED.accessToken()));
+        return patch(endpoint, obj, new BasicHeader(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + new OidcTokenRequestFilter().accessToken()));
     }
 }
