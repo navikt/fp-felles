@@ -8,7 +8,7 @@ import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.c
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultHeaders;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
-import static org.apache.commons.lang3.ArrayUtils.add;
+import static org.apache.commons.lang3.ArrayUtils.addFirst;
 import static org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
@@ -121,7 +121,10 @@ public abstract class AbstractJerseyRestClient {
                     .setRetryHandler(new HttpRequestRetryHandler())
                     .setConnectionManager(connectionManager());
         });
-        filters.stream().forEach(cfg::register);
+        filters.stream().forEach(f -> {
+            LOG.info("Registrer filter {}", f.getClass());
+            cfg.register(f);
+        });
         this.objectMapper = mapper;
         client = ClientBuilder.newClient(cfg);
     }
@@ -158,16 +161,19 @@ public abstract class AbstractJerseyRestClient {
     }
 
     protected static <T extends ClientRequestFilter> T[] addIfRequiredNotPresent(T[] filters, final T required) {
-        return Arrays.stream(filters)
+        LOG.info("Sjekker påkrevd filter {} mot {}", required, Arrays.toString(filters));
+        var alle = Arrays.stream(filters)
                 .filter(f -> required.getClass().isAssignableFrom(f.getClass()))
                 .findFirst()
                 .map(m -> filters)
                 .orElseGet(() -> logAndAdd(filters, required));
+        LOG.info("Filtere for klient er {}", Arrays.toString(alle));
+        return alle;
     }
 
     private static <T> T[] logAndAdd(final T[] filters, final T required) {
-        LOG.info("Legger til påkrevd filter {}", required);
-        return add(filters, required);
+        LOG.info("Legger til påkrevd filter {}", required.getClass());
+        return addFirst(filters, required);
     }
 
     protected ObjectMapper getObjectMapper() {
