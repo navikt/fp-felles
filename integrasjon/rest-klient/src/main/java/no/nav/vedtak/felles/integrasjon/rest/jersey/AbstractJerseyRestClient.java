@@ -32,6 +32,8 @@ import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.apache.connector.ApacheHttpClientBuilderConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -68,6 +70,7 @@ public abstract class AbstractJerseyRestClient {
     public static final String ALT_NAV_CALL_ID = "nav-call-id";
     public static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractJerseyRestClient.class);
     protected final Client client;
     private final ObjectMapper objectMapper;
 
@@ -159,7 +162,12 @@ public abstract class AbstractJerseyRestClient {
                 .filter(f -> required.getClass().isAssignableFrom(f.getClass()))
                 .findFirst()
                 .map(m -> filters)
-                .orElseGet(() -> add(filters, required));
+                .orElseGet(() -> logAndAdd(filters, required));
+    }
+
+    private static <T> T[] logAndAdd(final T[] filters, final T required) {
+        LOG.info("Legger til påkrevd filter {}", required);
+        return add(filters, required);
     }
 
     protected ObjectMapper getObjectMapper() {
