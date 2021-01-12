@@ -32,7 +32,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -67,23 +70,15 @@ public class TestJerseySakClient {
     @BeforeEach
     public void beforeEach() {
         doReturn(TOKEN).when(subjectHandler).getInternSsoToken();
-
     }
 
     @Test
     public void testHentForSaksnr() throws Exception {
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
-            stubFor(get(urlPathEqualTo(PATH))
-                    .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-                    .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
-                    .withHeader(AUTHORIZATION, containing(TOKEN))
-                    .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
+            stubFor(headers(get(urlPathEqualTo(PATH)))
                     .withQueryParam("fagsakNr", new EqualToPattern(SAKNR))
-                    .willReturn(aResponse()
-                            .withStatus(SC_OK)
-                            .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                            .withBody(mapper.writeValueAsString(List.of(sak())))));
+                    .willReturn(body(List.of(sak()))));
             var res = CLIENT.finnForSaksnummer(SAKNR);
             assertFalse(res.isEmpty());
             assertEquals(sak(), res.get());
@@ -94,15 +89,8 @@ public class TestJerseySakClient {
     public void testHentForSakId() throws Exception {
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
-            stubFor(get(urlPathEqualTo("/api/v1/saker/" + ID))
-                    .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-                    .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
-                    .withHeader(AUTHORIZATION, containing(TOKEN))
-                    .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
-                    .willReturn(aResponse()
-                            .withStatus(SC_OK)
-                            .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                            .withBody(mapper.writeValueAsString(sak()))));
+            stubFor(headers(get(urlPathEqualTo("/api/v1/saker/" + ID)))
+                    .willReturn(body(sak())));
             var sak = CLIENT.hentSakId(ID);
             assertEquals(sak(), sak);
         }
@@ -112,18 +100,25 @@ public class TestJerseySakClient {
     public void testOpprett() throws Exception {
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
-            stubFor(post(urlPathEqualTo(PATH))
-                    .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-                    .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
-                    .withHeader(AUTHORIZATION, containing(TOKEN))
-                    .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
-                    .willReturn(aResponse()
-                            .withStatus(SC_OK)
-                            .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                            .withBody(mapper.writeValueAsString(sak()))));
+            stubFor(headers(post(urlPathEqualTo(PATH)))
+                    .willReturn(body(sak())));
             var sak = CLIENT.opprettSak(sak());
             assertEquals(sak(), sak);
         }
+    }
+
+    private static ResponseDefinitionBuilder body(Object body) throws JsonProcessingException {
+        return aResponse()
+                .withStatus(SC_OK)
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                .withBody(mapper.writeValueAsString(body));
+    }
+
+    private static MappingBuilder headers(MappingBuilder b) {
+        return b.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+                .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
+                .withHeader(AUTHORIZATION, containing(TOKEN))
+                .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID));
     }
 
     private static SakJson sak() {
