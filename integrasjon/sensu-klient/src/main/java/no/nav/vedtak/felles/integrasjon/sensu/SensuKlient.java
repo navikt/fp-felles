@@ -146,7 +146,7 @@ public class SensuKlient implements AppServiceHandler {
         }
     }
 
-    void startService() {
+    synchronized void startService() {
         if (executorService != null) {
             throw new IllegalArgumentException("Service allerede startet, stopp først.");
         }
