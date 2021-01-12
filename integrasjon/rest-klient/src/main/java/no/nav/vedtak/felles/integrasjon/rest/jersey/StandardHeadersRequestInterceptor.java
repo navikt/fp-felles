@@ -14,7 +14,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.protocol.HttpContext;
 
-public class StandardHeadersRequestInterceptor implements HttpRequestInterceptor {
+class StandardHeadersRequestInterceptor implements HttpRequestInterceptor {
 
     @Override
     public void process(HttpRequest req, HttpContext context) throws HttpException, IOException {

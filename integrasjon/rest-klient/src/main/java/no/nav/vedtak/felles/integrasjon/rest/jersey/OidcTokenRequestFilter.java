@@ -18,13 +18,13 @@ import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
 /**
  * Dette filteret erstatter {@link OidcRestClient} og er funksjonelt ekvivalent
- * med dette. Typisk bruk er i tjenster som trenger et OIDC bearer token i en
+ * med denne. Typisk bruk er i tjenester som trenger et OIDC bearer token i en
  * AUTHORIZATION header og vil normalt brukes sammen med
  * {@link AbstractJerseyOidcRestClient}, som automatisk registrer dette filteret
  * *
  */
 @Priority(AUTHENTICATION)
-public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider {
+class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider {
 
     @Override
     public void filter(ClientRequestContext ctx) {
