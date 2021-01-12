@@ -38,7 +38,7 @@ public class SensuKlientTest {
         serverSocket = new ServerSocket(0);
         serverSocket.setSoTimeout(1000);
         sensuKlient = new SensuKlient("localhost", serverSocket.getLocalPort());
-        sensuKlient.start();
+        sensuKlient.startService();
 
         new Thread(() -> {
             try (Socket socket = serverSocket.accept()) {

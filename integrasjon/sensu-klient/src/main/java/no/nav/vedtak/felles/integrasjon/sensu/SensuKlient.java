@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class SensuKlient implements AppServiceHandler {
@@ -40,7 +41,7 @@ public class SensuKlient implements AppServiceHandler {
 
     @Inject
     public SensuKlient(@KonfigVerdi(value = "sensu.host", defaultVerdi = "sensu.nais") String sensuHost,
-            @KonfigVerdi(value = "sensu.port", defaultVerdi = "3030") Integer sensuPort) {
+                       @KonfigVerdi(value = "sensu.port", defaultVerdi = "3030") Integer sensuPort) {
         this.sensuHost = sensuHost;
         this.sensuPort = sensuPort;
     }
@@ -49,7 +50,9 @@ public class SensuKlient implements AppServiceHandler {
         logMetrics(List.of(metrics));
     }
 
-    /** Sender et set med events samlet til Sensu. */
+    /**
+     * Sender et set med events samlet til Sensu.
+     */
     public void logMetrics(List<SensuEvent> metrics) {
         var event = SensuEvent.createBatchSensuRequest(metrics);
         logMetrics(event);
@@ -86,7 +89,7 @@ public class SensuKlient implements AppServiceHandler {
                             // ink. SocketException
                             if (rounds <= 0) {
                                 LOG.warn("Feil ved tilkobling til metrikkendepunkt. Kan ikke publisere melding fra callId[" + callId + "]: "
-                                        + jsonForEx, ex);
+                                    + jsonForEx, ex);
                                 break;
                             }
                         } catch (Exception ex) {
@@ -136,6 +139,14 @@ public class SensuKlient implements AppServiceHandler {
 
     @Override
     public synchronized void start() {
+        if (Environment.current().isLocal()) {
+            LOG.info("Kjører lokalt, kobler ikke opp mot sensu-server.");
+        } else {
+            startService();
+        }
+    }
+
+    synchronized void startService() {
         if (executorService != null) {
             throw new IllegalArgumentException("Service allerede startet, stopp først.");
         }
