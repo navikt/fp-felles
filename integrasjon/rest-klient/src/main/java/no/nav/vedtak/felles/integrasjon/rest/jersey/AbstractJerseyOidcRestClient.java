@@ -1,6 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static org.apache.http.HttpHeaders.ACCEPT;
 import static org.apache.http.HttpHeaders.AUTHORIZATION;
 
 import java.net.URI;
@@ -60,6 +62,7 @@ public abstract class AbstractJerseyOidcRestClient extends AbstractJerseyRestCli
     }
 
     protected String patch(URI endpoint, Object obj) {
-        return patch(endpoint, obj, new BasicHeader(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + new OidcTokenRequestFilter().accessToken()));
+        return patch(endpoint, obj, new BasicHeader(ACCEPT, APPLICATION_JSON),
+                new BasicHeader(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + new OidcTokenRequestFilter().accessToken()));
     }
 }

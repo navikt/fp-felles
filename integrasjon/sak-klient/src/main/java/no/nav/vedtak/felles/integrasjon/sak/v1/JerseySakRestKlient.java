@@ -29,6 +29,10 @@ public class JerseySakRestKlient extends AbstractJerseyOidcRestClient implements
         this(endpoint, new ClientRequestFilter[0]);
     }
 
+    JerseySakRestKlient(String endpoint, ClientRequestFilter... filters) {
+        this(URI.create(endpoint), filters);
+    }
+
     JerseySakRestKlient(URI endpoint, ClientRequestFilter... filters) {
         super(filters);
         this.endpoint = endpoint;

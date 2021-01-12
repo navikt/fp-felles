@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
-import java.net.URI;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
@@ -67,7 +66,7 @@ public class TestJerseyClient {
         callId = generateCallId();
         putCallId(callId);
         doReturn(TOKEN).when(provider).accessToken();
-        client = new JerseySakRestKlient(URI.create("http://localhost:8080/api/v1/saker"), provider);
+        client = new JerseySakRestKlient("http://localhost:8080/api/v1/saker", provider);
     }
 
     @Test
