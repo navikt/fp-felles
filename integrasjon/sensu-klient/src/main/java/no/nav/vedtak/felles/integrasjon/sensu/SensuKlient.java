@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class SensuKlient implements AppServiceHandler {
@@ -136,6 +137,10 @@ public class SensuKlient implements AppServiceHandler {
 
     @Override
     public synchronized void start() {
+        if (Environment.current().isLocal()){
+            LOG.info("Kjører lokalt, kobler ikke opp mot sensu-server.");
+            return;
+        }
         if (executorService != null) {
             throw new IllegalArgumentException("Service allerede startet, stopp først.");
         }
