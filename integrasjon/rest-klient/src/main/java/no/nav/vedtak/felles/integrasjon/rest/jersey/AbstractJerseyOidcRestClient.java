@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.integrasjon.rest.AbstractOidcRestClient;
  * Denne klassen erstatter {@link AbstractOidcRestClient} og er ment som en
  * felles superklasse for alle tjenster som trenger et OIDC bearer token i en
  * AUTHORIZATION header. Dette OIDC-tokenet slås opp og settes av
- * {@link OidcTokenRequestFilter}
+ * {@link OidcTokenRequestFilter} som alltid registreres.
  *
  *
  * Subklasser kan konstrueres på 4 måter, med økende grad av fleksibilitet:

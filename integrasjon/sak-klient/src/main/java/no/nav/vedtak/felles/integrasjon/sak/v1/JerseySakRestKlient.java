@@ -16,6 +16,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 // @ApplicationScoped
 public class JerseySakRestKlient extends AbstractJerseyOidcRestClient implements SakClient {
 
+    static final String FAGSAK_NR = "fagsakNr";
     private static final String ENDPOINT_KEY = "sak.rs.url";
     private static final String DEFAULT_URI = "http://sak.default/api/v1/saker";
 
@@ -49,7 +50,7 @@ public class JerseySakRestKlient extends AbstractJerseyOidcRestClient implements
     @Override
     public Optional<SakJson> finnForSaksnummer(String saksnummer) throws Exception {
         return Arrays.stream(client.target(endpoint)
-                .queryParam("fagsakNr", saksnummer)
+                .queryParam(FAGSAK_NR, saksnummer)
                 .request(APPLICATION_JSON_TYPE)
                 .get(SakJson[].class))
                 .findFirst();
