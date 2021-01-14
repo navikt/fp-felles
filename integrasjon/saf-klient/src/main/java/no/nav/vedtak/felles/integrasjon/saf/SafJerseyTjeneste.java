@@ -38,7 +38,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 //@Dependent
-public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient {
+public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements Saf {
 
     private static final String F_240613 = "F-240613";
     private static final String DEFAULT_BASE = "https://localhost:8063/rest/api/saf";
@@ -52,18 +52,22 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient {
         this.base = base;
     }
 
+    @Override
     public Dokumentoversikt dokumentoversiktFagsak(DokumentoversiktFagsakQueryRequest q, DokumentoversiktResponseProjection p) {
         return utførSpørring(new GraphQLRequest(q, p), DokumentoversiktFagsakQueryResponse.class).dokumentoversiktFagsak();
     }
 
+    @Override
     public Journalpost hentJournalpostInfo(JournalpostQueryRequest q, JournalpostResponseProjection p) {
         return utførSpørring(new GraphQLRequest(q, p), JournalpostQueryResponse.class).journalpost();
     }
 
+    @Override
     public List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQueryRequest q, JournalpostResponseProjection p) {
         return utførSpørring(new GraphQLRequest(q, p), TilknyttedeJournalposterQueryResponse.class).tilknyttedeJournalposter();
     }
 
+    @Override
     public byte[] hentDokument(HentDokumentQuery q) {
         try {
             return client.target(base)

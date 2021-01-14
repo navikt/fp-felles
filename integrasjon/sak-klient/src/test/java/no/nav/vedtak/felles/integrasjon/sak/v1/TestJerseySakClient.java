@@ -63,8 +63,7 @@ public class TestJerseySakClient {
         server.start();
         configureFor(server.port());
         putCallId(CALLID);
-        CLIENT = new JerseySakRestKlient(
-                new URIBuilder().setHost("localhost").setScheme("http").setPort(server.port()).setPath(PATH).build());
+        CLIENT = new JerseySakRestKlient(new URIBuilder().setHost("localhost").setScheme("http").setPort(server.port()).setPath(PATH).build());
     }
 
     @AfterAll
@@ -83,7 +82,7 @@ public class TestJerseySakClient {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(headers(get(urlPathEqualTo(PATH)).withPort(server.port()))
                     .withQueryParam(FAGSAK_NR, new EqualToPattern(SAKNR))
-                    .willReturn(responseBody(List.of(sak()))));
+                    .willReturn(responseBody(saker())));
             var res = CLIENT.finnForSaksnummer(SAKNR);
             assertFalse(res.isEmpty());
             assertEquals(sak(), res.get());
@@ -117,7 +116,6 @@ public class TestJerseySakClient {
 
     private static MappingBuilder headers(MappingBuilder b) {
         return b.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-                .withPort(server.port())
                 .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
                 .withHeader(AUTHORIZATION, containing(TOKEN))
                 .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID));
@@ -125,5 +123,9 @@ public class TestJerseySakClient {
 
     private static SakJson sak() {
         return new SakJson(1L, "2", "3", "4", "5");
+    }
+
+    private static List<SakJson> saker() {
+        return List.of(sak());
     }
 }

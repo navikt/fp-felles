@@ -49,7 +49,7 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
-public class SafTjeneste {
+public class SafTjeneste implements Saf {
 
     private static List<Integer> HTTP_KODER_TOM_RESPONS = List.of(
             HttpStatus.SC_NOT_MODIFIED,
@@ -76,6 +76,7 @@ public class SafTjeneste {
         this.restKlient = restKlient;
     }
 
+    @Override
     public Dokumentoversikt dokumentoversiktFagsak(DokumentoversiktFagsakQueryRequest query, DokumentoversiktResponseProjection projection) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
@@ -84,6 +85,7 @@ public class SafTjeneste {
         return graphQlResponse.dokumentoversiktFagsak();
     }
 
+    @Override
     public Journalpost hentJournalpostInfo(JournalpostQueryRequest query, JournalpostResponseProjection projection) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
@@ -92,6 +94,7 @@ public class SafTjeneste {
         return graphQlResponse.journalpost();
     }
 
+    @Override
     public List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQueryRequest query, JournalpostResponseProjection projection) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
@@ -100,6 +103,7 @@ public class SafTjeneste {
         return graphQlResponse.tilknyttedeJournalposter();
     }
 
+    @Override
     public byte[] hentDokument(HentDokumentQuery query) {
         var uri = URI.create(hentDokumentEndpoint.toString() +
                 String.format("/%s/%s/%s", query.getJournalpostId(), query.getDokumentInfoId(), query.getVariantFormat()));
