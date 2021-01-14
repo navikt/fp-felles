@@ -1,10 +1,21 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
+import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY;
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.LOWER_CAMEL_CASE;
+import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
+import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
+import static org.apache.http.HttpStatus.SC_ACCEPTED;
+import static org.apache.http.HttpStatus.SC_NOT_MODIFIED;
+import static org.apache.http.HttpStatus.SC_NO_CONTENT;
+
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -15,15 +26,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
@@ -49,142 +54,108 @@ import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
+import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
 import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
-public class PdlKlient {
-    public static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
+public class PdlKlient implements PDL {
+    private static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
+    private static final ObjectMapper MAPPER = mapper();
 
-    private static final String PDL_ERROR_CODE = "code";
-    private static final String PDL_NOT_FOUND = "not_found";
-    private static final String PDL_UNAUTHORIZED = "unauthorized";
-    private static final String PDL_NOT_AUTHENTICATED = "unauthenticated";
-    private static final String PDL_BAD_REQUEST = "bad_request";
-    private static final String PDL_SERVER_ERROR = "server_error";
+    private static final List<Integer> HTTP_KODER_TOM_RESPONS = List.of(SC_NOT_MODIFIED, SC_NO_CONTENT, SC_ACCEPTED);
 
-    private static final List<Integer> HTTP_KODER_TOM_RESPONS = List.of(
-            HttpStatus.SC_NOT_MODIFIED,
-            HttpStatus.SC_NO_CONTENT,
-            HttpStatus.SC_ACCEPTED);
-
-    private URI graphqlEndpoint;
+    private URI endpoint;
     private CloseableHttpClient restKlient;
-    private final ObjectMapper mapper = createObjectMapper();
+    private PdlErrorHandler errorHandler;
 
     PdlKlient() {
-        // CDI
     }
 
-    PdlKlient(URI endpoint, SystemConsumerStsRestClient restKlient) {
-        this.graphqlEndpoint = URI.create(endpoint.toString() + "/graphql");
+    PdlKlient(URI endpoint, SystemConsumerStsRestClient restKlient, PdlErrorHandler errorHandler) {
+        this.endpoint = URI.create(endpoint.toString() + "/graphql");
         this.restKlient = restKlient;
+        this.errorHandler = errorHandler;
     }
 
     @Inject
     public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "https://localhost:8063/rest/api/pdl") URI endpoint,
             StsAccessTokenConfig config) {
-        this.graphqlEndpoint = URI.create(endpoint.toString() + "/graphql");
+        this.endpoint = URI.create(endpoint.toString() + "/graphql");
         this.restKlient = new SystemConsumerStsRestClient(config);
     }
 
-    public GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p, Tema consumerTemaKode) {
-        var graphQLRequest = new GraphQLRequest(q, p);
-        HentGeografiskTilknytningQueryResponse r = utførSpørring(graphQLRequest, mapper.readerFor(HentGeografiskTilknytningQueryResponse.class),
-                consumerTemaKode);
-        return r.hentGeografiskTilknytning();
-
+    @Override
+    public GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p, Tema tema) {
+        return query(new GraphQLRequest(q, p), HentGeografiskTilknytningQueryResponse.class, tema).hentGeografiskTilknytning();
     }
 
-    public Person hentPerson(HentPersonQueryRequest query, PersonResponseProjection projection, Tema tema) {
-        var graphQLRequest = new GraphQLRequest(query, projection);
-        HentPersonQueryResponse graphQlResponse = utførSpørring(graphQLRequest, mapper.readerFor(HentPersonQueryResponse.class),
-                tema);
-        return graphQlResponse.hentPerson();
+    @Override
+    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, Tema tema) {
+        return query(new GraphQLRequest(q, p), HentPersonQueryResponse.class, tema).hentPerson();
     }
 
-    public Identliste hentIdenter(HentIdenterQueryRequest query, IdentlisteResponseProjection projection, Tema tema) {
-        var graphQLRequest = new GraphQLRequest(query, projection);
-        HentIdenterQueryResponse graphQlResponse = utførSpørring(graphQLRequest, mapper.readerFor(HentIdenterQueryResponse.class),
-                tema);
-        return graphQlResponse.hentIdenter();
+    @Override
+    public Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p, Tema tema) {
+        return query(new GraphQLRequest(q, p), HentIdenterQueryResponse.class, tema).hentIdenter();
     }
 
-    public List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest query, HentIdenterBolkResultResponseProjection projection,
-            Tema tema) {
-        var graphQLRequest = new GraphQLRequest(query, projection);
-        HentIdenterBolkQueryResponse graphQlResponse = utførSpørring(graphQLRequest, mapper.readerFor(HentIdenterBolkQueryResponse.class), tema);
-        return graphQlResponse.hentIdenterBolk();
+    @Override
+    public List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest q, HentIdenterBolkResultResponseProjection p, Tema tema) {
+        return query(new GraphQLRequest(q, p), HentIdenterBolkQueryResponse.class, tema).hentIdenterBolk();
     }
 
-    private <T extends GraphQLResult<?>> T utførSpørring(GraphQLRequest request, ObjectReader objectReader, Tema consumerTemaKode) {
-        var responseHandler = new OidcRestClientResponseHandler.ObjectReaderResponseHandler<T>(graphqlEndpoint, objectReader);
+    private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz, Tema tema) {
+        T res = spør(post(req, tema), new ObjectReaderResponseHandler<T>(endpoint, MAPPER.readerFor(clazz)));
+        if (res.hasErrors()) {
+            return errorHandler.handleError(res.getErrors());
+        }
+        return res;
+    }
 
-        T graphQlResponse;
+    private HttpPost post(GraphQLRequest req, Tema tema) {
         try {
-            var httpPost = new HttpPost(graphqlEndpoint);
-            httpPost.setEntity(new StringEntity(request.toHttpJsonBody()));
-            httpPost.setHeader("TEMA", consumerTemaKode.name());
-            graphQlResponse = utførForespørsel(httpPost, responseHandler);
-        } catch (Exception e) {
-            throw PdlTjenesteFeil.FEILFACTORY.pdlForespørselFeilet(request.toQueryString(), e).toException();
+            var post = new HttpPost(endpoint);
+            post.setEntity(new StringEntity(req.toHttpJsonBody()));
+            post.setHeader("TEMA", tema.name());
+            return post;
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
         }
-
-        if (graphQlResponse.getErrors() != null && !graphQlResponse.getErrors().isEmpty()) {
-            @SuppressWarnings("unchecked")
-            var errors = graphQlResponse.getErrors();
-            if (errors.stream().anyMatch(PdlKlient::not_found)) {
-                throw PdlTjenesteFeil.FEILFACTORY.personIkkeFunnet().toException();
-            }
-            var feilmelding = errors.stream()
-                    .map(GraphQLError::getMessage)
-                    .collect(Collectors.joining("\n Error: "));
-            throw PdlTjenesteFeil.FEILFACTORY.forespørselReturnerteFeil(feilmelding).toException();
-        }
-        return graphQlResponse;
     }
 
-    private <T extends GraphQLResult<?>> T utførForespørsel(HttpPost request,
-            OidcRestClientResponseHandler.ObjectReaderResponseHandler<T> responseHandler) throws IOException {
-        try (var httpResponse = restKlient.execute(request)) {
+    private <T extends GraphQLResult<?>> T spør(HttpPost req, ObjectReaderResponseHandler<T> responseHandler) {
+        try (var httpResponse = restKlient.execute(req)) {
             var responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode == HttpStatus.SC_OK) {
                 return responseHandler.handleResponse(httpResponse);
-            } else {
-                var responseBody = HTTP_KODER_TOM_RESPONS.contains(responseCode)
-                        ? "<tom_respons>"
-                        : EntityUtils.toString(httpResponse.getEntity());
-                var feilmelding = "Kunne ikke hente informasjon for query mot PDL: " + request.getURI()
-                        + ", HTTP request=" + request.getEntity()
-                        + ", HTTP status=" + httpResponse.getStatusLine()
-                        + ". HTTP Errormessage=" + responseBody;
-                // throw new SafException(feilmelding);
-                throw new RuntimeException(feilmelding);
             }
+            var responseBody = HTTP_KODER_TOM_RESPONS.contains(responseCode)
+                    ? "<tom_respons>"
+                    : EntityUtils.toString(httpResponse.getEntity());
+            var feilmelding = "Kunne ikke hente informasjon for query mot PDL: " + req.getURI()
+                    + ", HTTP request=" + req.getEntity()
+                    + ", HTTP status=" + httpResponse.getStatusLine()
+                    + ". HTTP Errormessage=" + responseBody;
+            throw new RuntimeException(feilmelding);
+        } catch (IOException e) {
+            throw PdlTjenesteFeil.FEILFACTORY.pdlForespørselFeilet(endpoint.toString(), e).toException();
         }
     }
 
-    private static boolean not_found(GraphQLError error) {
-        if (error == null || error.getExtensions() == null) {
-            return false;
-        }
-        return PDL_NOT_FOUND.equals(error.getExtensions().get(PDL_ERROR_CODE));
-    }
-
-    private static ObjectMapper createObjectMapper() {
+    private static ObjectMapper mapper() {
         return new ObjectMapper()
                 .registerModule(new Jdk8Module())
                 .registerModule(new JavaTimeModule())
-                .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+                .setPropertyNamingStrategy(LOWER_CAMEL_CASE)
                 .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
-                .enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
-                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+                .disable(WRITE_DATES_AS_TIMESTAMPS)
+                .disable(WRITE_DURATIONS_AS_TIMESTAMPS)
+                .disable(FAIL_ON_EMPTY_BEANS)
+                .configure(WRITE_BIGDECIMAL_AS_PLAIN, true)
+                .enable(FAIL_ON_READING_DUP_TREE_KEY)
+                .enable(FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     interface PdlTjenesteFeil extends DeklarerteFeil { // NOSONAR - internt interface er ok her
@@ -198,5 +169,10 @@ public class PdlKlient {
 
         @FunksjonellFeil(feilkode = PDL_KLIENT_NOT_FOUND_KODE, feilmelding = "Feil fra PDL ved utført query. Error: Person ikke funnet", løsningsforslag = "Slå opp gyldig ident", logLevel = LogLevel.WARN)
         Feil personIkkeFunnet();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [endpoint=" + endpoint + ", restKlient=" + restKlient + ", errorHandler=" + errorHandler + "]";
     }
 }

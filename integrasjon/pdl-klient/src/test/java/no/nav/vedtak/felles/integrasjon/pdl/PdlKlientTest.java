@@ -36,7 +36,7 @@ import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
 @ExtendWith(MockitoExtension.class)
 public class PdlKlientTest {
 
-    private PdlKlient pdlKlient;
+    private PDL pdlKlient;
 
     @Mock
     private SystemConsumerStsRestClient restClient;
@@ -45,32 +45,29 @@ public class PdlKlientTest {
     @Mock
     private HttpEntity httpEntity;
 
-
     @BeforeEach
     public void setUp() throws IOException {
-        // POST mock
         when(restClient.execute(any(HttpPost.class))).thenReturn(response);
 
-        // response mock
         when(response.getEntity()).thenReturn(httpEntity);
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "FINE!"));
 
         // Service setup
         URI endpoint = URI.create("dummyendpoint/graphql");
-        pdlKlient = new PdlKlient(endpoint, restClient);
+        pdlKlient = new PdlKlient(endpoint, restClient, new PdlDefaultErrorHandler());
     }
-
 
     @Test
     public void skal_returnere_person() throws IOException {
-        //query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111", fagsaksystem: "AO01"}, foerste: 5)
+        // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111",
+        // fagsaksystem: "AO01"}, foerste: 5)
         when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/personResponse.json"));
 
         var query = new HentPersonQueryRequest();
         query.setIdent("12345678901");
         var projection = new PersonResponseProjection()
-            .navn(new NavnResponseProjection()
-                .fornavn());
+                .navn(new NavnResponseProjection()
+                        .fornavn());
 
         var person = pdlKlient.hentPerson(query, projection, Tema.OMS);
 
@@ -84,11 +81,10 @@ public class PdlKlientTest {
         var queryRequest = new HentIdenterQueryRequest();
         queryRequest.setIdent("12345678901");
         var projection = new IdentlisteResponseProjection()
-            .identer(
-                new IdentInformasjonResponseProjection()
-                    .ident()
-                    .gruppe()
-            );
+                .identer(
+                        new IdentInformasjonResponseProjection()
+                                .ident()
+                                .gruppe());
 
         var identer = pdlKlient.hentIdenter(queryRequest, projection, Tema.OMS);
 
@@ -103,20 +99,19 @@ public class PdlKlientTest {
         queryRequest.setIdenter(of("12345678901"));
 
         var projection = new HentIdenterBolkResultResponseProjection()
-            .ident()
-            .identer(new IdentInformasjonResponseProjection()
                 .ident()
-                .gruppe()
-            );
+                .identer(new IdentInformasjonResponseProjection()
+                        .ident()
+                        .gruppe());
         var identer = pdlKlient.hentIdenterBolkResults(queryRequest, projection, Tema.OMS);
 
         assertThat(
-            identer.stream()
-                .flatMap(r -> r.getIdenter().stream())
-                .map(IdentInformasjon::getIdent)
-            //.collect(Collectors.toList())
+                identer.stream()
+                        .flatMap(r -> r.getIdenter().stream())
+                        .map(IdentInformasjon::getIdent)
+        // .collect(Collectors.toList())
         )
-            .containsExactlyInAnyOrder("16047439276", "9916047439276", "25017312345", "9925017312345");
+                .containsExactlyInAnyOrder("16047439276", "9916047439276", "25017312345", "9925017312345");
     }
 
     @SuppressWarnings("resource")
@@ -127,11 +122,10 @@ public class PdlKlientTest {
         var queryRequest = new HentIdenterQueryRequest();
         queryRequest.setIdent("12345678901");
         var projection = new IdentlisteResponseProjection()
-            .identer(
-                new IdentInformasjonResponseProjection()
-                    .ident()
-                    .gruppe()
-            );
+                .identer(
+                        new IdentInformasjonResponseProjection()
+                                .ident()
+                                .gruppe());
 
         assertThrows(FunksjonellException.class, () -> pdlKlient.hentIdenter(queryRequest, projection, Tema.OMS));
 

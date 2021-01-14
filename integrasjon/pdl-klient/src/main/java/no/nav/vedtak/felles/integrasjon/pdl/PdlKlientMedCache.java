@@ -44,7 +44,7 @@ public class PdlKlientMedCache {
 
     private static final long DEFAULT_CACHE_TIMEOUT = MILLISECONDS.convert(8, HOURS);
 
-    private PdlKlient pdlKlient;
+    private PDL pdlKlient;
     private Cache<String, String> cacheAktørIdTilIdent;
     private Cache<String, String> cacheIdentTilAktørId;
 
@@ -53,19 +53,19 @@ public class PdlKlientMedCache {
     }
 
     @Inject
-    public PdlKlientMedCache(PdlKlient pdlKlient) {
+    public PdlKlientMedCache(PDL pdlKlient) {
         this(pdlKlient, DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
     }
 
-    public PdlKlientMedCache(PdlKlient pdlKlient, int cacheSize, long cacheTimeoutMillis) {
+    public PdlKlientMedCache(PDL pdlKlient, int cacheSize, long cacheTimeoutMillis) {
         this(pdlKlient, cacheSize, cacheTimeoutMillis, MILLISECONDS);
     }
 
-    public PdlKlientMedCache(PdlKlient pdlKlient, int cacheSize, long timeout, TimeUnit unit) {
+    public PdlKlientMedCache(PDL pdlKlient, int cacheSize, long timeout, TimeUnit unit) {
         this(pdlKlient, cache(cacheSize, timeout, unit), cache(cacheSize, timeout, unit));
     }
 
-    PdlKlientMedCache(PdlKlient pdlKlient, Cache<String, String> cacheAktørIdTilIdent, Cache<String, String> cacheIdentTilAktørId) {
+    PdlKlientMedCache(PDL pdlKlient, Cache<String, String> cacheAktørIdTilIdent, Cache<String, String> cacheIdentTilAktørId) {
         this.pdlKlient = pdlKlient;
         this.cacheAktørIdTilIdent = cacheAktørIdTilIdent;
         this.cacheIdentTilAktørId = cacheIdentTilAktørId;
@@ -150,7 +150,7 @@ public class PdlKlientMedCache {
                 .build();
     }
 
-    public PdlKlient getDelegate() {
+    public PDL getDelegate() {
         return pdlKlient;
     }
 

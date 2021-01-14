@@ -47,7 +47,7 @@ public class PdlKlientMedCacheTest {
 
         // Service setup
         URI endpoint = URI.create("dummyendpoint/graphql");
-        pdlKlient = new PdlKlient(endpoint, restClient);
+        pdlKlient = new PdlKlient(endpoint, restClient, new PdlDefaultErrorHandler());
     }
 
     @Test
