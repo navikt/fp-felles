@@ -73,17 +73,16 @@ public class PdlKlient implements PDL {
     PdlKlient() {
     }
 
-    PdlKlient(URI endpoint, SystemConsumerStsRestClient restKlient, PdlErrorHandler errorHandler) {
-        this.endpoint = URI.create(endpoint.toString() + "/graphql");
-        this.restKlient = restKlient;
-        this.errorHandler = errorHandler;
-    }
-
     @Inject
     public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "https://localhost:8063/rest/api/pdl") URI endpoint,
-            StsAccessTokenConfig config) {
+            StsAccessTokenConfig config, PdlErrorHandler errorHandler) {
+        this(endpoint, new SystemConsumerStsRestClient(config), errorHandler);
+    }
+
+    PdlKlient(URI endpoint, CloseableHttpClient klient, PdlErrorHandler errorHandler) {
         this.endpoint = URI.create(endpoint.toString() + "/graphql");
-        this.restKlient = new SystemConsumerStsRestClient(config);
+        this.restKlient = klient;
+        this.errorHandler = errorHandler;
     }
 
     @Override

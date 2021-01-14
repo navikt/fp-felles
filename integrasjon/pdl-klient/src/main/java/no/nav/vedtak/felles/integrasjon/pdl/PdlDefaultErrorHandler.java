@@ -3,13 +3,13 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient.PdlTjenesteFeil;
 
-@ApplicationScoped
+@Dependent
 public class PdlDefaultErrorHandler implements PdlErrorHandler {
     private static final String PDL_ERROR_CODE = "code";
     private static final String PDL_NOT_FOUND = "not_found";
