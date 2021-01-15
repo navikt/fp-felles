@@ -55,7 +55,6 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
 public class PdlKlient implements Pdl {
-    private static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
     private static final ObjectMapper MAPPER = mapper();
 
     private static final List<Integer> HTTP_KODER_TOM_RESPONS = List.of(SC_NOT_MODIFIED, SC_NO_CONTENT, SC_ACCEPTED);
@@ -68,13 +67,13 @@ public class PdlKlient implements Pdl {
     }
 
     @Inject
-    public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "https://localhost:8063/rest/api/pdl") URI endpoint,
+    public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "http://pdl-api.default/graphql") URI endpoint,
             StsAccessTokenConfig config, PdlErrorHandler errorHandler) {
         this(endpoint, new SystemConsumerStsRestClient(config), errorHandler);
     }
 
     PdlKlient(URI endpoint, CloseableHttpClient klient, PdlErrorHandler errorHandler) {
-        this.endpoint = URI.create(endpoint.toString() + "/graphql");
+        this.endpoint = endpoint;
         this.restKlient = klient;
         this.errorHandler = errorHandler;
     }
