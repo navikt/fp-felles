@@ -30,7 +30,6 @@ import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
 
 @ExtendWith(MockitoExtension.class)
@@ -127,7 +126,7 @@ public class PdlKlientTest {
                                 .ident()
                                 .gruppe());
 
-        assertThrows(FunksjonellException.class, () -> pdlKlient.hentIdenter(queryRequest, projection, Tema.OMS));
+        assertThrows(PDLException.class, () -> pdlKlient.hentIdenter(queryRequest, projection, Tema.OMS));
 
     }
 }
