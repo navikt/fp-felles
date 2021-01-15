@@ -6,6 +6,7 @@ import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,10 +22,9 @@ import no.nav.vedtak.exception.IntegrasjonException;
 @Dependent
 public class PdlDefaultErrorHandler implements PdlErrorHandler {
     private static final Logger LOG = LoggerFactory.getLogger(PdlDefaultErrorHandler.class);
-    private static final String MSG = "Feil fra PDL";
 
     @Override
-    public <T> T handleError(List<GraphQLError> errors) {
+    public <T> T handleError(List<GraphQLError> errors, URI uri) {
         LOG.warn("PDL oppslag returnerte {} feil", errors.size());
         throw errors.stream()
                 .findFirst() // TODO hva med flere?
@@ -32,26 +32,32 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
                 .map(m -> m.get("code"))
                 .filter(Objects::nonNull)
                 .map(String.class::cast)
-                .map(PdlDefaultErrorHandler::exception)
-                .orElse(exception(SC_INTERNAL_SERVER_ERROR));
+                .map(k -> exception(k, uri))
+                .orElse(exception("F-539237", SC_INTERNAL_SERVER_ERROR, "intern feil", uri));
     }
 
-    private static IntegrasjonException exception(String kode) {
-        switch (kode) {
+    private static IntegrasjonException exception(String extension, URI uri) {
+        switch (extension) {
             case FORBUDT:
-                return exception(SC_UNAUTHORIZED);
+                return exception(SC_UNAUTHORIZED, extension, uri);
             case UAUTENTISERT:
-                return exception(SC_FORBIDDEN);
+                return exception(SC_FORBIDDEN, extension, uri);
             case IKKEFUNNET:
-                return exception(SC_NOT_FOUND);
+                return exception(SC_NOT_FOUND, extension, uri);
             case UGYLDIG:
-                return exception(SC_BAD_REQUEST);
+                return exception(SC_BAD_REQUEST, extension, uri);
             default:
-                return exception(SC_INTERNAL_SERVER_ERROR);
+                return exception("F-539237", SC_INTERNAL_SERVER_ERROR, extension, uri);
         }
     }
 
-    private static IntegrasjonException exception(int status) {
-        return new PDLException(status, MSG);
+    private static IntegrasjonException exception(int status, String extension, URI uri) {
+        return exception("F-399735", status, extension, uri);
     }
+
+    private static IntegrasjonException exception(String kode, int status, String extension, URI uri) {
+        return new PDLException(kode, extension, status, uri);
+
+    }
+
 }
