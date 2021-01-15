@@ -125,19 +125,19 @@ public class PdlKlient implements PDL {
     }
 
     private <T extends GraphQLResult<?>> T spør(HttpPost req, ObjectReaderResponseHandler<T> responseHandler) {
-        try (var httpResponse = restKlient.execute(req)) {
-            var responseCode = httpResponse.getStatusLine().getStatusCode();
-            if (responseCode == HttpStatus.SC_OK) {
-                return responseHandler.handleResponse(httpResponse);
+        try (var res = restKlient.execute(req)) {
+            var status = res.getStatusLine().getStatusCode();
+            if (status == HttpStatus.SC_OK) {
+                return responseHandler.handleResponse(res);
             }
-            var responseBody = HTTP_KODER_TOM_RESPONS.contains(responseCode)
+            var body = HTTP_KODER_TOM_RESPONS.contains(status)
                     ? "<tom_respons>"
-                    : EntityUtils.toString(httpResponse.getEntity());
-            var feilmelding = "Kunne ikke hente informasjon for query mot PDL: " + req.getURI()
+                    : EntityUtils.toString(res.getEntity());
+            var msg = "Kunne ikke hente informasjon for query mot PDL: " + req.getURI()
                     + ", HTTP request=" + req.getEntity()
-                    + ", HTTP status=" + httpResponse.getStatusLine()
-                    + ". HTTP Errormessage=" + responseBody;
-            throw new RuntimeException(feilmelding);
+                    + ", HTTP status=" + res.getStatusLine()
+                    + ". HTTP Errormessage=" + body;
+            throw new PDLException(status, msg);
         } catch (IOException e) {
             throw PdlTjenesteFeil.FEILFACTORY.pdlForespørselFeilet(endpoint.toString(), e).toException();
         }
