@@ -56,7 +56,7 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
     }
 
     private static IntegrasjonException exception(String kode, int status, String extension, URI uri) {
-        return new PDLException(kode, extension, status, uri);
+        return new PdlException(kode, extension, status, uri);
 
     }
 

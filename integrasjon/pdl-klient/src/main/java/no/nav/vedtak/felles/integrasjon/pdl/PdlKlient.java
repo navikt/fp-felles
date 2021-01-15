@@ -54,7 +54,7 @@ import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
-public class PdlKlient implements PDL {
+public class PdlKlient implements Pdl {
     private static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
     private static final ObjectMapper MAPPER = mapper();
 
@@ -131,9 +131,9 @@ public class PdlKlient implements PDL {
                     + ", HTTP request=" + req.getEntity()
                     + ", HTTP status=" + res.getStatusLine()
                     + ". HTTP Errormessage=" + body;
-            throw new PDLException("F-399735", msg, status, endpoint);
+            throw new PdlException("F-399735", msg, status, endpoint);
         } catch (IOException e) {
-            throw new PDLException("F-539237", "IO-exception", HttpStatus.SC_INTERNAL_SERVER_ERROR, endpoint);
+            throw new PdlException("F-539237", "IO-exception", HttpStatus.SC_INTERNAL_SERVER_ERROR, endpoint);
         }
     }
 

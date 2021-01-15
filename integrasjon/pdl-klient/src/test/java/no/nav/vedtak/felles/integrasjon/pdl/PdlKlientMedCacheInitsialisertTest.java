@@ -23,7 +23,7 @@ public class PdlKlientMedCacheInitsialisertTest {
 
     @Test
     void skal_hente_cachet_personIdent() {
-        PDL pdlKlientMock = mock(PDL.class);
+        Pdl pdlKlientMock = mock(Pdl.class);
         PdlKlientMedCache testSubject = new PdlKlientMedCache(pdlKlientMock, enTomCache(), enCacheMed("16047439276", "9916047439276"));
 
         assertThat(

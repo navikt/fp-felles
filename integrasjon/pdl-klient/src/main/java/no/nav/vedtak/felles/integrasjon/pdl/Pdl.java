@@ -15,7 +15,7 @@ import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 
-public interface PDL {
+public interface Pdl {
 
     List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest q, HentIdenterBolkResultResponseProjection p, Tema tema);
 

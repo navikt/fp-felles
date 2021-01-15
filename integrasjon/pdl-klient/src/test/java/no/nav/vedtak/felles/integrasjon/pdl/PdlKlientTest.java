@@ -35,7 +35,7 @@ import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
 @ExtendWith(MockitoExtension.class)
 public class PdlKlientTest {
 
-    private PDL pdlKlient;
+    private Pdl pdlKlient;
 
     @Mock
     private SystemConsumerStsRestClient restClient;
@@ -126,7 +126,7 @@ public class PdlKlientTest {
                                 .ident()
                                 .gruppe());
 
-        assertThrows(PDLException.class, () -> pdlKlient.hentIdenter(queryRequest, projection, Tema.OMS));
+        assertThrows(PdlException.class, () -> pdlKlient.hentIdenter(queryRequest, projection, Tema.OMS));
 
     }
 }
