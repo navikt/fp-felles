@@ -73,9 +73,16 @@ public class PdlKlient implements Pdl {
     }
 
     PdlKlient(URI endpoint, CloseableHttpClient klient, PdlErrorHandler errorHandler) {
-        this.endpoint = endpoint;
+        this.endpoint = validate(endpoint);
         this.restKlient = klient;
         this.errorHandler = errorHandler;
+    }
+
+    private static URI validate(URI endpoint) {
+        if (endpoint.toString().endsWith("graphql/graphql")) {
+            throw new IllegalArgumentException("Ekplisitt konfigurert URL skal ikke inneholde path");
+        }
+        return endpoint;
     }
 
     @Override
