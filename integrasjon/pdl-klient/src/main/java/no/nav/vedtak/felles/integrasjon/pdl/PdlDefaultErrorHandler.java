@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
+import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_NOT_FOUND;
@@ -43,6 +44,8 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
                 return exception(SC_FORBIDDEN);
             case IKKEFUNNET:
                 return exception(SC_NOT_FOUND);
+            case UGYLDIG:
+                return exception(SC_BAD_REQUEST);
             default:
                 return exception(SC_INTERNAL_SERVER_ERROR);
         }
