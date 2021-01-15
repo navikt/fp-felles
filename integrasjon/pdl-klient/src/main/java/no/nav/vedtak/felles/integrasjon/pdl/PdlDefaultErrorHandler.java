@@ -51,7 +51,7 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
         }
     }
 
-    static IntegrasjonException exception(int status) {
+    private static IntegrasjonException exception(int status) {
         return new PDLException(status, MSG);
     }
 }
