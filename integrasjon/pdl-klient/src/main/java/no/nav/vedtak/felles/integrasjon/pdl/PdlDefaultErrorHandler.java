@@ -1,5 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
+import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_ERROR_RESPONSE;
+import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_INTERNAL;
+import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_KLIENT_NOT_FOUND_KODE;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -33,7 +36,7 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
                 .filter(Objects::nonNull)
                 .map(String.class::cast)
                 .map(k -> exception(k, uri))
-                .orElse(exception("F-539237", SC_INTERNAL_SERVER_ERROR, "intern feil", uri));
+                .orElse(exception(PDL_INTERNAL, SC_INTERNAL_SERVER_ERROR, "intern feil", uri));
     }
 
     private static IntegrasjonException exception(String extension, URI uri) {
@@ -43,16 +46,16 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
             case UAUTENTISERT:
                 return exception(SC_FORBIDDEN, extension, uri);
             case IKKEFUNNET:
-                return exception(SC_NOT_FOUND, extension, uri);
+                return exception(PDL_KLIENT_NOT_FOUND_KODE, SC_NOT_FOUND, extension, uri);
             case UGYLDIG:
                 return exception(SC_BAD_REQUEST, extension, uri);
             default:
-                return exception("F-539237", SC_INTERNAL_SERVER_ERROR, extension, uri);
+                return exception(PDL_INTERNAL, SC_INTERNAL_SERVER_ERROR, extension, uri);
         }
     }
 
     private static IntegrasjonException exception(int status, String extension, URI uri) {
-        return exception("F-399735", status, extension, uri);
+        return exception(PDL_ERROR_RESPONSE, status, extension, uri);
     }
 
     private static IntegrasjonException exception(String kode, int status, String extension, URI uri) {

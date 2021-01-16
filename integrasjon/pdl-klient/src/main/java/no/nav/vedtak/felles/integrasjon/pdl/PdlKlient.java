@@ -8,6 +8,7 @@ import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
 import static org.apache.http.HttpStatus.SC_ACCEPTED;
+import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_NOT_MODIFIED;
 import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 
@@ -56,7 +57,8 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @Dependent
 public class PdlKlient implements Pdl {
     private static final ObjectMapper MAPPER = mapper();
-
+    @Deprecated(forRemoval = true, since = "3.0.x")
+    public static final String PDL_KLIENT_NOT_FOUND_KODE = Pdl.PDL_KLIENT_NOT_FOUND_KODE;
     private static final List<Integer> HTTP_KODER_TOM_RESPONS = List.of(SC_NOT_MODIFIED, SC_NO_CONTENT, SC_ACCEPTED);
 
     private URI endpoint;
@@ -137,9 +139,9 @@ public class PdlKlient implements Pdl {
                     + ", HTTP request=" + req.getEntity()
                     + ", HTTP status=" + res.getStatusLine()
                     + ". HTTP Errormessage=" + body;
-            throw new PdlException("F-399735", msg, status, endpoint);
+            throw new PdlException(PDL_ERROR_RESPONSE, msg, status, endpoint);
         } catch (IOException e) {
-            throw new PdlException("F-539237", "IO-exception", HttpStatus.SC_INTERNAL_SERVER_ERROR, endpoint);
+            throw new PdlException(PDL_IO_EXCEPTION, "IO-exception", SC_INTERNAL_SERVER_ERROR, endpoint);
         }
     }
 
