@@ -8,6 +8,7 @@ import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
 import static org.apache.http.HttpStatus.SC_ACCEPTED;
+import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_NOT_MODIFIED;
 import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 
@@ -48,22 +49,16 @@ import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
 import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
-public class PdlKlient implements PDL {
-    private static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
+public class PdlKlient implements Pdl {
     private static final ObjectMapper MAPPER = mapper();
-
+    @Deprecated(forRemoval = true, since = "3.0.x")
+    public static final String PDL_KLIENT_NOT_FOUND_KODE = Pdl.PDL_KLIENT_NOT_FOUND_KODE;
     private static final List<Integer> HTTP_KODER_TOM_RESPONS = List.of(SC_NOT_MODIFIED, SC_NO_CONTENT, SC_ACCEPTED);
 
     private URI endpoint;
@@ -74,15 +69,22 @@ public class PdlKlient implements PDL {
     }
 
     @Inject
-    public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "https://localhost:8063/rest/api/pdl") URI endpoint,
+    public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "http://pdl-api.default/graphql") URI endpoint,
             StsAccessTokenConfig config, PdlErrorHandler errorHandler) {
         this(endpoint, new SystemConsumerStsRestClient(config), errorHandler);
     }
 
     PdlKlient(URI endpoint, CloseableHttpClient klient, PdlErrorHandler errorHandler) {
-        this.endpoint = URI.create(endpoint.toString() + "/graphql");
+        this.endpoint = validate(endpoint);
         this.restKlient = klient;
         this.errorHandler = errorHandler;
+    }
+
+    private static URI validate(URI endpoint) {
+        if (!endpoint.toString().endsWith("graphql")) {
+            throw new IllegalArgumentException("Ekplisitt konfigurert URL må inneholde path /graphql");
+        }
+        return endpoint;
     }
 
     @Override
@@ -108,7 +110,7 @@ public class PdlKlient implements PDL {
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz, Tema tema) {
         T res = spør(post(req, tema), new ObjectReaderResponseHandler<T>(endpoint, MAPPER.readerFor(clazz)));
         if (res.hasErrors()) {
-            return errorHandler.handleError(res.getErrors());
+            return errorHandler.handleError(res.getErrors(), endpoint);
         }
         return res;
     }
@@ -125,21 +127,21 @@ public class PdlKlient implements PDL {
     }
 
     private <T extends GraphQLResult<?>> T spør(HttpPost req, ObjectReaderResponseHandler<T> responseHandler) {
-        try (var httpResponse = restKlient.execute(req)) {
-            var responseCode = httpResponse.getStatusLine().getStatusCode();
-            if (responseCode == HttpStatus.SC_OK) {
-                return responseHandler.handleResponse(httpResponse);
+        try (var res = restKlient.execute(req)) {
+            var status = res.getStatusLine().getStatusCode();
+            if (status == HttpStatus.SC_OK) {
+                return responseHandler.handleResponse(res);
             }
-            var responseBody = HTTP_KODER_TOM_RESPONS.contains(responseCode)
+            var body = HTTP_KODER_TOM_RESPONS.contains(status)
                     ? "<tom_respons>"
-                    : EntityUtils.toString(httpResponse.getEntity());
-            var feilmelding = "Kunne ikke hente informasjon for query mot PDL: " + req.getURI()
+                    : EntityUtils.toString(res.getEntity());
+            var msg = "Kunne ikke hente informasjon for query mot PDL: " + req.getURI()
                     + ", HTTP request=" + req.getEntity()
-                    + ", HTTP status=" + httpResponse.getStatusLine()
-                    + ". HTTP Errormessage=" + responseBody;
-            throw new RuntimeException(feilmelding);
+                    + ", HTTP status=" + res.getStatusLine()
+                    + ". HTTP Errormessage=" + body;
+            throw new PdlException(PDL_ERROR_RESPONSE, msg, status, endpoint);
         } catch (IOException e) {
-            throw PdlTjenesteFeil.FEILFACTORY.pdlForespørselFeilet(endpoint.toString(), e).toException();
+            throw new PdlException(PDL_IO_EXCEPTION, "IO-exception", SC_INTERNAL_SERVER_ERROR, endpoint);
         }
     }
 
@@ -155,19 +157,6 @@ public class PdlKlient implements PDL {
                 .configure(WRITE_BIGDECIMAL_AS_PLAIN, true)
                 .enable(FAIL_ON_READING_DUP_TREE_KEY)
                 .enable(FAIL_ON_UNKNOWN_PROPERTIES);
-    }
-
-    interface PdlTjenesteFeil extends DeklarerteFeil { // NOSONAR - internt interface er ok her
-        PdlTjenesteFeil FEILFACTORY = FeilFactory.create(PdlTjenesteFeil.class); // NOSONAR ok med konstant
-
-        @TekniskFeil(feilkode = "F-539237", feilmelding = "Forespørsel til PDL feilet for spørring %s", logLevel = LogLevel.WARN)
-        Feil pdlForespørselFeilet(String query, Throwable t);
-
-        @TekniskFeil(feilkode = "F-399735", feilmelding = "Feil fra PDL ved utført query. Error: %s", logLevel = LogLevel.WARN)
-        Feil forespørselReturnerteFeil(String response);
-
-        @FunksjonellFeil(feilkode = PDL_KLIENT_NOT_FOUND_KODE, feilmelding = "Feil fra PDL ved utført query. Error: Person ikke funnet", løsningsforslag = "Slå opp gyldig ident", logLevel = LogLevel.WARN)
-        Feil personIkkeFunnet();
     }
 
     @Override

@@ -64,6 +64,7 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.Strin
  */
 public abstract class AbstractJerseyRestClient {
 
+    public static final String TEMA = "TEMA";
     public static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     public static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
     public static final String DEFAULT_NAV_CALLID = "Nav-Callid";

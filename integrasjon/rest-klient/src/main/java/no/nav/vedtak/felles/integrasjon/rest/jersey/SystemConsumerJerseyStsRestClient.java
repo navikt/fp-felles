@@ -5,7 +5,7 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey;
  */
 class SystemConsumerJerseyStsRestClient extends AbstractJerseyRestClient {
 
-    public SystemConsumerJerseyStsRestClient(StsAccessTokenJerseyClient client) {
-        super(new StsAccessTokenClientRequestFilter(client));
+    public SystemConsumerJerseyStsRestClient(StsAccessTokenJerseyClient client, String tema) {
+        super(new StsAccessTokenClientRequestFilter(client, tema));
     }
 }

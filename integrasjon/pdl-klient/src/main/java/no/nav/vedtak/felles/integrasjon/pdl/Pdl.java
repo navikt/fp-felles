@@ -15,7 +15,11 @@ import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 
-public interface PDL {
+public interface Pdl {
+    static final String PDL_ERROR_RESPONSE = "F-399735";
+    static final String PDL_IO_EXCEPTION = "F-539237";
+    static final String PDL_INTERNAL = "F-539238";
+    public static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
 
     List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest q, HentIdenterBolkResultResponseProjection p, Tema tema);
 
