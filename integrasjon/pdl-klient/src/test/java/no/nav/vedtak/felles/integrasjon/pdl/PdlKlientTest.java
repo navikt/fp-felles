@@ -53,7 +53,7 @@ public class PdlKlientTest {
 
         // Service setup
         URI endpoint = URI.create("dummyendpoint/graphql");
-        pdlKlient = new PdlKlient(endpoint, restClient, new PdlDefaultErrorHandler());
+        pdlKlient = new PdlKlient(endpoint, Tema.OMS.name(), restClient, new PdlDefaultErrorHandler());
     }
 
     @Test
@@ -68,7 +68,7 @@ public class PdlKlientTest {
                 .navn(new NavnResponseProjection()
                         .fornavn());
 
-        var person = pdlKlient.hentPerson(query, projection, Tema.OMS);
+        var person = pdlKlient.hentPerson(query, projection);
 
         assertThat(person.getNavn().get(0).getFornavn()).isNotEmpty();
     }
@@ -85,7 +85,7 @@ public class PdlKlientTest {
                                 .ident()
                                 .gruppe());
 
-        var identer = pdlKlient.hentIdenter(queryRequest, projection, Tema.OMS);
+        var identer = pdlKlient.hentIdenter(queryRequest, projection);
 
         assertThat(identer.getIdenter()).hasSizeGreaterThan(0);
     }
@@ -102,7 +102,7 @@ public class PdlKlientTest {
                 .identer(new IdentInformasjonResponseProjection()
                         .ident()
                         .gruppe());
-        var identer = pdlKlient.hentIdenterBolkResults(queryRequest, projection, Tema.OMS);
+        var identer = pdlKlient.hentIdenterBolkResults(queryRequest, projection);
 
         assertThat(
                 identer.stream()
@@ -126,7 +126,7 @@ public class PdlKlientTest {
                                 .ident()
                                 .gruppe());
 
-        assertThrows(PdlException.class, () -> pdlKlient.hentIdenter(queryRequest, projection, Tema.OMS));
+        assertThrows(PdlException.class, () -> pdlKlient.hentIdenter(queryRequest, projection));
 
     }
 }

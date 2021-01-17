@@ -21,15 +21,11 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 
 import no.nav.vedtak.exception.TekniskException;
 
-class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
+public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     private static final Logger LOG = LoggerFactory.getLogger(StsAccessTokenClientRequestFilter.class);
     private final StsAccessTokenJerseyClient sts;
     private final Cache<String, String> cache;
     private final String tema;
-
-    public StsAccessTokenClientRequestFilter(StsAccessTokenJerseyClient sts) {
-        this(sts, "FOR");
-    }
 
     public StsAccessTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema) {
         this.sts = sts;
@@ -54,6 +50,7 @@ class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     }
 
     private Function<? super String, ? extends String> load() {
+        LOG.info("Oppdaterer cache med system token");
         return key -> sts.accessToken();
     }
 

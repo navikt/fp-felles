@@ -21,12 +21,12 @@ public interface Pdl {
     static final String PDL_INTERNAL = "F-539238";
     public static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
 
-    List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest q, HentIdenterBolkResultResponseProjection p, Tema tema);
+    List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest q, HentIdenterBolkResultResponseProjection p);
 
-    Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p, Tema tema);
+    Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p);
 
-    Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, Tema tema);
+    Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p);
 
-    GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p, Tema tema);
+    GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p);
 
 }

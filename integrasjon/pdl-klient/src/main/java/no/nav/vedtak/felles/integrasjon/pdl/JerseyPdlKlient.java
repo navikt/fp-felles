@@ -7,25 +7,15 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.LOWER_CAME
 import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
-import static org.apache.http.HttpStatus.SC_ACCEPTED;
-import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
-import static org.apache.http.HttpStatus.SC_NOT_MODIFIED;
-import static org.apache.http.HttpStatus.SC_NO_CONTENT;
+import static javax.ws.rs.client.Entity.json;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import javax.ws.rs.client.ClientRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -49,38 +39,35 @@ import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
-import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-@Dependent
-public class PdlKlient implements Pdl {
-    private static final ObjectMapper MAPPER = mapper();
-    @Deprecated(forRemoval = true, since = "3.0.x")
-    public static final String PDL_KLIENT_NOT_FOUND_KODE = Pdl.PDL_KLIENT_NOT_FOUND_KODE;
-    private static final List<Integer> HTTP_KODER_TOM_RESPONS = List.of(SC_NOT_MODIFIED, SC_NO_CONTENT, SC_ACCEPTED);
+//@Dependent
+public class JerseyPdlKlient extends AbstractJerseyOidcRestClient implements Pdl {
 
     private URI endpoint;
-    private CloseableHttpClient restKlient;
     private PdlErrorHandler errorHandler;
-    private String tema;
 
-    PdlKlient() {
+    JerseyPdlKlient() {
     }
 
     @Inject
-    public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "http://pdl-api.default/graphql") URI endpoint,
-            @KonfigVerdi(value = "pdl.tema", defaultVerdi = "FOR") String tema,
-            StsAccessTokenConfig config, PdlErrorHandler errorHandler) {
-        this(endpoint, tema, new SystemConsumerStsRestClient(config), errorHandler);
+    public JerseyPdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "http://pdl-api.default/graphql") URI endpoint,
+            StsAccessTokenConfig config, PdlErrorHandler errorHandler, @KonfigVerdi(value = "pdl.tema", defaultVerdi = "FOR") String tema) {
+        this(endpoint, errorHandler, new StsAccessTokenClientRequestFilter(new StsAccessTokenJerseyClient(config), tema));
     }
 
-    PdlKlient(URI endpoint, String tema, CloseableHttpClient klient, PdlErrorHandler errorHandler) {
+    JerseyPdlKlient(URI endpoint, ClientRequestFilter... filters) {
+        this(endpoint, new PdlDefaultErrorHandler(), filters);
+    }
+
+    JerseyPdlKlient(URI endpoint, PdlErrorHandler errorHandler, ClientRequestFilter... filters) {
+        super(mapper(), filters);
         this.endpoint = validate(endpoint);
-        this.restKlient = klient;
         this.errorHandler = errorHandler;
-        this.tema = tema;
     }
 
     private static URI validate(URI endpoint) {
@@ -111,41 +98,14 @@ public class PdlKlient implements Pdl {
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
-        T res = spør(post(req), new ObjectReaderResponseHandler<T>(endpoint, MAPPER.readerFor(clazz)));
+        var res = client.target(endpoint)
+                .request(APPLICATION_JSON_TYPE)
+                .buildPost(json(req.toHttpJsonBody()))
+                .invoke(clazz);
         if (res.hasErrors()) {
             return errorHandler.handleError(res.getErrors(), endpoint);
         }
         return res;
-    }
-
-    private HttpPost post(GraphQLRequest req) {
-        try {
-            var post = new HttpPost(endpoint);
-            post.setEntity(new StringEntity(req.toHttpJsonBody()));
-            post.setHeader("TEMA", tema);
-            return post;
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    private <T extends GraphQLResult<?>> T spør(HttpPost req, ObjectReaderResponseHandler<T> responseHandler) {
-        try (var res = restKlient.execute(req)) {
-            var status = res.getStatusLine().getStatusCode();
-            if (status == HttpStatus.SC_OK) {
-                return responseHandler.handleResponse(res);
-            }
-            var body = HTTP_KODER_TOM_RESPONS.contains(status)
-                    ? "<tom_respons>"
-                    : EntityUtils.toString(res.getEntity());
-            var msg = "Kunne ikke hente informasjon for query mot PDL: " + req.getURI()
-                    + ", HTTP request=" + req.getEntity()
-                    + ", HTTP status=" + res.getStatusLine()
-                    + ". HTTP Errormessage=" + body;
-            throw new PdlException(PDL_ERROR_RESPONSE, msg, status, endpoint);
-        } catch (IOException e) {
-            throw new PdlException(PDL_IO_EXCEPTION, "IO-exception", SC_INTERNAL_SERVER_ERROR, endpoint);
-        }
     }
 
     private static ObjectMapper mapper() {
@@ -164,6 +124,6 @@ public class PdlKlient implements Pdl {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [endpoint=" + endpoint + ", restKlient=" + restKlient + ", errorHandler=" + errorHandler + "]";
+        return getClass().getSimpleName() + " [endpoint=" + endpoint + ", errorHandler=" + errorHandler + "]";
     }
 }

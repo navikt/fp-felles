@@ -13,13 +13,14 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
  *
  * * @deprecated Erstattes av {@link StsAccessTokenClientRequestFilter}
  *
- * 
+ *
  */
 @Deprecated
 public class StsAccessTokenClient {
