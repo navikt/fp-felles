@@ -14,8 +14,13 @@ import java.net.URI;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.client.ClientRequestFilter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -45,9 +50,10 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestF
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@Dependent
+@Dependent
+@Named("jersey")
 public class JerseyPdlKlient extends AbstractJerseyOidcRestClient implements Pdl {
-
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyPdlKlient.class);
     private URI endpoint;
     private PdlErrorHandler errorHandler;
 
@@ -99,6 +105,7 @@ public class JerseyPdlKlient extends AbstractJerseyOidcRestClient implements Pdl
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
+        LOG.info("Henter resultat for {}", clazz.getName());
         var res = client.target(endpoint)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(req.toHttpJsonBody()))
@@ -109,7 +116,7 @@ public class JerseyPdlKlient extends AbstractJerseyOidcRestClient implements Pdl
         return res;
     }
 
-    private static ObjectMapper mapper() {
+    static ObjectMapper mapper() {
         return new ObjectMapper()
                 .registerModule(new Jdk8Module())
                 .registerModule(new JavaTimeModule())

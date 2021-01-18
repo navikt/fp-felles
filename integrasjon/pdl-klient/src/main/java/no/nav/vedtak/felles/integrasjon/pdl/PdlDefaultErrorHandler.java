@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
+import static java.util.stream.Collectors.toList;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_ERROR_RESPONSE;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_INTERNAL;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_KLIENT_NOT_FOUND_KODE;
@@ -28,7 +29,7 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
 
     @Override
     public <T> T handleError(List<GraphQLError> errors, URI uri) {
-        LOG.warn("PDL oppslag returnerte {} feil", errors.size());
+        LOG.warn("PDL oppslag mot {} returnerte {} feil ({})", uri, errors.size(), errorMsgs(errors));
         throw errors.stream()
                 .findFirst() // TODO hva med flere?
                 .map(GraphQLError::getExtensions)
@@ -37,6 +38,13 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
                 .map(String.class::cast)
                 .map(k -> exception(k, uri))
                 .orElse(exception(PDL_INTERNAL, SC_INTERNAL_SERVER_ERROR, "intern feil", uri));
+    }
+
+    private static List<String> errorMsgs(List<GraphQLError> errors) {
+        return errors
+                .stream()
+                .map(GraphQLError::getMessage)
+                .collect(toList());
     }
 
     private static IntegrasjonException exception(String extension, URI uri) {
