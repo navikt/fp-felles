@@ -50,7 +50,7 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     private String systemToken() {
         return Optional.ofNullable(samlToken())
                 .map(t -> cache.get("systemToken", load()))
-                .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
+                        .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
     }
 
     private Function<? super String, ? extends String> load() {

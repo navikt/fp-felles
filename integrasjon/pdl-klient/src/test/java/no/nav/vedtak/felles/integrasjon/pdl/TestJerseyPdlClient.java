@@ -21,25 +21,39 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
+import no.nav.pdl.HentPersonBolkQueryResponse;
+import no.nav.pdl.HentPersonBolkResult;
+import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.Person;
+import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.OidcTokenRequestFilter;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
+@Disabled
 @ExtendWith(MockitoExtension.class)
 public class TestJerseyPdlClient {
 
@@ -73,24 +87,43 @@ public class TestJerseyPdlClient {
         lenient().doReturn(TOKEN).when(subjectHandler).getInternSsoToken();
     }
 
-    // @Test
-    public void testGT() throws Exception {
+    @Test
+    public void testPerson() throws Exception {
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(headers(post(urlPathEqualTo(PATH)))
-                    .willReturn(responseBody(gt())));
-            var res = client.hentGT(null, null);
+                    .willReturn(responseBody(respons())));
+            var res = client.hentPerson(pq(), pp());
+            System.out.println("XXXX " + res);
         }
     }
 
-    @Test
-    public void dummy() {
-
+    private PersonResponseProjection pp() {
+        return new PersonResponseProjection();
     }
 
-    private Object gt() {
-        // TODO Auto-generated method stub
-        return null;
+    private HentPersonQueryRequest pq() {
+        return new HentPersonQueryRequest();
+    }
+
+    private GraphQLResult<HentPersonBolkQueryResponse> respons() {
+        try (var is = getClass().getClassLoader().getResourceAsStream("pdl/personResponse.json")) {
+            var res = new GraphQLResult<HentPersonBolkQueryResponse>();
+            var m = new ObjectMapper();
+            TypeReference<Map<String, List<HentPersonBolkResult>>> typeref = new TypeReference<Map<String, List<HentPersonBolkResult>>>() {
+            };
+            var r = m.readValue(IOUtils.toString(is, StandardCharsets.UTF_8), HentPersonBolkQueryResponse[].class);
+
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private Person person() {
+        var p = new Person();
+        return p;
     }
 
     private static ResponseDefinitionBuilder responseBody(Object body) throws JsonProcessingException {
