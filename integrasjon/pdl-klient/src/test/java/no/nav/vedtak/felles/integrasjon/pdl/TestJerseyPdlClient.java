@@ -20,6 +20,8 @@ import static org.apache.http.HttpStatus.SC_OK;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 
+import java.net.URI;
+
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,6 +36,8 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 
+import no.nav.vedtak.felles.integrasjon.rest.jersey.OidcTokenRequestFilter;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,9 +46,10 @@ public class TestJerseyPdlClient {
     private static final String TOKEN = "TOKEN";
     private static final String PATH = "/graphql";
     private Pdl client;
-
     @Mock
-    SubjectHandler subjectHandler;
+    private StsAccessTokenClientRequestFilter filter;
+    @Mock
+    private SubjectHandler subjectHandler;
     private static final String CALLID = generateCallId();
     private static WireMockServer server;
 
@@ -63,7 +68,8 @@ public class TestJerseyPdlClient {
 
     @BeforeEach
     public void beforeEach() throws Exception {
-        client = new JerseyPdlKlient(new URIBuilder().setHost("localhost").setScheme("http").setPort(server.port()).setPath(PATH).build());
+        URI uri = new URIBuilder().setHost("localhost").setScheme("http").setPort(server.port()).setPath(PATH).build();
+        client = new JerseyPdlKlient(uri, new OidcTokenRequestFilter(), filter);
         lenient().doReturn(TOKEN).when(subjectHandler).getInternSsoToken();
     }
 

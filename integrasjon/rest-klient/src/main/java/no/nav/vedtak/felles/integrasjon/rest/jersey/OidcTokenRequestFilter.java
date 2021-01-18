@@ -24,7 +24,7 @@ import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
  * *
  */
 @Priority(AUTHENTICATION)
-class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider {
+public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider {
 
     @Override
     public void filter(ClientRequestContext ctx) {
@@ -37,7 +37,7 @@ class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider
                 .orElseGet(() -> exchangedToken());
     }
 
-    private String suppliedToken() {
+    protected String suppliedToken() {
         return getSubjectHandler().getInternSsoToken();
     }
 
@@ -47,7 +47,7 @@ class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenProvider
                 .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
     }
 
-    private SAMLAssertionCredential samlToken() {
+    protected SAMLAssertionCredential samlToken() {
         return getSubjectHandler().getSamlToken();
     }
 

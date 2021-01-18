@@ -6,6 +6,7 @@ import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestCli
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -42,11 +43,14 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
 
     @Override
     public String accessToken() {
-        try {
-            return super.accessToken();
-        } catch (TekniskException e) {
-            return cache.get("systemToken", load());
-        }
+        return Optional.ofNullable(suppliedToken())
+                .orElseGet(() -> systemToken());
+    }
+
+    private String systemToken() {
+        return Optional.ofNullable(samlToken())
+                .map(t -> cache.get("systemToken", load()))
+                .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
     }
 
     private Function<? super String, ? extends String> load() {

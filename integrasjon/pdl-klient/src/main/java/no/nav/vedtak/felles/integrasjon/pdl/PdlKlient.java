@@ -85,7 +85,8 @@ public class PdlKlient implements Pdl {
 
     private static URI validate(URI endpoint) {
         if (!endpoint.toString().endsWith("graphql")) {
-            throw new IllegalArgumentException("Ekplisitt konfigurert URL må inneholde path /graphql");
+            throw new IllegalArgumentException(
+                    "Ekplisitt konfigurert URL fra property pdl.base.url må inneholde path /graphql, verdi er " + endpoint);
         }
         return endpoint;
     }
