@@ -146,14 +146,11 @@ public class TestJerseyPdlClient {
     }
 
     @Test
-    @DisplayName("Test exception kastes når vi ikke har tokens")
+    @DisplayName("Test at exception kastes når vi ikke har tokens")
     public void testPersonNoTokens() throws Exception {
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
-            stubFor(post(urlPathEqualTo(GRAPHQL))
-                    .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-                    .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
-                    .willReturn(responseBody(responsFor("pdl/personResponse.json"))));
+            stubFor(post(urlPathEqualTo(GRAPHQL)));
             assertThrows(TekniskException.class, () -> client.hentPerson(pq(), pp()));
         }
     }
@@ -164,7 +161,7 @@ public class TestJerseyPdlClient {
                     new TypeReference<GraphQLResult<T>>() {
                     });
         } catch (Exception e) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Kunne ikke konvertere " + fil + " til GraphQLResult", e);
         }
     }
 
