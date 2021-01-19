@@ -10,6 +10,12 @@ import no.nav.tjeneste.virksomhet.aktoer.v2.binding.AktoerV2;
 import no.nav.vedtak.sts.client.StsClientType;
 import no.nav.vedtak.sts.client.StsConfigurationUtil;
 
+/**
+ *
+ * @deprecated Bruk PDL
+ *
+ */
+@Deprecated(since = "3.0.x", forRemoval = true)
 @ApplicationScoped
 public class AktørConsumerProducer {
     private AktørConsumerConfig consumerConfig;

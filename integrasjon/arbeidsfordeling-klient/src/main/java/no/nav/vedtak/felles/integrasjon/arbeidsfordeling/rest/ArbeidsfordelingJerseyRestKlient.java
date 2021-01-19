@@ -7,6 +7,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Named;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
@@ -16,6 +18,8 @@ import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
+@ApplicationScoped
+@Named("jersey")
 public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClient {
 
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
