@@ -2,6 +2,12 @@ package no.nav.vedtak.felles.integrasjon.aktør.klient;
 
 import no.nav.tjeneste.virksomhet.aktoer.v2.binding.AktoerV2;
 
+/**
+ *
+ * @deprecated Bruk PDL
+ *
+ */
+@Deprecated(since = "3.0.x", forRemoval = true)
 class AktørSelftestConsumerImpl implements AktørSelftestConsumer {
     private AktoerV2 port;
     private String endpointUrl;

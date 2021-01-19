@@ -15,11 +15,17 @@ import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.AktoerIder;
 import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.IdentDetaljer;
 import no.nav.vedtak.util.LRUCache;
 
+/**
+ *
+ * @deprecated Bruk PDL
+ *
+ */
+@Deprecated(since = "3.0.x", forRemoval = true)
 @ApplicationScoped
 public class AktørConsumerMedCache {
     private static final int DEFAULT_CACHE_SIZE = 1000;
 
-    //Satt til 8 timer for å matche cache-lengde brukt i ABAC-løsningen (PDP).
+    // Satt til 8 timer for å matche cache-lengde brukt i ABAC-løsningen (PDP).
     private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(8, TimeUnit.HOURS);
 
     private AktørConsumer aktørConsumer;
@@ -45,7 +51,8 @@ public class AktørConsumerMedCache {
         Set<String> requestSet = new HashSet<>();
         for (String personIdent : personIdentSet) {
             Optional<String> fraCache = cacheIdentTilAktørId.get(personIdent);
-            if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
+            if (fraCache != null) { // NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i
+                                    // cache". Optional.empty betyr "finnes ikke i TPS"
                 fraCache.ifPresent(resultSet::add);
             } else {
                 requestSet.add(personIdent);
@@ -68,7 +75,8 @@ public class AktørConsumerMedCache {
         Set<String> requestSet = new HashSet<>();
         for (String personIdent : personIdentSet) {
             Optional<String> fraCache = cacheIdentTilAktørId.get(personIdent);
-            if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
+            if (fraCache != null) { // NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i
+                                    // cache". Optional.empty betyr "finnes ikke i TPS"
                 fraCache.ifPresent(a -> resultMap.put(personIdent, a));
             } else {
                 requestSet.add(personIdent);
@@ -81,7 +89,8 @@ public class AktørConsumerMedCache {
 
                 Optional<AktoerIder> aktør = aktoerIder.stream().filter(a -> a.getGjeldendeIdent().getTpsId().matches(ident)).findFirst();
                 if (!aktør.isPresent()) {
-                    aktør = aktoerIder.stream().filter(a -> a.getHistoriskIdentListe().stream().anyMatch(i -> i.getTpsId().matches(ident))).findFirst();
+                    aktør = aktoerIder.stream().filter(a -> a.getHistoriskIdentListe().stream().anyMatch(i -> i.getTpsId().matches(ident)))
+                            .findFirst();
                 }
                 if (aktør.isPresent()) {
 
@@ -97,7 +106,8 @@ public class AktørConsumerMedCache {
 
     public Optional<String> hentAktørIdForPersonIdent(String personIdent) {
         Optional<String> fraCache = cacheIdentTilAktørId.get(personIdent);
-        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
+        if (fraCache != null) { // NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i
+                                // cache". Optional.empty betyr "finnes ikke i TPS"
             return fraCache;
         }
         Optional<String> aktørId = aktørConsumer.hentAktørIdForPersonIdent(personIdent);
@@ -107,7 +117,8 @@ public class AktørConsumerMedCache {
 
     public Optional<String> hentPersonIdentForAktørId(String aktørId) {
         Optional<String> fraCache = cacheAktørIdTilIdent.get(aktørId);
-        if (fraCache != null) { //NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i cache". Optional.empty betyr "finnes ikke i TPS"
+        if (fraCache != null) { // NOSONAR trenger null-sjekk selv om bruker optional. Null betyr "finnes ikke i
+                                // cache". Optional.empty betyr "finnes ikke i TPS"
             return fraCache;
         }
         Optional<String> ident = aktørConsumer.hentPersonIdentForAktørId(aktørId);

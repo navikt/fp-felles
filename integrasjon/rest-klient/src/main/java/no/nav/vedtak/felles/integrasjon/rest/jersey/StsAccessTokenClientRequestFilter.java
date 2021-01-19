@@ -3,6 +3,7 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
+import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.NAV_CONSUMER_TOKEN_HEADER;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
 
@@ -37,20 +38,20 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     @Override
     public void filter(ClientRequestContext ctx) {
         ctx.getHeaders().add(DEFAULT_NAV_CONSUMERID, sts.getUsername());
+        ctx.getHeaders().add(NAV_CONSUMER_TOKEN_HEADER, systemToken());
         ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + accessToken());
         ctx.getHeaders().add(TEMA, tema);
     }
 
     @Override
-    public String accessToken() {
-        return Optional.ofNullable(suppliedToken())
-                .orElseGet(() -> systemToken());
+    protected String exchangedToken() {
+        return Optional.ofNullable(samlToken())
+                .map(t -> systemToken())
+                .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
     }
 
     private String systemToken() {
-        return Optional.ofNullable(samlToken())
-                .map(t -> cache.get("systemToken", load()))
-                        .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
+        return cache.get("systemToken", load());
     }
 
     private Function<? super String, ? extends String> load() {

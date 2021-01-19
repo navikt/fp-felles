@@ -17,6 +17,7 @@ import java.util.TimeZone;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
@@ -105,15 +107,22 @@ public class JerseyPdlKlient extends AbstractJerseyOidcRestClient implements Pdl
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
-        LOG.info("Henter resultat for {}", clazz.getName());
-        var res = client.target(endpoint)
-                .request(APPLICATION_JSON_TYPE)
-                .buildPost(json(req.toHttpJsonBody()))
-                .invoke(clazz);
-        if (res.hasErrors()) {
-            return errorHandler.handleError(res.getErrors(), endpoint);
+        try {
+            LOG.info("Henter resultat for {}", clazz.getName());
+            var res = client.target(endpoint)
+                    .request(APPLICATION_JSON_TYPE)
+                    .buildPost(json(req.toHttpJsonBody()))
+                    .invoke(clazz);
+            if (res.hasErrors()) {
+                return errorHandler.handleError(res.getErrors(), endpoint);
+            }
+            return res;
+        } catch (ProcessingException e) {
+            if (e.getCause() != null && e.getCause() instanceof VLException) {
+                throw VLException.class.cast(e.getCause());
+            }
+            throw e;
         }
-        return res;
     }
 
     static ObjectMapper mapper() {

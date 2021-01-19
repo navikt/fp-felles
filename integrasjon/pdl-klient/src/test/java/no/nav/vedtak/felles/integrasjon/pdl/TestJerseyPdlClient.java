@@ -10,9 +10,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.felles.integrasjon.pdl.JerseyPdlKlient.mapper;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
+import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
+import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.NAV_CONSUMER_TOKEN_HEADER;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
+import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
 import static no.nav.vedtak.log.mdc.MDCOperations.generateCallId;
 import static no.nav.vedtak.log.mdc.MDCOperations.putCallId;
 import static org.apache.http.HttpHeaders.ACCEPT;
@@ -20,9 +22,11 @@ import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
@@ -32,6 +36,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -40,12 +45,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -54,8 +59,9 @@ import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 @ExtendWith(MockitoExtension.class)
 public class TestJerseyPdlClient {
 
-    private static final String TEMA = Tema.FOR.name();
-    private static final String TOKEN = "TOKEN";
+    private static final String FOR = Tema.FOR.name();
+    private static final String SYSTEMTOKEN = "SYSTEMTOKEN";
+    private static final String BRUKERTOKEN = "BRUKERTOKEN";
     private static final String GRAPHQL = "/graphql";
     private Pdl client;
     @Mock
@@ -65,6 +71,7 @@ public class TestJerseyPdlClient {
     @Mock
     private SAMLAssertionCredential saml;
     private static final String CALLID = generateCallId();
+    private static final String USERNAME = "ZAPHOD";
     private static WireMockServer server;
     private static URI URI;
 
@@ -84,17 +91,53 @@ public class TestJerseyPdlClient {
 
     @BeforeEach
     public void beforeEach() throws Exception {
-        when(sts.accessToken()).thenReturn(TOKEN);
-        client = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, TEMA));
-        doReturn(saml).when(subjectHandler).getSamlToken();
+        when(sts.getUsername()).thenReturn(USERNAME);
+        client = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
     }
 
     @Test
-    public void testPerson() throws Exception {
+    @DisplayName("Test at Authorization, Nav-Consumer-Id, Nav-Consumer-Token, Nav-Consumer-Id og Tema alle blir satt")
+    public void testPersonAuthWithUserToken() throws Exception {
+        when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
+        doReturn(BRUKERTOKEN).when(subjectHandler).getInternSsoToken();
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
-            stubFor(headers(post(urlPathEqualTo(GRAPHQL)))
-                    .willReturn(responseBody(respons("pdl/personResponse.json"))));
+            stubFor(post(urlPathEqualTo(GRAPHQL))
+                    .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+                    .withHeader(DEFAULT_NAV_CONSUMERID, equalTo(USERNAME))
+                    .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
+                    .withHeader(AUTHORIZATION, containing(BRUKERTOKEN))
+                    .withHeader(NAV_CONSUMER_TOKEN_HEADER, equalTo(SYSTEMTOKEN))
+                    .withHeader(TEMA, equalTo(FOR))
+                    .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
+                    .willReturn(responseBody(responsFor("pdl/personResponse.json"))));
+            var res = client.hentPerson(pq(), pp());
+            assertNotNull(res.getNavn());
+            assertNotNull(res.getNavn().get(0).getFornavn());
+            verify(sts).accessToken();
+            res = client.hentPerson(pq(), pp());
+            assertNotNull(res.getNavn());
+            assertNotNull(res.getNavn().get(0).getFornavn());
+            verifyNoMoreInteractions(sts); // cache hit
+        }
+    }
+
+    @Test
+    @DisplayName("Test at Authorization blir satt til system token når vi ikke har et internt oidc token")
+    public void testPersonAuthWithSystemToken() throws Exception {
+        when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
+        doReturn(saml).when(subjectHandler).getSamlToken();
+        try (var s = mockStatic(SubjectHandler.class)) {
+            s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
+            stubFor(post(urlPathEqualTo(GRAPHQL))
+                    .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+                    .withHeader(DEFAULT_NAV_CONSUMERID, equalTo(USERNAME))
+                    .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
+                    .withHeader(AUTHORIZATION, containing(SYSTEMTOKEN))
+                    .withHeader(NAV_CONSUMER_TOKEN_HEADER, equalTo(SYSTEMTOKEN))
+                    .withHeader(TEMA, equalTo(FOR))
+                    .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
+                    .willReturn(responseBody(responsFor("pdl/personResponse.json"))));
             var res = client.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
@@ -102,13 +145,23 @@ public class TestJerseyPdlClient {
         }
     }
 
-    private <T> GraphQLResult<T> respons(String fil) {
+    @Test
+    @DisplayName("Test at exception kastes når vi ikke har tokens")
+    public void testPersonNoTokens() throws Exception {
+        try (var s = mockStatic(SubjectHandler.class)) {
+            s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
+            stubFor(post(urlPathEqualTo(GRAPHQL)));
+            assertThrows(TekniskException.class, () -> client.hentPerson(pq(), pp()));
+        }
+    }
+
+    private <T> GraphQLResult<T> responsFor(String fil) {
         try (var is = getClass().getClassLoader().getResourceAsStream(fil)) {
             return mapper().readValue(IOUtils.toString(is, UTF_8),
                     new TypeReference<GraphQLResult<T>>() {
                     });
         } catch (Exception e) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Kunne ikke konvertere " + fil + " til GraphQLResult", e);
         }
     }
 
@@ -124,15 +177,7 @@ public class TestJerseyPdlClient {
         return aResponse()
                 .withStatus(SC_OK)
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                .withBody(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
-    }
-
-    private static MappingBuilder headers(MappingBuilder b) {
-        return b.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-                .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
-                .withHeader(AUTHORIZATION, containing(TOKEN))
-                .withHeader("TEMA", equalTo(TEMA))
-                .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID));
+                .withBody(mapper().writerWithDefaultPrettyPrinter().writeValueAsString(body));
     }
 
 }

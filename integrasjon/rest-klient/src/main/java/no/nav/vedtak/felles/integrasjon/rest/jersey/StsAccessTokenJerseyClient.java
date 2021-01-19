@@ -33,7 +33,7 @@ public class StsAccessTokenJerseyClient extends AbstractJerseyRestClient impleme
                 }).get("access_token");
     }
 
-    String getUsername() {
+    public String getUsername() {
         return cfg.getUsername();
     }
 }

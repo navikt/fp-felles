@@ -22,6 +22,12 @@ import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.HentIdentForAktoerIdRespon
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebServiceFeil;
 
+/**
+ *
+ * @deprecated Bruk PDL
+ *
+ */
+@Deprecated(since = "3.0.x", forRemoval = true)
 class AktørConsumerImpl implements AktørConsumer {
     public static final String SERVICE_IDENTIFIER = "AktoerV2";
 
@@ -39,12 +45,12 @@ class AktørConsumerImpl implements AktørConsumer {
             HentAktoerIdForIdentResponse svar = port.hentAktoerIdForIdent(request);
             return Optional.of(svar.getAktoerId());
         } catch (HentAktoerIdForIdentPersonIkkeFunnet e) { // NOSONAR
-            return Optional.empty(); //NOSONAR
+            return Optional.empty(); // NOSONAR
         } catch (SOAPFaultException e) { // NOSONAR
             if (e.getMessage().contains("status: S511002F")) {
-                //Merkelig, men dette er oppførsel fra Tps når det finnes to
-                //som har samme personIdent. Det eneste tilfellet vi vet det skjer
-                //er ved dødfødsler.
+                // Merkelig, men dette er oppførsel fra Tps når det finnes to
+                // som har samme personIdent. Det eneste tilfellet vi vet det skjer
+                // er ved dødfødsler.
                 throw FeilFactory.create(AktørConsumerFeil.class).flereAktørerMedSammeIdent().toException();
             } else {
                 throw SoapWebServiceFeil.FACTORY.soapFaultIwebserviceKall(SERVICE_IDENTIFIER, e).toException();
@@ -69,7 +75,7 @@ class AktørConsumerImpl implements AktørConsumer {
             HentIdentForAktoerIdResponse svar = port.hentIdentForAktoerId(request);
             return Optional.of(svar.getIdent());
         } catch (HentIdentForAktoerIdPersonIkkeFunnet hentIdentForAktoerIdPersonIkkeFunnet) { // NOSONAR
-            return Optional.empty(); //NOSONAR
+            return Optional.empty(); // NOSONAR
         }
     }
 
@@ -86,8 +92,8 @@ class AktørConsumerImpl implements AktørConsumer {
     private static void validerResponse(HentIdentForAktoerIdListeResponse response) {
         if (!response.getFeilListe().isEmpty()) {
             String feilmelding = response.getFeilListe().stream()
-                .map(feil -> feil.getFeilKode() + ":" + feil.getFeilBeskrivelse())
-                .collect(Collectors.joining(","));
+                    .map(feil -> feil.getFeilKode() + ":" + feil.getFeilBeskrivelse())
+                    .collect(Collectors.joining(","));
             throw FeilFactory.create(AktørConsumerFeil.class).feilmeldingFraAktørtjenesten(feilmelding).toException();
         }
     }

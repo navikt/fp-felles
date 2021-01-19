@@ -8,7 +8,9 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
@@ -20,7 +22,8 @@ import no.nav.vedtak.konfig.KonfigVerdi;
  * Swagger https://app-q1.adeo.no/medl2/swagger-ui.html
  */
 
-//@ApplicationScoped
+@ApplicationScoped
+@Named("jersey")
 public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient {
 
     private static final String ENDPOINT_KEY = "medl2.rs.url";

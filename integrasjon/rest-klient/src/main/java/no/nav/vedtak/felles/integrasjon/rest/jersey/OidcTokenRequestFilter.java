@@ -41,7 +41,7 @@ public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenP
         return getSubjectHandler().getInternSsoToken();
     }
 
-    private String exchangedToken() {
+    protected String exchangedToken() {
         return Optional.ofNullable(samlToken())
                 .map(this::exchange)
                 .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));

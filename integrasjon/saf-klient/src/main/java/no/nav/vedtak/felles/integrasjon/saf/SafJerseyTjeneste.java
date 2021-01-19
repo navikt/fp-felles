@@ -15,7 +15,9 @@ import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 import java.net.URI;
 import java.util.List;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.WebApplicationException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +39,8 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-//@Dependent
+@Dependent
+@Named("jersey")
 public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements Saf {
 
     private static final String F_240613 = "F-240613";
