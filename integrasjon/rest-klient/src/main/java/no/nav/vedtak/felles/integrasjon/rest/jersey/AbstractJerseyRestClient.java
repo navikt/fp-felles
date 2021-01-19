@@ -67,6 +67,7 @@ public abstract class AbstractJerseyRestClient {
     public static final String TEMA = "TEMA";
     public static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     public static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
+    public static final String NAV_CONSUMER_TOKEN_HEADER = "Nav-Consumer-Token";
     public static final String DEFAULT_NAV_CALLID = "Nav-Callid";
     public static final String ALT_NAV_CALL_ID = "nav-call-id";
     public static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
