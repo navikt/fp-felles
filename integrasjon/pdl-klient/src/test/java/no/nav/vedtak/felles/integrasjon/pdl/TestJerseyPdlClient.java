@@ -10,7 +10,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.felles.integrasjon.pdl.JerseyPdlKlient.mapper;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.NAV_CONSUMER_TOKEN_HEADER;
@@ -45,7 +44,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
@@ -97,7 +95,7 @@ public class TestJerseyPdlClient {
 
     @Test
     @DisplayName("Test at Authorization, Nav-Consumer-Id, Nav-Consumer-Token, Nav-Consumer-Id og Tema alle blir satt")
-    public void testPerson() throws Exception {
+    public void testPersonAuthWithUserToken() throws Exception {
         when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
         doReturn(BRUKERTOKEN).when(subjectHandler).getInternSsoToken();
         try (var s = mockStatic(SubjectHandler.class)) {
@@ -110,7 +108,7 @@ public class TestJerseyPdlClient {
                     .withHeader(NAV_CONSUMER_TOKEN_HEADER, equalTo(SYSTEMTOKEN))
                     .withHeader(TEMA, equalTo(FOR))
                     .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
-                    .willReturn(responseBody(respons("pdl/personResponse.json"))));
+                    .willReturn(responseBody(responsFor("pdl/personResponse.json"))));
             var res = client.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
@@ -123,8 +121,8 @@ public class TestJerseyPdlClient {
     }
 
     @Test
-    @DisplayName("Test at Authorization blir satt til system token når vi ikke har et internt SSO token")
-    public void testPersonSystemToken() throws Exception {
+    @DisplayName("Test at Authorization blir satt til system token når vi ikke har et internt oidc token")
+    public void testPersonAuthWithSystemToken() throws Exception {
         when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
         doReturn(saml).when(subjectHandler).getSamlToken();
         try (var s = mockStatic(SubjectHandler.class)) {
@@ -137,7 +135,7 @@ public class TestJerseyPdlClient {
                     .withHeader(NAV_CONSUMER_TOKEN_HEADER, equalTo(SYSTEMTOKEN))
                     .withHeader(TEMA, equalTo(FOR))
                     .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
-                    .willReturn(responseBody(respons("pdl/personResponse.json"))));
+                    .willReturn(responseBody(responsFor("pdl/personResponse.json"))));
             var res = client.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
@@ -145,7 +143,7 @@ public class TestJerseyPdlClient {
         }
     }
 
-    private <T> GraphQLResult<T> respons(String fil) {
+    private <T> GraphQLResult<T> responsFor(String fil) {
         try (var is = getClass().getClassLoader().getResourceAsStream(fil)) {
             return mapper().readValue(IOUtils.toString(is, UTF_8),
                     new TypeReference<GraphQLResult<T>>() {
@@ -167,16 +165,7 @@ public class TestJerseyPdlClient {
         return aResponse()
                 .withStatus(SC_OK)
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                .withBody(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
-    }
-
-    private static MappingBuilder headers(MappingBuilder b) {
-        return b.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-                .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
-                .withHeader(AUTHORIZATION, containing(BRUKERTOKEN))
-                .withHeader(NAV_CONSUMER_TOKEN_HEADER, equalTo(SYSTEMTOKEN))
-                .withHeader(TEMA, equalTo(FOR))
-                .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID));
+                .withBody(mapper().writerWithDefaultPrettyPrinter().writeValueAsString(body));
     }
 
 }
