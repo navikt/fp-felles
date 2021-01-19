@@ -16,7 +16,6 @@ import java.net.URI;
 import java.util.List;
 
 import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 
@@ -37,10 +36,11 @@ import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
-@Alternative
+@Jersey
 public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements Saf {
 
     private static final String F_240613 = "F-240613";

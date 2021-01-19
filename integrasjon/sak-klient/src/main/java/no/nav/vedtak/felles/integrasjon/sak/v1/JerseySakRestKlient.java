@@ -8,15 +8,15 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@Alternative
+@Jersey
 public class JerseySakRestKlient extends AbstractJerseyOidcRestClient implements SakClient {
 
     static final String FAGSAK_NR = "fagsakNr";
