@@ -5,14 +5,14 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@Named("jersey")
+@Alternative
 public class OrganisasjonJerseyRestKlient extends AbstractJerseyOidcRestClient {
 
     private static final String ENDPOINT_KEY = "organisasjon.rs.url";

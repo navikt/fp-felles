@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.TimeZone;
 
 import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientRequestFilter;
 
@@ -53,7 +53,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
-@Named("jersey")
+@Alternative
 public class JerseyPdlKlient extends AbstractJerseyOidcRestClient implements Pdl {
     private static final Logger LOG = LoggerFactory.getLogger(JerseyPdlKlient.class);
     private URI endpoint;

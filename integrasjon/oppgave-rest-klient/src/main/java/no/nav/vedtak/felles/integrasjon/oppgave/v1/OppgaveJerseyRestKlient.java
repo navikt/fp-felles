@@ -12,8 +12,8 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import org.apache.http.client.utils.URIBuilder;
@@ -22,7 +22,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@Named("jersey")
+@Alternative
 public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient {
 
     private static final String ENDPOINT_KEY = "oppgave.rs.uri";

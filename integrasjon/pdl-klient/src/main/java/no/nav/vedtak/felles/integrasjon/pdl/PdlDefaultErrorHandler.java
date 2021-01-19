@@ -30,14 +30,15 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
     @Override
     public <T> T handleError(List<GraphQLError> errors, URI uri) {
         LOG.warn("PDL oppslag mot {} returnerte {} feil ({})", uri, errors.size(), errorMsgs(errors));
-        throw errors.stream()
+        throw errors
+                .stream()
                 .findFirst() // TODO hva med flere?
                 .map(GraphQLError::getExtensions)
                 .map(m -> m.get("code"))
                 .filter(Objects::nonNull)
                 .map(String.class::cast)
                 .map(k -> exception(k, uri))
-                .orElse(exception(PDL_INTERNAL, SC_INTERNAL_SERVER_ERROR, "intern feil", uri));
+                .orElseGet(() -> exceptionFra(SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, "intern feil", uri));
     }
 
     private static List<String> errorMsgs(List<GraphQLError> errors) {
@@ -50,23 +51,23 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
     private static IntegrasjonException exception(String extension, URI uri) {
         switch (extension) {
             case FORBUDT:
-                return exception(SC_UNAUTHORIZED, extension, uri);
+                return exceptionFra(SC_UNAUTHORIZED, extension, uri);
             case UAUTENTISERT:
-                return exception(SC_FORBIDDEN, extension, uri);
+                return exceptionFra(SC_FORBIDDEN, extension, uri);
             case IKKEFUNNET:
-                return exception(PDL_KLIENT_NOT_FOUND_KODE, SC_NOT_FOUND, extension, uri);
+                return exceptionFra(SC_NOT_FOUND, PDL_KLIENT_NOT_FOUND_KODE, extension, uri);
             case UGYLDIG:
-                return exception(SC_BAD_REQUEST, extension, uri);
+                return exceptionFra(SC_BAD_REQUEST, extension, uri);
             default:
-                return exception(PDL_INTERNAL, SC_INTERNAL_SERVER_ERROR, extension, uri);
+                return exceptionFra(SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, extension, uri);
         }
     }
 
-    private static IntegrasjonException exception(int status, String extension, URI uri) {
-        return exception(PDL_ERROR_RESPONSE, status, extension, uri);
+    private static IntegrasjonException exceptionFra(int status, String extension, URI uri) {
+        return exceptionFra(status, PDL_ERROR_RESPONSE, extension, uri);
     }
 
-    private static IntegrasjonException exception(String kode, int status, String extension, URI uri) {
+    private static IntegrasjonException exceptionFra(int status, String kode, String extension, URI uri) {
         return new PdlException(kode, extension, status, uri);
 
     }

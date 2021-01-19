@@ -9,8 +9,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
@@ -23,7 +23,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
  */
 
 @ApplicationScoped
-@Named("jersey")
+@Alternative
 public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient {
 
     private static final String ENDPOINT_KEY = "medl2.rs.url";
