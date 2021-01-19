@@ -22,6 +22,7 @@ import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
@@ -49,6 +50,7 @@ import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -140,6 +142,19 @@ public class TestJerseyPdlClient {
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
             verify(sts).accessToken();
+        }
+    }
+
+    @Test
+    @DisplayName("Test exception kastes når vi ikke har tokens")
+    public void testPersonNoTokens() throws Exception {
+        try (var s = mockStatic(SubjectHandler.class)) {
+            s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
+            stubFor(post(urlPathEqualTo(GRAPHQL))
+                    .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+                    .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
+                    .willReturn(responseBody(responsFor("pdl/personResponse.json"))));
+            assertThrows(TekniskException.class, () -> client.hentPerson(pq(), pp()));
         }
     }
 
