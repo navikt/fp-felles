@@ -2,7 +2,6 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 
 import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY;
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.LOWER_CAMEL_CASE;
 import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
@@ -57,15 +56,15 @@ public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient {
         this(endpoint, new PdlDefaultErrorHandler(), new StsAccessTokenClientRequestFilter(new StsAccessTokenJerseyClient(config), tema));
     }
 
-    public AbstractJerseyPdlKlient(URI endpoint, ClientRequestFilter... filters) {
+    AbstractJerseyPdlKlient(URI endpoint, ClientRequestFilter... filters) {
         this(endpoint, new PdlDefaultErrorHandler(), filters);
     }
 
-    public AbstractJerseyPdlKlient(URI endpoint, PdlErrorHandler errorHandler, ClientRequestFilter... filters) {
+    AbstractJerseyPdlKlient(URI endpoint, PdlErrorHandler errorHandler, ClientRequestFilter... filters) {
         this(mapper(), endpoint, errorHandler, filters);
     }
 
-    public AbstractJerseyPdlKlient(ObjectMapper mapper, URI endpoint, PdlErrorHandler errorHandler, ClientRequestFilter... filters) {
+    AbstractJerseyPdlKlient(ObjectMapper mapper, URI endpoint, PdlErrorHandler errorHandler, ClientRequestFilter... filters) {
         super(mapper, filters);
         this.endpoint = endpoint;
         this.errorHandler = errorHandler;
@@ -104,10 +103,14 @@ public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient {
                 .disable(WRITE_DURATIONS_AS_TIMESTAMPS)
                 .disable(FAIL_ON_EMPTY_BEANS)
                 .configure(WRITE_BIGDECIMAL_AS_PLAIN, true)
-                .enable(FAIL_ON_READING_DUP_TREE_KEY)
-                .enable(FAIL_ON_UNKNOWN_PROPERTIES);
+                .enable(FAIL_ON_READING_DUP_TREE_KEY);
     }
 
+    /*
+     * mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+     * mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+     * mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+     */
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [endpoint=" + endpoint + ", errorHandler=" + errorHandler + "]";

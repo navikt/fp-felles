@@ -31,20 +31,20 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @Jersey
 public class JerseyPdlKlient extends AbstractJerseyPdlKlient implements Pdl {
 
-    public JerseyPdlKlient(StsAccessTokenConfig config) {
-        this(config, FOR);
-    }
-
-    public JerseyPdlKlient(StsAccessTokenConfig config, String tema) {
-        super(config, tema);
-    }
-
     @Inject
     public JerseyPdlKlient(
             @KonfigVerdi(value = "pdl.base.url", defaultVerdi = HTTP_PDL_API_DEFAULT_GRAPHQL) URI endpoint,
             StsAccessTokenConfig config,
             @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema) {
         super(config, endpoint, tema);
+    }
+
+    JerseyPdlKlient(StsAccessTokenConfig config) {
+        this(config, FOR);
+    }
+
+    JerseyPdlKlient(StsAccessTokenConfig config, String tema) {
+        super(config, tema);
     }
 
     JerseyPdlKlient(URI endpoint, ClientRequestFilter... filters) {
