@@ -38,7 +38,7 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     @Override
     public void filter(ClientRequestContext ctx) {
         ctx.getHeaders().add(DEFAULT_NAV_CONSUMERID, sts.getUsername());
-        ctx.getHeaders().add(NAV_CONSUMER_TOKEN_HEADER, systemToken());
+        ctx.getHeaders().add(NAV_CONSUMER_TOKEN_HEADER, OIDC_AUTH_HEADER_PREFIX + systemToken());
         ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + accessToken());
         ctx.getHeaders().add(TEMA, tema);
     }
