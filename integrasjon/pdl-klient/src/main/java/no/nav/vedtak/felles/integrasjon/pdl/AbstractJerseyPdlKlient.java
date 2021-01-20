@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
 import no.nav.vedtak.exception.VLException;
@@ -69,7 +71,11 @@ public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient {
         this.errorHandler = errorHandler;
     }
 
-    protected <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
+    protected <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
+        return query(new GraphQLRequest(q, p), clazz);
+    }
+
+    private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         try {
             LOG.info("Henter resultat for {}", clazz.getName());
             var res = client.target(endpoint)

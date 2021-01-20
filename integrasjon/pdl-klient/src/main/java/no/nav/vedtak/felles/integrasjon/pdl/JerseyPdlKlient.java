@@ -7,8 +7,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
-
 import no.nav.pdl.GeografiskTilknytning;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
 import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
@@ -55,21 +53,21 @@ public class JerseyPdlKlient extends AbstractJerseyPdlKlient implements Pdl {
 
     @Override
     public GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p) {
-        return query(new GraphQLRequest(q, p), HentGeografiskTilknytningQueryResponse.class).hentGeografiskTilknytning();
+        return query(q, p, HentGeografiskTilknytningQueryResponse.class).hentGeografiskTilknytning();
     }
 
     @Override
     public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p) {
-        return query(new GraphQLRequest(q, p), HentPersonQueryResponse.class).hentPerson();
+        return query(q, p, HentPersonQueryResponse.class).hentPerson();
     }
 
     @Override
     public Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p) {
-        return query(new GraphQLRequest(q, p), HentIdenterQueryResponse.class).hentIdenter();
+        return query(q, p, HentIdenterQueryResponse.class).hentIdenter();
     }
 
     @Override
     public List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest q, HentIdenterBolkResultResponseProjection p) {
-        return query(new GraphQLRequest(q, p), HentIdenterBolkQueryResponse.class).hentIdenterBolk();
+        return query(q, p, HentIdenterBolkQueryResponse.class).hentIdenterBolk();
     }
 }
