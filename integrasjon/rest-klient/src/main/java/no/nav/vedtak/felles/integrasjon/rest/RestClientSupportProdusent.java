@@ -26,6 +26,8 @@ import org.apache.http.message.BasicHeaderElementIterator;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
+import no.nav.vedtak.felles.integrasjon.rest.jersey.HeaderLoggingRequestInterceptor;
+
 @ApplicationScoped
 public class RestClientSupportProdusent {
 
@@ -89,6 +91,7 @@ public class RestClientSupportProdusent {
 
         // Create an HttpClient with the given custom dependencies and configuration.
         return HttpClients.custom()
+                .addInterceptorLast(new HeaderLoggingRequestInterceptor())
                 .setSSLHostnameVerifier(new DefaultHostnameVerifier())
                 .setConnectionManager(connManager)
                 .setDefaultHeaders(defaultHeaders())
