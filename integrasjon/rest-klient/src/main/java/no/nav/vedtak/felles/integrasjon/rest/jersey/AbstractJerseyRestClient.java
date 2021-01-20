@@ -41,6 +41,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
+import no.nav.vedtak.util.env.Environment;
 
 /**
  *
@@ -127,6 +128,10 @@ public abstract class AbstractJerseyRestClient {
             LOG.info("Registrer filter {}", f.getClass());
             cfg.register(f);
         });
+        if (!Environment.current().isProd()) {
+            LOG.info("Registrer logging i non-prod");
+            cfg.register(new HeaderLoggingFilter());
+        }
         this.objectMapper = mapper;
         client = ClientBuilder.newClient(cfg);
     }
