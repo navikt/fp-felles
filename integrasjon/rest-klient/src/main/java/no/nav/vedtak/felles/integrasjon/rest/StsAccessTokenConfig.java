@@ -21,13 +21,13 @@ public class StsAccessTokenConfig {
     public static final List<NameValuePair> params = List.of(
             new BasicNameValuePair(GRANT_TYPE, "client_credentials"),
             new BasicNameValuePair(SCOPE, "openid"));
-    private String username;
-    private String password;
-    private String stsUri;
-    private String tokenEndpointPath;
+    private final String username;
+    private final String password;
+    private final String stsUri;
+    private final String tokenEndpointPath;
 
-    StsAccessTokenConfig() {
-        // CDI
+    public StsAccessTokenConfig(String issuerUrl, String username, String password) {
+        this(issuerUrl, DEFAULT_PATH, username, password);
     }
 
     @Inject
@@ -57,6 +57,11 @@ public class StsAccessTokenConfig {
 
     public List<NameValuePair> getFormParams() {
         return params;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [username=" + username + ", stsUri=" + stsUri + ", tokenEndpointPath=" + tokenEndpointPath + "]";
     }
 
 }

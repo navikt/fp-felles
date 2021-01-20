@@ -102,7 +102,7 @@ public abstract class AbstractJerseyRestClient {
 
     }
 
-    AbstractJerseyRestClient(ObjectMapper mapper, ClientRequestFilter... filters) {
+    protected AbstractJerseyRestClient(ObjectMapper mapper, ClientRequestFilter... filters) {
         this(mapper, null, filters);
     }
 
