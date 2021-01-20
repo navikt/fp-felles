@@ -13,7 +13,6 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.ClientRequestFilter;
 
 import org.apache.http.client.utils.URIBuilder;
 
@@ -36,11 +35,7 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient {
 
     @Inject
     public OppgaveJerseyRestKlient(@KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
-        this(endpoint, new ClientRequestFilter[0]);
-    }
-
-    OppgaveJerseyRestKlient(URI endpoint, ClientRequestFilter... filters) {
-        super(filters);
+        super();
         this.endpoint = endpoint;
     }
 

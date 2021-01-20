@@ -9,7 +9,6 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.ClientRequestFilter;
 
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
@@ -30,15 +29,7 @@ public class JerseySakRestKlient extends AbstractJerseyOidcRestClient implements
 
     @Inject
     public JerseySakRestKlient(@KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
-        this(endpoint, new ClientRequestFilter[0]);
-    }
-
-    JerseySakRestKlient(String endpoint, ClientRequestFilter... filters) {
-        this(URI.create(endpoint), filters);
-    }
-
-    JerseySakRestKlient(URI endpoint, ClientRequestFilter... filters) {
-        super(filters);
+        super();
         this.endpoint = endpoint;
     }
 

@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.stream.Collectors.toSet;
 import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.toJson;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
@@ -9,13 +8,11 @@ import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.c
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultHeaders;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
 import static org.apache.commons.lang3.ArrayUtils.addFirst;
-import static org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
 import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
@@ -41,6 +38,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent;
 import no.nav.vedtak.util.env.Environment;
 
 /**
@@ -50,12 +48,12 @@ import no.nav.vedtak.util.env.Environment;
  * {@link Client} konfigurert på følgende måte:
  * <ol>
  * <li>Underliggende transport provider er {@link HttpClient} Denne konfigureres
- * via {@link .RestClientSupportProdusent} slik at den har de samme egenskaper
+ * via {@link RestClientSupportProdusent} slik at den har de samme egenskaper
  * som tidligere</li>
  * <li>Proxy er satt om subklasser konstrueres med en proxy-URL</li>
  * <li>{@link StandardHeadersRequestInterceptor} registreres, denne sørger for
  * propagering av callID (med et par navnevariasjoner)
- * <li>Jackson mapping rgistreres. Det er mulig å sende inn sin egen mapper, om
+ * <li>Jackson mapping registreres. Det er mulig å sende inn sin egen mapper, om
  * det ikke gjøres brukes {@link DefaultJsonMapper}
  * <li>Øvrige filtere registres</li>
  * </ol>
@@ -85,21 +83,8 @@ public abstract class AbstractJerseyRestClient {
         this(null, null, filters);
     }
 
-    AbstractJerseyRestClient(Class<? extends ClientRequestFilter>... filterClasses) {
-        this(mapper, null, filterClasses);
-    }
-
-    AbstractJerseyRestClient(ObjectMapper mapper, Class<? extends ClientRequestFilter>... filterClasses) {
-        this(mapper, null, filterClasses);
-    }
-
-    AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, Class<? extends ClientRequestFilter>... filterClasses) {
-        this(mapper, proxy, construct(filterClasses));
-    }
-
     AbstractJerseyRestClient(URI proxy, ClientRequestFilter... filters) {
         this(mapper, proxy, filters);
-
     }
 
     protected AbstractJerseyRestClient(ObjectMapper mapper, ClientRequestFilter... filters) {
@@ -142,25 +127,12 @@ public abstract class AbstractJerseyRestClient {
                 .orElse(new JacksonJaxbJsonProvider());
     }
 
-    private static Set<ClientRequestFilter> construct(Class<? extends ClientRequestFilter>... filters) {
-        return Arrays.stream(filters)
-                .map(AbstractJerseyRestClient::construct)
-                .collect(toSet());
-    }
-
-    protected static ClientRequestFilter construct(Class<? extends ClientRequestFilter> clazz) {
-        try {
-            return invokeConstructor(clazz);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
     protected String patch(URI endpoint, Object obj, Header... headers) {
         var entity = new HttpPatch(endpoint);
         entity.setEntity(new StringEntity(toJson(obj), UTF_8));
         try {
-            Arrays.stream(headers).forEach(entity::addHeader);
+            Arrays.stream(headers)
+                    .forEach(entity::addHeader);
             return getHttpClient(client).execute(entity, new StringResponseHandler(entity.getURI()));
         } catch (IOException e) {
             throw new TekniskException("F-432937", entity.getURI(), e);
