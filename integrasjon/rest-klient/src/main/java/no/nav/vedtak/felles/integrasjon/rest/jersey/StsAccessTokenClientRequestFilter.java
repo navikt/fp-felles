@@ -1,14 +1,15 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.NAV_CONSUMER_TOKEN_HEADER;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import javax.ws.rs.client.ClientRequestContext;
@@ -24,6 +25,7 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 import no.nav.vedtak.exception.TekniskException;
 
 public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
+    private static final Duration CACHE_DURATION = Duration.ofMinutes(55);
     private static final Logger LOG = LoggerFactory.getLogger(StsAccessTokenClientRequestFilter.class);
     private final StsAccessTokenJerseyClient sts;
     private final Cache<String, String> cache;
@@ -31,7 +33,7 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
 
     public StsAccessTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema) {
         this.sts = sts;
-        this.cache = cache(1, 55, MINUTES);
+        this.cache = cache(1, CACHE_DURATION);
         this.tema = tema;
     }
 
@@ -55,13 +57,13 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     }
 
     private Function<? super String, ? extends String> load() {
-        LOG.info("Oppdaterer cache med system token");
+        LOG.info("Oppdaterer cache med system token, gyldig til {}", ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plus(CACHE_DURATION)));
         return key -> sts.accessToken();
     }
 
-    private static Cache<String, String> cache(int size, long timeout, TimeUnit unit) {
+    private static Cache<String, String> cache(int size, Duration duration) {
         return Caffeine.newBuilder()
-                .expireAfterWrite(timeout, unit)
+                .expireAfterAccess(duration)
                 .maximumSize(size)
                 .removalListener(new RemovalListener<String, String>() {
                     @Override
