@@ -1,8 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
-import static java.util.stream.Collectors.joining;
-import static javax.ws.rs.client.Entity.json;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static no.nav.vedtak.felles.integrasjon.saf.AbstractSafJerseyTjeneste.F_240613;
 
 import java.net.URI;
 import java.util.List;
@@ -10,10 +8,6 @@ import java.util.List;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
-
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
 import no.nav.saf.Dokumentoversikt;
 import no.nav.saf.DokumentoversiktFagsakQueryRequest;
@@ -26,38 +20,32 @@ import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
 @Jersey
-public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements Saf {
-
-    private static final String F_240613 = "F-240613";
-    private static final String DEFAULT_BASE = "https://localhost:8063/rest/api/saf";
+public class SafJerseyTjeneste extends AbstractSafJerseyTjeneste implements Saf {
     private static final String HENTDOKUMENT = "/rest/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}";
-    private static final String GRAPHQL = "/graphql";
-    private final URI base;
 
     @Inject
     public SafJerseyTjeneste(@KonfigVerdi(value = "saf.base.url", defaultVerdi = DEFAULT_BASE) URI base) {
-        this.base = base;
+        super(base);
     }
 
     @Override
     public Dokumentoversikt dokumentoversiktFagsak(DokumentoversiktFagsakQueryRequest q, DokumentoversiktResponseProjection p) {
-        return utførSpørring(new GraphQLRequest(q, p), DokumentoversiktFagsakQueryResponse.class).dokumentoversiktFagsak();
+        return query(q, p, DokumentoversiktFagsakQueryResponse.class).dokumentoversiktFagsak();
     }
 
     @Override
     public Journalpost hentJournalpostInfo(JournalpostQueryRequest q, JournalpostResponseProjection p) {
-        return utførSpørring(new GraphQLRequest(q, p), JournalpostQueryResponse.class).journalpost();
+        return query(q, p, JournalpostQueryResponse.class).journalpost();
     }
 
     @Override
     public List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQueryRequest q, JournalpostResponseProjection p) {
-        return utførSpørring(new GraphQLRequest(q, p), TilknyttedeJournalposterQueryResponse.class).tilknyttedeJournalposter();
+        return query(q, p, TilknyttedeJournalposterQueryResponse.class).tilknyttedeJournalposter();
     }
 
     @Override
@@ -73,28 +61,6 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
         } catch (WebApplicationException e) {
             throw new TekniskException(F_240613, base, e);
         }
-    }
-
-    private <T extends GraphQLResult<?>> T utførSpørring(GraphQLRequest req, Class<T> clazz) {
-        try {
-            return validate(client.target(base)
-                    .path(GRAPHQL)
-                    .request(APPLICATION_JSON_TYPE)
-                    .buildPost(json(req.toHttpJsonBody()))
-                    .invoke(clazz));
-        } catch (WebApplicationException e) {
-            throw new TekniskException(F_240613, base, e);
-        }
-    }
-
-    private <T extends GraphQLResult<?>> T validate(T res) {
-        if (res.hasErrors()) {
-            var feil = res.getErrors().stream()
-                    .map(GraphQLError::getMessage)
-                    .collect(joining("\n Error: "));
-            throw new TekniskException("F-588730", feil);
-        }
-        return res;
     }
 
     @Override
