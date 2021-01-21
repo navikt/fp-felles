@@ -11,6 +11,12 @@ import no.nav.vedtak.sts.client.StsClientType;
 import no.nav.vedtak.sts.client.StsConfigurationUtil;
 
 @Dependent
+/**
+ *
+ * @deprecated, Bruk PDL
+ *
+ */
+@Deprecated
 public class PersonConsumerProducer {
     private PersonConsumerConfig consumerConfig;
 

@@ -13,7 +13,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @Jersey
-public class OrganisasjonJerseyRestKlient extends AbstractJerseyOidcRestClient {
+public class OrganisasjonJerseyRestKlient extends AbstractJerseyOidcRestClient implements OrgInfo {
 
     private static final String ENDPOINT_KEY = "organisasjon.rs.url";
     private static final String DEFAULT_URI = "https://modapp.adeo.no/ereg/api/v1/organisasjon";
@@ -28,10 +28,12 @@ public class OrganisasjonJerseyRestKlient extends AbstractJerseyOidcRestClient {
         this.endpoint = endpoint;
     }
 
+    @Override
     public OrganisasjonEReg hentOrganisasjon(String orgnummer) {
         return get(orgnummer, OrganisasjonEReg.class);
     }
 
+    @Override
     public OrganisasjonAdresse hentOrganisasjonAdresse(String orgnummer) {
         return get(orgnummer, OrganisasjonAdresse.class);
     }

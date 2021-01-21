@@ -18,13 +18,17 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
-/*
- * Dokumentasjon https://confluence.adeo.no/display/FEL/MEDL2
- * Swagger https://app-q1.adeo.no/medl2/swagger-ui.html
+/**
+ *
+ * @deprecated Bruk {@link MedlemsunntakJerseyRestKlient}
+ *
+ *             Dokumentasjon https://confluence.adeo.no/display/FEL/MEDL2
+ *             Swagger https://app-q1.adeo.no/medl2/swagger-ui.html
  */
 
+@Deprecated
 @ApplicationScoped
-public class MedlemsunntakRestKlient {
+public class MedlemsunntakRestKlient implements Medlemsskap {
 
     private static final String ENDPOINT_KEY = "medl2.rs.url";
     private static final String DEFAULT_URI = "https://app.adeo.no/medl2/api/v1/medlemskapsunntak";
@@ -53,6 +57,7 @@ public class MedlemsunntakRestKlient {
         this.endpoint = endpoint;
     }
 
+    @Override
     public List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom) throws Exception {
         URIBuilder builder = new URIBuilder(this.endpoint)
                 .addParameter(PARAM_INKLUDER_SPORINGSINFO, String.valueOf(true))

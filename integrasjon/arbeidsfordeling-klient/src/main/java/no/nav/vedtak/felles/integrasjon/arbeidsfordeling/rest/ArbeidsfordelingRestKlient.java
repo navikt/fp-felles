@@ -17,7 +17,7 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-public class ArbeidsfordelingRestKlient {
+public class ArbeidsfordelingRestKlient implements Arbeidsfordeling {
 
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
@@ -39,10 +39,12 @@ public class ArbeidsfordelingRestKlient {
     ArbeidsfordelingRestKlient() {
     }
 
+    @Override
     public List<ArbeidsfordelingResponse> hentAlleAktiveEnheter(ArbeidsfordelingRequest request) {
         return hentEnheterFor(request, alleEnheterUri);
     }
 
+    @Override
     public List<ArbeidsfordelingResponse> finnEnhet(ArbeidsfordelingRequest request) {
         return hentEnheterFor(request, besteEnhetUri);
     }

@@ -2,7 +2,6 @@ package no.nav.vedtak.felles.integrasjon.medl2;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static no.nav.vedtak.log.mdc.MDCOperations.getCallId;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -24,12 +23,11 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @Jersey
-public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient {
+public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient implements Medlemsskap {
 
     private static final String ENDPOINT_KEY = "medl2.rs.url";
     private static final String DEFAULT_URI = "https://app.adeo.no/medl2/api/v1/medlemskapsunntak";
 
-    public static final String HEADER_NAV_CALL_ID = "Nav-Call-Id";
     public static final String HEADER_NAV_PERSONIDENT = "Nav-Personident";
     public static final String PARAM_FRA_OG_MED = "fraOgMed";
     public static final String PARAM_TIL_OG_MED = "tilOgMed";
@@ -50,6 +48,7 @@ public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient 
         this.endpoint = endpoint;
     }
 
+    @Override
     public List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom) throws Exception {
         return client.target(endpoint)
                 .queryParam(PARAM_INKLUDER_SPORINGSINFO, "true")
@@ -59,7 +58,6 @@ public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient 
                 .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK)
                 .request()
                 .accept(APPLICATION_JSON_TYPE)
-                .header(HEADER_NAV_CALL_ID, getCallId())
                 .header(HEADER_NAV_PERSONIDENT, aktørId)
                 .get(Response.class)
                 .readEntity(new GenericType<List<Medlemskapsunntak>>() {

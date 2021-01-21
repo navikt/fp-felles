@@ -1,11 +1,11 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 import static no.nav.vedtak.felles.integrasjon.saf.SafTjeneste.SafTjenesteFeil.FEILFACTORY;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
@@ -18,14 +18,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
@@ -48,6 +41,11 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
+/**
+ *
+ * @deprecated Bruk {@link JerseySafTjeneste}
+ */
+@Deprecated
 @Dependent
 public class SafTjeneste implements Saf {
 
@@ -59,10 +57,9 @@ public class SafTjeneste implements Saf {
     private URI graphqlEndpoint;
     private URI hentDokumentEndpoint;
     private CloseableHttpClient restKlient;
-    private final ObjectMapper objectMapper = createObjectMapper();
-    private final ObjectReader objectReaderJournalpostResponse = objectMapper.readerFor(JournalpostQueryResponse.class);
-    private final ObjectReader objectReaderDokumentoversiktFagsakResponse = objectMapper.readerFor(DokumentoversiktFagsakQueryResponse.class);
-    private final ObjectReader objectReaderTilknyttedeJournalposteResponse = objectMapper.readerFor(TilknyttedeJournalposterQueryResponse.class);
+    private final ObjectReader objectReaderJournalpostResponse = mapper.readerFor(JournalpostQueryResponse.class);
+    private final ObjectReader objectReaderDokumentoversiktFagsakResponse = mapper.readerFor(DokumentoversiktFagsakQueryResponse.class);
+    private final ObjectReader objectReaderTilknyttedeJournalposteResponse = mapper.readerFor(TilknyttedeJournalposterQueryResponse.class);
 
     SafTjeneste() {
         // CDI
@@ -174,20 +171,6 @@ public class SafTjeneste implements Saf {
                 throw new SafException(feilmelding);
             }
         }
-    }
-
-    private static ObjectMapper createObjectMapper() {
-        return new ObjectMapper()
-                .registerModule(new Jdk8Module())
-                .registerModule(new JavaTimeModule())
-                .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
-                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
-                .enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
-                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     interface SafTjenesteFeil extends DeklarerteFeil { // NOSONAR - internt interface er ok her

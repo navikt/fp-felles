@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.medl2;
 
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -8,14 +9,7 @@ import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.vedtak.feil.Feil;
 
@@ -25,22 +19,9 @@ public class MedlemskapsunntakTest {
     private static final long MEDL_ID_2 = 2663948L;
     private static final long MEDL_ID_3 = 666L;
 
-    private static final ObjectMapper OM;
-    static {
-        OM = new ObjectMapper();
-        OM.registerModule(new JavaTimeModule());
-        OM.registerModule(new Jdk8Module());
-        OM.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
-        OM.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE);
-        OM.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        OM.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
-        OM.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        OM.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    }
-
     public static String toJson(Object object, Function<JsonProcessingException, Feil> feilFactory) {
         try {
-            return OM.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
             throw (feilFactory.apply(e)).toException();
         }
@@ -48,7 +29,7 @@ public class MedlemskapsunntakTest {
 
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
-            return OM.readerFor(clazz).readValue(json);
+            return mapper.readerFor(clazz).readValue(json);
         } catch (IOException e) {
             throw new IllegalArgumentException("Feil i deserialisering");
         }

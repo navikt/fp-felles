@@ -12,6 +12,12 @@ import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3;
 import no.nav.vedtak.felles.integrasjon.felles.ws.CallIdOutInterceptor;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
+/**
+ *
+ * @deprecated, Bruk PDL
+ *
+ */
+@Deprecated
 @Dependent
 public class PersonConsumerConfig {
     private static final String PERSON_V3_WSDL = "wsdl/no/nav/tjeneste/virksomhet/person/v3/Binding.wsdl";

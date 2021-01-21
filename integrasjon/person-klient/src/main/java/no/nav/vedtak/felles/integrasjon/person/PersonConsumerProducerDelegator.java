@@ -4,6 +4,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+/**
+ *
+ * @deprecated, Bruk PDL
+ *
+ */
+@Deprecated
 @ApplicationScoped
 public class PersonConsumerProducerDelegator {
     private PersonConsumerProducer producer;
