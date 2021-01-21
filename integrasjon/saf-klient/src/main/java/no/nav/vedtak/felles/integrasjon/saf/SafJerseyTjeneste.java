@@ -88,7 +88,7 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
     }
 
     private <T extends GraphQLResult<?>> T validate(T res) {
-        if (res.getErrors() != null && res.getErrors().size() > 0) {
+        if (res.hasErrors()) {
             var feil = res.getErrors().stream()
                     .map(GraphQLError::getMessage)
                     .collect(joining("\n Error: "));
