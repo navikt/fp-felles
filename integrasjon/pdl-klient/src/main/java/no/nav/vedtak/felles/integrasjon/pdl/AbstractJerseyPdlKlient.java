@@ -67,7 +67,7 @@ public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient i
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         try {
-            LOG.info("Henter resultat for {}", clazz.getName());
+            LOG.info("Henter resultat for {} fra {}", clazz.getName(), endpoint);
             var res = client.target(endpoint)
                     .request(APPLICATION_JSON_TYPE)
                     .buildPost(json(req.toHttpJsonBody()))
@@ -75,6 +75,7 @@ public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient i
             if (res.hasErrors()) {
                 return errorHandler.handleError(res.getErrors(), endpoint);
             }
+            LOG.info("Hentet resultat for {} fra {} OK", clazz.getName(), endpoint);
             return res;
         } catch (ProcessingException e) {
             if (e.getCause() != null && e.getCause() instanceof VLException) {
