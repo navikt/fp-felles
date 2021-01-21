@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent;
@@ -53,8 +52,7 @@ import no.nav.vedtak.util.env.Environment;
  * <li>Proxy er satt om subklasser konstrueres med en proxy-URL</li>
  * <li>{@link StandardHeadersRequestInterceptor} registreres, denne sørger for
  * propagering av callID (med et par navnevariasjoner)
- * <li>Jackson mapping registreres. Det er mulig å sende inn sin egen mapper, om
- * det ikke gjøres brukes {@link DefaultJsonMapper}
+ * <li>Jackson mapping registreres.</li>
  * <li>Øvrige filtere registres</li>
  * </ol>
  * Ved klassebasert konfigurasjon av filtere må disse ha en no-args constructor.

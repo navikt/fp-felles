@@ -39,11 +39,11 @@ public class JerseyPdlKlient extends AbstractJerseyPdlKlient implements Pdl {
         super(config, endpoint, tema);
     }
 
-    JerseyPdlKlient(StsAccessTokenConfig config) {
+    public JerseyPdlKlient(StsAccessTokenConfig config) {
         this(config, FOR);
     }
 
-    JerseyPdlKlient(StsAccessTokenConfig config, String tema) {
+    public JerseyPdlKlient(StsAccessTokenConfig config, String tema) {
         super(config, tema);
     }
 
