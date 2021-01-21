@@ -15,5 +15,5 @@ import javax.inject.Qualifier;
 @Retention(RUNTIME)
 @Target({ METHOD, FIELD, PARAMETER, TYPE })
 public @interface Jersey {
-
+    String value() default "jersey";
 }
