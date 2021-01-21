@@ -1,16 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
-import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY;
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.LOWER_CAMEL_CASE;
-import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
-import static java.util.TimeZone.getTimeZone;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 
 import java.net.URI;
 import java.util.List;
@@ -19,7 +11,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
@@ -51,7 +42,6 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
 
     @Inject
     public SafJerseyTjeneste(@KonfigVerdi(value = "saf.base.url", defaultVerdi = DEFAULT_BASE) URI base) {
-        super(objectMapper());
         this.base = base;
     }
 
@@ -105,18 +95,6 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
             throw new TekniskException("F-588730", feil);
         }
         return res;
-    }
-
-    private static ObjectMapper objectMapper() {
-        return mapper
-                .copy()
-                .setPropertyNamingStrategy(LOWER_CAMEL_CASE)
-                .setTimeZone(getTimeZone("Europe/Oslo"))
-                .disable(WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(FAIL_ON_EMPTY_BEANS)
-                .configure(WRITE_BIGDECIMAL_AS_PLAIN, true)
-                .enable(FAIL_ON_READING_DUP_TREE_KEY)
-                .enable(FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     @Override

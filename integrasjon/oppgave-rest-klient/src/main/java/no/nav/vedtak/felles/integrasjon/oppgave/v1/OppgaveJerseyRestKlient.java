@@ -22,7 +22,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @Jersey
-public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient {
+public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient implements Oppgaver {
 
     private static final String ENDPOINT_KEY = "oppgave.rs.uri";
     private static final String DEFAULT_URI = "http://oppgave.default/api/v1/oppgaver";
@@ -39,6 +39,7 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient {
         this.endpoint = endpoint;
     }
 
+    @Override
     public Oppgave opprettetOppgave(OpprettOppgave.Builder requestBuilder) {
         return client.target(endpoint)
                 .request(APPLICATION_JSON_TYPE)
@@ -46,6 +47,7 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient {
                 .invoke(Oppgave.class);
     }
 
+    @Override
     public List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
         var b = client.target(endpoint)
                 .queryParam("aktoerId", aktørId)
@@ -57,6 +59,7 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient {
                 .get(FinnOppgaveResponse.class).getOppgaver();
     }
 
+    @Override
     public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
         var b = client.target(endpoint)
                 .queryParam("aktoerId", aktørId)
@@ -69,14 +72,17 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient {
                 .header(HEADER_CORRELATION_ID, getCallId()).get(FinnOppgaveResponse.class).getOppgaver();
     }
 
+    @Override
     public void ferdigstillOppgave(String oppgaveId) {
         patch(getEndpointForOppgaveId(oppgaveId), patchOppgave(hentOppgave(oppgaveId), FERDIGSTILT));
     }
 
+    @Override
     public void feilregistrerOppgave(String oppgaveId) {
         patch(getEndpointForOppgaveId(oppgaveId), patchOppgave(hentOppgave(oppgaveId), FEILREGISTRERT));
     }
 
+    @Override
     public Oppgave hentOppgave(String oppgaveId) {
         return client
                 .target(endpoint)

@@ -1,9 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1;
 
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.readAllBytes;
 import static java.util.stream.Collectors.toList;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -12,12 +12,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.AvsluttedeSaker;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.AvsluttetSak;
@@ -31,15 +28,6 @@ import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saksnummer;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Utbetaling;
 
 public class SerializationTest {
-
-    private static ObjectMapper mapper;
-
-    @BeforeAll
-    public static void setup() {
-        mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(WRITE_DATES_AS_TIMESTAMPS);
-    }
 
     @Test
     public void saksnummerTest() throws Exception {

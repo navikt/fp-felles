@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.organisasjon;
 
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -8,12 +9,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class EregRestTest {
-
-    private static ObjectMapper mapper;
 
     private static final String json = "{\n" +
             "  \"organisasjonsnummer\": \"990983666\",\n" +
@@ -106,7 +104,6 @@ public class EregRestTest {
 
     @BeforeAll
     public static void setup() {
-        mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }

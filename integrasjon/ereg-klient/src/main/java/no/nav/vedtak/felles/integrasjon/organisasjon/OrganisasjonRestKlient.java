@@ -8,8 +8,14 @@ import javax.inject.Inject;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
+/**
+ *
+ * @deprecated * @deprecated Bruk {@link OrganisasjonJerseyRestKlient}
+ *
+ */
+@Deprecated
 @ApplicationScoped
-public class OrganisasjonRestKlient {
+public class OrganisasjonRestKlient implements OrgInfo {
 
     private static final String ENDPOINT_KEY = "organisasjon.rs.url";
     private static final String DEFAULT_URI = "https://modapp.adeo.no/ereg/api/v1/organisasjon";
@@ -27,11 +33,13 @@ public class OrganisasjonRestKlient {
         this.endpoint = endpoint;
     }
 
+    @Override
     public OrganisasjonEReg hentOrganisasjon(String orgnummer) {
         var request = URI.create(endpoint.toString() + "/" + orgnummer);
         return oidcRestClient.get(request, OrganisasjonEReg.class);
     }
 
+    @Override
     public OrganisasjonAdresse hentOrganisasjonAdresse(String orgnummer) {
         var request = URI.create(endpoint.toString() + "/" + orgnummer);
         return oidcRestClient.get(request, OrganisasjonAdresse.class);

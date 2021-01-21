@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 
-public abstract class InfotrygdSakerJerseyConsumer extends AbstractJerseyOidcRestClient {
+public abstract class InfotrygdSakerJerseyConsumer extends AbstractJerseyOidcRestClient implements InfotrygdSaker {
 
     private final URI uri;
 
@@ -17,6 +17,7 @@ public abstract class InfotrygdSakerJerseyConsumer extends AbstractJerseyOidcRes
         this.uri = uri;
     }
 
+    @Override
     public Saker getSaker(String fnr, LocalDate fom) throws Exception {
         return client.target(uri)
                 .queryParam("fnr", fnr) // TODO bli kvitt fnr i URL

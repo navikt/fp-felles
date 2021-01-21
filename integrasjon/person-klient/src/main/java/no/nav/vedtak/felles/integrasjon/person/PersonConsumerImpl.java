@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.person;
 
-
 import java.net.SocketException;
 
 import javax.xml.ws.WebServiceException;
@@ -21,6 +20,12 @@ import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonhistorikkRequest
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonhistorikkResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebServiceFeil;
 
+/**
+ *
+ * @deprecated, Bruk PDL
+ *
+ */
+@Deprecated
 public class PersonConsumerImpl implements PersonConsumer {
     public static final String SERVICE_IDENTIFIER = "PersonV3";
 
@@ -42,7 +47,8 @@ public class PersonConsumerImpl implements PersonConsumer {
     }
 
     @Override
-    public HentPersonhistorikkResponse hentPersonhistorikkResponse(HentPersonhistorikkRequest request) throws HentPersonhistorikkSikkerhetsbegrensning, HentPersonhistorikkPersonIkkeFunnet {
+    public HentPersonhistorikkResponse hentPersonhistorikkResponse(HentPersonhistorikkRequest request)
+            throws HentPersonhistorikkSikkerhetsbegrensning, HentPersonhistorikkPersonIkkeFunnet {
         try {
             return port.hentPersonhistorikk(request);
         } catch (SOAPFaultException e) { // NOSONAR
@@ -53,7 +59,8 @@ public class PersonConsumerImpl implements PersonConsumer {
     }
 
     @Override
-    public HentGeografiskTilknytningResponse hentGeografiskTilknytning(HentGeografiskTilknytningRequest request) throws HentGeografiskTilknytningSikkerhetsbegrensing, HentGeografiskTilknytningPersonIkkeFunnet {
+    public HentGeografiskTilknytningResponse hentGeografiskTilknytning(HentGeografiskTilknytningRequest request)
+            throws HentGeografiskTilknytningSikkerhetsbegrensing, HentGeografiskTilknytningPersonIkkeFunnet {
         try {
             return port.hentGeografiskTilknytning(request);
         } catch (SOAPFaultException e) { // NOSONAR
@@ -62,7 +69,6 @@ public class PersonConsumerImpl implements PersonConsumer {
             throw mapWebServiceException(e);
         }
     }
-    
 
     private static final RuntimeException mapWebServiceException(WebServiceException e) {
         if (isConnectionReset(e)) {
@@ -71,14 +77,14 @@ public class PersonConsumerImpl implements PersonConsumer {
             return e;
         }
     }
-    
+
     private static final boolean isConnectionReset(Throwable e) {
         if (e == null) {
             return false;
         }
         if (e instanceof SocketException
                 && ("Connection reset".equals(e.getMessage())
-                    || "Unexpected end of file from server".equals(e.getMessage()))) {
+                        || "Unexpected end of file from server".equals(e.getMessage()))) {
             return true;
         }
         return isConnectionReset(e.getCause());

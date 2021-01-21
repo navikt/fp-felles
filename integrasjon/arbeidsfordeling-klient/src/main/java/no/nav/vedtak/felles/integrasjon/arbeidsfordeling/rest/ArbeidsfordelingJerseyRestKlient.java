@@ -20,7 +20,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @Jersey
-public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClient {
+public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClient implements Arbeidsfordeling {
 
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
@@ -32,10 +32,12 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
         this.uri = uri;
     }
 
+    @Override
     public List<ArbeidsfordelingResponse> hentAlleAktiveEnheter(ArbeidsfordelingRequest request) {
         return hentEnheterFor(request, null);
     }
 
+    @Override
     public List<ArbeidsfordelingResponse> finnEnhet(ArbeidsfordelingRequest request) {
         return hentEnheterFor(request, BEST_MATCH);
     }

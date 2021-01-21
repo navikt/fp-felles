@@ -16,8 +16,15 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
+/**
+ *
+ *
+ * @deprecated bruk {@link OppgaveJerseyRestKlient}
+ *
+ */
+@Deprecated
 @ApplicationScoped
-public class OppgaveRestKlient {
+public class OppgaveRestKlient implements Oppgaver {
 
     private static final String ENDPOINT_KEY = "oppgave.rs.uri";
     private static final String DEFAULT_URI = "http://oppgave.default/api/v1/oppgaver";
@@ -37,10 +44,12 @@ public class OppgaveRestKlient {
         this.endpoint = endpoint;
     }
 
+    @Override
     public Oppgave opprettetOppgave(OpprettOppgave.Builder requestBuilder) {
         return oidcRestClient.post(endpoint, requestBuilder.build(), lagHeader(), Oppgave.class);
     }
 
+    @Override
     public List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
         var builder = new URIBuilder(endpoint).addParameter("aktoerId", aktørId);
         if (tema != null)
@@ -49,6 +58,7 @@ public class OppgaveRestKlient {
         return oidcRestClient.get(builder.build(), lagHeader(), FinnOppgaveResponse.class).getOppgaver();
     }
 
+    @Override
     public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
         var builder = new URIBuilder(endpoint)
                 .addParameter("aktoerId", aktørId)
@@ -59,18 +69,21 @@ public class OppgaveRestKlient {
         return oidcRestClient.get(builder.build(), lagHeader(), FinnOppgaveResponse.class).getOppgaver();
     }
 
+    @Override
     public void ferdigstillOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.getId(), oppgave.getVersjon(), Oppgavestatus.FERDIGSTILT);
         oidcRestClient.patch(getEndpointForOppgaveId(oppgaveId), patch, lagHeader());
     }
 
+    @Override
     public void feilregistrerOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.getId(), oppgave.getVersjon(), Oppgavestatus.FEILREGISTRERT);
         oidcRestClient.patch(getEndpointForOppgaveId(oppgaveId), patch, lagHeader());
     }
 
+    @Override
     public Oppgave hentOppgave(String oppgaveId) {
         return oidcRestClient.get(getEndpointForOppgaveId(oppgaveId), lagHeader(), Oppgave.class);
     }

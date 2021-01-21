@@ -23,7 +23,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @Jersey
-public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient {
+public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient implements Medlemsskap {
 
     private static final String ENDPOINT_KEY = "medl2.rs.url";
     private static final String DEFAULT_URI = "https://app.adeo.no/medl2/api/v1/medlemskapsunntak";
@@ -48,6 +48,7 @@ public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient 
         this.endpoint = endpoint;
     }
 
+    @Override
     public List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom) throws Exception {
         return client.target(endpoint)
                 .queryParam(PARAM_INKLUDER_SPORINGSINFO, "true")

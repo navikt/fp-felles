@@ -1,8 +1,13 @@
 package no.nav.vedtak.felles.integrasjon.person;
 
-
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3;
 
+/**
+ *
+ * @deprecated, Bruk PDL
+ *
+ */
+@Deprecated
 class PersonSelftestConsumerImpl implements PersonSelftestConsumer {
     private PersonV3 port;
     private String endpointUrl;

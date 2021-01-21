@@ -1,16 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
-import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY;
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.LOWER_CAMEL_CASE;
-import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
-import java.util.TimeZone;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientRequestFilter;
@@ -18,9 +11,6 @@ import javax.ws.rs.client.ClientRequestFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
@@ -32,7 +22,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 
-public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient {
+public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient implements PDLQueryable {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractJerseyPdlKlient.class);
     protected static final String HTTP_PDL_API_DEFAULT_GRAPHQL = "http://pdl-api.default/graphql";
     protected static final String FOR = "FOR";
@@ -49,28 +39,29 @@ public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient {
     }
 
     public AbstractJerseyPdlKlient(StsAccessTokenConfig config, String tema) {
-        this(config, URI.create(HTTP_PDL_API_DEFAULT_GRAPHQL), tema);
+        this(config, HTTP_PDL_API_DEFAULT_GRAPHQL, tema);
     }
 
-    public AbstractJerseyPdlKlient(StsAccessTokenConfig config, URI endpoint, String tema) {
-        this(endpoint, new PdlDefaultErrorHandler(), new StsAccessTokenClientRequestFilter(new StsAccessTokenJerseyClient(config), tema));
+    public AbstractJerseyPdlKlient(StsAccessTokenConfig config, String endpoint, String tema) {
+        this(config, URI.create(endpoint), tema);
     }
 
     AbstractJerseyPdlKlient(URI endpoint, ClientRequestFilter... filters) {
         this(endpoint, new PdlDefaultErrorHandler(), filters);
     }
 
-    AbstractJerseyPdlKlient(URI endpoint, PdlErrorHandler errorHandler, ClientRequestFilter... filters) {
-        this(mapper(), endpoint, errorHandler, filters);
+    public AbstractJerseyPdlKlient(StsAccessTokenConfig config, URI endpoint, String tema) {
+        this(endpoint, new PdlDefaultErrorHandler(), new StsAccessTokenClientRequestFilter(new StsAccessTokenJerseyClient(config), tema));
     }
 
-    AbstractJerseyPdlKlient(ObjectMapper mapper, URI endpoint, PdlErrorHandler errorHandler, ClientRequestFilter... filters) {
-        super(mapper, filters);
+    AbstractJerseyPdlKlient(URI endpoint, PdlErrorHandler errorHandler, ClientRequestFilter... filters) {
+        super(filters);
         this.endpoint = endpoint;
         this.errorHandler = errorHandler;
     }
 
-    protected <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
+    @Override
+    public <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
         return query(new GraphQLRequest(q, p), clazz);
     }
 
@@ -93,24 +84,6 @@ public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient {
         }
     }
 
-    static ObjectMapper mapper() {
-        return new ObjectMapper()
-                .registerModule(new Jdk8Module())
-                .registerModule(new JavaTimeModule())
-                .setPropertyNamingStrategy(LOWER_CAMEL_CASE)
-                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-                .disable(WRITE_DATES_AS_TIMESTAMPS)
-                .disable(WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(FAIL_ON_EMPTY_BEANS)
-                .configure(WRITE_BIGDECIMAL_AS_PLAIN, true)
-                .enable(FAIL_ON_READING_DUP_TREE_KEY);
-    }
-
-    /*
-     * mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-     * mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-     * mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-     */
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [endpoint=" + endpoint + ", errorHandler=" + errorHandler + "]";

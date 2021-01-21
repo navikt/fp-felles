@@ -73,29 +73,20 @@ public abstract class AbstractJerseyRestClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractJerseyRestClient.class);
     protected final Client client;
-    private final ObjectMapper objectMapper;
 
     AbstractJerseyRestClient() {
-        this(null, null, Set.of());
+        this(null, Set.of());
     }
 
-    AbstractJerseyRestClient(ClientRequestFilter... filters) {
-        this(null, null, filters);
+    protected AbstractJerseyRestClient(ClientRequestFilter... filters) {
+        this(null, filters);
     }
 
     AbstractJerseyRestClient(URI proxy, ClientRequestFilter... filters) {
-        this(mapper, proxy, filters);
+        this(proxy, Set.of(filters));
     }
 
-    protected AbstractJerseyRestClient(ObjectMapper mapper, ClientRequestFilter... filters) {
-        this(mapper, null, filters);
-    }
-
-    AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, ClientRequestFilter... filters) {
-        this(mapper, proxy, Set.of(filters));
-    }
-
-    private AbstractJerseyRestClient(ObjectMapper mapper, URI proxy, Set<? extends ClientRequestFilter> filters) {
+    private AbstractJerseyRestClient(URI proxy, Set<? extends ClientRequestFilter> filters) {
         var cfg = new ClientConfig();
         Optional.ofNullable(proxy)
                 .ifPresent(p -> cfg.property(PROXY_URI, p));
@@ -117,7 +108,6 @@ public abstract class AbstractJerseyRestClient {
             LOG.info("Registrer logging i non-prod");
             cfg.register(new HeaderLoggingFilter());
         }
-        this.objectMapper = mapper;
         client = ClientBuilder.newClient(cfg);
     }
 
@@ -153,9 +143,5 @@ public abstract class AbstractJerseyRestClient {
     private static <T> T[] logAndAdd(final T[] filters, final T required) {
         LOG.info("Legger til påkrevd filter {}", required.getClass());
         return addFirst(filters, required);
-    }
-
-    protected ObjectMapper getObjectMapper() {
-        return objectMapper;
     }
 }

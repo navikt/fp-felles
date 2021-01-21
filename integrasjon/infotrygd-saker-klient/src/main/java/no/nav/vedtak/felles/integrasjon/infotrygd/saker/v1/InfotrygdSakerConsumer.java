@@ -10,8 +10,13 @@ import org.apache.http.client.utils.URIBuilder;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
+/**
+ *
+ * @deprecated * @deprecated Bruk {@link InfotrygdSakerJerseyConsumer}
+ *
+ */
 @Deprecated
-public abstract class InfotrygdSakerConsumer {
+public abstract class InfotrygdSakerConsumer implements InfotrygdSaker {
 
     private OidcRestClient restClient;
     private URI uri;
@@ -25,6 +30,7 @@ public abstract class InfotrygdSakerConsumer {
         // Tja, nødvendig her?
     }
 
+    @Override
     public Saker getSaker(String fnr, LocalDate fom) throws Exception {
         Objects.requireNonNull(fnr);
         var request = new URIBuilder(uri)
