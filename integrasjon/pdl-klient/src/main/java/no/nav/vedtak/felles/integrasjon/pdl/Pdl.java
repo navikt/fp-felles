@@ -15,6 +15,12 @@ import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 
+/**
+ *
+ * @deprecated, bruk {@link PDLQueryable} direkte
+ *
+ */
+@Deprecated(since = "3.0.54")
 public interface Pdl extends PDLQueryable {
     static final String PDL_ERROR_RESPONSE = "F-399735";
     static final String PDL_IO_EXCEPTION = "F-539237";
