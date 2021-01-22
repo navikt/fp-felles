@@ -30,7 +30,9 @@ import org.apache.http.util.EntityUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
 import no.nav.pdl.GeografiskTilknytning;
@@ -111,6 +113,12 @@ public class PdlKlient implements Pdl {
         return query(new GraphQLRequest(q, p), HentIdenterBolkQueryResponse.class).hentIdenterBolk();
     }
 
+    @Override
+    public <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
+        return query(new GraphQLRequest(q, p), clazz);
+
+    }
+
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         T res = spør(post(req), new ObjectReaderResponseHandler<T>(endpoint, MAPPER.readerFor(clazz)));
         if (res.hasErrors()) {
@@ -167,4 +175,5 @@ public class PdlKlient implements Pdl {
     public String toString() {
         return getClass().getSimpleName() + " [endpoint=" + endpoint + ", restKlient=" + restKlient + ", errorHandler=" + errorHandler + "]";
     }
+
 }
