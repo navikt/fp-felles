@@ -25,7 +25,11 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
 
-    private final URI uri;
+    private URI uri;
+
+    public ArbeidsfordelingJerseyRestKlient() {
+
+    }
 
     public ArbeidsfordelingJerseyRestKlient(
             @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
