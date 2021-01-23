@@ -21,10 +21,6 @@ public abstract class VLException extends RuntimeException {
         return feil.getKode();
     }
 
-    protected static String format(String msg, Object... args) {
-        return String.format(msg, args);
-    }
-
     @Override
     public String toString() {
         return getClass().getSimpleName() + ":" + getFeil();

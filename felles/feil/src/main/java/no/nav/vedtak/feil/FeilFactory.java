@@ -9,6 +9,10 @@ import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
 import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
+/**
+ * @deprecated Unødvendig komplisert, kast en exception istedet.
+ */
+@Deprecated
 public abstract class FeilFactory {
     private FeilFactory() {
         throw new IllegalAccessError("Skal ikke instansieres");

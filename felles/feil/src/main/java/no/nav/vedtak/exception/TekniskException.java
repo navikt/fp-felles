@@ -1,5 +1,6 @@
 package no.nav.vedtak.exception;
 
+import static java.lang.String.format;
 import static no.nav.vedtak.feil.LogLevel.WARN;
 
 import java.net.URI;
@@ -35,6 +36,11 @@ public class TekniskException extends VLException {
         this(new Feil(kode, msg, level, clazz, cause));
     }
 
+    /**
+     *
+     * @deprecated Lag med new og args.
+     */
+    @Deprecated
     public TekniskException(Feil feil) {
         super(feil);
     }

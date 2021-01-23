@@ -21,37 +21,6 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.threeten</groupId>
-			<artifactId>threeten-extra</artifactId>
-		</dependency>
-		<dependency>
-			<!-- for å bygge markup for sysdoc -->
-			<groupId>io.github.swagger2markup</groupId>
-			<artifactId>markup-document-builder</artifactId>
-			<scope>provided</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<!-- for å generere doc fra db -->
-			<groupId>com.zaxxer</groupId>
-			<artifactId>HikariCP</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<!-- for å generere doc fra db -->
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-        <!-- test avhengigheter -->
-	
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
+		</dependency>	
 	</dependencies>
 </project>
