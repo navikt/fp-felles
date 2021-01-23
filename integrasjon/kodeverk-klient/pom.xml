@@ -1,34 +1,76 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
         <artifactId>felles-integrasjon-pom</artifactId>
-    <version>3.0.59-SNAPSHOT</version>
+        <version>3.0.59-SNAPSHOT</version>
+	</parent>
 
-    </parent>
+	<artifactId>kodeverk-klient</artifactId>
+	<packaging>jar</packaging>
+	<name>Felles :: Integrasjonsendepunkt - kodeverk-klient</name>
 
-    <artifactId>kodeverk-klient</artifactId>
-    <packaging>jar</packaging>
-    <name>Felles :: Integrasjonsendepunkt - kodeverk-klient</name>
-
-    <dependencies>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-feil</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.tjenestespesifikasjoner</groupId>
-            <artifactId>nav-fim-kodeverk-v2-tjenestespesifikasjon</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-        </dependency>
-    </dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>javax.xml.ws</groupId>
+				<artifactId>jaxws-api</artifactId>
+				<version>2.3.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-frontend-jaxws</artifactId>
+				<version>${cxf.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.codehaus.woodstox</groupId>
+						<artifactId>woodstox-core-asl</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.annotation</groupId>
+						<artifactId>javax.annotation-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.activation</groupId>
+						<artifactId>javax.activation-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.sun.activation</groupId>
+						<artifactId>javax.activation</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.xml.soap</groupId>
+						<artifactId>javax.xml.soap-api</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles</groupId>
+			<artifactId>felles-feil</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles</groupId>
+			<artifactId>felles-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.tjenestespesifikasjoner</groupId>
+			<artifactId>nav-fim-kodeverk-v2-tjenestespesifikasjon</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+		</dependency>
+		<dependency>
+			<!-- fjernet fra SE i Java11. brukes for soap -->
+			<groupId>com.sun.xml.messaging.saaj</groupId>
+			<artifactId>saaj-impl</artifactId>
+		</dependency>
+	</dependencies>
 </project>
