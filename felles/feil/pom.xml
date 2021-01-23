@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>no.nav.foreldrepenger.felles</groupId>
 		<artifactId>felles</artifactId>
-    <version>3.0.59-SNAPSHOT</version>
+    <version>3.0.59</version>
 
 	</parent>
 	<name>Felles :: Feil</name>
