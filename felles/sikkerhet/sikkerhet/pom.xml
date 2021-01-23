@@ -28,10 +28,6 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
@@ -61,10 +57,6 @@
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>javax.activation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.json</groupId>
@@ -97,7 +89,6 @@
             <artifactId>json-smart</artifactId>
             <version>2.3</version>
         </dependency>
-
     </dependencies>
 
     <build>

@@ -1,35 +1,27 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
         <artifactId>felles-integrasjon-pom</artifactId>
-    <version>3.0.59-SNAPSHOT</version>
+        <version>3.0.59-SNAPSHOT</version>
+	</parent>
 
-    </parent>
+	<artifactId>aktoer-klient</artifactId>
+	<packaging>jar</packaging>
+	<name>Felles :: Integrasjonsendepunkt - aktoer-klient</name>
 
-    <artifactId>aktoer-klient</artifactId>
-    <packaging>jar</packaging>
-    <name>Felles :: Integrasjonsendepunkt - aktoer-klient</name>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-features-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-webservice</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.tjenestespesifikasjoner</groupId>
-            <artifactId>nav-fim-aktoer-v2-tjenestespesifikasjon</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+			<artifactId>felles-integrasjon-webservice</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.tjenestespesifikasjoner</groupId>
+			<artifactId>nav-fim-aktoer-v2-tjenestespesifikasjon</artifactId>
+		</dependency>
+	</dependencies>
 </project>

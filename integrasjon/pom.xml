@@ -42,6 +42,7 @@
         <felles.adapter.version>0.1.8</felles.adapter.version>
         <unleash.version>3.3.4</unleash.version>
         <influxdb-java.version>2.21</influxdb-java.version>
+        <cxf.version>3.3.6</cxf.version>
     </properties>
     <dependencyManagement>
         <dependencies>
