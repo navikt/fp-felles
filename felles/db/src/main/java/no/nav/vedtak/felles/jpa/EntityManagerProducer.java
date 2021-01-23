@@ -16,8 +16,9 @@ import javax.persistence.Persistence;
 import org.hibernate.jpa.QueryHints;
 
 /**
- * Denne klassen initialiserer {@link EntityManagerFactory} ihenhold til angitt konfigurasjon.
- * Benyttes til å sette opp EntityManager gjennom annotasjoner der det er {@link Inject}'ed.
+ * Denne klassen initialiserer {@link EntityManagerFactory} ihenhold til angitt
+ * konfigurasjon. Benyttes til å sette opp EntityManager gjennom annotasjoner
+ * der det er {@link Inject}'ed.
  */
 @ApplicationScoped
 public class EntityManagerProducer {
@@ -38,8 +39,8 @@ public class EntityManagerProducer {
         if (!CACHE_FACTORIES.containsKey(key)) {
             CACHE_FACTORIES.put(key, createEntityManager(key));
         }
-        EntityManagerFactory entityManagerFactory = CACHE_FACTORIES.get(key);
-        EntityManager em = entityManagerFactory.createEntityManager();
+        var entityManagerFactory = CACHE_FACTORIES.get(key);
+        var em = entityManagerFactory.createEntityManager();
         initConfig(em, entityManagerFactory.getProperties());
         return em;
     }
@@ -49,7 +50,8 @@ public class EntityManagerProducer {
      * @see org.hibernate.jpa.QueryHints
      */
     private void initConfig(EntityManager em, Map<String, Object> props) {
-        // regresson hibernate 4.5.6 - org.hibernate.flushMode er redefinert som QueryHint (ikke AvailableSettings) - blir ikke automatisk satt på
+        // regresson hibernate 4.5.6 - org.hibernate.flushMode er redefinert som
+        // QueryHint (ikke AvailableSettings) - blir ikke automatisk satt på
         // EM.
         em.setFlushMode(FlushModeType.valueOf((String) props.getOrDefault(QueryHints.HINT_FLUSH_MODE, "COMMIT")));
     }

@@ -1,5 +1,7 @@
 package no.nav.vedtak.exception;
 
+import static java.lang.String.format;
+
 import java.net.URI;
 
 import no.nav.vedtak.feil.Feil;
@@ -34,6 +36,11 @@ public class IntegrasjonException extends VLException {
         this(new Feil(kode, format(msg, args), level, IntegrasjonException.class, cause));
     }
 
+    /**
+     *
+     * @deprecated Lag med new og args.
+     */
+    @Deprecated
     public IntegrasjonException(Feil feil) {
         super(feil);
     }

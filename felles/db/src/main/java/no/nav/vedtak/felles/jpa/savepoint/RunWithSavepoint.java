@@ -2,7 +2,6 @@ package no.nav.vedtak.felles.jpa.savepoint;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Savepoint;
 import java.util.Objects;
 
 import javax.persistence.EntityManager;
@@ -12,8 +11,9 @@ import org.hibernate.jdbc.ReturningWork;
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
 /**
- * Kjører et stykke jobb med et savepoint for rollback mot database. Gir samme effekt som 'nested transactions' og abstraherer bort jpa
- * provider (Hibernate Work ifc).
+ * Kjører et stykke jobb med et savepoint for rollback mot database. Gir samme
+ * effekt som 'nested transactions' og abstraherer bort jpa provider (Hibernate
+ * Work ifc).
  */
 public class RunWithSavepoint {
     private final EntityManager em;
@@ -29,13 +29,12 @@ public class RunWithSavepoint {
 
     }
 
-    @SuppressWarnings("resource")
     public <V> V doWork(Work<V> work) {
         // sørg for at alle endringer er synket til db
         em.flush();
 
         try {
-            Session session = this.em.unwrap(Session.class); // ikke close her (håndteres når tx lukkes)
+            var session = em.unwrap(Session.class); // ikke close her (håndteres når tx lukkes)
             if (session.getTransaction().getRollbackOnly()) {
                 throw new IllegalStateException("Kan ikke opprette savepoint for connection som er markert for rollback-only");
             }
@@ -47,7 +46,7 @@ public class RunWithSavepoint {
                         // skal vel aldri skje, men
                         return work.doWork();
                     } else {
-                        Savepoint savepoint = conn.setSavepoint();
+                        var savepoint = conn.setSavepoint();
                         try {
                             V result = work.doWork();
                             return result;
@@ -55,7 +54,8 @@ public class RunWithSavepoint {
                             // allerede skjedd, ikke håndter på nytt men la 'vårt' savepoint i fred
                             throw e;
                         } catch (Throwable t) { // NOSONAR
-                            // alle andre feil intercepts medfører rollback siden vi ikke kan være sikre på tilstand.
+                            // alle andre feil intercepts medfører rollback siden vi ikke kan være sikre på
+                            // tilstand.
                             em.clear(); // rydd ugyldig state
                             if (!conn.isClosed()) {
                                 conn.rollback(savepoint);
@@ -68,7 +68,5 @@ public class RunWithSavepoint {
         } finally {
             em.flush();
         }
-
     }
-
 }
