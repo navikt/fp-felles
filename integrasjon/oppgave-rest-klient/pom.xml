@@ -5,7 +5,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
         <artifactId>felles-integrasjon-pom</artifactId>
-        <version>3.0.59</version>
+        <version>3.0.60-SNAPSHOT</version>
     </parent>
 
     <artifactId>oppgave-rest-klient</artifactId>
