@@ -40,6 +40,10 @@
             		<groupId>javax.enterprise</groupId>
             		<artifactId>cdi-api</artifactId>
             	</exclusion>
+            	<exclusion>
+            	    <groupId>javax.inject</groupId>
+            	    <artifactId>javax.inject</artifactId>
+            	</exclusion>
             </exclusions>
         </dependency>
         <dependency>
