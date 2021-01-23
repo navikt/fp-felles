@@ -87,15 +87,5 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-        	<groupId>javax.xml.ws</groupId>
-        	<artifactId>jaxws-api</artifactId>
-        	<exclusions>
-        		<exclusion>
-        			<groupId>javax.annotation</groupId>
-        			<artifactId>javax.annotation-api</artifactId>
-        		</exclusion>
-        	</exclusions>
-        </dependency>
     </dependencies>
 </project>
