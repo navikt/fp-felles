@@ -34,14 +34,20 @@
             <artifactId>felles-integrasjon-rest-klient</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.github.kobylynskyi</groupId>
             <artifactId>graphql-codegen-maven-plugin</artifactId>
             <version>4.1.1</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>javax.enterprise</groupId>
+            		<artifactId>cdi-api</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Test -->
