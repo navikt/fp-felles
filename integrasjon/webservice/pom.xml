@@ -212,7 +212,10 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 		</dependency>
-
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+        </dependency>
 		<dependency>
 			<!-- for å bygge markup for sysdoc -->
 			<groupId>io.github.swagger2markup</groupId>
