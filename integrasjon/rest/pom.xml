@@ -74,6 +74,10 @@
             			jboss-annotations-api_1.3_spec
             		</artifactId>
             	</exclusion>
+            	<exclusion>
+            	    <groupId>com.sun.activation</groupId>
+            	    <artifactId>jakarta.activation</artifactId>
+            	</exclusion>
             </exclusions>
         </dependency>
         <dependency>
