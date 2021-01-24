@@ -33,13 +33,12 @@ import no.nav.saf.JournalpostQueryResponse;
 import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
-import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.integrasjon.graphql.GraphQLDefaultErrorHandler;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
@@ -77,7 +76,7 @@ public class SafTjeneste implements Saf {
         this.graphqlEndpoint = URI.create(endpoint.toString() + "/graphql");
         this.hentDokumentEndpoint = URI.create(endpoint.toString() + "/rest/hentdokument");
         this.restKlient = restKlient;
-        this.errorHandler = new GraphQLDefaultErrorHandler();
+        this.errorHandler = new SafErrorHandler();
     }
 
     @Override
@@ -156,7 +155,7 @@ public class SafTjeneste implements Saf {
                         + ", HTTP request=" + request.getEntity()
                         + ", HTTP status=" + httpResponse.getStatusLine()
                         + ". HTTP Errormessage=" + responseBody;
-                throw new IntegrasjonException(feilmelding);
+                throw new TekniskException("F-240613", feilmelding);
             }
         }
     }
@@ -174,13 +173,13 @@ public class SafTjeneste implements Saf {
                 var feilmelding = "Kunne ikke hente informasjon for query mot SAF: " + request.getURI()
                         + ", HTTP status=" + httpResponse.getStatusLine()
                         + ". HTTP Errormessage=" + responseBody;
-                throw new IntegrasjonException(feilmelding);
+                throw new TekniskException("F-240613", feilmelding);
             }
         }
     }
 
-    interface SafTjenesteFeil extends DeklarerteFeil { // NOSONAR - internt interface er ok her
-        SafTjenesteFeil FEILFACTORY = FeilFactory.create(SafTjenesteFeil.class); // NOSONAR ok med konstant
+    interface SafTjenesteFeil extends DeklarerteFeil {
+        SafTjenesteFeil FEILFACTORY = FeilFactory.create(SafTjenesteFeil.class);
 
         @TekniskFeil(feilkode = "F-240613", feilmelding = "Forespørsel til SAF feilet for spørring %s", logLevel = LogLevel.WARN)
         Feil safForespørselFeilet(String query, Throwable t);

@@ -26,7 +26,6 @@ import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.graphql.GraphQLDefaultErrorHandler;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
@@ -49,7 +48,7 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
 
     @Inject
     public SafJerseyTjeneste(@KonfigVerdi(value = "saf.base.url", defaultVerdi = DEFAULT_BASE) URI base) {
-        this(base, new GraphQLDefaultErrorHandler());
+        this(base, new SafErrorHandler());
     }
 
     SafJerseyTjeneste(URI base, GraphQLErrorHandler errorHandler) {
