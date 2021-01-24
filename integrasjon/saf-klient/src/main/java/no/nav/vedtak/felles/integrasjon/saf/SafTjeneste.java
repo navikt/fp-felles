@@ -19,7 +19,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
 import no.nav.saf.Dokumentoversikt;
@@ -77,7 +79,7 @@ public class SafTjeneste implements Saf {
     public Dokumentoversikt dokumentoversiktFagsak(DokumentoversiktFagsakQueryRequest query, DokumentoversiktResponseProjection projection) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
-        DokumentoversiktFagsakQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderDokumentoversiktFagsakResponse);
+        DokumentoversiktFagsakQueryResponse graphQlResponse = query(graphQLRequest, objectReaderDokumentoversiktFagsakResponse);
 
         return graphQlResponse.dokumentoversiktFagsak();
     }
@@ -86,7 +88,7 @@ public class SafTjeneste implements Saf {
     public Journalpost hentJournalpostInfo(JournalpostQueryRequest query, JournalpostResponseProjection projection) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
-        JournalpostQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderJournalpostResponse);
+        JournalpostQueryResponse graphQlResponse = query(graphQLRequest, objectReaderJournalpostResponse);
 
         return graphQlResponse.journalpost();
     }
@@ -95,7 +97,7 @@ public class SafTjeneste implements Saf {
     public List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQueryRequest query, JournalpostResponseProjection projection) {
         GraphQLRequest graphQLRequest = new GraphQLRequest(query, projection);
 
-        TilknyttedeJournalposterQueryResponse graphQlResponse = utførSpørring(graphQLRequest, objectReaderTilknyttedeJournalposteResponse);
+        TilknyttedeJournalposterQueryResponse graphQlResponse = query(graphQLRequest, objectReaderTilknyttedeJournalposteResponse);
 
         return graphQlResponse.tilknyttedeJournalposter();
     }
@@ -113,7 +115,13 @@ public class SafTjeneste implements Saf {
         }
     }
 
-    private <T extends GraphQLResult<?>> T utførSpørring(GraphQLRequest request, ObjectReader objectReader) {
+    @Override
+    public <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
+        return query(new GraphQLRequest(q, p), mapper.readerFor(clazz));
+
+    }
+
+    private <T extends GraphQLResult<?>> T query(GraphQLRequest request, ObjectReader objectReader) {
         var responseHandler = new OidcRestClientResponseHandler.ObjectReaderResponseHandler<T>(graphqlEndpoint, objectReader);
 
         T graphQlResponse;
@@ -182,4 +190,5 @@ public class SafTjeneste implements Saf {
         @TekniskFeil(feilkode = "F-588730", feilmelding = "Feil fra SAF ved utført query. Error: %s", logLevel = LogLevel.WARN)
         Feil forespørselReturnerteFeil(String response);
     }
+
 }

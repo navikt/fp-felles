@@ -22,10 +22,15 @@ import org.slf4j.LoggerFactory;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 
 import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 
 @Dependent
-public class PdlDefaultErrorHandler implements PdlErrorHandler {
+public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
     private static final Logger LOG = LoggerFactory.getLogger(PdlDefaultErrorHandler.class);
+    static final String UAUTENTISERT = "unauthenticated";
+    static final String FORBUDT = "unauthorized";
+    static final String UGYLDIG = "bad_request";
+    static final String IKKEFUNNET = "not_found";;
 
     @Override
     public <T> T handleError(List<GraphQLError> errors, URI uri) {

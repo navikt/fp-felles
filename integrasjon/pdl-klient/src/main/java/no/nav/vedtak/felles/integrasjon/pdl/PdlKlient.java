@@ -51,6 +51,7 @@ import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
 import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
@@ -65,7 +66,7 @@ public class PdlKlient implements Pdl {
 
     private URI endpoint;
     private CloseableHttpClient restKlient;
-    private PdlErrorHandler errorHandler;
+    private GraphQLErrorHandler errorHandler;
     private String tema;
 
     PdlKlient() {
@@ -74,11 +75,11 @@ public class PdlKlient implements Pdl {
     @Inject
     public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "http://pdl-api.default/graphql") URI endpoint,
             @KonfigVerdi(value = "pdl.tema", defaultVerdi = "FOR") String tema,
-            StsAccessTokenConfig config, PdlErrorHandler errorHandler) {
+            StsAccessTokenConfig config, GraphQLErrorHandler errorHandler) {
         this(endpoint, tema, new SystemConsumerStsRestClient(config), errorHandler);
     }
 
-    PdlKlient(URI endpoint, String tema, CloseableHttpClient klient, PdlErrorHandler errorHandler) {
+    PdlKlient(URI endpoint, String tema, CloseableHttpClient klient, GraphQLErrorHandler errorHandler) {
         this.endpoint = validate(endpoint);
         this.restKlient = klient;
         this.errorHandler = errorHandler;
