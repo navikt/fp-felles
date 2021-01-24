@@ -36,6 +36,7 @@ import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
@@ -52,7 +53,7 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
     private static final String FOR = "FOR";
 
     private final URI endpoint;
-    private final PdlErrorHandler errorHandler;
+    private final GraphQLErrorHandler errorHandler;
 
     @Inject
     public JerseyPdlKlient(
@@ -78,7 +79,7 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
         this(endpoint, new PdlDefaultErrorHandler(), filters);
     }
 
-    JerseyPdlKlient(URI endpoint, PdlErrorHandler errorHandler, ClientRequestFilter... filters) {
+    JerseyPdlKlient(URI endpoint, GraphQLErrorHandler errorHandler, ClientRequestFilter... filters) {
         super(filters);
         this.endpoint = endpoint;
         this.errorHandler = errorHandler;
@@ -117,7 +118,7 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
                     .buildPost(json(req.toHttpJsonBody()))
                     .invoke(clazz);
             if (res.hasErrors()) {
-                return errorHandler.handleError(res.getErrors(), endpoint);
+                return errorHandler.handleError(res.getErrors(), endpoint, PDL_ERROR_RESPONSE);
             }
             LOG.info("Hentet resultat for {} fra {} OK", clazz.getName(), endpoint);
             return res;

@@ -9,8 +9,9 @@ import no.nav.saf.Journalpost;
 import no.nav.saf.JournalpostQueryRequest;
 import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
+import no.nav.vedtak.felles.integrasjon.graphql.GraphQLQueryable;
 
-public interface Saf {
+public interface Saf extends GraphQLQueryable {
 
     Dokumentoversikt dokumentoversiktFagsak(DokumentoversiktFagsakQueryRequest query, DokumentoversiktResponseProjection projection);
 

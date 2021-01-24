@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
-import static java.util.stream.Collectors.toList;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_ERROR_RESPONSE;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_INTERNAL;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_KLIENT_NOT_FOUND_KODE;
@@ -14,22 +13,24 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
-import javax.enterprise.context.Dependent;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 
 import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 
-@Dependent
-public class PdlDefaultErrorHandler implements PdlErrorHandler {
+public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
     private static final Logger LOG = LoggerFactory.getLogger(PdlDefaultErrorHandler.class);
+    private static final String UAUTENTISERT = "unauthenticated";
+    private static final String FORBUDT = "unauthorized";
+    private static final String UGYLDIG = "bad_request";
+    private static final String IKKEFUNNET = "not_found";;
 
     @Override
-    public <T> T handleError(List<GraphQLError> errors, URI uri) {
-        LOG.warn("PDL oppslag mot {} returnerte {} feil ({})", uri, errors.size(), errorMsgs(errors));
+    public <T> T handleError(List<GraphQLError> errors, URI uri, String kode) {
+        LOG.warn("PDL oppslag mot {} returnerte {} feil ({})", uri, errors.size());
         throw errors
                 .stream()
                 .findFirst() // TODO hva med flere?
@@ -37,38 +38,31 @@ public class PdlDefaultErrorHandler implements PdlErrorHandler {
                 .map(m -> m.get("code"))
                 .filter(Objects::nonNull)
                 .map(String.class::cast)
-                .map(k -> exception(k, uri))
-                .orElseGet(() -> exceptionFra(SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, "intern feil", uri));
+                .map(k -> exception(errors, k, uri))
+                .orElseGet(() -> exceptionFra(errors, SC_INTERNAL_SERVER_ERROR, kode, "intern feil", uri));
     }
 
-    private static List<String> errorMsgs(List<GraphQLError> errors) {
-        return errors
-                .stream()
-                .map(GraphQLError::getMessage)
-                .collect(toList());
-    }
-
-    private static IntegrasjonException exception(String extension, URI uri) {
+    private static IntegrasjonException exception(List<GraphQLError> errors, String extension, URI uri) {
         switch (extension) {
             case FORBUDT:
-                return exceptionFra(SC_UNAUTHORIZED, extension, uri);
+                return exceptionFra(errors, SC_UNAUTHORIZED, extension, uri);
             case UAUTENTISERT:
-                return exceptionFra(SC_FORBIDDEN, extension, uri);
+                return exceptionFra(errors, SC_FORBIDDEN, extension, uri);
             case IKKEFUNNET:
-                return exceptionFra(SC_NOT_FOUND, PDL_KLIENT_NOT_FOUND_KODE, extension, uri);
+                return exceptionFra(errors, SC_NOT_FOUND, PDL_KLIENT_NOT_FOUND_KODE, extension, uri);
             case UGYLDIG:
-                return exceptionFra(SC_BAD_REQUEST, extension, uri);
+                return exceptionFra(errors, SC_BAD_REQUEST, extension, uri);
             default:
-                return exceptionFra(SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, extension, uri);
+                return exceptionFra(errors, SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, extension, uri);
         }
     }
 
-    private static IntegrasjonException exceptionFra(int status, String extension, URI uri) {
-        return exceptionFra(status, PDL_ERROR_RESPONSE, extension, uri);
+    private static IntegrasjonException exceptionFra(List<GraphQLError> errors, int status, String extension, URI uri) {
+        return exceptionFra(errors, status, PDL_ERROR_RESPONSE, extension, uri);
     }
 
-    private static IntegrasjonException exceptionFra(int status, String kode, String extension, URI uri) {
-        return new PdlException(kode, extension, status, uri);
+    private static IntegrasjonException exceptionFra(List<GraphQLError> errors, int status, String kode, String extension, URI uri) {
+        return new PdlException(kode, errors, extension, status, uri);
 
     }
 
