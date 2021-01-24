@@ -40,15 +40,19 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
     private static final String DEFAULT_BASE = "https://localhost:8063/rest/api/saf";
     private static final String GRAPHQL = "/graphql";
 
-    private final URI base;
-    private final GraphQLErrorHandler errorHandler;
+    private URI base;
+    private GraphQLErrorHandler errorHandler;
+
+    SafJerseyTjeneste() {
+
+    }
 
     @Inject
     public SafJerseyTjeneste(@KonfigVerdi(value = "saf.base.url", defaultVerdi = DEFAULT_BASE) URI base) {
         this(base, new GraphQLDefaultErrorHandler());
     }
 
-    public SafJerseyTjeneste(URI base, GraphQLErrorHandler errorHandler) {
+    SafJerseyTjeneste(URI base, GraphQLErrorHandler errorHandler) {
         this.base = base;
         this.errorHandler = errorHandler;
     }
@@ -96,7 +100,7 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
                     .buildPost(json(req.toHttpJsonBody()))
                     .invoke(clazz);
             if (res.hasErrors()) {
-                return errorHandler.handleError(res.getErrors(), base);
+                return errorHandler.handleError(res.getErrors(), base, F_240613);
             }
             return res;
         } catch (WebApplicationException e) {

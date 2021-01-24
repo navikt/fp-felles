@@ -118,7 +118,7 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
                     .buildPost(json(req.toHttpJsonBody()))
                     .invoke(clazz);
             if (res.hasErrors()) {
-                return errorHandler.handleError(res.getErrors(), endpoint);
+                return errorHandler.handleError(res.getErrors(), endpoint, PDL_ERROR_RESPONSE);
             }
             LOG.info("Hentet resultat for {} fra {} OK", clazz.getName(), endpoint);
             return res;

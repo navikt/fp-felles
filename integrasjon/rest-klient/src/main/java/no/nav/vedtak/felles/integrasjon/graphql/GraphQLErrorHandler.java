@@ -7,6 +7,6 @@ import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 
 public interface GraphQLErrorHandler {
 
-    <T> T handleError(List<GraphQLError> errors, URI uri);
+    <T> T handleError(List<GraphQLError> errors, URI uri, String kode);
 
 }

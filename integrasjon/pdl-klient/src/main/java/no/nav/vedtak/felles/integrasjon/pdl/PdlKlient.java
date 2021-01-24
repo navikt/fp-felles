@@ -51,6 +51,7 @@ import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
@@ -75,8 +76,8 @@ public class PdlKlient implements Pdl {
     @Inject
     public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "http://pdl-api.default/graphql") URI endpoint,
             @KonfigVerdi(value = "pdl.tema", defaultVerdi = "FOR") String tema,
-            StsAccessTokenConfig config, GraphQLErrorHandler errorHandler) {
-        this(endpoint, tema, new SystemConsumerStsRestClient(config), errorHandler);
+            StsAccessTokenConfig config) {
+        this(endpoint, tema, new SystemConsumerStsRestClient(config), new PdlDefaultErrorHandler());
     }
 
     PdlKlient(URI endpoint, String tema, CloseableHttpClient klient, GraphQLErrorHandler errorHandler) {
@@ -123,7 +124,7 @@ public class PdlKlient implements Pdl {
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         T res = spør(post(req), new ObjectReaderResponseHandler<T>(endpoint, MAPPER.readerFor(clazz)));
         if (res.hasErrors()) {
-            return errorHandler.handleError(res.getErrors(), endpoint);
+            return errorHandler.handleError(res.getErrors(), endpoint, PDL_ERROR_RESPONSE);
         }
         return res;
     }
@@ -152,9 +153,9 @@ public class PdlKlient implements Pdl {
                     + ", HTTP request=" + req.getEntity()
                     + ", HTTP status=" + res.getStatusLine()
                     + ". HTTP Errormessage=" + body;
-            throw new PdlException(PDL_ERROR_RESPONSE, msg, status, endpoint);
+            throw new IntegrasjonException(PDL_ERROR_RESPONSE, msg, status, endpoint);
         } catch (IOException e) {
-            throw new PdlException(PDL_IO_EXCEPTION, "IO-exception", SC_INTERNAL_SERVER_ERROR, endpoint);
+            throw new IntegrasjonException(PDL_IO_EXCEPTION, "IO-exception", SC_INTERNAL_SERVER_ERROR, endpoint);
         }
     }
 

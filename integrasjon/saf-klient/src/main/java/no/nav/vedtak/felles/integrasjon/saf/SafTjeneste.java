@@ -6,7 +6,6 @@ import static no.nav.vedtak.felles.integrasjon.saf.SafTjeneste.SafTjenesteFeil.F
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -34,18 +33,21 @@ import no.nav.saf.JournalpostQueryResponse;
 import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.felles.integrasjon.graphql.GraphQLDefaultErrorHandler;
+import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 /**
  *
- * @deprecated Bruk {@link JerseySafTjeneste}
+ * @deprecated Denne koden er en katastrofe, bruk {@link JerseySafTjeneste}
  */
 @Deprecated
 @Dependent
@@ -63,6 +65,8 @@ public class SafTjeneste implements Saf {
     private final ObjectReader objectReaderDokumentoversiktFagsakResponse = mapper.readerFor(DokumentoversiktFagsakQueryResponse.class);
     private final ObjectReader objectReaderTilknyttedeJournalposteResponse = mapper.readerFor(TilknyttedeJournalposterQueryResponse.class);
 
+    private GraphQLErrorHandler errorHandler;
+
     SafTjeneste() {
         // CDI
     }
@@ -73,6 +77,7 @@ public class SafTjeneste implements Saf {
         this.graphqlEndpoint = URI.create(endpoint.toString() + "/graphql");
         this.hentDokumentEndpoint = URI.create(endpoint.toString() + "/rest/hentdokument");
         this.restKlient = restKlient;
+        this.errorHandler = new GraphQLDefaultErrorHandler();
     }
 
     @Override
@@ -118,29 +123,23 @@ public class SafTjeneste implements Saf {
     @Override
     public <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
         return query(new GraphQLRequest(q, p), mapper.readerFor(clazz));
-
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest request, ObjectReader objectReader) {
         var responseHandler = new OidcRestClientResponseHandler.ObjectReaderResponseHandler<T>(graphqlEndpoint, objectReader);
 
-        T graphQlResponse;
+        T res;
         try {
             var httpPost = new HttpPost(graphqlEndpoint);
             httpPost.setEntity(new StringEntity(request.toHttpJsonBody()));
-            graphQlResponse = utførForespørsel(httpPost, responseHandler);
+            res = utførForespørsel(httpPost, responseHandler);
         } catch (Exception e) {
             throw FEILFACTORY.safForespørselFeilet(request.toQueryString(), e).toException();
         }
-
-        if (graphQlResponse.getErrors() != null && graphQlResponse.getErrors().size() > 0) {
-            var errors = graphQlResponse.getErrors();
-            var feilmelding = errors.stream()
-                    .map(error -> error.getMessage())
-                    .collect(Collectors.joining("\n Error: "));
-            throw FEILFACTORY.forespørselReturnerteFeil(feilmelding).toException();
+        if (res.hasErrors()) {
+            return errorHandler.handleError(res.getErrors(), graphqlEndpoint, "F-588730");
         }
-        return graphQlResponse;
+        return res;
     }
 
     private <T extends GraphQLResult<?>> T utførForespørsel(HttpPost request,
@@ -157,8 +156,7 @@ public class SafTjeneste implements Saf {
                         + ", HTTP request=" + request.getEntity()
                         + ", HTTP status=" + httpResponse.getStatusLine()
                         + ". HTTP Errormessage=" + responseBody;
-                // throw new SafException(feilmelding);
-                throw new RuntimeException(feilmelding);
+                throw new IntegrasjonException(feilmelding);
             }
         }
     }
@@ -176,7 +174,7 @@ public class SafTjeneste implements Saf {
                 var feilmelding = "Kunne ikke hente informasjon for query mot SAF: " + request.getURI()
                         + ", HTTP status=" + httpResponse.getStatusLine()
                         + ". HTTP Errormessage=" + responseBody;
-                throw new SafException(feilmelding);
+                throw new IntegrasjonException(feilmelding);
             }
         }
     }
