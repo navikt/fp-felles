@@ -36,7 +36,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements Saf {
     private static final String HENTDOKUMENT = "/rest/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}";
     private static final String F_240613 = "F-240613";
-    private static final String DEFAULT_BASE = "https://localhost:8063/rest/api/saf";
+    private static final String DEFAULT_BASE = "https://saf.nais.adeo.no";
     private static final String GRAPHQL = "/graphql";
 
     private URI base;
