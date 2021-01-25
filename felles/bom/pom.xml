@@ -5,7 +5,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>felles</artifactId>
-        <version>3.0.68</version>
+        <version>3.0.69-SNAPSHOT</version>
     </parent>
 
     <artifactId>felles-bom</artifactId>
