@@ -70,13 +70,7 @@
             <exclusions>
             	<exclusion>
             		<groupId>org.jboss.spec.javax.annotation</groupId>
-            		<artifactId>
-            			jboss-annotations-api_1.3_spec
-            		</artifactId>
-            	</exclusion>
-            	<exclusion>
-            	    <groupId>com.sun.activation</groupId>
-            	    <artifactId>jakarta.activation</artifactId>
+            		<artifactId>jboss-annotations-api_1.3_spec</artifactId>
             	</exclusion>
             </exclusions>
         </dependency>
