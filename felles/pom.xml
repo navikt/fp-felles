@@ -70,7 +70,12 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>jakarta.el</groupId>
+                <version>3.0.3</version>
+            </dependency>
+            
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
@@ -86,6 +91,11 @@
 				<artifactId>mockito-junit-jupiter</artifactId>
 				<version>${mockito.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.19.0</version>
+            </dependency>
 
 			<dependency>
 				<!-- setter scope provided for globalt å ekskludere denne fra pakking -->
