@@ -10,7 +10,7 @@
 	<artifactId>felles</artifactId>
 	<packaging>pom</packaging>
 	<name>Felles</name>
-
+    
 	<modules>
 		<module>testutilities</module>
 		<module>sikkerhet</module>
@@ -20,7 +20,12 @@
 		<module>db</module>
 		<module>bom</module>
 	</modules>
-	<dependencyManagement>
+	
+    <properties>
+        <jakarta.activation.version>1.2.2</jakarta.activation.version>
+    </properties>
+    
+    <dependencyManagement>
 		<dependencies>
             <dependency>
                 <groupId>jakarta.platform</groupId>
@@ -34,7 +39,12 @@
             	<!-- kan fjernes ved Jakarta EE 9/ oppgradering av jakarta.platform -->
 				<groupId>jakarta.activation</groupId>
 				<artifactId>jakarta.activation-api</artifactId>
-				<version>1.2.2</version>
+				<version>${jakarta.activation.version}</version>
+			</dependency>
+            <dependency>
+				<groupId>com.sun.activation</groupId>
+				<artifactId>jakarta.activation</artifactId>
+				<version>${jakarta.activation.version}</version>
 			</dependency>
 			
 			<dependency>
