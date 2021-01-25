@@ -69,12 +69,6 @@
 			<!-- fjernet fra SE i Java11. brukes for soap -->
 			<groupId>com.sun.xml.messaging.saaj</groupId>
 			<artifactId>saaj-impl</artifactId>
-			<exclusions>
-			    <exclusion>
-			        <groupId>com.sun.activation</groupId>
-			        <artifactId>jakarta.activation</artifactId>
-			    </exclusion>
-			</exclusions>
 		</dependency>
 	</dependencies>
 </project>
