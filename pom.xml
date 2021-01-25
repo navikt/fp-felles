@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.nav.foreldrepenger.felles</groupId>
     <artifactId>felles-root</artifactId>
-    <version>3.0.69</version>
+    <version>3.0.70-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Felles-root</name>
 
@@ -38,7 +38,7 @@
         <connection>scm:git:https://github.com/navikt/fp-felles.git</connection>
         <developerConnection>scm:git:https://github.com/navikt/fp-felles.git</developerConnection>
         <url>https://github.com/navikt/fp-felles/</url>
-        <tag>felles-root-3.0.69</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencyManagement>
