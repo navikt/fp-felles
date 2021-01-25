@@ -392,7 +392,7 @@
 				<!-- fjernet fra SE i Java11 -->
 				<groupId>jakarta.xml.soap</groupId>
 				<artifactId>jakarta.xml.soap-api</artifactId>
-				<version>1.4.2</version>
+				<version>2.0.0</version>
 			</dependency>
 			<dependency>
 				<!-- fjernet fra SE i Java11 -->
