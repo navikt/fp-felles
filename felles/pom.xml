@@ -72,7 +72,7 @@
 			</dependency>
             <dependency>
                 <groupId>org.glassfish</groupId>
-                <artifactId>jakarta.el</groupId>
+                <artifactId>jakarta.el</artifactId>
                 <version>3.0.3</version>
             </dependency>
             
