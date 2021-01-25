@@ -10,7 +10,7 @@ import no.nav.vedtak.feil.LogLevel;
 public class IntegrasjonException extends VLException {
 
     private static final String KODE = "F-686912";
-    private static final String DEFAULT_MSG = "Server [%s] svarte med feilkode http-kode '%s' og response var '%s'";
+    private static final String DEFAULT_MSG = "Server [%s] svarte med feilkode";
 
     public IntegrasjonException(Throwable t, URI uri) {
         this(KODE, t, uri);
