@@ -9,6 +9,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static no.nav.vedtak.felles.integrasjon.pdl.PdlDefaultErrorHandler.FORBUDT;
 import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
@@ -21,15 +22,18 @@ import static org.apache.http.HttpHeaders.ACCEPT;
 import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_OK;
+import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -41,11 +45,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
 import no.nav.pdl.HentPersonQueryRequest;
@@ -57,6 +64,7 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class TestJerseyPdlClient {
 
     private static final String FOR = Tema.FOR.name();
@@ -96,6 +104,21 @@ public class TestJerseyPdlClient {
     }
 
     @Test
+    @DisplayName("Test error handler")
+    public void testErrorHandler() throws Exception {
+        var handler = new PdlDefaultErrorHandler();
+        var error = new GraphQLError();
+        error.setExtensions(Map.of("code", FORBUDT, "details",
+                Map.of("cause", "a cause", "type", "a type", "policy", "a policy")));
+        var e = assertThrows(PdlException.class, () -> handler.handleError(List.of(error), URI, "KODE"));
+        assertNotNull(e.getExtension());
+        assertNotNull(e.getExtension().getDetails());
+        assertEquals(FORBUDT, e.getExtension().getCode());
+        assertEquals("a policy", e.getExtension().getDetails().getPolicy());
+        assertEquals(SC_UNAUTHORIZED, e.getStatus());
+    }
+
+    @Test
     @DisplayName("Test at Authorization, Nav-Consumer-Id, Nav-Consumer-Token, Nav-Consumer-Id og Tema alle blir satt")
     public void testPersonAuthWithUserToken() throws Exception {
         when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
@@ -119,7 +142,6 @@ public class TestJerseyPdlClient {
             res = client.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
-            verifyNoMoreInteractions(sts); // cache hit
         }
     }
 
