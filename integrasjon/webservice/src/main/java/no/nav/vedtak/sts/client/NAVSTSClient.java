@@ -116,22 +116,27 @@ public class NAVSTSClient extends STSClient {
 
     private static String tokenToString(SecurityToken token) {
         return token.getClass().getSimpleName() + "<" +
-                "id=" + token.getId() + ", "
-                + "wsuId=" + token.getWsuId() + ", "
-                + "principal=" + token.getPrincipal() + ", "
-                + "created=" + token.getCreated() + ", "
-                + "expires=" + token.getExpires() + ", "
-                + "isExpired=" + token.isExpired() + ", "
-                + ">";
+            "id=" + token.getId() + ", "
+            + "wsuId=" + token.getWsuId() + ", "
+            + "principal=" + token.getPrincipal() + ", "
+            + "created=" + token.getCreated() + ", "
+            + "expires=" + token.getExpires() + ", "
+            + "isExpired=" + token.isExpired() + ", "
+            + ">";
     }
 
     private void ensureTokenStoreExists() {
         if (tokenStore == null) {
-            createTokenStore();
+            try {
+                createTokenStore();
+            } catch (Exception e) {
+                // for kompat cxf 3.4
+                throw new IllegalStateException("Kan ikke opprette TokenStore", e);
+            }
         }
     }
 
-    private synchronized void createTokenStore() {
+    private synchronized void createTokenStore() throws Exception {
         if (tokenStore == null) {
             logger.debug("Creating tokenStore");
             tokenStore = TokenStoreFactory.newInstance().newTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, message);
