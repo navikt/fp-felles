@@ -85,10 +85,6 @@
                     <artifactId>javax.activation-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>com.sun.activation</groupId>
-                    <artifactId>javax.activation</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>javax.xml.soap</groupId>
                     <artifactId>javax.xml.soap-api</artifactId>
                 </exclusion>
@@ -109,10 +105,6 @@
                 <exclusion>
                     <groupId>javax.activation</groupId>
                     <artifactId>javax.activation-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.activation</groupId>
-                    <artifactId>javax.activation</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>javax.xml.soap</groupId>
@@ -137,10 +129,6 @@
                     <artifactId>javax.activation-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>com.sun.activation</groupId>
-                    <artifactId>javax.activation</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>javax.xml.soap</groupId>
                     <artifactId>javax.xml.soap-api</artifactId>
                 </exclusion>
@@ -163,10 +151,6 @@
                     <artifactId>javax.activation-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>com.sun.activation</groupId>
-                    <artifactId>javax.activation</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>javax.xml.soap</groupId>
                     <artifactId>javax.xml.soap-api</artifactId>
                 </exclusion>
@@ -187,10 +171,6 @@
                 <exclusion>
                     <groupId>javax.activation</groupId>
                     <artifactId>javax.activation-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.activation</groupId>
-                    <artifactId>javax.activation</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>javax.xml.soap</groupId>
