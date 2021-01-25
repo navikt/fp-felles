@@ -1,6 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest;
 
 import static java.util.stream.Collectors.toList;
+import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.net.URI;
@@ -11,7 +12,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
@@ -42,17 +42,17 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
     }
 
     @Override
-    public List<ArbeidsfordelingResponse> finnEnhet(ArbeidsfordelingRequest request) {
-        return hentEnheterFor(request, BEST_MATCH);
+    public List<ArbeidsfordelingResponse> finnEnhet(ArbeidsfordelingRequest req) {
+        return hentEnheterFor(req, BEST_MATCH);
     }
 
-    private List<ArbeidsfordelingResponse> hentEnheterFor(ArbeidsfordelingRequest request, String path) {
+    private List<ArbeidsfordelingResponse> hentEnheterFor(ArbeidsfordelingRequest req, String path) {
         try {
             return target(path)
                     .request()
                     .accept(APPLICATION_JSON_TYPE)
-                    .get(Response.class)
-                    .readEntity(new GenericType<List<ArbeidsfordelingResponse>>() {
+                    .buildPost(json(req))
+                    .invoke(new GenericType<List<ArbeidsfordelingResponse>>() {
                     }).stream()
                     .filter(r -> "AKTIV".equalsIgnoreCase(r.getStatus()))
                     .collect(toList());
