@@ -15,10 +15,11 @@ import no.nav.vedtak.util.env.Environment;
 class HeaderLoggingFilter implements ClientRequestFilter, ClientResponseFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(HeaderLoggingFilter.class);
+    private static final Environment ENV = Environment.current();
 
     @Override
     public void filter(ClientRequestContext ctx) throws IOException {
-        if (!Environment.current().isProd()) {
+        if (!ENV.isProd()) {
             ctx.getHeaders().entrySet().stream()
                     .forEach(e -> LOG.trace("{} -> {}", e.getKey(), e.getValue()));
         }
@@ -26,7 +27,7 @@ class HeaderLoggingFilter implements ClientRequestFilter, ClientResponseFilter {
 
     @Override
     public void filter(ClientRequestContext ctx, ClientResponseContext responseContext) throws IOException {
-        if (!Environment.current().isProd()) {
+        if (!ENV.isProd()) {
             ctx.getHeaders().entrySet().stream()
                     .forEach(e -> LOG.trace("{} -> {}", e.getKey(), e.getValue()));
         }

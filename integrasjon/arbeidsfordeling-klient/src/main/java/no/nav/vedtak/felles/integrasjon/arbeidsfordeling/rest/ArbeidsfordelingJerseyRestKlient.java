@@ -13,6 +13,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
@@ -22,6 +25,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @Jersey
 public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClient implements Arbeidsfordeling {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ArbeidsfordelingJerseyRestKlient.class);
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
 
@@ -48,7 +52,9 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
 
     private List<ArbeidsfordelingResponse> hentEnheterFor(ArbeidsfordelingRequest req, String path) {
         try {
-            return target(path)
+            var target = target(path);
+            LOG.info("henter enheter fra {}", target.getUri());
+            return target
                     .request()
                     .accept(APPLICATION_JSON_TYPE)
                     .buildPost(json(req))
@@ -59,6 +65,7 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
         } catch (WebApplicationException e) {
             throw new IntegrasjonException("F-016913", e, uri, e.getResponse().getStatus(), e.getResponse().getEntity());
         } catch (Exception e) {
+            LOG.warn("Henting av enheter feilet", e);
             throw new IntegrasjonException(e, uri);
         }
     }
