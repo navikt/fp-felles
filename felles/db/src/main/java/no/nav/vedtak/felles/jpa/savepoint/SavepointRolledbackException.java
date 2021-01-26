@@ -8,7 +8,7 @@ package no.nav.vedtak.felles.jpa.savepoint;
 public class SavepointRolledbackException extends RuntimeException {
 
     public SavepointRolledbackException(Throwable cause) {
-        this(null, cause);
+        super(cause);
     }
 
     public SavepointRolledbackException(String message, Throwable cause) {
