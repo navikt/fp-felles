@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
@@ -32,14 +33,12 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
     private URI uri;
 
     ArbeidsfordelingJerseyRestKlient() {
-        LOG.info("Konstruert noarg");
-
     }
 
+    @Inject
     public ArbeidsfordelingJerseyRestKlient(
             @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
         this.uri = uri;
-        LOG.info("Konstruert " + this);
     }
 
     @Override
