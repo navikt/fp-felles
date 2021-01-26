@@ -31,7 +31,8 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
 
     private URI uri;
 
-    public ArbeidsfordelingJerseyRestKlient() {
+    ArbeidsfordelingJerseyRestKlient() {
+        LOG.info("Konstruert noarg");
 
     }
 

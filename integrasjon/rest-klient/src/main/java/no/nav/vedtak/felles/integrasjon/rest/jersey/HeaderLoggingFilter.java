@@ -24,7 +24,7 @@ class HeaderLoggingFilter implements ClientRequestFilter, ClientResponseFilter {
         if (!ENV.isProd()) {
             ctx.getHeaders().entrySet().stream()
                     .forEach(e -> LOG.trace("{} -> {}", e.getKey(), e.getValue()));
-            LOG.trace("Request entity {}", ctx.getEntity());
+            // LOG.trace("Request entity {}", ctx.getEntity());
         }
     }
 
