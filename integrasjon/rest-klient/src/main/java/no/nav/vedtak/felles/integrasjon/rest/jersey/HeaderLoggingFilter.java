@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import java.io.IOException;
 
+import javax.annotation.Priority;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.ClientResponseContext;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.util.env.Environment;
 
+@Priority(999999)
 class HeaderLoggingFilter implements ClientRequestFilter, ClientResponseFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(HeaderLoggingFilter.class);
