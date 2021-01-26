@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,7 +36,6 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -91,7 +91,7 @@ public class TestJerseyPdlClient {
     private static final String USERNAME = "ZAPHOD";
     private static WireMockServer server;
     private static URI URI;
-    private final Cache<String, String> cache = cache(1, Duration.ofMinutes(1));
+    private final Cache<String, String> cache = cache(1, Duration.ofSeconds(1));
 
     @BeforeAll
     public static void startServer() throws Exception {
@@ -129,7 +129,7 @@ public class TestJerseyPdlClient {
     }
 
     @Test
-    @DisplayName("Test at Authorization, Nav-Consumer-Id, Nav-Consumer-Token, Nav-Consumer-Id og Tema alle blir satt")
+    @DisplayName("Test at Authorization, Nav-Consumer-Id, Nav-Consumer-Token, Nav-Consumer-Id og Tema alle blir satt tester også cache")
     public void testPersonAuthWithUserToken() throws Exception {
         when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
         doReturn(BRUKERTOKEN).when(subjectHandler).getInternSsoToken();
@@ -151,8 +151,10 @@ public class TestJerseyPdlClient {
             res = client.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
-            IntStream.range(0, 100).forEach(i -> client.hentPerson(pq(), pp()));
             verify(sts).accessToken();
+            Thread.sleep(1000);
+            client.hentPerson(pq(), pp());
+            verify(sts, times(2)).accessToken();
         }
     }
 
@@ -217,7 +219,7 @@ public class TestJerseyPdlClient {
 
     private static Cache<String, String> cache(int size, Duration duration) {
         return Caffeine.newBuilder()
-                .expireAfterAccess(duration)
+                .expireAfterWrite(duration)
                 .maximumSize(size)
                 .removalListener(new RemovalListener<String, String>() {
                     @Override
