@@ -7,6 +7,9 @@ import java.net.URI;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -15,6 +18,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @Jersey
 public class OrganisasjonJerseyRestKlient extends AbstractJerseyOidcRestClient implements OrgInfo {
 
+    private static final Logger LOG = LoggerFactory.getLogger(OrganisasjonJerseyRestKlient.class);
     private static final String ENDPOINT_KEY = "organisasjon.rs.url";
     private static final String DEFAULT_URI = "https://modapp.adeo.no/ereg/api/v1/organisasjon";
 
@@ -39,10 +43,17 @@ public class OrganisasjonJerseyRestKlient extends AbstractJerseyOidcRestClient i
     }
 
     private <T> T get(String orgnummer, Class<T> clazz) {
-        return client.target(endpoint)
-                .path(orgnummer)
-                .request(APPLICATION_JSON_TYPE)
-                .get(clazz);
+        try {
+            var target = client.target(endpoint).path(orgnummer);
+            LOG.warn("Henter organisasjoninfo for {} fra {}", orgnummer, target.getUri());
+            return target
+                    .path(orgnummer)
+                    .request(APPLICATION_JSON_TYPE)
+                    .get(clazz);
+        } catch (Exception e) {
+            LOG.warn("Kunne ikke hente organisasjoninfo", e);
+            throw e;
+        }
     }
 
     @Override
