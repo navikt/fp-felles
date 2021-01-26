@@ -12,6 +12,9 @@ import javax.inject.Inject;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -37,6 +40,7 @@ public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient 
     // Fra kodeverk PeriodestatusMedl
     public static final String KODE_PERIODESTATUS_GYLD = "GYLD";
     public static final String KODE_PERIODESTATUS_UAVK = "UAVK";
+    private static final Logger LOG = LoggerFactory.getLogger(MedlemsunntakJerseyRestKlient.class);
 
     private URI endpoint;
 
@@ -50,18 +54,25 @@ public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient 
 
     @Override
     public List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom) throws Exception {
-        return client.target(endpoint)
-                .queryParam(PARAM_INKLUDER_SPORINGSINFO, "true")
-                .queryParam(PARAM_FRA_OG_MED, d2s(fom))
-                .queryParam(PARAM_TIL_OG_MED, d2s(tom))
-                .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_GYLD)
-                .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK)
-                .request()
-                .accept(APPLICATION_JSON_TYPE)
-                .header(HEADER_NAV_PERSONIDENT, aktørId)
-                .get(Response.class)
-                .readEntity(new GenericType<List<Medlemskapsunntak>>() {
-                });
+        try {
+            var target = client.target(endpoint)
+                    .queryParam(PARAM_INKLUDER_SPORINGSINFO, "true")
+                    .queryParam(PARAM_FRA_OG_MED, d2s(fom))
+                    .queryParam(PARAM_TIL_OG_MED, d2s(tom))
+                    .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_GYLD)
+                    .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK);
+            LOG.info("Henter unntak fra", target.getUri());
+            return target
+                    .request()
+                    .accept(APPLICATION_JSON_TYPE)
+                    .header(HEADER_NAV_PERSONIDENT, aktørId)
+                    .get(Response.class)
+                    .readEntity(new GenericType<List<Medlemskapsunntak>>() {
+                    });
+        } catch (Exception e) {
+            LOG.warn("Kunne ikke hente unntak", e);
+            throw e;
+        }
     }
 
     private static String d2s(LocalDate dato) {
