@@ -67,7 +67,7 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
 
     private static Cache<String, String> cache(int size, Duration duration) {
         return Caffeine.newBuilder()
-                .expireAfterAccess(duration)
+                .expireAfterWrite(duration)
                 .maximumSize(size)
                 .removalListener(new RemovalListener<String, String>() {
                     @Override
