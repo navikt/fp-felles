@@ -10,12 +10,14 @@ import no.nav.vedtak.felles.integrasjon.graphql.GraphQLException;
 public class PdlException extends GraphQLException {
 
     private final int status;
+    private final URI uri;
     private final PDLExceptionExtension extension;
 
     public PdlException(String kode, List<GraphQLError> errors, PDLExceptionExtension extension, int status, URI uri) {
         super(kode, errors, uri);
         this.extension = extension;
         this.status = status;
+        this.uri = uri;
     }
 
     public PDLExceptionExtension getExtension() {
@@ -28,6 +30,6 @@ public class PdlException extends GraphQLException {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [status=" + status + ", extension=" + extension + "]";
+        return getClass().getSimpleName() + " [status=" + status + ", extension=" + extension + "uri=" + uri + "]";
     }
 }
