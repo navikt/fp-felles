@@ -32,8 +32,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -47,9 +49,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
@@ -67,6 +75,7 @@ import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class TestJerseyPdlClient {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TestJerseyPdlClient.class);
     private static final String FOR = Tema.FOR.name();
     private static final String SYSTEMTOKEN = "SYSTEMTOKEN";
     private static final String BRUKERTOKEN = "BRUKERTOKEN";
@@ -82,6 +91,7 @@ public class TestJerseyPdlClient {
     private static final String USERNAME = "ZAPHOD";
     private static WireMockServer server;
     private static URI URI;
+    private final Cache<String, String> cache = cache(1, Duration.ofMinutes(1));
 
     @BeforeAll
     public static void startServer() throws Exception {
@@ -100,7 +110,7 @@ public class TestJerseyPdlClient {
     @BeforeEach
     public void beforeEach() throws Exception {
         when(sts.getUsername()).thenReturn(USERNAME);
-        client = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
+        client = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR, cache));
     }
 
     @Test
@@ -138,10 +148,11 @@ public class TestJerseyPdlClient {
             var res = client.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
-            verify(sts).accessToken();
             res = client.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
+            IntStream.range(0, 100).forEach(i -> client.hentPerson(pq(), pp()));
+            verify(sts).accessToken();
         }
     }
 
@@ -202,6 +213,19 @@ public class TestJerseyPdlClient {
                 .withStatus(SC_OK)
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                 .withBody(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
+    }
+
+    private static Cache<String, String> cache(int size, Duration duration) {
+        return Caffeine.newBuilder()
+                .expireAfterAccess(duration)
+                .maximumSize(size)
+                .removalListener(new RemovalListener<String, String>() {
+                    @Override
+                    public void onRemoval(String key, String value, RemovalCause cause) {
+                        LOG.info("Fjerner system token fra cache grunnet {}", cause);
+                    }
+                })
+                .build();
     }
 
 }

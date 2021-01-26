@@ -32,8 +32,12 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     private final String tema;
 
     public StsAccessTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema) {
+        this(sts, tema, cache(1, CACHE_DURATION));
+    }
+
+    public StsAccessTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema, Cache<String, String> cache) {
         this.sts = sts;
-        this.cache = cache(1, CACHE_DURATION);
+        this.cache = cache;
         this.tema = tema;
     }
 
