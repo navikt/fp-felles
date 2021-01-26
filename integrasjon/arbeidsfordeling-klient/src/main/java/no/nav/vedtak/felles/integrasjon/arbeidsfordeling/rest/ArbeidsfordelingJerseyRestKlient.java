@@ -38,6 +38,7 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
     public ArbeidsfordelingJerseyRestKlient(
             @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
         this.uri = uri;
+        LOG.info("Konstruert " + this);
     }
 
     @Override
@@ -71,9 +72,15 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
     }
 
     private WebTarget target(String path) {
+        LOG.info("TARGET " + uri);
         var target = client.target(uri);
         return Optional.ofNullable(path)
                 .map(p -> target.path(p))
                 .orElse(target);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [uri=" + uri + "]";
     }
 }
