@@ -83,6 +83,7 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
         super(filters);
         this.endpoint = endpoint;
         this.errorHandler = errorHandler;
+        LOG.info("Klient konstruert");
     }
 
     @Override
