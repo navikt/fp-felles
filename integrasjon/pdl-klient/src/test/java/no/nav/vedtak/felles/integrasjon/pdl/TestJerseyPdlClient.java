@@ -54,8 +54,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -91,7 +91,7 @@ public class TestJerseyPdlClient {
     private static final String USERNAME = "ZAPHOD";
     private static WireMockServer server;
     private static URI URI;
-    private final Cache<String, String> cache = cache(1, Duration.ofSeconds(1));
+    private final LoadingCache<String, String> cache = cache(1, Duration.ofSeconds(1));
 
     @BeforeAll
     public static void startServer() throws Exception {
@@ -153,6 +153,13 @@ public class TestJerseyPdlClient {
             assertNotNull(res.getNavn().get(0).getFornavn());
             verify(sts).accessToken();
             Thread.sleep(1000);
+            client.hentPerson(pq(), pp());
+            client.hentPerson(pq(), pp());
+            client.hentPerson(pq(), pp());
+            client.hentPerson(pq(), pp());
+            client.hentPerson(pq(), pp());
+            client.hentPerson(pq(), pp());
+            client.hentPerson(pq(), pp());
             client.hentPerson(pq(), pp());
             verify(sts, times(2)).accessToken();
         }
@@ -217,7 +224,7 @@ public class TestJerseyPdlClient {
                 .withBody(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
     }
 
-    private static Cache<String, String> cache(int size, Duration duration) {
+    private LoadingCache<String, String> cache(int size, Duration duration) {
         return Caffeine.newBuilder()
                 .expireAfterWrite(duration)
                 .maximumSize(size)
@@ -227,7 +234,12 @@ public class TestJerseyPdlClient {
                         LOG.info("Fjerner system token fra cache grunnet {}", cause);
                     }
                 })
-                .build();
+                .build(k -> load(sts));
+    }
+
+    private String load(StsAccessTokenJerseyClient sts) {
+        LOG.info("LOADING");
+        return sts.accessToken();
     }
 
 }

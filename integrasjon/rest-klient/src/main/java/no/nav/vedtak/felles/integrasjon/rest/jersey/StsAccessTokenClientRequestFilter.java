@@ -10,15 +10,14 @@ import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestCli
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.function.Function;
 
 import javax.ws.rs.client.ClientRequestContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 
@@ -28,14 +27,14 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     private static final Duration CACHE_DURATION = Duration.ofMinutes(55);
     private static final Logger LOG = LoggerFactory.getLogger(StsAccessTokenClientRequestFilter.class);
     private final StsAccessTokenJerseyClient sts;
-    private final Cache<String, String> cache;
+    private final LoadingCache<String, String> cache;
     private final String tema;
 
     public StsAccessTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema) {
-        this(sts, tema, cache(1, CACHE_DURATION));
+        this(sts, tema, cache(1, CACHE_DURATION, sts));
     }
 
-    public StsAccessTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema, Cache<String, String> cache) {
+    public StsAccessTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema, LoadingCache<String, String> cache) {
         this.sts = sts;
         this.cache = cache;
         this.tema = tema;
@@ -57,15 +56,10 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     }
 
     private String systemToken() {
-        return cache.get("systemToken", load());
+        return cache.get("systemToken");
     }
 
-    private Function<? super String, ? extends String> load() {
-        LOG.info("Oppdaterer cache med system token, gyldig til {}", ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plus(CACHE_DURATION)));
-        return key -> sts.accessToken();
-    }
-
-    private static Cache<String, String> cache(int size, Duration duration) {
+    private static LoadingCache<String, String> cache(int size, Duration duration, StsAccessTokenJerseyClient sts) {
         return Caffeine.newBuilder()
                 .expireAfterWrite(duration)
                 .maximumSize(size)
@@ -75,7 +69,12 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
                         LOG.info("Fjerner system token fra cache grunnet {}", cause);
                     }
                 })
-                .build();
+                .build(k -> load(sts));
+    }
+
+    private static String load(StsAccessTokenJerseyClient sts) {
+        LOG.info("Oppdaterer cache med system token, gyldig til {}", ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plus(CACHE_DURATION)));
+        return sts.accessToken();
     }
 
     @Override

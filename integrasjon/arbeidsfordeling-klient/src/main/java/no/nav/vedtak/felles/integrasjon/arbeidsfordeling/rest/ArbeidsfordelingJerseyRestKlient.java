@@ -72,7 +72,6 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
     }
 
     private WebTarget target(String path) {
-        LOG.info("TARGET " + uri);
         var target = client.target(uri);
         return Optional.ofNullable(path)
                 .map(p -> target.path(p))
