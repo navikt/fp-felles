@@ -6,9 +6,11 @@ import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestCli
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.NAV_CONSUMER_TOKEN_HEADER;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
+import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import javax.ws.rs.client.ClientRequestContext;
@@ -20,6 +22,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
+import com.nimbusds.jwt.SignedJWT;
 
 import no.nav.vedtak.exception.TekniskException;
 
@@ -73,8 +76,27 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     }
 
     private static String load(StsAccessTokenJerseyClient sts) {
-        LOG.info("Oppdaterer cache med system token, gyldig til {}", ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plus(CACHE_DURATION)));
-        return sts.accessToken();
+        LOG.info("Oppdaterer cache med system token, cache innslag er gyldig til {}", format(LocalDateTime.now().plus(CACHE_DURATION)));
+        var token = sts.accessToken();
+        LOG.info("System token er gyldig til {}", format(expiry()));
+        return token;
+    }
+
+    private static String format(LocalDateTime d) {
+        return Optional.ofNullable(d)
+                .map(ISO_LOCAL_DATE_TIME::format)
+                .orElse(null);
+    }
+
+    private static LocalDateTime expiry() {
+        try {
+            return SignedJWT.parse(getSubjectHandler().getInternSsoToken()).getJWTClaimsSet().getExpirationTime().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+        } catch (Exception e) {
+            LOG.trace("Kunne ikke hente expiration dato fra token", e);
+            return null;
+        }
     }
 
     @Override
