@@ -73,11 +73,11 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
                         LOG.info("Fjerner system token fra cache grunnet {}", cause);
                     }
                 })
-                .build(k -> load(sts));
+                .build(k -> load(sts, duration));
     }
 
-    private static String load(StsAccessTokenJerseyClient sts) {
-        LOG.info("Oppdaterer cache med system token, cache innslag er gyldig til {}", format(now().plus(CACHE_DURATION)));
+    private static String load(StsAccessTokenJerseyClient sts, Duration duration) {
+        LOG.info("Oppdaterer cache med system token, cache innslag er gyldig til {}", format(now().plus(duration)));
         var token = sts.accessToken();
         LOG.info("System token er gyldig til {}", format(expiry()));
         return token;
