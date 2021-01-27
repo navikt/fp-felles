@@ -91,7 +91,11 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
 
     private static LocalDateTime expiry() {
         try {
-            return SignedJWT.parse(getSubjectHandler().getInternSsoToken()).getJWTClaimsSet().getExpirationTime().toInstant()
+            return SignedJWT.parse(getSubjectHandler()
+                    .getInternSsoToken())
+                    .getJWTClaimsSet()
+                    .getExpirationTime()
+                    .toInstant()
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
         } catch (Exception e) {
