@@ -85,7 +85,7 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     private static String format(LocalDateTime d) {
         return Optional.ofNullable(d)
                 .map(ISO_LOCAL_DATE_TIME::format)
-                .orElse(null);
+                .orElse("<null>");
     }
 
     private static LocalDateTime expiry() {
