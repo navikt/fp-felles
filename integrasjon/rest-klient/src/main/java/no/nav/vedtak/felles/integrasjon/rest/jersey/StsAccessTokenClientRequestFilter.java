@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
+import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
@@ -76,7 +77,7 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     }
 
     private static String load(StsAccessTokenJerseyClient sts) {
-        LOG.info("Oppdaterer cache med system token, cache innslag er gyldig til {}", format(LocalDateTime.now().plus(CACHE_DURATION)));
+        LOG.info("Oppdaterer cache med system token, cache innslag er gyldig til {}", format(now().plus(CACHE_DURATION)));
         var token = sts.accessToken();
         LOG.info("System token er gyldig til {}", format(expiry()));
         return token;
