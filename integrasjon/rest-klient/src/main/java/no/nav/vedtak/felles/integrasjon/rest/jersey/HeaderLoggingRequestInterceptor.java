@@ -18,6 +18,7 @@ public class HeaderLoggingRequestInterceptor implements HttpRequestInterceptor {
     @Override
     public void process(HttpRequest req, HttpContext ctx) throws HttpException, IOException {
         if (!Environment.current().isProd()) {
+            LOG.trace("Request class {}", req.getClass());
             Arrays.stream(req.getAllHeaders())
                     .forEach(e -> LOG.trace("{} -> {}", e.getName(), e.getValue()));
         }
