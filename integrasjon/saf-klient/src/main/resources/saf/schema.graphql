@@ -601,6 +601,9 @@ enum Kanal {
     # Bruker har fylt ut og sendt inn dokumentet sammen med en NAV-ansatt. Det er den NAV-ansatte som var pålogget innsendingsløsningen.
     INNSENDT_NAV_ANSATT
 
+    # Forsendelsen inneholder en komplett chatdialog (inngående og utgående meldinger) mellom en bruker og en veileder i NAV.
+    NAV_NO_CHAT
+
     # Forsendelsen har ingen kjent kanal.
     UKJENT
 }
@@ -647,7 +650,7 @@ enum Tema {
     # Forsikring
     FOS
 
-    # Midlertidig kompensasjonsordning for selvstendig næringsdrivende og frilansere
+    # Kompensasjon for selvstendig næringsdrivende/frilansere
     FRI
 
     # Fullmakt
