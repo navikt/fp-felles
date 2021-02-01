@@ -55,8 +55,7 @@ import no.nav.vedtak.util.env.Environment;
  * <li>Jackson mapping registreres.</li>
  * <li>Øvrige filtere registres</li>
  * </ol>
- * Ved klassebasert konfigurasjon av filtere må disse ha en no-args constructor.
- * Patch operasjoner gjøres ved å falle ned på den underliggende
+ * Patch operasjoner gjøres ved å falle gjennom til den underliggende
  * transport-provideren.
  */
 public abstract class AbstractJerseyRestClient {

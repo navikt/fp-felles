@@ -28,11 +28,11 @@ public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
     static final String UAUTENTISERT = "unauthenticated";
     static final String FORBUDT = "unauthorized";
     static final String UGYLDIG = "bad_request";
-    static final String IKKEFUNNET = "not_found";;
+    static final String IKKEFUNNET = "not_found";
 
     @Override
     public <T> T handleError(List<GraphQLError> errors, URI uri, String kode) {
-        LOG.warn("PDL oppslag mot {} returnerte {} feil ({})", uri, errors.size());
+        LOG.warn("PDL oppslag mot {} returnerte {} feil", uri, errors.size());
         throw errors
                 .stream()
                 .findFirst() // TODO hva med flere?
