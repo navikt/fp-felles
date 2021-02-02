@@ -17,6 +17,13 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
+/**
+ *
+ * @deprecated Bruk {@link ArbeidsfordelingJerseyRestKlient} som implementer
+ *             samme grensesnittet på en bedre måte
+ *
+ */
+@Deprecated(since = "3.0.x", forRemoval = true)
 public class ArbeidsfordelingRestKlient implements Arbeidsfordeling {
 
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
