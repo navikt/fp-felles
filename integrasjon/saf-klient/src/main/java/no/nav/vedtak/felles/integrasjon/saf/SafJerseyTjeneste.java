@@ -10,6 +10,9 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
@@ -39,6 +42,7 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
     private static final String DEFAULT_BASE = "https://saf.nais.adeo.no";
     private static final String GRAPHQL = "/graphql";
 
+    private static final Logger LOG = LoggerFactory.getLogger(SafJerseyTjeneste.class);
     private URI base;
     private GraphQLErrorHandler errorHandler;
 
@@ -74,14 +78,18 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
     @Override
     public byte[] hentDokument(HentDokumentQuery q) {
         try {
-            return client.target(base)
+            LOG.info("Henter dokument");
+            var doc = client.target(base)
                     .path(HENTDOKUMENT)
                     .resolveTemplate("journalpostId", q.getJournalpostId())
                     .resolveTemplate("dokumentInfoId", q.getDokumentInfoId())
                     .resolveTemplate("variantFormat", q.getVariantFormat())
                     .request()
                     .get(byte[].class);
+            LOG.info("Hentet dokument OK");
+            return doc;
         } catch (WebApplicationException e) {
+            LOG.info("Henting dokument feilet", e);
             throw new TekniskException(F_240613, base, e);
         }
     }
@@ -93,6 +101,7 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         try {
+            LOG.info("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
             var res = client.target(base)
                     .path(GRAPHQL)
                     .request(APPLICATION_JSON_TYPE)
@@ -101,8 +110,10 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
             if (res.hasErrors()) {
                 return errorHandler.handleError(res.getErrors(), base, F_240613);
             }
+            LOG.info("Eksekvert GraphQL query OK");
             return res;
         } catch (WebApplicationException e) {
+            LOG.info("Eksekvering GraphQL query feilet", e);
             throw new TekniskException(F_240613, base, e);
         }
     }
