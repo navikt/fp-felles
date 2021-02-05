@@ -25,22 +25,12 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+            
       - name: Publish artifact
         env:
           NEW_VERSION: ${{ github.event.release.tag_name }}
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.email "actions@github.com"
-          git config user.name "GitHub Actions release"
-          mvn  --settings .m2/settings.xml --batch-mode  -DadditionalJOption=-Xdoclint:none -DreleaseVersion=${NEW_VERSION}  release:prepare release:perform
-
-      - name: Rollback release
-        if: failure()
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.RELEASE_TOKEN }}
-        run: |
-          git config user.email "actions@github.com"
-          git config user.name "GitHub Actions release"
-          mvn  --settings .m2/settings.xml  release:rollback
+          mvn -B --settings .m2/settings.xml versions:set -DnewVersion=${NEW_VERSION}
+          mvn -B --settings .m2/settings.xml clean deploy
