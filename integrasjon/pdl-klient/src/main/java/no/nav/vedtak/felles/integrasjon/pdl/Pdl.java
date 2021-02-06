@@ -30,12 +30,14 @@ public interface Pdl extends GraphQLQueryable {
     static final String PDL_INTERNAL = "F-539238";
     public static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
 
+    @Deprecated
     default Optional<String> hentPersonIdentForAktørId(String aktørId) {
-        return query(aktørId, FOLKEREGISTERIDENT);
+        return hentId(aktørId, FOLKEREGISTERIDENT);
     }
 
+    @Deprecated
     default Optional<String> hentAktørIdForPersonIdent(String personIdent) {
-        return query(personIdent, AKTORID);
+        return hentId(personIdent, AKTORID);
     }
 
     List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest q, HentIdenterBolkResultResponseProjection p);
@@ -46,9 +48,9 @@ public interface Pdl extends GraphQLQueryable {
 
     GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p);
 
-    default Optional<String> query(String aktørId, IdentGruppe gruppe) {
+    default Optional<String> hentId(String id, IdentGruppe gruppe) {
         var query = new HentIdenterQueryRequest();
-        query.setIdent(aktørId);
+        query.setIdent(id);
         return hentIdenter(query, new IdentlisteResponseProjection()
                 .identer(new IdentInformasjonResponseProjection()
                         .ident()
