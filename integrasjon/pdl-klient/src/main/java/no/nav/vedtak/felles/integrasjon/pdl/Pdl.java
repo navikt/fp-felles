@@ -46,7 +46,7 @@ public interface Pdl extends GraphQLQueryable {
 
     GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p);
 
-    private Optional<String> query(String aktørId, IdentGruppe gruppe) {
+    default Optional<String> query(String aktørId, IdentGruppe gruppe) {
         var query = new HentIdenterQueryRequest();
         query.setIdent(aktørId);
         return hentIdenter(query, new IdentlisteResponseProjection()
