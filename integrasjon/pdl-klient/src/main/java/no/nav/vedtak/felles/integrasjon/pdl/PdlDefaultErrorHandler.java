@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 
-import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 
 public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
@@ -32,7 +31,6 @@ public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
 
     @Override
     public <T> T handleError(List<GraphQLError> errors, URI uri, String kode) {
-        LOG.warn("PDL oppslag mot {} returnerte {} feil", uri, errors.size());
         throw errors
                 .stream()
                 .findFirst() // TODO hva med flere?
@@ -53,7 +51,7 @@ public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
 
     }
 
-    private static IntegrasjonException exception(List<GraphQLError> errors, PDLExceptionExtension extension, URI uri) {
+    private static PdlException exception(List<GraphQLError> errors, PDLExceptionExtension extension, URI uri) {
         if (extension == null) {
             return exceptionFra(errors, SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, extension, uri);
         }
@@ -71,11 +69,11 @@ public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
         }
     }
 
-    private static IntegrasjonException exceptionFra(List<GraphQLError> errors, int status, PDLExceptionExtension extension, URI uri) {
+    private static PdlException exceptionFra(List<GraphQLError> errors, int status, PDLExceptionExtension extension, URI uri) {
         return exceptionFra(errors, status, PDL_ERROR_RESPONSE, extension, uri);
     }
 
-    private static IntegrasjonException exceptionFra(List<GraphQLError> errors, int status, String kode, PDLExceptionExtension extension, URI uri) {
+    private static PdlException exceptionFra(List<GraphQLError> errors, int status, String kode, PDLExceptionExtension extension, URI uri) {
         return new PdlException(kode, errors, extension, status, uri);
 
     }
