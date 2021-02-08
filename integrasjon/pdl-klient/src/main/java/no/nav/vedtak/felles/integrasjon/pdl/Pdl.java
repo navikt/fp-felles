@@ -30,12 +30,10 @@ public interface Pdl extends GraphQLQueryable {
     static final String PDL_INTERNAL = "F-539238";
     public static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
 
-    @Deprecated
     default Optional<String> hentPersonIdentForAktørId(String aktørId) {
         return hentId(aktørId, FOLKEREGISTERIDENT);
     }
 
-    @Deprecated
     default Optional<String> hentAktørIdForPersonIdent(String personIdent) {
         return hentId(personIdent, AKTORID);
     }
