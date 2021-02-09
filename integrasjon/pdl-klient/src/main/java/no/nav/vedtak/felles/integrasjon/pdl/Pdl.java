@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 
 import static no.nav.pdl.IdentGruppe.AKTORID;
 import static no.nav.pdl.IdentGruppe.FOLKEREGISTERIDENT;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,11 +32,19 @@ public interface Pdl extends GraphQLQueryable {
     public static final String PDL_KLIENT_NOT_FOUND_KODE = "F-399736";
 
     default Optional<String> hentPersonIdentForAktørId(String aktørId) {
-        return hentId(aktørId, FOLKEREGISTERIDENT);
+        return hentId(aktørId, FOLKEREGISTERIDENT, false);
+    }
+
+    default Optional<String> hentPersonIdentForAktørId(String aktørId, boolean ignoreNotFound) {
+        return hentId(aktørId, FOLKEREGISTERIDENT, ignoreNotFound);
     }
 
     default Optional<String> hentAktørIdForPersonIdent(String personIdent) {
-        return hentId(personIdent, AKTORID);
+        return hentId(personIdent, AKTORID, false);
+    }
+
+    default Optional<String> hentAktørIdForPersonIdent(String personIdent, boolean ignoreNotFound) {
+        return hentId(personIdent, AKTORID, ignoreNotFound);
     }
 
     List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest q, HentIdenterBolkResultResponseProjection p);
@@ -46,16 +55,23 @@ public interface Pdl extends GraphQLQueryable {
 
     GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p);
 
-    default Optional<String> hentId(String id, IdentGruppe gruppe) {
+    private Optional<String> hentId(String id, IdentGruppe gruppe, boolean ignoreNotFound) {
         var query = new HentIdenterQueryRequest();
         query.setIdent(id);
-        return hentIdenter(query, new IdentlisteResponseProjection()
-                .identer(new IdentInformasjonResponseProjection()
-                        .ident()
-                        .gruppe())).getIdenter()
-                                .stream()
-                                .filter(s -> s.getGruppe().equals(gruppe))
-                                .findFirst()
-                                .map(IdentInformasjon::getIdent);
+        try {
+            return hentIdenter(query, new IdentlisteResponseProjection()
+                    .identer(new IdentInformasjonResponseProjection()
+                            .ident()
+                            .gruppe())).getIdenter()
+                                    .stream()
+                                    .filter(s -> s.getGruppe().equals(gruppe))
+                                    .findFirst()
+                                    .map(IdentInformasjon::getIdent);
+        } catch (PdlException e) {
+            if (e.getStatus() == SC_NOT_FOUND && ignoreNotFound) {
+                return Optional.empty();
+            }
+            throw e;
+        }
     }
 }
