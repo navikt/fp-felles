@@ -36,6 +36,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -153,13 +154,8 @@ public class TestJerseyPdlClient {
             assertNotNull(res.getNavn().get(0).getFornavn());
             verify(sts).accessToken();
             Thread.sleep(1000);
-            client.hentPerson(pq(), pp());
-            client.hentPerson(pq(), pp());
-            client.hentPerson(pq(), pp());
-            client.hentPerson(pq(), pp());
-            client.hentPerson(pq(), pp());
-            client.hentPerson(pq(), pp());
-            client.hentPerson(pq(), pp());
+            IntStream.range(1, 10)
+                    .forEach(i -> client.hentPerson(pq(), pp()));
             client.hentPerson(pq(), pp());
             verify(sts, times(2)).accessToken();
         }
