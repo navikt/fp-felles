@@ -53,6 +53,8 @@ public interface Pdl extends GraphQLQueryable {
 
     Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p);
 
+    Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound);
+
     GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p);
 
     private Optional<String> hentId(String id, IdentGruppe gruppe, boolean ignoreNotFound) {

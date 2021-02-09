@@ -9,6 +9,7 @@ import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
 import static org.apache.http.HttpStatus.SC_ACCEPTED;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.apache.http.HttpStatus.SC_NOT_MODIFIED;
 import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 
@@ -176,6 +177,18 @@ public class PdlKlient implements Pdl {
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [endpoint=" + endpoint + ", restKlient=" + restKlient + ", errorHandler=" + errorHandler + "]";
+    }
+
+    @Override
+    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
+        try {
+            return hentPerson(q, p);
+        } catch (PdlException e) {
+            if (e.getStatus() == SC_NOT_FOUND && ignoreNotFound) {
+                return null;
+            }
+            throw e;
+        }
     }
 
 }

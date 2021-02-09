@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 
 import java.net.URI;
 import java.util.List;
@@ -97,6 +98,18 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
     }
 
     @Override
+    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
+        try {
+            return hentPerson(q, p);
+        } catch (PdlException e) {
+            if (e.getStatus() == SC_NOT_FOUND && ignoreNotFound) {
+                return null;
+            }
+            throw e;
+        }
+    }
+
+    @Override
     public Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p) {
         return query(q, p, HentIdenterQueryResponse.class).hentIdenter();
     }
@@ -130,4 +143,5 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
             throw e;
         }
     }
+
 }
