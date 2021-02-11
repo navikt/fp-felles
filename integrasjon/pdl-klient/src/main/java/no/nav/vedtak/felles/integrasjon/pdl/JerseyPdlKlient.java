@@ -126,7 +126,7 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         try {
-            LOG.info("Henter resultat for {} fra {}", clazz.getName(), endpoint);
+            LOG.trace("Henter resultat for {} fra {}", clazz.getName(), endpoint);
             var res = client.target(endpoint)
                     .request(APPLICATION_JSON_TYPE)
                     .buildPost(json(req.toHttpJsonBody()))
@@ -134,7 +134,7 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
             if (res.hasErrors()) {
                 return errorHandler.handleError(res.getErrors(), endpoint, PDL_ERROR_RESPONSE);
             }
-            LOG.info("Hentet resultat for {} fra {} OK", clazz.getName(), endpoint);
+            LOG.trace("Hentet resultat for {} fra {} OK", clazz.getName(), endpoint);
             return res;
         } catch (ProcessingException e) {
             if (e.getCause() != null && e.getCause() instanceof VLException) {
