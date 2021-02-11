@@ -49,15 +49,9 @@ public interface Pdl extends GraphQLQueryable {
 
     List<HentIdenterBolkResult> hentIdenterBolkResults(HentIdenterBolkQueryRequest q, HentIdenterBolkResultResponseProjection p);
 
-    default Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p) {
-        return hentIdenter(q, p, false);
-    }
+    Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p);
 
-    Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p, boolean ignoreNotFound);
-
-    default Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p) {
-        return hentPerson(q, p, false);
-    }
+    Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p);
 
     Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound);
 

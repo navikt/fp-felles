@@ -2,7 +2,7 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static no.nav.vedtak.felles.integrasjon.pdl.IgnoreNotFoundUtil.exec;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 
 import java.net.URI;
 import java.util.List;
@@ -31,6 +31,7 @@ import no.nav.pdl.HentIdenterBolkResultResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentIdenterQueryResponse;
 import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.HentPersonQueryResponse;
 import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
@@ -92,13 +93,25 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
     }
 
     @Override
-    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
-        return exec(() -> hentPerson(q, p), ignoreNotFound);
+    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p) {
+        return query(q, p, HentPersonQueryResponse.class).hentPerson();
     }
 
     @Override
-    public Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p, boolean ignoreNotFound) {
-        return exec(() -> query(q, p, HentIdenterQueryResponse.class).hentIdenter(), ignoreNotFound);
+    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
+        try {
+            return hentPerson(q, p);
+        } catch (PdlException e) {
+            if (e.getStatus() == SC_NOT_FOUND && ignoreNotFound) {
+                return null;
+            }
+            throw e;
+        }
+    }
+
+    @Override
+    public Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p) {
+        return query(q, p, HentIdenterQueryResponse.class).hentIdenter();
     }
 
     @Override

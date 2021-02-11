@@ -7,15 +7,15 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.LOWER_CAME
 import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
-import static no.nav.vedtak.felles.integrasjon.pdl.IgnoreNotFoundUtil.exec;
 import static org.apache.http.HttpStatus.SC_ACCEPTED;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.apache.http.HttpStatus.SC_NOT_MODIFIED;
 import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -47,6 +47,7 @@ import no.nav.pdl.HentIdenterBolkResultResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentIdenterQueryResponse;
 import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.HentPersonQueryResponse;
 import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
@@ -101,8 +102,13 @@ public class PdlKlient implements Pdl {
     }
 
     @Override
-    public Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p, boolean ignoreNotFound) {
-        return exec(() -> query(new GraphQLRequest(q, p), HentIdenterQueryResponse.class).hentIdenter(), ignoreNotFound);
+    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p) {
+        return query(new GraphQLRequest(q, p), HentPersonQueryResponse.class).hentPerson();
+    }
+
+    @Override
+    public Identliste hentIdenter(HentIdenterQueryRequest q, IdentlisteResponseProjection p) {
+        return query(new GraphQLRequest(q, p), HentIdenterQueryResponse.class).hentIdenter();
     }
 
     @Override
@@ -113,11 +119,7 @@ public class PdlKlient implements Pdl {
     @Override
     public <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
         return query(new GraphQLRequest(q, p), clazz);
-    }
 
-    @Override
-    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
-        return exec(() -> hentPerson(q, p), ignoreNotFound);
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
@@ -129,10 +131,14 @@ public class PdlKlient implements Pdl {
     }
 
     private HttpPost post(GraphQLRequest req) {
-        var post = new HttpPost(endpoint);
-        post.setEntity(new StringEntity(req.toHttpJsonBody(), Charset.defaultCharset()));
-        post.setHeader("TEMA", tema);
-        return post;
+        try {
+            var post = new HttpPost(endpoint);
+            post.setEntity(new StringEntity(req.toHttpJsonBody()));
+            post.setHeader("TEMA", tema);
+            return post;
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private <T extends GraphQLResult<?>> T spør(HttpPost req, ObjectReaderResponseHandler<T> responseHandler) {
@@ -171,6 +177,18 @@ public class PdlKlient implements Pdl {
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [endpoint=" + endpoint + ", restKlient=" + restKlient + ", errorHandler=" + errorHandler + "]";
+    }
+
+    @Override
+    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
+        try {
+            return hentPerson(q, p);
+        } catch (PdlException e) {
+            if (e.getStatus() == SC_NOT_FOUND && ignoreNotFound) {
+                return null;
+            }
+            throw e;
+        }
     }
 
 }
