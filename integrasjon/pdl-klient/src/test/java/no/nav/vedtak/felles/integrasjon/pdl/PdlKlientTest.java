@@ -33,7 +33,7 @@ import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
 
 @ExtendWith(MockitoExtension.class)
-public class PdlKlientTest {
+class PdlKlientTest {
 
     private Pdl pdlKlient;
 
@@ -45,7 +45,7 @@ public class PdlKlientTest {
     private HttpEntity httpEntity;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         when(restClient.execute(any(HttpPost.class))).thenReturn(response);
 
         when(response.getEntity()).thenReturn(httpEntity);
@@ -57,7 +57,7 @@ public class PdlKlientTest {
     }
 
     @Test
-    public void skal_returnere_person() throws IOException {
+    void skal_returnere_person() throws IOException {
         // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111",
         // fagsaksystem: "AO01"}, foerste: 5)
         when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/personResponse.json"));
@@ -107,13 +107,10 @@ public class PdlKlientTest {
         assertThat(
                 identer.stream()
                         .flatMap(r -> r.getIdenter().stream())
-                        .map(IdentInformasjon::getIdent)
-        // .collect(Collectors.toList())
-        )
-                .containsExactlyInAnyOrder("16047439276", "9916047439276", "25017312345", "9925017312345");
+                        .map(IdentInformasjon::getIdent))
+                                .containsExactlyInAnyOrder("16047439276", "9916047439276", "25017312345", "9925017312345");
     }
 
-    @SuppressWarnings("resource")
     @Test
     void skal_returnere_ikke_funnet() throws IOException {
         when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/errorResponse.json"));

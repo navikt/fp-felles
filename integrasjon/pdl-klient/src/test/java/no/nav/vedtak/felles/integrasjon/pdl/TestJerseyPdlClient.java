@@ -74,7 +74,7 @@ import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class TestJerseyPdlClient {
+class TestJerseyPdlClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestJerseyPdlClient.class);
     private static final String FOR = Tema.FOR.name();
@@ -95,7 +95,7 @@ public class TestJerseyPdlClient {
     private final LoadingCache<String, String> cache = cache(1, Duration.ofSeconds(1));
 
     @BeforeAll
-    public static void startServer() throws Exception {
+    static void startServer() throws Exception {
         server = new WireMockServer(0);
         server.start();
         configureFor(server.port());
@@ -104,19 +104,19 @@ public class TestJerseyPdlClient {
     }
 
     @AfterAll
-    public static void stopServer() {
+    static void stopServer() {
         server.stop();
     }
 
     @BeforeEach
-    public void beforeEach() throws Exception {
+    void beforeEach() throws Exception {
         when(sts.getUsername()).thenReturn(USERNAME);
         client = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR, cache));
     }
 
     @Test
     @DisplayName("Test error handler")
-    public void testErrorHandler() throws Exception {
+    void testErrorHandler() throws Exception {
         var handler = new PdlDefaultErrorHandler();
         var error = new GraphQLError();
         error.setExtensions(Map.of("code", FORBUDT, "details",
@@ -131,7 +131,7 @@ public class TestJerseyPdlClient {
 
     @Test
     @DisplayName("Test at Authorization, Nav-Consumer-Id, Nav-Consumer-Token, Nav-Consumer-Id og Tema alle blir satt tester også cache")
-    public void testPersonAuthWithUserToken() throws Exception {
+    void testPersonAuthWithUserToken() throws Exception {
         when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
         doReturn(BRUKERTOKEN).when(subjectHandler).getInternSsoToken();
         try (var s = mockStatic(SubjectHandler.class)) {
@@ -163,7 +163,7 @@ public class TestJerseyPdlClient {
 
     @Test
     @DisplayName("Test at Authorization blir satt til system token når vi ikke har et internt oidc token")
-    public void testPersonAuthWithSystemToken() throws Exception {
+    void testPersonAuthWithSystemToken() throws Exception {
         when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
         doReturn(saml).when(subjectHandler).getSamlToken();
         try (var s = mockStatic(SubjectHandler.class)) {
@@ -187,7 +187,7 @@ public class TestJerseyPdlClient {
 
     @Test
     @DisplayName("Test at exception kastes når vi ikke har tokens")
-    public void testPersonNoTokens() throws Exception {
+    void testPersonNoTokens() throws Exception {
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(post(urlPathEqualTo(GRAPHQL)));
