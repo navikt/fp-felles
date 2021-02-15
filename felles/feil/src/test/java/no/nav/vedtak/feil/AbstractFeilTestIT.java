@@ -20,7 +20,7 @@ import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
 import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
-public abstract class AbstractFeilTestIT {
+abstract class AbstractFeilTestIT {
 
     private static List<Class<? extends DeklarerteFeil>> deklarerteFeil = FeilUtil.finnAlleDeklarerteFeil();
 
@@ -35,7 +35,7 @@ public abstract class AbstractFeilTestIT {
     protected abstract List<String> getForventedePrefix();
 
     @Test
-    public void skal_ha_at_alle_metoder_i_interface_med_deklarerte_feil_har_nøyaktig_én_feilannotering() throws Exception {
+    void skal_ha_at_alle_metoder_i_interface_med_deklarerte_feil_har_nøyaktig_én_feilannotering() throws Exception {
         StringBuilder error = new StringBuilder();
 
         for (Class<? extends DeklarerteFeil> deklareringsinterface : deklarerteFeil) {
@@ -60,7 +60,7 @@ public abstract class AbstractFeilTestIT {
     }
 
     @Test
-    public void skal_ha_at_feilkoder_følger_mønster_slik_at_de_er_gjenkjennbare_og_unike_på_tvers_av_applikasjoner() throws Exception {
+    void skal_ha_at_feilkoder_følger_mønster_slik_at_de_er_gjenkjennbare_og_unike_på_tvers_av_applikasjoner() throws Exception {
         String prefixMønster = "(" + String.join("|", getForventedePrefix()) + ")";
         String tallMønster = "\\d{6}";
         Pattern mønster = Pattern.compile("^" + prefixMønster + "-" + tallMønster + "$");
@@ -81,7 +81,7 @@ public abstract class AbstractFeilTestIT {
     }
 
     @Test
-    public void skal_ha_unike_feilkoder_for_alle_deklarerte_feil() throws Exception {
+    void skal_ha_unike_feilkoder_for_alle_deklarerte_feil() throws Exception {
         Map<String, List<InterfaceOgMetode>> feilPrFeilkode = new TreeMap<>();
 
         for (Class<? extends DeklarerteFeil> deklareringsinterface : deklarerteFeil) {
@@ -117,7 +117,7 @@ public abstract class AbstractFeilTestIT {
     }
 
     @Test
-    public void skal_ha_pattern_for_alle_parametre_som_er_oppgitt() throws Exception {
+    void skal_ha_pattern_for_alle_parametre_som_er_oppgitt() throws Exception {
         StringBuilder error = new StringBuilder();
         for (Class<? extends DeklarerteFeil> deklareringsinterface : deklarerteFeil) {
             for (Method method : deklareringsinterface.getDeclaredMethods()) {

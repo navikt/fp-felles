@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class StringUtilsTest {
+class StringUtilsTest {
 
     @Test
-    public void skal_gjennkjenne_blankStreng() {
+    void skal_gjennkjenne_blankStreng() {
 
         assertThat(StringUtils.isBlank(null)).isTrue();
         assertThat(StringUtils.isBlank("")).isTrue();
@@ -22,7 +22,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void skal_gjennkjenne_nullEllerTomStreng() {
+    void skal_gjennkjenne_nullEllerTomStreng() {
 
         assertThat(StringUtils.nullOrEmpty(null)).isTrue();
         assertThat(StringUtils.nullOrEmpty("")).isTrue();

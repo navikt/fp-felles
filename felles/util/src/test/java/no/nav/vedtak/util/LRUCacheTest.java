@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 
-public class LRUCacheTest {
+class LRUCacheTest {
 
     private static final int CACHE_STØRRELSE = 2;
     private static final Long GYLDIGHET_I_MS = TimeUnit.MICROSECONDS.convert(1, TimeUnit.HOURS);
@@ -18,12 +18,12 @@ public class LRUCacheTest {
     }
 
     @Test
-    public void skal_returnere_null_når_cache_er_tom() {
+    void skal_returnere_null_når_cache_er_tom() {
         assertThat(cache.get(1L)).isNull();
     }
 
     @Test
-    public void skal_legge_til_nye_innslag() {
+    void skal_legge_til_nye_innslag() {
         cache.put(1L, "1");
         assertThat(cache.get(1L)).isEqualTo("1");
         assertThat(cache.get(2L)).isNull();
@@ -33,7 +33,7 @@ public class LRUCacheTest {
     }
 
     @Test
-    public void skal_slette_eldste_innslag_når_kapasiteten_er_nådd() {
+    void skal_slette_eldste_innslag_når_kapasiteten_er_nådd() {
         cache.put(1L, "1");
         cache.put(2L, "4");
         cache.put(3L, "9");
@@ -44,7 +44,7 @@ public class LRUCacheTest {
     }
 
     @Test
-    public void skal_fornye_innslag() {
+    void skal_fornye_innslag() {
         cache.put(1L, "1");
         cache.put(2L, "4");
         assertThat(cache.get(1L)).isEqualTo("1");
@@ -55,7 +55,7 @@ public class LRUCacheTest {
     }
 
     @Test
-    public void cache_innslag_skal_expire() throws Exception {
+    void cache_innslag_skal_expire() throws Exception {
         this.cache = new LRUCache<>(CACHE_STØRRELSE, 2L);
         cache.put(1L, "1");
         Thread.sleep(4L); // NOSONAR
@@ -63,7 +63,7 @@ public class LRUCacheTest {
     }
 
     @Test
-    public void skal_legge_til_og_slette_key() throws Exception {
+    void skal_legge_til_og_slette_key() throws Exception {
         cache.put(1L, "1");
         assertThat(cache.get(1L)).isNotNull();
         cache.remove(1L);
@@ -71,12 +71,12 @@ public class LRUCacheTest {
     }
 
     @Test
-    public void skal_slette_key_som_ikke_eksister() throws Exception {
+    void skal_slette_key_som_ikke_eksister() throws Exception {
         cache.remove(1L);
     }
 
     @Test
-    public void skal_oppdatere_eksisterende_key() throws Exception {
+    void skal_oppdatere_eksisterende_key() throws Exception {
         cache.put(1L, "1");
         cache.put(1L, "2");
         assertThat(cache.get(1L)).isEqualTo("2");

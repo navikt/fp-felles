@@ -4,15 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class SporingsdataTest {
+class SporingsdataTest {
 
     @Test
-    public void skalInitialisereForMedGyldigeArgs() {
+    void skalInitialisereForMedGyldigeArgs() {
         assertThat(Sporingsdata.opprett("login").keySet()).isEmpty();
     }
 
     @Test
-    public void skalHuskeIder() {
+    void skalHuskeIder() {
         Sporingsdata sporingsdata = Sporingsdata.opprett("login");
         sporingsdata.leggTilId(StandardSporingsloggId.AKTOR_ID, "1001");
         assertThat(sporingsdata.getVerdi(StandardSporingsloggId.AKTOR_ID)).isEqualTo("1001");

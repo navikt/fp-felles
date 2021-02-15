@@ -32,7 +32,7 @@ public abstract class AbstractJerseyOidcRestClient extends AbstractJerseyRestCli
 
     private static final OidcTokenRequestFilter REQUIRED_FILTER = new OidcTokenRequestFilter();
 
-    public AbstractJerseyOidcRestClient() {
+    protected AbstractJerseyOidcRestClient() {
         super(REQUIRED_FILTER);
     }
 
