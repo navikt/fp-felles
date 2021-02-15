@@ -4,6 +4,10 @@ public class Tuple<X, Y> {
     private final X element1;
     private final Y element2;
 
+    public static <X, Y> Tuple<X, Y> of(X element1, Y element2) {
+        return new Tuple<>(element1, element2);
+    }
+
     public Tuple(X element1, Y element2) {
         java.util.Objects.requireNonNull(element1);
         java.util.Objects.requireNonNull(element2);
@@ -22,8 +26,10 @@ public class Tuple<X, Y> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Tuple)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Tuple))
+            return false;
 
         Tuple<?, ?> tuple = (Tuple<?, ?>) o;
 

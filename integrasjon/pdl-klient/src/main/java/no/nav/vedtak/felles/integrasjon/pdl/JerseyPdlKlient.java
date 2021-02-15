@@ -137,7 +137,7 @@ public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
             LOG.trace("Hentet resultat for {} fra {} OK", clazz.getName(), endpoint);
             return res;
         } catch (ProcessingException e) {
-            if (e.getCause() != null && e.getCause() instanceof VLException) {
+            if (e.getCause() instanceof VLException) {
                 throw VLException.class.cast(e.getCause());
             }
             throw e;

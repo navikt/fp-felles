@@ -12,10 +12,10 @@ import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
 import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
-public class FeilFactoryTest {
+class FeilFactoryTest {
 
     @Test
-    public void skal_generere_teknisk_feil_basert_på_annoteringer_og_parametre_og_exception() throws Exception {
+    void skal_generere_teknisk_feil_basert_på_annoteringer_og_parametre_og_exception() throws Exception {
         Exception cause = new IOException("Klarte ikke å mounte filsystem");
         Feil feil = FeilFactory.create(TestFeil.class).kritiskOppstartsfeil("foo", cause);
         assertThat(feil.getKode()).isEqualTo("TestFeil-1");
@@ -25,7 +25,7 @@ public class FeilFactoryTest {
     }
 
     @Test
-    public void skal_generere_integrasjonfeil_basert_på_annoteringer_og_parametre() throws Exception {
+    void skal_generere_integrasjonfeil_basert_på_annoteringer_og_parametre() throws Exception {
         Feil feil = FeilFactory.create(TestFeil.class).tpsTimeout(30);
         assertThat(feil.getKode()).isEqualTo("TestFeil-3");
         assertThat(feil.getLogLevel()).isEqualTo(Level.WARN);
@@ -33,7 +33,7 @@ public class FeilFactoryTest {
     }
 
     @Test
-    public void skal_generere_ikkeTilgangFeil() throws Exception {
+    void skal_generere_ikkeTilgangFeil() throws Exception {
         Feil feil = FeilFactory.create(TestFeil.class).ikkeTilgang();
         assertThat(feil.getKode()).isEqualTo("TestFeil-6");
         assertThat(feil.getLogLevel()).isEqualTo(Level.INFO);
@@ -41,7 +41,7 @@ public class FeilFactoryTest {
     }
 
     @Test
-    public void skal_generere_funksjonell_feil_basert_på_annoteringer_og_parametre() throws Exception {
+    void skal_generere_funksjonell_feil_basert_på_annoteringer_og_parametre() throws Exception {
         Feil feil = FeilFactory.create(TestFeil.class).manglerFødselsvilkår(1337);
         assertThat(feil.getKode()).isEqualTo("TestFeil-2");
         assertThat(feil.getLogLevel()).isEqualTo(Level.WARN);
@@ -52,7 +52,7 @@ public class FeilFactoryTest {
     }
 
     @Test
-    public void skal_ta_med_parameter_som_cause_når_det_bare_er_ett_parameter_og_det_er_en_exception() throws Exception {
+    void skal_ta_med_parameter_som_cause_når_det_bare_er_ett_parameter_og_det_er_en_exception() throws Exception {
         IllegalArgumentException cause = new IllegalArgumentException("#5235");
         Feil feil = FeilFactory.create(TestFeil.class).feilArgument(cause);
         assertThat(feil.getCause()).isEqualTo(cause);

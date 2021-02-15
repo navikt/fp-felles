@@ -14,13 +14,13 @@ import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
 
-public class FeilTest {
+class FeilTest {
 
     private static final Logger logger = LoggerFactory.getLogger(FeilTest.class);
     private static final String FEIL_KODE = "DUMMY_FEIL_KODE";
 
     @Test
-    public void skal_kunne_konvertere_feil_til_exception() {
+    void skal_kunne_konvertere_feil_til_exception() {
         Feil feil = new Feil(FEIL_KODE, "noe gikk galt", LogLevel.ERROR, TekniskException.class, null);
         VLException exception = feil.toException();
         assertThat(exception.getMessage()).isEqualTo(feil.toLogString());
@@ -28,7 +28,7 @@ public class FeilTest {
     }
 
     @Test
-    public void skal_kunne_konvertere_feil_til_exception_og_ta_med_cause() {
+    void skal_kunne_konvertere_feil_til_exception_og_ta_med_cause() {
         RuntimeException cause = new RuntimeException("Væææ!");
         Feil feil = new Feil(FEIL_KODE, "noe gikk galt", LogLevel.ERROR, TekniskException.class, cause);
         VLException exception = feil.toException();
@@ -38,7 +38,7 @@ public class FeilTest {
     }
 
     @Test
-    public void skal_kunne_konvertere_funksjonell_feil_til_funksjonell_exception() {
+    void skal_kunne_konvertere_funksjonell_feil_til_funksjonell_exception() {
         RuntimeException cause = new RuntimeException("Væææ!");
         Feil feil = new FunksjonellFeil(FEIL_KODE, "funksjonellFeil", "test", LogLevel.WARN, FunksjonellException.class, cause);
         assertThat(feil.getLogLevel()).isSameAs(Level.WARN);
@@ -51,14 +51,14 @@ public class FeilTest {
     }
 
     @Test
-    public void skal_ikke_kunne_konvertere_feil_til_funksjonell_exception() {
+    void skal_ikke_kunne_konvertere_feil_til_funksjonell_exception() {
         RuntimeException cause = new RuntimeException("Væææ!");
         Feil feil = new Feil(FEIL_KODE, "funksjonellFeil", LogLevel.WARN, FunksjonellException.class, cause);
         assertThrows(IllegalStateException.class, () -> feil.toException());
     }
 
     @Test
-    public void skal_støtte_feil_med_loglevel_INFO() {
+    void skal_støtte_feil_med_loglevel_INFO() {
         RuntimeException cause = new RuntimeException("Væææ!");
         Feil feil = new Feil(FEIL_KODE, "integrasjonFeil", LogLevel.INFO, IntegrasjonException.class, cause);
         assertThat(feil.getLogLevel()).isSameAs(Level.INFO);
@@ -71,7 +71,7 @@ public class FeilTest {
     }
 
     @Test
-    public void skal_kunne_konvertere_feil_til_mangler_tilgang_exception() {
+    void skal_kunne_konvertere_feil_til_mangler_tilgang_exception() {
         RuntimeException cause = new RuntimeException("Væææ!");
         Feil feil = new Feil(FEIL_KODE, "manglerTilgangFeil", LogLevel.ERROR, ManglerTilgangException.class, cause);
         assertThat(feil.getLogLevel()).isSameAs(Level.ERROR);

@@ -9,17 +9,17 @@ import org.slf4j.MDC;
 
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 
-public class MdcExtendedLogContextTest {
+class MdcExtendedLogContextTest {
 
     private MdcExtendedLogContext context = MdcExtendedLogContext.getContext("prosess");
 
     @AfterEach
-    public void clear() {
+    void clear() {
         MDC.clear();
     }
 
     @Test
-    public void skal_legge_til_ny_verdi() throws Exception {
+    void skal_legge_til_ny_verdi() throws Exception {
 
         context.add("behandling", 1L);
         assertThat(context.getFullText()).isEqualTo("prosess[behandling=1]");
@@ -32,7 +32,7 @@ public class MdcExtendedLogContextTest {
     }
 
     @Test
-    public void skal_hente_key_part() throws Exception {
+    void skal_hente_key_part() throws Exception {
         context.add("behandling", 1L);
         context.add("fagsak", 2L);
         context.add("prosess", 3L);
@@ -40,7 +40,7 @@ public class MdcExtendedLogContextTest {
     }
 
     @Test
-    public void skal_fjerne_verdi() throws Exception {
+    void skal_fjerne_verdi() throws Exception {
         context.add("behandling", 1L);
         context.add("fagsak", 2L);
         context.add("prosess", 3L);
@@ -59,7 +59,7 @@ public class MdcExtendedLogContextTest {
     }
 
     @Test
-    public void skal_fjerne_verdi_i_midten() throws Exception {
+    void skal_fjerne_verdi_i_midten() throws Exception {
         context.add("behandling", 1L);
         context.add("fagsak", 2L);
         context.add("prosess", 3L);
@@ -78,17 +78,17 @@ public class MdcExtendedLogContextTest {
     }
 
     @Test
-    public void skal_sjekke_ugyldig_key_left_bracket() {
+    void skal_sjekke_ugyldig_key_left_bracket() {
         assertThrows(IllegalArgumentException.class, () -> context.add("fdss[", 1L));
     }
 
     @Test
-    public void skal_sjekke_ugyldig_key_right_bracket() {
+    void skal_sjekke_ugyldig_key_right_bracket() {
         assertThrows(IllegalArgumentException.class, () -> context.add("fd]ss", 1L));
     }
 
     @Test
-    public void skal_sjekke_ugyldig_key_semicolon() {
+    void skal_sjekke_ugyldig_key_semicolon() {
         assertThrows(IllegalArgumentException.class, () -> context.add("fdss;", 1L));
     }
 }
