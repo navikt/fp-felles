@@ -30,7 +30,7 @@ class HeaderLoggingFilter implements ClientRequestFilter, ClientResponseFilter {
 
     @Override
     public void filter(ClientRequestContext ctx, ClientResponseContext responseContext) throws IOException {
-        LOG.trace("Respons fra URI {}", ctx.getUri());
+        LOG.trace("Respons fra URI {} er {}", ctx.getUri(), responseContext.getStatus());
         if (!ENV.isProd()) {
             ctx.getHeaders().entrySet().stream()
                     .forEach(e -> LOG.trace("{} -> {}", e.getKey(), e.getValue()));
