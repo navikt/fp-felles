@@ -7,6 +7,14 @@ import no.nav.vedtak.feil.LogLevel;
 
 public class FunksjonellException extends VLException {
 
+    public FunksjonellException(String kode, String msg, String hint) {
+        this(kode, msg, hint, null);
+    }
+
+    public FunksjonellException(String kode, String msg, String hint, Throwable t) {
+        this(new FunksjonellFeil(kode, kode, hint, LogLevel.WARN, FunksjonellException.class, t));
+    }
+
     public FunksjonellException(String kode, String msg, Throwable t, Object... args) {
         this(kode, msg, null, LogLevel.WARN, t, args);
     }
