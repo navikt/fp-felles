@@ -305,7 +305,7 @@ public class OidcAuthModule implements ServerAuthModule {
                 response.sendRedirect(builder.buildRedirectString());
             }
         } catch (IOException e) {
-            throw OidcAuthModuleFeil.FACTORY.klarteIkkeSendeRespons(e).toException();
+            throw OidcAuthModuleFeil.klarteIkkeSendeRespons(e);
         }
         return SEND_CONTINUE;
     }
