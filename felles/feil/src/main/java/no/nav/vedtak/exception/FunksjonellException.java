@@ -25,5 +25,4 @@ public class FunksjonellException extends VLException {
     public FunksjonellException(FunksjonellFeil feil) {
         super(feil);
     }
-
 }
