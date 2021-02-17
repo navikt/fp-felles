@@ -43,12 +43,12 @@ public class StsAccessTokenClient {
         try {
             responseEntity = httpClient.execute(httpPost(), new BasicResponseHandler());
         } catch (IOException e) {
-            throw OidcRestClientFeil.FACTORY.ioException(config.getStsURI(), e).toException();
+            throw OidcRestClientFeil.ioException(config.getStsURI(), e);
         }
         try {
             return mapper.readTree(responseEntity).get("access_token").asText();
         } catch (JsonProcessingException e) {
-            throw DefaultJsonMapper.DefaultJsonMapperFeil.FACTORY.kunneIkkeSerialisereJson(e).toException();
+            throw DefaultJsonMapper.DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
         }
     }
 

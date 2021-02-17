@@ -1,7 +1,6 @@
 package no.nav.vedtak.feil.deklarasjon;
 
-//Marker interface for å lett identifisere hvor Feil-deklarasjoner finnes
+@Deprecated(since = "3.0.x", forRemoval = true)
 public interface DeklarerteFeil {
-
 
 }

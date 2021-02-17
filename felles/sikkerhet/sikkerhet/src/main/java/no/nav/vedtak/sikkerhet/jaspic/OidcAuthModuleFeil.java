@@ -1,17 +1,15 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-
 import java.io.IOException;
 
-interface OidcAuthModuleFeil extends DeklarerteFeil {
+import no.nav.vedtak.exception.TekniskException;
 
-    OidcAuthModuleFeil FACTORY = FeilFactory.create(OidcAuthModuleFeil.class);
+class OidcAuthModuleFeil {
+    private OidcAuthModuleFeil() {
 
-    @TekniskFeil(feilkode = "F-396795", feilmelding = "Klarte ikke å sende respons", logLevel = LogLevel.WARN)
-    Feil klarteIkkeSendeRespons(IOException e);
+    }
+
+    static TekniskException klarteIkkeSendeRespons(IOException e) {
+        return new TekniskException("F-396795", "Klarte ikke å sende respons", e);
+    }
 }

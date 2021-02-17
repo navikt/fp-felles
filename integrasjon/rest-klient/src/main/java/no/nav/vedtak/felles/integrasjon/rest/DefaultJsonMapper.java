@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -13,11 +12,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 public class DefaultJsonMapper {
     public static final ObjectMapper mapper = getObjectMapper();
@@ -37,7 +32,7 @@ public class DefaultJsonMapper {
         try {
             return mapper.readValue(json, typeReference);
         } catch (IOException e) {
-            throw DefaultJsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+            throw DefaultJsonMapperFeil.ioExceptionVedLesing(e);
         }
     }
 
@@ -45,19 +40,23 @@ public class DefaultJsonMapper {
         try {
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
-            throw DefaultJsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+            throw DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
         }
     }
 
-    interface DefaultJsonMapperFeil extends DeklarerteFeil {
+    static class DefaultJsonMapperFeil {
 
-        public static final DefaultJsonMapperFeil FACTORY = FeilFactory.create(DefaultJsonMapperFeil.class);
+        private DefaultJsonMapperFeil() {
 
-        @TekniskFeil(feilkode = "F-919328", feilmelding = "Fikk IO exception ved parsing av JSON", logLevel = LogLevel.WARN)
-        Feil ioExceptionVedLesing(IOException cause);
+        }
 
-        @TekniskFeil(feilkode = "F-208314", feilmelding = "Kunne ikke serialisere objekt til JSON", logLevel = LogLevel.WARN)
-        Feil kunneIkkeSerialisereJson(JsonProcessingException cause);
+        static TekniskException ioExceptionVedLesing(IOException e) {
+            return new TekniskException("F-919328", "Fikk IO exception ved parsing av JSON", e);
+        }
+
+        static TekniskException kunneIkkeSerialisereJson(IOException e) {
+            return new TekniskException("F-208314", "Kunne ikke serialisere objekt til JSON", e);
+        }
     }
 
 }

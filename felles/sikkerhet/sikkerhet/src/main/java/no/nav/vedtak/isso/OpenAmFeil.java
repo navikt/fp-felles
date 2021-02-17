@@ -1,35 +1,40 @@
 package no.nav.vedtak.isso;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-public interface OpenAmFeil extends DeklarerteFeil {
+import no.nav.vedtak.exception.TekniskException;
 
-    String SERVICE_DISCOVERY_FAILED_CODE = "F-312233";
+class OpenAmFeil {
+    private OpenAmFeil() {
 
-    OpenAmFeil FACTORY = FeilFactory.create(OpenAmFeil.class);
+    }
 
-    @TekniskFeil(feilkode = "F-502086", feilmelding = "Uventet feil ved utfylling av authorization template", logLevel = LogLevel.ERROR)
-    Feil uventetFeilVedUtfyllingAvAuthorizationTemplate(IOException cause);
+    static String SERVICE_DISCOVERY_FAILED_CODE = "F-312233";
 
-    @TekniskFeil(feilkode = "F-945077", feilmelding = "Feil i konfigurert redirect uri: %s", logLevel = LogLevel.ERROR)
-    Feil feilIKonfigurertRedirectUri(String redirectBase, UnsupportedEncodingException e);
+    static TekniskException uventetFeilVedUtfyllingAvAuthorizationTemplate(IOException e) {
+        return new TekniskException("F-502086", "Uventet feil ved utfylling av authorization template", e);
+    }
 
-    @TekniskFeil(feilkode = "F-011609", feilmelding = "Ikke-forventet respons fra OpenAm, statusCode %s og respons '%s'", logLevel = LogLevel.WARN)
-    Feil uforventetResponsFraOpenAM(int statusCode, String responseString);
+    static TekniskException feilIKonfigurertRedirectUri(String redirectBase, UnsupportedEncodingException e) {
+        return new TekniskException("F-945077", String.format("Feil i konfigurert redirect uri: %s", redirectBase), e);
+    }
 
-    @TekniskFeil(feilkode = "F-404323", feilmelding = "Kunne ikke parse JSON: '%s'", logLevel = LogLevel.WARN)
-    Feil kunneIkkeParseJson(String response, IOException e);
+    static TekniskException uforventetResponsFraOpenAM(int statusCode, String responseString) {
+        return new TekniskException("F-011609",
+                String.format("Ikke-forventet respons fra OpenAm, statusCode %s og respons '%s'", statusCode, responseString));
+    }
 
-    @TekniskFeil(feilkode = "F-909480", feilmelding = "Fant ikke auth-code på responsen, får respons: '%s - %s'", logLevel = LogLevel.WARN)
-    Feil kunneIkkeFinneAuthCode(int statusCode, String reason);
+    static TekniskException kunneIkkeParseJson(String response, IOException e) {
+        return new TekniskException("F-404323",
+                String.format("Kunne ikke parse JSON: '%s'", response), e);
+    }
 
-    @TekniskFeil(feilkode = SERVICE_DISCOVERY_FAILED_CODE, feilmelding = "Service Discovery feilet mot wellknown host: '%s'", logLevel = LogLevel.ERROR)
-    Feil serviceDiscoveryFailed(String url, IOException e);
+    static TekniskException kunneIkkeFinneAuthCode(int statusCode, String reason) {
+        return new TekniskException("F-909480", String.format("Fant ikke auth-code på responsen, får respons: '%s - %s'", statusCode, reason));
+    }
+
+    static TekniskException serviceDiscoveryFailed(String url, IOException e) {
+        return new TekniskException(SERVICE_DISCOVERY_FAILED_CODE, String.format("Service Discovery feilet mot wellknown host: '%s'", url), e);
+    }
 }

@@ -3,22 +3,25 @@ package no.nav.vedtak.felles.integrasjon.felles.ws;
 import javax.security.auth.login.LoginException;
 import javax.xml.ws.WebServiceException;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.TekniskException;
 
-public interface SoapWebServiceFeil extends DeklarerteFeil {
-    SoapWebServiceFeil FACTORY = FeilFactory.create(SoapWebServiceFeil.class);
+class SoapWebServiceFeil {
 
-    @IntegrasjonFeil(feilkode = "F-942048", feilmelding = "SOAP tjenesten [ %s ] returnerte en SOAP Fault: %s", logLevel = LogLevel.WARN)
-    Feil soapFaultIwebserviceKall(String webservice, WebServiceException soapException);
+    private SoapWebServiceFeil() {
 
-    @TekniskFeil(feilkode = "F-668217", feilmelding = "Feilet utlogging.", logLevel = LogLevel.WARN)
-    Feil feiletUtlogging(LoginException e);
+    }
 
-    @IntegrasjonFeil(feilkode = "F-134134", feilmelding = "SOAP tjenesten [ %s ] returnerte en feil som trolig er midlertidig: %s", logLevel = LogLevel.INFO)
-    Feil midlertidigFeil(String webservice, WebServiceException exception);
+    static IntegrasjonException soapFaultIwebserviceKall(String webservice, WebServiceException e) {
+        return new IntegrasjonException("F-942048", String.format("SOAP tjenesten [ %s ] returnerte en SOAP Fault:", webservice), e);
+    }
+
+    static TekniskException feiletUtlogging(LoginException e) {
+        return new TekniskException("F-668217", "Feilet utlogging.", e);
+    }
+
+    static IntegrasjonException midlertidigFeil(String webservice, WebServiceException e) {
+        return new IntegrasjonException("F-134134", String.format("SOAP tjenesten [ %s ] returnerte en feil som trolig er midlertidig", webservice),
+                e);
+    }
 }

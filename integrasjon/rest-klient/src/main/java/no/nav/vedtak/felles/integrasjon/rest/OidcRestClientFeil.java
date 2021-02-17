@@ -3,32 +3,34 @@ package no.nav.vedtak.felles.integrasjon.rest;
 import java.io.IOException;
 import java.net.URI;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
-import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.exception.TekniskException;
 
 @Deprecated
-public interface OidcRestClientFeil extends DeklarerteFeil {
+class OidcRestClientFeil {
 
-    public static final OidcRestClientFeil FACTORY = FeilFactory.create(OidcRestClientFeil.class);
+    private OidcRestClientFeil() {
+    }
 
-    @TekniskFeil(feilkode = "F-891590", feilmelding = "IOException ved henting av systemets OIDC-token", logLevel = LogLevel.ERROR)
-    Feil feilVedHentingAvSystemToken(IOException cause);
+    static TekniskException feilVedHentingAvSystemToken(IOException e) {
+        return new TekniskException("F-891590", "IOException ved henting av systemets OIDC-token", e);
+    }
 
-    @TekniskFeil(feilkode = "F-937072", feilmelding = "Klarte ikke å fremskaffe et OIDC token", logLevel = LogLevel.ERROR)
-    Feil klarteIkkeSkaffeOIDCToken();
+    static TekniskException klarteIkkeSkaffeOIDCToken() {
+        return new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token");
+    }
 
-    @ManglerTilgangFeil(feilkode = "F-468815", feilmelding = "Mangler tilgang. Fikk http-kode 403 fra server [%s]", logLevel = LogLevel.ERROR)
-    Feil manglerTilgang(URI endpoint);
+    static ManglerTilgangException manglerTilgang(URI endpoint) {
+        return new ManglerTilgangException("F-468815", String.format("Mangler tilgang. Fikk http-kode 403 fra server [%s]", endpoint));
+    }
 
-    @IntegrasjonFeil(feilkode = "F-686912", feilmelding = "Server [%s] svarte med feilkode http-kode '%s' og response var '%s'", logLevel = LogLevel.WARN)
-    Feil serverSvarteMedFeilkode(URI endpoint, int feilkode, String feilmelding);
+    static IntegrasjonException serverSvarteMedFeilkode(URI endpoint, int feilkode, String feilmelding) {
+        return new IntegrasjonException("F-686912",
+                String.format("Server [%s] svarte med feilkode http-kode '%s' og response var '%s'", endpoint, feilkode, feilmelding));
+    }
 
-    @TekniskFeil(feilkode = "F-432937", feilmelding = "IOException ved kommunikasjon med server [%s]", logLevel = LogLevel.WARN)
-    Feil ioException(URI uri, IOException cause);
-
+    static TekniskException ioException(URI endpoint, IOException e) {
+        return new TekniskException("F-432937", String.format("IOException ved kommunikasjon med server [%s]", endpoint), e);
+    }
 }

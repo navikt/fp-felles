@@ -66,8 +66,7 @@ public class OpenAMHelper {
             redirectUriEncoded = URLEncoder.encode(ServerInfo.instance().getCallbackUrl(),
                     StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            throw OpenAmFeil.FACTORY.feilIKonfigurertRedirectUri(ServerInfo.instance().getCallbackUrl(), e)
-                    .toException();
+            throw OpenAmFeil.feilIKonfigurertRedirectUri(ServerInfo.instance().getCallbackUrl(), e);
         }
     }
 
@@ -154,7 +153,7 @@ public class OpenAMHelper {
             json.setPassord(passord);
             utfyltTemplate = OBJECT_MAPPER.writeValueAsString(json);
         } catch (IOException e) {
-            throw OpenAmFeil.FACTORY.uventetFeilVedUtfyllingAvAuthorizationTemplate(e).toException();
+            throw OpenAmFeil.uventetFeilVedUtfyllingAvAuthorizationTemplate(e);
         }
 
         Function<String, String> hentSessionTokenFraResult = result -> {
@@ -195,9 +194,8 @@ public class OpenAMHelper {
                     if (response.getStatusLine().getStatusCode() == expectedHttpCode) {
                         return resultTransformer.apply(responseString);
                     } else {
-                        throw OpenAmFeil.FACTORY
-                                .uforventetResponsFraOpenAM(response.getStatusLine().getStatusCode(), responseString)
-                                .toException();
+                        throw OpenAmFeil
+                                .uforventetResponsFraOpenAM(response.getStatusLine().getStatusCode(), responseString);
                     }
                 }
             }
@@ -212,7 +210,7 @@ public class OpenAMHelper {
         try {
             return OBJECT_MAPPER.readValue(response, type);
         } catch (IOException e) {
-            throw OpenAmFeil.FACTORY.kunneIkkeParseJson(response, e).toException();
+            throw OpenAmFeil.kunneIkkeParseJson(response, e);
         }
     }
 
@@ -231,8 +229,8 @@ public class OpenAMHelper {
                     return matcher.group(1);
                 }
             }
-            throw OpenAmFeil.FACTORY.kunneIkkeFinneAuthCode(response.getStatusLine().getStatusCode(),
-                    response.getStatusLine().getReasonPhrase()).toException();
+            throw OpenAmFeil.kunneIkkeFinneAuthCode(response.getStatusLine().getStatusCode(),
+                    response.getStatusLine().getReasonPhrase());
         } finally {
             get.reset();
         }

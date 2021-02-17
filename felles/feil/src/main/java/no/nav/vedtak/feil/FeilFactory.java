@@ -12,7 +12,7 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 /**
  * @deprecated Unødvendig komplisert, kast en exception istedet.
  */
-@Deprecated
+@Deprecated(since = "3.0.x", forRemoval = true)
 public abstract class FeilFactory {
     private FeilFactory() {
         throw new IllegalAccessError("Skal ikke instansieres");
@@ -53,25 +53,25 @@ public abstract class FeilFactory {
     }
 
     private static Object lagTekniskFeil(Method method, Object[] metodeargumenter, Throwable cause) {
-        TekniskFeil a = method.getAnnotation(TekniskFeil.class);
+        var a = method.getAnnotation(TekniskFeil.class);
         String feilmelding = String.format(a.feilmelding(), metodeargumenter);
         return new Feil(a.feilkode(), feilmelding, a.logLevel(), a.exceptionClass(), cause);
     }
 
     private static Object lagIntegrasjonFeil(Method method, Object[] metodeargumenter, Throwable cause) {
-        IntegrasjonFeil annotering = method.getAnnotation(IntegrasjonFeil.class);
+        var annotering = method.getAnnotation(IntegrasjonFeil.class);
         String feilmelding = String.format(annotering.feilmelding(), metodeargumenter);
         return new Feil(annotering.feilkode(), feilmelding, annotering.logLevel(), annotering.exceptionClass(), cause);
     }
 
     private static Object lagIkkeTilgangFeil(Method method, Object[] metodeargumenter, Throwable cause) {
-        ManglerTilgangFeil annotering = method.getAnnotation(ManglerTilgangFeil.class);
+        var annotering = method.getAnnotation(ManglerTilgangFeil.class);
         String feilmelding = String.format(annotering.feilmelding(), metodeargumenter);
         return new Feil(annotering.feilkode(), feilmelding, annotering.logLevel(), annotering.exceptionClass(), cause);
     }
 
     private static Object lagFunksjonellFeil(Method method, Object[] metodeargumenter, Throwable cause) {
-        no.nav.vedtak.feil.deklarasjon.FunksjonellFeil annotering = method.getAnnotation(no.nav.vedtak.feil.deklarasjon.FunksjonellFeil.class);
+        var annotering = method.getAnnotation(no.nav.vedtak.feil.deklarasjon.FunksjonellFeil.class);
         String feilmelding = String.format(annotering.feilmelding(), metodeargumenter);
         return new FunksjonellFeil(
                 annotering.feilkode(), feilmelding, annotering.løsningsforslag(), annotering.logLevel(), annotering.exceptionClass(), cause);

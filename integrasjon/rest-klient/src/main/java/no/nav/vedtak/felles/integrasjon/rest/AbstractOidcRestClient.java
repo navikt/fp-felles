@@ -174,7 +174,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return mapper.readValue(json, clazz);
         } catch (IOException e) {
-            throw DefaultJsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+            throw DefaultJsonMapperFeil.ioExceptionVedLesing(e);
         }
     }
 
@@ -251,7 +251,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return mapper.writeValueAsString(dto);
         } catch (JsonProcessingException e) {
-            throw DefaultJsonMapperFeil.FACTORY.kunneIkkeSerialisereJson(e).toException();
+            throw DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
         }
     }
 
