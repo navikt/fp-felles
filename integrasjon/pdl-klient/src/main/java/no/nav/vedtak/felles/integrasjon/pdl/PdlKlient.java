@@ -8,7 +8,6 @@ import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
 import static org.apache.http.HttpStatus.SC_ACCEPTED;
-import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.apache.http.HttpStatus.SC_NOT_MODIFIED;
 import static org.apache.http.HttpStatus.SC_NO_CONTENT;
@@ -154,9 +153,9 @@ public class PdlKlient implements Pdl {
                     + ", HTTP request=" + req.getEntity()
                     + ", HTTP status=" + res.getStatusLine()
                     + ". HTTP Errormessage=" + body;
-            throw new IntegrasjonException(PDL_ERROR_RESPONSE, msg, status, endpoint);
+            throw new IntegrasjonException(PDL_ERROR_RESPONSE, msg);
         } catch (IOException e) {
-            throw new IntegrasjonException(PDL_IO_EXCEPTION, "IO-exception", SC_INTERNAL_SERVER_ERROR, endpoint);
+            throw new IntegrasjonException(PDL_IO_EXCEPTION, "IO-exception", e);
         }
     }
 

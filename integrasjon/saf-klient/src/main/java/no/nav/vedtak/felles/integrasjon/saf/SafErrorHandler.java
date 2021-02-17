@@ -14,9 +14,8 @@ public class SafErrorHandler implements GraphQLErrorHandler {
 
     @Override
     public <T> T handleError(List<GraphQLError> errors, URI uri, String kode) {
-        throw new TekniskException(kode, errors.stream()
+        throw new TekniskException(kode, String.format("Feil %s mot %s", errors.stream()
                 .map(GraphQLError::getMessage)
-                .collect(joining(",")), uri, null);
+                .collect(joining(",")), uri));
     }
-
 }

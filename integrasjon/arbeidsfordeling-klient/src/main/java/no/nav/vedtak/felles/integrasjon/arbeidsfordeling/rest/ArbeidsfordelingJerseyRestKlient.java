@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 
@@ -63,11 +62,9 @@ public class ArbeidsfordelingJerseyRestKlient extends AbstractJerseyOidcRestClie
                     }).stream()
                     .filter(r -> "AKTIV".equalsIgnoreCase(r.getStatus()))
                     .collect(toList());
-        } catch (WebApplicationException e) {
-            throw new IntegrasjonException("F-016913", e, uri, e.getResponse().getStatus(), e.getResponse().getEntity());
         } catch (Exception e) {
             LOG.warn("Henting av enheter feilet", e);
-            throw new IntegrasjonException(e, uri);
+            throw new IntegrasjonException("F-016913", String.format("Henting av enheter fra %s feilet", uri));
         }
     }
 

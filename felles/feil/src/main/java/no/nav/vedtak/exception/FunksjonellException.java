@@ -5,6 +5,10 @@ import no.nav.vedtak.feil.LogLevel;
 
 public class FunksjonellException extends VLException {
 
+    public FunksjonellException(String kode, String msg) {
+        this(kode, msg, null);
+    }
+
     public FunksjonellException(String kode, String msg, String hint) {
         this(kode, msg, hint, null);
     }
@@ -15,14 +19,15 @@ public class FunksjonellException extends VLException {
 
     /**
      *
-     * @deprecated Lag med new og args.
+     * @deprecated Lag med new
      */
-    @Deprecated
+    @Deprecated(since = "3.0.x", forRemoval = true)
     public FunksjonellException(FunksjonellFeil feil) {
         super(feil);
     }
 
     @Override
+    @Deprecated
     public FunksjonellFeil getFeil() {
         return FunksjonellFeil.class.cast(super.getFeil());
     }

@@ -36,8 +36,7 @@ public abstract class OidcRestClientResponseHandler<T> implements ResponseHandle
         if (status == HttpStatus.SC_FORBIDDEN) {
             throw new ManglerTilgangException("F-468815", "Feilet mot " + endpoint);
         }
-
-        throw new IntegrasjonException(endpoint, status, response.getStatusLine().getReasonPhrase());
+        throw new IntegrasjonException("F-468815", String.format("Uventet respons %s fra %s", status, endpoint));
     }
 
     protected abstract T readEntity(HttpEntity entity) throws IOException;

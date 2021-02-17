@@ -78,7 +78,7 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
     @Override
     public byte[] hentDokument(HentDokumentQuery q) {
         try {
-            LOG.info("Henter dokument");
+            LOG.trace("Henter dokument");
             var doc = client.target(base)
                     .path(HENTDOKUMENT)
                     .resolveTemplate("journalpostId", q.getJournalpostId())
@@ -89,8 +89,8 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
             LOG.info("Hentet dokument OK");
             return doc;
         } catch (WebApplicationException e) {
-            LOG.info("Henting dokument feilet", e);
-            throw new TekniskException(F_240613, base, e);
+            LOG.trace("Henting dokument feilet", e);
+            throw new TekniskException(F_240613, String.format("Feil ved henting av dokument fra %s", base), e);
         }
     }
 
@@ -113,8 +113,7 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
             LOG.info("Eksekvert GraphQL query OK");
             return res;
         } catch (WebApplicationException e) {
-            LOG.info("Eksekvering GraphQL query feilet", e);
-            throw new TekniskException(F_240613, base, e);
+            throw new TekniskException(F_240613, String.format("Feil ved Eksekvering av GraphQL query mot %s", base), e);
         }
     }
 

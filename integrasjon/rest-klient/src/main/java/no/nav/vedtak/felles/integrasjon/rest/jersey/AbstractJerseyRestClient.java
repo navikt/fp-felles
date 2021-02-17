@@ -122,7 +122,7 @@ public abstract class AbstractJerseyRestClient {
                     .forEach(entity::addHeader);
             return getHttpClient(client).execute(entity, new StringResponseHandler(entity.getURI()));
         } catch (IOException e) {
-            throw new TekniskException("F-432937", entity.getURI(), e);
+            throw new TekniskException("F-432937", String.format("Kunne ikke patche %s", entity.getURI()), e);
         }
     }
 

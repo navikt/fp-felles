@@ -19,7 +19,11 @@ public class ManglerTilgangException extends VLException {
         this(new Feil(kode, msg, level, clazz, cause));
     }
 
-    @Deprecated
+    /**
+     *
+     * @deprecated Lag med new
+     */
+    @Deprecated(since = "3.0.x", forRemoval = true)
     public ManglerTilgangException(Feil feil) {
         super(feil);
     }
