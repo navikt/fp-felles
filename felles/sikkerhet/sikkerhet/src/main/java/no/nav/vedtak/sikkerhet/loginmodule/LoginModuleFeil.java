@@ -18,7 +18,7 @@ public class LoginModuleFeil {
 
     }
 
-    static TekniskException feiletInnlogging(Exception e) {
+    public static TekniskException feiletInnlogging(Exception e) {
         return new TekniskException("F-499051", "Noe gikk galt ved innlogging", e);
     }
 }

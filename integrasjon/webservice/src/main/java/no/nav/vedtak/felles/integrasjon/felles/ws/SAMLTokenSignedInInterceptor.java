@@ -105,7 +105,7 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
         } catch (LoginException | TransformerException e) {
-            throw LoginModuleFeil.FACTORY.feiletInnlogging(e).toException();
+            throw LoginModuleFeil.feiletInnlogging(e);
         }
     }
 
@@ -114,7 +114,7 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
         try {
             return new LoginContext(LOGIN_CONFIG_NAME, new Subject(), callbackHandler, loginContextConfiguration);
         } catch (LoginException le) {
-            throw LoginModuleFeil.FACTORY.kunneIkkeFinneLoginmodulen(LOGIN_CONFIG_NAME, le).toException();
+            throw LoginModuleFeil.kunneIkkeFinneLoginmodulen(LOGIN_CONFIG_NAME, le);
         }
     }
 
