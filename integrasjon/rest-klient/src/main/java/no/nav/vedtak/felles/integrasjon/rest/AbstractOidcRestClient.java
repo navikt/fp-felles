@@ -251,7 +251,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return mapper.writeValueAsString(dto);
         } catch (JsonProcessingException e) {
-            throw DefaultJsonMapperFeil.FACTORY.kunneIkkeSerialisereJson(e).toException();
+            throw DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
         }
     }
 

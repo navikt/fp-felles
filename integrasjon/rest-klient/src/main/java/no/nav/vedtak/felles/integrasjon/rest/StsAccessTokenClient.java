@@ -48,7 +48,7 @@ public class StsAccessTokenClient {
         try {
             return mapper.readTree(responseEntity).get("access_token").asText();
         } catch (JsonProcessingException e) {
-            throw DefaultJsonMapper.DefaultJsonMapperFeil.FACTORY.kunneIkkeSerialisereJson(e).toException();
+            throw DefaultJsonMapper.DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
         }
     }
 
