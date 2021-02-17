@@ -142,7 +142,7 @@ public class OidcAuthModule implements ServerAuthModule {
                 for (Object publicCredential : subject.getPublicCredentials()) {
                     credidentialClasses.add(publicCredential.getClass().getName());
                 }
-                JaspicFeil.FACTORY.eksisterendeSubject(new HashSet<>(subject.getPrincipals()), credidentialClasses).log(LOG);
+                JaspicFeil.eksisterendeSubject(new HashSet<>(subject.getPrincipals()), credidentialClasses).log(LOG);
                 ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(null);
             }
         }
