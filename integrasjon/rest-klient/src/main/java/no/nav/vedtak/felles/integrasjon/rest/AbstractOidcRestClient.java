@@ -199,7 +199,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return this.execute(get, responseHandler);
         } catch (IOException e) {
-            throw new TekniskException("F-432937", endpoint, e);
+            throw new TekniskException("F-432937", String.format("Kunne ikke GET fra %s", endpoint), e);
         }
     }
 
@@ -211,7 +211,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return this.execute(patch, responseHandler);
         } catch (IOException e) {
-            throw new TekniskException("F-432937", endpoint, e);
+            throw new TekniskException("F-432937", String.format("Kunne ikke PATCH mot %s", endpoint), e);
         }
     }
 
@@ -223,7 +223,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return this.execute(put, responseHandler);
         } catch (IOException e) {
-            throw new TekniskException("F-432937", endpoint, e);
+            throw new TekniskException("F-432937", String.format("Kunne ikke PUT  mot %s", endpoint), e);
         }
     }
 
@@ -235,20 +235,15 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     }
 
     protected <T> T post(URI endpoint, Object dto, ResponseHandler<T> responseHandler) {
-        HttpPost post = getJsonPost(endpoint, dto, Set.of());
-        try {
-            return this.execute(post, responseHandler);
-        } catch (IOException e) {
-            throw new TekniskException("F-432937", endpoint, e);
-        }
+        return post(endpoint, dto, Set.of(), responseHandler);
     }
 
-    protected String post(URI endpoint, Object dto, Set<Header> headers, ResponseHandler<String> responseHandler) {
+    protected <T> T post(URI endpoint, Object dto, Set<Header> headers, ResponseHandler<T> responseHandler) {
         HttpPost post = getJsonPost(endpoint, dto, headers);
         try {
             return this.execute(post, responseHandler);
         } catch (IOException e) {
-            throw new TekniskException("F-432937", endpoint, e);
+            throw new TekniskException("F-432937", String.format("Kunne ikke POST mot %s", endpoint), e);
         }
     }
 

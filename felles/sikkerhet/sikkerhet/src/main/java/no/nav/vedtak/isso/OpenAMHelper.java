@@ -252,7 +252,7 @@ public class OpenAMHelper {
             var url = URI.create(wellKnownUrl).toURL();
             return AuthorizationServerMetadata.parse(resourceRetriever.retrieveResource(url).getContent());
         } catch (ParseException | IOException e) {
-            throw new TekniskException("exception when retrieving metadata from issuer", URI.create(wellKnownUrl), e);
+            throw new TekniskException("F-999999", String.format("exception when retrieving metadata from issuer %s", wellKnownUrl), e);
         }
     }
 

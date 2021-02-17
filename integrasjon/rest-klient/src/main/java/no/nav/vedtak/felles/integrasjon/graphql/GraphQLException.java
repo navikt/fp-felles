@@ -12,8 +12,8 @@ import no.nav.vedtak.exception.IntegrasjonException;
 public class GraphQLException extends IntegrasjonException {
 
     public GraphQLException(String kode, List<GraphQLError> errors, URI uri) {
-        super(kode, errors.stream()
+        super(kode, String.format("Feil %s ved GraphQL oppslag mot %s", errors.stream()
                 .map(GraphQLError::getMessage)
-                .collect(joining(",")), null, uri);
+                .collect(joining(",")), uri));
     }
 }
