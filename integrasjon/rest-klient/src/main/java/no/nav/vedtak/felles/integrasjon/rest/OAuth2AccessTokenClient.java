@@ -61,7 +61,7 @@ class OAuth2AccessTokenClient {
         try {
             responseEntity = closeableHttpClient.execute(httpPost, new BasicResponseHandler());
         } catch (IOException e) {
-            throw OidcRestClientFeil.FACTORY.ioException(tokenEndpoint, e).toException();
+            throw OidcRestClientFeil.ioException(tokenEndpoint, e);
         }
         try {
             return (ObjectNode) mapper.readTree(responseEntity);

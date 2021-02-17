@@ -60,7 +60,7 @@ public class SystemConsumerStsRestClient extends AbstractOidcRestClient {
             // tilbys
             return systemUserOIDCToken();
         }
-        throw OidcRestClientFeil.FACTORY.klarteIkkeSkaffeOIDCToken().toException();
+        throw OidcRestClientFeil.klarteIkkeSkaffeOIDCToken();
     }
 
     private synchronized String systemUserOIDCToken() {

@@ -38,7 +38,7 @@ public class OidcRestClient extends AbstractOidcRestClient {
             LOG.trace("SAML token OK");
             return veksleSamlTokenTilOIDCToken(samlToken);
         }
-        throw OidcRestClientFeil.FACTORY.klarteIkkeSkaffeOIDCToken().toException();
+        throw OidcRestClientFeil.klarteIkkeSkaffeOIDCToken();
     }
 
     // TODO fra P2: Kalle STS for å veksle SAML til OIDC.
