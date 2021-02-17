@@ -44,7 +44,7 @@ public class DefaultJsonMapper {
         }
     }
 
-    private static class DefaultJsonMapperFeil {
+    static class DefaultJsonMapperFeil {
 
         private DefaultJsonMapperFeil() {
 
