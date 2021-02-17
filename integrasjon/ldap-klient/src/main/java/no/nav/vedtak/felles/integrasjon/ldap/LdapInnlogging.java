@@ -40,14 +40,14 @@ public class LdapInnlogging {
         try {
             return new InitialLdapContext(environment, null);
         } catch (NamingException e) {
-            throw LdapFeil.FACTORY.klarteIkkeKobleTilLdap(url, e).toException();
+            throw LdapFeil.klarteIkkeKobleTilLdap(url, e);
         }
     }
 
     static String getRequiredProperty(String navn) {
         String verdi = ENV.getProperty(navn);
         if (verdi == null || verdi.isEmpty()) {
-            throw LdapFeil.FACTORY.manglerLdapKonfigurasjon(navn).toException();
+            throw LdapFeil.manglerLdapKonfigurasjon(navn);
         }
         return verdi;
 

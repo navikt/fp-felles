@@ -4,44 +4,53 @@ import javax.naming.LimitExceededException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.TekniskException;
 
-public interface LdapFeil extends DeklarerteFeil {
+class LdapFeil {
 
-    LdapFeil FACTORY = FeilFactory.create(LdapFeil.class); // NOSONAR ok med konstant i interface her
+    private LdapFeil() {
 
-    @TekniskFeil(feilkode = "F-344885", feilmelding = "Kan ikke slå opp brukernavn uten å ha ident", logLevel = LogLevel.WARN)
-    Feil kanIkkeSlåOppBrukernavnDaIdentIkkeErSatt();
+    }
 
-    @TekniskFeil(feilkode = "F-271934", feilmelding = "Mulig LDAP-injection forsøk. Søkte med ugyldig ident '%s'", logLevel = LogLevel.WARN)
-    Feil ugyldigIdent(String ident);
+    static TekniskException kanIkkeSlåOppBrukernavnDaIdentIkkeErSatt() {
+        return new TekniskException("F-344885", "Kan ikke slå opp brukernavn uten å ha ident");
+    }
 
-    @IntegrasjonFeil(feilkode = "F-222862", feilmelding = "Klarte ikke koble til LDAP på URL %s", logLevel = LogLevel.WARN)
-    Feil klarteIkkeKobleTilLdap(String url, NamingException e);
+    static TekniskException ugyldigIdent(String ident) {
+        return new TekniskException("F-271934", String.format("Mulig LDAP-injection forsøk. Søkte med ugyldig ident '%s'", ident));
+    }
 
-    @IntegrasjonFeil(feilkode = "F-703197", feilmelding = "Kunne ikke definere base-søk mot LDAP %s", logLevel = LogLevel.WARN)
-    Feil klarteIkkeDefinereBaseSøk(String baseSøk, NamingException e);
+    static TekniskException klarteIkkeKobleTilLdap(String url, NamingException e) {
+        return new TekniskException("F-222862", String.format("Klarte ikke koble til LDAP på URL %s", url));
+    }
 
-    @TekniskFeil(feilkode = "F-055498", feilmelding = "Klarte ikke koble til LDAP da påkrevd system property (%s) ikke er satt", logLevel = LogLevel.WARN)
-    Feil manglerLdapKonfigurasjon(String navn);
+    static IntegrasjonException klarteIkkeDefinereBaseSøk(String baseSøk, NamingException e) {
+        return new IntegrasjonException("F-703197", String.format("Kunne ikke definere base-søk mot LDAP %s", baseSøk), e);
+    }
 
-    @IntegrasjonFeil(feilkode = "F-690609", feilmelding = "Uventet feil ved LDAP-søk %s", logLevel = LogLevel.WARN)
-    Feil ukjentFeilVedLdapSøk(String søkestreng, NamingException e);
+    static TekniskException manglerLdapKonfigurasjon(String navn) {
+        return new TekniskException("F-055498", String.format("Klarte ikke koble til LDAP da påkrevd system property (%s) ikke er satt", navn));
+    }
 
-    @IntegrasjonFeil(feilkode = "F-828846", feilmelding = "Resultat fra LDAP manglet påkrevet attributtnavn %s", logLevel = LogLevel.WARN)
-    Feil resultatFraLdapMangletAttributt(String attributtnavn);
+    static IntegrasjonException ukjentFeilVedLdapSøk(String søkestreng, NamingException e) {
+        return new IntegrasjonException("F-690609", String.format("Uventet feil ved LDAP-søk %s", søkestreng), e);
+    }
 
-    @TekniskFeil(feilkode = "F-314006", feilmelding = "Kunne ikke hente ut attributtverdi %s fra %s", logLevel = LogLevel.WARN)
-    Feil kunneIkkeHenteUtAttributtverdi(String attributtnavn, Attribute attribute, NamingException e);
+    static IntegrasjonException resultatFraLdapMangletAttributt(String attributtnavn) {
+        return new IntegrasjonException("F-828846", String.format("Resultat fra LDAP manglet påkrevet attributtnavn %s", attributtnavn));
+    }
 
-    @IntegrasjonFeil(feilkode = "F-137440", feilmelding = "Forventet ett unikt resultat på søk mot LDAP etter ident %s, men fikk flere treff", logLevel = LogLevel.WARN)
-    Feil ikkeEntydigResultat(String ident, LimitExceededException e);
+    static TekniskException kunneIkkeHenteUtAttributtverdi(String attributtnavn, Attribute attribute, NamingException e) {
+        return new TekniskException("F-314006", String.format("Kunne ikke hente ut attributtverdi %s fra %s", attributtnavn, attributtnavn), e);
+    }
 
-    @IntegrasjonFeil(feilkode = "F-418891", feilmelding = "Fikk ingen treff på søk mot LDAP etter ident %s", logLevel = LogLevel.WARN)
-    Feil fantIngenBrukerForIdent(String ident);
+    static IntegrasjonException ikkeEntydigResultat(String ident, LimitExceededException e) {
+        return new IntegrasjonException("F-137440",
+                String.format("Forventet ett unikt resultat på søk mot LDAP etter ident %s, men fikk flere treff", ident), e);
+    }
+
+    static IntegrasjonException fantIngenBrukerForIdent(String ident) {
+        return new IntegrasjonException("F-418891", String.format("Fikk ingen treff på søk mot LDAP etter ident %s", ident));
+    }
 }

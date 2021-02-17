@@ -26,9 +26,4 @@ public class FunksjonellException extends VLException {
         super(feil);
     }
 
-    @Override
-    @Deprecated
-    public FunksjonellFeil getFeil() {
-        return FunksjonellFeil.class.cast(super.getFeil());
-    }
 }

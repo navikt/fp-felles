@@ -10,7 +10,7 @@ import no.nav.vedtak.feil.LogLevel;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Deprecated
+@Deprecated(since = "3.0.x", forRemoval = true)
 public @interface IntegrasjonFeil {
     String feilkode();
 

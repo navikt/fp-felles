@@ -20,7 +20,10 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 
-/** Programmatisk innlogging på en tråd i containeren. Brukes av bakgrunnsjobber (eks. prosesstask) slik at disse er autentisert. */
+/**
+ * Programmatisk innlogging på en tråd i containeren. Brukes av bakgrunnsjobber
+ * (eks. prosesstask) slik at disse er autentisert.
+ */
 public class ContainerLogin {
     private static final Logger log = LoggerFactory.getLogger(ContainerLogin.class);
 
@@ -39,7 +42,7 @@ public class ContainerLogin {
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
         } catch (LoginException le) {
-            throw LoginModuleFeil.FACTORY.feiletInnlogging(le).toException();
+            throw LoginModuleFeil.feiletInnlogging(le);
         }
     }
 
@@ -47,7 +50,7 @@ public class ContainerLogin {
         try {
             loginContext.logout();
         } catch (LoginException e) {
-            LoginModuleFeil.FACTORY.feiletUtlogging(e).log(log);
+            LoginModuleFeil.feiletUtlogging(e).log(log);
         }
         MDCOperations.removeUserId();
         MDCOperations.removeConsumerId();
@@ -72,7 +75,7 @@ public class ContainerLogin {
         try {
             return new LoginContext(loginAppConfiguration, new Subject(), callbackHandler, loginContextConfiguration);
         } catch (LoginException le) {
-            throw LoginModuleFeil.FACTORY.kunneIkkeFinneLoginmodulen(loginAppConfiguration, le).toException();
+            throw LoginModuleFeil.kunneIkkeFinneLoginmodulen(loginAppConfiguration, le);
         }
     }
 
@@ -87,13 +90,13 @@ public class ContainerLogin {
         private static final String LOGIN_APP_CONFIGURATION = "TASK_OIDC";
         private static final AppConfigurationEntry[] APP_CONFIGURATION = new AppConfigurationEntry[] {
                 new AppConfigurationEntry(
-                    "no.nav.vedtak.sikkerhet.loginmodule.oidc.OIDCLoginModule",
-                    AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                    Collections.emptyMap()),
+                        "no.nav.vedtak.sikkerhet.loginmodule.oidc.OIDCLoginModule",
+                        AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
+                        Collections.emptyMap()),
                 new AppConfigurationEntry(
-                    "no.nav.vedtak.sikkerhet.loginmodule.ThreadLocalLoginModule",
-                    AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                    Collections.emptyMap())
+                        "no.nav.vedtak.sikkerhet.loginmodule.ThreadLocalLoginModule",
+                        AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+                        Collections.emptyMap())
         };
 
         @Override

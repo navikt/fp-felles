@@ -41,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -54,17 +53,21 @@ import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
 /**
  * Stjålet mye fra https://github.com/omnifaces/omnisecurity
  *
- * Klassen er og må være thread-safe da den vil brukes til å kalle på subjects samtidig. Se {@link ServerAuthModule}. Skal derfor ikke
- * inneholde felter som holder Subject, token eller andre parametere som kommer med en request eller session.
+ * Klassen er og må være thread-safe da den vil brukes til å kalle på subjects
+ * samtidig. Se {@link ServerAuthModule}. Skal derfor ikke inneholde felter som
+ * holder Subject, token eller andre parametere som kommer med en request eller
+ * session.
  */
 public class OidcAuthModule implements ServerAuthModule {
-    
+
     private static final String OIDC_LOGIN_CONFIG = "OIDC";
     private static final Logger LOG = LoggerFactory.getLogger(OidcAuthModule.class);
 
     private static final Class<?>[] SUPPORTED_MESSAGE_TYPES = new Class[] { HttpServletRequest.class, HttpServletResponse.class };
-    // Key in the MessageInfo Map that when present AND set to true indicated a protected resource is being accessed.
-    // When the resource is not protected, GlassFish omits the key altogether. WebSphere does insert the key and sets
+    // Key in the MessageInfo Map that when present AND set to true indicated a
+    // protected resource is being accessed.
+    // When the resource is not protected, GlassFish omits the key altogether.
+    // WebSphere does insert the key and sets
     // it to false.
     private static final String IS_MANDATORY = "javax.security.auth.message.MessagePolicy.isMandatory";
 
@@ -89,7 +92,7 @@ public class OidcAuthModule implements ServerAuthModule {
      * used for unit-testing
      */
     OidcAuthModule(IdTokenProvider tokenProvider, TokenLocator tokenLocator, Configuration loginConfiguration,
-                   DelegatedProtectedResource delegatedProtectedResource) {
+            DelegatedProtectedResource delegatedProtectedResource) {
         this.tokenProvider = tokenProvider;
         this.tokenLocator = tokenLocator;
         this.loginConfiguration = loginConfiguration;
@@ -224,12 +227,13 @@ public class OidcAuthModule implements ServerAuthModule {
         try {
             return new LoginContext(OIDC_LOGIN_CONFIG, clientSubject, callbackHandler, loginConfiguration);
         } catch (LoginException le) {
-            throw FeilFactory.create(LoginModuleFeil.class).kunneIkkeFinneLoginmodulen(OIDC_LOGIN_CONFIG, le).toException();
+            throw LoginModuleFeil.kunneIkkeFinneLoginmodulen(OIDC_LOGIN_CONFIG, le);
         }
     }
 
     /**
-     * Wrapps the request in a object that throws an {@link IllegalArgumentException} when invoking getSession og getSession(true)
+     * Wrapps the request in a object that throws an
+     * {@link IllegalArgumentException} when invoking getSession og getSession(true)
      */
     private void ensureStatelessApplication(MessageInfo messageInfo) {
         messageInfo.setRequestMessage(new StatelessHttpServletRequest((HttpServletRequest) messageInfo.getRequestMessage()));
@@ -254,10 +258,10 @@ public class OidcAuthModule implements ServerAuthModule {
 
     protected AuthStatus handleProtectedResource(MessageInfo messageInfo, Subject clientSubject, HttpServletRequest originalRequest) {
         var delegatedAuthStatus = delegatedProtectedList.stream()
-            .map(d -> d.handleProtectedResource(originalRequest, clientSubject, containerCallbackHandler))
-            .filter(Optional::isPresent)
-            .findFirst()
-            .map(m -> m.get());
+                .map(d -> d.handleProtectedResource(originalRequest, clientSubject, containerCallbackHandler))
+                .filter(Optional::isPresent)
+                .findFirst()
+                .map(m -> m.get());
 
         if (delegatedAuthStatus.isEmpty()) {
             return oidcLogin(messageInfo, clientSubject, originalRequest);
@@ -273,7 +277,8 @@ public class OidcAuthModule implements ServerAuthModule {
 
     protected AuthStatus handleValidatedToken(Subject clientSubject, String username) {
         AuthStatus authStatus = notifyContainerAboutLogin(clientSubject, username);
-        // HACK (u139158): Must be taken from clientSubject @see OidcAuthModule#notifyContainerAboutLogin(Subject, String)
+        // HACK (u139158): Must be taken from clientSubject @see
+        // OidcAuthModule#notifyContainerAboutLogin(Subject, String)
         MDCOperations.putUserId(SubjectHandler.getUid(clientSubject));
         if (MDCOperations.getConsumerId() == null) {
             MDCOperations.putConsumerId(SubjectHandler.getConsumerId(clientSubject));
@@ -288,13 +293,15 @@ public class OidcAuthModule implements ServerAuthModule {
         String authorizationHeader = request.getHeader("Authorization"); // NOSONAR Akseptertet headere
         try {
             if ((acceptHeader != null && acceptHeader.contains("application/json"))
-                || (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))) {
+                    || (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
             } else {
                 AuthorizationRequestBuilder builder = new AuthorizationRequestBuilder();
-                // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the state-cookie containing redirectURL shold be encrypted to avoid
+                // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the
+                // state-cookie containing redirectURL shold be encrypted to avoid
                 // tampering)
-                response.addCookie(lagCookie(builder.getStateIndex(), encode(getOriginalUrl(request)), ServerInfo.instance().getRelativeCallbackUrl(), null));
+                response.addCookie(
+                        lagCookie(builder.getStateIndex(), encode(getOriginalUrl(request)), ServerInfo.instance().getRelativeCallbackUrl(), null));
                 response.sendRedirect(builder.buildRedirectString());
             }
         } catch (IOException e) {
@@ -309,23 +316,25 @@ public class OidcAuthModule implements ServerAuthModule {
 
     protected String getOriginalUrl(HttpServletRequest req) {
         String requestUrl = req.getRequestURL().toString();
-        // Scheme i request vi mottar er ikke det samme som det sluttbrukeren ser når TLS termineres underveis i kallkjeden
+        // Scheme i request vi mottar er ikke det samme som det sluttbrukeren ser når
+        // TLS termineres underveis i kallkjeden
         // https -> http -> appserver
         if (ServerInfo.instance().isUsingTLS() && !requestUrl.toLowerCase().startsWith("https")) {
             requestUrl = requestUrl.replaceFirst("http", "https");
         }
         return req.getQueryString() == null
-            ? requestUrl
-            : requestUrl + "?" + req.getQueryString();
+                ? requestUrl
+                : requestUrl + "?" + req.getQueryString();
     }
 
     /**
      * Asks the container to register the given username.
      * <p>
      * <p>
-     * Note that after this call returned, the authenticated identity will not be immediately active. This
-     * will only take place (should not errors occur) after the {@link ServerAuthContext} or {@link ServerAuthModule}
-     * in which this call takes place return control back to the runtime.
+     * Note that after this call returned, the authenticated identity will not be
+     * immediately active. This will only take place (should not errors occur) after
+     * the {@link ServerAuthContext} or {@link ServerAuthModule} in which this call
+     * takes place return control back to the runtime.
      * <p>
      * <p>
      * As a convenience this method returns SUCCESS, so this method can be used in

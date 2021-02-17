@@ -16,8 +16,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 
-import no.nav.vedtak.feil.FeilFactory;
-
 public class LdapBrukeroppslag {
 
     private final LdapContext context;
@@ -44,11 +42,11 @@ public class LdapBrukeroppslag {
 
     private SearchResult ldapSearch(String ident) {
         if (ident == null || ident.isEmpty()) {
-            throw FeilFactory.create(LdapFeil.class).kanIkkeSlåOppBrukernavnDaIdentIkkeErSatt().toException();
+            throw LdapFeil.kanIkkeSlåOppBrukernavnDaIdentIkkeErSatt();
         }
         Matcher matcher = IDENT_PATTERN.matcher(ident);
         if (!matcher.matches()) {
-            throw LdapFeil.FACTORY.ugyldigIdent(ident).toException();
+            throw LdapFeil.ugyldigIdent(ident);
         }
 
         SearchControls controls = new SearchControls();
@@ -60,11 +58,11 @@ public class LdapBrukeroppslag {
             if (result.hasMoreElements()) {
                 return result.nextElement();
             }
-            throw LdapFeil.FACTORY.fantIngenBrukerForIdent(ident).toException();
+            throw LdapFeil.fantIngenBrukerForIdent(ident);
         } catch (LimitExceededException lee) {
-            throw LdapFeil.FACTORY.ikkeEntydigResultat(ident, lee).toException();
+            throw LdapFeil.ikkeEntydigResultat(ident, lee);
         } catch (NamingException e) {
-            throw LdapFeil.FACTORY.ukjentFeilVedLdapSøk(søkestreng, e).toException();
+            throw LdapFeil.ukjentFeilVedLdapSøk(søkestreng, e);
         }
     }
 
@@ -74,7 +72,7 @@ public class LdapBrukeroppslag {
         try {
             return displayName.get().toString();
         } catch (NamingException e) {
-            throw LdapFeil.FACTORY.kunneIkkeHenteUtAttributtverdi(attributeName, displayName, e).toException();
+            throw LdapFeil.kunneIkkeHenteUtAttributtverdi(attributeName, displayName, e);
         }
     }
 
@@ -134,7 +132,7 @@ public class LdapBrukeroppslag {
                 groups.add(dnValue);
             }
         } catch (NamingException e) {
-            throw LdapFeil.FACTORY.kunneIkkeHenteUtAttributtverdi(attributeName, memberOf, e).toException();
+            throw LdapFeil.kunneIkkeHenteUtAttributtverdi(attributeName, memberOf, e);
         }
         return groups;
     }
@@ -142,7 +140,7 @@ public class LdapBrukeroppslag {
     private static Attribute find(SearchResult element, String attributeName) {
         Attribute attribute = element.getAttributes().get(attributeName);
         if (attribute == null) {
-            throw LdapFeil.FACTORY.resultatFraLdapMangletAttributt(attributeName).toException();
+            throw LdapFeil.resultatFraLdapMangletAttributt(attributeName);
         }
         return attribute;
     }
@@ -152,7 +150,7 @@ public class LdapBrukeroppslag {
         try {
             return new LdapName(userBaseDn); // NOSONAR
         } catch (InvalidNameException e) {
-            throw LdapFeil.FACTORY.klarteIkkeDefinereBaseSøk(userBaseDn, e).toException();
+            throw LdapFeil.klarteIkkeDefinereBaseSøk(userBaseDn, e);
         }
     }
 }
