@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
 import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
-import static no.nav.vedtak.felles.integrasjon.saf.SafTjeneste.SafTjenesteFeil.FEILFACTORY;
 
 import java.io.IOException;
 import java.net.URI;
@@ -34,11 +33,6 @@ import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
@@ -115,7 +109,7 @@ public class SafTjeneste implements Saf {
         try {
             return utførForespørselDokumentinnhold(getRequest);
         } catch (Exception e) {
-            throw FEILFACTORY.safForespørselFeilet(query.toString(), e).toException();
+            throw SafTjenesteFeil.safForespørselFeilet(query.toString(), e);
         }
     }
 
@@ -133,7 +127,7 @@ public class SafTjeneste implements Saf {
             httpPost.setEntity(new StringEntity(request.toHttpJsonBody()));
             res = utførForespørsel(httpPost, responseHandler);
         } catch (Exception e) {
-            throw FEILFACTORY.safForespørselFeilet(request.toQueryString(), e).toException();
+            throw SafTjenesteFeil.safForespørselFeilet(request.toQueryString(), e);
         }
         if (res.hasErrors()) {
             return errorHandler.handleError(res.getErrors(), graphqlEndpoint, "F-588730");
@@ -178,14 +172,20 @@ public class SafTjeneste implements Saf {
         }
     }
 
-    interface SafTjenesteFeil extends DeklarerteFeil {
-        SafTjenesteFeil FEILFACTORY = FeilFactory.create(SafTjenesteFeil.class);
+    private static class SafTjenesteFeil {
 
-        @TekniskFeil(feilkode = "F-240613", feilmelding = "Forespørsel til SAF feilet for spørring %s", logLevel = LogLevel.WARN)
-        Feil safForespørselFeilet(String query, Throwable t);
+        private SafTjenesteFeil() {
 
-        @TekniskFeil(feilkode = "F-588730", feilmelding = "Feil fra SAF ved utført query. Error: %s", logLevel = LogLevel.WARN)
-        Feil forespørselReturnerteFeil(String response);
+        }
+
+        static TekniskException safForespørselFeilet(String query, Throwable t) {
+            return new TekniskException("F-240613", String.format("Forespørsel til SAF feilet for spørring %s", query), t);
+        }
+
+        static TekniskException forespørselReturnerteFeil(String response) {
+            return new TekniskException("F-588730", String.format("Feil fra SAF ved utført query. Error: %s", response));
+
+        }
     }
 
 }
