@@ -1,21 +1,23 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import no.nav.vedtak.isso.OpenAMHelper;
-import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.log.util.LoggerUtils;
-import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
-import no.nav.vedtak.sikkerhet.domene.OidcCredential;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
+import javax.ws.rs.core.UriInfo;
+
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriInfo;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import no.nav.vedtak.isso.OpenAMHelper;
+import no.nav.vedtak.isso.config.ServerInfo;
+import no.nav.vedtak.log.util.LoggerUtils;
+import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
+import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 
 public class IdTokenAndRefreshTokenProvider {
 
@@ -39,9 +41,10 @@ public class IdTokenAndRefreshTokenProvider {
             String url = ServerInfo.instance().getCallbackUrl();
             urlEncodedRedirectUri = URLEncoder.encode(url, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            //gjør om fra UriInfo til string, hvis ikke blir det problemer for testen som tester unikhet av feil
-            //fordi UriInfo ikke er på classpath for testen
-            throw TokenProviderFeil.FACTORY.kunneIkkeUrlEncodeRedirectUri(redirectUri.toString(), e).toException();
+            // gjør om fra UriInfo til string, hvis ikke blir det problemer for testen som
+            // tester unikhet av feil
+            // fordi UriInfo ikke er på classpath for testen
+            throw TokenProviderFeil.kunneIkkeUrlEncodeRedirectUri(redirectUri.toString(), e);
         }
 
         String realm = "/";
@@ -54,7 +57,7 @@ public class IdTokenAndRefreshTokenProvider {
                 + "&realm=" + realm
                 + "&redirect_uri=" + urlEncodedRedirectUri
                 + "&code=" + authorizationCode;
-        log.debug("Requesting tokens by POST to {}", LoggerUtils.removeLineBreaks(host)); //NOSONAR
+        log.debug("Requesting tokens by POST to {}", LoggerUtils.removeLineBreaks(host)); // NOSONAR
         request.setEntity(new StringEntity(data, "UTF-8"));
         return request;
     }

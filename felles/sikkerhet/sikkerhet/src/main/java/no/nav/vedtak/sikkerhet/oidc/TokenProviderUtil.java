@@ -1,12 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,6 +10,14 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 class TokenProviderUtil {
 
     private TokenProviderUtil() {
@@ -25,10 +26,11 @@ class TokenProviderUtil {
 
     /**
      * @param tokenRequestSupplier tThe supplier for the token request
-     * @param tokenExtractor       The function to extract the required token(s) from the response
+     * @param tokenExtractor       The function to extract the required token(s)
+     *                             from the response
      * @param <T>                  The returned token class
-     * @return The token from the response, or <tt>Exception</tt> if the status code from the response indicates a client
-     * error (4xx).
+     * @return The token from the response, or <tt>Exception</tt> if the status code
+     *         from the response indicates a client error (4xx).
      */
     public static <T> T getToken(Supplier<HttpRequestBase> tokenRequestSupplier, Function<String, T> tokenExtractor) {
         return getTokenInternal(tokenRequestSupplier, tokenExtractor, false);
@@ -36,16 +38,19 @@ class TokenProviderUtil {
 
     /**
      * @param tokenRequestSupplier tThe supplier for the token request
-     * @param tokenExtractor       The function to extract the required token(s) from the response
+     * @param tokenExtractor       The function to extract the required token(s)
+     *                             from the response
      * @param <T>                  The returned token class
-     * @return The token from the response, or <tt>Optional.empty</tt> if the status code from the response indicates a client
-     * error (4xx). The expected 4xx error is typically when the refresh token has expired.
+     * @return The token from the response, or <tt>Optional.empty</tt> if the status
+     *         code from the response indicates a client error (4xx). The expected
+     *         4xx error is typically when the refresh token has expired.
      */
     public static <T> Optional<T> getTokenOptional(Supplier<HttpRequestBase> tokenRequestSupplier, Function<String, T> tokenExtractor) {
         return Optional.ofNullable(getTokenInternal(tokenRequestSupplier, tokenExtractor, true));
     }
 
-    private static <T> T getTokenInternal(Supplier<HttpRequestBase> tokenRequestSupplier, Function<String, T> tokenExtractor, boolean foventer400Koder) {
+    private static <T> T getTokenInternal(Supplier<HttpRequestBase> tokenRequestSupplier, Function<String, T> tokenExtractor,
+            boolean foventer400Koder) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpRequestBase request = tokenRequestSupplier.get();
             try (CloseableHttpResponse response = client.execute(request)) {
@@ -57,15 +62,14 @@ class TokenProviderUtil {
                 if (400 <= statusCode && statusCode < 500 && foventer400Koder) {
                     return null;
                 }
-                throw TokenProviderFeil.FACTORY.kunneIkkeHenteTokenFikk40xKode(statusCode, responseString).toException();
+                throw TokenProviderFeil.kunneIkkeHenteTokenFikk40xKode(statusCode, responseString);
             } finally {
                 request.reset();
             }
         } catch (IOException e) {
-            throw TokenProviderFeil.FACTORY.kunneIkkeHenteTokenFikkIOException(e).toException();
+            throw TokenProviderFeil.kunneIkkeHenteTokenFikkIOException(e);
         }
     }
-
 
     private static String responseText(CloseableHttpResponse response) throws IOException {
         try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8.name())) {
@@ -81,14 +85,13 @@ class TokenProviderUtil {
             JsonNode json = mapper.readTree(responseString);
             JsonNode token = json.get(tokenName);
             if (token == null) {
-                throw TokenProviderFeil.FACTORY.fikkIkkeTokenIReponse(tokenName).toException();
+                throw TokenProviderFeil.fikkIkkeTokenIReponse(tokenName);
             }
             return token.textValue();
         } catch (IOException e) {
-            throw TokenProviderFeil.FACTORY.kunneIkkeHenteTokenFikkIOException(e).toException();
+            throw TokenProviderFeil.kunneIkkeHenteTokenFikkIOException(e);
         }
     }
-
 
     static String basicCredentials(String username, String password) {
         return "Basic " + Base64.getEncoder().encodeToString(String.format("%s:%s", username, password).getBytes(StandardCharsets.UTF_8));

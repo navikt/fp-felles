@@ -183,7 +183,7 @@ public class OidcTokenValidatorProvider {
             try {
                 return new URL(url);
             } catch (MalformedURLException e) {
-                throw TokenProviderFeil.FACTORY.feilIKonfigurasjonAvOidcProvider(key, providerName, e).toException();
+                throw TokenProviderFeil.feilIKonfigurasjonAvOidcProvider(key, providerName, e);
             }
         }
 
