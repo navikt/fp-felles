@@ -1,20 +1,24 @@
 package no.nav.vedtak.isso.config;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-interface ServerInfoFeil extends DeklarerteFeil {
-    ServerInfoFeil FACTORY = FeilFactory.create(ServerInfoFeil.class);
+class ServerInfoFeil {
 
-    @TekniskFeil(feilkode = "F-720999", feilmelding = "Mangler nødvendig system property '%s'", logLevel = LogLevel.ERROR)
-    Feil manglerNødvendigSystemProperty(String key);
+    private ServerInfoFeil() {
 
-    @TekniskFeil(feilkode = "F-836622", feilmelding = "Ugyldig system property '%s'='%s'", logLevel = LogLevel.ERROR)
-    Feil ugyldigSystemProperty(String key, String value);
+    }
 
-    @TekniskFeil(feilkode = "F-050157", feilmelding = "Uventet format for host, klarer ikke å utvide cookie domain. Forventet format var xx.xx.xx, fikk '%s'. (OK hvis kjører lokalt).", logLevel = LogLevel.WARN)
-    Feil uventetHostFormat(String host);
+    static TekniskException manglerNødvendigSystemProperty(String key) {
+        return new TekniskException("F-720999", String.format("Mangler nødvendig system property '%s'", key));
+    }
+
+    static TekniskException ugyldigSystemProperty(String key, String value) {
+        return new TekniskException("F-836622", String.format("Ugyldig system property '%s'='%s'", key, value));
+    }
+
+    static TekniskException uventetHostFormat(String host) {
+        return new TekniskException("F-050157", String.format(
+                "Uventet format for host, klarer ikke å utvide cookie domain. Forventet format var xx.xx.xx, fikk '%s'. (OK hvis kjører lokalt).",
+                host));
+    }
 }

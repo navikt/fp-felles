@@ -25,7 +25,8 @@ public final class XmlUtils {
     private XmlUtils() {
     }
 
-    public static Map<String, Map.Entry<Class<?>, Schema>> createUnmodifiableMap(String jaxbClassName, List<String> namespaces, List<String> xsdLocations) {
+    public static Map<String, Map.Entry<Class<?>, Schema>> createUnmodifiableMap(String jaxbClassName, List<String> namespaces,
+            List<String> xsdLocations) {
         if (namespaces.size() != xsdLocations.size()) {
             throw new IllegalArgumentException();
         }
@@ -36,13 +37,14 @@ public final class XmlUtils {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             tempMap = new HashMap<>();
             for (int i = 0; i < namespaces.size(); i++) {
-                final Schema schema = schemaFactory.newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocations.get(i)).toExternalForm()));
+                final Schema schema = schemaFactory
+                        .newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocations.get(i)).toExternalForm()));
                 tempMap.put(namespaces.get(i), new SimpleEntry<>(jaxbClass, schema));
             }
         } catch (SAXException e) {
-            throw XmlUtilsFeil.FACTORY.feiletVedInstansieringAvSchema(e).toException();
+            throw XmlUtilsFeil.feiletVedInstansieringAvSchema(e);
         } catch (ClassNotFoundException e) {
-            throw XmlUtilsFeil.FACTORY.fantIkkeJaxbClass(jaxbClassName, e).toException();
+            throw XmlUtilsFeil.fantIkkeJaxbClass(jaxbClassName, e);
         }
         return Collections.unmodifiableMap(tempMap);
     }
@@ -54,12 +56,13 @@ public final class XmlUtils {
             final Class<?> jaxbClass = Class.forName(jaxbClassName);
 
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            final Schema schema = schemaFactory.newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocation).toExternalForm()));
+            final Schema schema = schemaFactory
+                    .newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocation).toExternalForm()));
             tempMap = Collections.singletonMap(namespace, new SimpleEntry<>(jaxbClass, schema));
         } catch (SAXException e) {
-            throw XmlUtilsFeil.FACTORY.feiletVedInstansieringAvSchema(e).toException();
+            throw XmlUtilsFeil.feiletVedInstansieringAvSchema(e);
         } catch (ClassNotFoundException e) {
-            throw XmlUtilsFeil.FACTORY.fantIkkeJaxbClass(jaxbClassName, e).toException();
+            throw XmlUtilsFeil.fantIkkeJaxbClass(jaxbClassName, e);
         }
         return Collections.unmodifiableMap(tempMap);
     }

@@ -2,19 +2,19 @@ package no.nav.vedtak.felles.xml;
 
 import org.xml.sax.SAXException;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-public interface XmlUtilsFeil extends DeklarerteFeil {
+class XmlUtilsFeil {
 
-    XmlUtilsFeil FACTORY = FeilFactory.create(XmlUtilsFeil.class);
+    private XmlUtilsFeil() {
 
-    @TekniskFeil(feilkode = "F-991094", feilmelding = "Fant ikke jaxb-class '%s'", logLevel = LogLevel.ERROR)
-    Feil fantIkkeJaxbClass(String classname, ClassNotFoundException cause);
+    }
 
-    @TekniskFeil(feilkode = "F-350887", feilmelding = "Feilet på instansiering av schema for xsd-validering.", logLevel = LogLevel.ERROR)
-    Feil feiletVedInstansieringAvSchema(SAXException cause);
+    static TekniskException fantIkkeJaxbClass(String classname, ClassNotFoundException e) {
+        return new TekniskException("F-991094", String.format("Fant ikke jaxb-class '%s'", classname), e);
+    }
+
+    static TekniskException feiletVedInstansieringAvSchema(SAXException e) {
+        return new TekniskException("F-350887", "Feilet på instansiering av schema for xsd-validering.", e);
+    }
 }

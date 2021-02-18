@@ -15,11 +15,7 @@ import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.FinnKodeverkListeRequest
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.FinnKodeverkListeResponse;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkRequest;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkResponse;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
@@ -47,7 +43,7 @@ public class KodeverkConsumer {
         try {
             return port.finnKodeverkListe(finnKodeverkListeRequest);
         } catch (SOAPFaultException e) { // NOSONAR
-            throw KodeverkWebServiceFeil.FACTORY.soapFaultFraKall(SERVICE_IDENTIFIER, e).toException();
+            throw soapFaultFraKall(SERVICE_IDENTIFIER, e);
         }
     }
 
@@ -55,7 +51,7 @@ public class KodeverkConsumer {
         try {
             return port.hentKodeverk(hentKodeverkRequest);
         } catch (SOAPFaultException e) { // NOSONAR
-            throw KodeverkWebServiceFeil.FACTORY.soapFaultFraKall(SERVICE_IDENTIFIER, e).toException();
+            throw soapFaultFraKall(SERVICE_IDENTIFIER, e);
         }
     }
 
@@ -70,11 +66,8 @@ public class KodeverkConsumer {
         return factoryBean.create(KodeverkPortType.class);
     }
 
-    interface KodeverkWebServiceFeil extends DeklarerteFeil {
-        KodeverkWebServiceFeil FACTORY = FeilFactory.create(KodeverkWebServiceFeil.class);
-
-        @IntegrasjonFeil(feilkode = "F-942049", feilmelding = "Kodeverktjenesten returnerte en SOAP Fault: %s", logLevel = LogLevel.WARN)
-        Feil soapFaultFraKall(String webservice, WebServiceException soapException);
+    private static IntegrasjonException soapFaultFraKall(String webservice, WebServiceException e) {
+        return new IntegrasjonException("F-942049", String.format("Kodeverktjenesten returnerte en SOAP Fault: %s", webservice), e);
     }
 
 }

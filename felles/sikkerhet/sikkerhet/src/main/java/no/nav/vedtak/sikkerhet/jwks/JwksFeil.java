@@ -1,27 +1,30 @@
 package no.nav.vedtak.sikkerhet.jwks;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import org.jose4j.lang.JoseException;
-
 import java.net.URL;
 
-interface JwksFeil extends DeklarerteFeil {
+import org.jose4j.lang.JoseException;
 
-    JwksFeil FACTORY = FeilFactory.create(JwksFeil.class);
+import no.nav.vedtak.exception.TekniskException;
 
-    @TekniskFeil(feilkode = "F-836283", feilmelding = "Mangler konfigurasjon av jwks url", logLevel = LogLevel.ERROR)
-    Feil manglerKonfigurasjonAvJwksUrl();
+class JwksFeil {
 
-    @TekniskFeil(feilkode = "F-192707", feilmelding = "Klarte ikke oppdatere jwks cache for %s. Http code %s", logLevel = LogLevel.ERROR)
-    Feil klarteIkkeOppdatereJwksCache(URL url, int statusCode);
+    private JwksFeil() {
 
-    @TekniskFeil(feilkode = "F-580666", feilmelding = "Klarte ikke oppdatere jwks cache for %s", logLevel = LogLevel.ERROR)
-    Feil klarteIkkeOppdatereJwksCache(URL url, Exception e);
+    }
 
-    @TekniskFeil(feilkode = "F-536415", feilmelding = "Klarte ikke parse jwks for %s, json: %s", logLevel = LogLevel.ERROR)
-    Feil klarteIkkeParseJWKs(URL url, String jwksAsString, JoseException e);
+    static TekniskException manglerKonfigurasjonAvJwksUrl() {
+        return new TekniskException("F-836283", "Mangler konfigurasjon av jwks url");
+    }
+
+    static TekniskException klarteIkkeOppdatereJwksCache(URL url, int statusCode) {
+        return new TekniskException("F-192707", String.format("Klarte ikke oppdatere jwks cache for %s. Http code %s", url, statusCode));
+    }
+
+    static TekniskException klarteIkkeOppdatereJwksCache(URL url, Exception e) {
+        return new TekniskException("F-580666", String.format("Klarte ikke oppdatere jwks cache for %s", url));
+    }
+
+    static TekniskException klarteIkkeParseJWKs(URL url, String jwksAsString, JoseException e) {
+        return new TekniskException("F-536415", String.format("Klarte ikke parse jwks for %s, json: %s", url, jwksAsString), e);
+    }
 }

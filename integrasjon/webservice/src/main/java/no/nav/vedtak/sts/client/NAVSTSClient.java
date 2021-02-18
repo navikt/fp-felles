@@ -76,7 +76,7 @@ public class NAVSTSClient extends STSClient {
         ensureTokenStoreExists();
 
         if (key == null) {
-            throw StsFeil.FACTORY.kanIkkeHenteSamlUtenOidcToken().toException();
+            throw StsFeil.kanIkkeHenteSamlUtenOidcToken();
         }
         SecurityToken token = tokenStore.getToken(key);
         String keyUtenSignatur = stripJwtSignatur(key);
@@ -116,13 +116,13 @@ public class NAVSTSClient extends STSClient {
 
     private static String tokenToString(SecurityToken token) {
         return token.getClass().getSimpleName() + "<" +
-            "id=" + token.getId() + ", "
-            + "wsuId=" + token.getWsuId() + ", "
-            + "principal=" + token.getPrincipal() + ", "
-            + "created=" + token.getCreated() + ", "
-            + "expires=" + token.getExpires() + ", "
-            + "isExpired=" + token.isExpired() + ", "
-            + ">";
+                "id=" + token.getId() + ", "
+                + "wsuId=" + token.getWsuId() + ", "
+                + "principal=" + token.getPrincipal() + ", "
+                + "created=" + token.getCreated() + ", "
+                + "expires=" + token.getExpires() + ", "
+                + "isExpired=" + token.isExpired() + ", "
+                + ">";
     }
 
     private void ensureTokenStoreExists() {

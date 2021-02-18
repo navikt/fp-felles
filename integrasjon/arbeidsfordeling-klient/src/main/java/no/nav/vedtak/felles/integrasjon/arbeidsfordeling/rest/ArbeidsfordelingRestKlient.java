@@ -8,11 +8,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
@@ -63,15 +59,8 @@ public class ArbeidsfordelingRestKlient implements Arbeidsfordeling {
                     .filter(response -> "AKTIV".equalsIgnoreCase(response.getStatus()))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw ArbeidsfordelingRestKlientFeil.FACTORY.feilfratjeneste(uriString, e.getMessage(), e).toException();
+            throw new IntegrasjonException("F-016913", String.format("NORG2 arbeidsfordeling feil ved oppslag mot %s", uri), e);
         }
-    }
-
-    interface ArbeidsfordelingRestKlientFeil extends DeklarerteFeil {
-        ArbeidsfordelingRestKlientFeil FACTORY = FeilFactory.create(ArbeidsfordelingRestKlientFeil.class);
-
-        @IntegrasjonFeil(feilkode = "F-016913", feilmelding = "NORG2 arbeidsfordeling feil ved oppslag mot %s", logLevel = LogLevel.WARN)
-        Feil feilfratjeneste(String var1, String msg, Throwable t);
     }
 
 }

@@ -87,7 +87,7 @@ public class StsConfigurationUtil {
     private static String requireProperty(String key) {
         String property = ENV.getProperty(key);
         if (property == null) {
-            throw StsFeil.FACTORY.påkrevdSystemPropertyMangler(key).toException();
+            throw StsFeil.påkrevdSystemPropertyMangler(key);
         }
         return property;
     }
@@ -107,7 +107,7 @@ public class StsConfigurationUtil {
             // when creating the client from WSDL (ref cxf-users mailinglist)
             stsClient.getClient().getRequestContext().put(Message.ENDPOINT_ADDRESS, location);
         } catch (BusException | EndpointException e) {
-            throw StsFeil.FACTORY.kunneIkkeSetteEndpointAddress(location, e).toException();
+            throw StsFeil.kunneIkkeSetteEndpointAddress(location, e);
         }
 
         stsClient.getOutInterceptors().add(new LoggingOutInterceptor());

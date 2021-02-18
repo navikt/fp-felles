@@ -77,7 +77,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         try {
             keyCache = new JsonWebKeySet(jwksAsString);
         } catch (JoseException e) {
-            JwksFeil.FACTORY.klarteIkkeParseJWKs(url, jwksAsString, e).log(log);
+            JwksFeil.klarteIkkeParseJWKs(url, jwksAsString, e).log(log);
         }
     }
 
@@ -89,7 +89,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
             // Enable ved behov log.debug("JWKs cache for {} updated with: {}", url,
             // jwksString); //NOSONAR
         } catch (RuntimeException e) {
-            JwksFeil.FACTORY.klarteIkkeOppdatereJwksCache(url, e).log(log);
+            JwksFeil.klarteIkkeOppdatereJwksCache(url, e).log(log);
         }
     }
 
@@ -101,9 +101,10 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
 
     private static String httpGet(URL url, boolean useProxyForJwks) {
         if (url == null) {
-            throw JwksFeil.FACTORY.manglerKonfigurasjonAvJwksUrl().toException();
+            throw JwksFeil.manglerKonfigurasjonAvJwksUrl();
         }
-        // Enable ved behov log.debug("Starting JWKS update from {}", LoggerUtils.removeLineBreaks(url.toExternalForm())); // NOSONAR
+        // Enable ved behov log.debug("Starting JWKS update from {}",
+        // LoggerUtils.removeLineBreaks(url.toExternalForm())); // NOSONAR
         HttpGet httpGet = new HttpGet(url.toExternalForm());
         httpGet.addHeader("accept", "application/json");
         if (useProxyForJwks) {
@@ -113,12 +114,12 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
                 if (response.getStatusLine().getStatusCode() != 200) {
-                    throw JwksFeil.FACTORY.klarteIkkeOppdatereJwksCache(url, response.getStatusLine().getStatusCode()).toException();
+                    throw JwksFeil.klarteIkkeOppdatereJwksCache(url, response.getStatusLine().getStatusCode());
                 }
                 return readContent(response);
             }
         } catch (IOException e) {
-            throw JwksFeil.FACTORY.klarteIkkeOppdatereJwksCache(url, e).toException();
+            throw JwksFeil.klarteIkkeOppdatereJwksCache(url, e);
         } finally {
             httpGet.reset();
         }

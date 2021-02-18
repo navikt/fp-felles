@@ -21,7 +21,6 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
@@ -41,29 +40,30 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
             Document document = builder.parse(new InputSource(new StringReader(getOnBehalfOfString())));
             return document.getDocumentElement();
         } catch (ParserConfigurationException e) {
-            Feil feil = StsFeil.FACTORY.klarteIkkeLageBuilder(e);
-            feil.log(logger);
-            throw feil.toException();
+            var ex = StsFeil.klarteIkkeLageBuilder(e);
+            ex.log(logger);
+            throw ex;
         } catch (SAXException e) {
-            Feil feil = StsFeil.FACTORY.klarteIkkeLeseElement(e);
-            feil.log(logger);
-            throw feil.toException();
+            var ex = StsFeil.klarteIkkeLeseElement(e);
+            ex.log(logger);
+            throw ex;
         }
     }
 
     private static String getOnBehalfOfString() {
         String base64encodedJTW = Base64.getEncoder().encodeToString(getJwtAsBytes());
-        return "<wsse:BinarySecurityToken EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"urn:ietf:params:oauth:token-type:jwt\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">" + base64encodedJTW + "</wsse:BinarySecurityToken>";
+        return "<wsse:BinarySecurityToken EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"urn:ietf:params:oauth:token-type:jwt\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"
+                + base64encodedJTW + "</wsse:BinarySecurityToken>";
     }
-
 
     private static byte[] getJwtAsBytes() {
         SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
         String jwt = subjectHandler.getInternSsoToken();
-        if(jwt != null) {
+        if (jwt != null) {
             return jwt.getBytes(StandardCharsets.UTF_8);
-        } else if(subjectHandler.getSamlToken() != null) {
-            // HACK Setter jwt til tom string. Kaller aldri til STS når SamlToken er tilstede (#see NAVSTSClient.requestSecurityToken())
+        } else if (subjectHandler.getSamlToken() != null) {
+            // HACK Setter jwt til tom string. Kaller aldri til STS når SamlToken er
+            // tilstede (#see NAVSTSClient.requestSecurityToken())
             return "".getBytes(StandardCharsets.UTF_8);
         }
         throw new IllegalStateException("Har ikke en gyldig session.");

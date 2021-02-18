@@ -68,7 +68,7 @@ public final class ServerInfo {
     private static String schemeHostPortFromSystemProperties() {
 
         return ENV.getRequiredProperty(PROPERTY_KEY_LOADBALANCER_URL,
-                ServerInfoFeil.FACTORY.manglerNødvendigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL));
+                () -> ServerInfoFeil.manglerNødvendigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL));
     }
 
     private static String cookieDomain(String schemeHostPort) {
@@ -83,12 +83,11 @@ public final class ServerInfo {
             if (hostname.split("\\.").length >= 3) {
                 return hostname.substring(hostname.indexOf('.') + 1);
             } else {
-                ServerInfoFeil.FACTORY.uventetHostFormat(hostname).log(LOG);
+                ServerInfoFeil.uventetHostFormat(hostname).log(LOG);
                 return null; // null er det strengeste i cookie domain, betyr 'kun denne server'
             }
         } else {
-            throw ServerInfoFeil.FACTORY.ugyldigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL, schemeHostPort)
-                    .toException();
+            throw ServerInfoFeil.ugyldigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL, schemeHostPort);
         }
     }
 
