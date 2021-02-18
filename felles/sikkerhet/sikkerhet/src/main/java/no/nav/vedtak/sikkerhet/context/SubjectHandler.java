@@ -9,6 +9,7 @@ import javax.security.auth.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.domene.ConsumerId;
 import no.nav.vedtak.sikkerhet.domene.IdentType;
@@ -27,12 +28,12 @@ public abstract class SubjectHandler {
 
     public static SubjectHandler getSubjectHandler() {
 
-        String subjectHandlerImplementationClass = ENV.getProperty(SUBJECTHANDLER_KEY,JettySubjectHandler.class.getName());
-
+        String subjectHandlerImplementationClass = ENV.getProperty(SUBJECTHANDLER_KEY, JettySubjectHandler.class.getName());
 
         try {
             Class<?> clazz = Class.forName(subjectHandlerImplementationClass);
-            // For mye støy. Slå på ved behov. logger.debug("Creating a SubjectHandler of type: {}", subjectHandlerImplementationClass);
+            // For mye støy. Slå på ved behov. logger.debug("Creating a SubjectHandler of
+            // type: {}", subjectHandlerImplementationClass);
             return (SubjectHandler) clazz.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new IllegalStateException("Klarte ikke å konfigurere plattformavhengig SubjectHandler", e);
@@ -147,7 +148,8 @@ public abstract class SubjectHandler {
                 .map(Object::getClass)
                 .map(Class::getName)
                 .collect(Collectors.toSet());
-        throw SubjectHandlerFeil.FACTORY.forventet0Eller1(set.size(), classNames).toException();
+        throw new TekniskException("F-327190",
+        String.format("Forventet ingen eller ett element, men fikk %s elementer av type %s", set.size(), classNames));
     }
 
     private Boolean hasSubject() {
