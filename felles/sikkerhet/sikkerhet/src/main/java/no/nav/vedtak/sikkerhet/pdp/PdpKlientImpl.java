@@ -35,8 +35,8 @@ public class PdpKlientImpl implements PdpKlient {
 
     private PdpConsumer pdpConsumer;
 
-    public PdpKlientImpl(){
-        //for CDI
+    public PdpKlientImpl() {
+        // for CDI
     }
 
     @Inject
@@ -60,13 +60,14 @@ public class PdpKlientImpl implements PdpKlient {
         environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID, getPepId());
         AbacIdToken idToken = (AbacIdToken) pdpRequest.get(ENVIRONMENT_AUTH_TOKEN);
         if (idToken.erOidcToken()) {
-            environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, JwtUtil.getJwtBody(idToken.getToken()));
+            environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY,
+                    JwtUtil.getJwtBody(idToken.getToken()));
         } else {
-            environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN, base64encode(idToken.getToken()));
+            environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN,
+                    base64encode(idToken.getToken()));
         }
         xacmlBuilder.addEnvironmentAttributeSet(environmentAttributeSet);
     }
-
 
     private String base64encode(String samlToken) {
         return Base64.getEncoder().encodeToString(samlToken.getBytes(StandardCharsets.UTF_8));
@@ -79,7 +80,7 @@ public class PdpKlientImpl implements PdpKlient {
         List<Advice> denyAdvice = response.getXacmlResponse().getAdvice();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Deny fra PDP, advice var: " + LoggerUtils.toStringWithoutLineBreaks(denyAdvice)); //NOSONAR
+            logger.debug("Deny fra PDP, advice var: " + LoggerUtils.toStringWithoutLineBreaks(denyAdvice)); // NOSONAR
         }
         if (denyAdvice.contains(Advice.DENY_KODE_6)) {
             return AbacResultat.AVSLÅTT_KODE_6;
@@ -98,7 +99,7 @@ public class PdpKlientImpl implements PdpKlient {
 
         for (Decision decision : decisions) {
             if (decision == Decision.Indeterminate) {
-                throw PdpFeil.FACTORY.indeterminateDecisionFeil(decision, response).toException();
+                throw PdpFeil.indeterminateDecisionFeil(decision, response);
             }
         }
 
@@ -119,7 +120,7 @@ public class PdpKlientImpl implements PdpKlient {
     private void handlObligation(BiasedDecisionResponse response) {
         List<Obligation> obligations = response.getXacmlResponse().getObligations();
         if (!obligations.isEmpty()) {
-            throw PdpFeil.FACTORY.ukjentObligationsFeil(obligations).toException();
+            throw PdpFeil.ukjentObligationsFeil(obligations);
         }
     }
 

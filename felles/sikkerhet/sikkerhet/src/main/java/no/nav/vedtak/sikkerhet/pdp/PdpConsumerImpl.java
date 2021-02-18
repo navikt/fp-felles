@@ -135,7 +135,7 @@ public class PdpConsumerImpl implements PdpConsumer {
                     // det skjer at PDP server f.eks. er resatt og eneste vi kan gjøre er å resette
                     // vår egen tilstand.
                     activeConfiguration = buildClient();
-                    PdpFeil.FACTORY.reinstansiertHttpClient().log(LOG);
+                    PdpFeil.reinstansiertHttpClient().log(LOG);
                 }
             }
             active = activeConfiguration;
@@ -146,10 +146,10 @@ public class PdpConsumerImpl implements PdpConsumer {
                 return response.getElement2();
             }
             if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
-                throw PdpFeil.FACTORY.autentiseringFeilerEtterReinstansiering(System.getenv("HOSTNAME")).toException(); // NOSONAR
+                throw PdpFeil.autentiseringFeilerEtterReinstansiering(System.getenv("HOSTNAME"));
             }
         }
-        throw PdpFeil.FACTORY.httpFeil(statusCode, response.getElement1().getReasonPhrase()).toException();
+        throw PdpFeil.httpFeil(statusCode, response.getElement1().getReasonPhrase());
 
     }
 
@@ -180,7 +180,7 @@ public class PdpConsumerImpl implements PdpConsumer {
                     // logg kun første gang vi treffer, kast exception andre gang
                     LOG.trace("Fikk IOException - PDP feil, prøver en gang til", e);
                 } else {
-                    throw PdpFeil.FACTORY.ioFeil(e).toException();
+                    throw PdpFeil.ioFeil(e);
                 }
             } finally {
                 post.releaseConnection();

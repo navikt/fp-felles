@@ -1,40 +1,46 @@
 package no.nav.vedtak.sikkerhet.pdp.feil;
 
-import static no.nav.vedtak.feil.LogLevel.ERROR;
-
 import java.io.IOException;
 import java.util.List;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.Decision;
 import no.nav.vedtak.sikkerhet.pdp.xacml.Obligation;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
 
-public interface PdpFeil extends DeklarerteFeil {
-    PdpFeil FACTORY = FeilFactory.create(PdpFeil.class);
+public class PdpFeil {
 
-    @TekniskFeil(feilkode = "F-815365", feilmelding = "Mottok HTTP error fra PDP: HTTP %s - %s", logLevel = LogLevel.WARN)
-    Feil httpFeil(int status, String statusInfo);
+    private PdpFeil() {
 
-    @TekniskFeil(feilkode = "F-091324", feilmelding = "Uventet IO-exception mot PDP", logLevel = LogLevel.WARN)
-    Feil ioFeil(IOException ioexception);
+    }
 
-    @TekniskFeil(feilkode = "F-461635", feilmelding = "System property %s kan ikke være null.", logLevel = LogLevel.ERROR)
-    Feil propertyManglerFeil(String key);
+    public static TekniskException httpFeil(int status, String statusInfo) {
+        return new TekniskException("F-815365", String.format("Mottok HTTP error fra PDP: HTTP %s - %s", status, statusInfo));
+    }
 
-    @TekniskFeil(feilkode = "F-080281", feilmelding = "Decision %s fra PDP, dette skal aldri skje. Full JSON response: %s", logLevel = ERROR)
-    Feil indeterminateDecisionFeil(Decision originalDecision, XacmlResponseWrapper response);
+    public static TekniskException ioFeil(IOException e) {
+        return new TekniskException("F-091324", "Uventet IO-exception mot PDP", e);
+    }
 
-    @TekniskFeil(feilkode = "F-576027", feilmelding = "Mottok ukjente obligations fra PDP: %s", logLevel = ERROR)
-    Feil ukjentObligationsFeil(List<Obligation> obligations);
+    static TekniskException propertyManglerFeil(String key) {
+        return new TekniskException("F-461635", String.format("System property %s kan ikke være null", key));
+    }
 
-    @TekniskFeil(feilkode = "F-563467", feilmelding = "Feilet autentisering mot PDP, reinstansierer hele klienten for å fjerne all state", logLevel = LogLevel.WARN)
-    Feil reinstansiertHttpClient();
+    public static TekniskException indeterminateDecisionFeil(Decision originalDecision, XacmlResponseWrapper response) {
+        return new TekniskException("F-080281",
+                String.format("Decision %s fra PDP, dette skal aldri skje. Full JSON response: %s", originalDecision, response));
+    }
 
-    @TekniskFeil(feilkode = "F-867412", feilmelding = "Feilet autentisering mot PDP, reinstansiering av klienten hjalp ikke. Tiltak: Drep pod '%s'", logLevel = LogLevel.ERROR)
-    Feil autentiseringFeilerEtterReinstansiering(String podName);
+    public static TekniskException ukjentObligationsFeil(List<Obligation> obligations) {
+        return new TekniskException("F-576027", String.format("Mottok ukjente obligations fra PDP: %s", obligations));
+    }
+
+    public static TekniskException reinstansiertHttpClient() {
+        return new TekniskException("F-563467", "Feilet autentisering mot PDP, reinstansierer hele klienten for å fjerne all state");
+    }
+
+    public static TekniskException autentiseringFeilerEtterReinstansiering(String podName) {
+        return new TekniskException("F-867412",
+                String.format("Feilet autentisering mot PDP, reinstansiering av klienten hjalp ikke. Tiltak: Drep pod '%s'", podName));
+    }
 }
