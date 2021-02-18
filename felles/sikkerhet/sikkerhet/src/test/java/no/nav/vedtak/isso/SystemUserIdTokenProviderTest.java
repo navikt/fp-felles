@@ -47,7 +47,7 @@ public class SystemUserIdTokenProviderTest {
             SystemUserIdTokenProvider.fetchIdToken(0, openAMHelper, random);
             throw new AssertionError("Forventet exception");
         } catch (IntegrasjonException e) {
-            assertThat(e.getFeil().getLogLevel()).isEqualTo(Level.ERROR);
+            assertThat(e.getFeil().getLogLevel()).isEqualTo(Level.WARN);
         }
 
         verify(openAMHelper, times(10)).getToken();
