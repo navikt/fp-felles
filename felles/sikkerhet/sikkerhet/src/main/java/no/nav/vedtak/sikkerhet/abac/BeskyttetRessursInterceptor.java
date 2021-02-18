@@ -86,13 +86,13 @@ public class BeskyttetRessursInterceptor {
 
         switch (beslutning.getBeslutningKode()) {
             case AVSLÅTT_KODE_6:
-                throw PepFeil.FACTORY.ikkeTilgangKode6().toException();
+                throw PepFeil.ikkeTilgangKode6();
             case AVSLÅTT_KODE_7:
-                throw PepFeil.FACTORY.ikkeTilgangKode7().toException();
+                throw PepFeil.ikkeTilgangKode7();
             case AVSLÅTT_EGEN_ANSATT:
-                throw PepFeil.FACTORY.ikkeTilgangEgenAnsatt().toException();
+                throw PepFeil.ikkeTilgangEgenAnsatt();
             default:
-                throw PepFeil.FACTORY.ikkeTilgang().toException();
+                throw PepFeil.ikkeTilgang();
         }
     }
 

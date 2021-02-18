@@ -1,23 +1,26 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
+import no.nav.vedtak.exception.ManglerTilgangException;
 
-interface PepFeil extends DeklarerteFeil {
-    PepFeil FACTORY = FeilFactory.create(PepFeil.class);
+class PepFeil {
 
-    @ManglerTilgangFeil(feilkode = "F-788257", feilmelding = "Tilgangskontroll.Avslag.EgenAnsatt", logLevel = LogLevel.INFO, exceptionClass = PepNektetTilgangException.class)
-    Feil ikkeTilgangEgenAnsatt();
+    private PepFeil() {
 
-    @ManglerTilgangFeil(feilkode = "F-027901", feilmelding = "Tilgangskontroll.Avslag.Kode7", logLevel = LogLevel.INFO, exceptionClass = PepNektetTilgangException.class)
-    Feil ikkeTilgangKode7();
+    }
 
-    @ManglerTilgangFeil(feilkode = "F-709170", feilmelding = "Tilgangskontroll.Avslag.Kode6", logLevel = LogLevel.INFO, exceptionClass = PepNektetTilgangException.class)
-    Feil ikkeTilgangKode6();
+    static ManglerTilgangException ikkeTilgangEgenAnsatt() {
+        return new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");
+    }
 
-    @ManglerTilgangFeil(feilkode = "F-608625", feilmelding = "Ikke tilgang", logLevel = LogLevel.INFO, exceptionClass = PepNektetTilgangException.class)
-    Feil ikkeTilgang();
+    static ManglerTilgangException ikkeTilgangKode7() {
+        return new PepNektetTilgangException("F-027901", "Tilgangskontroll.Avslag.Kode7");
+    }
+
+    static ManglerTilgangException ikkeTilgangKode6() {
+        return new PepNektetTilgangException("F-709170", "Tilgangskontroll.Avslag.Kode6");
+    }
+
+    static ManglerTilgangException ikkeTilgang() {
+        return new PepNektetTilgangException("F-608625", "Ikke tilgang");
+    }
 }
