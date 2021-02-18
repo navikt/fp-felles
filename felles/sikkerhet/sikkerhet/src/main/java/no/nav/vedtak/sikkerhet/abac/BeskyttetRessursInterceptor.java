@@ -16,6 +16,7 @@ import javax.jws.WebService;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.env.Environment;
@@ -143,7 +144,8 @@ public class BeskyttetRessursInterceptor {
             if (value instanceof AbacDto) {
                 attributter.leggTil(((AbacDto) value).abacAttributter());
             } else {
-                throw BeskyttetRessursFeil.FACTORY.ugyldigInputForventetAbacDto(value != null ? value.getClass().getName() : "null").toException();
+                throw new TekniskException("F-261962",
+                String.format("Ugyldig input forventet at samling inneholdt bare AbacDto-er, men fant %s", value != null ? value.getClass().getName() : "null"));
             }
         }
     }
