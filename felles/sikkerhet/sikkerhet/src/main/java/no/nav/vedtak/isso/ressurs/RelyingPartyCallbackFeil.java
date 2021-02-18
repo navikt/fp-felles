@@ -1,25 +1,28 @@
 package no.nav.vedtak.isso.ressurs;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-
 import java.io.UnsupportedEncodingException;
 
-interface RelyingPartyCallbackFeil extends DeklarerteFeil {
-    RelyingPartyCallbackFeil FACTORY = FeilFactory.create(RelyingPartyCallbackFeil.class);
+import no.nav.vedtak.exception.TekniskException;
 
-    @TekniskFeil(feilkode = "F-963044", feilmelding = "Mangler parameter 'code' i URL", logLevel = LogLevel.WARN)
-    Feil manglerCodeParameter();
+class RelyingPartyCallbackFeil {
 
-    @TekniskFeil(feilkode = "F-731807", feilmelding = "Mangler parameter 'state' i URL", logLevel = LogLevel.WARN)
-    Feil manglerStateParameter();
+    private RelyingPartyCallbackFeil() {
 
-    @TekniskFeil(feilkode = "F-755892", feilmelding = "Cookie for redirect URL mangler eller er tom", logLevel = LogLevel.INFO)
-    Feil manglerCookieForRedirectionURL();
+    }
 
-    @TekniskFeil(feilkode = "F-448219", feilmelding = "Kunne ikke URL decode '%s'", logLevel = LogLevel.WARN)
-    Feil kunneIkkeUrlDecode(String urlEncoded, UnsupportedEncodingException e);
+    static TekniskException manglerCodeParameter() {
+        return new TekniskException("F-963044", "Mangler parameter 'code' i URL");
+    }
+
+    static TekniskException manglerStateParameter() {
+        return new TekniskException("F-731807", "Mangler parameter 'state' i URL");
+    }
+
+    static TekniskException manglerCookieForRedirectionURL() {
+        return new TekniskException("F-755892", "Cookie for redirect URL mangler eller er tom");
+    }
+
+    static TekniskException kunneIkkeUrlDecode(String urlEncoded, UnsupportedEncodingException e) {
+        return new TekniskException("F-755448219892", String.format("Kunne ikke URL decode '%s'", urlEncoded), e);
+    }
 }
