@@ -2,25 +2,24 @@ package no.nav.vedtak.isso;
 
 import java.io.IOException;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.sikkerhet.oidc.Fikk40xKodeException;
 import no.nav.vedtak.sikkerhet.oidc.VlIOException;
 
-interface SystemUserIdTokenProviderFeil extends DeklarerteFeil {
+class SystemUserIdTokenProviderFeil {
 
-    SystemUserIdTokenProviderFeil FACTORY = FeilFactory.create(SystemUserIdTokenProviderFeil.class);
+    private SystemUserIdTokenProviderFeil() {
+    }
 
-    @IntegrasjonFeil(feilkode = "F-116509", feilmelding = "Klarte ikke hente ID-token for systembrukeren", logLevel = LogLevel.ERROR)
-    Feil klarteIkkeHenteIdTokenIOException(IOException e);
+    static IntegrasjonException klarteIkkeHenteIdTokenIOException(IOException e) {
+        return new IntegrasjonException("F-116509", "Klarte ikke hente ID-token for systembrukeren");
+    }
 
-    @IntegrasjonFeil(feilkode = "F-572075", feilmelding = "Klarte ikke hente ID-token for systembrukeren", logLevel = LogLevel.ERROR)
-    Feil klarteIkkeHenteIdTokenVlIOException(VlIOException e);
+    static IntegrasjonException klarteIkkeHenteIdTokenVlIOException(VlIOException e) {
+        return new IntegrasjonException("F-572075", "Klarte ikke hente ID-token for systembrukeren", e);
+    }
 
-    @IntegrasjonFeil(feilkode = "F-061582", feilmelding = "Klarte ikke hente ID-token for systembrukeren, selv etter %s forsøk", logLevel = LogLevel.ERROR)
-    Feil klarteIkkeHenteIdToken(int antall, Fikk40xKodeException e);
-
+    static IntegrasjonException klarteIkkeHenteIdToken(int antall, Fikk40xKodeException e) {
+        return new IntegrasjonException("F-061582", String.format("Klarte ikke hente ID-token for systembrukeren, selv etter %s forsøk", antall), e);
+    }
 }
