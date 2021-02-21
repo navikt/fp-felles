@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.felles.ws;
+package no.nav.vedtak.xmlutils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,10 +11,6 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-/**
- * @deprecated bruk samme klasse fra felles-util
- */
-@Deprecated(since = "3.0.x", forRemoval = true)
 public class DateUtil {
 
     private static final DatatypeFactory DATATYPE_FACTORY;

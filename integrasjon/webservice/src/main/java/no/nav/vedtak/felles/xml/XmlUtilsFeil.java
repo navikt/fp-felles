@@ -4,6 +4,10 @@ import org.xml.sax.SAXException;
 
 import no.nav.vedtak.exception.TekniskException;
 
+/**
+ * @deprecated bruk samme klasse fra felles-util
+ */
+@Deprecated(since = "3.0.x", forRemoval = true)
 class XmlUtilsFeil {
 
     private XmlUtilsFeil() {

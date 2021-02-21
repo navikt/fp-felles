@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.felles.ws;
+package no.nav.vedtak.xmlutils;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -28,10 +28,6 @@ import javax.xml.validation.SchemaFactory;
 
 import org.xml.sax.SAXException;
 
-/**
- * @deprecated bruk samme klasse fra felles-util
- */
-@Deprecated(since = "3.0.x", forRemoval = true)
 public final class JaxbHelper {
     private static final Map<Class<?>, JAXBContext> CONTEXTS = new ConcurrentHashMap<>(); // NOSONAR
     private static final Map<String, Schema> SCHEMAS = new ConcurrentHashMap<>(); // NOSONAR

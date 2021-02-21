@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.xml;
+package no.nav.vedtak.xmlutils;
 
 import java.io.StringReader;
 import java.util.AbstractMap.SimpleEntry;
@@ -18,10 +18,6 @@ import javax.xml.validation.SchemaFactory;
 
 import org.xml.sax.SAXException;
 
-/**
- * @deprecated bruk samme klasse fra felles-util
- */
-@Deprecated(since = "3.0.x", forRemoval = true)
 public final class XmlUtils {
 
     private static final String TARGET_NAMESPACE = "targetNamespace";
