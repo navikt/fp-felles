@@ -1,5 +1,7 @@
 package no.nav.vedtak.felles.jpa.converters;
 
+import java.util.Optional;
+
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
@@ -17,9 +19,9 @@ public class BooleanToStringConverter implements AttributeConverter<Boolean, Str
     }
 
     @Override
-    public Boolean convertToEntityAttribute(String dbData) {
-        if (dbData == null)
-            return null;
-        return "J".equals(dbData);
+    public Boolean convertToEntityAttribute(String val) {
+        return Optional.ofNullable(val)
+                .map("J"::equals)
+                .orElse(null);
     }
 }
