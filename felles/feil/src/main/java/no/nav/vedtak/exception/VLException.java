@@ -8,7 +8,7 @@ public abstract class VLException extends RuntimeException {
 
     private final Feil feil;
 
-    VLException(Feil feil) {
+    protected VLException(Feil feil) {
         super(feil.toLogString(), feil.getCause());
         this.feil = feil;
     }

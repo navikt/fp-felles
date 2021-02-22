@@ -275,27 +275,6 @@
 				</exclusions>
 			</dependency>
 			<dependency>
-				<!-- transitiv fiks version, brukes av hibernate-core og mockito-core -->
-				<groupId>net.bytebuddy</groupId>
-				<artifactId>byte-buddy</artifactId>
-				<version>1.10.20</version>
-			</dependency>
-			<dependency>
-				<groupId>org.javassist</groupId>
-				<artifactId>javassist</artifactId>
-				<version>3.27.0-GA</version>
-			</dependency>
-			<dependency>
-				<groupId>org.ow2.asm</groupId>
-				<artifactId>asm</artifactId>
-				<version>9.1</version>
-			</dependency>
-			<dependency>
-				<groupId>net.sf.ehcache</groupId>
-				<artifactId>ehcache</artifactId>
-				<version>2.10.6</version>
-			</dependency>
-			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
 				<version>2.8.0</version>
@@ -306,19 +285,9 @@
 				<version>6.2.1</version>
 			</dependency>
 			<dependency>
-				<groupId>org.bouncycastle</groupId>
-				<artifactId>bcprov-jdk15on</artifactId>
-				<version>1.68</version>
-			</dependency>
-			<dependency>
 				<groupId>org.apache.santuario</groupId>
 				<artifactId>xmlsec</artifactId>
 				<version>2.2.0</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml</groupId>
-				<artifactId>classmate</artifactId>
-				<version>1.5.1</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.jws</groupId>
@@ -326,19 +295,9 @@
 				<version>1.0-MR1</version>
 			</dependency>
 			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				<version>30.1-jre</version>
-			</dependency>
-			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
 				<version>1.15</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>2.6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -356,67 +315,22 @@
 				<version>0.5.5</version>
 			</dependency>
 			<dependency>
-				<groupId>org.threeten</groupId>
-				<artifactId>threeten-extra</artifactId>
-				<version>1.6.0</version>
-			</dependency>
-			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>oauth2-oidc-sdk</artifactId>
 				<version>9.1</version>
 			</dependency>
-
-			<!-- Andre 3djepart avhengigheter -->
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles</groupId>
 				<artifactId>felles-testutilities</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>io.github.classgraph</groupId>
-				<artifactId>classgraph</artifactId>
-				<version>4.8.102</version>
-			</dependency>
-			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2</artifactId>
-				<version>1.4.200</version>
-				<scope>test</scope>
-			</dependency>
-
-			<dependency>
-				<!-- fjernet fra SE i Java11 -->
 				<groupId>com.sun.xml.messaging.saaj</groupId>
 				<artifactId>saaj-impl</artifactId>
 				<version>1.5.2</version>
 			</dependency>
-			<dependency>
-				<groupId>org.jvnet.mimepull</groupId>
-				<artifactId>mimepull</artifactId>
-				<version>1.9.13</version>
-			</dependency>
-
-			<dependency>
-				<!-- for å bygge markup for sysdoc -->
-				<groupId>io.github.swagger2markup</groupId>
-				<artifactId>markup-document-builder</artifactId>
-				<version>1.1.2</version>
-				<exclusions>
-					<exclusion>
-						<groupId>nl.jworks.markdown_to_asciidoc</groupId>
-						<artifactId>markdown_to_asciidoc</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>ca.szc.thirdparty.nl.jworks.markdown_to_asciidoc</groupId>
-				<artifactId>markdown_to_asciidoc</artifactId>
-				<version>1.0</version>
-			</dependency>
-
 		</dependencies>
 	</dependencyManagement>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -424,29 +338,6 @@
 			<version>${mockito.version}</version>
 			<scope>test</scope>
 		</dependency>
-
-		<!-- fjernet fra SE i Java11. legger derfor til -->
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.activation</groupId>
-					<artifactId>javax.activation-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jaxb</groupId>
-			<artifactId>jaxb-runtime</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.activation</groupId>
-					<artifactId>javax.activation-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
 	</dependencies>
 </project>
 

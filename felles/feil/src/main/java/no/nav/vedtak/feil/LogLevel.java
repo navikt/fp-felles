@@ -1,10 +1,9 @@
 package no.nav.vedtak.feil;
 
-@Deprecated
 /**
- *
- * @deprecated Denne wrappingen gir lite ekstra verdi, bruk slf4j
+ * @deprecated Unødvendig komplisert, bruk slf4j.
  */
+@Deprecated(since = "3.0.x", forRemoval = true)
 public enum LogLevel {
     ERROR,
     WARN,
