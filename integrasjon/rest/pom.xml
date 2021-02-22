@@ -47,7 +47,6 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
-        <!-- REST avhengigheter -->
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-servlet-initializer</artifactId>
@@ -78,15 +77,10 @@
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-cdi</artifactId>
         </dependency>
-
-        <!--test -->
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
-
-
     </dependencies>
-
 </project>

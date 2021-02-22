@@ -12,15 +12,11 @@
     <artifactId>felles-integrasjon-pom</artifactId>
     <packaging>pom</packaging>
     <name>Felles :: Integrasjon</name>
-
     <modules>
         <module>webservice</module>
         <module>rest</module>
         <module>rest-klient</module>
-
-        <!-- spesifikke klienter -->
         <module>ldap-klient</module>
-
         <module>arbeidsfordeling-klient</module>
         <module>infotrygd-grunnlag-klient</module>
         <module>infotrygd-saker-klient</module>
@@ -56,8 +52,6 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-
-            <!-- Generelle tekniske moduler (ulike tekniske protokoller/apier) -->
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>felles-integrasjon-rest</artifactId>
@@ -73,10 +67,7 @@
                 <artifactId>felles-integrasjon-webservice</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
-            <!-- Sikkerhet, oppslag. Klienter for generell teknisk informasjon - kodeverk, feature toggles, etc -->
             <dependency>
-                <!-- Oppslag bruker (saksbehandler) fra LDAP/AD for roller, etc. -->
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>ldap-klient</artifactId>
                 <version>${project.version}</version>
@@ -112,8 +103,6 @@
                 <artifactId>unleash-client-java</artifactId>
                 <version>${unleash.version}</version>
             </dependency>
-
-            <!-- Klienter for person, medlemskap (registere) -->
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>medl-klient</artifactId>
@@ -124,8 +113,6 @@
                 <artifactId>pdl-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
-            <!-- Klienter for inntekter, arbeidsforhold, ytelser -->
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>infotrygd-grunnlag-klient</artifactId>
@@ -151,15 +138,11 @@
                 <artifactId>ereg-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
-            <!-- Klienter for Dokument og journalføring -->
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>saf-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
-            <!-- Klienter for Produksjonsstyring -->
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>oppgave-rest-klient</artifactId>
@@ -170,7 +153,6 @@
                 <artifactId>sak-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.influxdb</groupId>
                 <artifactId>influxdb-java</artifactId>
