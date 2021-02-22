@@ -64,17 +64,17 @@
             <!-- kun for Xacml - kan erstattes ved å bytte JsonUtil til Jackson ObjectMapper -->
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-json-p-provider</artifactId>
+            <version>${resteasy.version}</version>
         </dependency>
-
         <dependency>
             <groupId>javax.jws</groupId>
             <artifactId>jsr181-api</artifactId>
             <version>1.0-MR1</version>
         </dependency>
-
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>9.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>net.minidev</groupId>
@@ -88,7 +88,6 @@
             <version>2.3</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
