@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-public class EregRestTest {
+class EregRestTest {
 
     private static final String json = "{\n" +
             "  \"organisasjonsnummer\": \"990983666\",\n" +
@@ -103,13 +103,13 @@ public class EregRestTest {
             "}";
 
     @BeforeAll
-    public static void setup() {
+    static void setup() {
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Test
-    public void mapping_organisasjon() throws IOException {
+    void mapping_organisasjon() throws IOException {
         var org = fromJson(json, OrganisasjonEReg.class);
 
         assertThat(org.getNavn()).isEqualTo("NAV IKT");
@@ -117,7 +117,7 @@ public class EregRestTest {
     }
 
     @Test
-    public void mapping_adresse() throws IOException {
+    void mapping_adresse() throws IOException {
         var org = fromJson(json, OrganisasjonAdresse.class);
 
         assertThat(org.getNavn()).isEqualTo("NAV IKT");

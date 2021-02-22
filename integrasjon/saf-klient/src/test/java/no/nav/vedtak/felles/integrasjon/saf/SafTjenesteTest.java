@@ -47,8 +47,8 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-public class SafTjenesteTest {
+@MockitoSettings(strictness = Strictness.WARN)
+class SafTjenesteTest {
 
     private SafTjeneste safTjeneste;
 
@@ -60,7 +60,7 @@ public class SafTjenesteTest {
     private HttpEntity entity;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         // Service setup
         URI endpoint = URI.create("dummyendpoint/graphql");
         safTjeneste = new SafTjeneste(endpoint, restClient);
@@ -82,7 +82,7 @@ public class SafTjenesteTest {
 
     @SuppressWarnings("resource")
     @Test
-    public void skal_returnere_dokumentoversikt_fagsak() throws IOException {
+    void skal_returnere_dokumentoversikt_fagsak() throws IOException {
         // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111",
         // fagsaksystem: "AO01"}, foerste: 5)
         when(entity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("saf/documentResponse.json"));
@@ -99,7 +99,7 @@ public class SafTjenesteTest {
 
     @SuppressWarnings("resource")
     @Test
-    public void skal_returnere_journalpost() throws IOException {
+    void skal_returnere_journalpost() throws IOException {
         // query-eksempel: journalpost(journalpostId: "439560100")
         when(entity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("saf/journalpostResponse.json"));
 
@@ -114,7 +114,7 @@ public class SafTjenesteTest {
 
     @SuppressWarnings("resource")
     @Test
-    public void skal_returnere_tilknyttet_journalpost() throws IOException {
+    void skal_returnere_tilknyttet_journalpost() throws IOException {
         // query-eksempel: tilknyttedeJournalposter(dokumentInfoId:"469211538",
         // tilknytning:GJENBRUK)
         when(entity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("saf/tilknyttetResponse.json"));
@@ -134,7 +134,7 @@ public class SafTjenesteTest {
 
     @SuppressWarnings("resource")
     @Test
-    public void skal_konvertere_feilmelding_til_feil() throws IOException {
+    void skal_konvertere_feilmelding_til_feil() throws IOException {
         // query-eksempel: journalpost(journalpostId: "439560100")
         when(entity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("saf/errorResponse.json"));
 
@@ -146,7 +146,7 @@ public class SafTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_dokument() throws IOException {
+    void skal_returnere_dokument() throws IOException {
         // GET-eksempel: hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}
         HentDokumentQuery query = new HentDokumentQuery("journalpostId", "dokumentInfoId", "ARKIVF");
         when(entity.getContent()).thenReturn(new ByteArrayInputStream("<dokument_as_bytes>".getBytes()));

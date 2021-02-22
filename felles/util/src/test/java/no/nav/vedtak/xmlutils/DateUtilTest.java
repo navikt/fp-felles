@@ -6,17 +6,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.junit.jupiter.api.Test;
 
-public class DateUtilTest {
+class DateUtilTest {
 
     @Test
-    public void test_convertToXMLGregorianCalendar_LocalDateTime() {
+    void test_convertToXMLGregorianCalendar_LocalDateTime() {
 
-        LocalDateTime localDateTime = LocalDateTime.now();
-        XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDateTime);
+        var localDateTime = LocalDateTime.now();
+        var xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDateTime);
         assertThat(xmlGregCal).isNotNull();
         assertThat(xmlGregCal.getHour()).isEqualTo(localDateTime.getHour());
 
@@ -25,10 +24,10 @@ public class DateUtilTest {
     }
 
     @Test
-    public void test_convertToXMLGregorianCalendar_LocalDate() {
+    void test_convertToXMLGregorianCalendar_LocalDate() {
 
-        LocalDate localDate = LocalDate.now();
-        XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDate);
+        var localDate = LocalDate.now();
+        var xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDate);
         assertThat(xmlGregCal).isNotNull();
         assertThat(xmlGregCal.getDay()).isEqualTo(localDate.getDayOfMonth());
 
@@ -37,41 +36,39 @@ public class DateUtilTest {
     }
 
     @Test
-    public void test_convertToXMLGregorianCalendarRemoveTimezone() {
+    void test_convertToXMLGregorianCalendarRemoveTimezone() {
 
-        LocalDate localDate = LocalDate.now();
-        XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendarRemoveTimezone(localDate);
+        var localDate = LocalDate.now();
+        var xmlGregCal = DateUtil.convertToXMLGregorianCalendarRemoveTimezone(localDate);
         assertThat(xmlGregCal).isNotNull();
         assertThat(xmlGregCal.getDay()).isEqualTo(localDate.getDayOfMonth());
         assertThat(xmlGregCal.getTimezone()).isEqualTo(DatatypeConstants.FIELD_UNDEFINED);
 
-        xmlGregCal = DateUtil.convertToXMLGregorianCalendarRemoveTimezone(null);
-        assertThat(xmlGregCal).isNull();
+        assertThat(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(null)).isNull();
     }
 
     @Test
-    public void test_convertToLocalDateTime() {
+    void test_convertToLocalDateTime() {
 
-        final LocalDateTime localDateTime1 = LocalDateTime.now();
-        XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDateTime1);
-        final LocalDateTime localDateTime2 = DateUtil.convertToLocalDateTime(xmlGregCal);
+        var localDateTime1 = LocalDateTime.now();
+        var xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDateTime1);
+        var localDateTime2 = DateUtil.convertToLocalDateTime(xmlGregCal);
         assertThat(localDateTime2).isNotNull();
         assertThat(localDateTime2.getHour()).isEqualTo(localDateTime1.getHour());
 
-        final LocalDateTime localDateTime3 = DateUtil.convertToLocalDateTime(null);
+        var localDateTime3 = DateUtil.convertToLocalDateTime(null);
         assertThat(localDateTime3).isNull();
     }
 
     @Test
-    public void test_convertToLocalDate() {
+    void test_convertToLocalDate() {
 
-        final LocalDate localDate1 = LocalDate.now();
-        XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDate1);
-        LocalDate localDate2 = DateUtil.convertToLocalDate(xmlGregCal);
+        LocalDate localDate1 = LocalDate.now();
+        var xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDate1);
+        var localDate2 = DateUtil.convertToLocalDate(xmlGregCal);
         assertThat(localDate2).isNotNull();
         assertThat(localDate2.getDayOfMonth()).isEqualTo(localDate1.getDayOfMonth());
 
-        LocalDate localDate3 = DateUtil.convertToLocalDate(null);
-        assertThat(localDate3).isNull();
+        assertThat(DateUtil.convertToLocalDate(null)).isNull();
     }
 }

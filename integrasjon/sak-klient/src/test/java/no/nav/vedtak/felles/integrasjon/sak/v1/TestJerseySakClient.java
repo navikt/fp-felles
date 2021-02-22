@@ -44,7 +44,7 @@ import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ExtendWith(MockitoExtension.class)
-public class TestJerseySakClient {
+class TestJerseySakClient {
 
     private static final String TOKEN = "TOKEN";
     private static final String PATH = "/api/v1/saker/";
@@ -58,7 +58,7 @@ public class TestJerseySakClient {
     private static WireMockServer server;
 
     @BeforeAll
-    public static void startServer() throws Exception {
+    static void startServer() throws Exception {
         server = new WireMockServer(0);
         server.start();
         configureFor(server.port());
@@ -67,17 +67,17 @@ public class TestJerseySakClient {
     }
 
     @AfterAll
-    public static void stopServer() {
+    static void stopServer() {
         server.stop();
     }
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         doReturn(TOKEN).when(subjectHandler).getInternSsoToken();
     }
 
     @Test
-    public void testHentForSaksnr() throws Exception {
+    void testHentForSaksnr() throws Exception {
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(headers(get(urlPathEqualTo(PATH)).withPort(server.port()))
@@ -90,7 +90,7 @@ public class TestJerseySakClient {
     }
 
     @Test
-    public void testHentForSakId() throws Exception {
+    void testHentForSakId() throws Exception {
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(headers(get(urlPathEqualTo(PATH + ID))).willReturn(responseBody(sak())));
@@ -99,7 +99,7 @@ public class TestJerseySakClient {
     }
 
     @Test
-    public void testOpprett() throws Exception {
+    void testOpprett() throws Exception {
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(headers(post(urlPathEqualTo(PATH))).willReturn(responseBody(sak())));

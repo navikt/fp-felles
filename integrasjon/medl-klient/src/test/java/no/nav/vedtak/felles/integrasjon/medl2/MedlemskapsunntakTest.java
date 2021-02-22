@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import no.nav.vedtak.feil.Feil;
 
-public class MedlemskapsunntakTest {
+class MedlemskapsunntakTest {
 
     private static final long MEDL_ID_1 = 2663947L;
     private static final long MEDL_ID_2 = 2663948L;
@@ -36,7 +36,7 @@ public class MedlemskapsunntakTest {
     }
 
     @Test
-    public void roundtrip_rest_1() {
+    void roundtrip_rest_1() {
         var mrest = new Medlemskapsunntak(MEDL_ID_1,
                 LocalDate.of(2019, 8, 1),
                 LocalDate.of(2019, 12, 31),
@@ -56,7 +56,7 @@ public class MedlemskapsunntakTest {
     }
 
     @Test
-    public void roundtrip_rest_2() {
+    void roundtrip_rest_2() {
         var mrest = new Medlemskapsunntak(MEDL_ID_2,
                 LocalDate.of(2019, 8, 1),
                 LocalDate.of(2019, 12, 31),
@@ -78,7 +78,7 @@ public class MedlemskapsunntakTest {
     }
 
     @Test
-    public void roundtrip_rest_3() {
+    void roundtrip_rest_3() {
         var mrest = new Medlemskapsunntak(MEDL_ID_3,
                 LocalDate.of(2019, 1, 1),
                 LocalDate.of(2019, 2, 28),

@@ -45,8 +45,8 @@ public class OppgaveRestKlient implements Oppgaver {
     }
 
     @Override
-    public Oppgave opprettetOppgave(OpprettOppgave.Builder requestBuilder) {
-        return oidcRestClient.post(endpoint, requestBuilder.build(), lagHeader(), Oppgave.class);
+    public Oppgave opprettetOppgave(OpprettOppgave oppgave) {
+        return oidcRestClient.post(endpoint, oppgave, lagHeader(), Oppgave.class);
     }
 
     @Override

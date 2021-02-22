@@ -16,6 +16,11 @@ public interface Oppgaver {
 
     List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception;
 
-    Oppgave opprettetOppgave(Builder requestBuilder);
+    @Deprecated(since = "3.0.x", forRemoval = true)
+    default Oppgave opprettetOppgave(Builder requestBuilder) {
+        return opprettetOppgave(requestBuilder.build());
+    }
+
+    Oppgave opprettetOppgave(OpprettOppgave oppgave);
 
 }

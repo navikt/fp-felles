@@ -42,7 +42,7 @@ public class KodeverkConsumer {
     public FinnKodeverkListeResponse finnKodeverkListe(FinnKodeverkListeRequest finnKodeverkListeRequest) {
         try {
             return port.finnKodeverkListe(finnKodeverkListeRequest);
-        } catch (SOAPFaultException e) { // NOSONAR
+        } catch (SOAPFaultException e) {
             throw soapFaultFraKall(SERVICE_IDENTIFIER, e);
         }
     }
@@ -50,7 +50,7 @@ public class KodeverkConsumer {
     public HentKodeverkResponse hentKodeverk(HentKodeverkRequest hentKodeverkRequest) throws HentKodeverkHentKodeverkKodeverkIkkeFunnet {
         try {
             return port.hentKodeverk(hentKodeverkRequest);
-        } catch (SOAPFaultException e) { // NOSONAR
+        } catch (SOAPFaultException e) {
             throw soapFaultFraKall(SERVICE_IDENTIFIER, e);
         }
     }

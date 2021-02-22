@@ -7,15 +7,15 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-public class SensuEventTest {
+class SensuEventTest {
 
     @Test
-    public void toSensuRequest_illegal_state_exception_metrikk_felter_kan_ikke_være_tomt() {
+    void toSensuRequest_illegal_state_exception_metrikk_felter_kan_ikke_være_tomt() {
         assertThrows(IllegalStateException.class, () -> SensuEvent.createSensuEvent("testMetric", Map.of()).toSensuRequest());
     }
 
     @Test
-    public void toSensuRequest() {
+    void toSensuRequest() {
         final SensuEvent data = SensuEvent.createSensuEvent("testMetric", Map.of("test", 1));
         final SensuEvent.SensuRequest sensuRequest = data.toSensuRequest();
 
@@ -28,7 +28,7 @@ public class SensuEventTest {
     }
 
     @Test
-    public void toSensuRequest_default_tags_er_satt() {
+    void toSensuRequest_default_tags_er_satt() {
         SensuEvent data = SensuEvent.createSensuEvent("test", Map.of("testMetric", 1));
         final SensuEvent.SensuRequest sensuRequest = data.toSensuRequest();
 

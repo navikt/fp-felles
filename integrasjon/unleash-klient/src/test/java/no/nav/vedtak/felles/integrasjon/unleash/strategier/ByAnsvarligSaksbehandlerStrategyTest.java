@@ -12,13 +12,13 @@ import no.finn.unleash.UnleashContext;
 import no.finn.unleash.strategy.Strategy;
 import no.nav.vedtak.felles.integrasjon.unleash.EnvironmentProperty;
 
-public class ByAnsvarligSaksbehandlerStrategyTest {
+class ByAnsvarligSaksbehandlerStrategyTest {
 
     private UnleashContext unleashContext;
     private Strategy strategy;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         System.setProperty(EnvironmentProperty.NAIS_NAMESPACE, "t10");
         unleashContext = UnleashContext.builder()
                 .addProperty(ByAnsvarligSaksbehandlerStrategy.SAKSBEHANDLER_IDENT, "10001")
@@ -27,18 +27,18 @@ public class ByAnsvarligSaksbehandlerStrategyTest {
     }
 
     @Test
-    public void getName() {
+    void getName() {
         assertThat(strategy.getName()).isEqualTo("byAnsvarligSaksbehandler");
     }
 
     @Test
-    public void isEnabledUtenUnleashContext() {
+    void isEnabledUtenUnleashContext() {
         Map<String, String> saksBehandlerMap = new HashMap<>();
         assertThat(strategy.isEnabled(saksBehandlerMap)).isFalse();
     }
 
     @Test
-    public void testIsEnabledUtenRiktigMiljø() {
+    void testIsEnabledUtenRiktigMiljø() {
         Map<String, String> saksbehandlerMap = new HashMap<>();
         saksbehandlerMap.put(ByAnsvarligSaksbehandlerStrategy.UNLEASH_PROPERTY_NAME_SAKSBEHANDLER, "10001,10002,10003");
         saksbehandlerMap.put(ByAnsvarligSaksbehandlerStrategy.UNLEASH_PROPERTY_NAME_MILJØ, "q10");
@@ -46,7 +46,7 @@ public class ByAnsvarligSaksbehandlerStrategyTest {
     }
 
     @Test
-    public void testIsEnabledMedUnleashContextOgLikCurrentSaksbehandler() {
+    void testIsEnabledMedUnleashContextOgLikCurrentSaksbehandler() {
         Map<String, String> saksBehandlerMap = new HashMap<>();
         saksBehandlerMap.put(ByAnsvarligSaksbehandlerStrategy.UNLEASH_PROPERTY_NAME_SAKSBEHANDLER, "10001,10002,10003");
         saksBehandlerMap.put(ByAnsvarligSaksbehandlerStrategy.UNLEASH_PROPERTY_NAME_MILJØ, "t10,q10");
@@ -54,27 +54,27 @@ public class ByAnsvarligSaksbehandlerStrategyTest {
     }
 
     @Test
-    public void testIsEnabledMedUnleashContextOgIkkeLikCurrentSaksbehandler() {
+    void testIsEnabledMedUnleashContextOgIkkeLikCurrentSaksbehandler() {
         Map<String, String> saksBehandlerMap = new HashMap<>();
         saksBehandlerMap.put(ByAnsvarligSaksbehandlerStrategy.UNLEASH_PROPERTY_NAME_SAKSBEHANDLER, "10002,10003");
         assertThat(strategy.isEnabled(saksBehandlerMap, unleashContext)).isFalse();
     }
 
     @Test
-    public void testIsEnabledMedUnleashContextOgTomSaksbehandler() {
+    void testIsEnabledMedUnleashContextOgTomSaksbehandler() {
         Map<String, String> saksBehandlerMap = new HashMap<>();
         assertThat(strategy.isEnabled(saksBehandlerMap, unleashContext)).isFalse();
     }
 
     @Test
-    public void testIsEnabledMedUnleashContextOgNullSaksbehandler() {
+    void testIsEnabledMedUnleashContextOgNullSaksbehandler() {
         unleashContext = UnleashContext.builder()
                 .build();
         assertThat(strategy.isEnabled(null, unleashContext)).isFalse();
     }
 
     @Test
-    public void testIsEnabledMedUnleashContextOgIkkeSaksbehandler() {
+    void testIsEnabledMedUnleashContextOgIkkeSaksbehandler() {
         Map<String, String> saksBehandlerMap = new HashMap<>();
         saksBehandlerMap.put(ByAnsvarligSaksbehandlerStrategy.UNLEASH_PROPERTY_NAME_SAKSBEHANDLER, null);
         assertThat(strategy.isEnabled(saksBehandlerMap, unleashContext)).isFalse();

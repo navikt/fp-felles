@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-public class ArbeidsfordelingRestTest {
+class ArbeidsfordelingRestTest {
 
     private static final ObjectWriter WRITER = mapper.writerWithDefaultPrettyPrinter();
     private static final ObjectReader READER = mapper.reader();
 
     @Test
-    public void test_request() throws Exception {
+    void test_request() throws Exception {
         var request = ArbeidsfordelingRequest.ny()
                 .medTema("FOR")
                 .medOppgavetype("BEH_SAK_VL")
@@ -29,7 +29,7 @@ public class ArbeidsfordelingRestTest {
     }
 
     @Test
-    public void test_response() throws Exception {
+    void test_response() throws Exception {
         var respons = new ArbeidsfordelingResponse("4806", "Drammen", "Aktiv", "FPY");
         String json = WRITER.writeValueAsString(respons);
         ArbeidsfordelingResponse roundTripped = READER.forType(ArbeidsfordelingResponse.class).readValue(json);
