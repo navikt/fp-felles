@@ -12,6 +12,7 @@ import org.jboss.weld.exceptions.UnsupportedOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.finn.unleash.MoreOperations;
 import no.finn.unleash.Unleash;
 import no.finn.unleash.UnleashContext;
 import no.finn.unleash.Variant;
@@ -96,6 +97,11 @@ class UnleashAutotestMock implements Unleash {
 
     @Override
     public Variant getVariant(String arg0, UnleashContext arg1, Variant arg2) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MoreOperations more() {
         throw new UnsupportedOperationException();
     }
 }

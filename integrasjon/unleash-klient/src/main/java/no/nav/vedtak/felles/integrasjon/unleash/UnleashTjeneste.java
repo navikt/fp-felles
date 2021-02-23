@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import no.finn.unleash.MoreOperations;
 import no.finn.unleash.Unleash;
 import no.finn.unleash.UnleashContext;
 import no.finn.unleash.Variant;
@@ -13,7 +14,12 @@ public class UnleashTjeneste implements Unleash {
 
     private Unleash unleash;
 
-    public UnleashTjeneste() {
+    UnleashTjeneste() {
+    }
+
+    @Override
+    public MoreOperations more() {
+        return getUnleash().more();
     }
 
     @Override
@@ -38,9 +44,10 @@ public class UnleashTjeneste implements Unleash {
 
     @Override
     public List<String> getFeatureToggleNames() {
-        throw new RuntimeException("Trenger du virkelig å hente opp alle feature toggles definert i unleash? Dette vil ødelegge statistikk globalt..");
+        throw new RuntimeException(
+                "Trenger du virkelig å hente opp alle feature toggles definert i unleash? Dette vil ødelegge statistikk globalt..");
     }
-    
+
     private Unleash getUnleash() {
         if (unleash == null) {
             synchronized (this) {
@@ -50,23 +57,23 @@ public class UnleashTjeneste implements Unleash {
         return unleash;
     }
 
-	@Override
-	public Variant getVariant(String arg0) {
-		return getUnleash().getVariant(arg0);
-	}
+    @Override
+    public Variant getVariant(String arg0) {
+        return getUnleash().getVariant(arg0);
+    }
 
-	@Override
-	public Variant getVariant(String arg0, UnleashContext arg1) {
-		return getUnleash().getVariant(arg0, arg1);
-	}
+    @Override
+    public Variant getVariant(String arg0, UnleashContext arg1) {
+        return getUnleash().getVariant(arg0, arg1);
+    }
 
-	@Override
-	public Variant getVariant(String arg0, Variant arg1) {
-		return getUnleash().getVariant(arg0, arg1);
-	}
+    @Override
+    public Variant getVariant(String arg0, Variant arg1) {
+        return getUnleash().getVariant(arg0, arg1);
+    }
 
-	@Override
-	public Variant getVariant(String arg0, UnleashContext arg1, Variant arg2) {
-		return getUnleash().getVariant(arg0, arg1, arg2);
-	}
+    @Override
+    public Variant getVariant(String arg0, UnleashContext arg1, Variant arg2) {
+        return getUnleash().getVariant(arg0, arg1, arg2);
+    }
 }
