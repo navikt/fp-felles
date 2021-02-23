@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.unleash.strategier;
 
+import static no.nav.vedtak.util.env.Namespace.NAIS_NAMESPACE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import no.finn.unleash.UnleashContext;
 import no.finn.unleash.strategy.Strategy;
-import no.nav.vedtak.felles.integrasjon.unleash.EnvironmentProperty;
 
 class ByAnsvarligSaksbehandlerStrategyTest {
 
@@ -19,7 +19,7 @@ class ByAnsvarligSaksbehandlerStrategyTest {
 
     @BeforeEach
     void setUp() {
-        System.setProperty(EnvironmentProperty.NAIS_NAMESPACE, "t10");
+        System.setProperty(NAIS_NAMESPACE_NAME, "t10");
         unleashContext = UnleashContext.builder()
                 .addProperty(ByAnsvarligSaksbehandlerStrategy.SAKSBEHANDLER_IDENT, "10001")
                 .build();

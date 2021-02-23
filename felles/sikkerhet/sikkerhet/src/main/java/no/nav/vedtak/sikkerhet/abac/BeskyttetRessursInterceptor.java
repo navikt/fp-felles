@@ -27,10 +27,10 @@ import no.nav.vedtak.util.env.Environment;
 @Dependent
 public class BeskyttetRessursInterceptor {
 
-    private Pep pep;
-    private AbacSporingslogg sporingslogg;
-    private AbacAuditlogger abacAuditlogger;
-    private Environment env = Environment.current();
+    private final Pep pep;
+    private final AbacSporingslogg sporingslogg;
+    private final AbacAuditlogger abacAuditlogger;
+    private final Environment env = Environment.current();
 
     @Inject
     public BeskyttetRessursInterceptor(Pep pep, AbacSporingslogg sporingslogg, AbacAuditlogger abacAuditlogger) {
@@ -41,21 +41,19 @@ public class BeskyttetRessursInterceptor {
 
     @AroundInvoke
     public Object wrapTransaction(final InvocationContext invocationContext) throws Exception {
-        AbacAttributtSamling attributter = hentAttributter(invocationContext);
-        Tilgangsbeslutning beslutning = pep.vurderTilgang(attributter);
+        var attributter = hentAttributter(invocationContext);
+        var beslutning = pep.vurderTilgang(attributter);
 
         if (beslutning.fikkTilgang()) {
             return proceed(invocationContext, attributter, beslutning);
-        } else {
-            return ikkeTilgang(attributter, beslutning);
         }
+        return ikkeTilgang(attributter, beslutning);
     }
 
     private Object proceed(InvocationContext invocationContext, AbacAttributtSamling attributter, Tilgangsbeslutning beslutning) throws Exception {
         Method method = invocationContext.getMethod();
         boolean sporingslogges = method.getAnnotation(BeskyttetRessurs.class).sporingslogg();
         if (sporingslogges) {
-
             if (abacAuditlogger.isEnabled()) {
                 final String uid = SubjectHandler.getSubjectHandler().getUid();
                 abacAuditlogger.loggTilgang(uid, beslutning.getPdpRequest(), attributter);
@@ -101,10 +99,10 @@ public class BeskyttetRessursInterceptor {
         Class<?> clazz = getOpprinneligKlasse(invocationContext);
         Method method = invocationContext.getMethod();
 
-        AbacAttributtSamling attributter = clazz.getAnnotation(WebService.class) != null
+        var attributter = clazz.getAnnotation(WebService.class) != null
                 ? AbacAttributtSamling.medSamlToken(hentSamlToken())
                 : AbacAttributtSamling.medJwtToken(hentOidcTOken());
-        BeskyttetRessurs beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
+        var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         attributter.setActionType(beskyttetRessurs.action());
 
         if (!beskyttetRessurs.property().isEmpty()) {
@@ -145,7 +143,8 @@ public class BeskyttetRessursInterceptor {
                 attributter.leggTil(((AbacDto) value).abacAttributter());
             } else {
                 throw new TekniskException("F-261962",
-                String.format("Ugyldig input forventet at samling inneholdt bare AbacDto-er, men fant %s", value != null ? value.getClass().getName() : "null"));
+                        String.format("Ugyldig input forventet at samling inneholdt bare AbacDto-er, men fant %s",
+                                value != null ? value.getClass().getName() : "null"));
             }
         }
     }
@@ -173,7 +172,7 @@ public class BeskyttetRessursInterceptor {
 
     private static void leggTil(AbacAttributtSamling attributter, TilpassetAbacAttributt tilpassetAnnotering, Object verdi) {
         try {
-            AbacDataAttributter dataAttributter = tilpassetAnnotering.supplierClass().getDeclaredConstructor().newInstance().apply(verdi);
+            var dataAttributter = tilpassetAnnotering.supplierClass().getDeclaredConstructor().newInstance().apply(verdi);
             attributter.leggTil(dataAttributter);
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException e) {
             throw new IllegalStateException(e);

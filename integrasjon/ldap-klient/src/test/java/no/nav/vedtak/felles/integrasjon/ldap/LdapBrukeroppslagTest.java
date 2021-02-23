@@ -103,6 +103,7 @@ class LdapBrukeroppslagTest {
         var ldap = new LdapBrukeroppslag(context, baseSearch);
         var e = assertThrows(TekniskException.class, () -> ldap.hentBrukerinformasjon("L999999) or (cn=A*"));
         assertEquals("F-271934", e.getKode());
+
     }
 
     private static class SearchMock implements NamingEnumeration<SearchResult> {

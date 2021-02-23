@@ -9,9 +9,9 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.json.Json;
 import javax.json.JsonObject;
 
-import org.glassfish.json.JsonUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,7 +31,7 @@ public class PdpConsumerImplTest {
     private static String server = "http://localhost:" + port;
     private static String context = "/asm-pdp/authorize";
     private static final String fakeEndPoint = server + context;
-    private final JsonObject jsonRequest = JsonUtil.toJson("{\"Request\": \"dummy\"}").asJsonObject();
+    private final JsonObject jsonRequest = Json.createObjectBuilder().add("Request", "dummy").build();
 
     private static MemoryAppender logSniffer;
 
