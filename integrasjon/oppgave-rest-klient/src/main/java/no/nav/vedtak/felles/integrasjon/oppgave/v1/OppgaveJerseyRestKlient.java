@@ -43,12 +43,12 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient implem
     }
 
     @Override
-    public Oppgave opprettetOppgave(OpprettOppgave.Builder requestBuilder) {
+    public Oppgave opprettetOppgave(OpprettOppgave oppgave) {
         try {
             var target = client.target(endpoint);
             LOG.info("Oppretter oppgave på {}", target.getUri());
             var res = target.request(APPLICATION_JSON_TYPE)
-                    .buildPost(entity(requestBuilder.build(), APPLICATION_JSON_TYPE))
+                    .buildPost(entity(oppgave, APPLICATION_JSON_TYPE))
                     .invoke(Oppgave.class);
             LOG.info("Opprettet oppgave OK");
             return res;

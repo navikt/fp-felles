@@ -76,13 +76,13 @@ public class Feil {
         String text = toLogString();
         switch (logLevel) {
             case ERROR:
-                logger.error(text); // NOSONAR
+                logger.error(text);
                 break;
             case WARN:
-                logger.warn(text); // NOSONAR
+                logger.warn(text);
                 break;
             case INFO:
-                logger.info(text); // NOSONAR
+                logger.info(text);
                 break;
             default:
                 throw new IllegalArgumentException("Ikke-støttet LogLevel: " + logLevel);
@@ -93,13 +93,13 @@ public class Feil {
         String text = toLogString();
         switch (level) {
             case ERROR:
-                logger.error(text, cause); // NOSONAR
+                logger.error(text, cause);
                 break;
             case WARN:
-                logger.warn(text, cause); // NOSONAR
+                logger.warn(text, cause);
                 break;
             case INFO:
-                logger.info(text, cause); // NOSONAR
+                logger.info(text, cause);
                 break;
             default:
                 throw new IllegalArgumentException("Ikke-støttet LogLevel: " + logLevel);

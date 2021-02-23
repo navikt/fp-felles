@@ -27,45 +27,45 @@ import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saksnummer;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Utbetaling;
 
-public class SerializationTest {
+class SerializationTest {
 
     @Test
-    public void saksnummerTest() throws Exception {
+    void saksnummerTest() throws Exception {
         test(saksnummer(42));
     }
 
     @Test
-    public void sakTest() throws Exception {
+    void sakTest() throws Exception {
         test(enSak(1));
     }
 
     @Test
-    public void utbetalingTest() throws Exception {
+    void utbetalingTest() throws Exception {
         test(utbetaling(0));
     }
 
     @Test
-    public void åpenSakTest() throws Exception {
+    void åpenSakTest() throws Exception {
         test(åpenSak(4));
     }
 
     @Test
-    public void avsluttedeSakerTest() throws Exception {
+    void avsluttedeSakerTest() throws Exception {
         test(avsluttedeSaker(4));
     }
 
     @Test
-    public void avsluttedeSakTest() throws Exception {
+    void avsluttedeSakTest() throws Exception {
         test(enAvsluttetSak(4));
     }
 
     @Test
-    public void sakResponsTest() throws Exception {
+    void sakResponsTest() throws Exception {
         test(sakRespons(2));
     }
 
     @Test
-    public void faktiskResponsTest() throws Exception {
+    void faktiskResponsTest() throws Exception {
         testJson(jsonFra("rest/svprespons.json"), Saker.class);
     }
 

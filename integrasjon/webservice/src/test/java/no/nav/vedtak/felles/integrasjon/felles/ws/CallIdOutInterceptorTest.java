@@ -13,39 +13,46 @@ import org.apache.cxf.headers.Header;
 import org.apache.cxf.message.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
 
-public class CallIdOutInterceptorTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.WARN)
+class CallIdOutInterceptorTest {
 
     private CallIdOutInterceptor interceptor; // objektet vi tester
 
+    @Mock
     private SoapMessage mockMessage;
     private List<Header> headers;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         interceptor = new CallIdOutInterceptor();
-        mockMessage = mock(SoapMessage.class);
         headers = new ArrayList<>();
         when(mockMessage.getHeaders()).thenReturn(headers);
         MDCOperations.remove(MDCOperations.MDC_CALL_ID);
     }
 
     @Test
-    public void test_handleMessage_ok() {
+    void test_handleMessage_ok() {
         MDCOperations.putCallId("id123");
         interceptor.handleMessage(mockMessage);
         assertThat(headers.size()).isEqualTo(1);
     }
 
     @Test
-    public void test_handleMessage_noCallId() {
+    void test_handleMessage_noCallId() {
         assertThrows(IllegalStateException.class, () -> interceptor.handleMessage(mockMessage));
     }
 
     @Test
-    public void test_handleMessage_badMessage() {
+    void test_handleMessage_badMessage() {
         assertThrows(IllegalStateException.class, () -> interceptor.handleMessage(mock(Message.class)));
     }
 }

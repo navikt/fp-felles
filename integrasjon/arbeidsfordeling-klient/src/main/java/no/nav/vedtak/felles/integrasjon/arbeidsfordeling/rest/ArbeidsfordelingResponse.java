@@ -50,7 +50,7 @@ public class ArbeidsfordelingResponse {
 
     @Override
     public boolean equals(Object obj) {
-        if ((obj == null) || !(obj instanceof ArbeidsfordelingResponse)) {
+        if (!(obj instanceof ArbeidsfordelingResponse)) {
             return false;
         }
         if (this == obj) {

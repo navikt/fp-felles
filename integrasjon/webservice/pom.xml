@@ -178,11 +178,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
@@ -190,13 +185,6 @@
             <groupId>jakarta.activation</groupId>
             <artifactId>jakarta.activation-api</artifactId>
         </dependency>
-        <dependency>
-            <!-- for å bygge markup for sysdoc -->
-            <groupId>io.github.swagger2markup</groupId>
-            <artifactId>markup-document-builder</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Test -->
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>

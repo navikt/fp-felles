@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
         <artifactId>felles-sikkerhet-pom</artifactId>
-    <version>3.0.83-SNAPSHOT</version>
+        <version>3.0.83-SNAPSHOT</version>
 
     </parent>
 
@@ -22,7 +23,6 @@
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-log</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -39,24 +39,23 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
         </dependency>
-
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+            <version>2.8.0</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
+            <version>0.5.5</version>
         </dependency>
         <dependency>
             <groupId>javax.json</groupId>
@@ -66,17 +65,17 @@
             <!-- kun for Xacml - kan erstattes ved å bytte JsonUtil til Jackson ObjectMapper -->
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-json-p-provider</artifactId>
+            <version>${resteasy.version}</version>
         </dependency>
-
         <dependency>
-            <!-- dette er fjernet fra SE i Java11. Brukes for å kunne plukke parametere fra @WebService annotering. -->
             <groupId>javax.jws</groupId>
             <artifactId>jsr181-api</artifactId>
+            <version>1.0-MR1</version>
         </dependency>
-
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>9.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>net.minidev</groupId>
@@ -90,7 +89,6 @@
             <version>2.3</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -109,8 +107,8 @@
 
     <profiles>
         <profile>
-            <!-- Kjører tunge tester som går mot andre systemer. Høyere sannsynlighet 
-                for å feile pga transiente feil/false positives. -->
+            <!-- Kjører tunge tester som går mot andre systemer. Høyere sannsynlighet for å feile pga transiente feil/false 
+                positives. -->
             <id>e2eTest</id>
             <build>
                 <plugins>

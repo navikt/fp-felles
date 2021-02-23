@@ -4,26 +4,10 @@
 		<groupId>no.nav.foreldrepenger.felles</groupId>
 		<artifactId>felles</artifactId>
     <version>3.0.83-SNAPSHOT</version>
-
 	</parent>
 	<name>Felles :: Feil</name>
 	<modelVersion>4.0.0</modelVersion>
-
 	<artifactId>felles-feil</artifactId>
-
-
-	<dependencies>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-		</dependency>
-
-	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -39,6 +23,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>

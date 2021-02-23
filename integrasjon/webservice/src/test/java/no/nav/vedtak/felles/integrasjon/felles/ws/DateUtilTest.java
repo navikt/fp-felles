@@ -10,10 +10,10 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.junit.jupiter.api.Test;
 
-public class DateUtilTest {
+class DateUtilTest {
 
     @Test
-    public void test_convertToXMLGregorianCalendar_LocalDateTime() {
+    void test_convertToXMLGregorianCalendar_LocalDateTime() {
 
         LocalDateTime localDateTime = LocalDateTime.now();
         XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDateTime);
@@ -25,7 +25,7 @@ public class DateUtilTest {
     }
 
     @Test
-    public void test_convertToXMLGregorianCalendar_LocalDate() {
+    void test_convertToXMLGregorianCalendar_LocalDate() {
 
         LocalDate localDate = LocalDate.now();
         XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDate);
@@ -37,7 +37,7 @@ public class DateUtilTest {
     }
 
     @Test
-    public void test_convertToXMLGregorianCalendarRemoveTimezone() {
+    void test_convertToXMLGregorianCalendarRemoveTimezone() {
 
         LocalDate localDate = LocalDate.now();
         XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendarRemoveTimezone(localDate);
@@ -50,7 +50,7 @@ public class DateUtilTest {
     }
 
     @Test
-    public void test_convertToLocalDateTime() {
+    void test_convertToLocalDateTime() {
 
         final LocalDateTime localDateTime1 = LocalDateTime.now();
         XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDateTime1);
@@ -63,7 +63,7 @@ public class DateUtilTest {
     }
 
     @Test
-    public void test_convertToLocalDate() {
+    void test_convertToLocalDate() {
 
         final LocalDate localDate1 = LocalDate.now();
         XMLGregorianCalendar xmlGregCal = DateUtil.convertToXMLGregorianCalendar(localDate1);

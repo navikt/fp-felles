@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class EnvironmentPropertyTest {
+class EnvironmentPropertyTest {
     @Test
-    public void skal_utlede_rett_miljø() {
+    void skal_utlede_rett_miljø() {
         System.setProperty(EnvironmentProperty.NAIS_NAMESPACE, "default");
         var environment = EnvironmentProperty.getEnvironmentName();
 
@@ -16,7 +16,7 @@ public class EnvironmentPropertyTest {
     }
 
     @Test
-    public void skal_utlede_q_for_preprod() {
+    void skal_utlede_q_for_preprod() {
         System.setProperty(EnvironmentProperty.NAIS_NAMESPACE, "default");
         var environment = EnvironmentProperty.getEnvironmentName();
 

@@ -19,7 +19,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SensuKlientTest {
+class SensuKlientTest {
 
     private static ServerSocket serverSocket;
     private static SensuKlient sensuKlient;
@@ -34,7 +34,7 @@ public class SensuKlientTest {
             "\"output\":\"local-app.registrert.task,application=local-app,cluster=local,namespace=default,task_type=task.registerSøknad counter=1i";
 
     @BeforeEach
-    public void init() throws IOException {
+    void init() throws IOException {
         serverSocket = new ServerSocket(0);
         serverSocket.setSoTimeout(1000);
         sensuKlient = new SensuKlient("localhost", serverSocket.getLocalPort());
@@ -59,13 +59,13 @@ public class SensuKlientTest {
     }
 
     @AfterEach
-    public void teardown() throws IOException {
+    void teardown() throws IOException {
         sensuKlient.stop();
         serverSocket.close();
     }
 
     @Test
-    public void logMetrics() throws Exception {
+    void logMetrics() throws Exception {
         // Perform
         sensuKlient.logMetrics(SensuEvent.createSensuEvent(
                 "registrert.task",

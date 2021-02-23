@@ -21,7 +21,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -80,21 +79,20 @@ public class PdpConsumerImpl implements PdpConsumer {
         activeConfiguration = buildClient();
     }
 
-    @SuppressWarnings("resource")
     private Tuple<CloseableHttpClient, AuthCache> buildClient() {
-        PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+        var cm = new PoolingHttpClientConnectionManager();
         cm.setDefaultMaxPerRoute(MAX_TOTAL_CONNECTIONS_PER_ROUTE);
         cm.setMaxTotal(3 * MAX_TOTAL_CONNECTIONS_PER_ROUTE); // i tilfelle redirects
 
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        var credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(new AuthScope(target.getHostName(), target.getPort()), new UsernamePasswordCredentials(brukernavn, passord));
 
-        RequestConfig requestConfig = RequestConfig.custom()
+        var requestConfig = RequestConfig.custom()
                 .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
                 .setAuthenticationEnabled(true)
                 .build();
 
-        CloseableHttpClient client = HttpClients.custom()
+        var client = HttpClients.custom()
                 .setConnectionManager(cm)
                 .setDefaultCredentialsProvider(credsProvider)
                 .setDefaultRequestConfig(requestConfig)

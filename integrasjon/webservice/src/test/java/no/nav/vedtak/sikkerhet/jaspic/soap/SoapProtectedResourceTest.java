@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.sikkerhet.jaspic.DelegatedProtectedResource;
 
-public class SoapProtectedResourceTest {
+class SoapProtectedResourceTest {
 
     @Test
     void load_service() throws Exception {
