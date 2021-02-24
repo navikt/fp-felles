@@ -12,17 +12,10 @@
 
     <packaging>jar</packaging>
     <name>Felles :: Integrasjon :: LDAP-klient</name>
-
     <dependencies>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-feil</artifactId>
-        </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-util</artifactId>
         </dependency>
-
     </dependencies>
-
 </project>
