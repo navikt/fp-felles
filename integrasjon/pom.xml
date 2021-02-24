@@ -57,11 +57,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>9.2</version>
-            </dependency>
-            <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles</artifactId>
                 <version>${project.version}</version>
