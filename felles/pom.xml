@@ -24,6 +24,8 @@
 
     <properties>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
+        <jakarta.persistence.version>2.3.3</jakarta.persistence.version>
+
     </properties>
 
     <dependencyManagement>
@@ -40,6 +42,12 @@
                 <groupId>jakarta.activation</groupId>
                 <artifactId>jakarta.activation-api</artifactId>
                 <version>${jakarta.activation.version}</version>
+            </dependency>
+             <dependency>
+                <!-- kan fjernes ved Jakarta EE 9/ oppgradering av jakarta.platform -->
+                <groupId>jakarta.persistence</groupId>
+                <artifactId>jakarta.persistence-api</artifactId>
+                <version>${jakarta.persistence.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.activation</groupId>
@@ -63,23 +71,16 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-bom</artifactId>
-                <version>9.4.37.v20210219</version>
+                <version>10.0.1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-
             <dependency>
-                <!-- jaxb coordinater for java11 -->
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-bom</artifactId>
-                <version>2.4.0-b180830.0438</version>
+                <version>2.3.3</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish</groupId>
-                <artifactId>jakarta.el</artifactId>
-                <version>3.0.3</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -108,21 +109,9 @@
                 <version>3.4.1.Final</version>
                 <scope>provided</scope>
             </dependency>
-            <!-- Kollisjon mellom weld & -->
-            <dependency>
-                <groupId>org.jboss.spec.javax.annotation</groupId>
-                <artifactId>jboss-annotations-api_1.3_spec</artifactId>
-                <version>2.0.1.Final</version>
-            </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-feil</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-feil</artifactId>
-                <type>test-jar</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -171,8 +160,8 @@
                 <version>1.1.1</version>
             </dependency>
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
                 <version>3.1.0</version>
             </dependency>
             <dependency>
