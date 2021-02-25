@@ -1,31 +1,32 @@
 package no.nav.vedtak.sikkerhet.context;
 
+import java.util.Optional;
+
 import javax.security.auth.Subject;
+
 import org.eclipse.jetty.server.Authentication;
+import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpConnection;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.UserIdentity;
 
 public class JettySubjectHandler extends ThreadLocalSubjectHandler {
 
     @Override
     public Subject getSubject() {
-        Subject subject = getSubjectFromRequest();
-        if (subject == null) {
-            subject = super.getSubject();
-        }
-        return subject;
+        return Optional.ofNullable(getSubjectFromRequest())
+                .orElseGet(super::getSubject);
     }
 
-    @SuppressWarnings("resource")
-    private Subject getSubjectFromRequest() {
-        HttpConnection httpConnection = HttpConnection.getCurrentConnection();
-        if (httpConnection == null) {
-            return null;
-        }
-
-        Authentication authentication = httpConnection.getHttpChannel().getRequest().getAuthentication();
-        if (authentication instanceof Authentication.User) {
-            return ((Authentication.User) authentication).getUserIdentity().getSubject();
-        }
-        return null;
+    private static Subject getSubjectFromRequest() {
+        return Optional.ofNullable(HttpConnection.getCurrentConnection())
+                .map(HttpConnection::getHttpChannel)
+                .map(HttpChannel::getRequest)
+                .map(Request::getAuthentication)
+                .filter(Authentication.User.class::isInstance)
+                .map(Authentication.User.class::cast)
+                .map(Authentication.User::getUserIdentity)
+                .map(UserIdentity::getSubject)
+                .orElse(null);
     }
 }
