@@ -21,7 +21,7 @@ public abstract class SubjectHandler {
 
     private static final Environment ENV = Environment.current();
 
-    static final String SUBJECTHANDLER_KEY = "no.nav.modig.core.context.subjectHandlerImplementationClass";
+    public static final String SUBJECTHANDLER_KEY = "no.nav.modig.core.context.subjectHandlerImplementationClass";
 
     public static SubjectHandler getSubjectHandler() {
 
