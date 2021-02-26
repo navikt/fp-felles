@@ -43,7 +43,7 @@
                 <artifactId>jakarta.activation-api</artifactId>
                 <version>${jakarta.activation.version}</version>
             </dependency>
-             <dependency>
+            <dependency>
                 <!-- kan fjernes ved Jakarta EE 9/ oppgradering av jakarta.platform -->
                 <groupId>jakarta.persistence</groupId>
                 <artifactId>jakarta.persistence-api</artifactId>
@@ -177,6 +177,10 @@
                 <artifactId>hibernate-core</artifactId>
                 <version>5.4.28.Final</version>
                 <exclusions>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.transaction</groupId>
+                        <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>javax.activation</groupId>
                         <artifactId>javax.activation-api</artifactId>
