@@ -1,10 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
         <artifactId>felles-integrasjon-pom</artifactId>
-    <version>3.0.83-SNAPSHOT</version>
+        <version>3.0.83-SNAPSHOT</version>
 
     </parent>
 
@@ -30,6 +32,14 @@
                         <groupId>org.jboss.spec.javax.servlet</groupId>
                         <artifactId>jboss-servlet-api_3.1_spec</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.annotation</groupId>
+                        <artifactId>jboss-annotations-api_1.3_spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.xml.bind</groupId>
+                        <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -38,11 +48,6 @@
                 <version>${resteasy.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.resteasy</groupId>
-                <artifactId>resteasy-core</artifactId>
-                <version>${resteasy.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -58,15 +63,11 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxb-provider</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-core</artifactId>
             <exclusions>
-            	<exclusion>
-            		<groupId>org.jboss.spec.javax.annotation</groupId>
-            		<artifactId>jboss-annotations-api_1.3_spec</artifactId>
-            	</exclusion>
+                <exclusion>
+                    <groupId>org.jboss.spec.javax.xml.bind</groupId>
+                    <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -76,6 +77,24 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-cdi</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.spec.javax.ws.rs</groupId>
+                    <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.spec.javax.xml.bind</groupId>
+                    <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.spec.javax.annotation</groupId>
+                    <artifactId>jboss-annotations-api_1.3_spec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.spec.javax.interceptor</groupId>
+                    <artifactId>jboss-interceptors-api_1.2_spec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
