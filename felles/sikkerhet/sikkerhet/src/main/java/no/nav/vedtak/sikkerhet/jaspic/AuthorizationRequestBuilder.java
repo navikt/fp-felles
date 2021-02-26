@@ -1,17 +1,16 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import no.nav.vedtak.isso.OpenAMHelper;
-import no.nav.vedtak.isso.config.ServerInfo;
-
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
+import no.nav.vedtak.isso.OpenAMHelper;
+import no.nav.vedtak.isso.config.ServerInfo;
+
 public class AuthorizationRequestBuilder {
 
-    private static final SecureRandom random = new SecureRandom();
+    private static final SecureRandom RND = new SecureRandom();
 
     private static final String SCOPE = "openid";
 
@@ -21,7 +20,7 @@ public class AuthorizationRequestBuilder {
     public AuthorizationRequestBuilder() {
 
         byte[] bytes = new byte[20];
-        random.nextBytes(bytes);
+        RND.nextBytes(bytes);
         stateIndex = "state_" + new BigInteger(1, bytes).toString(16);
     }
 
@@ -34,7 +33,7 @@ public class AuthorizationRequestBuilder {
         return stateIndex;
     }
 
-    public String buildRedirectString() throws UnsupportedEncodingException {
+    public String buildRedirectString() {
         String clientId = OpenAMHelper.getIssoUserName();
         String state = stateIndex;
         String redirectUrl = ServerInfo.instance().getCallbackUrl();
@@ -45,11 +44,9 @@ public class AuthorizationRequestBuilder {
                 OpenAMHelper.getIssoHostUrl(),
                 kerberosTrigger,
                 SCOPE,
-                URLEncoder.encode(clientId, StandardCharsets.UTF_8.name()),
+                URLEncoder.encode(clientId, StandardCharsets.UTF_8),
                 state,
-                URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8.name())
-        );
+                URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8));
     }
-
 
 }

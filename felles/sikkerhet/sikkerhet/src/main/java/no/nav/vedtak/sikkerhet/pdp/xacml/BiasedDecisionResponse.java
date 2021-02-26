@@ -4,8 +4,8 @@ import no.nav.vedtak.sikkerhet.abac.Decision;
 
 public class BiasedDecisionResponse {
 
-    private Decision biasedDecision;
-    private XacmlResponseWrapper xacmlResponse;
+    private final Decision biasedDecision;
+    private final XacmlResponseWrapper xacmlResponse;
 
     public BiasedDecisionResponse(Decision biasedDecision, XacmlResponseWrapper xacmlResponse) {
         this.biasedDecision = biasedDecision;

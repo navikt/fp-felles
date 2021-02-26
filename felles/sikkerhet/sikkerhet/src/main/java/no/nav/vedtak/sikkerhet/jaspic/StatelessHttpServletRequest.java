@@ -5,7 +5,8 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
 
 /**
- * Wrapps the request in a object that throws an {@link IllegalArgumentException} when invoking getSession og getSession(true)
+ * Wraps the request in a object that throws an {@link IllegalArgumentException}
+ * when invoking getSession or getSession(true)
  */
 public class StatelessHttpServletRequest extends HttpServletRequestWrapper {
 

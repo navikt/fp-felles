@@ -1,10 +1,11 @@
 package no.nav.vedtak.sikkerhet.jaspic;
+
 import java.util.Objects;
 
 public class OidcTokenHolder {
 
-    private String token;
-    private boolean fromCookie;
+    private final String token;
+    private final boolean fromCookie;
 
     public OidcTokenHolder(String token, boolean fromCookie) {
         this.token = Objects.requireNonNull(token, "token kan ikke være null");

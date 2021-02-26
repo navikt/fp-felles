@@ -25,7 +25,7 @@ class TokenLocator {
         if (request.getCookies() == null) {
             return Optional.empty();
         }
-        for (javax.servlet.http.Cookie c : request.getCookies()) {
+        for (var c : request.getCookies()) {
             if (c.getName().equals(cookieName) && c.getValue() != null) {
                 return Optional.of(c.getValue());
             }

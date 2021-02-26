@@ -69,8 +69,10 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         if (jwks.size() == 1) {
             return jwks.get(0).getKey();
         }
-        Optional<JsonWebKey> jsonWebKey = jwks.stream().filter(jwk -> jwk.getAlgorithm().equals(header.getAlgorithm())).findFirst();
-        return jsonWebKey.map(jwk -> jwk.getKey()).orElse(null);
+        Optional<JsonWebKey> jsonWebKey = jwks.stream()
+                .filter(jwk -> jwk.getAlgorithm().equals(header.getAlgorithm()))
+                .findFirst();
+        return jsonWebKey.map(JsonWebKey::getKey).orElse(null);
     }
 
     private void setKeyCache(String jwksAsString) {

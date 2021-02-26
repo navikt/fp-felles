@@ -7,8 +7,10 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
@@ -36,7 +38,7 @@ public @interface KonfigVerdi {
 
     @Nonbinding
     String defaultVerdi() default "";
-    
+
     @Nonbinding
     String beskrivelse() default "";
 
@@ -88,7 +90,20 @@ public @interface KonfigVerdi {
                 return verdi == null ? null : new URI(verdi);
             } catch (URISyntaxException e) {
                 throw new IllegalStateException(
-                        "Ugyldig konfigurasjonsparameter, kan ikke konvertere til java.net.URI: " + verdi, e); //$NON-NLS-1$
+                        "Ugyldig konfigurasjonsparameter, kan ikke konvertere til java.net.URI: " + verdi, e);
+            }
+        }
+    }
+
+    public static class UrlConverter implements KonfigVerdi.Converter<URL> {
+
+        @Override
+        public URL tilVerdi(String verdi) {
+            try {
+                return verdi == null ? null : new URL(verdi);
+            } catch (MalformedURLException e) {
+                throw new IllegalStateException(
+                        "Ugyldig konfigurasjonsparameter, kan ikke konvertere til java.net.URL: " + verdi, e);
             }
         }
     }
@@ -101,7 +116,7 @@ public @interface KonfigVerdi {
                 return verdi == null ? null : Period.parse(verdi);
             } catch (DateTimeParseException e) {
                 throw new IllegalStateException(
-                        "Ugyldig konfigurasjonsparameter, kan ikke konvertere til java.time.Period: " + verdi, e); //$NON-NLS-1$
+                        "Ugyldig konfigurasjonsparameter, kan ikke konvertere til java.time.Period: " + verdi, e);
             }
         }
     }
@@ -114,7 +129,7 @@ public @interface KonfigVerdi {
                 return verdi == null ? null : Duration.parse(verdi);
             } catch (DateTimeParseException e) {
                 throw new IllegalStateException(
-                        "Ugyldig konfigurasjonsparameter, kan ikke konvertere til java.time.Duration: " + verdi, e); //$NON-NLS-1$
+                        "Ugyldig konfigurasjonsparameter, kan ikke konvertere til java.time.Duration: " + verdi, e);
             }
         }
     }
@@ -127,7 +142,7 @@ public @interface KonfigVerdi {
                 return verdi == null ? null : LocalDate.parse(verdi);
             } catch (DateTimeParseException e) {
                 throw new IllegalStateException(
-                        "Ugyldig konfigurasjonsparameter, kan ikke konvertere til java.time.LocalDate: " + verdi, e); //$NON-NLS-1$
+                        "Ugyldig konfigurasjonsparameter, kan ikke konvertere til java.time.LocalDate: " + verdi, e);
             }
         }
     }
@@ -156,7 +171,7 @@ public @interface KonfigVerdi {
         public boolean required() {
             return false;
         }
-        
+
         @Override
         public String beskrivelse() {
             return "";

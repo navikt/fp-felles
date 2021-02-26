@@ -7,7 +7,6 @@ import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.c
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultHeaders;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
-import static org.apache.commons.lang3.ArrayUtils.addFirst;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
 import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
@@ -23,6 +22,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import org.apache.http.Header;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.StringEntity;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
@@ -124,21 +124,5 @@ public abstract class AbstractJerseyRestClient {
         } catch (IOException e) {
             throw new TekniskException("F-432937", String.format("Kunne ikke patche %s", entity.getURI()), e);
         }
-    }
-
-    protected static <T extends ClientRequestFilter> T[] addIfRequiredNotPresent(T[] filters, final T required) {
-        LOG.info("Sjekker påkrevd filter {} mot {}", required, Arrays.toString(filters));
-        var alle = Arrays.stream(filters)
-                .filter(f -> required.getClass().isAssignableFrom(f.getClass()))
-                .findFirst()
-                .map(m -> filters)
-                .orElseGet(() -> logAndAdd(filters, required));
-        LOG.info("Filtere for klient er {}", Arrays.toString(alle));
-        return alle;
-    }
-
-    private static <T> T[] logAndAdd(final T[] filters, final T required) {
-        LOG.info("Legger til påkrevd filter {}", required.getClass());
-        return addFirst(filters, required);
     }
 }

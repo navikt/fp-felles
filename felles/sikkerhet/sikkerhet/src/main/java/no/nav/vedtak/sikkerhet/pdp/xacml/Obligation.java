@@ -5,8 +5,8 @@ import javax.json.JsonObject;
 public class Obligation {
     private static final String ID_KEY = "Id";
 
-    private String id;
-    private JsonObject jsonObject;
+    private final String id;
+    private final JsonObject jsonObject;
 
     public Obligation(JsonObject jsonObject) {
         this.jsonObject = jsonObject;

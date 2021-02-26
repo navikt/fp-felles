@@ -11,21 +11,20 @@ public final class ConsumerId implements Principal, Destroyable {
 
     private static final Environment ENV = Environment.current();
 
-    private String consumerIdString;
+    private String id;
     private boolean destroyed;
 
     public ConsumerId(String consumerId) {
-        this.consumerIdString = consumerId;
+        this.id = consumerId;
     }
 
     public ConsumerId() {
-        consumerIdString = ENV.getRequiredProperty(ConsumerId.SYSTEMUSER_USERNAME, () -> new IllegalStateException(
-            ConsumerId.SYSTEMUSER_USERNAME + " is not set, failed to set " + ConsumerId.class.getName()));
+        id = ENV.getRequiredProperty(SYSTEMUSER_USERNAME);
     }
 
     @Override
     public void destroy() {
-        consumerIdString = null;
+        id = null;
         destroyed = true;
     }
 
@@ -36,17 +35,16 @@ public final class ConsumerId implements Principal, Destroyable {
 
     @Override
     public String getName() {
-        return consumerIdString;
+        return id;
     }
 
     public String getConsumerId() {
-        return consumerIdString;
+        return getName();
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" +
-                (destroyed ? "destroyed" : consumerIdString) +
-                "]";
+        return getClass().getSimpleName() + " [id=" + id + ", destroyed=" + destroyed + "]";
     }
+
 }

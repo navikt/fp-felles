@@ -1,11 +1,8 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-import javax.ws.rs.core.UriInfo;
+import java.net.URLEncoder;
 
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -21,31 +18,18 @@ import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 
 public class IdTokenAndRefreshTokenProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(IdTokenAndRefreshTokenProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IdTokenAndRefreshTokenProvider.class);
 
     private final String host = OpenAMHelper.getIssoHostUrl();
     private final String username = OpenAMHelper.getIssoUserName();
     private final String password = OpenAMHelper.getIssoPassword();
 
-    public IdTokenAndRefreshToken getToken(String authorizationCode, UriInfo redirectUri) {
-        return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode, redirectUri.getBaseUri()), this::extractToken);
+    public IdTokenAndRefreshToken getToken(String authorizationCode) {
+        return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode), this::extractToken);
     }
 
-    public IdTokenAndRefreshToken getToken(String authorizationCode, URI redirectUri) {
-        return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode, redirectUri), this::extractToken);
-    }
-
-    private HttpRequestBase createTokenRequest(String authorizationCode, URI redirectUri) {
-        String urlEncodedRedirectUri;
-        try {
-            String url = ServerInfo.instance().getCallbackUrl();
-            urlEncodedRedirectUri = URLEncoder.encode(url, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            // gjør om fra UriInfo til string, hvis ikke blir det problemer for testen som
-            // tester unikhet av feil
-            // fordi UriInfo ikke er på classpath for testen
-            throw TokenProviderFeil.kunneIkkeUrlEncodeRedirectUri(redirectUri.toString(), e);
-        }
+    private HttpRequestBase createTokenRequest(String authorizationCode) {
+        var urlEncodedRedirectUri = URLEncoder.encode(ServerInfo.instance().getCallbackUrl(), UTF_8);
 
         String realm = "/";
         HttpPost request = new HttpPost(host + "/access_token");
@@ -57,8 +41,8 @@ public class IdTokenAndRefreshTokenProvider {
                 + "&realm=" + realm
                 + "&redirect_uri=" + urlEncodedRedirectUri
                 + "&code=" + authorizationCode;
-        log.debug("Requesting tokens by POST to {}", LoggerUtils.removeLineBreaks(host)); // NOSONAR
-        request.setEntity(new StringEntity(data, "UTF-8"));
+        LOG.debug("Requesting tokens by POST to {}", LoggerUtils.removeLineBreaks(host));
+        request.setEntity(new StringEntity(data, UTF_8));
         return request;
     }
 

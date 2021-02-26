@@ -5,7 +5,7 @@ import java.util.List;
 
 class EndUserAuthorizationTemplate {
     static class Name {
-        private String name; // NOSONAR
+        private String name;
         private String value;
 
         public String getName() {

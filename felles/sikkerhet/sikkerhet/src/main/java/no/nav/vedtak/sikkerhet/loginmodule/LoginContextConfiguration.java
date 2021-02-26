@@ -11,20 +11,15 @@ import javax.security.auth.login.Configuration;
 public class LoginContextConfiguration extends Configuration {
 
     private static final Map<String, AppConfigurationEntry[]> CONFIGS = ServiceLoader.load(LoginConfiguration.class)
-        .stream()
-        .map(Provider::get)
-        .collect(Collectors.toMap(LoginConfiguration::getName, LoginConfiguration::getAppConfigurationEntry));
-
-    private final Map<String, AppConfigurationEntry[]> conf = CONFIGS;
-
-    public LoginContextConfiguration() {
-    }
+            .stream()
+            .map(Provider::get)
+            .collect(Collectors.toMap(LoginConfiguration::getName, LoginConfiguration::getAppConfigurationEntry));
 
     @Override
     public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-        if (!conf.containsKey(name)) {
+        if (!CONFIGS.containsKey(name)) {
             throw new IllegalArgumentException("Har ikke konfigurasjon for: " + name);
         }
-        return conf.get(name);
+        return CONFIGS.get(name);
     }
 }

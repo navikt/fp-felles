@@ -7,7 +7,6 @@ import static javax.security.auth.message.AuthStatus.SUCCESS;
 import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -142,7 +142,9 @@ public class OidcAuthModule implements ServerAuthModule {
                 for (Object publicCredential : subject.getPublicCredentials()) {
                     credidentialClasses.add(publicCredential.getClass().getName());
                 }
-                JaspicFeil.eksisterendeSubject(new HashSet<>(subject.getPrincipals()), credidentialClasses).log(LOG);
+                LOG.error(
+                        "Denne SKAL rapporteres som en bug hvis den dukker opp. Tråden inneholdt allerede et Subject med følgende principals {} og PublicCredentials klasser {}. Sletter det før autentisering fortsetter.",
+                        subject.getPrincipals(), credidentialClasses);
                 ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(null);
             }
         }
@@ -305,13 +307,13 @@ public class OidcAuthModule implements ServerAuthModule {
                 response.sendRedirect(builder.buildRedirectString());
             }
         } catch (IOException e) {
-            throw OidcAuthModuleFeil.klarteIkkeSendeRespons(e);
+            throw new TekniskException("F-396795", "Klarte ikke å sende respons", e);
         }
         return SEND_CONTINUE;
     }
 
-    private String encode(String redirectLocation) throws UnsupportedEncodingException {
-        return URLEncoder.encode(redirectLocation, StandardCharsets.UTF_8.name());
+    private String encode(String redirectLocation) {
+        return URLEncoder.encode(redirectLocation, StandardCharsets.UTF_8);
     }
 
     protected String getOriginalUrl(HttpServletRequest req) {

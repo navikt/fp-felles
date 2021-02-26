@@ -10,8 +10,6 @@ class OpenAmFeil {
 
     }
 
-    static String SERVICE_DISCOVERY_FAILED_CODE = "F-312233";
-
     static TekniskException uventetFeilVedUtfyllingAvAuthorizationTemplate(IOException e) {
         return new TekniskException("F-502086", "Uventet feil ved utfylling av authorization template", e);
     }
@@ -35,6 +33,6 @@ class OpenAmFeil {
     }
 
     static TekniskException serviceDiscoveryFailed(String url, IOException e) {
-        return new TekniskException(SERVICE_DISCOVERY_FAILED_CODE, String.format("Service Discovery feilet mot wellknown host: '%s'", url), e);
+        return new TekniskException("F-312233", String.format("Service Discovery feilet mot well-known host: '%s'", url), e);
     }
 }

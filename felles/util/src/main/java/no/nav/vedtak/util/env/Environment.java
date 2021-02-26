@@ -1,6 +1,7 @@
 package no.nav.vedtak.util.env;
 
 import java.net.URI;
+import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
@@ -23,6 +24,7 @@ import no.nav.vedtak.konfig.KonfigVerdi.LongConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.NoConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.PeriodConverter;
 import no.nav.vedtak.konfig.KonfigVerdi.UriConverter;
+import no.nav.vedtak.konfig.KonfigVerdi.UrlConverter;
 import no.nav.vedtak.konfig.KonfigVerdiProvider;
 import no.nav.vedtak.konfig.PropertySourceMetaData;
 import no.nav.vedtak.konfig.StandardPropertySource;
@@ -185,6 +187,9 @@ public final class Environment {
             if (targetType.equals(URI.class)) {
                 return construct(UriConverter.class);
             }
+            if (targetType.equals(URL.class)) {
+                return construct(UrlConverter.class);
+            }
             if (targetType.equals(Integer.class) || targetType.equals(int.class)) {
                 return construct(IntegerConverter.class);
             }
@@ -195,6 +200,7 @@ public final class Environment {
     }
 
     private static <T> Converter<T> construct(Class<? extends Converter<T>> clazz) throws Exception {
+
         return clazz.getDeclaredConstructor().newInstance();
     }
 

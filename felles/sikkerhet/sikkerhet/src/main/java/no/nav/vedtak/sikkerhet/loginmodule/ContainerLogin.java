@@ -1,6 +1,6 @@
 package no.nav.vedtak.sikkerhet.loginmodule;
 
-import java.util.Collections;
+import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -92,11 +92,11 @@ public class ContainerLogin {
                 new AppConfigurationEntry(
                         "no.nav.vedtak.sikkerhet.loginmodule.oidc.OIDCLoginModule",
                         AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                        Collections.emptyMap()),
+                        Map.of()),
                 new AppConfigurationEntry(
                         "no.nav.vedtak.sikkerhet.loginmodule.ThreadLocalLoginModule",
                         AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                        Collections.emptyMap())
+                        Map.of())
         };
 
         @Override
