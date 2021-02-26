@@ -55,15 +55,14 @@ public final class ServerInfo {
             String hostname = m.group(1);
             if (hostname.split("\\.").length >= 3) {
                 return hostname.substring(hostname.indexOf('.') + 1);
-            } else {
-                LOG.warn(
-                        "Uventet format for host, klarer ikke å utvide cookie domain. Forventet format var xx.xx.xx, fikk {}. (OK hvis kjører lokalt).",
-                        hostname);
-                return null; // null er det strengeste i cookie domain, betyr 'kun denne server'
             }
-        } else {
-            throw new TekniskException("F-836622", String.format("Ugyldig system property '%s'='%s'", PROPERTY_KEY_LOADBALANCER_URL, schemeHostPort));
+            LOG.warn(
+                    "Uventet format for host, klarer ikke å utvide cookie domain. Forventet format var xx.xx.xx, fikk {}. (OK hvis kjører lokalt).",
+                    hostname);
+            return null; // null er det strengeste i cookie domain, betyr 'kun denne server'
+
         }
+        throw new TekniskException("F-836622", String.format("Ugyldig system property '%s'='%s'", PROPERTY_KEY_LOADBALANCER_URL, schemeHostPort));
     }
 
     public String getSchemeHostPort() {
