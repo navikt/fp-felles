@@ -41,17 +41,17 @@ public class RelyingPartyCallback {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLogin(@QueryParam("code") String authorizationCode, @QueryParam("state") String state, @Context HttpHeaders headers) {
         if (authorizationCode == null) {
-            RelyingPartyCallbackFeil.manglerCodeParameter().log(LOG);
+            LOG.warn("Mangler parameter 'code' i URL");
             return status(BAD_REQUEST).build();
         }
         if (state == null) {
-            RelyingPartyCallbackFeil.manglerStateParameter().log(LOG);
+            LOG.warn("Mangler parameter 'state' i URL");
             return status(BAD_REQUEST).build();
         }
 
         Cookie redirect = headers.getCookies().get(state);
         if (redirect == null || redirect.getValue() == null || redirect.getValue().isEmpty()) {
-            RelyingPartyCallbackFeil.manglerCookieForRedirectionURL().log(LOG);
+            LOG.warn("Cookie for redirect URL mangler eller er tom");
             return status(BAD_REQUEST).build();
         }
 
