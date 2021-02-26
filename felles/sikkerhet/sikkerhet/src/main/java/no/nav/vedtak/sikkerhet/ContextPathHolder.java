@@ -48,7 +48,10 @@ public class ContextPathHolder {
     }
 
     private String validerCookiePath(String cookiePath) {
-        if (cookiePath == null || !cookiePath.startsWith("/")) {
+        if (cookiePath == null) {
+            return "/";
+        }
+        if (!cookiePath.startsWith("/")) {
             LOG.warn("CookiePath ({}) er ugyldig som cookiePath, forkaster og bruker default ('/').", cookiePath);
             return "/";
         }
