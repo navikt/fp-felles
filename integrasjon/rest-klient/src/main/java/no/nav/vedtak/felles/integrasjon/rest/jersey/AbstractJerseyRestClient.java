@@ -1,11 +1,23 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.toJson;
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultHeaders;
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
+import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
+import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
+import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestFilter;
 
@@ -26,6 +38,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent;
+import no.nav.vedtak.util.env.Environment;
 
 /**
  *
@@ -111,21 +124,5 @@ public abstract class AbstractJerseyRestClient {
         } catch (IOException e) {
             throw new TekniskException("F-432937", String.format("Kunne ikke patche %s", entity.getURI()), e);
         }
-    }
-
-    protected static <T extends ClientRequestFilter> T[] addIfRequiredNotPresent(T[] filters, final T required) {
-        LOG.info("Sjekker påkrevd filter {} mot {}", required, Arrays.toString(filters));
-        var alle = Arrays.stream(filters)
-                .filter(f -> required.getClass().isAssignableFrom(f.getClass()))
-                .findFirst()
-                .map(m -> filters)
-                .orElseGet(() -> logAndAdd(filters, required));
-        LOG.info("Filtere for klient er {}", Arrays.toString(alle));
-        return alle;
-    }
-
-    private static <T> T[] logAndAdd(final T[] filters, final T required) {
-        LOG.info("Legger til påkrevd filter {}", required.getClass());
-        return addFirst(filters, required);
     }
 }
