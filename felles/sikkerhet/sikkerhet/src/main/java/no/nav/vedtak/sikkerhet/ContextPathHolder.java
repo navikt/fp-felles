@@ -7,7 +7,7 @@ public class ContextPathHolder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContextPathHolder.class);
 
-    private static volatile ContextPathHolder instance; // NOSONAR
+    private static volatile ContextPathHolder instance;
     private final String contextPath;
     private final String cookiePath;
 
@@ -32,7 +32,7 @@ public class ContextPathHolder {
     public static ContextPathHolder instance(String contextPath) {
         var inst = instance;
         if (inst == null) {
-            inst = new ContextPathHolder(contextPath);  // NOSONAR trenger ikke synkronisering her
+            inst = new ContextPathHolder(contextPath);
             instance = inst;
         }
         return inst;
@@ -41,7 +41,7 @@ public class ContextPathHolder {
     public static ContextPathHolder instance(String contextPath, String cookiePath) {
         var inst = instance;
         if (inst == null) {
-            inst = new ContextPathHolder(contextPath, cookiePath);  // NOSONAR trenger ikke synkronisering her
+            inst = new ContextPathHolder(contextPath, cookiePath);
             instance = inst;
         }
         return inst;

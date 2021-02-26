@@ -18,7 +18,6 @@ import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
-import no.nav.vedtak.sikkerhet.pdp.feil.PdpFeil;
 import no.nav.vedtak.sikkerhet.pdp.xacml.Advice;
 import no.nav.vedtak.sikkerhet.pdp.xacml.BiasedDecisionResponse;
 import no.nav.vedtak.sikkerhet.pdp.xacml.Obligation;

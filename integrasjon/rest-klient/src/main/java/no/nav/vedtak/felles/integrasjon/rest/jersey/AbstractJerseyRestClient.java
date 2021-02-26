@@ -1,28 +1,16 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.toJson;
-import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
-import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
-import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultHeaders;
-import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
-import static org.apache.commons.lang3.ArrayUtils.addFirst;
-import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
-import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
-import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import org.apache.http.Header;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.StringEntity;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
@@ -38,7 +26,6 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent;
-import no.nav.vedtak.util.env.Environment;
 
 /**
  *
