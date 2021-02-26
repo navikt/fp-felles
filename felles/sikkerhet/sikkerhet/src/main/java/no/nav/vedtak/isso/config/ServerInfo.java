@@ -11,19 +11,17 @@ import no.nav.vedtak.util.env.Environment;
 
 public final class ServerInfo {
 
-    private static final Environment ENV = Environment.current();
-
-    private static final Logger LOG = LoggerFactory.getLogger(ServerInfo.class);
     public static final String PROPERTY_KEY_LOADBALANCER_URL = "loadbalancer.url";
     public static final String CALLBACK_ENDPOINT = "/cb";
-
+    private static final Environment ENV = Environment.current();
+    private static final Logger LOG = LoggerFactory.getLogger(ServerInfo.class);
+    private static ServerInfo instance;
     private String schemeHostPort = schemeHostPortFromSystemProperties();
     private boolean isUsingTLS = schemeHostPort.toLowerCase().startsWith("https");
     private String relativeCallbackUrl;
     private String callbackUrl;
+    private String cookiePath;
     private String cookieDomain = cookieDomain(schemeHostPort);
-
-    private static ServerInfo instance;
 
     ServerInfo() {
     }
@@ -39,36 +37,10 @@ public final class ServerInfo {
         instance = null;
     }
 
-    public String getSchemeHostPort() {
-        return schemeHostPort;
-    }
-
-    public boolean isUsingTLS() {
-        return isUsingTLS;
-    }
-
-    public String getCookieDomain() {
-        return cookieDomain;
-    }
-
-    public String getCallbackUrl() {
-        if (callbackUrl == null) {
-            callbackUrl = schemeHostPort + getRelativeCallbackUrl();
-        }
-        return callbackUrl;
-    }
-
-    public String getRelativeCallbackUrl() {
-        if (relativeCallbackUrl == null) {
-            relativeCallbackUrl = ContextPathHolder.instance().getContextPath() + CALLBACK_ENDPOINT;
-        }
-        return relativeCallbackUrl;
-    }
-
     private static String schemeHostPortFromSystemProperties() {
 
         return ENV.getRequiredProperty(PROPERTY_KEY_LOADBALANCER_URL,
-                () -> ServerInfoFeil.manglerNødvendigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL));
+            () -> ServerInfoFeil.manglerNødvendigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL));
     }
 
     private static String cookieDomain(String schemeHostPort) {
@@ -91,11 +63,45 @@ public final class ServerInfo {
         }
     }
 
+    public String getSchemeHostPort() {
+        return schemeHostPort;
+    }
+
+    public boolean isUsingTLS() {
+        return isUsingTLS;
+    }
+
+    public String getCookieDomain() {
+        return cookieDomain;
+    }
+
+    public String getCookiePath() {
+        if (cookiePath == null) {
+            cookiePath = ContextPathHolder.instance().getCookiePath();
+        }
+
+        return cookiePath;
+    }
+
+    public String getCallbackUrl() {
+        if (callbackUrl == null) {
+            callbackUrl = schemeHostPort + getRelativeCallbackUrl();
+        }
+        return callbackUrl;
+    }
+
+    public String getRelativeCallbackUrl() {
+        if (relativeCallbackUrl == null) {
+            relativeCallbackUrl = ContextPathHolder.instance().getContextPath() + CALLBACK_ENDPOINT;
+        }
+        return relativeCallbackUrl;
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[schemeHostPort=" + schemeHostPort + ", isUsingTLS=" + isUsingTLS
-                + ", relativeCallbackUrl=" + relativeCallbackUrl + ", callbackUrl=" + callbackUrl + ", cookieDomain="
-                + cookieDomain + "]";
+            + ", relativeCallbackUrl=" + relativeCallbackUrl + ", callbackUrl=" + callbackUrl + ", cookieDomain="
+            + cookieDomain + "]";
     }
 
 }

@@ -81,9 +81,10 @@ public class RelyingPartyCallback {
 
         boolean sslOnlyCookie = ServerInfo.instance().isUsingTLS();
         String cookieDomain = ServerInfo.instance().getCookieDomain();
-        var tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token.getToken(), "/", cookieDomain, "", NewCookie.DEFAULT_MAX_AGE, sslOnlyCookie,
+        String cookiePath = ServerInfo.instance().getCookiePath();
+        var tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token.getToken(), cookiePath, cookieDomain, "", NewCookie.DEFAULT_MAX_AGE, sslOnlyCookie,
                 true);
-        var refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, "/", cookieDomain, "", NewCookie.DEFAULT_MAX_AGE,
+        var refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookiePath, cookieDomain, "", NewCookie.DEFAULT_MAX_AGE,
                 sslOnlyCookie, true);
         var deleteOldStateCookie = new NewCookie(state, "", "/", null, "", 0, sslOnlyCookie, true);
 
