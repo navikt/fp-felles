@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.sikkerhet.domene.OidcCredential;
-import no.nav.vedtak.sikkerhet.oidc.Fikk40xKodeException;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
 import no.nav.vedtak.sikkerhet.oidc.VlIOException;
@@ -56,10 +55,10 @@ public class SystemUserIdTokenProvider {
         if (forsøkNr < MAKS_ANTALL_FORSØK - 1) {
             try {
                 return fetchIdTokenDirect(openAmHelper);
-            } catch (IOException | Fikk40xKodeException | VlIOException e) {
+            } catch (IOException | VlIOException e) {
                 long sovetid = sovetid(random);
                 logger.info("Forsøk {} av {} for henting av systemuser id token feilet, fikk {}. Sover i {} ms og prøver på nytt", forsøkNr,
-                        MAKS_ANTALL_FORSØK, e, sovetid); // NOSONAR
+                        MAKS_ANTALL_FORSØK, e, sovetid);
                 vent(sovetid);
                 return fetchIdToken(forsøkNr + 1, openAmHelper, random);
             }
@@ -70,8 +69,6 @@ public class SystemUserIdTokenProvider {
                 throw SystemUserIdTokenProviderFeil.klarteIkkeHenteIdTokenIOException(e);
             } catch (VlIOException e) {
                 throw SystemUserIdTokenProviderFeil.klarteIkkeHenteIdTokenVlIOException(e);
-            } catch (Fikk40xKodeException e) {
-                throw SystemUserIdTokenProviderFeil.klarteIkkeHenteIdToken(MAKS_ANTALL_FORSØK, e);
             }
         }
     }

@@ -13,7 +13,6 @@ public class OidcServerAuthContext implements ServerAuthContext {
 
     public OidcServerAuthContext(CallbackHandler callbackHandler, ServerAuthModule serverAuthModule) throws AuthException {
         this.serverAuthModule = serverAuthModule;
-
         serverAuthModule.initialize(null, null, callbackHandler, null);
     }
 

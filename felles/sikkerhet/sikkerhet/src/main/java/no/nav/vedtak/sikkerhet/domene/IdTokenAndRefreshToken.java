@@ -1,8 +1,8 @@
 package no.nav.vedtak.sikkerhet.domene;
 
 public class IdTokenAndRefreshToken {
-    private OidcCredential idToken;
-    private String refreshToken;
+    private final OidcCredential idToken;
+    private final String refreshToken;
 
     public IdTokenAndRefreshToken(OidcCredential idToken, String refreshToken) {
         this.idToken = idToken;

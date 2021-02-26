@@ -19,7 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
@@ -51,7 +50,7 @@ public class RelyingPartyCallback {
             return status(BAD_REQUEST).build();
         }
 
-        Cookie redirect = headers.getCookies().get(state);
+        var redirect = headers.getCookies().get(state);
         if (redirect == null || redirect.getValue() == null || redirect.getValue().isEmpty()) {
             LOG.warn("Cookie for redirect URL mangler eller er tom");
             return status(BAD_REQUEST).build();

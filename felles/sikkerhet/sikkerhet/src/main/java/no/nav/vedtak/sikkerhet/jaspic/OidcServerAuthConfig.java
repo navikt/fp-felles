@@ -1,7 +1,6 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
@@ -10,10 +9,8 @@ import javax.security.auth.message.MessageInfo;
 import javax.security.auth.message.config.ServerAuthConfig;
 import javax.security.auth.message.config.ServerAuthContext;
 import javax.security.auth.message.module.ServerAuthModule;
-import java.util.Map;
 
 public class OidcServerAuthConfig implements ServerAuthConfig {
-    private static final Logger log = LoggerFactory.getLogger(OidcServerAuthConfig.class);
 
     private final String messageLayer;
     private final String appContext;
@@ -22,8 +19,8 @@ public class OidcServerAuthConfig implements ServerAuthConfig {
     private final Map<String, String> providerProperties;
     private final ServerAuthModule serverAuthModule;
 
-    public OidcServerAuthConfig(String messageLayer, String appContext, CallbackHandler callbackHandler, Map<String, String> providerProperties, ServerAuthModule serverAuthModule) {
-        log.debug("Instancieted");
+    public OidcServerAuthConfig(String messageLayer, String appContext, CallbackHandler callbackHandler, Map<String, String> providerProperties,
+            ServerAuthModule serverAuthModule) {
         this.messageLayer = messageLayer;
         this.appContext = appContext;
         this.callbackHandler = callbackHandler;
@@ -32,8 +29,8 @@ public class OidcServerAuthConfig implements ServerAuthConfig {
     }
 
     @Override
-    public ServerAuthContext getAuthContext(String authContextID, Subject serviceSubject, @SuppressWarnings("rawtypes") Map properties) throws AuthException {
-        log.debug("getAuthContext");
+    public ServerAuthContext getAuthContext(String authContextID, Subject serviceSubject, @SuppressWarnings("rawtypes") Map properties)
+            throws AuthException {
         return new OidcServerAuthContext(callbackHandler, serverAuthModule);
     }
 
@@ -54,7 +51,7 @@ public class OidcServerAuthConfig implements ServerAuthConfig {
 
     @Override
     public void refresh() {
-        //NOOP
+        // NOOP
     }
 
     @Override
