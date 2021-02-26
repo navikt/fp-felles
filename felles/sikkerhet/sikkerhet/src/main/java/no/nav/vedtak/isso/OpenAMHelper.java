@@ -107,9 +107,7 @@ public class OpenAMHelper {
                 .setDefaultCookieStore(cookieStore).build()) {
             authenticateUser(httpClient, cookieStore, brukernavn, passord);
             String authorizationCode = hentAuthorizationCode(httpClient);
-
-            return new IdTokenAndRefreshTokenProvider().getToken(authorizationCode,
-                    URI.create(ServerInfo.instance().getCallbackUrl()));
+            return new IdTokenAndRefreshTokenProvider().getToken(authorizationCode);
         }
     }
 
