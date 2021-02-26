@@ -18,7 +18,7 @@ import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 
 public class IdTokenAndRefreshTokenProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(IdTokenAndRefreshTokenProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IdTokenAndRefreshTokenProvider.class);
 
     private final String host = OpenAMHelper.getIssoHostUrl();
     private final String username = OpenAMHelper.getIssoUserName();
@@ -41,7 +41,7 @@ public class IdTokenAndRefreshTokenProvider {
                 + "&realm=" + realm
                 + "&redirect_uri=" + urlEncodedRedirectUri
                 + "&code=" + authorizationCode;
-        log.debug("Requesting tokens by POST to {}", LoggerUtils.removeLineBreaks(host));
+        LOG.debug("Requesting tokens by POST to {}", LoggerUtils.removeLineBreaks(host));
         request.setEntity(new StringEntity(data, UTF_8));
         return request;
     }

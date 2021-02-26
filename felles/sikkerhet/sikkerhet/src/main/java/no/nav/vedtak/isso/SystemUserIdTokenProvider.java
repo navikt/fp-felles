@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
-import no.nav.vedtak.sikkerhet.oidc.VlIOException;
 
 /**
  * Når flere tråder på samme node forsøker å hente ID-token samtidig feiler det
@@ -55,7 +54,7 @@ public class SystemUserIdTokenProvider {
         if (forsøkNr < MAKS_ANTALL_FORSØK - 1) {
             try {
                 return fetchIdTokenDirect(openAmHelper);
-            } catch (IOException | VlIOException e) {
+            } catch (IOException e) {
                 long sovetid = sovetid(random);
                 logger.info("Forsøk {} av {} for henting av systemuser id token feilet, fikk {}. Sover i {} ms og prøver på nytt", forsøkNr,
                         MAKS_ANTALL_FORSØK, e, sovetid);
@@ -67,8 +66,6 @@ public class SystemUserIdTokenProvider {
                 return fetchIdTokenDirect(openAmHelper);
             } catch (IOException e) {
                 throw SystemUserIdTokenProviderFeil.klarteIkkeHenteIdTokenIOException(e);
-            } catch (VlIOException e) {
-                throw SystemUserIdTokenProviderFeil.klarteIkkeHenteIdTokenVlIOException(e);
             }
         }
     }

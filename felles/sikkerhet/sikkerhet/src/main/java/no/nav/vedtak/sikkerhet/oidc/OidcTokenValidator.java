@@ -20,12 +20,13 @@ public class OidcTokenValidator {
 
     private final String expectedIssuer;
     private final String clientName;
-    private JwksKeyHandler jwks;
+    private final JwksKeyHandler jwks;
     private final int allowedClockSkewInSeconds;
     private final boolean skipAudienceValidation;
 
     public OidcTokenValidator(OpenIDProviderConfig config) {
-        this(config.getIssuer().toExternalForm(), new JwksKeyHandlerImpl(config.getJwks(), config.isUseProxyForJwks()), config.getClientName(), config.getAllowedClockSkewInSeconds() , config.isSkipAudienceValidation());
+        this(config.getIssuer().toExternalForm(), new JwksKeyHandlerImpl(config.getJwks(), config.isUseProxyForJwks()), config.getClientName(),
+                config.getAllowedClockSkewInSeconds(), config.isSkipAudienceValidation());
     }
 
     // Skal bare brukes direkte fra tester, prod-kode skal kalle public constructors
@@ -41,7 +42,8 @@ public class OidcTokenValidator {
 
     }
 
-    private OidcTokenValidator(String expectedIssuer, JwksKeyHandler jwks, String clientName, int allowedClockSkewInSeconds, boolean skipAudienceValidation) {
+    private OidcTokenValidator(String expectedIssuer, JwksKeyHandler jwks, String clientName, int allowedClockSkewInSeconds,
+            boolean skipAudienceValidation) {
         this.expectedIssuer = expectedIssuer;
         this.jwks = jwks;
         this.clientName = clientName;
@@ -52,7 +54,6 @@ public class OidcTokenValidator {
     public OidcTokenValidatorResult validate(OidcTokenHolder tokenHolder) {
         return validate(tokenHolder, allowedClockSkewInSeconds);
     }
-
 
     private OidcTokenValidatorResult validate(OidcTokenHolder tokenHolder, int allowedClockSkewInSeconds) {
         if (tokenHolder == null) {
@@ -75,7 +76,7 @@ public class OidcTokenValidator {
                 .setRequireSubject()
                 .setExpectedIssuer(expectedIssuer)
                 .setVerificationKey(validationKey);
-        if(skipAudienceValidation) {
+        if (skipAudienceValidation) {
             builder.setSkipDefaultAudienceValidation();
         } else {
             builder.setExpectedAudience(clientName);
@@ -100,8 +101,9 @@ public class OidcTokenValidator {
         return validate(tokenHolder, Integer.MAX_VALUE);
     }
 
-    //Validates some of the rules set in OpenID Connect Core 1.0 incorporating errata set 1,
-    //which is not already validated by using JwtConsumer
+    // Validates some of the rules set in OpenID Connect Core 1.0 incorporating
+    // errata set 1,
+    // which is not already validated by using JwtConsumer
     private String validateClaims(JwtClaims claims) throws MalformedClaimException {
         String azp = claims.getStringClaimValue("azp");
         if (azp == null && claims.getAudience().size() != 1) {

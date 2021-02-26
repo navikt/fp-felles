@@ -11,13 +11,12 @@ import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-import org.jose4j.jwx.JsonWebStructure;
 
 import no.nav.vedtak.exception.TekniskException;
 
 public class JwtUtil {
 
-    private static JwtConsumer unvalidatingConsumer = new JwtConsumerBuilder()
+    private static final JwtConsumer unvalidatingConsumer = new JwtConsumerBuilder()
             .setSkipAllValidators()
             .setDisableRequireSignature()
             .setSkipSignatureVerification()
@@ -28,11 +27,11 @@ public class JwtUtil {
 
     public static String getJwtBody(String jwt) {
         try {
-            List<JsonWebStructure> jsonObjects = unvalidatingConsumer.process(jwt).getJoseObjects();
+            var jsonObjects = unvalidatingConsumer.process(jwt).getJoseObjects();
             String jwtBody = ((JsonWebSignature) jsonObjects.get(0)).getUnverifiedPayload();
             return Base64.encode(jwtBody.getBytes(StandardCharsets.UTF_8));
         } catch (InvalidJwtException e) {
-            throw JwtUtilFeil.ugyldigJwt(e);
+            throw ugyldigJwt(e);
         }
     }
 
@@ -40,7 +39,7 @@ public class JwtUtil {
         try {
             return unvalidatingConsumer.processToClaims(jwt).getIssuer();
         } catch (InvalidJwtException | MalformedClaimException e) {
-            throw JwtUtilFeil.ugyldigJwt(e);
+            throw ugyldigJwt(e);
         }
     }
 
@@ -49,7 +48,7 @@ public class JwtUtil {
             long expirationTime = unvalidatingConsumer.processToClaims(jwt).getExpirationTime().getValue();
             return Instant.ofEpochSecond(expirationTime);
         } catch (InvalidJwtException | MalformedClaimException e) {
-            throw JwtUtilFeil.ugyldigJwt(e);
+            throw ugyldigJwt(e);
         }
     }
 
@@ -64,24 +63,19 @@ public class JwtUtil {
             if (audience.size() == 1) {
                 return audience.get(0);
             }
-            throw JwtUtilFeil.kanIkkeUtledeClientName(audience);
+            throw kanIkkeUtledeClientName(audience);
         } catch (InvalidJwtException | MalformedClaimException e) {
-            throw JwtUtilFeil.ugyldigJwt(e);
+            throw ugyldigJwt(e);
         }
 
     }
 
-    private static class JwtUtilFeil {
-
-        private JwtUtilFeil() {
-        }
-
-        static TekniskException ugyldigJwt(Exception e) {
-            return new TekniskException("F-026968", "Feil ved parsing av JWT", e);
-        }
-
-        static TekniskException kanIkkeUtledeClientName(List<String> audience) {
-            return new TekniskException("F-026678", String.format("Kan ikke utlede clientName siden 'azp' ikke er satt og 'aud' er %s", audience));
-        }
+    private static TekniskException ugyldigJwt(Exception e) {
+        return new TekniskException("F-026968", "Feil ved parsing av JWT", e);
     }
+
+    private static TekniskException kanIkkeUtledeClientName(List<String> audience) {
+        return new TekniskException("F-026678", String.format("Kan ikke utlede clientName siden 'azp' ikke er satt og 'aud' er %s", audience));
+    }
+
 }

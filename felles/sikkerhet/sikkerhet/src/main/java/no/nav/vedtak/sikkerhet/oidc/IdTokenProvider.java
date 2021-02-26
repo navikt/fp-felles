@@ -14,11 +14,11 @@ import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 
 public class IdTokenProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(IdTokenProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IdTokenProvider.class);
 
     public Optional<OidcTokenHolder> getToken(OidcTokenHolder idToken, String refreshToken) {
         String oidcClientName = JwtUtil.getClientName(idToken.getToken());
-        log.debug("Refreshing token, using client name {}", LoggerUtils.removeLineBreaks(oidcClientName)); //NOSONAR CRLF håndtert
+        LOG.debug("Refreshing token, using client name {}", LoggerUtils.removeLineBreaks(oidcClientName)); //NOSONAR CRLF håndtert
         Optional<String> newToken = TokenProviderUtil.getTokenOptional(() -> createTokenRequest(oidcClientName, refreshToken), s -> TokenProviderUtil.findToken(s, "id_token"));
         return newToken.map(s -> new OidcTokenHolder(s, idToken.isFromCookie()));
     }
@@ -36,7 +36,7 @@ public class IdTokenProvider {
                 + "&scope=openid"
                 + "&realm=" + realm
                 + "&refresh_token=" + refreshToken;
-        log.debug("Refreshing ID-token by POST to {}", LoggerUtils.removeLineBreaks(host)); //NOSONAR CRLF håndtert
+        LOG.debug("Refreshing ID-token by POST to {}", LoggerUtils.removeLineBreaks(host)); //NOSONAR CRLF håndtert
         request.setEntity(new StringEntity(data, "UTF-8"));
         return request;
     }

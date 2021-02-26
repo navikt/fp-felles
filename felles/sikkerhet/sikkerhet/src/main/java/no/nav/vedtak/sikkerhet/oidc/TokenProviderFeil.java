@@ -17,8 +17,8 @@ class TokenProviderFeil {
                 String.format("Kunne ikke hente token. Fikk http code %s og response '%s'", statusCode, responseString));
     }
 
-    static TekniskException kunneIkkeHenteTokenFikkIOException(IOException cause) {
-        return new TekniskException("F-157385", "Kunne ikke hente token");
+    static TekniskException kunneIkkeHenteTokenFikkIOException(IOException e) {
+        return new TekniskException("F-157385", "Kunne ikke hente token", e);
     }
 
     static TekniskException kunneIkkeUrlEncodeRedirectUri(String redirectUri, UnsupportedEncodingException e) {
