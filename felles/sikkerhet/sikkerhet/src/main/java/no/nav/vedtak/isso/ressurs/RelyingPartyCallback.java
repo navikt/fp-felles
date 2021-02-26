@@ -2,7 +2,9 @@ package no.nav.vedtak.isso.ressurs;
 
 import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
 import static javax.ws.rs.core.Response.status;
+import static javax.ws.rs.core.Response.temporaryRedirect;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
@@ -64,22 +66,19 @@ public class RelyingPartyCallback {
         boolean sslOnlyCookie = ServerInfo.instance().isUsingTLS();
         String cookieDomain = ServerInfo.instance().getCookieDomain();
         String cookiePath = ServerInfo.instance().getCookiePath();
-        var tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token, cookiePath, cookieDomain, "", NewCookie.DEFAULT_MAX_AGE,
-                sslOnlyCookie,
-                true);
+        var tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token, cookiePath, cookieDomain, "", DEFAULT_MAX_AGE, sslOnlyCookie, true);
         var refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, tokens.getRefreshToken(), cookiePath, cookieDomain, "",
-                NewCookie.DEFAULT_MAX_AGE,
-                sslOnlyCookie, true);
+                DEFAULT_MAX_AGE, sslOnlyCookie, true);
         var deleteOldStateCookie = new NewCookie(state, "", "/", null, "", 0, sslOnlyCookie, true);
 
         // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the
         // state-cookie containing redirectURL shold be encrypted to avoid tampering)
-        var responseBuilder = Response.temporaryRedirect(URI.create(decode(redirect.getValue(), UTF_8)));
-        responseBuilder.cookie(tokenCookie);
-        responseBuilder.cookie(refreshTokenCookie);
-        responseBuilder.cookie(deleteOldStateCookie);
-        responseBuilder.cacheControl(noCache());
-        return responseBuilder.build();
+        var builder = temporaryRedirect(URI.create(decode(redirect.getValue(), UTF_8)));
+        builder.cookie(tokenCookie);
+        builder.cookie(refreshTokenCookie);
+        builder.cookie(deleteOldStateCookie);
+        builder.cacheControl(noCache());
+        return builder.build();
     }
 
     private static CacheControl noCache() {
