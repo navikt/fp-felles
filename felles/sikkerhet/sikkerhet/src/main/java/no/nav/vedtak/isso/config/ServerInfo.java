@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.util.env.Environment;
 
@@ -40,7 +41,7 @@ public final class ServerInfo {
     private static String schemeHostPortFromSystemProperties() {
 
         return ENV.getRequiredProperty(PROPERTY_KEY_LOADBALANCER_URL,
-            () -> ServerInfoFeil.manglerNødvendigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL));
+                () -> new TekniskException("F-720999", String.format("Mangler nødvendig system property '%s'", PROPERTY_KEY_LOADBALANCER_URL)));
     }
 
     private static String cookieDomain(String schemeHostPort) {
@@ -55,11 +56,13 @@ public final class ServerInfo {
             if (hostname.split("\\.").length >= 3) {
                 return hostname.substring(hostname.indexOf('.') + 1);
             } else {
-                ServerInfoFeil.uventetHostFormat(hostname).log(LOG);
+                LOG.warn(
+                        "Uventet format for host, klarer ikke å utvide cookie domain. Forventet format var xx.xx.xx, fikk {}. (OK hvis kjører lokalt).",
+                        hostname);
                 return null; // null er det strengeste i cookie domain, betyr 'kun denne server'
             }
         } else {
-            throw ServerInfoFeil.ugyldigSystemProperty(PROPERTY_KEY_LOADBALANCER_URL, schemeHostPort);
+            throw new TekniskException("F-836622", String.format("Ugyldig system property '%s'='%s'", PROPERTY_KEY_LOADBALANCER_URL, schemeHostPort));
         }
     }
 
@@ -100,8 +103,8 @@ public final class ServerInfo {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[schemeHostPort=" + schemeHostPort + ", isUsingTLS=" + isUsingTLS
-            + ", relativeCallbackUrl=" + relativeCallbackUrl + ", callbackUrl=" + callbackUrl + ", cookieDomain="
-            + cookieDomain + "]";
+                + ", relativeCallbackUrl=" + relativeCallbackUrl + ", callbackUrl=" + callbackUrl + ", cookieDomain="
+                + cookieDomain + "]";
     }
 
 }
