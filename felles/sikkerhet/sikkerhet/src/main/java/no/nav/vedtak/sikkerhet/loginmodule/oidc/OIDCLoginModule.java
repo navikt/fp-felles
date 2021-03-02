@@ -61,7 +61,7 @@ public class OIDCLoginModule extends LoginModuleBase {
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-        logger.trace("Initialize loginmodule");
+        logger.trace("Initialize loginmodule with {} and {}", subject, callbackHandler);
         this.subject = subject;
         this.callbackHandler = callbackHandler;
     }
@@ -105,7 +105,6 @@ public class OIDCLoginModule extends LoginModuleBase {
         subject.getPrincipals().add(sluttBruker);
         subject.getPrincipals().add(this.consumerId);
         subject.getPublicCredentials().add(authenticationLevelCredential);
-        // TODO (u139158): PK-41761 flyttes til privateCredentials
         subject.getPublicCredentials().add(oidcCredential);
 
         logger.trace("Login committed for user {}", sluttBruker);
@@ -117,7 +116,6 @@ public class OIDCLoginModule extends LoginModuleBase {
             subject.getPrincipals().remove(sluttBruker);
             subject.getPrincipals().remove(consumerId);
             subject.getPublicCredentials().remove(authenticationLevelCredential);
-            // TODO (u139158): PK-41761 flyttes til privateCredentials
             subject.getPublicCredentials().remove(oidcCredential);
         }
     }
@@ -161,19 +159,15 @@ public class OIDCLoginModule extends LoginModuleBase {
 
         TokenCallback tokenCallback = new TokenCallback();
 
-        Callback[] callbacks = { tokenCallback };
-
-        OidcTokenHolder tokenHolder;
         try {
-            callbackHandler.handle(callbacks);
-            tokenHolder = tokenCallback.getToken();
+            callbackHandler.handle(new Callback[] { tokenCallback });
+            return tokenCallback.getToken();
         } catch (IOException | UnsupportedCallbackException e) {
             logger.debug("Error while handling getting token from callbackhandler: ", e);
             LoginException le = new LoginException();
             le.initCause(e);
             throw le;
         }
-        return tokenHolder;
     }
 
 }

@@ -18,7 +18,7 @@ public class OidcLogin {
     }
 
     private static final String REFRESH_TIME = "no.nav.vedtak.sikkerhet.minimum_time_to_expiry_before_refresh.seconds";
-    public static final String DEFAULT_REFRESH_TIME = "120";
+    public static final int DEFAULT_REFRESH_TIME = 120;
 
     private final Optional<OidcTokenHolder> idToken;
     private final OidcTokenValidator tokenValidator;
@@ -71,6 +71,6 @@ public class OidcLogin {
     }
 
     public static int getMinimumTimeToExpiryBeforeRefresh() {
-        return Integer.parseInt(ENV.getProperty(REFRESH_TIME, DEFAULT_REFRESH_TIME)) * 1000;
+        return ENV.getProperty(REFRESH_TIME, Integer.class, DEFAULT_REFRESH_TIME);
     }
 }
