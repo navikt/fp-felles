@@ -1,6 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 
 import java.io.IOException;
 import java.net.URI;
@@ -54,9 +54,9 @@ public class SafTjeneste implements Saf {
     private URI graphqlEndpoint;
     private URI hentDokumentEndpoint;
     private CloseableHttpClient restKlient;
-    private final ObjectReader objectReaderJournalpostResponse = mapper.readerFor(JournalpostQueryResponse.class);
-    private final ObjectReader objectReaderDokumentoversiktFagsakResponse = mapper.readerFor(DokumentoversiktFagsakQueryResponse.class);
-    private final ObjectReader objectReaderTilknyttedeJournalposteResponse = mapper.readerFor(TilknyttedeJournalposterQueryResponse.class);
+    private final ObjectReader objectReaderJournalpostResponse = MAPPER.readerFor(JournalpostQueryResponse.class);
+    private final ObjectReader objectReaderDokumentoversiktFagsakResponse = MAPPER.readerFor(DokumentoversiktFagsakQueryResponse.class);
+    private final ObjectReader objectReaderTilknyttedeJournalposteResponse = MAPPER.readerFor(TilknyttedeJournalposterQueryResponse.class);
 
     private GraphQLErrorHandler errorHandler;
 
@@ -115,7 +115,7 @@ public class SafTjeneste implements Saf {
 
     @Override
     public <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
-        return query(new GraphQLRequest(q, p), mapper.readerFor(clazz));
+        return query(new GraphQLRequest(q, p), MAPPER.readerFor(clazz));
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest request, ObjectReader objectReader) {

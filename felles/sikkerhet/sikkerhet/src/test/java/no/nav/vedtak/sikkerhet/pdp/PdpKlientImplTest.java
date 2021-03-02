@@ -240,7 +240,7 @@ public class PdpKlientImplTest {
             pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
             pdpKlient.forespørTilgang(pdpRequest);
         } catch (VLException e) {
-            feilKode = e.getFeil().getKode();
+            feilKode = e.getKode();
         }
         assertThat(feilKode).isEqualTo("F-576027");
     }

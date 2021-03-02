@@ -79,7 +79,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         try {
             keyCache = new JsonWebKeySet(jwksAsString);
         } catch (JoseException e) {
-            JwksFeil.klarteIkkeParseJWKs(url, jwksAsString, e).log(log);
+            log.warn("Klarte ikke parse jwks for {}, json: {}", url, jwksAsString, e);
         }
     }
 
@@ -88,10 +88,8 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         try {
             String jwksString = jwksStringSupplier.get();
             setKeyCache(jwksString);
-            // Enable ved behov log.debug("JWKs cache for {} updated with: {}", url,
-            // jwksString); //NOSONAR
         } catch (RuntimeException e) {
-            JwksFeil.klarteIkkeOppdatereJwksCache(url, e).log(log);
+            log.warn("Klarte ikke oppdatere jwks cache for {}", url, e);
         }
     }
 
@@ -105,8 +103,6 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         if (url == null) {
             throw JwksFeil.manglerKonfigurasjonAvJwksUrl();
         }
-        // Enable ved behov log.debug("Starting JWKS update from {}",
-        // LoggerUtils.removeLineBreaks(url.toExternalForm())); // NOSONAR
         HttpGet httpGet = new HttpGet(url.toExternalForm());
         httpGet.addHeader("accept", "application/json");
         if (useProxyForJwks) {
@@ -116,7 +112,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
                 if (response.getStatusLine().getStatusCode() != 200) {
-                    throw JwksFeil.klarteIkkeOppdatereJwksCache(url, response.getStatusLine().getStatusCode());
+                    throw JwksFeil.klarteIkkeOppdatereJwksCache(url);
                 }
                 return readContent(response);
             }

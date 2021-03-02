@@ -10,7 +10,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.felles.integrasjon.pdl.PdlDefaultErrorHandler.FORBUDT;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.NAV_CONSUMER_TOKEN_HEADER;
@@ -197,7 +197,7 @@ class TestJerseyPdlClient {
 
     private <T> GraphQLResult<T> responsFor(String fil) {
         try (var is = getClass().getClassLoader().getResourceAsStream(fil)) {
-            return mapper.readValue(IOUtils.toString(is, UTF_8),
+            return MAPPER.readValue(IOUtils.toString(is, UTF_8),
                     new TypeReference<GraphQLResult<T>>() {
                     });
         } catch (Exception e) {
@@ -217,7 +217,7 @@ class TestJerseyPdlClient {
         return aResponse()
                 .withStatus(SC_OK)
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                .withBody(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
+                .withBody(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(body));
     }
 
     private LoadingCache<String, String> cache(int size, Duration duration) {

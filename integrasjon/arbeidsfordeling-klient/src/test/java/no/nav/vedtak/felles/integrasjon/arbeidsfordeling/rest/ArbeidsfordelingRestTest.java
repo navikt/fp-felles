@@ -1,6 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest;
 
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 class ArbeidsfordelingRestTest {
 
-    private static final ObjectWriter WRITER = mapper.writerWithDefaultPrettyPrinter();
-    private static final ObjectReader READER = mapper.reader();
+    private static final ObjectWriter WRITER = MAPPER.writerWithDefaultPrettyPrinter();
+    private static final ObjectReader READER = MAPPER.reader();
 
     @Test
     void test_request() throws Exception {

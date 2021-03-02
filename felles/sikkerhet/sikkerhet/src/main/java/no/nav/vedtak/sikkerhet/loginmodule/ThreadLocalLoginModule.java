@@ -25,6 +25,7 @@ public class ThreadLocalLoginModule extends LoginModuleBase {
 
     public ThreadLocalLoginModule() {
         super(LOG);
+        LOG.trace("Create");
     }
 
     @Override
@@ -48,6 +49,7 @@ public class ThreadLocalLoginModule extends LoginModuleBase {
 
     @Override
     protected void cleanUpSubject() {
+        LOG.trace("Cleanup subject");
         getSubjectHandler().setSubject(null);
     }
 
@@ -57,6 +59,7 @@ public class ThreadLocalLoginModule extends LoginModuleBase {
     }
 
     private ThreadLocalSubjectHandler getSubjectHandler() {
+        LOG.trace("get subject handler");
         var subjectHandler = SubjectHandler.getSubjectHandler();
         if (!(subjectHandler instanceof ThreadLocalSubjectHandler)) {
             throw new IllegalArgumentException(ThreadLocalLoginModule.class.getSimpleName() + " krever subject handler av klasse "

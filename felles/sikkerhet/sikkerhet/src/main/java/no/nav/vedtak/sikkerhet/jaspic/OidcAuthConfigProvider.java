@@ -44,7 +44,7 @@ public class OidcAuthConfigProvider implements AuthConfigProvider {
     }
 
     public OidcAuthConfigProvider(ServerAuthModule serverAuthModule) {
-        log.trace("Instancieted");
+        log.trace("Instantiated");
         this.serverAuthModule = serverAuthModule;
     }
 

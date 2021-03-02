@@ -1,6 +1,7 @@
 package no.nav.vedtak.isso;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.event.Level;
 
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
@@ -43,13 +43,7 @@ class SystemUserIdTokenProviderTest {
         OpenAMHelper openAMHelper = mock(OpenAMHelper.class);
         Mockito.when(random.nextInt(anyInt())).thenReturn(-1); // HAXX setter -1 for at testen skal slippe å sove
         when(openAMHelper.getToken()).thenThrow(IOException.class);
-        try {
-            SystemUserIdTokenProvider.fetchIdToken(0, openAMHelper, random);
-            throw new AssertionError("Forventet exception");
-        } catch (IntegrasjonException e) {
-            assertThat(e.getFeil().getLogLevel()).isEqualTo(Level.WARN);
-        }
-
+        assertThrows(IntegrasjonException.class, () -> SystemUserIdTokenProvider.fetchIdToken(0, openAMHelper, random));
         verify(openAMHelper, times(10)).getToken();
     }
 

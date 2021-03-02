@@ -1,7 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.toJson;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
@@ -87,7 +87,7 @@ public abstract class AbstractJerseyRestClient {
         var cfg = new ClientConfig();
         Optional.ofNullable(proxy)
                 .ifPresent(p -> cfg.property(PROXY_URI, p));
-        cfg.register(jacksonProvider(mapper));
+        cfg.register(jacksonProvider(MAPPER));
         cfg.connectorProvider(new ApacheConnectorProvider());
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
             return b.setDefaultHeaders(defaultHeaders())

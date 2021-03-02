@@ -173,7 +173,7 @@ public class OidcTokenValidatorProviderTest {
 
     @Test
     public void interne_providere_skal_IKKE_validere_aud() {
-        Set<OpenIDProviderConfig> configs = new OidcTokenValidatorProvider.OpenIDProviderConfigProvider().getConfigs();
+        Set<OpenIDProviderConfig> configs = new OpenIDProviderConfigProvider().getConfigs();
         Set<OpenIDProviderConfig> configForInternBruker = configs.stream().filter(config -> config.getIdentTyper().contains(IdentType.InternBruker))
                 .collect(Collectors.toSet());
         assertThat(configForInternBruker).allSatisfy(config -> config.isSkipAudienceValidation());
@@ -181,7 +181,7 @@ public class OidcTokenValidatorProviderTest {
 
     @Test
     public void eksterne_providere_skal_validere_aud() {
-        Set<OpenIDProviderConfig> configs = new OidcTokenValidatorProvider.OpenIDProviderConfigProvider().getConfigs();
+        Set<OpenIDProviderConfig> configs = new OpenIDProviderConfigProvider().getConfigs();
         Set<OpenIDProviderConfig> configForEksternBruker = configs.stream().filter(config -> config.getIdentTyper().contains(IdentType.EksternBruker))
                 .collect(Collectors.toSet());
 
@@ -190,7 +190,7 @@ public class OidcTokenValidatorProviderTest {
 
     @Test
     public void providere_skal_støtte_enten_InternBruker_eller_EksternBruker() {
-        Set<OpenIDProviderConfig> configs = new OidcTokenValidatorProvider.OpenIDProviderConfigProvider().getConfigs();
+        Set<OpenIDProviderConfig> configs = new OpenIDProviderConfigProvider().getConfigs();
         assertThat(configs.stream()
                 .filter(config -> !config.getIdentTyper().contains(IdentType.InternBruker)
                         && !config.getIdentTyper().contains(IdentType.EksternBruker))

@@ -15,7 +15,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.nav.vedtak.exception.TekniskException;
 
 public class DefaultJsonMapper {
-    public static final ObjectMapper mapper = getObjectMapper();
+
+    private DefaultJsonMapper() {
+
+    }
+
+    public static final ObjectMapper MAPPER = getObjectMapper();
 
     public static ObjectMapper getObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -30,7 +35,7 @@ public class DefaultJsonMapper {
 
     public static <T> List<T> fromJson(String json, TypeReference<List<T>> typeReference) {
         try {
-            return mapper.readValue(json, typeReference);
+            return MAPPER.readValue(json, typeReference);
         } catch (IOException e) {
             throw DefaultJsonMapperFeil.ioExceptionVedLesing(e);
         }
@@ -38,7 +43,7 @@ public class DefaultJsonMapper {
 
     public static String toJson(Object obj) {
         try {
-            return mapper.writeValueAsString(obj);
+            return MAPPER.writeValueAsString(obj);
         } catch (IOException e) {
             throw DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
         }

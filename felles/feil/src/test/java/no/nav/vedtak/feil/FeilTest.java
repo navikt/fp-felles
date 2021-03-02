@@ -43,11 +43,10 @@ class FeilTest {
         Feil feil = new FunksjonellFeil(FEIL_KODE, "funksjonellFeil", "test", LogLevel.WARN, FunksjonellException.class, cause);
         assertThat(feil.getLogLevel()).isSameAs(Level.WARN);
         VLException exception = feil.toException();
-        exception.log(logger);
         assertThat(exception.getMessage()).isEqualTo(feil.toLogString());
         assertThat(exception.getCause()).isEqualTo(cause);
         assertThat(exception.getStackTrace()).isNotNull().isNotEmpty();
-        assertThat(exception.getFeil().getKode()).isEqualTo(FEIL_KODE);
+        assertThat(exception.getKode()).isEqualTo(FEIL_KODE);
     }
 
     @Test
@@ -63,11 +62,10 @@ class FeilTest {
         Feil feil = new Feil(FEIL_KODE, "integrasjonFeil", LogLevel.INFO, IntegrasjonException.class, cause);
         assertThat(feil.getLogLevel()).isSameAs(Level.INFO);
         VLException exception = feil.toException();
-        exception.log(logger);
         assertThat(exception.getMessage()).isEqualTo(feil.toLogString());
         assertThat(exception.getCause()).isEqualTo(cause);
         assertThat(exception.getStackTrace()).isNotNull().isNotEmpty();
-        assertThat(exception.getFeil().getKode()).isEqualTo(FEIL_KODE);
+        assertThat(exception.getKode()).isEqualTo(FEIL_KODE);
     }
 
     @Test
@@ -76,11 +74,10 @@ class FeilTest {
         Feil feil = new Feil(FEIL_KODE, "manglerTilgangFeil", LogLevel.ERROR, ManglerTilgangException.class, cause);
         assertThat(feil.getLogLevel()).isSameAs(Level.ERROR);
         VLException exception = feil.toException();
-        exception.log(logger);
         assertThat(exception.toString()).isNotEmpty();
         assertThat(exception.getMessage()).isEqualTo(feil.toLogString());
         assertThat(exception.getCause()).isEqualTo(cause);
         assertThat(exception.getStackTrace()).isNotNull().isNotEmpty();
-        assertThat(exception.getFeil().getKode()).isEqualTo(FEIL_KODE);
+        assertThat(exception.getKode()).isEqualTo(FEIL_KODE);
     }
 }

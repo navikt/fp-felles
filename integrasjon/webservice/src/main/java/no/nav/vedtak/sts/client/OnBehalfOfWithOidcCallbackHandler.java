@@ -40,13 +40,9 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
             Document document = builder.parse(new InputSource(new StringReader(getOnBehalfOfString())));
             return document.getDocumentElement();
         } catch (ParserConfigurationException e) {
-            var ex = StsFeil.klarteIkkeLageBuilder(e);
-            ex.log(logger);
-            throw ex;
+            throw StsFeil.klarteIkkeLageBuilder(e);
         } catch (SAXException e) {
-            var ex = StsFeil.klarteIkkeLeseElement(e);
-            ex.log(logger);
-            throw ex;
+            throw StsFeil.klarteIkkeLeseElement(e);
         }
     }
 

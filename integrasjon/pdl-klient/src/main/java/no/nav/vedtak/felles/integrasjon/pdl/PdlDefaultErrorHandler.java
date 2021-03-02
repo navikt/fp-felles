@@ -3,7 +3,7 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_ERROR_RESPONSE;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_INTERNAL;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_KLIENT_NOT_FOUND_KODE;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -43,7 +43,7 @@ public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
 
     private static PDLExceptionExtension details(Map<String, Object> details) {
         try {
-            return mapper.convertValue(details, PDLExceptionExtension.class);
+            return MAPPER.convertValue(details, PDLExceptionExtension.class);
         } catch (IllegalArgumentException e) {
             LOG.warn("Kunne ikke konvertere {} til extension", details, e);
             return null;
