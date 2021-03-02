@@ -71,6 +71,6 @@ public class OidcLogin {
     }
 
     public static int getMinimumTimeToExpiryBeforeRefresh() {
-        return ENV.getProperty(REFRESH_TIME, Integer.class, DEFAULT_REFRESH_TIME);
+        return ENV.getProperty(REFRESH_TIME, Integer.class, DEFAULT_REFRESH_TIME) * 1000;
     }
 }

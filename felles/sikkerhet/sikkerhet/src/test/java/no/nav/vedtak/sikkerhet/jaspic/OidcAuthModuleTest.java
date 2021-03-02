@@ -253,7 +253,7 @@ public class OidcAuthModuleTest {
         OidcTokenHolder utløptIdToken = getUtløptToken(true);
         String gyldigRefreshToken = "et gyldig refresh token";
         OidcTokenHolder gyldigIdToken = getGyldigToken(true);
-        int sekunderGjenståendeGyldigTid = Integer.parseInt(OidcLogin.DEFAULT_REFRESH_TIME) + 60;
+        int sekunderGjenståendeGyldigTid = OidcLogin.DEFAULT_REFRESH_TIME + 60;
 
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(utløptIdToken));
         when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
@@ -298,7 +298,7 @@ public class OidcAuthModuleTest {
 
         OidcTokenHolder utløptIdToken = getUtløptToken(true);
         OidcTokenHolder nyttGyldigIdToken = getGyldigToken(true);
-        int sekunderGjenståendeGyldigTid = Integer.parseInt(OidcLogin.DEFAULT_REFRESH_TIME) + 60;
+        int sekunderGjenståendeGyldigTid = OidcLogin.DEFAULT_REFRESH_TIME + 60;
         String gyldigRefreshToken = "et gyldig refresh token";
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(utløptIdToken));
         when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
@@ -324,7 +324,7 @@ public class OidcAuthModuleTest {
             throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 
-        int sekunderGjenståendeGyldigTid = Integer.parseInt(OidcLogin.DEFAULT_REFRESH_TIME) + 5;
+        int sekunderGjenståendeGyldigTid = OidcLogin.DEFAULT_REFRESH_TIME + 5;
 
         OidcTokenHolder gyldigIdToken = getGyldigToken(true);
         String gyldigRefreshToken = "et gyldig refresh token";
@@ -346,7 +346,7 @@ public class OidcAuthModuleTest {
             throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 
-        int sekunderGjenståendeGyldigTid = Integer.parseInt(OidcLogin.DEFAULT_REFRESH_TIME) - 5;
+        int sekunderGjenståendeGyldigTid = OidcLogin.DEFAULT_REFRESH_TIME - 5;
 
         OidcTokenHolder gyldigIdToken = getGyldigToken(true);
         OidcTokenHolder nyttGyldigIdToken = getGyldigToken(true);
@@ -376,7 +376,7 @@ public class OidcAuthModuleTest {
             throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 
-        int sekunderGjenståendeGyldigTid = Integer.parseInt(OidcLogin.DEFAULT_REFRESH_TIME) - 5;
+        int sekunderGjenståendeGyldigTid = OidcLogin.DEFAULT_REFRESH_TIME - 5;
 
         OidcTokenHolder gyldigIdToken = getGyldigToken(false);
         OidcTokenHolder nyttGyldigIdToken = getGyldigToken(false);
