@@ -66,7 +66,7 @@ class OAuth2AccessTokenClient {
         try {
             return (ObjectNode) mapper.readTree(responseEntity);
         } catch (JsonProcessingException e) {
-            throw DefaultJsonMapper.DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
+            throw DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
         }
     }
 

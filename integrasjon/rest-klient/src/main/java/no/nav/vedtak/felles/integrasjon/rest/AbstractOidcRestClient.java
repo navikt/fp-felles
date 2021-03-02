@@ -30,7 +30,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.DefaultJsonMapperFeil;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ByteArrayResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -174,7 +173,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return mapper.readValue(json, clazz);
         } catch (IOException e) {
-            throw DefaultJsonMapperFeil.ioExceptionVedLesing(e);
+            throw new TekniskException("F-919328", "Fikk IO exception ved parsing av JSON", e);
         }
     }
 
