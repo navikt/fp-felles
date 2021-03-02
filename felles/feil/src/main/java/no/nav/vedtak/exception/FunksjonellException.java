@@ -5,6 +5,8 @@ import no.nav.vedtak.feil.LogLevel;
 
 public class FunksjonellException extends VLException {
 
+    private final String hint;
+
     public FunksjonellException(String kode, String msg) {
         this(kode, msg, null);
     }
@@ -24,5 +26,10 @@ public class FunksjonellException extends VLException {
     @Deprecated(since = "3.0.x", forRemoval = true)
     public FunksjonellException(FunksjonellFeil feil) {
         super(feil);
+        this.hint = feil.getLøsningsforslag();
+    }
+
+    public String getLøsningsforslag() {
+        return hint;
     }
 }
