@@ -37,7 +37,7 @@ public class DefaultJsonMapper {
         try {
             return MAPPER.readValue(json, typeReference);
         } catch (IOException e) {
-            throw DefaultJsonMapperFeil.ioExceptionVedLesing(e);
+            throw new TekniskException("F-919328", "Fikk IO exception ved parsing av JSON", e);
         }
     }
 
@@ -45,23 +45,7 @@ public class DefaultJsonMapper {
         try {
             return MAPPER.writeValueAsString(obj);
         } catch (IOException e) {
-            throw DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
+            throw new TekniskException("F-208314", "Kunne ikke serialisere objekt til JSON", e);
         }
     }
-
-    static class DefaultJsonMapperFeil {
-
-        private DefaultJsonMapperFeil() {
-
-        }
-
-        static TekniskException ioExceptionVedLesing(IOException e) {
-            return new TekniskException("F-919328", "Fikk IO exception ved parsing av JSON", e);
-        }
-
-        static TekniskException kunneIkkeSerialisereJson(IOException e) {
-            return new TekniskException("F-208314", "Kunne ikke serialisere objekt til JSON", e);
-        }
-    }
-
 }
