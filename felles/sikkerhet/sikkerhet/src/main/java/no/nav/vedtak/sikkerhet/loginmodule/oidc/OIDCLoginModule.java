@@ -28,8 +28,14 @@ import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider;
 
 /**
- * <p>LoginModule that will use an OIDC ID Token and add NAV Principals and Credentials.</p>
- * <p>Depends on either the invoker or another LoginModule in the chain to actually set the SecurityContext.</p>
+ * <p>
+ * LoginModule that will use an OIDC ID Token and add NAV Principals and
+ * Credentials.
+ * </p>
+ * <p>
+ * Depends on either the invoker or another LoginModule in the chain to actually
+ * set the SecurityContext.
+ * </p>
  */
 public class OIDCLoginModule extends LoginModuleBase {
 
@@ -67,7 +73,7 @@ public class OIDCLoginModule extends LoginModuleBase {
 
         String issuer = JwtUtil.getIssuser(ssoToken.getToken());
         OidcTokenValidator tokenValidator = OidcTokenValidatorProvider.instance().getValidator(issuer);
-
+        logger.trace(issuer);
         OidcLogin oidcLogin = new OidcLogin(Optional.of(ssoToken), tokenValidator);
         OidcLogin.LoginResult loginResult = oidcLogin.doLogin();
         if (loginResult == OidcLogin.LoginResult.SUCCESS) {
@@ -89,7 +95,7 @@ public class OIDCLoginModule extends LoginModuleBase {
     public void doCommit() throws LoginException {
         authenticationLevelCredential = new AuthenticationLevelCredential(AUTHENTICATION_LEVEL_INTERN_BRUKER);
         String mdcConsumerId = MDCOperations.getConsumerId();
-        if(mdcConsumerId != null){
+        if (mdcConsumerId != null) {
             this.consumerId = new ConsumerId(mdcConsumerId);
         } else {
             this.consumerId = new ConsumerId();
@@ -99,7 +105,7 @@ public class OIDCLoginModule extends LoginModuleBase {
         subject.getPrincipals().add(sluttBruker);
         subject.getPrincipals().add(this.consumerId);
         subject.getPublicCredentials().add(authenticationLevelCredential);
-        //TODO (u139158): PK-41761 flyttes til privateCredentials
+        // TODO (u139158): PK-41761 flyttes til privateCredentials
         subject.getPublicCredentials().add(oidcCredential);
 
         logger.trace("Login committed for user {}", sluttBruker);
@@ -111,7 +117,7 @@ public class OIDCLoginModule extends LoginModuleBase {
             subject.getPrincipals().remove(sluttBruker);
             subject.getPrincipals().remove(consumerId);
             subject.getPublicCredentials().remove(authenticationLevelCredential);
-            //TODO (u139158): PK-41761 flyttes til privateCredentials
+            // TODO (u139158): PK-41761 flyttes til privateCredentials
             subject.getPublicCredentials().remove(oidcCredential);
         }
     }
@@ -155,7 +161,7 @@ public class OIDCLoginModule extends LoginModuleBase {
 
         TokenCallback tokenCallback = new TokenCallback();
 
-        Callback[] callbacks = {tokenCallback};
+        Callback[] callbacks = { tokenCallback };
 
         OidcTokenHolder tokenHolder;
         try {

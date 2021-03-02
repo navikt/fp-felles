@@ -50,7 +50,7 @@ public class ContainerLogin {
         try {
             loginContext.logout();
         } catch (LoginException e) {
-            LoginModuleFeil.feiletUtlogging(e).log(log);
+            log.warn("Noe gikk galt ved utlogging", e);
         }
         MDCOperations.removeUserId();
         MDCOperations.removeConsumerId();

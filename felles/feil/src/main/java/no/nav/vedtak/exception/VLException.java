@@ -13,7 +13,7 @@ public abstract class VLException extends RuntimeException {
         this.feil = feil;
     }
 
-    public Feil getFeil() {
+    private Feil getFeil() {
         return feil;
     }
 
@@ -26,7 +26,7 @@ public abstract class VLException extends RuntimeException {
         return getClass().getSimpleName() + ":" + getFeil();
     }
 
-    public void log(Logger logger) {
+    private void log(Logger logger) {
         String text = feil.toLogString();
         switch (feil.getLogLevel()) {
             case ERROR:

@@ -2,6 +2,8 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static javax.ws.rs.client.Entity.form;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig.GRANT_TYPE;
+import static no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig.SCOPE;
 import static org.glassfish.jersey.client.authentication.HttpAuthenticationFeature.basic;
 
 import java.util.Map;
@@ -24,8 +26,8 @@ public class StsAccessTokenJerseyClient extends AbstractJerseyRestClient impleme
     public String accessToken() {
 
         var form = new MultivaluedHashMap<String, String>();
-        form.add(StsAccessTokenConfig.GRANT_TYPE, "client_credentials");
-        form.add(StsAccessTokenConfig.SCOPE, "openid");
+        form.add(GRANT_TYPE, "client_credentials");
+        form.add(SCOPE, "openid");
         return client.target(cfg.getStsURI())
                 .register(basic(cfg.getUsername(), cfg.getPassword()))
                 .request(APPLICATION_JSON_TYPE)

@@ -1,6 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.organisasjon;
 
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -104,8 +104,8 @@ class EregRestTest {
 
     @BeforeAll
     static void setup() {
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        MAPPER.registerModule(new JavaTimeModule());
+        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Test
@@ -125,6 +125,6 @@ class EregRestTest {
     }
 
     private static <T> T fromJson(String json, Class<T> clazz) throws IOException {
-        return mapper.readerFor(clazz).readValue(json);
+        return MAPPER.readerFor(clazz).readValue(json);
     }
 }

@@ -38,7 +38,7 @@ public class SAMLLogoutInterceptor implements PhaseInterceptor<SoapMessage> {
         try {
             loginContext.logout();
         } catch (LoginException e) {
-            SoapWebServiceFeil.feiletUtlogging(e).log(LOGGER);
+            LOGGER.warn("Feilet utlogging", e);
         }
     }
 

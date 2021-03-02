@@ -7,6 +7,12 @@ import org.slf4j.event.Level;
 
 import no.nav.vedtak.exception.VLException;
 
+/**
+ *
+ * @deprecated Skal ikke brukes direkte
+ *
+ */
+@Deprecated(since = "3.1.x")
 public class Feil {
 
     private final String kode;
@@ -40,7 +46,7 @@ public class Feil {
         return toLogString();
     }
 
-    public Feil log(Logger logger) {
+    private Feil log(Logger logger) {
         if (cause != null) {
             logMedCause(logger);
         } else {
@@ -60,11 +66,7 @@ public class Feil {
             case WARN:
                 return Level.WARN;
             case INHERIT:
-                if (cause instanceof VLException) {
-                    return ((VLException) cause).getFeil().getLogLevel();
-                } else {
-                    return Level.WARN;
-                }
+                return Level.WARN;
             case INFO:
                 return Level.INFO;
             default:

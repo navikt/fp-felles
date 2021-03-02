@@ -1,6 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.medl2;
 
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.mapper;
+import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ class MedlemskapsunntakTest {
 
     public static String toJson(Object object, Function<JsonProcessingException, Feil> feilFactory) {
         try {
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+            return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
             throw (feilFactory.apply(e)).toException();
         }
@@ -29,7 +29,7 @@ class MedlemskapsunntakTest {
 
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
-            return mapper.readerFor(clazz).readValue(json);
+            return MAPPER.readerFor(clazz).readValue(json);
         } catch (IOException e) {
             throw new IllegalArgumentException("Feil i deserialisering");
         }

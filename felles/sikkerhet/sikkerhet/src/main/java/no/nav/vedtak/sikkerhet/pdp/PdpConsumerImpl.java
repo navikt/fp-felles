@@ -132,7 +132,7 @@ public class PdpConsumerImpl implements PdpConsumer {
                     // det skjer at PDP server f.eks. er resatt og eneste vi kan gjøre er å resette
                     // vår egen tilstand.
                     activeConfiguration = buildClient();
-                    PdpFeil.reinstansiertHttpClient().log(LOG);
+                    LOG.warn("Feilet autentisering mot PDP, reinstansierer hele klienten for å fjerne all state");
                 }
             }
             active = activeConfiguration;
@@ -150,7 +150,6 @@ public class PdpConsumerImpl implements PdpConsumer {
 
     }
 
-    @SuppressWarnings("resource")
     private Tuple<StatusLine, JsonObject> call(Tuple<CloseableHttpClient, AuthCache> active, HttpPost post) {
         final CloseableHttpClient client = active.getElement1();
         final AuthCache authCache = active.getElement2();
@@ -201,7 +200,7 @@ public class PdpConsumerImpl implements PdpConsumer {
      * sender keepalive header.
      */
     private static ConnectionKeepAliveStrategy createKeepAliveStrategy(int seconds) {
-        ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
+        return new ConnectionKeepAliveStrategy() {
             @Override
             public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
                 HeaderElementIterator it = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE));
@@ -216,7 +215,6 @@ public class PdpConsumerImpl implements PdpConsumer {
                 return seconds * 1000L;
             }
         };
-        return myStrategy;
     }
 
 }
