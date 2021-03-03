@@ -8,6 +8,8 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 
 class MDCOperationsTest {
 
+    public static final String DUMMY_FNR = "00000000000";
+
     @Test
     void test_generateCallId() {
 
@@ -24,5 +26,16 @@ class MDCOperationsTest {
         assertThat(MDCOperations.getFromMDC("myKey")).isEqualTo("myValue");
         MDCOperations.remove("myKey");
         assertThat(MDCOperations.getFromMDC("myKey")).isNull();
+    }
+
+    @Test
+    void mask_fnr() {
+        MDCOperations.putUserId(DUMMY_FNR);
+        var userId = MDCOperations.getUserId();
+        assertThat(userId).isEqualTo("000000*****");
+
+        MDCOperations.putUserId("ikkefnr");
+        var userId2 = MDCOperations.getUserId();
+        assertThat(userId2).isEqualTo("ikkefnr");
     }
 }

@@ -54,13 +54,21 @@ public final class MDCOperations {
     public static String getConsumerId() {
         return get(MDC_CONSUMER_ID);
     }
+
     public static void removeConsumerId() {
         remove(MDC_CONSUMER_ID);
     }
 
     public static void putUserId(String userId) {
         Objects.requireNonNull(userId, "userId can't be null");
-        put(MDC_USER_ID, userId);
+        put(MDC_USER_ID, maskFnr(userId));
+    }
+
+    private static String maskFnr(String userId) {
+        if (userId.matches("^\\d{11}$")) {
+            return userId.replaceAll("\\d{5}$", "*****");
+        }
+        return userId;
     }
 
     public static String getUserId() {
@@ -72,20 +80,13 @@ public final class MDCOperations {
     }
 
     public static String generateCallId() {
-        int randomNr = RANDOM.nextInt(Integer.MAX_VALUE);
-        long systemTime = System.currentTimeMillis();
-
-        StringBuilder callId = new StringBuilder("CallId_")
-                .append(systemTime)
-                .append('_')
-                .append(randomNr);
-
-        return callId.toString();
+        var randomNr = RANDOM.nextInt(Integer.MAX_VALUE);
+        var systemTime = System.currentTimeMillis();
+        return "CallId_" + systemTime + '_' + randomNr;
     }
 
     public static String getFromMDC(String key) {
-        String value = MDC.get(key);
-        return value;
+        return MDC.get(key);
     }
 
     public static void putToMDC(String key, String value) {
