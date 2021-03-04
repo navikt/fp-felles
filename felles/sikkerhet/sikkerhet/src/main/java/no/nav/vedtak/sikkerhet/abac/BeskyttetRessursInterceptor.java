@@ -33,12 +33,11 @@ public class BeskyttetRessursInterceptor {
     private final TokenProvider tokenProvider;
 
     @Inject
-    public BeskyttetRessursInterceptor(Pep pep, AbacSporingslogg sporingslogg, AbacAuditlogger abacAuditlogger) {
+    public BeskyttetRessursInterceptor(Pep pep, AbacSporingslogg sporingslogg, AbacAuditlogger abacAuditlogger, TokenProvider provider) {
         this.pep = pep;
         this.sporingslogg = sporingslogg;
         this.abacAuditlogger = abacAuditlogger;
-        this.tokenProvider = new TokenProvider() {
-        };
+        this.tokenProvider = provider;
     }
 
     @AroundInvoke
