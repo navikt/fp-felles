@@ -18,7 +18,6 @@ import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.util.env.Environment;
 
 @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, resource = "")
@@ -31,12 +30,15 @@ public class BeskyttetRessursInterceptor {
     private final AbacSporingslogg sporingslogg;
     private final AbacAuditlogger abacAuditlogger;
     private final Environment env = Environment.current();
+    private final TokenProvider tokenProvider;
 
     @Inject
     public BeskyttetRessursInterceptor(Pep pep, AbacSporingslogg sporingslogg, AbacAuditlogger abacAuditlogger) {
         this.pep = pep;
         this.sporingslogg = sporingslogg;
         this.abacAuditlogger = abacAuditlogger;
+        this.tokenProvider = new TokenProvider() {
+        };
     }
 
     @AroundInvoke
@@ -55,7 +57,7 @@ public class BeskyttetRessursInterceptor {
         boolean sporingslogges = method.getAnnotation(BeskyttetRessurs.class).sporingslogg();
         if (sporingslogges) {
             if (abacAuditlogger.isEnabled()) {
-                final String uid = SubjectHandler.getSubjectHandler().getUid();
+                String uid = tokenProvider.getUid();
                 abacAuditlogger.loggTilgang(uid, beslutning.getPdpRequest(), attributter);
             }
 
@@ -77,7 +79,7 @@ public class BeskyttetRessursInterceptor {
 
     private Object ikkeTilgang(AbacAttributtSamling attributter, Tilgangsbeslutning beslutning) {
         if (abacAuditlogger.isEnabled()) {
-            final String uid = SubjectHandler.getSubjectHandler().getUid();
+            final String uid = tokenProvider.getUid();
             abacAuditlogger.loggDeny(uid, beslutning.getPdpRequest(), attributter);
         } else {
             sporingslogg.loggDeny(beslutning, attributter);
@@ -100,8 +102,8 @@ public class BeskyttetRessursInterceptor {
         Method method = invocationContext.getMethod();
 
         var attributter = clazz.getAnnotation(WebService.class) != null
-                ? AbacAttributtSamling.medSamlToken(hentSamlToken())
-                : AbacAttributtSamling.medJwtToken(hentOidcTOken());
+                ? AbacAttributtSamling.medSamlToken(tokenProvider.samlToken())
+                : AbacAttributtSamling.medJwtToken(tokenProvider.userToken());
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         attributter.setActionType(beskyttetRessurs.action());
 
@@ -156,14 +158,6 @@ public class BeskyttetRessursInterceptor {
             return ((TargetInstanceProxy) target).weld_getTargetClass();
         }
         return target.getClass();
-    }
-
-    private static String hentOidcTOken() {
-        return SubjectHandler.getSubjectHandler().getInternSsoToken();
-    }
-
-    private static String hentSamlToken() {
-        return SubjectHandler.getSubjectHandler().getSamlToken().getTokenAsString();
     }
 
     private static String utledAction(Class<?> clazz, Method method) {
