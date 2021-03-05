@@ -126,6 +126,13 @@
                 <version>${project.version}</version>
                 <type>pom</type>
             </dependency>
+
+            <!-- Diverse enforcer resolutions for -->
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>1.10.20</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
