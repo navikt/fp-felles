@@ -21,6 +21,10 @@ public abstract class VLException extends RuntimeException {
         return feil.getKode();
     }
 
+    public String getFeilmelding() {
+        return feil.getFeilmelding();
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + ":" + getFeil();
