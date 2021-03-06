@@ -5,11 +5,10 @@ import javax.security.auth.message.module.ServerAuthModule;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
-@WebListener
+//@WebListener
 public class SamAutoRegistration implements ServletContextListener {
     private static final String CONTEXT_REGISTRATION_ID = "no.nav.vedtak.sikkerhet.jaspic.registrationId";
 
