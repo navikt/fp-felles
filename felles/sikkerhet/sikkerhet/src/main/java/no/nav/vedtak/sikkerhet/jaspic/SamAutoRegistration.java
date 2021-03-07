@@ -26,6 +26,12 @@ public class SamAutoRegistration implements ServletContextListener {
         deregisterServerAuthModule(sce.getServletContext());
     }
 
+    // For bruk i applikasjonslokale WebListeners
+    public static void initServerAuthModule(ServletContext context) {
+        ContextPathHolder.instance(context.getContextPath());
+        registerServerAuthModule(new OidcAuthModule(), context);
+    }
+
     /**
      * Registers a server auth module as the one and only module for the application
      * corresponding to the given servlet context.
