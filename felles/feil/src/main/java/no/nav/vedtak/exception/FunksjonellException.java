@@ -1,8 +1,5 @@
 package no.nav.vedtak.exception;
 
-import no.nav.vedtak.feil.FunksjonellFeil;
-import no.nav.vedtak.feil.LogLevel;
-
 public class FunksjonellException extends VLException {
 
     private final String hint;
@@ -16,20 +13,8 @@ public class FunksjonellException extends VLException {
     }
 
     public FunksjonellException(String kode, String msg, String hint, Throwable t) {
-        this(new FunksjonellFeil(kode, msg, hint, LogLevel.WARN, FunksjonellException.class, t));
+        super(kode, msg, t);
+        this.hint = hint;
     }
 
-    /**
-     *
-     * @deprecated Lag med new
-     */
-    @Deprecated(since = "3.0.x", forRemoval = true)
-    public FunksjonellException(FunksjonellFeil feil) {
-        super(feil);
-        this.hint = feil.getLøsningsforslag();
-    }
-
-    public String getLøsningsforslag() {
-        return hint;
-    }
 }

@@ -12,7 +12,6 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.konfig.ApplicationPropertiesKonfigProvider;
 import no.nav.vedtak.konfig.EnvPropertiesKonfigVerdiProvider;
 import no.nav.vedtak.konfig.KonfigVerdi.BooleanConverter;
@@ -128,10 +127,6 @@ public final class Environment {
 
     public String getRequiredProperty(String key) {
         return getRequiredProperty(key, () -> new IllegalStateException(key + " ble ikke funnet"));
-    }
-
-    public String getRequiredProperty(String key, Feil feil) {
-        return getRequiredProperty(key, () -> feil.toException());
     }
 
     public String getRequiredProperty(String key, Supplier<? extends RuntimeException> exceptionSupplier) {
