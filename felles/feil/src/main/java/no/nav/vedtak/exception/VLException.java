@@ -1,50 +1,28 @@
 package no.nav.vedtak.exception;
 
-import org.slf4j.Logger;
-
-import no.nav.vedtak.feil.Feil;
-
 public abstract class VLException extends RuntimeException {
 
-    private final Feil feil;
+    private final String kode;
+    private final String msg;
+    private final Throwable cause;
 
-    protected VLException(Feil feil) {
-        super(feil.toLogString(), feil.getCause());
-        this.feil = feil;
-    }
-
-    private Feil getFeil() {
-        return feil;
+    protected VLException(String kode, String msg, Throwable cause) {
+        super(kode + ":" + msg);
+        this.kode = kode;
+        this.msg = msg;
+        this.cause = cause;
     }
 
     public String getKode() {
-        return feil.getKode();
+        return kode;
     }
 
     public String getFeilmelding() {
-        return feil.getFeilmelding();
+        return msg;
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + ":" + getFeil();
+        return getClass().getSimpleName() + " [kode=" + kode + ", msg=" + msg + ", cause=" + cause + "]";
     }
-
-    private void log(Logger logger) {
-        String text = feil.toLogString();
-        switch (feil.getLogLevel()) {
-            case ERROR:
-                logger.error(text, this);
-                break;
-            case WARN:
-                logger.warn(text, this);
-                break;
-            case INFO:
-                logger.info(text);
-                break;
-            default:
-                throw new IllegalArgumentException("Ikke-støttet LogLevel: " + feil.getLogLevel());
-        }
-    }
-
 }

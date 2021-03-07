@@ -1,21 +1,27 @@
 package no.nav.vedtak.felles.jpa;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 /**
- * Feilmeldinger knyttet til hibernate baserte spørringer, der det ønskes en strengere kontrakt iforhold til hva
- * hibernate selv returnerer.
+ * Feilmeldinger knyttet til hibernate baserte spørringer, der det ønskes en
+ * strengere kontrakt iforhold til hva hibernate selv returnerer.
  */
-interface HibernateFeil extends DeklarerteFeil {
-    @TekniskFeil(feilkode = "F-108088", feilmelding = "Spørringen %s returnerte ikke et unikt resultat", logLevel = LogLevel.WARN)
-    Feil ikkeUniktResultat(String spørring);
+class HibernateFeil {
+    private HibernateFeil() {
 
-    @TekniskFeil(feilkode = "F-029343", feilmelding = "Spørringen %s returnerte mer enn eksakt ett resultat", logLevel = LogLevel.WARN)
-    Feil merEnnEttResultat(String spørring);
+    }
 
-    @TekniskFeil(feilkode = "F-650018", feilmelding = "Spørringen %s returnerte tomt resultat", logLevel = LogLevel.WARN, exceptionClass = TomtResultatException.class)
-    Feil tomtResultat(String spørring);
+    static TekniskException ikkeUniktResultat(String spørring) {
+        return new TekniskException("F-108088", String.format("Spørringen %s returnerte ikke et unikt resultat", spørring));
+    }
+
+    static TekniskException merEnnEttResultat(String spørring) {
+        return new TekniskException("F-029343", String.format("Spørringen %s returnerte mer enn eksakt ett resultat", spørring));
+
+    }
+
+    static TekniskException tomtResultat(String spørring) {
+        return new TekniskException("F-650018", String.format("Spørringen %s returnerte tomt resultat", spørring));
+
+    }
 }

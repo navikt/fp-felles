@@ -4,20 +4,20 @@ import java.sql.SQLException;
 
 import org.flywaydb.core.api.FlywayException;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-/**
- * Feilkoder for migreringsfeil under enhetstester.
- */
-public interface DbMigreringFeil extends DeklarerteFeil {
+public class DbMigreringFeil {
 
-    @TekniskFeil(feilkode = "F-415128", logLevel = LogLevel.ERROR, feilmelding = "Databasemigrering feilet. Kan ikke fortsette enhetstesting")
-    Feil flywayMigreringFeilet(FlywayException flywayException);
+    private DbMigreringFeil() {
 
-    @TekniskFeil(feilkode = "F-891250", logLevel = LogLevel.ERROR, feilmelding = "Databasemigrering feilet. Kan ikke fortsette enhetstesting")
-    Feil kanIkkeDetektereDatbaseType(SQLException e);
+    }
+
+    TekniskException flywayMigreringFeilet(FlywayException e) {
+        return new TekniskException("F-891250", "Databasemigrering feilet. Kan ikke fortsette enhetstesting", e);
+    }
+
+    TekniskException kanIkkeDetektereDatbaseType(SQLException e) {
+        return new TekniskException("F-891250", "Databasemigrering feilet. Kan ikke fortsette enhetstesting", e);
+    }
 
 }

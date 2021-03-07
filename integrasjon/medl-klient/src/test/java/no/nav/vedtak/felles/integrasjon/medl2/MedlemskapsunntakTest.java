@@ -5,13 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.exception.TekniskException;
 
 class MedlemskapsunntakTest {
 
@@ -19,11 +18,11 @@ class MedlemskapsunntakTest {
     private static final long MEDL_ID_2 = 2663948L;
     private static final long MEDL_ID_3 = 666L;
 
-    public static String toJson(Object object, Function<JsonProcessingException, Feil> feilFactory) {
+    public static String toJson(Object object) {
         try {
             return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw (feilFactory.apply(e)).toException();
+            throw new TekniskException("111", "OOPS");
         }
     }
 
@@ -48,7 +47,7 @@ class MedlemskapsunntakTest {
                 true,
                 new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2020, 5, 26), "AVGSYS"),
                 new Medlemskapsunntak.Studieinformasjon("VUT"));
-        var json = toJson(mrest, null);
+        var json = toJson(mrest);
         var dser = fromJson(json, Medlemskapsunntak.class);
         assertThat(mrest).isEqualTo(dser);
         assertThat(mrest.getLovvalg()).isEqualTo(dser.getLovvalg());
@@ -68,7 +67,7 @@ class MedlemskapsunntakTest {
                 true,
                 new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2020, 5, 26), "AVGSYS"),
                 null);
-        var json = toJson(mrest, null);
+        var json = toJson(mrest);
         var dser = fromJson(json, Medlemskapsunntak.class);
         assertThat(mrest).isEqualTo(dser);
         assertThat(mrest.getDekning()).isEqualTo(dser.getDekning());
@@ -90,7 +89,7 @@ class MedlemskapsunntakTest {
                 true,
                 new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2019, 5, 26), "LAANEKASSEN"),
                 new Medlemskapsunntak.Studieinformasjon("SWE"));
-        var json = toJson(mrest, null);
+        var json = toJson(mrest);
         var dser = fromJson(json, Medlemskapsunntak.class);
         assertThat(mrest).isEqualTo(dser);
         assertThat(mrest.getFraOgMed()).isEqualTo(dser.getFraOgMed());
