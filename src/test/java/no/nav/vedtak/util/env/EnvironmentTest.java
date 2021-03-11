@@ -21,8 +21,8 @@ import no.nav.vedtak.konfig.StandardPropertySource;
 class EnvironmentTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnvironmentTest.class);
-    private static Environment ENV = Environment.current();
-    private static PrintStream SYSOUT = System.out;
+    private static final Environment ENV = Environment.current();
+    private static final PrintStream SYSOUT = System.out;
 
     @AfterEach
     void after() {
@@ -37,10 +37,12 @@ class EnvironmentTest {
         assertTrue(ENV.isProd());
     }
 
+    @Test
     void testURI() {
         assertEquals(ENV.getRequiredProperty("VG", URI.class), URI.create("http://www.vg.no"));
     }
 
+    @Test
     void testUppercase() {
         assertEquals(PROD_FSS.clusterName(), ENV.getProperty("nais.cluster.name"));
     }

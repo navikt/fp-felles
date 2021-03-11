@@ -27,20 +27,20 @@ class KonfigVerdiTest {
     private static final String VALUE_LOCAL_DATE = "1989-09-29";
     private static final Environment ENV = Environment.current();
 
-    private int propFraFil = ENV.getProperty("test.property", int.class);
-    private int propFraFilOverride = ENV.getProperty("test1.property", int.class);
-    private int systemVinner = ENV.getProperty("test2.property", int.class);
-    private int namespaceVerdi = ENV.getProperty("test3.property", int.class);
-    private String javaHome = ENV.getProperty("user.home");
-    private String myProperty = ENV.getProperty(KonfigVerdiTest.KEY);
-    private Integer myIntegerPropertyValue = ENV.getProperty(KonfigVerdiTest.KEY_INT, Integer.class);
-    private Boolean myBooleanPropertyValue = ENV.getProperty(KonfigVerdiTest.KEY_BOOLEAN, Boolean.class);
-    private LocalDate myLocalDateValue = ENV.getProperty(KonfigVerdiTest.KEY_LOCAL_DATE, LocalDate.class);
-    private String stringProperty = ENV.getProperty("my.property", "42");
-    private Integer intDefaultProperty = ENV.getProperty("my.property", Integer.class, 42);
-    private boolean booleanDefaultProperty = ENV.getProperty("my.property", boolean.class, true);
-    private URI uriDefaultProperty = ENV.getProperty("my.property", URI.class, URI.create(NAV));
-    private int defaultNotUsed = ENV.getProperty("my.property.notdefault", int.class, 42);
+    private final int propFraFil = ENV.getProperty("test.property", int.class);
+    private final int propFraFilOverride = ENV.getProperty("test1.property", int.class);
+    private final int systemVinner = ENV.getProperty("test2.property", int.class);
+    private final int namespaceVerdi = ENV.getProperty("test3.property", int.class);
+    private final String javaHome = ENV.getProperty("user.home");
+    private final String myProperty = ENV.getProperty(KonfigVerdiTest.KEY);
+    private final Integer myIntegerPropertyValue = ENV.getProperty(KonfigVerdiTest.KEY_INT, Integer.class);
+    private final Boolean myBooleanPropertyValue = ENV.getProperty(KonfigVerdiTest.KEY_BOOLEAN, Boolean.class);
+    private final LocalDate myLocalDateValue = ENV.getProperty(KonfigVerdiTest.KEY_LOCAL_DATE, LocalDate.class);
+    private final String stringProperty = ENV.getProperty("my.property", "42");
+    private final Integer intDefaultProperty = ENV.getProperty("my.property", Integer.class, 42);
+    private final boolean booleanDefaultProperty = ENV.getProperty("my.property", boolean.class, true);
+    private final URI uriDefaultProperty = ENV.getProperty("my.property", URI.class, URI.create(NAV));
+    private final int defaultNotUsed = ENV.getProperty("my.property.notdefault", int.class, 42);
 
     @BeforeAll
     public static void setupSystemPropertyForTest() {
