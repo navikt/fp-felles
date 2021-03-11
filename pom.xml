@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>no.nav.foreldrepenger</groupId>
-    <artifactId>fp-konfigverdi</artifactId>
+    <artifactId>konfig</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -14,7 +14,6 @@
         <slf4j.version>1.7.30</slf4j.version>
         <logback-classic.version>1.2.3</logback-classic.version>
         <junit5.version>5.7.1</junit5.version>
-        <assertj.version>3.19.0</assertj.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -52,12 +51,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit5.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -105,9 +98,9 @@
     </build>
 
     <scm>
-        <connection>scm:git:https://github.com/navikt/fp-konfigverdi.git</connection>
-        <developerConnection>scm:git:https://github.com/navikt/fp-konfigverdi.git</developerConnection>
-        <url>https://github.com/navikt/fp-konfigverdi/</url>
+        <connection>scm:git:https://github.com/navikt/fp-konfig.git</connection>
+        <developerConnection>scm:git:https://github.com/navikt/fp-konfig.git</developerConnection>
+        <url>https://github.com/navikt/fp-konfig/</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -115,7 +108,7 @@
         <repository>
             <id>github</id>
             <name>Github navikt Maven Packages</name>
-            <url>https://maven.pkg.github.com/navikt/fp-konfigverdi</url>
+            <url>https://maven.pkg.github.com/navikt/fp-konfig</url>
         </repository>
     </distributionManagement>
 </project>

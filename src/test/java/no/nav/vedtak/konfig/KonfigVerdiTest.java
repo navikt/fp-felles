@@ -1,6 +1,6 @@
 package no.nav.vedtak.konfig;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -56,44 +56,44 @@ class KonfigVerdiTest {
     @Test
     @EnabledIfEnvironmentVariable(named = "mvn", matches = "true")
     void propertyFil() {
-        assertThat(propFraFil).isEqualTo(42);
-        assertThat(propFraFilOverride).isEqualTo(200);
-        assertThat(systemVinner).isEqualTo(50);
-        assertThat(namespaceVerdi).isEqualTo(10);
-
+        assertEquals(propFraFil, 42);
+        assertEquals(propFraFil, 42);
+        assertEquals(propFraFilOverride, 200);
+        assertEquals(systemVinner, 50);
+        assertEquals(namespaceVerdi, 10);
     }
 
     @Test
     void defaultVerdier() {
-        assertThat(defaultNotUsed).isZero();
-        assertThat(stringProperty).isEqualTo("42");
-        assertThat(booleanDefaultProperty).isTrue();
-        assertThat(intDefaultProperty).isEqualTo(42);
-        assertThat(uriDefaultProperty).isEqualTo(URI.create(NAV));
+        assertEquals(defaultNotUsed, 0);
+        assertEquals(stringProperty, "42");
+        assertTrue(booleanDefaultProperty);
+        assertEquals(intDefaultProperty, 42);
+        assertEquals(uriDefaultProperty, URI.create(NAV));
     }
 
     @Test
     void skal_injisere_konfig() {
-        assertThat(javaHome).isNotNull();
+        assertNotNull(javaHome);
     }
 
     @Test
     void skal_injisere_verdi_fra_systemproperties() {
-        assertThat(myProperty).isEqualTo(VALUE);
+        assertEquals(myProperty, VALUE);
     }
 
     @Test
     void skal_injisere_integer_fra_systemproperties() {
-        assertThat(myIntegerPropertyValue).isEqualTo(39);
+        assertEquals(myIntegerPropertyValue, 39);
     }
 
     @Test
     void skal_injisere_boolean_fra_systemproperties() {
-        assertThat(myBooleanPropertyValue).isFalse();
+        assertFalse(myBooleanPropertyValue);
     }
 
     @Test
     void skal_injisere_local_date_fra_systemproperties() {
-        assertThat(myLocalDateValue).isEqualTo(LocalDate.of(1989, 9, 29));
+        assertEquals(myLocalDateValue, LocalDate.of(1989, 9, 29));
     }
 }
