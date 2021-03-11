@@ -1,0 +1,61 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Override automatic language detection by changing the below list
+        # Supported options are ['csharp', 'cpp', 'go', 'java', 'javascript', 'python']
+        language: ['java']
+        # Learn more...
+        # https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#overriding-automatic-language-detection
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # We must fetch at least the immediate parents so that if this is
+        # a pull request then we can checkout the head.
+        fetch-depth: 2
+
+      # If this run was triggered by a pull request event, then checkout
+      # the head of the pull request instead of the merge commit.
+    - run: git checkout HEAD^2
+      if: ${{ github.event_name == 'pull_request' }}
+
+    - uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 1.15
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+         languages: ${{ matrix.language }}
+         config-file: ./.github/codeql/codeql-config.yml
+
+    - name: Build
+      shell: bash
+      run: |
+        echo "Analysing $(echo $GITHUB_SHA | cut -c1-7)"
+        mvn package -V -B --errors -s ./.m2/settings.xml -Dfindbugs.skip -Dcheckstyle.skip -Dpmd.skip=true -Denforcer.skip -Dmaven.javadoc.skip -DskipTests -Dmaven.test.skip.exec -Dlicense.skip=true -Drat.skip=true
+      env:
+        GITHUB_USERNAME: x-access-token
+        GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1

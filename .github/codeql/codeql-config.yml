@@ -1,0 +1,14 @@
+name: "CodeQL config"
+
+languages: java
+
+queries:
+  - name: Extended Security
+    uses: security-extended
+  - name: Security and Quality
+    uses: security-and-quality
+
+paths-ignore:
+  - '**/src/test/**'
+  - 'src/test/**'
+  - '**/testutilities/**'
