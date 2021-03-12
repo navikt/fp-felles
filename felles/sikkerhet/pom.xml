@@ -17,6 +17,7 @@
 	<modules>
 		<module>sikkerhet</module>
 		<module>testutilities</module>
+		<module>sikkerhet-abac</module>
 	</modules>
 
 </project>
