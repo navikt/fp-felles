@@ -39,7 +39,7 @@ class EnvironmentTest {
 
     @Test
     void testURI() {
-        assertEquals(ENV.getRequiredProperty("VG", URI.class), URI.create("http://www.vg.no"));
+        assertEquals(URI.create("http://www.vg.no"), ENV.getRequiredProperty("VG", URI.class));
     }
 
     @Test

@@ -14,13 +14,15 @@ import org.slf4j.LoggerFactory;
 
 @Dependent
 public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiProvider {
-    
+
     static class Init {
         // lazy init singleton
         static final Properties PROPS = lesFra();
         private static final String SUFFIX = ".properties";
         private static final String PREFIX = "application";
-        
+
+        private Init() {}
+
         private static Properties lesFra() {
             return lesFra(namespaceKonfig(), lesFra(clusterKonfig(), lesFra("", new Properties())));
         }
@@ -81,11 +83,5 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
     private static String namespaceName() {
         return Optional.ofNullable(getenv(NAIS_NAMESPACE_NAME))
             .orElse(null);
-    }
-
-    @Override
-    public PropertySourceMetaData getAllProperties() {
-        // TODO Auto-generated method stub
-        return super.getAllProperties();
     }
 }

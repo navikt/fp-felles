@@ -9,18 +9,18 @@ public class Namespace {
 
     private static final String DEFAULT_NAMESPACE = "default";
 
-    private final String namespace;
+    private final String name;
 
     private Namespace(String name) {
-        this.namespace = name;
+        this.name = name;
     }
 
     public static Namespace of(String name) {
         return new Namespace(name);
     }
 
-    public String getNamespace() {
-        return namespace;
+    public String getName() {
+        return name;
     }
 
     public static Namespace current() {
@@ -30,7 +30,7 @@ public class Namespace {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[namespace=" + namespace + "]";
+        return getClass().getSimpleName() + "[namespace=" + name + "]";
     }
 
 }

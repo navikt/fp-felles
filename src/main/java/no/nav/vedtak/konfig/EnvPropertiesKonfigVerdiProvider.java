@@ -13,11 +13,13 @@ import no.nav.vedtak.konfig.KonfigVerdi.Converter;
 public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvider {
 
     public static final int PRIORITET = SystemPropertiesKonfigVerdiProvider.PRIORITET + 1;
-    
+
     static class Init {
         // lazy init singleton
         static final Properties ENV = getEnv();
-        
+
+        private Init() {}
+
         private static Properties getEnv() {
             var p = new Properties();
             p.putAll(System.getenv());

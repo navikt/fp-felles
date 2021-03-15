@@ -110,7 +110,7 @@ public final class Environment {
     }
 
     public String namespace() {
-        return namespace.getNamespace();
+        return namespace.getName();
     }
 
     public List<KonfigVerdiProvider> getPropertySources() {

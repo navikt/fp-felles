@@ -56,20 +56,20 @@ class KonfigVerdiTest {
     @Test
     @EnabledIfEnvironmentVariable(named = "mvn", matches = "true")
     void propertyFil() {
-        assertEquals(propFraFil, 42);
-        assertEquals(propFraFil, 42);
-        assertEquals(propFraFilOverride, 200);
-        assertEquals(systemVinner, 50);
-        assertEquals(namespaceVerdi, 10);
+        assertEquals(42, propFraFil);
+        assertEquals(42, propFraFil);
+        assertEquals(200, propFraFilOverride);
+        assertEquals(50, systemVinner);
+        assertEquals(10, namespaceVerdi);
     }
 
     @Test
     void defaultVerdier() {
-        assertEquals(defaultNotUsed, 0);
-        assertEquals(stringProperty, "42");
+        assertEquals(0, defaultNotUsed);
+        assertEquals("42", stringProperty);
         assertTrue(booleanDefaultProperty);
-        assertEquals(intDefaultProperty, 42);
-        assertEquals(uriDefaultProperty, URI.create(NAV));
+        assertEquals(42, intDefaultProperty);
+        assertEquals(URI.create(NAV), uriDefaultProperty);
     }
 
     @Test
@@ -79,12 +79,12 @@ class KonfigVerdiTest {
 
     @Test
     void skal_injisere_verdi_fra_systemproperties() {
-        assertEquals(myProperty, VALUE);
+        assertEquals(VALUE, myProperty);
     }
 
     @Test
     void skal_injisere_integer_fra_systemproperties() {
-        assertEquals(myIntegerPropertyValue, 39);
+        assertEquals(39, myIntegerPropertyValue);
     }
 
     @Test
@@ -94,6 +94,6 @@ class KonfigVerdiTest {
 
     @Test
     void skal_injisere_local_date_fra_systemproperties() {
-        assertEquals(myLocalDateValue, LocalDate.of(1989, 9, 29));
+        assertEquals(LocalDate.of(1989, 9, 29), myLocalDateValue);
     }
 }

@@ -45,11 +45,11 @@ public @interface KonfigVerdi {
     @Nonbinding
     Class<? extends Converter<?>> converter() default NoConverter.class;
 
-    public interface Converter<V> {
+    interface Converter<V> {
         V tilVerdi(String verdi);
     }
 
-    static class NoConverter implements Converter<String> {
+    class NoConverter implements Converter<String> {
 
         @Override
         public String tilVerdi(String verdi) {
@@ -58,7 +58,7 @@ public @interface KonfigVerdi {
 
     }
 
-    public static class BooleanConverter implements Converter<Boolean> {
+    class BooleanConverter implements Converter<Boolean> {
 
         @Override
         public Boolean tilVerdi(String verdi) {
@@ -66,7 +66,7 @@ public @interface KonfigVerdi {
         }
     }
 
-    public static class IntegerConverter implements Converter<Integer> {
+    class IntegerConverter implements Converter<Integer> {
 
         @Override
         public Integer tilVerdi(String verdi) {
@@ -74,7 +74,7 @@ public @interface KonfigVerdi {
         }
     }
 
-    public static class LongConverter implements Converter<Long> {
+    class LongConverter implements Converter<Long> {
 
         @Override
         public Long tilVerdi(String verdi) {
@@ -82,7 +82,7 @@ public @interface KonfigVerdi {
         }
     }
 
-    public static class UriConverter implements Converter<URI> {
+    class UriConverter implements Converter<URI> {
 
         @Override
         public URI tilVerdi(String verdi) {
@@ -95,7 +95,7 @@ public @interface KonfigVerdi {
         }
     }
 
-    public static class UrlConverter implements Converter<URL> {
+    class UrlConverter implements Converter<URL> {
 
         @Override
         public URL tilVerdi(String verdi) {
@@ -108,7 +108,7 @@ public @interface KonfigVerdi {
         }
     }
 
-    public static class PeriodConverter implements Converter<Period> {
+    class PeriodConverter implements Converter<Period> {
 
         @Override
         public Period tilVerdi(String verdi) {
@@ -121,7 +121,7 @@ public @interface KonfigVerdi {
         }
     }
 
-    public static class DurationConverter implements Converter<Duration> {
+    class DurationConverter implements Converter<Duration> {
 
         @Override
         public Duration tilVerdi(String verdi) {
@@ -134,7 +134,7 @@ public @interface KonfigVerdi {
         }
     }
 
-    public static class LocalDateConverter implements Converter<LocalDate> {
+    class LocalDateConverter implements Converter<LocalDate> {
 
         @Override
         public LocalDate tilVerdi(String verdi) {
@@ -147,7 +147,7 @@ public @interface KonfigVerdi {
         }
     }
 
-    static class StringDuplicator implements Converter<String> {
+    class StringDuplicator implements Converter<String> {
 
         @Override
         public String tilVerdi(String verdi) {
@@ -155,7 +155,7 @@ public @interface KonfigVerdi {
         }
     }
 
-    static class KonfigVerdiTypeLiteral extends AnnotationLiteral<KonfigVerdi> implements KonfigVerdi {
+    class KonfigVerdiTypeLiteral extends AnnotationLiteral<KonfigVerdi> implements KonfigVerdi {
 
         @Override
         public String value() {
