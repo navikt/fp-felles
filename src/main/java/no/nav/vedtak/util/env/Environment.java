@@ -1,5 +1,6 @@
 package no.nav.vedtak.util.env;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
@@ -36,6 +37,8 @@ public final class Environment {
         // lastes før den referes blir feltet her initiert først når den aksesseres
         // første gang.
         static final Environment CURRENT = of(Cluster.current(), Namespace.current());
+
+        private Init() {}
 
         private static Environment of(Cluster cluster, Namespace namespace) {
             return new Environment(cluster, namespace);
@@ -105,7 +108,7 @@ public final class Environment {
         return propertySources.stream()
                 .filter(p -> p.getSource().equals(source))
                 .findFirst()
-                .map(p -> p.getAllProperties())
+                .map(KonfigVerdiProvider::getAllProperties)
                 .orElseThrow();
     }
 
@@ -194,8 +197,8 @@ public final class Environment {
         }
     }
 
-    private static <T> Converter<T> construct(Class<? extends Converter<T>> clazz) throws Exception {
-
+    private static <T> Converter<T> construct(Class<? extends Converter<T>> clazz)
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         return clazz.getDeclaredConstructor().newInstance();
     }
 

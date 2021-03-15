@@ -45,6 +45,27 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
             return p;
         }
 
+        private static String namespaceKonfig() {
+            var namespaceName = namespaceName();
+            if (namespaceName != null) {
+                return clusterKonfig() + "-" + namespaceName;
+            }
+            return null;
+        }
+
+        private static String namespaceName() {
+            return Optional.ofNullable(getenv(NAIS_NAMESPACE_NAME))
+                .orElse(null);
+        }
+
+        private static String clusterKonfig() {
+            return "-" + clusterName();
+        }
+
+        private static String clusterName() {
+            return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
+                .orElse(LOCAL);
+        }
     }
 
     private static final int PRIORITET = EnvPropertiesKonfigVerdiProvider.PRIORITET + 1;
@@ -61,27 +82,5 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
     @Override
     public int getPrioritet() {
         return PRIORITET;
-    }
-
-    private static String clusterKonfig() {
-        return "-" + clusterName();
-    }
-
-    private static String namespaceKonfig() {
-        var namespaceName = namespaceName();
-        if (namespaceName != null) {
-            return clusterKonfig() + "-" + namespaceName;
-        }
-        return null;
-    }
-
-    private static String clusterName() {
-        return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
-            .orElse(LOCAL);
-    }
-
-    private static String namespaceName() {
-        return Optional.ofNullable(getenv(NAIS_NAMESPACE_NAME))
-            .orElse(null);
     }
 }

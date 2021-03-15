@@ -68,15 +68,20 @@ public class KonfigVerdiProdusent {
     @Produces
     public Boolean getKonfigVerdiBoolean(final InjectionPoint ip) {
         Object verdi = getEnkelVerdi(ip);
-        return verdi == null ? null
-                : (verdi instanceof Boolean ? (Boolean) verdi : Boolean.parseBoolean((String) verdi));
+        if (verdi == null) {
+            return null;
+        }
+        return verdi instanceof Boolean ? (Boolean) verdi : Boolean.parseBoolean((String) verdi);
     }
 
     @KonfigVerdi
     @Produces
     public Integer getKonfigVerdiInteger(final InjectionPoint ip) {
         Object verdi = getEnkelVerdi(ip);
-        return verdi == null ? null : (verdi instanceof Integer ? (Integer) verdi : Integer.valueOf((String) verdi));
+        if (verdi == null) {
+            return null;
+        }
+        return verdi instanceof Integer ? (Integer) verdi : Integer.valueOf((String) verdi);
     }
 
     @KonfigVerdi
@@ -90,22 +95,30 @@ public class KonfigVerdiProdusent {
     @Produces
     public Duration getKonfigVerdiDuration(final InjectionPoint ip) {
         Object verdi = getEnkelVerdi(ip);
-        return verdi == null ? null : (verdi instanceof Duration ? (Duration) verdi : Duration.parse((String) verdi));
+        if (verdi == null) {
+            return null;
+        }
+        return verdi instanceof Duration ? (Duration) verdi : Duration.parse((String) verdi);
     }
 
     @KonfigVerdi
     @Produces
     public LocalDate getKonfigVerdiLocalDate(final InjectionPoint ip) {
         Object verdi = getEnkelVerdi(ip);
-        return verdi == null ? null
-                : (verdi instanceof LocalDate ? (LocalDate) verdi : LocalDate.parse((String) verdi));
+        if (verdi == null) {
+            return null;
+        }
+        return verdi instanceof LocalDate ? (LocalDate) verdi : LocalDate.parse((String) verdi);
     }
 
     @KonfigVerdi
     @Produces
     public Long getKonfigVerdiLong(final InjectionPoint ip) {
         Object verdi = getEnkelVerdi(ip);
-        return verdi == null ? null : (verdi instanceof Long ? (Long) verdi : Long.valueOf((String) verdi));
+        if (verdi == null) {
+            return null;
+        }
+        return verdi instanceof Long ? (Long) verdi : Long.valueOf((String) verdi);
     }
 
     /*
@@ -117,7 +130,10 @@ public class KonfigVerdiProdusent {
     public URI getKonfigVerdiUri(final InjectionPoint ip) {
         Object verdi = getEnkelVerdi(ip);
         try {
-            return verdi == null ? null : (verdi instanceof URI ? (URI) verdi : new URI((String) verdi));
+            if (verdi == null) {
+                return null;
+            }
+            return verdi instanceof URI ? (URI) verdi : new URI((String) verdi);
         } catch (URISyntaxException e) {
             throw new IllegalStateException("KonfigVerdi [" + verdi + "] er ikke en java.net.URI", e); //$NON-NLS-1$ //$NON-NLS-2$
         }
@@ -133,8 +149,7 @@ public class KonfigVerdiProdusent {
         KonfigVerdi annotation = getAnnotation(ip);
         String key = annotation.value();
         Converter converter = getConverter(annotation.converter());
-        List<V> verdier = getVerdi(ip, annotation, KonfigVerdiProviderOutput.LIST, key, converter);
-        return verdier;
+        return getVerdi(ip, annotation, KonfigVerdiProviderOutput.LIST, key, converter);
     }
 
     /*
@@ -147,8 +162,7 @@ public class KonfigVerdiProdusent {
         KonfigVerdi annotation = getAnnotation(ip);
         String key = annotation.value();
         Converter converter = getConverter(annotation.converter());
-        Map<String, V> verdier = getVerdi(ip, annotation, KonfigVerdiProviderOutput.MAP, key, converter);
-        return verdier;
+        return getVerdi(ip, annotation, KonfigVerdiProviderOutput.MAP, key, converter);
     }
 
     @SuppressWarnings("unchecked")
