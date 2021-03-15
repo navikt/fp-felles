@@ -1,4 +1,4 @@
-package no.nav.vedtak.konfig;
+package no.nav.foreldrepenger.konfig;
 
 public enum StandardPropertySource {
     SYSTEM_PROPERTIES("System properties"),

@@ -1,9 +1,9 @@
-package no.nav.vedtak.konfig;
+package no.nav.foreldrepenger.konfig;
 
 import java.util.List;
 import java.util.Map;
 
-import no.nav.vedtak.konfig.KonfigVerdi.Converter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
 
 class KonfigVerdiProviderOutput {
 

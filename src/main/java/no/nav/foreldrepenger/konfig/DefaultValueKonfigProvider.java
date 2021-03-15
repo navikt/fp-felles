@@ -1,4 +1,4 @@
-package no.nav.vedtak.konfig;
+package no.nav.foreldrepenger.konfig;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import no.nav.vedtak.konfig.KonfigVerdi.Converter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
 
 public class DefaultValueKonfigProvider implements KonfigVerdiProvider {
 

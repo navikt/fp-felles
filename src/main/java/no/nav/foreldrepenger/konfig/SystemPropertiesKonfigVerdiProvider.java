@@ -1,6 +1,6 @@
-package no.nav.vedtak.konfig;
+package no.nav.foreldrepenger.konfig;
 
-import static no.nav.vedtak.konfig.StandardPropertySource.SYSTEM_PROPERTIES;
+import static no.nav.foreldrepenger.konfig.StandardPropertySource.SYSTEM_PROPERTIES;
 
 import javax.enterprise.context.Dependent;
 

@@ -1,6 +1,6 @@
-package no.nav.vedtak.util.env;
+package no.nav.foreldrepenger.konfig;
 
-import static no.nav.vedtak.util.env.Cluster.PROD_FSS;
+import static no.nav.foreldrepenger.konfig.Cluster.PROD_FSS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -15,8 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import no.nav.vedtak.konfig.StandardPropertySource;
 
 class EnvironmentTest {
 

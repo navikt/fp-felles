@@ -1,4 +1,4 @@
-package no.nav.vedtak.util.env;
+package no.nav.foreldrepenger.konfig;
 
 import static java.lang.System.getenv;
 

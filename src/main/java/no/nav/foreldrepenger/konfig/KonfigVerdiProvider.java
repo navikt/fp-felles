@@ -1,4 +1,4 @@
-package no.nav.vedtak.konfig;
+package no.nav.foreldrepenger.konfig;
 
 import java.util.List;
 import java.util.Map;

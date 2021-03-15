@@ -1,13 +1,13 @@
-package no.nav.vedtak.konfig;
+package no.nav.foreldrepenger.konfig;
 
-import static no.nav.vedtak.konfig.StandardPropertySource.ENV_PROPERTIES;
+import static no.nav.foreldrepenger.konfig.StandardPropertySource.ENV_PROPERTIES;
 
 import java.util.Optional;
 import java.util.Properties;
 
 import javax.enterprise.context.Dependent;
 
-import no.nav.vedtak.konfig.KonfigVerdi.Converter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
 
 @Dependent
 public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvider {

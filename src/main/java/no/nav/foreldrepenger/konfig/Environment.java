@@ -1,4 +1,4 @@
-package no.nav.vedtak.util.env;
+package no.nav.foreldrepenger.konfig;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -13,22 +13,16 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import no.nav.vedtak.konfig.ApplicationPropertiesKonfigProvider;
-import no.nav.vedtak.konfig.EnvPropertiesKonfigVerdiProvider;
-import no.nav.vedtak.konfig.KonfigVerdi.BooleanConverter;
-import no.nav.vedtak.konfig.KonfigVerdi.Converter;
-import no.nav.vedtak.konfig.KonfigVerdi.DurationConverter;
-import no.nav.vedtak.konfig.KonfigVerdi.IntegerConverter;
-import no.nav.vedtak.konfig.KonfigVerdi.LocalDateConverter;
-import no.nav.vedtak.konfig.KonfigVerdi.LongConverter;
-import no.nav.vedtak.konfig.KonfigVerdi.NoConverter;
-import no.nav.vedtak.konfig.KonfigVerdi.PeriodConverter;
-import no.nav.vedtak.konfig.KonfigVerdi.UriConverter;
-import no.nav.vedtak.konfig.KonfigVerdi.UrlConverter;
-import no.nav.vedtak.konfig.KonfigVerdiProvider;
-import no.nav.vedtak.konfig.PropertySourceMetaData;
-import no.nav.vedtak.konfig.StandardPropertySource;
-import no.nav.vedtak.konfig.SystemPropertiesKonfigVerdiProvider;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.BooleanConverter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.DurationConverter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.IntegerConverter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.LocalDateConverter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.LongConverter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.NoConverter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.PeriodConverter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.UriConverter;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.UrlConverter;
 
 public final class Environment {
 
@@ -204,7 +198,10 @@ public final class Environment {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[cluster=" + cluster + ", namespace=" + namespace + ", propertySources=" + propertySources + "]";
+        return getClass().getSimpleName()
+            + "[cluster=" + cluster
+            + ", namespace=" + namespace
+            + ", propertySources=" + propertySources
+            + "]";
     }
-
 }

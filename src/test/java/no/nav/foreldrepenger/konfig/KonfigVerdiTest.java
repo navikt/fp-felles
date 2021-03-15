@@ -1,4 +1,4 @@
-package no.nav.vedtak.konfig;
+package no.nav.foreldrepenger.konfig;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,8 +8,6 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-
-import no.nav.vedtak.util.env.Environment;
 
 class KonfigVerdiTest {
 
@@ -50,7 +48,6 @@ class KonfigVerdiTest {
         System.setProperty(KEY_BOOLEAN, VALUE_BOOLEAN);
         System.setProperty(KEY_LOCAL_DATE, VALUE_LOCAL_DATE);
         System.setProperty("test2.property", "50");
-
     }
 
     @Test

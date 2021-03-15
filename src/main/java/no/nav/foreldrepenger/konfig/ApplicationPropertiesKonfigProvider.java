@@ -1,7 +1,7 @@
-package no.nav.vedtak.konfig;
+package no.nav.foreldrepenger.konfig;
 
 import static java.lang.System.getenv;
-import static no.nav.vedtak.konfig.StandardPropertySource.APP_PROPERTIES;
+import static no.nav.foreldrepenger.konfig.StandardPropertySource.APP_PROPERTIES;
 
 import java.io.IOException;
 import java.util.Optional;
