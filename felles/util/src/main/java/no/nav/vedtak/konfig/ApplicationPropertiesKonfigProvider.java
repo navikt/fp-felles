@@ -2,6 +2,8 @@ package no.nav.vedtak.konfig;
 
 import static java.lang.System.getenv;
 import static no.nav.vedtak.konfig.StandardPropertySource.APP_PROPERTIES;
+import static no.nav.vedtak.util.env.Cluster.NAIS_CLUSTER_NAME;
+import static no.nav.vedtak.util.env.Namespace.NAIS_NAMESPACE_NAME;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -14,13 +16,17 @@ import org.slf4j.LoggerFactory;
 
 @Dependent
 public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiProvider {
-    
+
     static class Init {
-        // lazy init singleton
+
+        private Init() {
+
+        }
+
         static final Properties PROPS = lesFra();
         private static final String SUFFIX = ".properties";
         private static final String PREFIX = "application";
-        
+
         private static Properties lesFra() {
             return lesFra(namespaceKonfig(), lesFra(clusterKonfig(), lesFra("", new Properties())));
         }
@@ -43,12 +49,30 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
             return p;
         }
 
+        private static String namespaceKonfig() {
+            return Optional.ofNullable(namespaceName())
+                    .map(n -> clusterKonfig() + "-" + n)
+                    .orElse(null);
+        }
+
+        private static String namespaceName() {
+            return Optional.ofNullable(getenv(NAIS_NAMESPACE_NAME))
+                    .orElse(null);
+        }
+
+        private static String clusterKonfig() {
+            return "-" + clusterName();
+        }
+
+        private static String clusterName() {
+            return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
+                    .orElse(LOCAL);
+        }
+
     }
 
     private static final int PRIORITET = EnvPropertiesKonfigVerdiProvider.PRIORITET + 1;
     private static final String LOCAL = "local";
-    private static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
-    private static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE";
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPropertiesKonfigProvider.class);
 
@@ -59,33 +83,5 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
     @Override
     public int getPrioritet() {
         return PRIORITET;
-    }
-
-    private static String clusterKonfig() {
-        return "-" + clusterName();
-    }
-
-    private static String namespaceKonfig() {
-        var namespaceName = namespaceName();
-        if (namespaceName != null) {
-            return clusterKonfig() + "-" + namespaceName;
-        }
-        return null;
-    }
-
-    private static String clusterName() {
-        return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
-            .orElse(LOCAL);
-    }
-
-    private static String namespaceName() {
-        return Optional.ofNullable(getenv(NAIS_NAMESPACE_NAME))
-            .orElse(null);
-    }
-
-    @Override
-    public PropertySourceMetaData getAllProperties() {
-        // TODO Auto-generated method stub
-        return super.getAllProperties();
     }
 }
