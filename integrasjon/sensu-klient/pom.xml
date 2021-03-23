@@ -13,7 +13,7 @@
     <name>Felles :: Integrasjonsendepunkt - sensu-klient</name>
 
     <properties>
-        <kotlin.version>1.4.31</kotlin.version>
+        <kotlin.version>1.4.32</kotlin.version>
     </properties>
     
     <dependencies>
