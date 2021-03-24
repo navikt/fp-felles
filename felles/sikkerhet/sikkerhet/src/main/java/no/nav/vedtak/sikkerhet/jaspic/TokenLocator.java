@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import no.nav.vedtak.sikkerhet.ContextPathHolder;
+
 class TokenLocator {
 
     public Optional<OidcTokenHolder> getToken(HttpServletRequest request) {
@@ -26,7 +28,8 @@ class TokenLocator {
             return Optional.empty();
         }
         for (var c : request.getCookies()) {
-            if (c.getName().equals(cookieName) && c.getValue() != null) {
+            if (c.getName().equals(cookieName) && c.getValue() != null
+                && ContextPathHolder.instance().getCookiePath().equals(c.getPath())) {
                 return Optional.of(c.getValue());
             }
         }
