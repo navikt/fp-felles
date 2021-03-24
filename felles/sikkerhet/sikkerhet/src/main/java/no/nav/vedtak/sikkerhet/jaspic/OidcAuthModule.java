@@ -44,7 +44,6 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
@@ -244,7 +243,7 @@ public class OidcAuthModule implements ServerAuthModule {
 
     private void registerUpdatedTokenAtUserAgent(MessageInfo messageInfo, OidcTokenHolder updatedIdToken) {
         HttpServletResponse response = (HttpServletResponse) messageInfo.getResponseMessage();
-        response.addCookie(lagCookie(ID_TOKEN_COOKIE_NAME, updatedIdToken.getToken(), ContextPathHolder.instance().getCookiePath(), ServerInfo.instance().getCookieDomain()));
+        response.addCookie(lagCookie(ID_TOKEN_COOKIE_NAME, updatedIdToken.getToken(), "/", ServerInfo.instance().getCookieDomain()));
     }
 
     private Cookie lagCookie(String name, String value, String path, String domain) {
