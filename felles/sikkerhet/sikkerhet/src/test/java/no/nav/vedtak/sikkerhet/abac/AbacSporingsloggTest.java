@@ -18,10 +18,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.log.util.MemoryAppender;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider;
+import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
 import no.nav.vedtak.util.AppLoggerFactory;
 
 public class AbacSporingsloggTest {
@@ -33,7 +31,7 @@ public class AbacSporingsloggTest {
     public static void beforeAll() {
         logSniffer = sniff(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
         sporing = new DefaultAbacSporingslogg();
-       
+
     }
 
     @AfterEach
@@ -44,7 +42,7 @@ public class AbacSporingsloggTest {
     @Test
     public void skal_logge_fra_attributter() throws Exception {
 
-        var attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token")
+        var attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar").leggTil(AbacDataAttributter.opprett()
                         .leggTil(BEHANDLING_ID, 1234L)
                         .leggTil(SAKSNUMMER, "SNR0001"));

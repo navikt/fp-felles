@@ -16,6 +16,10 @@ public class AbacAttributtSamling {
         this.idToken = idToken;
     }
 
+    public static AbacAttributtSamling medJwtToken(String jwtToken) {
+        return medJwtToken(jwtToken, TokenType.OIDC);
+    }
+
     public static AbacAttributtSamling medJwtToken(String jwtToken, TokenType type) {
         Objects.requireNonNull(jwtToken);
         return new AbacAttributtSamling(AbacIdToken.withToken(jwtToken, type));
