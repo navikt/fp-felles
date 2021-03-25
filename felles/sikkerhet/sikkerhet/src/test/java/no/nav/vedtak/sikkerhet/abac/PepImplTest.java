@@ -5,57 +5,52 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import no.nav.vedtak.sikkerhet.context.SubjectHandlerUtils;
 
 public class PepImplTest {
 
     private PepImpl pep;
+    private TokenProvider provider;
     private PdpKlient pdpKlientMock;
 
     @BeforeEach
     public void setUp() {
         pdpKlientMock = mock(PdpKlient.class);
-        pep = new PepImpl(pdpKlientMock, new DummyRequestBuilder(), new DefaultAbacSporingslogg(), "SRVFPLOS,SRVPDP");
-    }
-
-    @AfterEach
-    public void clearSubjectHandler() {
-        SubjectHandlerUtils.reset();
+        provider = mock(TokenProvider.class);
+        pep = new PepImpl(pdpKlientMock, provider, new DummyRequestBuilder(), new DefaultAbacSporingslogg(), "SRVFPLOS,SRVPDP");
     }
 
     @Test
     public void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
-        SubjectHandlerUtils.setInternBruker("srvpdp");
+        when(provider.getUid()).thenReturn("srvpdp");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
                 .setResource("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
                 .setAction("READ");
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
-        verifyZeroInteractions(pdpKlientMock);
+        verifyNoInteractions(pdpKlientMock);
     }
 
     @Test
     public void skal_nekte_tilgang_til_saksbehandler_for_piptjeneste() {
-        SubjectHandlerUtils.setInternBruker("z142443");
+        when(provider.getUid()).thenReturn("z142443");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
                 .setResource("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
                 .setAction("READ");
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
-        verifyZeroInteractions(pdpKlientMock);
+        verifyNoInteractions(pdpKlientMock);
     }
 
     @Test
     public void skal_kalle_pdp_for_annet_enn_pip_tjenester() {
-        SubjectHandlerUtils.setInternBruker("z142443");
+        when(provider.getUid()).thenReturn("z142443");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
                 .setResource("no.nav.abac.attributter.foreldrepenger.fagsak")
                 .setAction("READ");
