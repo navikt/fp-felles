@@ -79,6 +79,7 @@ public class PdpKlientImpl implements PdpKlient {
                 attrs.addAttribute(ENVIRONMENT_FELLES_SAML_TOKEN, base64encode(idToken.getToken()));
                 break;
         }
+
         xacmlBuilder.addEnvironmentAttributeSet(attrs);
     }
 

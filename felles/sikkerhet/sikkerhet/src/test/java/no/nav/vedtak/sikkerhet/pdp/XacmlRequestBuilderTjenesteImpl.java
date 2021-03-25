@@ -1,12 +1,19 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.SUBJECT_TYPE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_SUBJECT_ID;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 
-import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
@@ -26,12 +33,11 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
         XacmlRequestBuilder xacmlBuilder = new XacmlRequestBuilder();
 
         XacmlAttributeSet actionAttributeSet = new XacmlAttributeSet();
-        actionAttributeSet.addAttribute(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID,
-                pdpRequest.getString(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID));
+        actionAttributeSet.addAttribute(XACML10_ACTION_ACTION_ID,
+                pdpRequest.getString(XACML10_ACTION_ACTION_ID));
         xacmlBuilder.addActionAttributeSet(actionAttributeSet);
-
-        List<Tuple<String, String>> identer = hentIdenter(pdpRequest, NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR,
-                NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
+        List<Tuple<String, String>> identer = hentIdenter(pdpRequest, RESOURCE_FELLES_PERSON_FNR,
+                RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
 
         if (identer.isEmpty()) {
             populerResources(xacmlBuilder, pdpRequest, null);
@@ -41,7 +47,26 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
             }
         }
 
+        populerSubjects(pdpRequest, xacmlBuilder);
+
         return xacmlBuilder;
+    }
+
+    private void populerSubjects(PdpRequest pdpRequest, XacmlRequestBuilder xacmlBuilder) {
+        var attrs = new XacmlAttributeSet();
+        var found = false;
+
+        if (pdpRequest.get(XACML10_SUBJECT_ID) != null) {
+            attrs.addAttribute(XACML10_SUBJECT_ID, pdpRequest.getString(XACML10_SUBJECT_ID));
+            found = true;
+        }
+        if (pdpRequest.get(SUBJECT_TYPE) != null) {
+            attrs.addAttribute(SUBJECT_TYPE, pdpRequest.getString(SUBJECT_TYPE));
+            found = true;
+        }
+        if (found) {
+            xacmlBuilder.addSubjectAttributeSet(attrs);
+        }
     }
 
     protected void populerResources(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest, Tuple<String, String> ident) {
@@ -53,13 +78,20 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
     }
 
     protected XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest) {
-        XacmlAttributeSet resourceAttributeSet = new XacmlAttributeSet();
+        var resourceAttributeSet = new XacmlAttributeSet();
+        if (pdpRequest.get(XACML10_SUBJECT_ID) != null) {
+        }
 
-        resourceAttributeSet.addAttribute(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE,
-                pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE));
+        if (pdpRequest.get(SUBJECT_TYPE) != null) {
+            resourceAttributeSet.addAttribute(SUBJECT_TYPE,
+                    pdpRequest.getString(SUBJECT_TYPE));
+        }
 
-        resourceAttributeSet.addAttribute(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE,
-                pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
+        resourceAttributeSet.addAttribute(RESOURCE_FELLES_DOMENE,
+                pdpRequest.getString(RESOURCE_FELLES_DOMENE));
+
+        resourceAttributeSet.addAttribute(RESOURCE_FELLES_RESOURCE_TYPE,
+                pdpRequest.getString(RESOURCE_FELLES_RESOURCE_TYPE));
 
         return resourceAttributeSet;
     }

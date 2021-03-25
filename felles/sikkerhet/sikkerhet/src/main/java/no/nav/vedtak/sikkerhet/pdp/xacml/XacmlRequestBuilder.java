@@ -32,6 +32,11 @@ public class XacmlRequestBuilder {
         return this;
     }
 
+    public XacmlRequestBuilder addSubjectAttributeSet(XacmlAttributeSet attributeSet) {
+        addAttributeSetInCategory(Category.AccessSubject, attributeSet);
+        return this;
+    }
+
     private void addAttributeSetInCategory(Category category, XacmlAttributeSet decisionPoint) {
 
         if (attributeSets.containsKey(category)) {
