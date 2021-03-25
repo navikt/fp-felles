@@ -79,13 +79,6 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
 
     protected XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest) {
         var resourceAttributeSet = new XacmlAttributeSet();
-        if (pdpRequest.get(XACML10_SUBJECT_ID) != null) {
-        }
-
-        if (pdpRequest.get(SUBJECT_TYPE) != null) {
-            resourceAttributeSet.addAttribute(SUBJECT_TYPE,
-                    pdpRequest.getString(SUBJECT_TYPE));
-        }
 
         resourceAttributeSet.addAttribute(RESOURCE_FELLES_DOMENE,
                 pdpRequest.getString(RESOURCE_FELLES_DOMENE));
