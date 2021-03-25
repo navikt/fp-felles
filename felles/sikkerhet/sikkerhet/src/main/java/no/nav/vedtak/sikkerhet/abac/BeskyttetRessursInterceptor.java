@@ -18,6 +18,7 @@ import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
+import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
 import no.nav.vedtak.util.env.Environment;
 
 @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, resource = "")
@@ -102,7 +103,7 @@ public class BeskyttetRessursInterceptor {
 
         var attributter = clazz.getAnnotation(WebService.class) != null
                 ? AbacAttributtSamling.medSamlToken(tokenProvider.samlToken())
-                : AbacAttributtSamling.medJwtToken(tokenProvider.userToken());
+                : AbacAttributtSamling.medJwtToken(tokenProvider.userToken(), TokenType.TOKENX);
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         attributter.setActionType(beskyttetRessurs.action());
 

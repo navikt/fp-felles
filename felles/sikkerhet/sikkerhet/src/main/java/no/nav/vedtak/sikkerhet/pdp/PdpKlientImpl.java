@@ -61,14 +61,17 @@ public class PdpKlientImpl implements PdpKlient {
         AbacIdToken idToken = (AbacIdToken) pdpRequest.get(ENVIRONMENT_AUTH_TOKEN);
         switch (idToken.getTokenType()) {
             case OIDC:
-                environmentAttributeSet.addAttribute(NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY,
-                        JwtUtil.getJwtBody(idToken.getToken()));
+                String key = NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
+                logger.trace("Legger på token med type oidc på {}", key);
+                environmentAttributeSet.addAttribute(key, JwtUtil.getJwtBody(idToken.getToken()));
                 break;
             case TOKENX:
-                environmentAttributeSet.addAttribute(NavAbacCommonAttributter.ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY,
-                        JwtUtil.getJwtBody(idToken.getToken()));
+                String keyX = NavAbacCommonAttributter.ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
+                logger.trace("Legger på token med type tokenX på {}", keyX);
+                environmentAttributeSet.addAttribute(keyX, JwtUtil.getJwtBody(idToken.getToken()));
                 break;
             case SAML:
+                logger.trace("Legger på token med type saml");
                 environmentAttributeSet.addAttribute(NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN,
                         base64encode(idToken.getToken()));
                 break;

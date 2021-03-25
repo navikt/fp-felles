@@ -3,6 +3,8 @@ package no.nav.vedtak.sikkerhet.abac;
 import java.util.Objects;
 import java.util.Set;
 
+import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
+
 public class AbacAttributtSamling {
     private final AbacIdToken idToken;
     private final AbacDataAttributter dataAttributter = AbacDataAttributter.opprett();
@@ -14,9 +16,9 @@ public class AbacAttributtSamling {
         this.idToken = idToken;
     }
 
-    public static AbacAttributtSamling medJwtToken(String jwtToken) {
+    public static AbacAttributtSamling medJwtToken(String jwtToken, TokenType type) {
         Objects.requireNonNull(jwtToken);
-        return new AbacAttributtSamling(AbacIdToken.withOidcToken(jwtToken));
+        return new AbacAttributtSamling(AbacIdToken.withToken(jwtToken, type));
     }
 
     public static AbacAttributtSamling medSamlToken(String samlToken) {
@@ -29,7 +31,7 @@ public class AbacAttributtSamling {
         return this;
     }
 
-    public<T> Set<T> getVerdier(AbacAttributtType type) {
+    public <T> Set<T> getVerdier(AbacAttributtType type) {
         return dataAttributter.getVerdier(type);
     }
 
@@ -44,11 +46,11 @@ public class AbacAttributtSamling {
     @Override
     public String toString() {
         return AbacAttributtSamling.class.getSimpleName() + '{' + idToken +
-            " action='" + action + "'" +
-            " actionType='" + actionType + "'" +
-            " resource='" + resource + "' " +
-            dataAttributter +
-            '}';
+                " action='" + action + "'" +
+                " actionType='" + actionType + "'" +
+                " resource='" + resource + "' " +
+                dataAttributter +
+                '}';
     }
 
     public AbacAttributtSamling setActionType(BeskyttetRessursActionAttributt actionType) {
@@ -75,9 +77,9 @@ public class AbacAttributtSamling {
 
     public int kryssProduktAntallAttributter() {
         return dataAttributter.keySet().stream()
-            .mapToInt(k -> dataAttributter.getVerdier(k).size())
-            .filter(s -> s > 0)
-            .reduce(1, (a, b) -> a * b);
+                .mapToInt(k -> dataAttributter.getVerdier(k).size())
+                .filter(s -> s > 0)
+                .reduce(1, (a, b) -> a * b);
     }
 
     AbacAttributtSamling setAction(String action) {

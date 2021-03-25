@@ -11,6 +11,8 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
+
 public class PepImplTest {
 
     private PepImpl pep;
@@ -27,7 +29,7 @@ public class PepImplTest {
     @Test
     public void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
         when(provider.getUid()).thenReturn("srvpdp");
-        AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
+        AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
                 .setResource("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
                 .setAction("READ");
 
@@ -39,7 +41,7 @@ public class PepImplTest {
     @Test
     public void skal_nekte_tilgang_til_saksbehandler_for_piptjeneste() {
         when(provider.getUid()).thenReturn("z142443");
-        AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
+        AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
                 .setResource("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
                 .setAction("READ");
 
@@ -51,7 +53,7 @@ public class PepImplTest {
     @Test
     public void skal_kalle_pdp_for_annet_enn_pip_tjenester() {
         when(provider.getUid()).thenReturn("z142443");
-        AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy")
+        AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
                 .setResource("no.nav.abac.attributter.foreldrepenger.fagsak")
                 .setAction("READ");
 
