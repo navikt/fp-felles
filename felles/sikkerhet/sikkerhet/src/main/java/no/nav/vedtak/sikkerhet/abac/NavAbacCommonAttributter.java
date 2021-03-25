@@ -1,12 +1,14 @@
 package no.nav.vedtak.sikkerhet.abac;
 
 /**
- * Inneholder subset av konstanter deklareret i aba-common-attributter modul i Nav.
- * 
+ * Inneholder subset av konstanter deklareret i aba-common-attributter modul i
+ * Nav.
+ *
  * @see abac-common-attributes-alfa / CommonAttributter.
  */
 public class NavAbacCommonAttributter {
 
+    public static final String ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY = "no.nav.abac.attributter.environment.felles.tokenx_token_body";
     public static final String ENVIRONMENT_FELLES_SAML_TOKEN = "no.nav.abac.attributter.environment.felles.saml_token";
     public static final String ENVIRONMENT_FELLES_OIDC_TOKEN_BODY = "no.nav.abac.attributter.environment.felles.oidc_token_body";
     public static final String ENVIRONMENT_FELLES_PEP_ID = "no.nav.abac.attributter.environment.felles.pep_id";
