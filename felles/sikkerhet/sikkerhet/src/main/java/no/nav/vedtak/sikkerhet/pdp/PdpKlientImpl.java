@@ -34,7 +34,7 @@ import no.nav.vedtak.util.env.Environment;
 @ApplicationScoped
 public class PdpKlientImpl implements PdpKlient {
 
-    private static final Logger logger = LoggerFactory.getLogger(PdpKlientImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PdpKlientImpl.class);
     private XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste;
 
     private PdpConsumer pdpConsumer;
@@ -60,27 +60,26 @@ public class PdpKlientImpl implements PdpKlient {
     }
 
     void leggPåTokenInformasjon(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest) {
-        var environmentAttributeSet = new XacmlAttributeSet();
-        environmentAttributeSet.addAttribute(ENVIRONMENT_FELLES_PEP_ID, getPepId());
+        var attrs = new XacmlAttributeSet();
+        attrs.addAttribute(ENVIRONMENT_FELLES_PEP_ID, getPepId());
         AbacIdToken idToken = (AbacIdToken) pdpRequest.get(ENVIRONMENT_AUTH_TOKEN);
         switch (idToken.getTokenType()) {
             case OIDC:
                 String key = ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
-                logger.trace("Legger på token med type oidc på {}", key);
-                environmentAttributeSet.addAttribute(key, JwtUtil.getJwtBody(idToken.getToken()));
+                LOG.trace("Legger på token med type oidc på {}", key);
+                attrs.addAttribute(key, JwtUtil.getJwtBody(idToken.getToken()));
                 break;
             case TOKENX:
                 String keyX = ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
-                logger.trace("Legger på token med type tokenX på {}", keyX);
-                environmentAttributeSet.addAttribute(keyX, JwtUtil.getJwtBody(idToken.getToken()));
+                LOG.trace("Legger på token med type tokenX på {}", keyX);
+                attrs.addAttribute(keyX, JwtUtil.getJwtBody(idToken.getToken()));
                 break;
             case SAML:
-                logger.trace("Legger på token med type saml");
-                environmentAttributeSet.addAttribute(ENVIRONMENT_FELLES_SAML_TOKEN,
-                        base64encode(idToken.getToken()));
+                LOG.trace("Legger på token med type saml");
+                attrs.addAttribute(ENVIRONMENT_FELLES_SAML_TOKEN, base64encode(idToken.getToken()));
                 break;
         }
-        xacmlBuilder.addEnvironmentAttributeSet(environmentAttributeSet);
+        xacmlBuilder.addEnvironmentAttributeSet(attrs);
     }
 
     private String base64encode(String samlToken) {
@@ -93,8 +92,8 @@ public class PdpKlientImpl implements PdpKlient {
         }
         List<Advice> denyAdvice = response.getXacmlResponse().getAdvice();
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Deny fra PDP, advice var: " + LoggerUtils.toStringWithoutLineBreaks(denyAdvice)); // NOSONAR
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Deny fra PDP, advice var: " + LoggerUtils.toStringWithoutLineBreaks(denyAdvice)); // NOSONAR
         }
         if (denyAdvice.contains(Advice.DENY_KODE_6)) {
             return AbacResultat.AVSLÅTT_KODE_6;
