@@ -18,5 +18,6 @@ public class NavAbacCommonAttributter {
     public static final String XACML10_ACTION_ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
     public static final String RESOURCE_FELLES_PERSON_FNR = "no.nav.abac.attributter.resource.felles.person.fnr";
     public static final String RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE = "no.nav.abac.attributter.resource.felles.person.aktoerId_resource";
-
+    public static final String XACML10_SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
+    public static final String ENVIRONMENT_FELLES_SUBJECT_TYPE = "no.nav.abac.attributter.subject.felles.subjectType";
 }

@@ -112,8 +112,6 @@ public class BeskyttetRessursInterceptor {
             attributter.setResource(resource);
         } else if (!beskyttetRessurs.resource().isEmpty()) {
             attributter.setResource(beskyttetRessurs.resource());
-        } else {
-
         }
 
         attributter.setAction(utledAction(clazz, method));
