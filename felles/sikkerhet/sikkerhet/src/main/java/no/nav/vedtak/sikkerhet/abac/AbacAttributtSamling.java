@@ -16,6 +16,7 @@ public class AbacAttributtSamling {
         this.idToken = idToken;
     }
 
+    @Deprecated
     public static AbacAttributtSamling medJwtToken(String jwtToken) {
         return medJwtToken(jwtToken, TokenType.OIDC);
     }
