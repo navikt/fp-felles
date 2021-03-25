@@ -2,31 +2,56 @@ package no.nav.vedtak.sikkerhet.abac;
 
 public class AbacIdToken {
 
-    private String token;
-    private boolean erOidcToken;
+    public enum TokenType {
+        OIDC,
+        TOKENX,
+        SAML;
+    }
 
-    private AbacIdToken(String token, boolean erOidcToken) {
+    private final String token;
+    private final TokenType tokenType;
+
+    private AbacIdToken(String token, TokenType tokenType) {
         this.token = token;
-        this.erOidcToken = erOidcToken;
+        this.tokenType = tokenType;
     }
 
-    public static AbacIdToken withOidcToken(String oidcToken) {
-        return new AbacIdToken(oidcToken, true);
+    @Deprecated
+    public static AbacIdToken withOidcToken(String token) {
+        return new AbacIdToken(token, TokenType.OIDC);
     }
 
-    public static AbacIdToken withSamlToken(String samlToken) {
-        return new AbacIdToken(samlToken, false);
+    public static AbacIdToken withToken(String token, TokenType type) {
+        return new AbacIdToken(token, type);
+    }
+
+    @Deprecated
+    public static AbacIdToken withSamlToken(String token) {
+        return new AbacIdToken(token, TokenType.SAML);
+    }
+
+    public TokenType getTokenType() {
+        return tokenType;
     }
 
     @Override
     public String toString() {
-        return erOidcToken
-                ? "jwtToken='" + maskerOidcToken(token) + '\''
-                : "samlToken='MASKERT'";
+        switch (tokenType) {
+            case SAML:
+                return "samlToken='MASKERT'";
+            default:
+                return "jwtToken='" + maskerOidcToken(token) + '\'';
+        }
     }
 
+    @Deprecated
     public boolean erOidcToken() {
-        return erOidcToken;
+        return TokenType.OIDC.equals(tokenType);
+    }
+
+    @Deprecated
+    public boolean erSamlToken() {
+        return TokenType.SAML.equals(tokenType);
     }
 
     public String getToken() {

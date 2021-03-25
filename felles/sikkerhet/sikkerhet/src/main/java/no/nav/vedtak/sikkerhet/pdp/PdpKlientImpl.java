@@ -14,6 +14,7 @@ import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.abac.Decision;
+import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
@@ -56,14 +57,21 @@ public class PdpKlientImpl implements PdpKlient {
 
     void leggPåTokenInformasjon(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest) {
         XacmlAttributeSet environmentAttributeSet = new XacmlAttributeSet();
-        environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID, getPepId());
+        environmentAttributeSet.addAttribute(NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID, getPepId());
         AbacIdToken idToken = (AbacIdToken) pdpRequest.get(ENVIRONMENT_AUTH_TOKEN);
-        if (idToken.erOidcToken()) {
-            environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY,
-                    JwtUtil.getJwtBody(idToken.getToken()));
-        } else {
-            environmentAttributeSet.addAttribute(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN,
-                    base64encode(idToken.getToken()));
+        switch (idToken.getTokenType()) {
+            case OIDC:
+                environmentAttributeSet.addAttribute(NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY,
+                        JwtUtil.getJwtBody(idToken.getToken()));
+                break;
+            case TOKENX:
+                environmentAttributeSet.addAttribute(NavAbacCommonAttributter.ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY,
+                        JwtUtil.getJwtBody(idToken.getToken()));
+                break;
+            case SAML:
+                environmentAttributeSet.addAttribute(NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN,
+                        base64encode(idToken.getToken()));
+                break;
         }
         xacmlBuilder.addEnvironmentAttributeSet(environmentAttributeSet);
     }
