@@ -34,7 +34,7 @@ public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenP
     @Override
     public String accessToken() {
         return Optional.ofNullable(suppliedToken())
-                .orElseGet(() -> exchangedToken());
+                .orElseGet(this::exchangedToken);
     }
 
     protected String suppliedToken() {

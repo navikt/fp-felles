@@ -11,32 +11,32 @@ import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @Default
 @ApplicationScoped
 public class PepImpl implements Pep {
     private final static String PIP = "pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker";
 
-
     private PdpKlient pdpKlient;
     private PdpRequestBuilder pdpRequestBuilder;
 
     private Set<String> pipUsers;
     private AbacSporingslogg sporingslogg;
+    private TokenProvider tokenProvider;
 
     public PepImpl() {
     }
 
     @Inject
     public PepImpl(PdpKlient pdpKlient,
-                   PdpRequestBuilder pdpRequestBuilder,
-                   AbacSporingslogg sporingslogg,
-                   @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
+            TokenProvider tokenProvider,
+            PdpRequestBuilder pdpRequestBuilder,
+            AbacSporingslogg sporingslogg,
+            @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
         this.pdpKlient = pdpKlient;
         this.pdpRequestBuilder = pdpRequestBuilder;
         this.sporingslogg = sporingslogg;
-
+        this.tokenProvider = tokenProvider;
         this.pipUsers = konfigurePipUsers(pipUsers);
     }
 
@@ -60,7 +60,7 @@ public class PepImpl implements Pep {
     }
 
     protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(PdpRequest pdpRequest, AbacAttributtSamling attributter) {
-        String uid = SubjectHandler.getSubjectHandler().getUid();
+        String uid = tokenProvider.getUid();
         if (pipUsers.contains(uid.toLowerCase())) {
             return lagPipPermit(pdpRequest);
         }
@@ -86,13 +86,15 @@ public class PepImpl implements Pep {
     }
 
     protected int antallIdenter(PdpRequest pdpRequest) {
-        // antall identer involvert i en request (eks. default - antall aktørId + antall fnr)
+        // antall identer involvert i en request (eks. default - antall aktørId + antall
+        // fnr)
         return pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)
-            + pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR);
+                + pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR);
     }
 
     protected int getAntallResources(@SuppressWarnings("unused") PdpRequest pdpRequest) {
-        // Template method. Regn evt ut antall aksjonspunkter el andre typer ressurser som behandles i denne requesten (hvis mer enn 1)
+        // Template method. Regn evt ut antall aksjonspunkter el andre typer ressurser
+        // som behandles i denne requesten (hvis mer enn 1)
         return 1;
     }
 
