@@ -1,5 +1,10 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -14,7 +19,6 @@ import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.abac.Decision;
-import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
@@ -56,23 +60,23 @@ public class PdpKlientImpl implements PdpKlient {
     }
 
     void leggPåTokenInformasjon(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest) {
-        XacmlAttributeSet environmentAttributeSet = new XacmlAttributeSet();
-        environmentAttributeSet.addAttribute(NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID, getPepId());
+        var environmentAttributeSet = new XacmlAttributeSet();
+        environmentAttributeSet.addAttribute(ENVIRONMENT_FELLES_PEP_ID, getPepId());
         AbacIdToken idToken = (AbacIdToken) pdpRequest.get(ENVIRONMENT_AUTH_TOKEN);
         switch (idToken.getTokenType()) {
             case OIDC:
-                String key = NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
+                String key = ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
                 logger.trace("Legger på token med type oidc på {}", key);
                 environmentAttributeSet.addAttribute(key, JwtUtil.getJwtBody(idToken.getToken()));
                 break;
             case TOKENX:
-                String keyX = NavAbacCommonAttributter.ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
+                String keyX = ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
                 logger.trace("Legger på token med type tokenX på {}", keyX);
                 environmentAttributeSet.addAttribute(keyX, JwtUtil.getJwtBody(idToken.getToken()));
                 break;
             case SAML:
                 logger.trace("Legger på token med type saml");
-                environmentAttributeSet.addAttribute(NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN,
+                environmentAttributeSet.addAttribute(ENVIRONMENT_FELLES_SAML_TOKEN,
                         base64encode(idToken.getToken()));
                 break;
         }
