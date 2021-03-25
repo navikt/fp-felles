@@ -34,14 +34,18 @@ public class AbacIdToken {
         return tokenType;
     }
 
-    @Override
-    public String toString() {
+    private String token() {
         switch (tokenType) {
             case SAML:
                 return "samlToken='MASKERT'";
             default:
                 return "jwtToken='" + maskerOidcToken(token) + '\'';
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [token=" + token() + ", tokenType=" + tokenType + "]";
     }
 
     @Deprecated
