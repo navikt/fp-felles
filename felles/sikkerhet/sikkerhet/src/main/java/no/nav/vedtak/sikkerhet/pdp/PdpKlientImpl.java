@@ -47,6 +47,7 @@ public class PdpKlientImpl implements PdpKlient {
     public PdpKlientImpl(PdpConsumer pdpConsumer, XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste) {
         this.pdpConsumer = pdpConsumer;
         this.xamlRequestBuilderTjeneste = xamlRequestBuilderTjeneste;
+        LOG.info("builder er " + xamlRequestBuilderTjeneste.getClass());
     }
 
     @Override
