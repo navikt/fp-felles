@@ -67,12 +67,12 @@ public class PdpKlientImpl implements PdpKlient {
         switch (idToken.getTokenType()) {
             case OIDC:
                 String key = ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
-                LOG.trace("Legger på token med type oidc på {}", key);
+                LOG.trace("Legger ved token med type oidc på {}", key);
                 attrs.addAttribute(key, JwtUtil.getJwtBody(idToken.getToken()));
                 break;
             case TOKENX:
                 String keyX = ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
-                LOG.trace("Legger på token med type tokenX på {}", keyX);
+                LOG.trace("Legger IKKE ved token med type tokenX på {}", keyX);
                 attrs.addAttribute(keyX, JwtUtil.getJwtBody(idToken.getToken()));
                 break;
             case SAML:
