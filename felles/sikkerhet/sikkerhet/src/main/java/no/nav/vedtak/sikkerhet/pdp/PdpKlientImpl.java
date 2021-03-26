@@ -71,7 +71,7 @@ public class PdpKlientImpl implements PdpKlient {
                 break;
             case TOKENX:
                 String keyX = ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
-                LOG.trace("Legger IKKE på token med type tokenX på {}", keyX);
+                LOG.trace("Legger på token med type tokenX på {}", keyX);
                 attrs.addAttribute(keyX, JwtUtil.getJwtBody(idToken.getToken()));
                 break;
             case SAML:
