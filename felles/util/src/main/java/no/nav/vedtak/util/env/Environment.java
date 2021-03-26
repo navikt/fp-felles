@@ -1,5 +1,7 @@
 package no.nav.vedtak.util.env;
 
+import static java.lang.System.getenv;
+
 import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
@@ -30,6 +32,8 @@ import no.nav.vedtak.konfig.StandardPropertySource;
 import no.nav.vedtak.konfig.SystemPropertiesKonfigVerdiProvider;
 
 public final class Environment {
+
+    public static final String NAIS_APP_NAME = "NAIS_APP_NAME";
 
     static final class Init {
 
@@ -84,6 +88,11 @@ public final class Environment {
 
     public String clusterName() {
         return cluster.clusterName();
+    }
+
+    public String appName() {
+        return Optional.ofNullable(getenv(NAIS_APP_NAME))
+                .orElse(null);
     }
 
     public Properties getPropertiesWithPrefix(String prefix) {
