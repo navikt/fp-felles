@@ -15,6 +15,8 @@ import javax.interceptor.InvocationContext;
 import javax.jws.WebService;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
@@ -26,6 +28,8 @@ import no.nav.vedtak.util.env.Environment;
 @Priority(Interceptor.Priority.APPLICATION + 11)
 @Dependent
 public class BeskyttetRessursInterceptor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BeskyttetRessursInterceptor.class);
 
     private final Pep pep;
     private final AbacSporingslogg sporingslogg;
@@ -39,10 +43,12 @@ public class BeskyttetRessursInterceptor {
         this.sporingslogg = sporingslogg;
         this.abacAuditlogger = abacAuditlogger;
         this.tokenProvider = provider;
+        LOG.trace("Konstruert");
     }
 
     @AroundInvoke
     public Object wrapTransaction(final InvocationContext invocationContext) throws Exception {
+        LOG.trace("Vurderer tilgang");
         var attributter = hentAttributter(invocationContext);
         var beslutning = pep.vurderTilgang(attributter);
 
