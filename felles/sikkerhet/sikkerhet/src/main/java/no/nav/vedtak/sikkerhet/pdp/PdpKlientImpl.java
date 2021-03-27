@@ -4,6 +4,7 @@ import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
+import static no.nav.vedtak.util.env.Environment.NAIS_APP_NAME;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -52,11 +53,10 @@ public class PdpKlientImpl implements PdpKlient {
 
     @Override
     public Tilgangsbeslutning forespørTilgang(PdpRequest pdpRequest) {
-        XacmlRequestBuilder xacmlBuilder = xamlRequestBuilderTjeneste.lagXacmlRequestBuilder(pdpRequest);
+        var xacmlBuilder = xamlRequestBuilderTjeneste.lagXacmlRequestBuilder(pdpRequest);
         leggPåTokenInformasjon(xacmlBuilder, pdpRequest);
-        XacmlResponseWrapper response = pdpConsumer.evaluate(xacmlBuilder);
-        BiasedDecisionResponse biasedResponse = evaluateWithBias(response);
-        AbacResultat hovedresultat = resultatFraResponse(biasedResponse);
+        var response = pdpConsumer.evaluate(xacmlBuilder);
+        var hovedresultat = resultatFraResponse(evaluateWithBias(response));
         return new Tilgangsbeslutning(hovedresultat, response.getDecisions(), pdpRequest);
     }
 
@@ -73,7 +73,7 @@ public class PdpKlientImpl implements PdpKlient {
             case TOKENX:
                 String keyX = ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
                 LOG.trace("Legger IKKE ved token med type tokenX på {}", keyX);
-                //attrs.addAttribute(keyX, JwtUtil.getJwtBody(idToken.getToken()));
+                // attrs.addAttribute(keyX, JwtUtil.getJwtBody(idToken.getToken()));
                 break;
             case SAML:
                 LOG.trace("Legger på token med type saml");
@@ -140,6 +140,6 @@ public class PdpKlientImpl implements PdpKlient {
     }
 
     private static String getPepId() {
-        return Environment.current().getProperty("NAIS_APP_NAME", "local-app");
+        return Environment.current().getProperty(NAIS_APP_NAME, "local-app");
     }
 }

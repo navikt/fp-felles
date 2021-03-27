@@ -20,7 +20,18 @@ public class XacmlAttributeSet {
         return this;
     }
 
+    public XacmlAttributeSet addAttribute(String id, int value) {
+        Objects.requireNonNull(id, "Name in JsonObject's name/value pair");
+        Objects.requireNonNull(value, "Value in JsonObject's name/value pair");
+        attributes.add(createAttribute(id, value));
+        return this;
+    }
+
     private JsonObjectBuilder createAttribute(String id, String value) {
+        return Json.createObjectBuilder().add(ATTRIBUTEID, id).add(VALUE, value);
+    }
+
+    private JsonObjectBuilder createAttribute(String id, int value) {
         return Json.createObjectBuilder().add(ATTRIBUTEID, id).add(VALUE, value);
     }
 
@@ -28,5 +39,3 @@ public class XacmlAttributeSet {
         return Json.createObjectBuilder().add(ATTRIBUTE, attributes);
     }
 }
-
-
