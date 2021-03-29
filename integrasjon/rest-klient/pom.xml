@@ -25,7 +25,7 @@
         <dependency>
             <groupId>io.github.kobylynskyi</groupId>
             <artifactId>graphql-java-codegen</artifactId>
-            <version>4.1.5</version>
+            <version>4.1.6</version>
         </dependency>
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
