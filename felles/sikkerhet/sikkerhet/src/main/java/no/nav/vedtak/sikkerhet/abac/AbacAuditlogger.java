@@ -1,8 +1,24 @@
 package no.nav.vedtak.sikkerhet.abac;
 
 import static java.util.Objects.requireNonNull;
+import static no.nav.vedtak.log.audit.CefFieldName.ABAC_ACTION;
+import static no.nav.vedtak.log.audit.CefFieldName.ABAC_RESOURCE_TYPE;
+import static no.nav.vedtak.log.audit.CefFieldName.BERORT_BRUKER_ID;
+import static no.nav.vedtak.log.audit.CefFieldName.EVENT_TIME;
+import static no.nav.vedtak.log.audit.CefFieldName.REQUEST;
+import static no.nav.vedtak.log.audit.CefFieldName.USER_ID;
+import static no.nav.vedtak.log.audit.CefFields.forBehandling;
+import static no.nav.vedtak.log.audit.CefFields.forSaksnummer;
+import static no.nav.vedtak.log.audit.EventClassId.AUDIT_ACCESS;
+import static no.nav.vedtak.log.audit.EventClassId.AUDIT_CREATE;
+import static no.nav.vedtak.log.audit.EventClassId.AUDIT_UPDATE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.BEHANDLING_ID;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.BEHANDLING_UUID;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.FAGSAK_ID;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.SAKSNUMMER;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -17,8 +33,6 @@ import no.nav.vedtak.log.audit.Auditdata;
 import no.nav.vedtak.log.audit.AuditdataHeader;
 import no.nav.vedtak.log.audit.Auditlogger;
 import no.nav.vedtak.log.audit.CefField;
-import no.nav.vedtak.log.audit.CefFieldName;
-import no.nav.vedtak.log.audit.CefFields;
 import no.nav.vedtak.log.audit.EventClassId;
 
 /**
@@ -28,36 +42,33 @@ import no.nav.vedtak.log.audit.EventClassId;
  */
 @Dependent
 public class AbacAuditlogger {
-    
+
     private final Auditlogger auditlogger;
-    
+
     @Inject
     public AbacAuditlogger(Auditlogger auditlogger) {
         this.auditlogger = auditlogger;
     }
-    
-    
+
     public void loggTilgang(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter) {
         logg(userId, pdpRequest, attributter, Access.GRANTED);
     }
-    
 
     public void loggDeny(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter) {
         logg(userId, pdpRequest, attributter, Access.DENIED);
     }
-    
+
     public boolean isEnabled() {
         return auditlogger.isEnabled();
     }
-    
-    
+
     private void logg(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter, Access access) {
         requireNonNull(pdpRequest);
-        
-        final String abacAction = requireNonNull(pdpRequest.getString(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID));
-        final AuditdataHeader header = createHeader(abacAction, access);
-        final Set<CefField> fields = createDefaultAbacFields(userId, pdpRequest, attributter);
-        
+
+        String abacAction = requireNonNull(pdpRequest.getString(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID));
+        var header = createHeader(abacAction, access);
+        var fields = createDefaultAbacFields(userId, pdpRequest, attributter);
+
         List<String> ids = getBerortBrukerId(pdpRequest);
         for (String aktorId : ids) {
             loggTilgangPerBerortAktoer(header, fields, aktorId);
@@ -65,9 +76,9 @@ public class AbacAuditlogger {
     }
 
     private void loggTilgangPerBerortAktoer(AuditdataHeader header, Set<CefField> fields, String id) {
-        final Set<CefField> fieldsWithBerortBruker = new HashSet<>(fields);
-        fieldsWithBerortBruker.add(new CefField(CefFieldName.BERORT_BRUKER_ID, id));
-        final Auditdata auditdata = new Auditdata(header, fieldsWithBerortBruker);
+        var fieldsWithBerortBruker = new HashSet<>(fields);
+        fieldsWithBerortBruker.add(new CefField(BERORT_BRUKER_ID, id));
+        var auditdata = new Auditdata(header, fieldsWithBerortBruker);
         auditlogger.logg(auditdata);
     }
 
@@ -82,43 +93,43 @@ public class AbacAuditlogger {
     }
 
     private Set<CefField> createDefaultAbacFields(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter) {
-        final String abacAction = requireNonNull(pdpRequest.getString(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID));
-        final String abacResourceType = requireNonNull(pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
-        
-        final Set<CefField> fields = new HashSet<>();
-        fields.add(new CefField(CefFieldName.EVENT_TIME, System.currentTimeMillis()));
-        fields.add(new CefField(CefFieldName.REQUEST, attributter.getAction()));
-        fields.add(new CefField(CefFieldName.ABAC_RESOURCE_TYPE, abacResourceType));
-        fields.add(new CefField(CefFieldName.ABAC_ACTION, abacAction));
-        
+        String abacAction = requireNonNull(pdpRequest.getString(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID));
+        String abacResourceType = requireNonNull(pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE));
+
+        Set<CefField> fields = new HashSet<>();
+        fields.add(new CefField(EVENT_TIME, System.currentTimeMillis()));
+        fields.add(new CefField(REQUEST, attributter.getAction()));
+        fields.add(new CefField(ABAC_RESOURCE_TYPE, abacResourceType));
+        fields.add(new CefField(ABAC_ACTION, abacAction));
+
         if (userId != null) {
-            fields.add(new CefField(CefFieldName.USER_ID, userId));
+            fields.add(new CefField(USER_ID, userId));
         }
-        
-        getOneOf(attributter, StandardAbacAttributtType.SAKSNUMMER, StandardAbacAttributtType.FAGSAK_ID).ifPresent(fagsak -> {
-            fields.addAll(CefFields.forSaksnummer(fagsak));
+
+        getOneOf(attributter, SAKSNUMMER, FAGSAK_ID).ifPresent(fagsak -> {
+            fields.addAll(forSaksnummer(fagsak));
         });
-        
-        getOneOf(attributter, StandardAbacAttributtType.BEHANDLING_UUID, StandardAbacAttributtType.BEHANDLING_ID).ifPresent(behandling -> {
-            fields.addAll(CefFields.forBehandling(behandling));
+
+        getOneOf(attributter, BEHANDLING_UUID, BEHANDLING_ID).ifPresent(behandling -> {
+            fields.addAll(forBehandling(behandling));
         });
-        
-        return Collections.unmodifiableSet(fields);
+
+        return Set.copyOf(fields);
     }
-    
+
     private List<String> getBerortBrukerId(PdpRequest pdpRequest) {
         /*
          * Arcsight foretrekker FNR fremfor AktørID, men det er uklart hvordan de
-         * håndterer blanding (har sendt forespørsel, men ikke fått svar). Velger
-         * derfor at AktørID prioriteres (siden alle kallene i k9-sak har denne).
+         * håndterer blanding (har sendt forespørsel, men ikke fått svar). Velger derfor
+         * at AktørID prioriteres (siden alle kallene i k9-sak har denne).
          */
-        final List<String> ids = allNonNullValues(pdpRequest, NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
+        final List<String> ids = allNonNullValues(pdpRequest, RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
         if (!ids.isEmpty()) {
             return ids;
-        }    
-        return allNonNullValues(pdpRequest, NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR);
+        }
+        return allNonNullValues(pdpRequest, RESOURCE_FELLES_PERSON_FNR);
     }
-    
+
     private static final Optional<String> getOneOf(AbacAttributtSamling attributter, AbacAttributtType... typer) {
         for (AbacAttributtType key : typer) {
             final Set<Object> values = attributter.getVerdier(key);
@@ -131,37 +142,43 @@ public class AbacAuditlogger {
 
     private static final EventClassId finnEventClassIdFra(String abacAction) {
         switch (abacAction) {
-        case "read": return EventClassId.AUDIT_ACCESS;
-        case "delete": /* Fall-through */
-        case "update": return EventClassId.AUDIT_UPDATE;
-        case "create": return EventClassId.AUDIT_CREATE;
-        default: throw new IllegalArgumentException("Ukjent abacAction: " + abacAction);
+            case "read":
+                return AUDIT_ACCESS;
+            case "delete": /* Fall-through */
+            case "update":
+                return AUDIT_UPDATE;
+            case "create":
+                return AUDIT_CREATE;
+            default:
+                throw new IllegalArgumentException("Ukjent abacAction: " + abacAction);
         }
     }
 
     private static final List<String> allNonNullValues(PdpRequest pdpRequest, String key) {
-        return pdpRequest.getListOfString(key).stream().filter(Objects::nonNull).collect(Collectors.toList());
+        return pdpRequest.getListOfString(key).stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
-    
+
     /**
      * Standard hos NAV er at tilgang logges som "INFO" og avslag som "WARN". Merk
      * at dette avviker fra CEF-standarden.
      */
     private enum Access {
         /*
-         * Det er med vilje ikke brukt andre koder enn "Permit"/"Deny" grunnet
-         * at man ved logging mot Arcsight tolker alt annet enn "Permit" som "WARN".
+         * Det er med vilje ikke brukt andre koder enn "Permit"/"Deny" grunnet at man
+         * ved logging mot Arcsight tolker alt annet enn "Permit" som "WARN".
          */
-        
+
         GRANTED("INFO"),
         DENIED("WARN");
-        
-        private String severity;
-        
+
+        private final String severity;
+
         private Access(String severity) {
             this.severity = severity;
         }
-        
+
         public String getSeverity() {
             return severity;
         }

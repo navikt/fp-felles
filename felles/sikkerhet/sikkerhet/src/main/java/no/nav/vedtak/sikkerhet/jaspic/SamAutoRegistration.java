@@ -8,6 +8,14 @@ import javax.servlet.ServletContextListener;
 
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
+/**
+ *
+ * Denne er ikke lenger annotert med @WebListener for å unngå automatisk
+ * oppstart. Dette bryter den hardkodede koblingen mellom token validering og
+ * jaas. Applikasjoner som trenger denne fremdeles må enten registrere den
+ * programmatisk eller i lokal web.xml. På sikt skal all Jaas/jaspic-kode dø.
+ *
+ */
 //@WebListener
 public class SamAutoRegistration implements ServletContextListener {
     private static final String CONTEXT_REGISTRATION_ID = "no.nav.vedtak.sikkerhet.jaspic.registrationId";

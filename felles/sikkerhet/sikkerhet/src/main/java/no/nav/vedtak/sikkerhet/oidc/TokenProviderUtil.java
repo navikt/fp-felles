@@ -18,6 +18,8 @@ import org.apache.http.impl.client.HttpClients;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import no.nav.vedtak.exception.TekniskException;
+
 class TokenProviderUtil {
 
     private TokenProviderUtil() {
@@ -62,7 +64,8 @@ class TokenProviderUtil {
                 if (400 <= statusCode && statusCode < 500 && foventer400Koder) {
                     return null;
                 }
-                throw TokenProviderFeil.kunneIkkeHenteTokenFikk40xKode(statusCode, responseString);
+                throw new TekniskException("F-922822",
+                String.format("Kunne ikke hente token. Fikk http code %s og response '%s'", statusCode, responseString));
             } finally {
                 request.reset();
             }
@@ -85,7 +88,8 @@ class TokenProviderUtil {
             JsonNode json = mapper.readTree(responseString);
             JsonNode token = json.get(tokenName);
             if (token == null) {
-                throw TokenProviderFeil.fikkIkkeTokenIReponse(tokenName);
+                throw new TekniskException("F-874196",
+                String.format("Fikk ikke '%s' i responsen", tokenName));
             }
             return token.textValue();
         } catch (IOException e) {

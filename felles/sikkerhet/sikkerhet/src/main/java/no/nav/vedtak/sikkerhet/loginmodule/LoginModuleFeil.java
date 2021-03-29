@@ -13,11 +13,6 @@ public class LoginModuleFeil {
         return new TekniskException("F-651753", String.format("Kunne ikke finne konfigurasjonen for %s", name), e);
     }
 
-    static TekniskException feiletUtlogging(LoginException e) {
-        return new TekniskException("F-727999", "Noe gikk galt ved utlogging", e);
-
-    }
-
     public static TekniskException feiletInnlogging(Exception e) {
         return new TekniskException("F-499051", "Noe gikk galt ved innlogging", e);
     }
