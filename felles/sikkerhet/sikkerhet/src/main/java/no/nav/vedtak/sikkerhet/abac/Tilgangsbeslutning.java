@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Objects;
 
 public final class Tilgangsbeslutning {
-    private AbacResultat beslutningKode;
-    private List<Decision> delbeslutninger;
-    private PdpRequest pdpRequest;
+    private final AbacResultat beslutningKode;
+    private final List<Decision> delbeslutninger;
+    private final PdpRequest pdpRequest;
 
     public Tilgangsbeslutning(AbacResultat beslutningKode, List<Decision> delbeslutninger, PdpRequest pdpRequest) {
         this.beslutningKode = Objects.requireNonNull(beslutningKode);

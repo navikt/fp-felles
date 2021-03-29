@@ -1,5 +1,12 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
+import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
+import static no.nav.vedtak.sikkerhet.abac.Decision.Deny;
+import static no.nav.vedtak.sikkerhet.abac.Decision.Permit;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
+import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,7 +25,7 @@ public class PepImpl implements Pep {
     private final static String PIP = "pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker";
 
     private PdpKlient pdpKlient;
-    private PdpRequestBuilder pdpRequestBuilder;
+    private PdpRequestBuilder builder;
 
     private Set<String> pipUsers;
     private AbacSporingslogg sporingslogg;
@@ -34,7 +41,7 @@ public class PepImpl implements Pep {
             AbacSporingslogg sporingslogg,
             @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
         this.pdpKlient = pdpKlient;
-        this.pdpRequestBuilder = pdpRequestBuilder;
+        this.builder = pdpRequestBuilder;
         this.sporingslogg = sporingslogg;
         this.tokenProvider = tokenProvider;
         this.pipUsers = konfigurePipUsers(pipUsers);
@@ -50,13 +57,12 @@ public class PepImpl implements Pep {
 
     @Override
     public Tilgangsbeslutning vurderTilgang(AbacAttributtSamling attributter) {
-        PdpRequest pdpRequest = pdpRequestBuilder.lagPdpRequest(attributter);
+        var pdpRequest = builder.lagPdpRequest(attributter);
 
         if (PIP.equals(attributter.getResource())) {
             return vurderTilgangTilPipTjeneste(pdpRequest, attributter);
-        } else {
-            return pdpKlient.forespørTilgang(pdpRequest);
         }
+        return pdpKlient.forespørTilgang(pdpRequest);
     }
 
     protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(PdpRequest pdpRequest, AbacAttributtSamling attributter) {
@@ -64,21 +70,21 @@ public class PepImpl implements Pep {
         if (pipUsers.contains(uid.toLowerCase())) {
             return lagPipPermit(pdpRequest);
         }
-        Tilgangsbeslutning tilgangsbeslutning = lagPipDeny(pdpRequest);
+        var tilgangsbeslutning = lagPipDeny(pdpRequest);
         sporingslogg.loggDeny(tilgangsbeslutning, attributter);
         return tilgangsbeslutning;
     }
 
     protected Tilgangsbeslutning lagPipPermit(PdpRequest pdpRequest) {
         int antallResources = antallResources(pdpRequest);
-        List<Decision> decisions = lagDecisions(antallResources, Decision.Permit);
-        return new Tilgangsbeslutning(AbacResultat.GODKJENT, decisions, pdpRequest);
+        var decisions = lagDecisions(antallResources, Permit);
+        return new Tilgangsbeslutning(GODKJENT, decisions, pdpRequest);
     }
 
     protected Tilgangsbeslutning lagPipDeny(PdpRequest pdpRequest) {
         int antallResources = antallResources(pdpRequest);
-        List<Decision> decisions = lagDecisions(antallResources, Decision.Deny);
-        return new Tilgangsbeslutning(AbacResultat.AVSLÅTT_ANNEN_ÅRSAK, decisions, pdpRequest);
+        var decisions = lagDecisions(antallResources, Deny);
+        return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, decisions, pdpRequest);
     }
 
     protected int antallResources(PdpRequest pdpRequest) {
@@ -88,8 +94,8 @@ public class PepImpl implements Pep {
     protected int antallIdenter(PdpRequest pdpRequest) {
         // antall identer involvert i en request (eks. default - antall aktørId + antall
         // fnr)
-        return pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)
-                + pdpRequest.getAntall(no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR);
+        return pdpRequest.getAntall(RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)
+                + pdpRequest.getAntall(RESOURCE_FELLES_PERSON_FNR);
     }
 
     protected int getAntallResources(@SuppressWarnings("unused") PdpRequest pdpRequest) {

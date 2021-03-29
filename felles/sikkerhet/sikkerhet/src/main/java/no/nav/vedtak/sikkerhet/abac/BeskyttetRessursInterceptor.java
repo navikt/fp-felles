@@ -93,13 +93,13 @@ public class BeskyttetRessursInterceptor {
 
         switch (beslutning.getBeslutningKode()) {
             case AVSLÅTT_KODE_6:
-                throw PepFeil.ikkeTilgangKode6();
+                throw new PepNektetTilgangException("F-709170", "Tilgangskontroll.Avslag.Kode6");
             case AVSLÅTT_KODE_7:
-                throw PepFeil.ikkeTilgangKode7();
+                throw new PepNektetTilgangException("F-027901", "Tilgangskontroll.Avslag.Kode7");
             case AVSLÅTT_EGEN_ANSATT:
-                throw PepFeil.ikkeTilgangEgenAnsatt();
+                throw new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");
             default:
-                throw PepFeil.ikkeTilgang();
+                throw new PepNektetTilgangException("F-608625", "Ikke tilgang");
         }
     }
 

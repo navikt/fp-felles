@@ -23,6 +23,7 @@ import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.util.env.Environment;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
@@ -35,17 +36,21 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
     private static RequestConfig proxyConfig = createProxyConfig();
 
     private final Supplier<String> jwksStringSupplier;
-    private URL url;
+    private final URL url;
 
     private JsonWebKeySet keyCache;
 
     public JwksKeyHandlerImpl(URL url, boolean useProxyForJwks) {
-        this(() -> httpGet(url, useProxyForJwks));
-        this.url = url;
+        this(() -> httpGet(url, useProxyForJwks), url);
     }
 
     public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier) {
+        this(jwksStringSupplier, null);
+    }
+
+    public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, URL url) {
         this.jwksStringSupplier = jwksStringSupplier;
+        this.url = url;
     }
 
     @Override
@@ -101,7 +106,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
 
     private static String httpGet(URL url, boolean useProxyForJwks) {
         if (url == null) {
-            throw JwksFeil.manglerKonfigurasjonAvJwksUrl();
+            throw new TekniskException("F-836283", "Mangler konfigurasjon av jwks url");
         }
         HttpGet httpGet = new HttpGet(url.toExternalForm());
         httpGet.addHeader("accept", "application/json");
@@ -112,12 +117,12 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
                 if (response.getStatusLine().getStatusCode() != 200) {
-                    throw JwksFeil.klarteIkkeOppdatereJwksCache(url);
+                    throw new TekniskException("F-580666", String.format("Klarte ikke oppdatere jwks cache for %s", url), null);
                 }
                 return readContent(response);
             }
         } catch (IOException e) {
-            throw JwksFeil.klarteIkkeOppdatereJwksCache(url, e);
+            throw new TekniskException("F-580666", String.format("Klarte ikke oppdatere jwks cache for %s", url), e);
         } finally {
             httpGet.reset();
         }
