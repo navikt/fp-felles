@@ -2,7 +2,6 @@ package no.nav.vedtak.sikkerhet.abac;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,8 +14,6 @@ import javax.interceptor.InvocationContext;
 import javax.jws.WebService;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
@@ -29,12 +26,10 @@ import no.nav.vedtak.util.env.Environment;
 @Dependent
 public class BeskyttetRessursInterceptor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BeskyttetRessursInterceptor.class);
-
     private final Pep pep;
     private final AbacSporingslogg sporingslogg;
     private final AbacAuditlogger abacAuditlogger;
-    private final Environment env = Environment.current();
+    private static final Environment ENV = Environment.current();
     private final TokenProvider tokenProvider;
 
     @Inject
@@ -43,15 +38,12 @@ public class BeskyttetRessursInterceptor {
         this.sporingslogg = sporingslogg;
         this.abacAuditlogger = abacAuditlogger;
         this.tokenProvider = provider;
-        LOG.trace("Konstruert");
     }
 
     @AroundInvoke
     public Object wrapTransaction(final InvocationContext invocationContext) throws Exception {
-        LOG.trace("Vurderer tilgang");
         var attributter = hentAttributter(invocationContext);
         var beslutning = pep.vurderTilgang(attributter);
-
         if (beslutning.fikkTilgang()) {
             return proceed(invocationContext, attributter, beslutning);
         }
@@ -63,8 +55,7 @@ public class BeskyttetRessursInterceptor {
         boolean sporingslogges = method.getAnnotation(BeskyttetRessurs.class).sporingslogg();
         if (sporingslogges) {
             if (abacAuditlogger.isEnabled()) {
-                String uid = tokenProvider.getUid();
-                abacAuditlogger.loggTilgang(uid, beslutning.getPdpRequest(), attributter);
+                abacAuditlogger.loggTilgang(tokenProvider.getUid(), beslutning.getPdpRequest(), attributter);
             }
 
             // bygger sporingsdata før kallet til invocationContext.proceed,
@@ -78,9 +69,8 @@ public class BeskyttetRessursInterceptor {
                 sporingslogg.logg(sporingsdata);
             }
             return resultat;
-        } else {
-            return invocationContext.proceed();
         }
+        return invocationContext.proceed();
     }
 
     private Object ikkeTilgang(AbacAttributtSamling attributter, Tilgangsbeslutning beslutning) {
@@ -105,7 +95,7 @@ public class BeskyttetRessursInterceptor {
 
     private AbacAttributtSamling hentAttributter(InvocationContext invocationContext) {
         Class<?> clazz = getOpprinneligKlasse(invocationContext);
-        Method method = invocationContext.getMethod();
+        var method = invocationContext.getMethod();
 
         var attributter = clazz.getAnnotation(WebService.class) != null
                 ? AbacAttributtSamling.medSamlToken(tokenProvider.samlToken())
@@ -114,14 +104,14 @@ public class BeskyttetRessursInterceptor {
         attributter.setActionType(beskyttetRessurs.action());
 
         if (!beskyttetRessurs.property().isEmpty()) {
-            var resource = env.getProperty(beskyttetRessurs.property());
+            var resource = ENV.getProperty(beskyttetRessurs.property());
             attributter.setResource(resource);
         } else if (!beskyttetRessurs.resource().isEmpty()) {
             attributter.setResource(beskyttetRessurs.resource());
         }
 
         attributter.setAction(utledAction(clazz, method));
-        Parameter[] parameterDecl = method.getParameters();
+        var parameterDecl = method.getParameters();
         for (int i = 0; i < method.getParameterCount(); i++) {
             Object parameterValue = invocationContext.getParameters()[i];
             TilpassetAbacAttributt tilpassetAnnotering = parameterDecl[i].getAnnotation(TilpassetAbacAttributt.class);

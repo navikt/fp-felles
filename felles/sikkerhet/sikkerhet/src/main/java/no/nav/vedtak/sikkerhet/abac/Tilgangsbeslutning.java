@@ -30,4 +30,10 @@ public final class Tilgangsbeslutning {
         return pdpRequest;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [beslutningKode=" + beslutningKode + ", delbeslutninger=" + delbeslutninger + ", pdpRequest="
+                + pdpRequest + "]";
+    }
+
 }

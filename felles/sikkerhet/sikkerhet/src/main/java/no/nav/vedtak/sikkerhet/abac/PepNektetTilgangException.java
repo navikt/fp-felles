@@ -2,8 +2,8 @@ package no.nav.vedtak.sikkerhet.abac;
 
 import no.nav.vedtak.exception.ManglerTilgangException;
 
-public class PepNektetTilgangException extends ManglerTilgangException {
-    public PepNektetTilgangException(String kode, String msg) {
+class PepNektetTilgangException extends ManglerTilgangException {
+    PepNektetTilgangException(String kode, String msg) {
         this(kode, msg, null);
     }
 
