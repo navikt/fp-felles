@@ -2,32 +2,34 @@ package no.nav.vedtak.sikkerhet.abac;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
 
-public class PepImplTest {
+@ExtendWith(MockitoExtension.class)
+class PepImplTest {
 
     private PepImpl pep;
+    @Mock
     private TokenProvider provider;
+    @Mock
     private PdpKlient pdpKlientMock;
 
     @BeforeEach
-    public void setUp() {
-        pdpKlientMock = mock(PdpKlient.class);
-        provider = mock(TokenProvider.class);
+    void setUp() {
         pep = new PepImpl(pdpKlientMock, provider, new DummyRequestBuilder(), new DefaultAbacSporingslogg(), "SRVFPLOS,SRVPDP");
     }
 
     @Test
-    public void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
+    void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
         when(provider.getUid()).thenReturn("srvpdp");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
                 .setResource("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
@@ -39,7 +41,7 @@ public class PepImplTest {
     }
 
     @Test
-    public void skal_nekte_tilgang_til_saksbehandler_for_piptjeneste() {
+    void skal_nekte_tilgang_til_saksbehandler_for_piptjeneste() {
         when(provider.getUid()).thenReturn("z142443");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
                 .setResource("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
@@ -51,14 +53,13 @@ public class PepImplTest {
     }
 
     @Test
-    public void skal_kalle_pdp_for_annet_enn_pip_tjenester() {
-        when(provider.getUid()).thenReturn("z142443");
+    void skal_kalle_pdp_for_annet_enn_pip_tjenester() {
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
                 .setResource("no.nav.abac.attributter.foreldrepenger.fagsak")
                 .setAction("READ");
 
         @SuppressWarnings("unused")
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
-        verify(pdpKlientMock, times(1)).forespørTilgang(any(PdpRequest.class));
+        verify(pdpKlientMock).forespørTilgang(any(PdpRequest.class));
     }
 }

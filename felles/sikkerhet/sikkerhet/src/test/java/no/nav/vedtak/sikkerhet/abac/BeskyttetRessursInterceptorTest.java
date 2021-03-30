@@ -33,7 +33,7 @@ import no.nav.vedtak.sikkerhet.InnloggetSubjectExtension;
 import no.nav.vedtak.util.AppLoggerFactory;
 
 @ExtendWith(InnloggetSubjectExtension.class)
-public class BeskyttetRessursInterceptorTest {
+class BeskyttetRessursInterceptorTest {
 
     private final RestClass tjeneste = new RestClass();
 
@@ -48,7 +48,7 @@ public class BeskyttetRessursInterceptorTest {
     private static Logger LOG;
 
     @BeforeAll
-    public static void beforeAll() {
+    static void beforeAll() {
         LOG = Logger.class.cast(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
         LOG.setLevel(Level.INFO);
         sniffer = new MemoryAppender(LOG.getName());
@@ -57,19 +57,19 @@ public class BeskyttetRessursInterceptorTest {
     }
 
     @AfterEach
-    public void afterEach() {
+    void afterEach() {
         sniffer.reset();
     }
 
     @Test
-    public void sporingslogg_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit() throws Exception {
+    void sporingslogg_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit() throws Exception {
         skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(noAuditLogger);
         assertLogged(
                 "action=/foo/aktoer_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000");
     }
 
     @Test
-    public void auditlogg_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit() throws Exception {
+    void auditlogg_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit() throws Exception {
         final Auditlogger auditlogger = mockAuditLogger();
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
 
@@ -99,14 +99,14 @@ public class BeskyttetRessursInterceptorTest {
     }
 
     @Test
-    public void sporingslogg_skal_også_logge_input_parametre_til_sporingslogg_ved_permit() throws Exception {
+    void sporingslogg_skal_også_logge_input_parametre_til_sporingslogg_ved_permit() throws Exception {
         skal_også_logge_input_parametre_til_sporingslogg_ved_permit(noAuditLogger);
         assertLogged(
                 "action=/foo/behandling_id_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000 behandlingId=1234");
     }
 
     @Test
-    public void auditlogg_skal_også_logge_input_parametre_til_sporingslogg_ved_permit() throws Exception {
+    void auditlogg_skal_også_logge_input_parametre_til_sporingslogg_ved_permit() throws Exception {
         final Auditlogger auditlogger = mockAuditLogger();
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
         skal_også_logge_input_parametre_til_sporingslogg_ved_permit(abacAuditlogger);
@@ -134,14 +134,14 @@ public class BeskyttetRessursInterceptorTest {
     }
 
     @Test
-    public void sporingslogg_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering()
+    void sporingslogg_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering()
             throws Exception {
         skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering(noAuditLogger);
         assertThat(sniffer.countEntries("action")).isZero();
     }
 
     @Test
-    public void auditlog_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering()
+    void auditlog_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering()
             throws Exception {
         final Auditlogger auditlogger = mockAuditLogger();
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
@@ -170,14 +170,14 @@ public class BeskyttetRessursInterceptorTest {
     }
 
     @Test
-    public void sporingslog_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny() throws Exception {
+    void sporingslog_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny() throws Exception {
         skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny(noAuditLogger);
         assertLogged(
                 "action=/foo/aktoer_in abac_action=create abac_resource_type=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker aktorId=00000000000 decision=Deny");
     }
 
     @Test
-    public void auditlog_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny() throws Exception {
+    void auditlog_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny() throws Exception {
         final Auditlogger auditlogger = mockAuditLogger();
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
         skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny(abacAuditlogger);
@@ -233,7 +233,7 @@ public class BeskyttetRessursInterceptorTest {
     }
 
     @Path("foo")
-    public static class RestClass {
+    static class RestClass {
 
         @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = "pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
         @Path("aktoer_in")

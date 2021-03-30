@@ -28,7 +28,7 @@ public class AbacAttributtSamling {
 
     public static AbacAttributtSamling medSamlToken(String samlToken) {
         Objects.requireNonNull(samlToken);
-        return new AbacAttributtSamling(AbacIdToken.withSamlToken(samlToken));
+        return new AbacAttributtSamling(AbacIdToken.withToken(samlToken, TokenType.SAML));
     }
 
     public AbacAttributtSamling leggTil(AbacDataAttributter dataAttributter) {

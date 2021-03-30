@@ -70,7 +70,7 @@ class TokenProviderUtil {
                 request.reset();
             }
         } catch (IOException e) {
-            throw TokenProviderFeil.kunneIkkeHenteTokenFikkIOException(e);
+            throw new TekniskException("F-157385", "Kunne ikke hente token", e);
         }
     }
 
@@ -93,7 +93,7 @@ class TokenProviderUtil {
             }
             return token.textValue();
         } catch (IOException e) {
-            throw TokenProviderFeil.kunneIkkeHenteTokenFikkIOException(e);
+            throw new TekniskException("F-157385", "Kunne ikke hente token", e);
         }
     }
 

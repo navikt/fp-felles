@@ -8,10 +8,10 @@ import javax.ws.rs.Path;
 
 import org.junit.jupiter.api.Test;
 
-public class ActionUthenterTest {
+class ActionUthenterTest {
 
     @Test
-    public void skalLageActionForRestMethod() throws NoSuchMethodException {
+    void skalLageActionForRestMethod() throws NoSuchMethodException {
         assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod1", String.class)))
                 .isEqualTo("/root1/resource1");
         assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod2", String.class)))
@@ -20,13 +20,13 @@ public class ActionUthenterTest {
     }
 
     @Test
-    public void skal_ha_at_action_for_webservice_er_action_i_webmethod() throws Exception {
+    void skal_ha_at_action_for_webservice_er_action_i_webmethod() throws Exception {
         assertThat(ActionUthenter.action(MyWebService.class, MyWebService.class.getDeclaredMethod("coinToss")))
                 .isEqualTo("http://foobar.com/biased/coin/toss/v1");
     }
 
     @Path("/root1")
-    private static class MyRestSvc1 {
+    static class MyRestSvc1 {
         @Path("/resource1")
         public void myRestMethod1(@SuppressWarnings("unused") String s) {
         }

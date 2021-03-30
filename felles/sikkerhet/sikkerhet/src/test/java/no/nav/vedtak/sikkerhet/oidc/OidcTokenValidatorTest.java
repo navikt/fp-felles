@@ -1,19 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import no.nav.vedtak.isso.OpenAMHelper;
-import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
-import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
-import org.jose4j.json.JsonUtil;
-import org.jose4j.jwt.NumericDate;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-
 import static java.util.Arrays.asList;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
 import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
@@ -21,11 +7,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.MalformedURLException;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jose4j.json.JsonUtil;
+import org.jose4j.jwt.NumericDate;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import no.nav.vedtak.isso.OpenAMHelper;
+import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
+import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
+
 public class OidcTokenValidatorTest {
 
     private OidcTokenValidator tokenValidator;
 
-    public OidcTokenValidatorTest() {
+    public OidcTokenValidatorTest() throws MalformedURLException {
         System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://foo.bar.adeo.no");
         Map<String, String> testData = new HashMap<>() {
             {
@@ -231,8 +233,8 @@ public class OidcTokenValidatorTest {
     }
 
     private static class JwksKeyHandlerFromString extends JwksKeyHandlerImpl {
-        private JwksKeyHandlerFromString(String jwks) {
-            super(() -> jwks);
+        private JwksKeyHandlerFromString(String jwks) throws MalformedURLException {
+            super(() -> jwks, "http://www.vg.no");
         }
     }
 

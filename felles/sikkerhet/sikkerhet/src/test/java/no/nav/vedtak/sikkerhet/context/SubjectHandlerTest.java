@@ -7,27 +7,27 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.sikkerhet.domene.IdentType;
 
-public class SubjectHandlerTest {
+class SubjectHandlerTest {
 
     private static final String USER_ID = "userId";
     private static final IdentType IDENT_TYPE = IdentType.InternBruker;
     private static final int AUTH_LEVEL = 4;
 
     @AfterEach
-    public void clearSubjectHandler() {
+    void clearSubjectHandler() {
         SubjectHandlerUtils.reset();
         SubjectHandlerUtils.unsetSubjectHandler();
     }
 
     @Test
-    public void testGetDefaultSubjectHandler() {
+    void testGetDefaultSubjectHandler() {
         SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
         assertThat(subjectHandler).isNotNull();
         assertThat(subjectHandler).isInstanceOf(ThreadLocalSubjectHandler.class);
     }
 
     @Test
-    public void testGetConfiguredSubjectHandler() {
+    void testGetConfiguredSubjectHandler() {
         SubjectHandlerUtils.useSubjectHandler(StaticSubjectHandler.class);
         SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
         assertThat(subjectHandler).isNotNull();
@@ -35,7 +35,7 @@ public class SubjectHandlerTest {
     }
 
     @Test
-    public void testGetSubject() {
+    void testGetSubject() {
         SubjectHandlerUtils.useSubjectHandler(StaticSubjectHandler.class);
         SubjectHandlerUtils.setInternBruker(USER_ID);
 
