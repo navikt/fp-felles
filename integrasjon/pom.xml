@@ -34,7 +34,7 @@
         <wiremock.version>2.27.2</wiremock.version>
         <sob.melding.version>1.1.0</sob.melding.version>
         <felles.adapter.version>0.1.8</felles.adapter.version>
-        <unleash.version>4.1.0</unleash.version>
+        <unleash.version>4.2.1</unleash.version>
         <influxdb-java.version>2.21</influxdb-java.version>
         <cxf.version>3.4.3</cxf.version>
     </properties>
