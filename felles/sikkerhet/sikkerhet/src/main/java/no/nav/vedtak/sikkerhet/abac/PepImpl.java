@@ -8,8 +8,6 @@ import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FEL
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,11 +46,10 @@ public class PepImpl implements Pep {
     }
 
     protected Set<String> konfigurePipUsers(String pipUsers) {
-        Set<String> result = new HashSet<>();
         if (pipUsers != null) {
-            Collections.addAll(result, pipUsers.toLowerCase().split(","));
+            return Set.of(pipUsers.toLowerCase().split(","));
         }
-        return result;
+        return Set.of();
     }
 
     @Override

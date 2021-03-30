@@ -7,8 +7,9 @@ public interface XacmlRequestBuilderTjeneste {
     /**
      * Legger på de attributter som trengs for vurdering av abac-policy
      *
-     * @param pdpRequest attributter som systemet har plukket ut som relevant for requestet
+     * @param pdpRequest attributter som systemet har plukket ut som relevant for
+     *                   requestet
      * @return XacmlRequestBuilder
      */
-    XacmlRequestBuilder lagXacmlRequestBuilder(PdpRequest pdpRequest);
+    XacmlRequestBuilder lagXacmlRequestBuilder(PdpRequest req);
 }

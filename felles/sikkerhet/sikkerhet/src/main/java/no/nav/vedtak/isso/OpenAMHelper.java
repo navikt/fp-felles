@@ -66,7 +66,7 @@ public class OpenAMHelper {
             redirectUriEncoded = URLEncoder.encode(ServerInfo.instance().getCallbackUrl(),
                     StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            throw OpenAmFeil.feilIKonfigurertRedirectUri(ServerInfo.instance().getCallbackUrl(), e);
+            throw new TekniskException("F-945077", String.format("Feil i konfigurert redirect uri: %s", ServerInfo.instance().getCallbackUrl()), e);
         }
     }
 
@@ -151,7 +151,7 @@ public class OpenAMHelper {
             json.setPassord(passord);
             utfyltTemplate = OBJECT_MAPPER.writeValueAsString(json);
         } catch (IOException e) {
-            throw OpenAmFeil.uventetFeilVedUtfyllingAvAuthorizationTemplate(e);
+            throw new TekniskException("F-502086", "Uventet feil ved utfylling av authorization template", e);
         }
 
         Function<String, String> hentSessionTokenFraResult = result -> {
@@ -191,10 +191,10 @@ public class OpenAMHelper {
                     String responseString = br.lines().collect(Collectors.joining("\n"));
                     if (response.getStatusLine().getStatusCode() == expectedHttpCode) {
                         return resultTransformer.apply(responseString);
-                    } else {
-                        throw OpenAmFeil
-                                .uforventetResponsFraOpenAM(response.getStatusLine().getStatusCode(), responseString);
                     }
+                    throw new TekniskException("F-011609",
+                            String.format("Ikke-forventet respons fra OpenAm, statusCode %s og respons '%s'",
+                                    response.getStatusLine().getStatusCode(), responseString));
                 }
             }
         } finally {
@@ -208,7 +208,8 @@ public class OpenAMHelper {
         try {
             return OBJECT_MAPPER.readValue(response, type);
         } catch (IOException e) {
-            throw OpenAmFeil.kunneIkkeParseJson(response, e);
+            throw new TekniskException("F-404323",
+            String.format("Kunne ikke parse JSON: '%s'", response), e);
         }
     }
 
@@ -227,8 +228,7 @@ public class OpenAMHelper {
                     return matcher.group(1);
                 }
             }
-            throw OpenAmFeil.kunneIkkeFinneAuthCode(response.getStatusLine().getStatusCode(),
-                    response.getStatusLine().getReasonPhrase());
+            throw new TekniskException("F-909480", String.format("Fant ikke auth-code på responsen, får respons: '%s - %s'", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
         } finally {
             get.reset();
         }

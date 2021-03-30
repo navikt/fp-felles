@@ -11,10 +11,10 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-public class PdpRequestTest {
+class PdpRequestTest {
 
     @Test
-    public void skal_lage_kryssprodukt_mellom_identer() throws Exception {
+    void skal_lage_kryssprodukt_mellom_identer() throws Exception {
         PdpRequest req = new PdpRequest();
         var fnr = new LinkedHashSet<>();
         fnr.add("11111111111");
@@ -48,11 +48,9 @@ public class PdpRequestTest {
     }
 
     @Test
-    public void skal_fungere_uten_fnr() throws Exception {
+    void skal_fungere_uten_fnr() throws Exception {
         PdpRequest req = new PdpRequest();
-        var at = new LinkedHashSet<>();
-        at.add("a");
-        at.add("b");
+        var at = List.of("a", "b");
         req.put(RESOURCE_FELLES_PERSON_NAVN, at);
 
         assertThat(req.getListOfString(RESOURCE_FELLES_PERSON_FNR)).isEmpty();
@@ -63,7 +61,7 @@ public class PdpRequestTest {
     }
 
     @Test
-    public void skal_fungere_uten_fnr_og_uten_aksjonspunkt_type() throws Exception {
+    void skal_fungere_uten_fnr_og_uten_aksjonspunkt_type() throws Exception {
         PdpRequest req = new PdpRequest();
 
         assertThat(getElementFromListByKeyAndIndex(req, RESOURCE_FELLES_PERSON_FNR, 0)).isNotPresent();

@@ -41,6 +41,7 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
@@ -143,10 +144,13 @@ public class PdpConsumerImpl implements PdpConsumer {
                 return response.getElement2();
             }
             if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
-                throw PdpFeil.autentiseringFeilerEtterReinstansiering(System.getenv("HOSTNAME"));
+                throw new TekniskException("F-867412",
+                        String.format("Feilet autentisering mot PDP, reinstansiering av klienten hjalp ikke. Tiltak: Drep pod '%s'",
+                                System.getenv("HOSTNAME")));
             }
         }
-        throw PdpFeil.httpFeil(statusCode, response.getElement1().getReasonPhrase());
+        throw new TekniskException("F-815365",
+                String.format("Mottok HTTP error fra PDP: HTTP %s - %s", statusCode, response.getElement1().getReasonPhrase()));
 
     }
 
@@ -176,7 +180,7 @@ public class PdpConsumerImpl implements PdpConsumer {
                     // logg kun første gang vi treffer, kast exception andre gang
                     LOG.trace("Fikk IOException - PDP feil, prøver en gang til", e);
                 } else {
-                    throw PdpFeil.ioFeil(e);
+                    throw new TekniskException("F-091324", "Uventet IO-exception mot PDP", e);
                 }
             } finally {
                 post.releaseConnection();

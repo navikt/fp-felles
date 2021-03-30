@@ -3,6 +3,7 @@ package no.nav.vedtak.sikkerhet.jwks;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -31,9 +32,9 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
 
     public static final String PROXY_KEY = "proxy.url";
 
-    private static final Logger log = LoggerFactory.getLogger(JwksKeyHandlerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JwksKeyHandlerImpl.class);
     private static final String DEFAULT_PROXY_URL = "http://webproxy.nais:8088";
-    private static RequestConfig proxyConfig = createProxyConfig();
+    private static final RequestConfig PROXY_CONFIG = createProxyConfig();
 
     private final Supplier<String> jwksStringSupplier;
     private final URL url;
@@ -44,8 +45,8 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         this(() -> httpGet(url, useProxyForJwks), url);
     }
 
-    public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier) {
-        this(jwksStringSupplier, null);
+    public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, String url) throws MalformedURLException {
+        this(jwksStringSupplier, new URL(url));
     }
 
     public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, URL url) {
@@ -84,7 +85,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         try {
             keyCache = new JsonWebKeySet(jwksAsString);
         } catch (JoseException e) {
-            log.warn("Klarte ikke parse jwks for {}, json: {}", url, jwksAsString, e);
+            LOG.warn("Klarte ikke parse jwks for {}, json: {}", url, jwksAsString, e);
         }
     }
 
@@ -94,7 +95,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
             String jwksString = jwksStringSupplier.get();
             setKeyCache(jwksString);
         } catch (RuntimeException e) {
-            log.warn("Klarte ikke oppdatere jwks cache for {}", url, e);
+            LOG.warn("Klarte ikke oppdatere jwks cache for {}", url, e);
         }
     }
 
@@ -111,7 +112,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         HttpGet httpGet = new HttpGet(url.toExternalForm());
         httpGet.addHeader("accept", "application/json");
         if (useProxyForJwks) {
-            httpGet.setConfig(proxyConfig);
+            httpGet.setConfig(PROXY_CONFIG);
         }
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {

@@ -22,25 +22,25 @@ import no.nav.vedtak.log.util.MemoryAppender;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
 import no.nav.vedtak.util.AppLoggerFactory;
 
-public class AbacSporingsloggTest {
+class AbacSporingsloggTest {
 
     private static MemoryAppender logSniffer;
     private static DefaultAbacSporingslogg sporing;
 
     @BeforeAll
-    public static void beforeAll() {
+    static void beforeAll() {
         logSniffer = sniff(AppLoggerFactory.getSporingLogger(DefaultAbacSporingslogg.class));
         sporing = new DefaultAbacSporingslogg();
 
     }
 
     @AfterEach
-    public void afterEach() {
+    void afterEach() {
         logSniffer.reset();
     }
 
     @Test
-    public void skal_logge_fra_attributter() throws Exception {
+    void skal_logge_fra_attributter() throws Exception {
 
         var attributter = AbacAttributtSamling.medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar").leggTil(AbacDataAttributter.opprett()
@@ -52,7 +52,7 @@ public class AbacSporingsloggTest {
     }
 
     @Test
-    public void skal_lage_flere_rader_når_en_attributt_har_flere_verdier() throws Exception {
+    void skal_lage_flere_rader_når_en_attributt_har_flere_verdier() throws Exception {
         var attributter = AbacAttributtSamling
                 .medJwtToken("dummy.oidc.token")
                 .setAction("foobar")
@@ -70,7 +70,7 @@ public class AbacSporingsloggTest {
     }
 
     @Test
-    public void skal_lage_kryssprodukt_når_det_er_noen_attributter_som_har_flere_verdier() throws Exception {
+    void skal_lage_kryssprodukt_når_det_er_noen_attributter_som_har_flere_verdier() throws Exception {
         var attributter = AbacAttributtSamling
                 .medJwtToken("dummy.oidc.token")
                 .setAction("foobar")
@@ -93,7 +93,7 @@ public class AbacSporingsloggTest {
     }
 
     @Test
-    public void skal_logge_fra_pdp_request() throws Exception {
+    void skal_logge_fra_pdp_request() throws Exception {
         var r = new PdpRequest(Map.of(RESOURCE_FELLES_PERSON_FNR, List.of("11111111111")));
         var attributter = AbacAttributtSamling
                 .medJwtToken("dummy.oidc.token")
@@ -104,7 +104,7 @@ public class AbacSporingsloggTest {
     }
 
     @Test
-    public void skal_logge_fra_pdp_request_og_attributter() throws Exception {
+    void skal_logge_fra_pdp_request_og_attributter() throws Exception {
         var r = new PdpRequest(Map.of(RESOURCE_FELLES_PERSON_FNR, List.of("11111111111")));
         var attributter = AbacAttributtSamling
                 .medJwtToken("dummy.oidc.token")
@@ -119,7 +119,7 @@ public class AbacSporingsloggTest {
     }
 
     @Test
-    public void skal_sette_sammen_rader_når_det_kommer_en_rad_fra_pdp_request_og_flere_fra_attributer() throws Exception {
+    void skal_sette_sammen_rader_når_det_kommer_en_rad_fra_pdp_request_og_flere_fra_attributer() throws Exception {
         var r = new PdpRequest(Map.of(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111")));
         var attributter = AbacAttributtSamling
                 .medJwtToken("dummy.oidc.token")
@@ -138,7 +138,7 @@ public class AbacSporingsloggTest {
     }
 
     @Test
-    public void skal_sette_sammen_rader_når_det_kommer_fler_rader_fra_pdp_request_og_en_fra_attributer() throws Exception {
+    void skal_sette_sammen_rader_når_det_kommer_fler_rader_fra_pdp_request_og_en_fra_attributer() throws Exception {
         var r = new PdpRequest(Map.of(RESOURCE_FELLES_PERSON_FNR, new TreeSet<>(Arrays.asList("11111111111", "22222222222", "33333333333"))));
         var attributter = AbacAttributtSamling
                 .medJwtToken("dummy.oidc.token")
@@ -152,7 +152,7 @@ public class AbacSporingsloggTest {
     }
 
     @Test
-    public void skal_ha_separate_rader_for_pdpRequest_og_attributter_når_det_er_flere_fra_hver_for_å_unngå_stort_kryssprodukt() throws Exception {
+    void skal_ha_separate_rader_for_pdpRequest_og_attributter_når_det_er_flere_fra_hver_for_å_unngå_stort_kryssprodukt() throws Exception {
         var attributter = AbacAttributtSamling
                 .medJwtToken("dummy.oidc.token")
                 .setAction("foobar")
@@ -173,10 +173,10 @@ public class AbacSporingsloggTest {
     }
 
     @Test
-    public void skal_erstatte_mellomrom_med_underscore_for_å_forenkle_parsing_av_sporingslogg() throws Exception {
+    void skal_erstatte_mellomrom_med_underscore_for_å_forenkle_parsing_av_sporingslogg() throws Exception {
 
         var attributter = AbacAttributtSamling
-                .medJwtToken("dummy.oidc.token")
+                .medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar")
                 .leggTil(AbacDataAttributter.opprett()
                         .leggTil(StandardAbacAttributtType.SAKSNUMMER, "SNR 0001"));
@@ -187,7 +187,7 @@ public class AbacSporingsloggTest {
     }
 
     @Test
-    public void skal_logge_fra_pdp_request_og_attributter_ved_deny() throws Exception {
+    void skal_logge_fra_pdp_request_og_attributter_ved_deny() throws Exception {
 
         var pdpRequest = new PdpRequest(Map.of(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111")));
         var attributter = AbacAttributtSamling

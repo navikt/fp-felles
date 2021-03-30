@@ -1,14 +1,15 @@
 package no.nav.vedtak.sikkerhet.context;
 
+import javax.security.auth.Subject;
+
 import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.domene.ConsumerId;
 import no.nav.vedtak.sikkerhet.domene.IdentType;
 import no.nav.vedtak.sikkerhet.domene.SluttBruker;
 
-import javax.security.auth.Subject;
-
 /**
- * Utilityclass that provides support for populating and resetting TestSubjectHandlers.
+ * Utilityclass that provides support for populating and resetting
+ * TestSubjectHandlers.
  */
 public class SubjectHandlerUtils {
 
@@ -17,10 +18,10 @@ public class SubjectHandlerUtils {
      */
     public static void reset() {
         final SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
-        if(subjectHandler instanceof TestSubjectHandler) {
+        if (subjectHandler instanceof TestSubjectHandler) {
             ((TestSubjectHandler) subjectHandler).reset();
-        } else if(subjectHandler instanceof ThreadLocalSubjectHandler) {
-          ((ThreadLocalSubjectHandler) subjectHandler).setSubject(null);
+        } else if (subjectHandler instanceof ThreadLocalSubjectHandler) {
+            ((ThreadLocalSubjectHandler) subjectHandler).setSubject(null);
         } else {
             System.out.println("Don't know how to reset a SubjectHandler of type " + subjectHandler.getClass().getName());
         }
@@ -32,9 +33,9 @@ public class SubjectHandlerUtils {
 
     public static void setSubject(Subject subject) {
         final SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
-        if(subjectHandler instanceof TestSubjectHandler) {
+        if (subjectHandler instanceof TestSubjectHandler) {
             ((TestSubjectHandler) subjectHandler).setSubject(subject);
-        } else if(subjectHandler instanceof ThreadLocalSubjectHandler) {
+        } else if (subjectHandler instanceof ThreadLocalSubjectHandler) {
             ((ThreadLocalSubjectHandler) subjectHandler).setSubject(subject);
         } else {
             throw new IllegalStateException("Don't know how to set Subject on a SubjectHandler of type " + subjectHandler.getClass().getName());

@@ -16,7 +16,6 @@ import no.nav.vedtak.sikkerhet.ContextPathHolder;
  * programmatisk eller i lokal web.xml. På sikt skal all Jaas/jaspic-kode dø.
  *
  */
-//@WebListener
 public class SamAutoRegistration implements ServletContextListener {
     private static final String CONTEXT_REGISTRATION_ID = "no.nav.vedtak.sikkerhet.jaspic.registrationId";
 

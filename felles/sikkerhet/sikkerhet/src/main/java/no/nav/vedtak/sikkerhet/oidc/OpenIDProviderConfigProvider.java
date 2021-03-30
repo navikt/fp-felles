@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.sikkerhet.domene.IdentType;
 
@@ -113,7 +114,8 @@ class OpenIDProviderConfigProvider {
         try {
             return new URL(url);
         } catch (MalformedURLException e) {
-            throw TokenProviderFeil.feilIKonfigurasjonAvOidcProvider(key, providerName, e);
+            throw new TekniskException("F-644196",
+            String.format("Syntaksfeil i OIDC konfigurasjonen av '%s' for '%s'", key, providerName), e);
         }
     }
 

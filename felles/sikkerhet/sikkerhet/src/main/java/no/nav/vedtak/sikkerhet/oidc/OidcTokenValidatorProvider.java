@@ -1,7 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,14 +21,14 @@ public class OidcTokenValidatorProvider {
 
     static final Environment ENV = Environment.current();
 
-    static final Set<IdentType> interneIdentTyper = new HashSet<>(Arrays.asList(IdentType.InternBruker, IdentType.Systemressurs));
-    static final Set<IdentType> eksterneIdentTyper = new HashSet<>(Arrays.asList(IdentType.EksternBruker));
+    static final Set<IdentType> interneIdentTyper = Set.of(IdentType.InternBruker, IdentType.Systemressurs);
+    static final Set<IdentType> eksterneIdentTyper = Set.of(IdentType.EksternBruker);
 
     private static volatile OidcTokenValidatorProvider instance; // NOSONAR
     private final Map<String, OidcTokenValidator> validators;
 
     private OidcTokenValidatorProvider() {
-        validators = init();
+        this(init());
     }
 
     private OidcTokenValidatorProvider(Map<String, OidcTokenValidator> validators) {
@@ -60,7 +58,7 @@ public class OidcTokenValidatorProvider {
         return validators.get(issuer);
     }
 
-    private Map<String, OidcTokenValidator> init() {
+    private static Map<String, OidcTokenValidator> init() {
         var configs = new OpenIDProviderConfigProvider().getConfigs();
         return configs.stream().collect(Collectors.toMap(
                 config -> config.getIssuer().toExternalForm(),
