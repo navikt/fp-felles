@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.unleash.strategier;
+package no.nav.vedtak.felles.integrasjon.unleash;
 
 import java.util.Map;
 
@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import no.finn.unleash.strategy.Strategy;
 
-public class ByEnvironmentStrategy implements Strategy {
+class ByEnvironmentStrategy implements Strategy {
     public static final String ENV_KEY = "miljø";
     private static final Logger LOGGER = LoggerFactory.getLogger(ByEnvironmentStrategy.class);
 

@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.unleash.strategier;
+package no.nav.vedtak.felles.integrasjon.unleash;
 
 import static no.nav.vedtak.util.env.Namespace.NAIS_NAMESPACE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;

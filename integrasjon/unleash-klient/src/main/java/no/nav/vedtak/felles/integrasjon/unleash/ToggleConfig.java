@@ -9,8 +9,6 @@ import no.finn.unleash.DefaultUnleash;
 import no.finn.unleash.FakeUnleash;
 import no.finn.unleash.Unleash;
 import no.finn.unleash.util.UnleashConfig;
-import no.nav.vedtak.felles.integrasjon.unleash.strategier.ByAnsvarligSaksbehandlerStrategy;
-import no.nav.vedtak.felles.integrasjon.unleash.strategier.ByEnvironmentStrategy;
 import no.nav.vedtak.util.env.Environment;
 
 public class ToggleConfig {

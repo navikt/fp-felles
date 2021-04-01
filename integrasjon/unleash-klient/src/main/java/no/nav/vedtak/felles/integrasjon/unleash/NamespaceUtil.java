@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.unleash.strategier;
+package no.nav.vedtak.felles.integrasjon.unleash;
 
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;

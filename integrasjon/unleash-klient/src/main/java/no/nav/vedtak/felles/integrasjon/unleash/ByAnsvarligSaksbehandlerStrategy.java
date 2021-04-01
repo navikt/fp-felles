@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.unleash.strategier;
+package no.nav.vedtak.felles.integrasjon.unleash;
 
 import static java.util.function.Predicate.not;
 
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import no.finn.unleash.UnleashContext;
 import no.finn.unleash.strategy.Strategy;
 
-public class ByAnsvarligSaksbehandlerStrategy implements Strategy {
+class ByAnsvarligSaksbehandlerStrategy implements Strategy {
 
     static final String SAKSBEHANDLER_IDENT = "SAKSBEHANDLER_IDENT";
 
