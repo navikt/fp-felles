@@ -1,7 +1,8 @@
-package no.nav.vedtak.felles.integrasjon.unleash.strategier;
+package no.nav.vedtak.felles.integrasjon.unleash;
+
+import static java.util.function.Predicate.not;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import no.finn.unleash.UnleashContext;
 import no.finn.unleash.strategy.Strategy;
 
-public class ByAnsvarligSaksbehandlerStrategy implements Strategy {
+class ByAnsvarligSaksbehandlerStrategy implements Strategy {
 
-    public static final String SAKSBEHANDLER_IDENT = "SAKSBEHANDLER_IDENT";
+    static final String SAKSBEHANDLER_IDENT = "SAKSBEHANDLER_IDENT";
 
     static final String UNLEASH_PROPERTY_NAME_MILJØ = "miljø";
     static final String UNLEASH_PROPERTY_NAME_SAKSBEHANDLER = "saksbehandler";
@@ -39,7 +40,7 @@ public class ByAnsvarligSaksbehandlerStrategy implements Strategy {
         boolean erLansertForSaksbehandler = saksbehandlerIdent != null && saksbehandlereLansertFor.stream()
                 .map(String::trim)
                 .anyMatch(saksbehandlerIdent::equalsIgnoreCase);
-        boolean erLansertIMiljø = EnvironmentService.isCurrentEnvironmentInMap(parameters, UNLEASH_PROPERTY_NAME_MILJØ);
+        boolean erLansertIMiljø = NamespaceUtil.isNamespaceEnabled(parameters, UNLEASH_PROPERTY_NAME_MILJØ);
         boolean erLansert = erLansertForSaksbehandler && erLansertIMiljø;
         return logErEnabled(erLansert, saksbehandlerIdent);
     }
@@ -52,11 +53,10 @@ public class ByAnsvarligSaksbehandlerStrategy implements Strategy {
     private List<String> getEnabledSaksbehandlere(Map<String, String> parameters) {
         return Optional.ofNullable(parameters)
                 .map(param -> param.get(UNLEASH_PROPERTY_NAME_SAKSBEHANDLER))
-                .filter(it -> !it.isEmpty())
+                .filter(not(String::isEmpty))
                 .map(it -> it.split(UNLEASH_SAKSBEHANDLER_DELIMITER))
                 .map(Arrays::asList)
-                .orElse(Collections.emptyList());
+                .orElse(List.of());
     }
-
 
 }
