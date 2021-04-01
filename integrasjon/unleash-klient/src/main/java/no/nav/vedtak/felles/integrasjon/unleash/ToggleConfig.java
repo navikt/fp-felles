@@ -1,5 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.unleash;
 
+import static no.nav.vedtak.util.env.Namespace.NAIS_NAMESPACE_NAME;
+
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -24,7 +26,8 @@ public class ToggleConfig {
     ToggleConfig() {
         appName = ENV.appName();
         if (appName != null) {
-            this.instanceName = Optional.of(ENV.namespace()).orElseGet(() -> ENV.getProperty(UNLEASH_API_OVERRIDE_KEY, PROD));
+            this.instanceName = Optional.of(ENV.getProperty(NAIS_NAMESPACE_NAME))
+                    .orElseGet(() -> ENV.getProperty(UNLEASH_API_OVERRIDE_KEY, PROD));
         } else {
             this.instanceName = "test";
         }

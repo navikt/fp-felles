@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.unleash;
 
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
+import static no.nav.vedtak.util.env.Namespace.NAIS_NAMESPACE_NAME;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +23,7 @@ class NamespaceUtil {
     }
 
     static boolean isNamespaceEnabled(Map<String, String> parameters, String envKey) {
-        var namespace = Optional.of(ENV.namespace());
+        var namespace = Optional.of(ENV.getProperty(NAIS_NAMESPACE_NAME));
         var enabledNamespaces = enabledNamespaces(parameters, envKey);
         LOGGER.debug("Current namespace={}, Enabled namespaces: {}", namespace, enabledNamespaces);
 
