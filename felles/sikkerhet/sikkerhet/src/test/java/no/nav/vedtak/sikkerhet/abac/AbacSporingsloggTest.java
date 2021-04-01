@@ -193,7 +193,7 @@ class AbacSporingsloggTest {
         var attributter = AbacAttributtSamling
                 .medJwtToken("dummy.oidc.token")
                 .setAction("foobar")
-                .leggTil(new AbacDataAttributter.opprett().leggTil(BEHANDLING_ID, 1234L));
+                .leggTil(new AbacDataAttributter().leggTil(BEHANDLING_ID, 1234L));
         sporing.loggDeny(pdpRequest, List.of(Decision.Deny), attributter);
         assertLogged("action=foobar abac_action=null abac_resource_type=null behandlingId=1234 decision=Deny fnr=11111111111 ");
         assertCount("action", 1);
