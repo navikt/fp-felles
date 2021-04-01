@@ -18,10 +18,8 @@ public class ByEnvironmentStrategy implements Strategy {
 
     @Override
     public boolean isEnabled(Map<String, String> parameters) {
-        boolean enabled = EnvironmentService.isCurrentEnvironmentInMap(parameters, ENV_KEY);
-
-        if (LOGGER.isDebugEnabled())
-            LOGGER.debug("Strategy={} is enabled={}", getName(), enabled);
+        boolean enabled = NamespaceUtil.isNamespaceEnabled(parameters, ENV_KEY);
+        LOGGER.debug("Strategy={} is enabled={}", getName(), enabled);
         return enabled;
     }
 }
