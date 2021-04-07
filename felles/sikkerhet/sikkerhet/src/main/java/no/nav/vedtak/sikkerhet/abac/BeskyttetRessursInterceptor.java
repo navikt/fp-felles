@@ -98,7 +98,6 @@ public class BeskyttetRessursInterceptor {
     private AbacAttributtSamling hentAttributter(InvocationContext invocationContext) {
         Class<?> clazz = getOpprinneligKlasse(invocationContext);
         var method = invocationContext.getMethod();
-        LOG.info("Issuer {}", tokenProvider.oidcTokenType()); // TEMP
         var attributter = clazz.getAnnotation(WebService.class) != null
                 ? AbacAttributtSamling.medSamlToken(tokenProvider.samlToken())
                 : AbacAttributtSamling.medJwtToken(tokenProvider.userToken(), tokenProvider.oidcTokenType());
