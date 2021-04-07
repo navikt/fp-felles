@@ -47,7 +47,6 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
-import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleFeil;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
 
 /**
