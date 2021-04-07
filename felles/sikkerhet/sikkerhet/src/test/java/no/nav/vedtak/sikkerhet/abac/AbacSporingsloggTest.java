@@ -54,7 +54,7 @@ class AbacSporingsloggTest {
     @Test
     void skal_lage_flere_rader_når_en_attributt_har_flere_verdier() throws Exception {
         var attributter = AbacAttributtSamling
-                .medJwtToken("dummy.oidc.token")
+                .medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar")
                 .leggTil(AbacDataAttributter.opprett()
                         .leggTil(AKSJONSPUNKT_KODE, "A")
@@ -72,7 +72,7 @@ class AbacSporingsloggTest {
     @Test
     void skal_lage_kryssprodukt_når_det_er_noen_attributter_som_har_flere_verdier() throws Exception {
         var attributter = AbacAttributtSamling
-                .medJwtToken("dummy.oidc.token")
+                .medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar")
                 .leggTil(AbacDataAttributter.opprett()
                         .leggTil(SAKSNUMMER, "SNR0001")
@@ -96,7 +96,7 @@ class AbacSporingsloggTest {
     void skal_logge_fra_pdp_request() throws Exception {
         var r = new PdpRequest(Map.of(RESOURCE_FELLES_PERSON_FNR, List.of("11111111111")));
         var attributter = AbacAttributtSamling
-                .medJwtToken("dummy.oidc.token")
+                .medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar");
         sporing.loggTilgang(r, attributter);
         assertLogged("action=foobar abac_action=null abac_resource_type=null fnr=11111111111");
@@ -107,7 +107,7 @@ class AbacSporingsloggTest {
     void skal_logge_fra_pdp_request_og_attributter() throws Exception {
         var r = new PdpRequest(Map.of(RESOURCE_FELLES_PERSON_FNR, List.of("11111111111")));
         var attributter = AbacAttributtSamling
-                .medJwtToken("dummy.oidc.token")
+                .medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar")
                 .leggTil(AbacDataAttributter.opprett()
                         .leggTil(BEHANDLING_ID, 1234L)
@@ -122,7 +122,7 @@ class AbacSporingsloggTest {
     void skal_sette_sammen_rader_når_det_kommer_en_rad_fra_pdp_request_og_flere_fra_attributer() throws Exception {
         var r = new PdpRequest(Map.of(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111")));
         var attributter = AbacAttributtSamling
-                .medJwtToken("dummy.oidc.token")
+                .medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar")
                 .leggTil(AbacDataAttributter.opprett()
                         .leggTil(BEHANDLING_ID, 1234L)
@@ -141,7 +141,7 @@ class AbacSporingsloggTest {
     void skal_sette_sammen_rader_når_det_kommer_fler_rader_fra_pdp_request_og_en_fra_attributer() throws Exception {
         var r = new PdpRequest(Map.of(RESOURCE_FELLES_PERSON_FNR, new TreeSet<>(Arrays.asList("11111111111", "22222222222", "33333333333"))));
         var attributter = AbacAttributtSamling
-                .medJwtToken("dummy.oidc.token")
+                .medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar")
                 .leggTil(AbacDataAttributter.opprett().leggTil(BEHANDLING_ID, 1234L));
         sporing.loggTilgang(r, attributter);
@@ -154,7 +154,7 @@ class AbacSporingsloggTest {
     @Test
     void skal_ha_separate_rader_for_pdpRequest_og_attributter_når_det_er_flere_fra_hver_for_å_unngå_stort_kryssprodukt() throws Exception {
         var attributter = AbacAttributtSamling
-                .medJwtToken("dummy.oidc.token")
+                .medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar")
                 .leggTil(AbacDataAttributter.opprett()
                         .leggTil(BEHANDLING_ID, 1234L)
@@ -191,7 +191,7 @@ class AbacSporingsloggTest {
 
         var pdpRequest = new PdpRequest(Map.of(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("11111111111")));
         var attributter = AbacAttributtSamling
-                .medJwtToken("dummy.oidc.token")
+                .medJwtToken("dummy.oidc.token", TokenType.OIDC)
                 .setAction("foobar")
                 .leggTil(new AbacDataAttributter().leggTil(BEHANDLING_ID, 1234L));
         sporing.loggDeny(pdpRequest, List.of(Decision.Deny), attributter);
