@@ -1,7 +1,10 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import java.net.URI;
 import java.util.Objects;
 import java.util.Set;
+
+import com.nimbusds.jwt.SignedJWT;
 
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
 
@@ -18,7 +21,7 @@ public class AbacAttributtSamling {
 
     @Deprecated
     public static AbacAttributtSamling medJwtToken(String jwtToken) {
-        return medJwtToken(jwtToken, TokenType.OIDC);
+        return medJwtToken(jwtToken, oidcTokenType(jwtToken));
     }
 
     public static AbacAttributtSamling medJwtToken(String jwtToken, TokenType type) {
@@ -94,6 +97,16 @@ public class AbacAttributtSamling {
 
     public String getAction() {
         return action;
+    }
+
+    private static TokenType oidcTokenType(String token) {
+        try {
+            return URI.create(SignedJWT.parse(token)
+                    .getJWTClaimsSet().getIssuer()).getHost().contains("tokendings") ? TokenType.TOKENX : TokenType.OIDC;
+
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Ukjent token type");
+        }
     }
 
 }
