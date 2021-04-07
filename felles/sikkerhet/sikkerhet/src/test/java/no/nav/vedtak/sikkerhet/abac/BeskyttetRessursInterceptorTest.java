@@ -13,13 +13,14 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.interceptor.InvocationContext;
+import javax.security.auth.Subject;
 import javax.ws.rs.Path;
 
 import org.assertj.core.api.Fail;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -29,12 +30,15 @@ import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.log.audit.Auditdata;
 import no.nav.vedtak.log.audit.Auditlogger;
 import no.nav.vedtak.log.util.MemoryAppender;
-import no.nav.vedtak.sikkerhet.InnloggetSubjectExtension;
+import no.nav.vedtak.sikkerhet.context.SubjectHandlerUtils;
+import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
+import no.nav.vedtak.sikkerhet.domene.IdentType;
+import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 import no.nav.vedtak.util.AppLoggerFactory;
 
-@ExtendWith(InnloggetSubjectExtension.class)
 class BeskyttetRessursInterceptorTest {
 
+    private static final String DUMMY_ID_TOKEN = "eyJraWQiOiI3Mzk2ZGIyZC1hN2MyLTQ1OGEtYjkzNC02ODNiNDgzYzUyNDIiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdF9oYXNoIjoiRzJ1Zl83OW1TTUhHSWFfNjFxTnJfUSIsInN1YiI6IjA5MDg4NDIwNjcyIiwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6XC9cL3Rva2VuZGluZ3MuZGV2LWdjcC5uYWlzLmlvIiwibm9uY2UiOiJWR1dyS1Zsa3RXZ3hCdTlMZnNnMHliMmdMUVhoOHRaZHRaVTJBdWdPZVl3IiwiY2xpZW50X2lkIjoiZGV2LWZzczp0ZWFtZm9yZWxkcmVwZW5nZXI6ZnBzb2tuYWQtbW90dGFrIiwiYXVkIjoiZGV2LWZzczp0ZWFtZm9yZWxkcmVwZW5nZXI6ZnBpbmZvIiwiYWNyIjoiTGV2ZWw0IiwibmJmIjoxNjE2Njg1NDA0LCJpZHAiOiJodHRwczpcL1wvbmF2dGVzdGIyYy5iMmNsb2dpbi5jb21cL2QzOGYyNWFhLWVhYjgtNGM1MC05ZjI4LWViZjkyYzEyNTZmMlwvdjIuMFwvIiwiYXV0aF90aW1lIjoxNjE2Njg1NDAyLCJleHAiOjE2MTY2ODU3MDQsImlhdCI6MTYxNjY4NTQwNCwianRpIjoiNGMwNzBmMGUtNzI0Ny00ZTdjLWE1OWEtYzk2Yjk0NWMxZWZhIn0.OvzjuabvPHG9nlRVc_KlCUTHOdfeT9GtBkASUGIoMayWGeIBDkr4-jc9gu6uT_WQqi9IJnvPkWgP3veqYHcOHpapD1yVNaQpxlrJQ04yP6N3gvkn-DcrBRDb3II_6qSaPQ_us2PJBDPq2VD5TGrNOL6EFwr8FK3zglYr-PgjW016ULTcmx_7gdHmbiC5PEn1_OtGNxzoUhSGKoD3YtUWP0qdsXzoKyeFL5FG9uZMSrDHHiJBZQFXGL9OzBU49Zb2K-iEPqa9m91O2JZGkhebfLjCAIPLPN4J68GFyfTvtNkZO71znorjo-e1nWxz53Wkj---RDY3JlIqNqzqHTfJgQ";
     private final RestClass tjeneste = new RestClass();
 
     private AktørDto aktør1 = new AktørDto("00000000000");
@@ -56,9 +60,23 @@ class BeskyttetRessursInterceptorTest {
         sniffer.start();
     }
 
+    @BeforeEach
+    void beforeEach() {
+        SubjectHandlerUtils.useSubjectHandler(ThreadLocalSubjectHandler.class);
+        SubjectHandlerUtils.setSubject(buildSubject());
+    }
+
+    private static Subject buildSubject() {
+        Subject subject = new SubjectHandlerUtils.SubjectBuilder("A000000", IdentType.InternBruker).getSubject();
+        subject.getPublicCredentials().add(new OidcCredential(DUMMY_ID_TOKEN));
+        return subject;
+
+    }
+
     @AfterEach
     void afterEach() {
         sniffer.reset();
+        SubjectHandlerUtils.unsetSubjectHandler();
     }
 
     @Test
