@@ -100,7 +100,7 @@ public class BeskyttetRessursInterceptor {
         var method = invocationContext.getMethod();
         var attributter = clazz.getAnnotation(WebService.class) != null
                 ? AbacAttributtSamling.medSamlToken(tokenProvider.samlToken())
-                : AbacAttributtSamling.medJwtToken(tokenProvider.userToken(), tokenProvider.oidcTokenType());
+                : AbacAttributtSamling.medJwtToken(tokenProvider.userToken());
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         attributter.setActionType(beskyttetRessurs.action());
 
