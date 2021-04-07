@@ -14,6 +14,8 @@ import javax.interceptor.InvocationContext;
 import javax.jws.WebService;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
@@ -26,6 +28,7 @@ import no.nav.vedtak.util.env.Environment;
 @Dependent
 public class BeskyttetRessursInterceptor {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BeskyttetRessursInterceptor.class);
     private final Pep pep;
     private final AbacSporingslogg sporingslogg;
     private final AbacAuditlogger abacAuditlogger;
@@ -96,7 +99,7 @@ public class BeskyttetRessursInterceptor {
     private AbacAttributtSamling hentAttributter(InvocationContext invocationContext) {
         Class<?> clazz = getOpprinneligKlasse(invocationContext);
         var method = invocationContext.getMethod();
-
+        LOG.info("Issuer {}", tokenProvider.oidcTokenType()); // TEMP
         var attributter = clazz.getAnnotation(WebService.class) != null
                 ? AbacAttributtSamling.medSamlToken(tokenProvider.samlToken())
                 : AbacAttributtSamling.medJwtToken(tokenProvider.userToken(), TokenType.TOKENX);
