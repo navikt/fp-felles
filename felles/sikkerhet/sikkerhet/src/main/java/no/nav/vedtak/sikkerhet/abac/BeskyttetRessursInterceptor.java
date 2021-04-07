@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.sporingslogg.Sporingsdata;
-import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
 import no.nav.vedtak.util.env.Environment;
 
 @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, resource = "")
@@ -99,10 +98,9 @@ public class BeskyttetRessursInterceptor {
     private AbacAttributtSamling hentAttributter(InvocationContext invocationContext) {
         Class<?> clazz = getOpprinneligKlasse(invocationContext);
         var method = invocationContext.getMethod();
-        LOG.info("Issuer {}", tokenProvider.oidcTokenType()); // TEMP
         var attributter = clazz.getAnnotation(WebService.class) != null
                 ? AbacAttributtSamling.medSamlToken(tokenProvider.samlToken())
-                : AbacAttributtSamling.medJwtToken(tokenProvider.userToken(), TokenType.TOKENX);
+                : AbacAttributtSamling.medJwtToken(tokenProvider.userToken(), tokenProvider.oidcTokenType());
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         attributter.setActionType(beskyttetRessurs.action());
 

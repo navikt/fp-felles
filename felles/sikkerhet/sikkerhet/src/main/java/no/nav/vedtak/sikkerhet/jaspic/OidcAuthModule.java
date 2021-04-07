@@ -229,7 +229,7 @@ public class OidcAuthModule implements ServerAuthModule {
         try {
             return new LoginContext(OIDC_LOGIN_CONFIG, clientSubject, callbackHandler, loginConfiguration);
         } catch (LoginException le) {
-            throw LoginModuleFeil.kunneIkkeFinneLoginmodulen(OIDC_LOGIN_CONFIG, le);
+            throw new TekniskException("F-651753", String.format("Kunne ikke finne konfigurasjonen for %s", OIDC_LOGIN_CONFIG), le);
         }
     }
 

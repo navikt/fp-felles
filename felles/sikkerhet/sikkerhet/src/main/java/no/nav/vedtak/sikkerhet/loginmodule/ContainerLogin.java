@@ -14,6 +14,7 @@ import javax.security.auth.login.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -42,7 +43,7 @@ public class ContainerLogin {
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
         } catch (LoginException le) {
-            throw LoginModuleFeil.feiletInnlogging(le);
+            throw new TekniskException("F-499051", "Noe gikk galt ved innlogging", le);
         }
     }
 
@@ -75,7 +76,7 @@ public class ContainerLogin {
         try {
             return new LoginContext(loginAppConfiguration, new Subject(), callbackHandler, loginContextConfiguration);
         } catch (LoginException le) {
-            throw LoginModuleFeil.kunneIkkeFinneLoginmodulen(loginAppConfiguration, le);
+            throw new TekniskException("F-651753", String.format("Kunne ikke finne konfigurasjonen for %s", loginAppConfiguration), le);
         }
     }
 
