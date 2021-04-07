@@ -29,6 +29,7 @@ import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.w3c.dom.Element;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
@@ -105,7 +106,7 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
         } catch (LoginException | TransformerException e) {
-            throw LoginModuleFeil.feiletInnlogging(e);
+            throw new TekniskException("F-499051", "Noe gikk galt ved innlogging", e);
         }
     }
 
@@ -114,7 +115,7 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
         try {
             return new LoginContext(LOGIN_CONFIG_NAME, new Subject(), callbackHandler, loginContextConfiguration);
         } catch (LoginException le) {
-            throw LoginModuleFeil.kunneIkkeFinneLoginmodulen(LOGIN_CONFIG_NAME, le);
+            throw new TekniskException("F-651753", String.format("Kunne ikke finne konfigurasjonen for %s", LOGIN_CONFIG_NAME), le);
         }
     }
 

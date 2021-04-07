@@ -1,9 +1,10 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import java.text.ParseException;
+import java.net.URI;
 
 import com.nimbusds.jwt.SignedJWT;
 
+import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 public interface TokenProvider {
@@ -20,13 +21,12 @@ public interface TokenProvider {
         return SubjectHandler.getSubjectHandler().getSamlToken().getTokenAsString();
     }
 
-    default String oidcTokenType() {
-
+    default TokenType oidcTokenType() {
         try {
-            return SignedJWT.parse(userToken())
-                    .getJWTClaimsSet().getIssuer();
+            return URI.create(SignedJWT.parse(userToken())
+                    .getJWTClaimsSet().getIssuer()).getHost().contains("tokendings") ? TokenType.TOKENX : TokenType.OIDC;
 
-        } catch (ParseException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Ukjent token type");
         }
     }
