@@ -115,7 +115,7 @@ public class BeskyttetRessursInterceptor {
         var parameterDecl = method.getParameters();
         for (int i = 0; i < method.getParameterCount(); i++) {
             Object parameterValue = invocationContext.getParameters()[i];
-            TilpassetAbacAttributt tilpassetAnnotering = parameterDecl[i].getAnnotation(TilpassetAbacAttributt.class);
+            var tilpassetAnnotering = parameterDecl[i].getAnnotation(TilpassetAbacAttributt.class);
             leggTilAttributterFraParameter(attributter, parameterValue, tilpassetAnnotering);
         }
         return attributter;

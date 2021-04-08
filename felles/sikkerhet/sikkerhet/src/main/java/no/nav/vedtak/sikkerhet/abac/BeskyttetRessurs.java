@@ -8,11 +8,13 @@ import java.lang.annotation.Target;
 
 import javax.enterprise.util.Nonbinding;
 import javax.interceptor.InterceptorBinding;
+import javax.ws.rs.NameBinding;
 
 @Inherited
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
+@NameBinding
 public @interface BeskyttetRessurs {
     @Nonbinding
     BeskyttetRessursActionAttributt action();
