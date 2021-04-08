@@ -89,7 +89,7 @@ public class AbacAttributtSamling {
                 .reduce(1, (a, b) -> a * b);
     }
 
-    AbacAttributtSamling setAction(String action) {
+    public AbacAttributtSamling setAction(String action) {
         this.action = action;
         return this;
     }
