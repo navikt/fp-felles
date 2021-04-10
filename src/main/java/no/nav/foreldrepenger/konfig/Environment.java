@@ -26,6 +26,8 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi.UrlConverter;
 
 public final class Environment {
 
+    public static final String NAIS_APP_NAME = "NAIS_APP_NAME";
+
     static final class Init {
         // Josh Bloch's lazy load singleton (ref "Effective Java"). Siden Init ikke
         // lastes før den referes blir feltet her initiert først når den aksesseres
@@ -80,6 +82,8 @@ public final class Environment {
     public String clusterName() {
         return cluster.clusterName();
     }
+
+    public String getNaisAppName() { return getProperty(NAIS_APP_NAME, "local-app"); }
 
     public Properties getPropertiesWithPrefix(String prefix) {
         Properties props = new Properties();
