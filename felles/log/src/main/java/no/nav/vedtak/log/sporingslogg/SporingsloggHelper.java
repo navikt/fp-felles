@@ -5,6 +5,8 @@ import java.util.Map;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.util.AppLoggerFactory;
 
+@Deprecated(since = "3.1.x", forRemoval = true)
+/* Utgår erstattes av auditlog */
 public class SporingsloggHelper {
     private static final char SPACE_SEPARATOR = ' ';
 

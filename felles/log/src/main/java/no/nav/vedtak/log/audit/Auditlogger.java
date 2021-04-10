@@ -21,6 +21,8 @@ import no.nav.vedtak.konfig.KonfigVerdi;
  *     <li>Ta kontakt med Arcsight-gruppen for at de skal motta/endre format for loggen som kommer via "audit.nais".</li>
  * </ol>
  */
+@Deprecated(since = "3.1.x", forRemoval = true)
+/* Bruk samme fra no.nav.foreldrepenger.felles:log. */
 @Dependent
 public class Auditlogger {
 

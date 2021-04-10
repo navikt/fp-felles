@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 /**
  * DTO for data som utgjør et innslag i sporingsloggen.
  */
+@Deprecated(since = "3.1.x", forRemoval = true)
+/* Utgår erstattes av auditlog */
 public class Sporingsdata {
 
     private NavigableMap<String, String> verdier;
@@ -55,7 +57,7 @@ public class Sporingsdata {
         verdier.put(navn, verdi);
         return this;
     }
-    
+
     public Set<String> keySet(){
         return verdier.keySet();
     }

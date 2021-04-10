@@ -1,5 +1,7 @@
 package no.nav.vedtak.util;
 
+@Deprecated(since = "3.1.x", forRemoval = true)
+/* Bruk Pair fra org.javatuples:javatuples isteden. */
 public class Tuple<X, Y> {
     private final X element1;
     private final Y element2;

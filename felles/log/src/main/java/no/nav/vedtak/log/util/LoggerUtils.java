@@ -2,6 +2,8 @@ package no.nav.vedtak.log.util;
 
 import java.util.Optional;
 
+@Deprecated(since = "3.1.x", forRemoval = true)
+/* Bruk samme fra no.nav.foreldrepenger.felles:log. */
 public final class LoggerUtils {
 
     private LoggerUtils() {
