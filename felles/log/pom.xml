@@ -5,18 +5,17 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>felles</artifactId>
-    <version>3.0.83-SNAPSHOT</version>
-
+        <version>3.0.83-SNAPSHOT</version>
     </parent>
 
     <artifactId>felles-log</artifactId>
     <name>Felles :: Log</name>
     <packaging>jar</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-util</artifactId>
-        </dependency>
-    </dependencies>
+<!--    <dependencies>-->
+<!--        <dependency>-->
+<!--            <groupId>no.nav.foreldrepenger.felles</groupId>-->
+<!--            <artifactId>felles-util</artifactId>-->
+<!--        </dependency>-->
+<!--    </dependencies>-->
 </project>
