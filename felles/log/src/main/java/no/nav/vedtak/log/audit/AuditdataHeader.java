@@ -2,6 +2,8 @@ package no.nav.vedtak.log.audit;
 
 import java.util.Objects;
 
+@Deprecated(since = "3.1.x", forRemoval = true)
+/* Bruk samme fra no.nav.foreldrepenger.felles:log. */
 public class AuditdataHeader {
 
     /**

@@ -1,4 +1,5 @@
 # Deprecated 
+@Deprecated(since = "3.1.x", forRemoval = true)
 Bruk 
 
     <dependency>

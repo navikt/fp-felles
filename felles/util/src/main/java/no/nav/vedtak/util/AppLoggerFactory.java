@@ -5,14 +5,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * LoggerFactory for å opprette logger for spesielle formål: sporing, sikkerhet, tjeneste, etc.
- * 
+ *
  * Definerer prefix på logger definert ihht. Aura's standarder, slik at de kan konfigureres forskjellig i logback.xml og
  * tilsvarende.
- * 
+ *
  * @see <a href="https://confluence.adeo.no/display/AURA/Logging">AURA Logging</a>
  */
+@Deprecated(since = "3.1.x", forRemoval = true)
+/* Brukes kun av sporingslogger som utgår og erstattes av auditlogger. */
 public final class AppLoggerFactory {
-    
+
     private AppLoggerFactory() {
     }
 
