@@ -23,7 +23,7 @@ import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
  */
 public class SystemUserIdTokenProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(SystemUserIdTokenProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SystemUserIdTokenProvider.class);
     private static final Random RANDOM = new Random(); // NOSONAR brukes bare for å spre last, trenger ikke SecureRandom
     private static final int MAKS_ANTALL_FORSØK = 10;
     private static final int FORDELINGSFAKTOR = 10; // hvor mye nye forsøk fordeles ut i tid for å unngå konflikt
@@ -37,6 +37,7 @@ public class SystemUserIdTokenProvider {
     }
 
     public static synchronized OidcCredential getSystemUserIdToken() {
+        LOG.trace("Returnerer cached token");
         if (idToken != null && idTokenExpiryTime.isAfter(Instant.now().plusMillis(OidcLogin.getMinimumTimeToExpiryBeforeRefresh()))) {
             return idToken;
         }
@@ -47,6 +48,7 @@ public class SystemUserIdTokenProvider {
     }
 
     private static OidcCredential fetchIdToken() {
+        LOG.trace("Henter system token");
         return fetchIdToken(1, new OpenAMHelper(), RANDOM);
     }
 
@@ -56,7 +58,7 @@ public class SystemUserIdTokenProvider {
                 return fetchIdTokenDirect(openAmHelper);
             } catch (IOException e) {
                 long sovetid = sovetid(random);
-                logger.info("Forsøk {} av {} for henting av systemuser id token feilet, fikk {}. Sover i {} ms og prøver på nytt", forsøkNr,
+                LOG.info("Forsøk {} av {} for henting av systemuser id token feilet, fikk {}. Sover i {} ms og prøver på nytt", forsøkNr,
                         MAKS_ANTALL_FORSØK, e, sovetid);
                 vent(sovetid);
                 return fetchIdToken(forsøkNr + 1, openAmHelper, random);
