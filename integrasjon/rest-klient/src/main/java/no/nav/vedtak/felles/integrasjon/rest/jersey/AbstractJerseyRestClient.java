@@ -101,6 +101,7 @@ public abstract class AbstractJerseyRestClient {
             LOG.info("Registrer filter {}", f.getClass());
             cfg.register(f);
         });
+        cfg.register(ErrorResponseHandlingClientResponseFilter.class);
         if (!Environment.current().isProd()) {
             LOG.info("Registrer logging i non-prod");
             cfg.register(new HeaderLoggingFilter());
