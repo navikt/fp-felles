@@ -1,6 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.medl2;
 
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
+import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;

@@ -18,5 +18,5 @@
             <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
             <artifactId>felles-sikkerhet</artifactId>
         </dependency>
-	</dependencies>
+    </dependencies>
 </project>

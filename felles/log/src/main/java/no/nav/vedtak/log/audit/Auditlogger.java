@@ -32,7 +32,6 @@ public class Auditlogger {
     private final String defaultVendor;
     private final String defaultProduct;
 
-
     @Inject
     public Auditlogger(@KonfigVerdi(value = "auditlogger.enabled", required = false) boolean enabled,
             @KonfigVerdi(value = "auditlogger.vendor", required = false) String defaultVendor,
