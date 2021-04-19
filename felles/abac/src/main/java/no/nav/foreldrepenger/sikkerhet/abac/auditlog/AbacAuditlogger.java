@@ -139,12 +139,12 @@ public class AbacAuditlogger {
     }
 
     private static EventClassId finnEventClassIdFra(String abacAction) {
-        return switch (abacAction) {
-            case "read" -> AUDIT_ACCESS;
-            case "delete", "update" -> AUDIT_UPDATE;
-            case "create" -> AUDIT_CREATE;
-            default -> throw new IllegalArgumentException("Ukjent abacAction: " + abacAction);
-        };
+        switch (abacAction) {
+            case "read": return AUDIT_ACCESS;
+            case "delete": case "update": return AUDIT_UPDATE;
+            case "create": return AUDIT_CREATE;
+            default: throw new IllegalArgumentException("Ukjent abacAction: " + abacAction);
+        }
     }
 
     private static List<String> allNonNullValues(Set<String> identer) {

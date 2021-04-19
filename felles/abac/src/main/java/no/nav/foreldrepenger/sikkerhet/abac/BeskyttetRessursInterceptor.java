@@ -125,10 +125,10 @@ public class BeskyttetRessursInterceptor {
         abacAuditlogger.loggDeny(beslutning.getPdpRequest(), attributter);
 
         switch (beslutning.getBeslutningKode()) {
-            case AVSLÅTT_KODE_6 -> throw new PepNektetTilgangException("F-709170", "Tilgangskontroll.Avslag.Kode6");
-            case AVSLÅTT_KODE_7 -> throw new PepNektetTilgangException("F-027901", "Tilgangskontroll.Avslag.Kode7");
-            case AVSLÅTT_EGEN_ANSATT -> throw new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");
-            default -> throw new PepNektetTilgangException("F-608625", "Ikke tilgang");
+            case AVSLÅTT_KODE_6: throw new PepNektetTilgangException("F-709170", "Tilgangskontroll.Avslag.Kode6");
+            case AVSLÅTT_KODE_7: throw new PepNektetTilgangException("F-027901", "Tilgangskontroll.Avslag.Kode7");
+            case AVSLÅTT_EGEN_ANSATT: throw new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");
+            default: throw new PepNektetTilgangException("F-608625", "Ikke tilgang");
         }
     }
 

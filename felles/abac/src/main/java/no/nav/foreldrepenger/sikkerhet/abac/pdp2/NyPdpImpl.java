@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.sikkerhet.abac.domene.AbacResultat;
 import no.nav.foreldrepenger.sikkerhet.abac.domene.Tilgangsbeslutning;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp.Pdp;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp.XacmlConsumer;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.Advice;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.Decision;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlResponse;
@@ -44,13 +43,13 @@ public class NyPdpImpl implements Pdp {
         XacmlResponse xacmlResponse = pdpKlient.evaluate(NyXacmlRequestMapper.lagXacmlRequest(pdpRequest));
 
         var decisions = collectDecisions(xacmlResponse);
-        validerObligations(xacmlResponse.Response());
-        var hovedresultat = lagResultat(decisions, xacmlResponse.Response());
+        validerObligations(xacmlResponse.getResponse());
+        var hovedresultat = lagResultat(decisions, xacmlResponse.getResponse());
         return new Tilgangsbeslutning(hovedresultat, decisions, pdpRequest);
     }
 
     private List<Decision> collectDecisions(final XacmlResponse nyResponse) {
-        var decisions = nyResponse.Response().stream().map(XacmlResponse.Response::Decision).collect(Collectors.toList());
+        var decisions = nyResponse.getResponse().stream().map(XacmlResponse.Response::getDecision).collect(Collectors.toList());
         valider(decisions);
         return decisions;
     }
@@ -61,13 +60,13 @@ public class NyPdpImpl implements Pdp {
         }
 
         var denyAdvices = response.stream()
-            .map(XacmlResponse.Response::AssociatedAdvice)
+            .map(XacmlResponse.Response::getAssociatedAdvice)
             .filter(Objects::nonNull)
             .flatMap(List::stream)
-            .filter(advice -> advice.Id().equals(DENY_ADVICE_IDENTIFIER))
-            .flatMap(advice -> advice.AttributeAssignment().stream()
-                .filter(attributeAssignment -> attributeAssignment.AttributeId().equals(POLICY_IDENTIFIER))
-                .map(denyPolicy -> mapToAdvice(denyPolicy.Value()))
+            .filter(advice -> advice.getId().equals(DENY_ADVICE_IDENTIFIER))
+            .flatMap(advice -> advice.getAttributeAssignment().stream()
+                .filter(attributeAssignment -> attributeAssignment.getAttributeId().equals(POLICY_IDENTIFIER))
+                .map(denyPolicy -> mapToAdvice(denyPolicy.getValue()))
                 .filter(Objects::nonNull))
             .collect(Collectors.toList());
 
@@ -88,12 +87,12 @@ public class NyPdpImpl implements Pdp {
     }
 
     private static Advice mapToAdvice(String adviceString) {
-        return switch (adviceString) {
-            case "fp3_behandle_egen_ansatt" -> Advice.DENY_EGEN_ANSATT;
-            case "fp2_behandle_kode7" -> Advice.DENY_KODE_7;
-            case "fp1_behandle_kode6" -> Advice.DENY_KODE_6;
-            default -> null;
-        };
+        switch (adviceString) {
+            case "fp3_behandle_egen_ansatt": return Advice.DENY_EGEN_ANSATT;
+            case "fp2_behandle_kode7": return Advice.DENY_KODE_7;
+            case "fp1_behandle_kode6": return Advice.DENY_KODE_6;
+            default: return null;
+        }
     }
 
     private static Decision aggregatedDecision(List<Decision> decisions) {
@@ -111,18 +110,18 @@ public class NyPdpImpl implements Pdp {
 
     private static void validerObligations(List<XacmlResponse.Response> response) {
         var obligations = response.stream()
-            .map(XacmlResponse.Response::Obligations)
+            .map(XacmlResponse.Response::getObligations)
             .filter(Objects::nonNull)
             .flatMap(List::stream).collect(Collectors.toList());
         if (!obligations.isEmpty()) {
             throw new TekniskException("F-576027",
                 String.format("Mottok ukjente obligations fra PDP: %s",
                     obligations.stream()
-                        .map(XacmlResponse.Assignments::AttributeAssignment)
+                        .map(XacmlResponse.Assignments::getAttributeAssignment)
                         .filter(Objects::nonNull)
                         .flatMap(obligation -> obligation.stream()
                             .filter(Objects::nonNull)
-                            .map(XacmlResponse.AttributeAssignment::Value))
+                            .map(XacmlResponse.AttributeAssignment::getValue))
                         .collect(Collectors.joining(", "))
                 ));
         }

@@ -41,7 +41,7 @@ public class NyXacmlRequestMapper {
             pdpRequest.getIdSubject().map(NyXacmlRequestMapper::getSubjectInfo).orElse(List.of())
         );
         var resourceAttributes = getResourceInfo(pdpRequest);
-        var request = new XacmlRequest.Request(actionAttributes, envAttributes, resourceAttributes, subjectAttributes.Attributt().isEmpty() ? null : subjectAttributes);
+        var request = new XacmlRequest.Request(actionAttributes, envAttributes, resourceAttributes, subjectAttributes.getAttributt().isEmpty() ? null : subjectAttributes);
         return new XacmlRequest(request);
     }
 
@@ -101,10 +101,11 @@ public class NyXacmlRequestMapper {
 
     private static XacmlRequest.Pair getTokenInfo(IdToken idToken) {
         switch (idToken.getTokenType()) {
-            case OIDC, TOKENX -> {
+            case OIDC:
+            case TOKENX: {
                 return getOidcTokenInfo(idToken);
             }
-            case SAML -> {
+            case SAML: {
                 LOG.trace("Legger på token med type saml");
                 return new XacmlRequest.Pair(AbacAttributtNøkkel.ENVIRONMENT_SAML_TOKEN, base64encode(idToken.getToken()));
             }
@@ -158,5 +159,21 @@ public class NyXacmlRequestMapper {
         return identer;
     }
 
-    private record Ident(String key, String ident) {}
+    public static class Ident {
+        private String key;
+        private String ident;
+
+        public Ident(String key, String ident) {
+            this.key = key;
+            this.ident = ident;
+        }
+
+        public String Key() {
+            return key;
+        }
+
+        public String Ident() {
+            return ident;
+        }
+    }
 }

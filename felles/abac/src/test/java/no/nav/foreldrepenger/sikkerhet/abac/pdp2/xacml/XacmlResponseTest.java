@@ -18,8 +18,12 @@ class XacmlResponseTest {
 
         var serialized = mapper.writeValueAsString(deserialized);
 
-        assertThat(deserialized.Response()).isNotEmpty();
-        assertThat(deserialized.Response()).hasSize(1);
+        var deserialized2 = mapper.readValue(serialized, XacmlResponse.class);
+
+        assertThat(deserialized.getResponse()).isNotEmpty();
+        assertThat(deserialized.getResponse()).hasSize(1);
+        assertThat(deserialized2.getResponse()).isNotEmpty();
+        assertThat(deserialized2.getResponse()).hasSize(1);
     }
 
 }

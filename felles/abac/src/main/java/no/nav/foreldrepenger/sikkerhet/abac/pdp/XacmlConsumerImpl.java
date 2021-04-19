@@ -249,7 +249,39 @@ public class XacmlConsumerImpl implements XacmlConsumer {
         };
     }
 
-    private record HttpConf(CloseableHttpClient client, AuthCache cache) {}
+    private static class HttpConf {
+        private final CloseableHttpClient client;
+        private final AuthCache cache;
 
-    private record ResponseStatus(StatusLine status, JsonObject json) {}
+        public HttpConf(final CloseableHttpClient client, final AuthCache cache) {
+            this.client = client;
+            this.cache = cache;
+        }
+
+        public CloseableHttpClient getClient() {
+            return client;
+        }
+
+        public AuthCache getCache() {
+            return cache;
+        }
+    }
+
+    private static class ResponseStatus {
+        private final StatusLine status;
+        private final JsonObject json;
+
+        public ResponseStatus(final StatusLine status, final JsonObject json) {
+            this.status = status;
+            this.json = json;
+        }
+
+        public StatusLine getStatus() {
+            return status;
+        }
+
+        public JsonObject getJson() {
+            return json;
+        }
+    }
 }

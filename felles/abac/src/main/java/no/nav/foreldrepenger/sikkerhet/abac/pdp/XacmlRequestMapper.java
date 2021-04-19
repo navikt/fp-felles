@@ -53,10 +53,11 @@ public class XacmlRequestMapper {
 
     private static XacmlRequest.Pair getTokenInfo(IdToken idToken) {
         switch (idToken.getTokenType()) {
-            case OIDC, TOKENX -> {
+            case OIDC:
+            case TOKENX: {
                 return getOidcTokenInfo(idToken);
             }
-            case SAML -> {
+            case SAML: {
                 LOG.trace("Legger på token med type saml");
                 return new XacmlRequest.Pair(AbacAttributtNøkkel.ENVIRONMENT_SAML_TOKEN, base64encode(idToken.getToken()));
             }
@@ -93,7 +94,7 @@ public class XacmlRequestMapper {
     static void populerSubjectSet(final XacmlRequestBuilder builder, final IdSubject subject) {
         var actionAttributes = new XacmlAttributeSet();
         var subjectInfo = getSubjectInfo(subject);
-        subjectInfo.forEach(pair -> actionAttributes.addAttribute(pair.AttributeId(), pair.Value()));
+        subjectInfo.forEach(pair -> actionAttributes.addAttribute(pair.getAttributeId(), pair.getValue()));
         builder.addSubjectAttributeSet(actionAttributes);
     }
 
@@ -106,9 +107,9 @@ public class XacmlRequestMapper {
     static void populerEnvironmentSet(XacmlRequestBuilder builder, PdpRequest pdpRequest) {
         var environmentAttributes = new XacmlAttributeSet();
         var pepInfo = getPepIdInfo(pdpRequest);
-        environmentAttributes.addAttribute(pepInfo.AttributeId(), pepInfo.Value());
+        environmentAttributes.addAttribute(pepInfo.getAttributeId(), pepInfo.getValue());
         var tokenType = getTokenInfo(pdpRequest.getIdToken());
-        environmentAttributes.addAttribute(tokenType.AttributeId(), tokenType.Value());
+        environmentAttributes.addAttribute(tokenType.getAttributeId(), tokenType.getValue());
         builder.addEnvironmentAttributeSet(environmentAttributes);
     }
 
@@ -168,5 +169,21 @@ public class XacmlRequestMapper {
         return identer;
     }
 
-    private record Ident(String key, String ident) {}
+    public static class Ident {
+        private String key;
+        private String ident;
+
+        public Ident(String key, String ident) {
+            this.key = key;
+            this.ident = ident;
+        }
+
+        public String Key() {
+            return key;
+        }
+
+        public String Ident() {
+            return ident;
+        }
+    }
 }

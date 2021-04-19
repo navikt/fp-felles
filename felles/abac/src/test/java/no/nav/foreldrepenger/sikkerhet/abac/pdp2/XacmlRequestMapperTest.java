@@ -28,7 +28,7 @@ class XacmlRequestMapperTest {
         validerBasisActionAttributter(request);
         validerBasisEnvironmentAttributter(request);
         validerBasisResourceAttributter(request, 1, 2);
-        assertThat(request.Request().AccessSubject()).isNull();
+        assertThat(request.getRequest().getAccessSubject()).isNull();
     }
 
     @Test
@@ -42,8 +42,8 @@ class XacmlRequestMapperTest {
         validerBasisResourceAttributter(request, 1, 2);
 
         validerBasisSubjectAttributter(request, 3);
-        assertThat(request.Request().AccessSubject().Attributt().get(2).AttributeId()).isEqualTo(AbacAttributtNøkkel.SUBJECT_LEVEL);
-        assertThat(request.Request().AccessSubject().Attributt().get(2).Value()).isEqualTo("Level");
+        assertThat(request.getRequest().getAccessSubject().getAttributt().get(2).getAttributeId()).isEqualTo(AbacAttributtNøkkel.SUBJECT_LEVEL);
+        assertThat(request.getRequest().getAccessSubject().getAttributt().get(2).getValue()).isEqualTo("Level");
     }
 
     @Test
@@ -57,7 +57,7 @@ class XacmlRequestMapperTest {
         validerBasisResourceAttributter(request, 1, 2);
 
         validerBasisSubjectAttributter(request, 2);
-        assertThat(request.Request().AccessSubject().Attributt()).noneSatisfy(attribut -> assertThat(attribut.AttributeId()).isEqualTo(AbacAttributtNøkkel.SUBJECT_LEVEL));
+        assertThat(request.getRequest().getAccessSubject().getAttributt()).noneSatisfy(attribut -> assertThat(attribut.getAttributeId()).isEqualTo(AbacAttributtNøkkel.SUBJECT_LEVEL));
     }
 
     @Test
@@ -152,35 +152,35 @@ class XacmlRequestMapperTest {
     }
 
     private void validerResourceAttributter(final Set<String> expectedValues, final XacmlRequest request, String attributtKey) {
-        var resultatVerdier = request.Request().Resource()
+        var resultatVerdier = request.getRequest().getResource()
             .stream()
-            .flatMap(it -> it.Attributt().stream()
-                .filter(s -> s.AttributeId().equals(attributtKey))
-                .map(XacmlRequest.Pair::Value))
+            .flatMap(it -> it.getAttributt().stream()
+                .filter(s -> s.getAttributeId().equals(attributtKey))
+                .map(XacmlRequest.Pair::getValue))
             .collect(Collectors.toSet());
         assertThat(resultatVerdier).containsAll(expectedValues);
     }
 
     private void validerBasisSubjectAttributter(final XacmlRequest request, int antall) {
-        assertThat(request.Request()).isNotNull();
-        assertThat(request.Request().AccessSubject()).isNotNull();
-        assertThat(request.Request().AccessSubject().Attributt()).isNotNull();
-        assertThat(request.Request().AccessSubject().Attributt()).hasSize(antall);
-        assertThat(request.Request().AccessSubject().Attributt().get(0).AttributeId()).isEqualTo(AbacAttributtNøkkel.SUBJECT_ID);
-        assertThat(request.Request().AccessSubject().Attributt().get(0).Value()).isEqualTo("srvTest");
-        assertThat(request.Request().AccessSubject().Attributt().get(1).AttributeId()).isEqualTo(AbacAttributtNøkkel.SUBJECT_TYPE);
-        assertThat(request.Request().AccessSubject().Attributt().get(1).Value()).isEqualTo("InternalUser");
+        assertThat(request.getRequest()).isNotNull();
+        assertThat(request.getRequest().getAccessSubject()).isNotNull();
+        assertThat(request.getRequest().getAccessSubject().getAttributt()).isNotNull();
+        assertThat(request.getRequest().getAccessSubject().getAttributt()).hasSize(antall);
+        assertThat(request.getRequest().getAccessSubject().getAttributt().get(0).getAttributeId()).isEqualTo(AbacAttributtNøkkel.SUBJECT_ID);
+        assertThat(request.getRequest().getAccessSubject().getAttributt().get(0).getValue()).isEqualTo("srvTest");
+        assertThat(request.getRequest().getAccessSubject().getAttributt().get(1).getAttributeId()).isEqualTo(AbacAttributtNøkkel.SUBJECT_TYPE);
+        assertThat(request.getRequest().getAccessSubject().getAttributt().get(1).getValue()).isEqualTo("InternalUser");
     }
 
     private void validerBasisResourceAttributter(final XacmlRequest request, int antallRessources, int antallAttributterPerRessource) {
-        assertThat(request.Request().Resource()).isNotNull();
-        assertThat(request.Request().Resource()).hasSize(antallRessources);
-        assertThat(request.Request().Resource().get(0).Attributt()).isNotNull();
-        assertThat(request.Request().Resource().get(0).Attributt()).hasSize(antallAttributterPerRessource);
-        assertThat(request.Request().Resource().get(0).Attributt().get(0).AttributeId()).isEqualTo(AbacAttributtNøkkel.RESOURCE_DOMENE);
-        assertThat(request.Request().Resource().get(0).Attributt().get(0).Value()).isEqualTo("foreldre");
-        assertThat(request.Request().Resource().get(0).Attributt().get(1).AttributeId()).isEqualTo(AbacAttributtNøkkel.RESOURCE_RESOURCE_TYPE);
-        assertThat(request.Request().Resource().get(0).Attributt().get(1).Value()).isEqualTo("no.nav.abac.attributter.foreldrepenger.fagsak");
+        assertThat(request.getRequest().getResource()).isNotNull();
+        assertThat(request.getRequest().getResource()).hasSize(antallRessources);
+        assertThat(request.getRequest().getResource().get(0).getAttributt()).isNotNull();
+        assertThat(request.getRequest().getResource().get(0).getAttributt()).hasSize(antallAttributterPerRessource);
+        assertThat(request.getRequest().getResource().get(0).getAttributt().get(0).getAttributeId()).isEqualTo(AbacAttributtNøkkel.RESOURCE_DOMENE);
+        assertThat(request.getRequest().getResource().get(0).getAttributt().get(0).getValue()).isEqualTo("foreldre");
+        assertThat(request.getRequest().getResource().get(0).getAttributt().get(1).getAttributeId()).isEqualTo(AbacAttributtNøkkel.RESOURCE_RESOURCE_TYPE);
+        assertThat(request.getRequest().getResource().get(0).getAttributt().get(1).getValue()).isEqualTo("no.nav.abac.attributter.foreldrepenger.fagsak");
     }
 
     private void validerBasisEnvironmentAttributter(final XacmlRequest request) {
@@ -188,22 +188,22 @@ class XacmlRequestMapperTest {
     }
 
     private void validerBasisEnvironmentAttributter(final XacmlRequest request, String expectedPepId, String expectedToken, String expectedTokenKey) {
-        assertThat(request.Request().Environment()).isNotNull();
-        assertThat(request.Request().Environment().Attributt()).isNotNull();
-        assertThat(request.Request().Environment().Attributt()).hasSize(2);
-        assertThat(request.Request().Environment().Attributt().get(0).AttributeId()).isEqualTo(AbacAttributtNøkkel.ENVIRONMENT_PEP_ID);
-        assertThat(request.Request().Environment().Attributt().get(0).Value()).isEqualTo(expectedPepId);
-        assertThat(request.Request().Environment().Attributt().get(1).AttributeId()).isEqualTo(expectedTokenKey);
-        assertThat(request.Request().Environment().Attributt().get(1).Value()).isEqualTo(expectedToken);
+        assertThat(request.getRequest().getEnvironment()).isNotNull();
+        assertThat(request.getRequest().getEnvironment().getAttributt()).isNotNull();
+        assertThat(request.getRequest().getEnvironment().getAttributt()).hasSize(2);
+        assertThat(request.getRequest().getEnvironment().getAttributt().get(0).getAttributeId()).isEqualTo(AbacAttributtNøkkel.ENVIRONMENT_PEP_ID);
+        assertThat(request.getRequest().getEnvironment().getAttributt().get(0).getValue()).isEqualTo(expectedPepId);
+        assertThat(request.getRequest().getEnvironment().getAttributt().get(1).getAttributeId()).isEqualTo(expectedTokenKey);
+        assertThat(request.getRequest().getEnvironment().getAttributt().get(1).getValue()).isEqualTo(expectedToken);
     }
 
     private void validerBasisActionAttributter(final XacmlRequest request) {
-        assertThat(request.Request()).isNotNull();
-        assertThat(request.Request().Action()).isNotNull();
-        assertThat(request.Request().Action().Attributt()).isNotNull();
-        assertThat(request.Request().Action().Attributt()).hasSize(1);
-        assertThat(request.Request().Action().Attributt().get(0).AttributeId()).isEqualTo(AbacAttributtNøkkel.ACTION_ACTION_ID);
-        assertThat(request.Request().Action().Attributt().get(0).Value()).isEqualTo("read");
+        assertThat(request.getRequest()).isNotNull();
+        assertThat(request.getRequest().getAction()).isNotNull();
+        assertThat(request.getRequest().getAction().getAttributt()).isNotNull();
+        assertThat(request.getRequest().getAction().getAttributt()).hasSize(1);
+        assertThat(request.getRequest().getAction().getAttributt().get(0).getAttributeId()).isEqualTo(AbacAttributtNøkkel.ACTION_ACTION_ID);
+        assertThat(request.getRequest().getAction().getAttributt().get(0).getValue()).isEqualTo("read");
     }
 
     private PdpRequest.Builder lagPdpRequestBuilder() {
