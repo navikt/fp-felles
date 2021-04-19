@@ -19,7 +19,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 class XamclJerseyRestKlient extends AbstractJerseyRestClient implements NyXacmlConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(XamclJerseyRestKlient.class);
-    private static final String DEFAULT_ABAC_URL = "http://abac-foreldrepenger.default/application/authorize";
+    private static final String DEFAULT_ABAC_URL = "http://abac-foreldrepenger.teamabac/application/authorize";
     private static final String PDP_ENDPOINT_URL_KEY = "abac.pdp.endpoint.url";
     private static final String SYSTEMBRUKER_USERNAME = "systembruker.username";
     private static final String SYSTEMBRUKER_PASSWORD = "systembruker.password"; // NOSONAR

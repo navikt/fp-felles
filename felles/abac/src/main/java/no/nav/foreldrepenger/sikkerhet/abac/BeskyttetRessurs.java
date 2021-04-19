@@ -41,7 +41,7 @@ public @interface BeskyttetRessurs {
     /**
      * Property hvor resource kan slås opp fra. Først og fremst for biblioteker der
      * resource er forskjellig mellom applikasjoner. Property angis som java
-     * property (eks: "no.nav.foreldrepenger.sikkerhet.no.nav.foreldrepenger.sikkerhet.abac.rolle"). Dersom ikke tilgjengelig som property tolkes
+     * property (eks: "abac.rolle"). Dersom ikke tilgjengelig som property tolkes
      * det som Env variabel på upper case (eks. "ABAC_ROLLE").
      */
     @Nonbinding

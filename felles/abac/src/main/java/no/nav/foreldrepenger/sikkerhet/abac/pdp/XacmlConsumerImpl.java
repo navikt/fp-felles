@@ -51,7 +51,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class XacmlConsumerImpl implements XacmlConsumer {
 
     private static final String DEFAULT_ABAC_URL = "http://abac-foreldrepenger.teamabac/application/authorize";
-    private static final String PDP_ENDPOINT_URL_KEY = "no.nav.foreldrepenger.sikkerhet.no.nav.foreldrepenger.sikkerhet.abac.pdp.endpoint.url";
+    private static final String PDP_ENDPOINT_URL_KEY = "abac.pdp.endpoint.url";
     private static final String SYSTEMBRUKER_USERNAME = "systembruker.username";
     private static final String SYSTEMBRUKER_PASSWORD = "systembruker.password"; // NOSONAR
     private static final int MAX_TOTAL_CONNECTIONS_PER_ROUTE = 20;
