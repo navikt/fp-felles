@@ -9,7 +9,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
+import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.felles.integrasjon.sak.v1.JerseySakRestKlient.FAGSAK_NR;

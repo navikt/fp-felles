@@ -1,6 +1,5 @@
 
 /**
- * @Deprecated(since = "3.1", forRemoval = true)
  * Bruk klasser fra no.nav.foreldrepenger.felles:feil:1.0.1 istedenfor.
  * Denne pakken inneholder felles Exception for å håndtere feilmeldinger og feilkoder som logges.
  *

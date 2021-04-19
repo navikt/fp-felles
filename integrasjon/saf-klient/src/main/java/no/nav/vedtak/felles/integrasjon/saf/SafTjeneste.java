@@ -1,6 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
+import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 
 import java.io.IOException;
 import java.net.URI;

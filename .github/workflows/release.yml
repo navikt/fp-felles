@@ -13,7 +13,7 @@ jobs:
         with:
           ref: 'master'
 
-      - name: Set up JDK 11
+      - name: Set up Java
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'

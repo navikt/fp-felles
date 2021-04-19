@@ -1,8 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.toJson;
+import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
+import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.toJson;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultHeaders;

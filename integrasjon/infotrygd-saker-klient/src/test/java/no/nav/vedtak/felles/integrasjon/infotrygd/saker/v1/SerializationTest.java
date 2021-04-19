@@ -3,7 +3,7 @@ package no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.readAllBytes;
 import static java.util.stream.Collectors.toList;
-import static no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
+import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
