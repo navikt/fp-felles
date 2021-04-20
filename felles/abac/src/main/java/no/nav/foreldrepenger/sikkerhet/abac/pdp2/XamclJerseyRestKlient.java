@@ -57,7 +57,7 @@ class XamclJerseyRestKlient extends AbstractJerseyRestClient implements NyXacmlC
                 return res.readEntity(XacmlResponse.class);
             }
         } catch (Exception e) {
-            LOG.warn("Kunne ikke evaluere ABAC", e);
+            LOG.info("Exception: Kunne ikke evaluere ABAC.", e);
             throw e;
         }
         return null;
