@@ -1,20 +1,18 @@
 package no.nav.foreldrepenger.sikkerhet.abac.domene;
 
-import java.util.Optional;
-
 public class IdSubject {
 
     private final String subjectId;
-    private final String subjectLevel;
     private final String subjectType;
+    private final Integer subjectAuthLevel;
 
-    private IdSubject(String subjectId, String subjectType, String subjectLevel) {
+    private IdSubject(String subjectId, String subjectType, Integer authLevel) {
         this.subjectId = subjectId;
         this.subjectType = subjectType;
-        this.subjectLevel = subjectLevel;
+        this.subjectAuthLevel = authLevel;
     }
 
-    public static IdSubject with(String id, String type, String level) {
+    public static IdSubject with(String id, String type, Integer level) {
         return new IdSubject(id, type, level);
     }
 
@@ -30,12 +28,12 @@ public class IdSubject {
         return subjectType;
     }
 
-    public Optional<String> getSubjectLevel() {
-        return Optional.ofNullable(subjectLevel);
+    public Integer getSubjectAuthLevel() {
+        return subjectAuthLevel;
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [subject={subjectId='MASKERT', subjectType=" + subjectType + ", subjectLevel=" + subjectLevel + "}]";
+        return getClass().getSimpleName() + " [subject={subjectId='MASKERT', subjectType=" + subjectType + ", subjectLevel=" + subjectAuthLevel + "}]";
     }
 }

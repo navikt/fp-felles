@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.sikkerhet.abac.pdp;
 
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
@@ -19,9 +18,9 @@ import no.nav.foreldrepenger.sikkerhet.abac.domene.IdSubject;
 import no.nav.foreldrepenger.sikkerhet.abac.domene.IdToken;
 import no.nav.foreldrepenger.sikkerhet.abac.domene.TokenType;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlAttributeSet;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlRequest;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlRequestBuilder;
 import no.nav.foreldrepenger.sikkerhet.abac.pep.PdpRequest;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.util.env.Environment;
 
 public class XacmlRequestMapper {
@@ -42,16 +41,21 @@ public class XacmlRequestMapper {
         }
 
         populerActionSet(xacmlBuilder, pdpRequest.getActionId());
-        populerEnvironmentSet(xacmlBuilder, pdpRequest);
-        pdpRequest.getIdSubject().ifPresent(subject -> populerSubjectSet(xacmlBuilder, subject));
+
+        // Hack til å støtte for tokenx siden abac ikke støtter det ennå og da må subject legges inn
+        var utenToken = pdpRequest.getIdToken().getTokenType().equals(TokenType.TOKENX);
+        populerEnvironmentSet(xacmlBuilder, pdpRequest, utenToken);
+        if (utenToken) {
+            if (pdpRequest.getIdSubject().isPresent()) {
+                populerSubjectSet(xacmlBuilder, pdpRequest.getIdSubject().get());
+            } else {
+                throw new TekniskException("ABAC-1", "Du må legge inn subjectId, subjectType og authorizationLevel om du skal bruke TokenX.");
+            }
+        }
         return xacmlBuilder;
     }
 
-    private static XacmlRequest.Pair getPepIdInfo(final PdpRequest pdpRequest) {
-        return new XacmlRequest.Pair(AbacAttributtNøkkel.ENVIRONMENT_PEP_ID, pdpRequest.getPepId().orElse(getPepId()));
-    }
-
-    private static XacmlRequest.Pair getTokenInfo(IdToken idToken) {
+    private static Pair getTokenInfo(IdToken idToken) {
         switch (idToken.getTokenType()) {
             case OIDC:
             case TOKENX: {
@@ -59,13 +63,13 @@ public class XacmlRequestMapper {
             }
             case SAML: {
                 LOG.trace("Legger på token med type saml");
-                return new XacmlRequest.Pair(AbacAttributtNøkkel.ENVIRONMENT_SAML_TOKEN, base64encode(idToken.getToken()));
+                return new Pair(AbacAttributtNøkkel.ENVIRONMENT_SAML_TOKEN, base64encode(idToken.getToken()));
             }
         }
         throw new IllegalArgumentException("En gyldig token må være satt.");
     }
 
-    private static XacmlRequest.Pair getOidcTokenInfo(final IdToken idToken) {
+    private static Pair getOidcTokenInfo(final IdToken idToken) {
         String key;
         var tokenType = idToken.getTokenType();
         if (tokenType.equals(TokenType.OIDC)) {
@@ -77,24 +81,17 @@ public class XacmlRequestMapper {
         }
         LOG.trace("Legger ved {} token på {}", tokenType, key);
         try {
-            return new XacmlRequest.Pair(key, SignedJWT.parse(idToken.getToken()).getPayload().toBase64URL().toString());
+            return new Pair(key, SignedJWT.parse(idToken.getToken()).getPayload().toBase64URL().toString());
         } catch (ParseException e) {
             throw new IllegalArgumentException("Ukjent token type");
         }
     }
 
-    private static List<XacmlRequest.Pair> getSubjectInfo(IdSubject idSubject) {
-        List<XacmlRequest.Pair> subjectPairs = new ArrayList<>();
-        subjectPairs.add(new XacmlRequest.Pair(AbacAttributtNøkkel.SUBJECT_ID, idSubject.getSubjectId()));
-        subjectPairs.add(new XacmlRequest.Pair(AbacAttributtNøkkel.SUBJECT_TYPE, idSubject.getSubjectType()));
-        idSubject.getSubjectLevel().ifPresent(level -> subjectPairs.add(new XacmlRequest.Pair(AbacAttributtNøkkel.SUBJECT_LEVEL, level)));
-        return subjectPairs;
-    }
-
     static void populerSubjectSet(final XacmlRequestBuilder builder, final IdSubject subject) {
         var actionAttributes = new XacmlAttributeSet();
-        var subjectInfo = getSubjectInfo(subject);
-        subjectInfo.forEach(pair -> actionAttributes.addAttribute(pair.getAttributeId(), pair.getValue()));
+        actionAttributes.addAttribute(AbacAttributtNøkkel.SUBJECT_ID, subject.getSubjectId());
+        actionAttributes.addAttribute(AbacAttributtNøkkel.SUBJECT_TYPE, subject.getSubjectType());
+        actionAttributes.addAttribute(AbacAttributtNøkkel.SUBJECT_LEVEL, subject.getSubjectAuthLevel());
         builder.addSubjectAttributeSet(actionAttributes);
     }
 
@@ -104,12 +101,13 @@ public class XacmlRequestMapper {
         builder.addActionAttributeSet(actionAttributes);
     }
 
-    static void populerEnvironmentSet(XacmlRequestBuilder builder, PdpRequest pdpRequest) {
+    static void populerEnvironmentSet(XacmlRequestBuilder builder, PdpRequest pdpRequest, boolean utenToken) {
         var environmentAttributes = new XacmlAttributeSet();
-        var pepInfo = getPepIdInfo(pdpRequest);
-        environmentAttributes.addAttribute(pepInfo.getAttributeId(), pepInfo.getValue());
-        var tokenType = getTokenInfo(pdpRequest.getIdToken());
-        environmentAttributes.addAttribute(tokenType.getAttributeId(), tokenType.getValue());
+        environmentAttributes.addAttribute(AbacAttributtNøkkel.ENVIRONMENT_PEP_ID, pdpRequest.getPepId().orElse(getPepId()));
+        if (!utenToken) {
+            var tokenType = getTokenInfo(pdpRequest.getIdToken());
+            environmentAttributes.addAttribute(tokenType.key, tokenType.value);
+        }
         builder.addEnvironmentAttributeSet(environmentAttributes);
     }
 
@@ -170,20 +168,22 @@ public class XacmlRequestMapper {
     }
 
     public static class Ident {
-        private String key;
-        private String ident;
+        private final String key;
+        private final String ident;
 
         public Ident(String key, String ident) {
             this.key = key;
             this.ident = ident;
         }
+    }
 
-        public String Key() {
-            return key;
-        }
+    public static class Pair {
+        private final String key;
+        private final String value;
 
-        public String Ident() {
-            return ident;
+        public Pair(String key, String value) {
+            this.key = key;
+            this.value = value;
         }
     }
 }

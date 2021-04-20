@@ -56,27 +56,27 @@ public class XacmlRequest {
     }
 
     public static class AttributeSet {
-        @JsonProperty("Attributt")
-        private final List<Pair> attributt;
+        @JsonProperty("Attribute")
+        private final List<Pair> attribute;
 
         public AttributeSet(final List<Pair> attributt) {
-            this.attributt = attributt;
+            this.attribute = attributt;
         }
 
-        public List<Pair> getAttributt() {
-            return attributt;
+        public List<Pair> getAttribute() {
+            return attribute;
         }
     }
 
     public static class Pair {
 
         @JsonProperty("AttributeId")
-        private final String attributeId;
+        protected String attributeId;
 
         @JsonProperty("Value")
-        private final String value;
+        protected Object value;
 
-        public Pair(final String attributeId, final String value) {
+        public Pair(final String attributeId, final Object value) {
             this.attributeId = attributeId;
             this.value = value;
         }
@@ -85,7 +85,7 @@ public class XacmlRequest {
             return attributeId;
         }
 
-        public String getValue() {
+        public Object getValue() {
             return value;
         }
     }
