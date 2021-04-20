@@ -34,8 +34,8 @@ import no.nav.foreldrepenger.sikkerhet.abac.domene.IdToken;
 import no.nav.foreldrepenger.sikkerhet.abac.domene.Tilgangsbeslutning;
 import no.nav.foreldrepenger.sikkerhet.abac.domene.TokenType;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.Decision;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlRequestBuilder;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlResponseWrapper;
+import no.nav.foreldrepenger.sikkerhet.abac.pdp.xacml.XacmlRequestBuilder;
+import no.nav.foreldrepenger.sikkerhet.abac.pdp.xacml.XacmlResponseWrapper;
 import no.nav.foreldrepenger.sikkerhet.abac.pep.PdpRequest;
 import no.nav.vedtak.exception.VLException;
 

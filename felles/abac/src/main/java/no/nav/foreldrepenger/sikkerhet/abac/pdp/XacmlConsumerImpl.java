@@ -39,11 +39,8 @@ import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlRequest;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlRequestBuilder;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlResponse;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlResponseWrapper;
+import no.nav.foreldrepenger.sikkerhet.abac.pdp.xacml.XacmlRequestBuilder;
+import no.nav.foreldrepenger.sikkerhet.abac.pdp.xacml.XacmlResponseWrapper;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
