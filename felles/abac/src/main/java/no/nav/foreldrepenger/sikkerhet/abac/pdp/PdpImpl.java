@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.sikkerhet.abac.domene.AbacResultat;
 import no.nav.foreldrepenger.sikkerhet.abac.domene.Tilgangsbeslutning;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.Advice;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.BiasedDecisionResponse;
+import no.nav.foreldrepenger.sikkerhet.abac.pdp.xacml.BiasedDecisionResponse;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.Decision;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlResponseWrapper;
+import no.nav.foreldrepenger.sikkerhet.abac.pdp.xacml.XacmlResponseWrapper;
 import no.nav.foreldrepenger.sikkerhet.abac.pep.PdpRequest;
 import no.nav.vedtak.exception.TekniskException;
 

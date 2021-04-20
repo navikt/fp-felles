@@ -25,5 +25,4 @@ class XacmlResponseTest {
         assertThat(deserialized2.getResponse()).isNotEmpty();
         assertThat(deserialized2.getResponse()).hasSize(1);
     }
-
 }

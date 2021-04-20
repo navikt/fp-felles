@@ -1,4 +1,4 @@
-package no.nav.vedtak.xmlutils;
+package no.nav.foreldrepenger.xmlutils;
 
 import org.xml.sax.SAXException;
 
@@ -6,9 +6,7 @@ import no.nav.vedtak.exception.TekniskException;
 
 class XmlUtilsFeil {
 
-    private XmlUtilsFeil() {
-
-    }
+    private XmlUtilsFeil() {}
 
     static TekniskException fantIkkeJaxbClass(String classname, ClassNotFoundException e) {
         return new TekniskException("F-991095", String.format("Fant ikke jaxb-class '%s'", classname), e);

@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.sikkerhet.abac.domene.TokenType;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp.PdpImpl;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlRequest;
 import no.nav.foreldrepenger.sikkerhet.abac.pep.PdpRequest;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.util.env.Environment;
 
 public class NyXacmlRequestMapper {
@@ -31,17 +32,24 @@ public class NyXacmlRequestMapper {
         var actionAttributes = new XacmlRequest.AttributeSet(
             List.of(getActionInfo(pdpRequest))
         );
-        var envAttributes = new XacmlRequest.AttributeSet(
-            List.of(
-                getPepIdInfo(pdpRequest),
-                getTokenInfo(pdpRequest.getIdToken())
-            )
-        );
-        var subjectAttributes = new XacmlRequest.AttributeSet(
-            pdpRequest.getIdSubject().map(NyXacmlRequestMapper::getSubjectInfo).orElse(List.of())
-        );
+
+        // Hack til å støtte for tokenx siden abac ikke støtter det ennå og da må subject legges inn
+        var envList = new ArrayList<>(List.of(getPepIdInfo(pdpRequest)));
+        var subjectList = new ArrayList<XacmlRequest.Pair>();
+
+        var utenToken = pdpRequest.getIdToken().getTokenType().equals(TokenType.TOKENX);
+        if (!utenToken) {
+            envList.add(getTokenInfo(pdpRequest.getIdToken()));
+        } else {
+            subjectList.addAll(pdpRequest.getIdSubject().map(NyXacmlRequestMapper::getSubjectInfo).orElseThrow(() ->
+                new TekniskException("ABAC-1", "Du må legge inn subjectId, subjectType og authorizationLevel om du skal bruke TokenX.")));
+        }
+
+        var envAttributes = new XacmlRequest.AttributeSet(envList);
+        var subjectAttributes = new XacmlRequest.AttributeSet(subjectList);
         var resourceAttributes = getResourceInfo(pdpRequest);
-        var request = new XacmlRequest.Request(actionAttributes, envAttributes, resourceAttributes, subjectAttributes.getAttributt().isEmpty() ? null : subjectAttributes);
+
+        var request = new XacmlRequest.Request(actionAttributes, envAttributes, resourceAttributes, subjectAttributes.getAttribute().isEmpty() ? null : subjectAttributes);
         return new XacmlRequest(request);
     }
 
@@ -78,7 +86,7 @@ public class NyXacmlRequestMapper {
         pdpRequest.getAnsvarligSaksbenandler().ifPresent(s -> attributes.add(new XacmlRequest.Pair(AbacAttributtNøkkel.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER, s)));
 
         pdpRequest.getAnnenPartAktørId().ifPresent(s -> attributes.add(new XacmlRequest.Pair(AbacAttributtNøkkel.RESOURCE_FORELDREPENGER_ANNEN_PART, s)));
-        pdpRequest.getAleneomsorg().ifPresent(s -> attributes.add(new XacmlRequest.Pair(AbacAttributtNøkkel.RESOURCE_FORELDREPENGER_ALENEOMSORG, s.toString())));
+        pdpRequest.getAleneomsorg().ifPresent(s -> attributes.add(new XacmlRequest.Pair(AbacAttributtNøkkel.RESOURCE_FORELDREPENGER_ALENEOMSORG, s)));
 
         if (ident != null) {
             attributes.add(new XacmlRequest.Pair(ident.key, ident.ident));
@@ -135,7 +143,7 @@ public class NyXacmlRequestMapper {
         List<XacmlRequest.Pair> subjectPairs = new ArrayList<>();
         subjectPairs.add(new XacmlRequest.Pair(AbacAttributtNøkkel.SUBJECT_ID, idSubject.getSubjectId()));
         subjectPairs.add(new XacmlRequest.Pair(AbacAttributtNøkkel.SUBJECT_TYPE, idSubject.getSubjectType()));
-        idSubject.getSubjectLevel().ifPresent(level -> subjectPairs.add(new XacmlRequest.Pair(AbacAttributtNøkkel.SUBJECT_LEVEL, level)));
+        subjectPairs.add(new XacmlRequest.Pair(AbacAttributtNøkkel.SUBJECT_LEVEL, idSubject.getSubjectAuthLevel()));
         return subjectPairs;
     }
     private static String base64encode(String samlToken) {
@@ -160,8 +168,8 @@ public class NyXacmlRequestMapper {
     }
 
     public static class Ident {
-        private String key;
-        private String ident;
+        private final String key;
+        private final String ident;
 
         public Ident(String key, String ident) {
             this.key = key;

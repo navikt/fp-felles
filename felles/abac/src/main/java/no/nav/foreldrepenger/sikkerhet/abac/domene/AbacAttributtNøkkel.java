@@ -8,7 +8,7 @@ public class AbacAttributtNøkkel {
 
     public static final String ACTION_ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
     public static final String ENVIRONMENT_OIDC_TOKEN_BODY = "no.nav.abac.attributter.environment.felles.oidc_token_body";
-    public static final String ENVIRONMENT_TOKENX_TOKEN_BODY = "no.nav.no.nav.no.nav.abac.attributter.environment.felles.tokenx_token_body";
+    public static final String ENVIRONMENT_TOKENX_TOKEN_BODY = "no.nav.abac.attributter.environment.felles.tokenx_token_body";
     public static final String ENVIRONMENT_SAML_TOKEN = "no.nav.abac.attributter.environment.felles.saml_token";
     public static final String ENVIRONMENT_PEP_ID = "no.nav.abac.attributter.environment.felles.pep_id";
     public static final String RESOURCE_RESOURCE_TYPE = "no.nav.abac.attributter.resource.felles.resource_type";

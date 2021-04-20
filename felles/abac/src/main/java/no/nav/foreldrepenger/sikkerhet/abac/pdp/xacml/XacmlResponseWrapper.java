@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml;
+package no.nav.foreldrepenger.sikkerhet.abac.pdp.xacml;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+
+import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.Advice;
+import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.Decision;
 
 public class XacmlResponseWrapper {
 

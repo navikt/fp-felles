@@ -45,16 +45,22 @@ class XamclJerseyRestKlient extends AbstractJerseyRestClient implements NyXacmlC
                 .register(basicAuthFeature)
                 .target(endpoint);
             LOG.info("Sjekker ABAC på: {}", target.getUri());
+
             var res = target
                 .request(MEDIA_TYPE)
-                .buildPost(Entity.entity(request, MEDIA_TYPE))
-                .invoke(XacmlResponse.class);
-            LOG.info("ABAC svarte OK");
-            return res;
+                .post(Entity.entity(request, MEDIA_TYPE));
+
+            if (res.getStatusInfo().getStatusCode() != 200) {
+                LOG.info("Feil fra ABAC, HTTP {} - {}, svaret ble: {}", res.getStatus(), res.getStatusInfo().getReasonPhrase(), res.readEntity(String.class));
+            } else {
+                LOG.info("ABAC svarte OK.");
+                return res.readEntity(XacmlResponse.class);
+            }
         } catch (Exception e) {
-            LOG.warn("Kunne ikke evaluere ABAC", e);
+            LOG.info("Exception: Kunne ikke evaluere ABAC.", e);
             throw e;
         }
+        return null;
     }
 
     @Override

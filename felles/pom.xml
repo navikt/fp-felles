@@ -22,12 +22,13 @@
         <module>db</module>
         <module>bom</module>
         <module>abac</module>
+        <module>xmlutils</module>
     </modules>
 
     <properties>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.persistence.version>2.2.3</jakarta.persistence.version>
-
+        <jakarta.enterprise.version>2.0.2</jakarta.enterprise.version>
     </properties>
 
     <dependencyManagement>
@@ -51,6 +52,13 @@
                 <artifactId>jakarta.persistence-api</artifactId>
                 <version>${jakarta.persistence.version}</version>
             </dependency>
+            <dependency>
+                <!-- kan fjernes ved Jakarta EE 9/ oppgradering av jakarta.platform -->
+                <groupId>jakarta.enterprise</groupId>
+                <artifactId>jakarta.enterprise.cdi-api</artifactId>
+                <version>${jakarta.enterprise.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.sun.activation</groupId>
                 <artifactId>jakarta.activation</artifactId>

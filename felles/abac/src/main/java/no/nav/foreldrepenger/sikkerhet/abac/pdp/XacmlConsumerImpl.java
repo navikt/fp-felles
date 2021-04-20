@@ -39,11 +39,8 @@ import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlRequest;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlRequestBuilder;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlResponse;
-import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlResponseWrapper;
+import no.nav.foreldrepenger.sikkerhet.abac.pdp.xacml.XacmlRequestBuilder;
+import no.nav.foreldrepenger.sikkerhet.abac.pdp.xacml.XacmlResponseWrapper;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
@@ -109,37 +106,6 @@ public class XacmlConsumerImpl implements XacmlConsumer {
     @Override
     public XacmlResponseWrapper evaluate(XacmlRequestBuilder request) {
         return new XacmlResponseWrapper(execute(request.build()));
-    }
-
-    public XacmlResponse evaluate(XacmlRequest request) {
-        return execute(request);
-    }
-
-    private XacmlResponse execute(final XacmlRequest request) {
-        HttpConf active = activeConfiguration;
-        HttpPost post = new HttpPost(pdpUrl);
-        post.setHeader("Content-type", MEDIA_TYPE);
-        post.setEntity(new StringEntity(DefaultJsonMapper.toJson(request), java.nio.charset.StandardCharsets.UTF_8));
-
-        LOG.trace("PDP-request: {}", request);
-
-        StatusLine statusLine = null;
-        HttpClientContext context = HttpClientContext.create();
-        context.setAuthCache(active.cache);
-        try (CloseableHttpResponse response = active.client.execute(target, post, context)) {
-            statusLine = response.getStatusLine();
-            if (HttpStatus.SC_OK == statusLine.getStatusCode()) {
-                final HttpEntity entity = response.getEntity();
-                var xamclResponse = DefaultJsonMapper.MAPPER.readValue(entity.getContent(), XacmlResponse.class);
-                LOG.trace("PDP-response: {}", xamclResponse);
-                return xamclResponse;
-            }
-        } catch (IOException e) {
-            throw new TekniskException("F-091324", "Uventet IO-exception mot PDP fra ny client.", e);
-        } finally {
-            post.releaseConnection();
-        }
-        throw new TekniskException("F-091324", "Uventet feil mot PDP fra ny client.");
     }
 
     JsonObject execute(JsonObject request) {

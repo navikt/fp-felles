@@ -1,4 +1,4 @@
-package no.nav.vedtak.xmlutils;
+package no.nav.foreldrepenger.xmlutils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

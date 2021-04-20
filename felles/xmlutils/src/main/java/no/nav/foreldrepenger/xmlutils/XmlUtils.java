@@ -1,4 +1,4 @@
-package no.nav.vedtak.xmlutils;
+package no.nav.foreldrepenger.xmlutils;
 
 import java.io.StringReader;
 import java.util.AbstractMap.SimpleEntry;

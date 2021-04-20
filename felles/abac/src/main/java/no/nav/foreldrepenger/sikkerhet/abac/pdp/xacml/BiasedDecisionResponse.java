@@ -1,4 +1,6 @@
-package no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml;
+package no.nav.foreldrepenger.sikkerhet.abac.pdp.xacml;
+
+import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.Decision;
 
 public class BiasedDecisionResponse {
 
