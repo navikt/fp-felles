@@ -35,7 +35,6 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ByteA
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.util.StringUtils;
 
 /**
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og
@@ -99,7 +98,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
 
     public <T> Optional<T> getReturnsOptional(URI endpoint, Class<T> clazz) {
         String entity = get(endpoint, createStringResponseHandler(endpoint));
-        if (StringUtils.nullOrEmpty(entity)) {
+        if (entity == null || entity.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(fromJson(entity, clazz));
@@ -129,7 +128,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
 
     public <T> Optional<T> postReturnsOptional(URI endpoint, Object dto, Class<T> clazz) {
         String entity = post(endpoint, dto, createStringResponseHandler(endpoint));
-        if (StringUtils.nullOrEmpty(entity)) {
+        if (entity == null || entity.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(fromJson(entity, clazz));
