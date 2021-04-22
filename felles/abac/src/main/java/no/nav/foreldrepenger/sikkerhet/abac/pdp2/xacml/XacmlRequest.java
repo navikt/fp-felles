@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -15,6 +16,13 @@ public class XacmlRequest {
 
     public XacmlRequest.Request getRequest() {
         return request;
+    }
+
+    @Override
+    public String toString() {
+        return "XacmlRequest{" +
+            "request=" + request +
+            '}';
     }
 
     public static class Request {
@@ -53,6 +61,16 @@ public class XacmlRequest {
         public AttributeSet getAccessSubject() {
             return accessSubject;
         }
+
+        @Override
+        public String toString() {
+            return "Request{" +
+                "action=" + action +
+                ", environment=" + environment +
+                ", resource=" + resource.stream().map(AttributeSet::toString).collect(Collectors.joining(", ", "{", "}")) +
+                ", accessSubject=" + accessSubject +
+                '}';
+        }
     }
 
     public static class AttributeSet {
@@ -65,6 +83,13 @@ public class XacmlRequest {
 
         public List<Pair> getAttribute() {
             return attribute;
+        }
+
+        @Override
+        public String toString() {
+            return "AttributeSet{" +
+                "attribute=" + attribute.stream().map(Pair::toString).collect(Collectors.joining(", ", "{", "}")) +
+                '}';
         }
     }
 
@@ -87,6 +112,14 @@ public class XacmlRequest {
 
         public Object getValue() {
             return value;
+        }
+
+        @Override
+        public String toString() {
+            return "Pair{" +
+                "attributeId='" + attributeId + '\'' +
+                ", value=" + value +
+                '}';
         }
     }
 }

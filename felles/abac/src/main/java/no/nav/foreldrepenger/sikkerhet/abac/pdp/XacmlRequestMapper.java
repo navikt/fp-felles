@@ -43,7 +43,7 @@ public class XacmlRequestMapper {
         populerActionSet(xacmlBuilder, pdpRequest.getActionId());
 
         // Hack til å støtte for tokenx siden abac ikke støtter det ennå og da må subject legges inn
-        var utenToken = pdpRequest.getIdToken().getTokenType().equals(TokenType.TOKENX);
+        var utenToken = false; //pdpRequest.getIdToken().getTokenType().equals(TokenType.TOKENX);
         populerEnvironmentSet(xacmlBuilder, pdpRequest, utenToken);
         if (utenToken) {
             if (pdpRequest.getIdSubject().isPresent()) {

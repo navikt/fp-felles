@@ -1,19 +1,25 @@
 package no.nav.foreldrepenger.sikkerhet.abac.pdp2;
 
 import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlRequest;
 import no.nav.foreldrepenger.sikkerhet.abac.pdp2.xacml.XacmlResponse;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 class XamclJerseyRestKlient extends AbstractJerseyRestClient implements NyXacmlConsumer {
@@ -26,7 +32,13 @@ class XamclJerseyRestKlient extends AbstractJerseyRestClient implements NyXacmlC
     private static final String MEDIA_TYPE = "application/xacml+json";
 
     private final URI endpoint;
-    private final HttpAuthenticationFeature basicAuthFeature;
+    private final WebTarget target;
+
+    static {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+    }
 
     @Inject
     public XamclJerseyRestKlient(
@@ -35,32 +47,29 @@ class XamclJerseyRestKlient extends AbstractJerseyRestClient implements NyXacmlC
         @KonfigVerdi(SYSTEMBRUKER_PASSWORD) String passord) {
         super();
         this.endpoint = endpoint;
-        basicAuthFeature = HttpAuthenticationFeature.basic(brukernavn, passord);
+        target = client
+            .register(HttpAuthenticationFeature.basic(brukernavn, passord))
+            .target(endpoint);
+
+        if (Environment.current().isDev()) {
+            client.register(new LoggingFeature(java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME),
+                Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000));
+        }
     }
 
     @Override
     public XacmlResponse evaluate(final XacmlRequest request) {
         try {
-            var target = client
-                .register(basicAuthFeature)
-                .target(endpoint);
             LOG.info("Sjekker ABAC på: {}", target.getUri());
-
-            var res = target
+            return target
                 .request(MEDIA_TYPE)
-                .post(Entity.entity(request, MEDIA_TYPE));
+                .post(Entity.entity(request, MEDIA_TYPE))
+                .readEntity(XacmlResponse.class);
 
-            if (res.getStatusInfo().getStatusCode() != 200) {
-                LOG.info("Feil fra ABAC, HTTP {} - {}, svaret ble: {}", res.getStatus(), res.getStatusInfo().getReasonPhrase(), res.readEntity(String.class));
-            } else {
-                LOG.info("ABAC svarte OK.");
-                return res.readEntity(XacmlResponse.class);
-            }
         } catch (Exception e) {
             LOG.info("Exception: Kunne ikke evaluere ABAC.", e);
             throw e;
         }
-        return null;
     }
 
     @Override
