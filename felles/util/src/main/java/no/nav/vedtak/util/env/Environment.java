@@ -30,7 +30,8 @@ import no.nav.vedtak.konfig.KonfigVerdiProvider;
 import no.nav.vedtak.konfig.PropertySourceMetaData;
 import no.nav.vedtak.konfig.StandardPropertySource;
 import no.nav.vedtak.konfig.SystemPropertiesKonfigVerdiProvider;
-
+@Deprecated(since = "3.2.x", forRemoval = true)
+/* Bruk klasser fra no.nav.foreldrepenger:konfig:1.1 istedenfor. */
 public final class Environment {
 
     public static final String NAIS_APP_NAME = "NAIS_APP_NAME";

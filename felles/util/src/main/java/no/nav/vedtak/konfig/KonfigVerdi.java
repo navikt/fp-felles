@@ -19,7 +19,7 @@ import java.time.format.DateTimeParseException;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
-@Deprecated(since = "3.1", forRemoval = true)
+@Deprecated(since = "3.2.x", forRemoval = true)
 /* Bruk klasser fra no.nav.foreldrepenger:konfig:1.1 istedenfor. */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)

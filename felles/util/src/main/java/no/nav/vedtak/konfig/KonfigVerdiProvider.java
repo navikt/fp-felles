@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Provider som kan slå opp verdi for en angitt key
  */
-@Deprecated(since = "3.1", forRemoval = true)
+@Deprecated(since = "3.2", forRemoval = true)
 /* Bruk klasser fra no.nav.foreldrepenger:konfig:1.1 istedenfor. */
 public interface KonfigVerdiProvider {
 

@@ -3,7 +3,8 @@ package no.nav.vedtak.util.env;
 import static java.lang.System.getenv;
 
 import java.util.Optional;
-
+@Deprecated(since = "3.2.x", forRemoval = true)
+/* Bruk klasser fra no.nav.foreldrepenger:konfig:1.1 istedenfor. */
 public class Namespace {
     public static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE";
 

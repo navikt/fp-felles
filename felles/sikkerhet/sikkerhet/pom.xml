@@ -61,12 +61,6 @@
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>javax.jws</groupId>
-            <artifactId>jsr181-api</artifactId>
-            <version>1.0-MR1</version>
-        </dependency>
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>

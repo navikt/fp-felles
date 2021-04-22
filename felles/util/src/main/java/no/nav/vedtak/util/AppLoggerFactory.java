@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see <a href="https://confluence.adeo.no/display/AURA/Logging">AURA Logging</a>
  */
-@Deprecated(since = "3.1.x", forRemoval = true)
+@Deprecated(since = "3.2.x", forRemoval = true)
 /* Brukes kun av sporingslogger som utgår og erstattes av auditlogger. */
 public final class AppLoggerFactory {
 
