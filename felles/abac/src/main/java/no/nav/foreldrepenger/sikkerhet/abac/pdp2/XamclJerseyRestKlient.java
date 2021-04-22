@@ -53,7 +53,7 @@ class XamclJerseyRestKlient extends AbstractJerseyRestClient implements NyXacmlC
 
         if (Environment.current().isDev()) {
             client.register(new LoggingFeature(java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME),
-                Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000));
+                Level.ALL, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000));
         }
     }
 
@@ -61,6 +61,11 @@ class XamclJerseyRestKlient extends AbstractJerseyRestClient implements NyXacmlC
     public XacmlResponse evaluate(final XacmlRequest request) {
         try {
             LOG.info("Sjekker ABAC på: {}", target.getUri());
+
+            if (Environment.current().isDev()) {
+                LOG.info("ABAC request: {}", request.toString());
+            }
+
             return target
                 .request(MEDIA_TYPE)
                 .post(Entity.entity(request, MEDIA_TYPE))
