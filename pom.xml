@@ -282,6 +282,13 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.github.ferstl</groupId>
+                <artifactId>depgraph-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <distributionManagement>
