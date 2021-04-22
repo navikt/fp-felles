@@ -35,6 +35,7 @@ public class JerseySakRestKlient extends AbstractJerseyOidcRestClient implements
 
     @Override
     public SakJson opprettSak(SakJson sak) {
+
         return client.target(endpoint)
                 .request(APPLICATION_JSON_TYPE)
                 .buildPost(json(sak))

@@ -1,6 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.logging.Level.FINE;
 import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.toJson;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
@@ -10,12 +11,14 @@ import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.d
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
 import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
+import static org.glassfish.jersey.logging.LoggingFeature.Verbosity.PAYLOAD_ANY;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.LogManager;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -29,8 +32,10 @@ import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.apache.connector.ApacheHttpClientBuilderConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -59,7 +64,13 @@ import no.nav.vedtak.util.env.Environment;
  * transport-provideren.
  */
 public abstract class AbstractJerseyRestClient {
+    
+    private static final Environment ENV = Environment.current();
 
+    static {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.install();
+    }
     public static final String TEMA = "TEMA";
     public static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     public static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
@@ -88,6 +99,7 @@ public abstract class AbstractJerseyRestClient {
         Optional.ofNullable(proxy)
                 .ifPresent(p -> cfg.property(PROXY_URI, p));
         cfg.register(jacksonProvider(MAPPER));
+       
         cfg.connectorProvider(new ApacheConnectorProvider());
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
             return b.setDefaultHeaders(defaultHeaders())
@@ -102,10 +114,10 @@ public abstract class AbstractJerseyRestClient {
             cfg.register(f);
         });
         cfg.register(ErrorResponseHandlingClientResponseFilter.class);
-        if (!Environment.current().isProd()) {
-            LOG.info("Registrer logging i non-prod");
-            cfg.register(new HeaderLoggingFilter());
-        }
+        if (ENV.isDev()) {
+            cfg.register(new LoggingFeature(java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME),
+                FINE,PAYLOAD_ANY, 10000));
+          }
         client = ClientBuilder.newClient(cfg);
     }
 
