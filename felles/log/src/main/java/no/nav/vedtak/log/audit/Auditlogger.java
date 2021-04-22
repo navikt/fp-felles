@@ -28,35 +28,23 @@ public class Auditlogger {
 
     private static final Logger auditLogger = LoggerFactory.getLogger("auditLogger");
 
-    private final boolean enabled;
     private final String defaultVendor;
     private final String defaultProduct;
 
     @Inject
-    public Auditlogger(@KonfigVerdi(value = "auditlogger.enabled", required = false) boolean enabled,
-            @KonfigVerdi(value = "auditlogger.vendor", required = false) String defaultVendor,
+    public Auditlogger(@KonfigVerdi(value = "auditlogger.vendor", required = false) String defaultVendor,
             @KonfigVerdi(value = "auditlogger.product", required = false) String defaultProduct) {
 
-        if (enabled) {
-            Objects.requireNonNull(defaultVendor, "defaultVendor == null");
-            Objects.requireNonNull(defaultProduct, "defaultProduct == null");
-        }
-        /*
-         * TODO(jol) Re-enable som warning etter flytt av apps til Auditlogger + Warning i SporingsloggHelper + fjerne Kibana-filtre
-         * else { LOG.warn("Denne applikasjonen bruker sporingslogg som har blitt deprecated. Bytt til bruk av \"no.nav.vedtak.log.audit.Auditlogger\"."); }
-         *
-         */
+        Objects.requireNonNull(defaultVendor, "defaultVendor == null");
+        Objects.requireNonNull(defaultProduct, "defaultProduct == null");
 
-        this.enabled = enabled;
         this.defaultVendor = defaultVendor;
         this.defaultProduct = defaultProduct;
     }
 
 
     public void logg(Auditdata auditdata) {
-        if (enabled) {
-            auditLogger.info(auditdata.toString());
-        }
+        auditLogger.info(auditdata.toString());
     }
 
 
@@ -66,10 +54,5 @@ public class Auditlogger {
 
     public String getDefaultProduct() {
         return defaultProduct;
-    }
-
-
-    public boolean isEnabled() {
-        return enabled;
     }
 }
