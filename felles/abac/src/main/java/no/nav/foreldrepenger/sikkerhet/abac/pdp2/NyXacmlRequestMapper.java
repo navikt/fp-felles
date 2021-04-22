@@ -37,7 +37,7 @@ public class NyXacmlRequestMapper {
         var envList = new ArrayList<>(List.of(getPepIdInfo(pdpRequest)));
         var subjectList = new ArrayList<XacmlRequest.Pair>();
 
-        var utenToken = pdpRequest.getIdToken().getTokenType().equals(TokenType.TOKENX);
+        var utenToken = false; //pdpRequest.getIdToken().getTokenType().equals(TokenType.TOKENX);
         if (!utenToken) {
             envList.add(getTokenInfo(pdpRequest.getIdToken()));
         } else {

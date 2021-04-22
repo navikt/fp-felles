@@ -24,6 +24,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
+@Deprecated(since = "3.2", forRemoval = true)
 public class SensuKlient implements AppServiceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SensuKlient.class);
