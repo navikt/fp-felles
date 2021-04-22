@@ -115,7 +115,7 @@ public abstract class AbstractJerseyRestClient {
         });
         cfg.register(ErrorResponseHandlingClientResponseFilter.class);
         if (ENV.isDev()) {
-            cfg.register(new LoggingFeature(java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME),
+            cfg.register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
                 FINE,PAYLOAD_ANY, 10000));
           }
         client = ClientBuilder.newClient(cfg);
