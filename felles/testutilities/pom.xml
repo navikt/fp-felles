@@ -33,11 +33,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
-            <artifactId>felles-sikkerhet-testutilities</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-bom</artifactId>
         </dependency>
