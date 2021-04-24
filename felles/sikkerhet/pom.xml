@@ -16,7 +16,6 @@
 
 	<modules>
 		<module>sikkerhet</module>
-		<module>testutilities</module>
 	</modules>
 
 </project>
