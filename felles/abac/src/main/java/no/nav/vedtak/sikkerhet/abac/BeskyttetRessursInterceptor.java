@@ -3,7 +3,6 @@ package no.nav.vedtak.sikkerhet.abac;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
@@ -14,11 +13,8 @@ import javax.interceptor.InvocationContext;
 import javax.jws.WebService;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.log.sporingslogg.Sporingsdata;
 import no.nav.vedtak.util.env.Environment;
 
 @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, resource = "")
