@@ -39,8 +39,6 @@ import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.isso.config.ServerInfoTestUtil;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
-import no.nav.vedtak.sikkerhet.context.StaticSubjectHandler;
-import no.nav.vedtak.sikkerhet.context.SubjectHandlerUtils;
 import no.nav.vedtak.sikkerhet.domene.ConsumerId;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
@@ -94,15 +92,12 @@ public class OidcAuthModuleTest {
 
     @BeforeAll
     public static void classSetup() {
-        ServerInfoTestUtil.clearServerInfoInstance();
-        SubjectHandlerUtils.useSubjectHandler(StaticSubjectHandler.class);
         System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, "https://foo.devillo.no");
         ContextPathHolder.instance("/fpsak");
     }
 
     @AfterAll
     public static void classTeardown() {
-        SubjectHandlerUtils.unsetSubjectHandler();
         System.clearProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL);
     }
 

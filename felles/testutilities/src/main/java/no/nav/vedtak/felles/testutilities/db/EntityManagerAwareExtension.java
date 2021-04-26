@@ -22,8 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.felles.testutilities.cdi.WeldContext;
-import no.nav.vedtak.felles.testutilities.sikkerhet.DummySubjectHandler;
-import no.nav.vedtak.felles.testutilities.sikkerhet.SubjectHandlerUtils;
 
 /**
  * Denne erstatter {@link RepositoryRule} i JUnit 5 tester o gir lett tilgang
@@ -53,7 +51,6 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer
     private static final Logger LOG = LoggerFactory.getLogger(EntityManagerAwareExtension.class);
 
     static {
-        SubjectHandlerUtils.useSubjectHandler(DummySubjectHandler.class);
         WeldContext.getInstance(); // init cdi container
     }
 

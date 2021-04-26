@@ -7,9 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.security.auth.Subject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.domene.ConsumerId;
@@ -17,27 +14,11 @@ import no.nav.vedtak.sikkerhet.domene.IdentType;
 import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 import no.nav.vedtak.sikkerhet.domene.SluttBruker;
-import no.nav.vedtak.util.env.Environment;
 
 public abstract class SubjectHandler {
     public abstract Subject getSubject();
 
-    private static final Logger LOG = LoggerFactory.getLogger(SubjectHandler.class);
-
-    private static final Environment ENV = Environment.current();
-
-    public static final String SUBJECTHANDLER_KEY = "no.nav.modig.core.context.subjectHandlerImplementationClass";
-
     public static SubjectHandler getSubjectHandler() {
-        var modigSubjectHandler = ENV.getProperty(SUBJECTHANDLER_KEY);
-        try {
-            if (modigSubjectHandler != null) {
-                LOG.info("Bruker Modig SubjectHandler: {}", modigSubjectHandler);
-                return (SubjectHandler) Class.forName(modigSubjectHandler).getDeclaredConstructor().newInstance();
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException("Klarte ikke å konfigurere plattformavhengig SubjectHandler", e);
-        }
         return new JettySubjectHandler();
     }
 
