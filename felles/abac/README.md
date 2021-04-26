@@ -6,19 +6,27 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/navikt/fp-felles)
 ![GitHub](https://img.shields.io/github/license/navikt/fp-felles)
 
-# Felles ABAC / bibliotek for fpsak som håndterer authentisering og auditloggin.
+# ABAC - bibliotek for fpsak som håndterer authentisering og auditloggin.
 Inneholder følgende moduler:
 * Audit logging med CEF (Common Event Format) som brukes i Arcsight.
 * PEP/PDP biblioteker for ABAC tilgangskontroll.
 
-# Migrering
-* BeskyttetRessursActionAttributt endrer navn til ActionType
-* @BeskyttetRessurs krever en obligatorisk parameter path=/path/til/tjenesten/som/brukes
-* @BeskyttetRessurs krever service=ServiceType.WEBSERVICE på alle WS grensesnitt (default: ServiceType.REST)
-* Implementer PdpRequestBuilder klasse.
-* Endre i koden no.nav.vedtak.sikkerhet.abac.AbacAttributtType til no.nav.foreldrepenger.sikkerhet.abac.domene.AbacAttributtType
-* Endre no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling til no.nav.foreldrepenger.sikkerhet.abac.domene.BeskyttRessursAttributer
-* Endre no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt til no.nav.foreldrepenger.sikkerhet.abac.domene.ActionType
-* Endre no.nav.vedtak.sikkerhet.abac.AbacDto til no.nav.foreldrepenger.sikkerhet.abac.AbacDto
-* Endre no.nav.vedtak.sikkerhet.abac.AbacDataAttributter til no.nav.foreldrepenger.sikkerhet.abac.domene.AbacDataAttributter 
-* Endre no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt til no.nav.vedtak.sikkerhet.abac.AbacDtoSupplier
+### Migrering felles 3.2.x
+
+Alle appene som benytter abac trenger å legge inn følgende dependency:
+```
+<dependency>
+    <groupId>no.nav.foreldrepenger.felles</groupId>
+    <artifactId>felles-abac</artifactId>
+</dependency>
+```
+
+#### Legacy bruk
+Det vil mangle en implementasjon av TokenProvider og det er mulig å implementere den selv i appen eller bruke følgende modul:
+```
+<dependency>
+    <groupId>no.nav.foreldrepenger.felles</groupId>
+    <artifactId>felles-abac-legacy</artifactId>
+</dependency>
+```
+Denne kommer med en avhengighet til felles-sikkerhet og SubjectHandler.

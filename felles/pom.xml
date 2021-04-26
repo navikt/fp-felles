@@ -23,6 +23,7 @@
         <module>bom</module>
         <module>abac</module>
         <module>xmlutils</module>
+        <module>abac-legacy</module>
     </modules>
 
     <properties>
