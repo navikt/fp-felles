@@ -49,7 +49,6 @@ public enum StandardAbacAttributtType implements AbacAttributtType {
         this.maskerOutput = maskerOutput;
     }
 
-    @Override
     public String getSporingsloggKode() {
         return sporingsloggEksternKode;
     }
