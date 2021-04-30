@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import no.finn.unleash.UnleashContext;
 import no.finn.unleash.strategy.Strategy;
 
-class ByAnsvarligSaksbehandlerStrategy implements Strategy {
+public class ByAnsvarligSaksbehandlerStrategy implements Strategy {
 
     static final String SAKSBEHANDLER_IDENT = "SAKSBEHANDLER_IDENT";
 

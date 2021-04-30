@@ -21,7 +21,6 @@ class HibernateFeil {
     }
 
     static TekniskException tomtResultat(String spørring) {
-        return new TekniskException("F-650018", String.format("Spørringen %s returnerte tomt resultat", spørring));
-
+        return new TomtResultatException("F-650018", String.format("Spørringen %s returnerte tomt resultat", spørring));
     }
 }
