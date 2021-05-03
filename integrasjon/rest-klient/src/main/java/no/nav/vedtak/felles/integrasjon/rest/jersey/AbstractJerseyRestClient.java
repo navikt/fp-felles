@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MA
 import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.toJson;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
-import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultHeaders;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
@@ -64,7 +63,7 @@ import no.nav.vedtak.util.env.Environment;
  * transport-provideren.
  */
 public abstract class AbstractJerseyRestClient {
-    
+
     private static final Environment ENV = Environment.current();
 
     static {
@@ -99,11 +98,10 @@ public abstract class AbstractJerseyRestClient {
         Optional.ofNullable(proxy)
                 .ifPresent(p -> cfg.property(PROXY_URI, p));
         cfg.register(jacksonProvider(MAPPER));
-       
+
         cfg.connectorProvider(new ApacheConnectorProvider());
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
-            return b.setDefaultHeaders(defaultHeaders())
-                    .addInterceptorFirst(new StandardHeadersRequestInterceptor())
+            return b.addInterceptorFirst(new StandardHeadersRequestInterceptor())
                     .setKeepAliveStrategy(createKeepAliveStrategy(30))
                     .setDefaultRequestConfig(defaultRequestConfig())
                     .setRetryHandler(new HttpRequestRetryHandler())
@@ -116,8 +114,8 @@ public abstract class AbstractJerseyRestClient {
         cfg.register(ErrorResponseHandlingClientResponseFilter.class);
         if (ENV.isDev()) {
             cfg.register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
-                FINE,PAYLOAD_ANY, 10000));
-          }
+                    FINE, PAYLOAD_ANY, 10000));
+        }
         client = ClientBuilder.newClient(cfg);
     }
 
