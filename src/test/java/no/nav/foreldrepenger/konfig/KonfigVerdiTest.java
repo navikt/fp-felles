@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.konfig;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -25,7 +28,7 @@ class KonfigVerdiTest {
     private static final String VALUE_LOCAL_DATE = "1989-09-29";
     private static final Environment ENV = Environment.current();
 
-    private final int propFraFil = ENV.getProperty("test.property", int.class);
+    private final int propFraFil = ENV.getProperty("TEST.proPerty", int.class);
     private final int propFraFilOverride = ENV.getProperty("test1.property", int.class);
     private final int systemVinner = ENV.getProperty("test2.property", int.class);
     private final int namespaceVerdi = ENV.getProperty("test3.property", int.class);

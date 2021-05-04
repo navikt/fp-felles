@@ -12,6 +12,8 @@ import javax.enterprise.context.Dependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
+
 @Dependent
 public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiProvider {
 
@@ -21,10 +23,14 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
         private static final String SUFFIX = ".properties";
         private static final String PREFIX = "application";
 
-        private Init() {}
+        private Init() {
+        }
 
         private static Properties lesFra() {
-            return lesFra(namespaceKonfig(), lesFra(clusterKonfig(), lesFra("", new Properties())));
+            var c = new Properties();
+            lesFra(namespaceKonfig(), lesFra(clusterKonfig(), lesFra("", new Properties())))
+                    .forEach((k, v) -> c.put(k.toString().toLowerCase(), v.toString().toLowerCase()));
+            return c;
         }
 
         private static Properties lesFra(String infix, Properties p) {
@@ -55,7 +61,7 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
 
         private static String namespaceName() {
             return Optional.ofNullable(getenv(NAIS_NAMESPACE_NAME))
-                .orElse(null);
+                    .orElse(null);
         }
 
         private static String clusterKonfig() {
@@ -64,7 +70,7 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
 
         private static String clusterName() {
             return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
-                .orElse(LOCAL);
+                    .orElse(LOCAL);
         }
     }
 
@@ -77,6 +83,17 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
 
     public ApplicationPropertiesKonfigProvider() {
         super(Init.PROPS, APP_PROPERTIES);
+    }
+
+    @Override
+    public <V> V getVerdi(String key, Converter<V> converter) {
+        return Optional.ofNullable(super.getVerdi(key.toLowerCase(), converter))
+                .orElse(null);
+    }
+
+    @Override
+    public boolean harVerdi(String key) {
+        return super.harVerdi(key.toLowerCase());
     }
 
     @Override
