@@ -74,7 +74,7 @@ public class PdlKlient implements Pdl {
     }
 
     @Inject
-    public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "http://pdl-api.default/graphql") URI endpoint,
+    public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "http://pdl-api.pdl/graphql") URI endpoint,
             @KonfigVerdi(value = "pdl.tema", defaultVerdi = "FOR") String tema,
             StsAccessTokenConfig config) {
         this(endpoint, tema, new SystemConsumerStsRestClient(config), new PdlDefaultErrorHandler());

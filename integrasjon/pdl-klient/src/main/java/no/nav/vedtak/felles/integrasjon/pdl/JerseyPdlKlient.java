@@ -50,7 +50,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class JerseyPdlKlient extends AbstractJerseyRestClient implements Pdl {
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseyPdlKlient.class);
-    private static final String HTTP_PDL_API_DEFAULT_GRAPHQL = "http://pdl-api.default/graphql";
+    private static final String HTTP_PDL_API_DEFAULT_GRAPHQL = "http://pdl-api.pdl/graphql";
     private static final String FOR = "FOR";
 
     private final URI endpoint;
