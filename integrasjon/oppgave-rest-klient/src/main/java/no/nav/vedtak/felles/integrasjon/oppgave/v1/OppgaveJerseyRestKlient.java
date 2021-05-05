@@ -15,6 +15,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +49,7 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient implem
             var target = client.target(endpoint);
             LOG.info("Oppretter oppgave på {}", target.getUri());
             var res = target.request(APPLICATION_JSON_TYPE)
+                    .header(HEADER_CORRELATION_ID, getCallId())
                     .buildPost(entity(oppgave, APPLICATION_JSON_TYPE))
                     .invoke(Oppgave.class);
             LOG.info("Opprettet oppgave OK");
@@ -69,6 +71,7 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient implem
             }
             LOG.info("Henter alle oppgaver fra {}", b.getUri());
             var res = b.request(APPLICATION_JSON)
+                    .header(HEADER_CORRELATION_ID, getCallId())
                     .get(FinnOppgaveResponse.class).getOppgaver();
             LOG.info("Henter alle oppgaver OK");
             return res;
@@ -90,7 +93,8 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient implem
             }
             LOG.info("Henter åpne oppgaver fra {}", b.getUri());
             var res = b.request(APPLICATION_JSON)
-                    .header(HEADER_CORRELATION_ID, getCallId()).get(FinnOppgaveResponse.class).getOppgaver();
+                    .header(HEADER_CORRELATION_ID, getCallId())
+                    .get(FinnOppgaveResponse.class).getOppgaver();
             LOG.info("Henter alle åpne oppgaver OK");
             return res;
         } catch (Exception e) {
@@ -104,7 +108,7 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient implem
         try {
             var uri = getEndpointForOppgaveId(oppgaveId);
             LOG.info("Ferdigstiller oppgave fra {}", uri);
-            patch(uri, patchOppgave(hentOppgave(oppgaveId), FERDIGSTILT));
+            patch(uri, patchOppgave(hentOppgave(oppgaveId), FERDIGSTILT), new BasicHeader(HEADER_CORRELATION_ID, getCallId()));
         } catch (Exception e) {
             LOG.warn("Kunne ikke ferdigstille oppgave", e);
             throw e;
@@ -116,7 +120,7 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient implem
         try {
             var uri = getEndpointForOppgaveId(oppgaveId);
             LOG.info("feilregistrerer oppgave fra {}", uri);
-            patch(getEndpointForOppgaveId(oppgaveId), patchOppgave(hentOppgave(oppgaveId), FEILREGISTRERT));
+            patch(getEndpointForOppgaveId(oppgaveId), patchOppgave(hentOppgave(oppgaveId), FEILREGISTRERT), new BasicHeader(HEADER_CORRELATION_ID, getCallId()));
         } catch (Exception e) {
             LOG.warn("Kunne ikke feilregistrerer oppgave", e);
             throw e;
@@ -131,6 +135,7 @@ public class OppgaveJerseyRestKlient extends AbstractJerseyOidcRestClient implem
             var res = target
                     .path(oppgaveId)
                     .request(APPLICATION_JSON)
+                    .header(HEADER_CORRELATION_ID, getCallId())
                     .get(Oppgave.class);
             return res;
         } catch (Exception e) {

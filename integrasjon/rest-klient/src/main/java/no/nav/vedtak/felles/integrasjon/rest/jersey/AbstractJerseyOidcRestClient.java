@@ -6,6 +6,7 @@ import static org.apache.http.HttpHeaders.AUTHORIZATION;
 
 import java.net.URI;
 
+import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
 import no.nav.vedtak.felles.integrasjon.rest.AbstractOidcRestClient;
@@ -39,5 +40,10 @@ public abstract class AbstractJerseyOidcRestClient extends AbstractJerseyRestCli
     protected String patch(URI endpoint, Object obj) {
         return patch(endpoint, obj, new BasicHeader(ACCEPT, APPLICATION_JSON),
                 new BasicHeader(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + REQUIRED_FILTER.accessToken()));
+    }
+
+    protected String patch(URI endpoint, Object obj, Header extraheader) {
+        return patch(endpoint, obj, new BasicHeader(ACCEPT, APPLICATION_JSON),
+            new BasicHeader(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + REQUIRED_FILTER.accessToken()), extraheader);
     }
 }
