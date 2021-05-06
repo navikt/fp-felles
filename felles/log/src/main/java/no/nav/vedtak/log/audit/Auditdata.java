@@ -1,6 +1,5 @@
 package no.nav.vedtak.log.audit;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,7 +15,7 @@ public class Auditdata {
 
     public Auditdata(AuditdataHeader header, Set<CefField> fields) {
         this.header = header;
-        this.fields = new HashSet<>(fields);
+        this.fields = fields;
     }
 
     /**
