@@ -1,23 +1,15 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import java.util.Objects;
+public record OidcTokenHolder(String token, boolean fromCookie) {
 
-public class OidcTokenHolder {
-
-    private final String token;
-    private final boolean fromCookie;
-
-    public OidcTokenHolder(String token, boolean fromCookie) {
-        this.token = Objects.requireNonNull(token, "token kan ikke være null");
-        this.fromCookie = fromCookie;
-    }
-
+    @Deprecated
     public String getToken() {
-        return token;
+        return token();
     }
 
+    @Deprecated
     public boolean isFromCookie() {
-        return fromCookie;
+        return fromCookie();
     }
 
     @Override

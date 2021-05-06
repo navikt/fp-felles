@@ -4,7 +4,7 @@ import java.security.Principal;
 
 import javax.security.auth.Destroyable;
 
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public final class ConsumerId implements Principal, Destroyable {
     public static final String SYSTEMUSER_USERNAME = "systembruker.username";

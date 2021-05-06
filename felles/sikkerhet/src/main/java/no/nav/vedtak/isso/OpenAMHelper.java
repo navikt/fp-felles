@@ -32,11 +32,11 @@ import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
-import no.nav.vedtak.util.env.Environment;
 
 // TODO, denne klassen er en katastrofe
 public class OpenAMHelper {
@@ -209,7 +209,7 @@ public class OpenAMHelper {
             return OBJECT_MAPPER.readValue(response, type);
         } catch (IOException e) {
             throw new TekniskException("F-404323",
-            String.format("Kunne ikke parse JSON: '%s'", response), e);
+                    String.format("Kunne ikke parse JSON: '%s'", response), e);
         }
     }
 
@@ -228,7 +228,8 @@ public class OpenAMHelper {
                     return matcher.group(1);
                 }
             }
-            throw new TekniskException("F-909480", String.format("Fant ikke auth-code på responsen, får respons: '%s - %s'", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
+            throw new TekniskException("F-909480", String.format("Fant ikke auth-code på responsen, får respons: '%s - %s'",
+                    response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
         } finally {
             get.reset();
         }

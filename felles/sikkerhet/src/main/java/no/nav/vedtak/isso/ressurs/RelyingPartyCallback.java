@@ -57,7 +57,7 @@ public class RelyingPartyCallback {
         }
 
         var tokens = tokenProvider.getToken(authorizationCode);
-        var token = tokens.getIdToken().getToken();
+        var token = tokens.idToken().getToken();
         if (!OidcTokenValidatorProvider.instance().getValidator(getIssuser(token)).validate(new OidcTokenHolder(token, false)).isValid()) {
             return status(FORBIDDEN).build();
         }
@@ -66,7 +66,7 @@ public class RelyingPartyCallback {
         String cookieDomain = ServerInfo.instance().getCookieDomain();
         String cookiePath = ServerInfo.instance().getCookiePath();
         var tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token, cookiePath, cookieDomain, "", DEFAULT_MAX_AGE, sslOnlyCookie, true);
-        var refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, tokens.getRefreshToken(), cookiePath, cookieDomain, "",
+        var refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken(), cookiePath, cookieDomain, "",
                 DEFAULT_MAX_AGE, sslOnlyCookie, true);
         var deleteOldStateCookie = new NewCookie(state, "", "/", null, "", 0, sslOnlyCookie, true);
 

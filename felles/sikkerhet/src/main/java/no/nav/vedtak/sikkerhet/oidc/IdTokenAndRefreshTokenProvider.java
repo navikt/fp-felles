@@ -47,9 +47,7 @@ public class IdTokenAndRefreshTokenProvider {
     }
 
     private IdTokenAndRefreshToken extractToken(String responseString) {
-        OidcCredential token = new OidcCredential(TokenProviderUtil.findToken(responseString, "id_token"));
-        String refreshToken = TokenProviderUtil.findToken(responseString, "refresh_token");
-        return new IdTokenAndRefreshToken(token, refreshToken);
+        return new IdTokenAndRefreshToken(new OidcCredential(TokenProviderUtil.findToken(responseString, "id_token")), TokenProviderUtil.findToken(responseString, "refresh_token"));
     }
 
 }

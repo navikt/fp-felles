@@ -16,14 +16,14 @@ import no.nav.vedtak.exception.TekniskException;
 
 public class JwtUtil {
 
+    private JwtUtil() {
+    }
+
     private static final JwtConsumer unvalidatingConsumer = new JwtConsumerBuilder()
             .setSkipAllValidators()
             .setDisableRequireSignature()
             .setSkipSignatureVerification()
             .build();
-
-    private JwtUtil() {
-    }
 
     public static String getJwtBody(String jwt) {
         try {

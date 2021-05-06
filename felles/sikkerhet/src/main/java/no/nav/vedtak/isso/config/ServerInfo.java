@@ -6,9 +6,9 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
-import no.nav.vedtak.util.env.Environment;
 
 public final class ServerInfo {
 
@@ -34,7 +34,7 @@ public final class ServerInfo {
         return instance;
     }
 
-    static synchronized void clearInstance() {
+    public static synchronized void clearInstance() {
         instance = null;
     }
 
