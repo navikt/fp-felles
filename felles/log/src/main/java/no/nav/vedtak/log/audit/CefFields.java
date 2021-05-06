@@ -2,8 +2,6 @@ package no.nav.vedtak.log.audit;
 
 import java.util.Set;
 
-@Deprecated(since = "3.1.x", forRemoval = true)
-/* Bruk samme fra no.nav.foreldrepenger.felles:log. */
 public final class CefFields {
 
     private static final String BEHANDLING_TEXT = "Behandling";

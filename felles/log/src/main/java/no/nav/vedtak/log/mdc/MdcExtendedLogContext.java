@@ -14,8 +14,6 @@ import org.slf4j.MDC;
  * sub-keys. Kan dermed legge til og fjerne ekstra-kontekst data dynamisk.
  *
  */
-@Deprecated(since = "3.1.x", forRemoval = true)
-/* Bruk samme fra no.nav.foreldrepenger.felles:log. */
 public class MdcExtendedLogContext {
 
     private static final Pattern ILLEGAL_CHARS = Pattern.compile("[\\[\\];=]");

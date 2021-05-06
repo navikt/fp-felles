@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 /**
  * Data som utgjør et innslag i sporingsloggen i "Common Event Format (CEF)".
  */
-@Deprecated(since = "3.1.x", forRemoval = true)
-/* Bruk samme fra no.nav.foreldrepenger.felles:log. */
 public class Auditdata {
 
     private static final String FIELD_SEPARATOR = " ";

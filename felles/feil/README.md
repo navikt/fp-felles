@@ -1,13 +1,3 @@
-# Deprecated 
-@Deprecated(since = "3.1.x", forRemoval = true)
-Bruk 
-
-    <dependency>
-        <groupId>no.nav.foreldrepenger.felles</groupId>
-        <artifactId>feil</artifactId>
-        <version>1.0.1</version>
-    </dependency>
-
 ## felles-feil
 
 Denne modulen inneholder api og implementasjon for deklarerte feil
