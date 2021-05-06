@@ -1,7 +1,5 @@
 package no.nav.vedtak.log.audit;
 
-@Deprecated(since = "3.1.x", forRemoval = true)
-/* Bruk samme fra no.nav.foreldrepenger.felles:log. */
 public final class CefField {
 
     private CefFieldName key;

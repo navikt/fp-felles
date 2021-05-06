@@ -6,8 +6,6 @@ package no.nav.vedtak.log.audit;
  * Vi ønsker å bruke de samme feltnavnene på tvers av K9- og FP-områdene. Derfor er disse
  * nøklene definert ett felles sted. Det er et mål for ArcSight at det blir likt i hele NAV.
  */
-@Deprecated(since = "3.1.x", forRemoval = true)
-/* Bruk samme fra no.nav.foreldrepenger.felles:log. */
 public enum CefFieldName {
 
     /**

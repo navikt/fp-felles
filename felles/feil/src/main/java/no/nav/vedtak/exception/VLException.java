@@ -1,5 +1,5 @@
 package no.nav.vedtak.exception;
-/* Bruk klasser fra no.nav.foreldrepenger.felles:feil:1.0.1 istedenfor. */
+
 public abstract class VLException extends RuntimeException {
 
     private final String kode;

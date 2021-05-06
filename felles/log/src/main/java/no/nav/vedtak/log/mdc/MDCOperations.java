@@ -13,8 +13,6 @@ import static org.slf4j.MDC.put;
  * Utility-klasse for kommunikasjon med MDC.
  * (Knabbet fra modig-log-common)
  */
-@Deprecated(since = "3.1.x", forRemoval = true)
-/* Bruk samme fra no.nav.foreldrepenger.felles:log. */
 public final class MDCOperations {
     public static final String HTTP_HEADER_CALL_ID = "Nav-Callid";
     public static final String HTTP_HEADER_CONSUMER_ID = "Nav-Consumer-Id";

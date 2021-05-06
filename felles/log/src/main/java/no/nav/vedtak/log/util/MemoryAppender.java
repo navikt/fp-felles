@@ -12,8 +12,6 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 
-@Deprecated(since = "3.1.x", forRemoval = true)
-/* Bruk samme fra no.nav.foreldrepenger.felles:log. */
 public class MemoryAppender extends ListAppender<ILoggingEvent> {
     public MemoryAppender(String name) {
         this.name = name;
