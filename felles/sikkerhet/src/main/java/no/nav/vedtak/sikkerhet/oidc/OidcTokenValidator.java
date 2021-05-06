@@ -59,7 +59,7 @@ public class OidcTokenValidator {
         if (tokenHolder == null) {
             return OidcTokenValidatorResult.invalid("Missing token (token was null)");
         }
-        String token = tokenHolder.getToken();
+        String token = tokenHolder.token();
         JwtHeader header;
         try {
             header = getHeader(token);

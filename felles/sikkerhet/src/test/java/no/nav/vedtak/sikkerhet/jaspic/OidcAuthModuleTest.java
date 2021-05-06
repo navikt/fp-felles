@@ -37,7 +37,6 @@ import org.mockito.Mockito;
 
 import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.isso.config.ServerInfoTestUtil;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.domene.ConsumerId;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
@@ -45,6 +44,7 @@ import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenGenerator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;
+import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProviderForTest;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorResult;
 
@@ -82,6 +82,7 @@ public class OidcAuthModuleTest {
         OpenAMHelper.setWellKnownConfig(JsonUtil.toJson(testData));
         Map<String, OidcTokenValidator> map = new HashMap<>();
         map.put(OidcTokenGenerator.ISSUER, tokenValidator);
+        OidcTokenValidatorProvider.setValidators(map);
         OidcTokenValidatorProviderForTest.setValidators(map);
     }
 
@@ -392,7 +393,7 @@ public class OidcAuthModuleTest {
 
     @Test
     public void skal_ha_korrekt_scheme_selv_om_TLS_termineres_underveis() throws Exception {
-        ServerInfoTestUtil.clearServerInfoInstance();
+        ServerInfo.clearInstance();
 
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.devillo.no/fpsak/"));
         String originalUrl = authModule.getOriginalUrl(request);

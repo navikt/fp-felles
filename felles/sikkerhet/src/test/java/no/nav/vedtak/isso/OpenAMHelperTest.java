@@ -82,8 +82,8 @@ public class OpenAMHelperTest {
         ignoreTestHvisPropertiesIkkeErsatt();
         IdTokenAndRefreshToken tokens = helper.getToken();
 
-        assertThat(tokens.getIdToken()).isNotNull();
-        assertThat(tokens.getRefreshToken()).isNotNull();
+        assertThat(tokens.idToken()).isNotNull();
+        assertThat(tokens.refreshToken()).isNotNull();
         // logSniffer.assertHasWarnMessage("Cookie rejected");
         // int entries = logSniffer.countEntries("F-050157:Uventet format for host");
         // if (entries > 0) { // HACK (u139158): ServerInfo.cookieDomain beregnes kun en

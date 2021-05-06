@@ -17,9 +17,11 @@ class OpenIDProviderConfigProvider {
     public Set<OpenIDProviderConfig> getConfigs() {
         Set<OpenIDProviderConfig> configs = new HashSet<>();
         configs.add(createOpenAmConfiguration(false, 30, true, OidcTokenValidatorProvider.interneIdentTyper));
-        configs.add(createStsConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_STS, false, 30, true, OidcTokenValidatorProvider.interneIdentTyper));
-        configs.add(createOIDCConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_AAD_B2C, !OidcTokenValidatorProvider.ENV.isLocal(), 30, false, OidcTokenValidatorProvider.eksterneIdentTyper));
-        configs.remove(null); // Fjerner en eventuell feilet konfigurasjon
+        configs.add(
+                createStsConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_STS, false, 30, true, OidcTokenValidatorProvider.interneIdentTyper));
+        configs.add(createOIDCConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_AAD_B2C, !OidcTokenValidatorProvider.ENV.isLocal(), 30, false,
+                OidcTokenValidatorProvider.eksterneIdentTyper));
+        configs.remove(null); // Fjerner en eventuell feilet konfigurasjon WTF ?
         return configs;
     }
 
@@ -72,7 +74,8 @@ class OpenIDProviderConfigProvider {
     private OpenIDProviderConfig createOIDCConfiguration(String providerName, boolean useProxyForJwks, int allowedClockSkewInSeconds,
             boolean skipAudienceValidation, Set<IdentType> identTyper) {
         return createConfiguration(providerName, issuer(providerName), jwks(providerName), useProxyForJwks, clientName(providerName),
-                OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.PASSWORD_KEY), OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.HOST_URL_KEY), allowedClockSkewInSeconds,
+                OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.PASSWORD_KEY),
+                OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.HOST_URL_KEY), allowedClockSkewInSeconds,
                 skipAudienceValidation, identTyper);
     }
 
@@ -115,7 +118,7 @@ class OpenIDProviderConfigProvider {
             return new URL(url);
         } catch (MalformedURLException e) {
             throw new TekniskException("F-644196",
-            String.format("Syntaksfeil i OIDC konfigurasjonen av '%s' for '%s'", key, providerName), e);
+                    String.format("Syntaksfeil i OIDC konfigurasjonen av '%s' for '%s'", key, providerName), e);
         }
     }
 

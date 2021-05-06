@@ -7,6 +7,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.sikkerhet.domene.OidcCredential;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
@@ -33,7 +34,6 @@ public class SystemUserIdTokenProvider {
     private static Instant idTokenExpiryTime;
 
     private SystemUserIdTokenProvider() {
-        // gjør SonarQube glad ved å hindre instansiering
     }
 
     public static synchronized OidcCredential getSystemUserIdToken() {
@@ -67,7 +67,7 @@ public class SystemUserIdTokenProvider {
             try {
                 return fetchIdTokenDirect(openAmHelper);
             } catch (IOException e) {
-                throw SystemUserIdTokenProviderFeil.klarteIkkeHenteIdTokenIOException(e);
+                throw new IntegrasjonException("F-116509", "Klarte ikke hente ID-token for systembrukeren", e);
             }
         }
     }
@@ -95,8 +95,7 @@ public class SystemUserIdTokenProvider {
     }
 
     private static OidcCredential fetchIdTokenDirect(OpenAMHelper openAmHelper) throws IOException {
-        return openAmHelper.getToken()
-                .getIdToken();
+        return openAmHelper.getToken().idToken();
     }
 
 }

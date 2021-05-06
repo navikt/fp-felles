@@ -3,8 +3,8 @@ package no.nav.vedtak.sikkerhet.oidc;
 import java.time.Instant;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
-import no.nav.vedtak.util.env.Environment;
 
 public class OidcLogin {
 

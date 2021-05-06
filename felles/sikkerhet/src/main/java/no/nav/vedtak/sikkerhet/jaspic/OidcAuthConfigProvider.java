@@ -13,7 +13,7 @@ import javax.security.auth.message.module.ServerAuthModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public class OidcAuthConfigProvider implements AuthConfigProvider {
 

@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.domene.IdentType;
-import no.nav.vedtak.util.env.Environment;
 
 public class OidcTokenValidatorProvider {
     static final String AGENT_NAME_KEY = "agentName";
@@ -50,7 +50,7 @@ public class OidcTokenValidatorProvider {
     }
 
     // For test
-    static void setValidators(Map<String, OidcTokenValidator> validators) {
+    public static void setValidators(Map<String, OidcTokenValidator> validators) {
         instance = new OidcTokenValidatorProvider(validators);
     }
 

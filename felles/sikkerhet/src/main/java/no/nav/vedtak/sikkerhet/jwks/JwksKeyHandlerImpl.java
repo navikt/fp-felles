@@ -24,8 +24,8 @@ import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.util.env.Environment;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
     private static final Environment ENV = Environment.current();
@@ -68,7 +68,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         if (keyCache == null) {
             return null;
         }
-        List<JsonWebKey> jwks = keyCache.findJsonWebKeys(header.getKid(), "RSA", "sig", null);
+        List<JsonWebKey> jwks = keyCache.findJsonWebKeys(header.kid(), "RSA", "sig", null);
         if (jwks.isEmpty()) {
             return null;
         }
@@ -76,7 +76,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
             return jwks.get(0).getKey();
         }
         Optional<JsonWebKey> jsonWebKey = jwks.stream()
-                .filter(jwk -> jwk.getAlgorithm().equals(header.getAlgorithm()))
+                .filter(jwk -> jwk.getAlgorithm().equals(header.algorithm()))
                 .findFirst();
         return jsonWebKey.map(JsonWebKey::getKey).orElse(null);
     }
