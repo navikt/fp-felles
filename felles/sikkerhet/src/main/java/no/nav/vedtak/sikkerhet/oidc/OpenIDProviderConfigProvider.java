@@ -1,26 +1,37 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
+import static no.nav.vedtak.isso.OpenAMHelper.getIssuerFra;
+import static no.nav.vedtak.isso.OpenAMHelper.getJwksFra;
+import static no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider.eksterneIdentTyper;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.sikkerhet.domene.IdentType;
 
 class OpenIDProviderConfigProvider {
+    private static final Environment ENV = Environment.current();
     private static final String LOGINSERVICE_IDPORTEN_DISCOVERY_URL = "loginservice.idporten.discovery.url";
     private static final String LOGINSERVICE_IDPORTEN_AUDIENCE = "loginservice.idporten.audience";
+
+    private static final String TOKEN_X_WELL_KNOWN_URL = "token.x.well.known.url";
+    private static final String TOKEN_X_CLIENT_ID = "token.x.client.id";
 
     public Set<OpenIDProviderConfig> getConfigs() {
         Set<OpenIDProviderConfig> configs = new HashSet<>();
         configs.add(createOpenAmConfiguration(false, 30, true, OidcTokenValidatorProvider.interneIdentTyper));
         configs.add(
                 createStsConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_STS, false, 30, true, OidcTokenValidatorProvider.interneIdentTyper));
-        configs.add(createOIDCConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_AAD_B2C, !OidcTokenValidatorProvider.ENV.isLocal(), 30, false,
-                OidcTokenValidatorProvider.eksterneIdentTyper));
+        configs.add(createOIDCConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_AAD_B2C, !ENV.isLocal(), 30, false, eksterneIdentTyper));
+        if (ENV.getProperty(TOKEN_X_WELL_KNOWN_URL) != null) {
+            configs.add(createTokenXConfiguration(ENV.getProperty(TOKEN_X_WELL_KNOWN_URL)));
+        }
         configs.remove(null); // Fjerner en eventuell feilet konfigurasjon WTF ?
         return configs;
     }
@@ -69,6 +80,19 @@ class OpenIDProviderConfigProvider {
         String jwks = OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.JWKS_URL_KEY);
         return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds,
                 skipAudienceValidation, identTyper);
+    }
+
+    private OpenIDProviderConfig createTokenXConfiguration(String wellKnownUrl) {
+        return createConfiguration("tokenx",
+                getIssuerFra(wellKnownUrl),
+                getJwksFra(wellKnownUrl),
+                false,
+                ENV.getRequiredProperty(TOKEN_X_CLIENT_ID),
+                null,
+                "http://bare.tull.ikke.brukt",
+                30,
+                false,
+                eksterneIdentTyper);
     }
 
     private OpenIDProviderConfig createOIDCConfiguration(String providerName, boolean useProxyForJwks, int allowedClockSkewInSeconds,
