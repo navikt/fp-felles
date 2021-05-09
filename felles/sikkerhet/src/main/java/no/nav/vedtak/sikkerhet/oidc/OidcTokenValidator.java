@@ -9,6 +9,8 @@ import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.jwx.JsonWebStructure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
@@ -17,6 +19,8 @@ import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.jwks.JwtHeader;
 
 public class OidcTokenValidator {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OidcTokenValidator.class);
 
     private final String expectedIssuer;
     private final String clientName;
@@ -56,6 +60,7 @@ public class OidcTokenValidator {
     }
 
     private OidcTokenValidatorResult validate(OidcTokenHolder tokenHolder, int allowedClockSkewInSeconds) {
+        LOG.trace("Validerer token for issuer {} {}", expectedIssuer, clientName);
         if (tokenHolder == null) {
             return OidcTokenValidatorResult.invalid("Missing token (token was null)");
         }
