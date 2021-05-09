@@ -64,4 +64,9 @@ public class OidcTokenValidatorProvider {
                 config -> config.getIssuer().toExternalForm(),
                 OidcTokenValidator::new));
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [validators=" + validators + "]";
+    }
 }

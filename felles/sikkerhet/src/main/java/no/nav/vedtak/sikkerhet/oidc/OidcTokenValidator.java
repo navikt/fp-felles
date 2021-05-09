@@ -136,4 +136,10 @@ public class OidcTokenValidator {
         return new JwtHeader(kid, wstruct.getAlgorithmHeaderValue());
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [expectedIssuer=" + expectedIssuer + ", clientName=" + clientName + ", jwks=" + jwks
+                + ", allowedClockSkewInSeconds=" + allowedClockSkewInSeconds + ", skipAudienceValidation=" + skipAudienceValidation + "]";
+    }
+
 }
