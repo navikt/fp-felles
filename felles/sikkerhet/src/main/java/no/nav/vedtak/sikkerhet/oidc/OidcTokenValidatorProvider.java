@@ -4,6 +4,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.domene.IdentType;
 
@@ -19,12 +22,13 @@ public class OidcTokenValidatorProvider {
     static final String PROVIDERNAME_STS = "oidc_sts.";
     static final String PROVIDERNAME_AAD_B2C = "oidc_aad_b2c.";
 
+    private static final Logger LOG = LoggerFactory.getLogger(OidcTokenValidatorProvider.class);
     static final Environment ENV = Environment.current();
 
     static final Set<IdentType> interneIdentTyper = Set.of(IdentType.InternBruker, IdentType.Systemressurs);
     static final Set<IdentType> eksterneIdentTyper = Set.of(IdentType.EksternBruker);
 
-    private static volatile OidcTokenValidatorProvider instance; // NOSONAR
+    private static volatile OidcTokenValidatorProvider instance;
     private final Map<String, OidcTokenValidator> validators;
 
     private OidcTokenValidatorProvider() {
@@ -59,9 +63,12 @@ public class OidcTokenValidatorProvider {
     }
 
     private static Map<String, OidcTokenValidator> init() {
-        var configs = new OpenIDProviderConfigProvider().getConfigs();
-        return configs.stream().collect(Collectors.toMap(
-                config -> config.getIssuer().toExternalForm(),
-                OidcTokenValidator::new));
+        var validators = OpenIDProviderConfigProvider.getConfigs()
+                .stream()
+                .collect(Collectors.toMap(
+                        config -> config.getIssuer().toExternalForm(),
+                        OidcTokenValidator::new));
+        LOG.trace("Token validators {}", validators);
+        return validators;
     }
 }

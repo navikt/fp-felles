@@ -63,7 +63,10 @@ public class OpenIDProviderConfig {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<issuer=" + issuer + ">";
+        return getClass().getSimpleName() + " [issuer=" + issuer + ", jwks=" + jwks + ", useProxyForJwks=" + useProxyForJwks + ", clientName="
+                + clientName
+                + ", clientPassword=" + clientPassword + ", host=" + host + ", allowedClockSkewInSeconds=" + allowedClockSkewInSeconds
+                + ", skipAudienceValidation=" + skipAudienceValidation + ", identTyper=" + identTyper + "]";
     }
 
     public Set<IdentType> getIdentTyper() {
