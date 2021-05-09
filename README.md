@@ -16,6 +16,6 @@ Inneholder følgende hovedmoduler
 ## Integrasjoner
 
 
-Inneholder klient konfigurasjon for å konfigurere WS*/REST/MQ klienter og tjenester mot andre systemer i Nav.  
+Inneholder klient konfigurasjon for å konfigurere WS*/REST/MQ klienter og tjenester mot andre systemer i Nav.
 Skal kun inneholde klienter relevant for flere applikasjoner - hvis nødvendig å standardisere. (hvis kun en applikasjon bruker, legg det heller der)
 
