@@ -24,7 +24,6 @@ import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider;
 
 /**
@@ -71,9 +70,9 @@ public class OIDCLoginModule extends LoginModuleBase {
         logger.trace("Enter login method");
         ssoToken = getSSOToken();
 
-        String issuer = JwtUtil.getIssuser(ssoToken.getToken());
-        OidcTokenValidator tokenValidator = OidcTokenValidatorProvider.instance().getValidator(issuer);
-        logger.trace(issuer);
+        String issuer = JwtUtil.getIssuser(ssoToken.token());
+        var tokenValidator = OidcTokenValidatorProvider.instance().getValidator(issuer);
+        logger.trace("Issuer er {}, validator er {}", issuer, tokenValidator);
         OidcLogin oidcLogin = new OidcLogin(Optional.of(ssoToken), tokenValidator);
         OidcLogin.LoginResult loginResult = oidcLogin.doLogin();
         if (loginResult == OidcLogin.LoginResult.SUCCESS) {

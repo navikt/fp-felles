@@ -3,11 +3,15 @@ package no.nav.vedtak.sikkerhet.oidc;
 import java.time.Instant;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 
 public class OidcLogin {
 
+    private static final Logger LOG = LoggerFactory.getLogger(OidcLogin.class);
     private static final Environment ENV = Environment.current();
 
     public enum LoginResult {
@@ -33,17 +37,21 @@ public class OidcLogin {
 
     public LoginResult doLogin() {
         if (!idToken.isPresent()) {
+            LOG.trace("No token");
             return LoginResult.ID_TOKEN_MISSING;
         }
         OidcTokenValidatorResult validateResult = tokenValidator.validate(idToken.get());
         if (needToRefreshToken(idToken.get(), validateResult)) {
+            LOG.trace("Token expired");
             return LoginResult.ID_TOKEN_EXPIRED;
         }
         if (validateResult.isValid()) {
+            LOG.trace("Token OK");
             this.subject = validateResult.getSubject();
             return LoginResult.SUCCESS;
         }
         errorMessage = validateResult.getErrorMessage();
+        LOG.trace("Token invalid {}", errorMessage);
         return LoginResult.ID_TOKEN_INVALID;
     }
 
@@ -57,7 +65,7 @@ public class OidcLogin {
 
     private boolean needToRefreshToken(OidcTokenHolder idToken, OidcTokenValidatorResult validateResult) {
         if (validateResult.isValid()) {
-            if (idToken.isFromCookie()) {
+            if (idToken.fromCookie()) {
                 return tokenIsSoonExpired(validateResult);
             } else {
                 return false;
