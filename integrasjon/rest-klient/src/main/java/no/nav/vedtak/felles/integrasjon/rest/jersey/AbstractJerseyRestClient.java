@@ -76,7 +76,6 @@ public abstract class AbstractJerseyRestClient {
     public static final String NAV_CONSUMER_TOKEN_HEADER = "Nav-Consumer-Token";
     public static final String DEFAULT_NAV_CALLID = "Nav-Callid";
     public static final String ALT_NAV_CALL_ID = "nav-call-id";
-    public static final String ALT_NAV_CALL_ID1 = "callId";
 
     public static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
