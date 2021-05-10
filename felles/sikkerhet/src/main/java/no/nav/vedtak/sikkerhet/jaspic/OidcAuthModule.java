@@ -151,9 +151,12 @@ public class OidcAuthModule implements ServerAuthModule {
 
     public void setCallAndConsumerId(HttpServletRequest request) {
         String callId = request.getHeader(MDCOperations.HTTP_HEADER_CALL_ID); // NOSONAR Akseptertet headere
+        String callId1 = request.getHeader(MDCOperations.HTTP_HEADER_ALT_CALL_ID); // NOSONAR Akseptertet headere
         if (callId != null) {
             MDCOperations.putCallId(callId);
-        } else {
+        } if (callId1 != null) {
+            MDCOperations.putCallId(callId1);
+        }else {
             MDCOperations.putCallId();
         }
 

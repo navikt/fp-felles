@@ -21,7 +21,6 @@ class StandardHeadersRequestInterceptor implements HttpRequestInterceptor {
     public void process(HttpRequest req, HttpContext context) throws HttpException, IOException {
         req.addHeader(DEFAULT_NAV_CALLID, getCallId());
         req.addHeader(ALT_NAV_CALL_ID, getCallId());
-        req.addHeader(ALT_NAV_CALL_ID1, getCallId());
         req.addHeader(HEADER_CORRELATION_ID, getCallId());
         req.addHeader(DEFAULT_NAV_CONSUMERID, getSubjectHandler().getConsumerId());
     }

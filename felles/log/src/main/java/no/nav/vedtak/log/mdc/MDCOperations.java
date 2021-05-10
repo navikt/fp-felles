@@ -4,31 +4,29 @@ import static org.slf4j.MDC.get;
 import static org.slf4j.MDC.put;
 
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Random;
 
 import javax.xml.namespace.QName;
 
 import org.slf4j.MDC;
 
 /**
- * Utility-klasse for kommunikasjon med MDC. (Knabbet fra modig-log-common)
+ * Utility-klasse for kommunikasjon med MDC.
+ * (Knabbet fra modig-log-common)
  */
 public final class MDCOperations {
     public static final String HTTP_HEADER_CALL_ID = "Nav-Callid";
+    public static final String HTTP_HEADER_ALT_CALL_ID = "nav-call-id";
     public static final String HTTP_HEADER_CONSUMER_ID = "Nav-Consumer-Id";
-    public static final String NAV_CONSUMER_ID = "Nav-ConsumerId";
-    public static final String NAV_CALL_ID = "Nav-CallId";
-    public static final String NAV_USER_ID = "Nav-userId";
 
-    @Deprecated
     public static final String MDC_CALL_ID = "callId";
-    @Deprecated
     public static final String MDC_USER_ID = "userId";
-    @Deprecated
     public static final String MDC_CONSUMER_ID = "consumerId";
 
     // QName for the callId header
     public static final QName CALLID_QNAME = new QName("uri:no.nav.applikasjonsrammeverk", MDC_CALL_ID);
+
+    private static final Random RANDOM = new Random();
 
     private MDCOperations() {
     }
@@ -38,32 +36,34 @@ public final class MDCOperations {
     }
 
     public static void putCallId(String callId) {
-        toMDC(NAV_CALL_ID, callId);
+        Objects.requireNonNull(callId, "callId can't be null");
+        put(MDC_CALL_ID, callId);
     }
 
     public static String getCallId() {
-        return get(NAV_CALL_ID);
+        return get(MDC_CALL_ID);
     }
 
     public static void removeCallId() {
-        remove(NAV_CALL_ID);
+        remove(MDC_CALL_ID);
     }
 
     public static void putConsumerId(String consumerId) {
-        toMDC(NAV_CONSUMER_ID, consumerId);
+        Objects.requireNonNull(consumerId, "consumerId can't be null");
+        put(MDC_CONSUMER_ID, consumerId);
     }
 
     public static String getConsumerId() {
-        return get(NAV_CONSUMER_ID);
+        return get(MDC_CONSUMER_ID);
     }
 
     public static void removeConsumerId() {
-        remove(NAV_CONSUMER_ID);
+        remove(MDC_CONSUMER_ID);
     }
 
     public static void putUserId(String userId) {
         Objects.requireNonNull(userId, "userId can't be null");
-        put(NAV_USER_ID, maskFnr(userId));
+        put(MDC_USER_ID, maskFnr(userId));
     }
 
     private static String maskFnr(String userId) {
@@ -74,37 +74,29 @@ public final class MDCOperations {
     }
 
     public static String getUserId() {
-        return get(NAV_USER_ID);
+        return get(MDC_USER_ID);
     }
 
     public static void removeUserId() {
-        remove(NAV_USER_ID);
+        remove(MDC_USER_ID);
     }
 
     public static String generateCallId() {
-        return CallIdGenerator.create();
+        var randomNr = RANDOM.nextInt(Integer.MAX_VALUE);
+        var systemTime = System.currentTimeMillis();
+        return "CallId_" + systemTime + '_' + randomNr;
     }
 
-    @Deprecated
     public static String getFromMDC(String key) {
-        return get(key);
+        return MDC.get(key);
     }
 
     public static void putToMDC(String key, String value) {
-        toMDC(key, value);
-    }
-
-    public static void putToMDC(String key, String value, String defaultValue) {
-        put(key, Optional.ofNullable(value).orElse(defaultValue));
+        put(key, value);
     }
 
     public static void remove(String key) {
         MDC.remove(key);
     }
 
-    private static void toMDC(String key, Object value) {
-        if (value != null) {
-            put(key, value.toString());
-        }
-    }
 }
