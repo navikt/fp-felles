@@ -40,6 +40,13 @@ public final class MDCOperations {
         put(MDC_CALL_ID, callId);
     }
 
+    public static void ensureCallId() {
+        var callId = getCallId();
+        if (callId == null || callId.isBlank()) {
+            putCallId(generateCallId());
+        }
+    }
+
     public static String getCallId() {
         return get(MDC_CALL_ID);
     }

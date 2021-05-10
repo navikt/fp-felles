@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.ALT_NAV_CALL_ID;
-import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.ALT_NAV_CALL_ID1;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.HEADER_CORRELATION_ID;
