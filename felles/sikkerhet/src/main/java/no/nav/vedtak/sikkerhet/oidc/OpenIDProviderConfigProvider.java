@@ -2,7 +2,6 @@ package no.nav.vedtak.sikkerhet.oidc;
 
 import static no.nav.vedtak.isso.OpenAMHelper.getIssuerFra;
 import static no.nav.vedtak.isso.OpenAMHelper.getJwksFra;
-import static no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider.eksterneIdentTyper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,7 +12,6 @@ import java.util.Set;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.OpenAMHelper;
-import no.nav.vedtak.sikkerhet.domene.IdentType;
 
 class OpenIDProviderConfigProvider {
     private static final Environment ENV = Environment.current();
@@ -25,10 +23,10 @@ class OpenIDProviderConfigProvider {
 
     public Set<OpenIDProviderConfig> getConfigs() {
         Set<OpenIDProviderConfig> configs = new HashSet<>();
-        configs.add(createOpenAmConfiguration(false, 30, true, OidcTokenValidatorProvider.interneIdentTyper));
+        configs.add(createOpenAmConfiguration(false, 30, true));
         configs.add(
-                createStsConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_STS, false, 30, true, OidcTokenValidatorProvider.interneIdentTyper));
-        configs.add(createOIDCConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_AAD_B2C, !ENV.isLocal(), 30, false, eksterneIdentTyper));
+                stsConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_STS, false, 30, true));
+        configs.add(createOIDCConfiguration(OidcTokenValidatorProvider.PROVIDERNAME_AAD_B2C, !ENV.isLocal(), 30, false));
         if (ENV.getProperty(TOKEN_X_WELL_KNOWN_URL) != null) {
             configs.add(createTokenXConfiguration(ENV.getProperty(TOKEN_X_WELL_KNOWN_URL)));
         }
@@ -40,46 +38,30 @@ class OpenIDProviderConfigProvider {
      * For bakoverkompabilitet for eksisterende måte å konfigurere opp OIDC Vil
      * benytte ny konfigurasjonsmåte hvis definert
      */
-    private OpenIDProviderConfig createOpenAmConfiguration(boolean useProxyForJwks, int allowedClockSkewInSeconds, boolean skipAudienceValidation,
-            Set<IdentType> identTyper) {
+    private OpenIDProviderConfig createOpenAmConfiguration(boolean useProxyForJwks, int allowedClockSkewInSeconds, boolean skipAudienceValidation) {
         String providerName = OidcTokenValidatorProvider.PROVIDERNAME_OPEN_AM;
-        String clientName = OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.AGENT_NAME_KEY);
+        String clientName = ENV.getProperty(providerName + OidcTokenValidatorProvider.AGENT_NAME_KEY);
         if (clientName != null) {
-            return createConfiguration(providerName, useProxyForJwks, allowedClockSkewInSeconds, skipAudienceValidation, identTyper);
+            return createConfiguration(providerName, useProxyForJwks, allowedClockSkewInSeconds, skipAudienceValidation);
         }
 
         clientName = OpenAMHelper.getIssoUserName();
-        String clientPassword = OpenAMHelper.getIssoPassword();
         String issuer = OpenAMHelper.getIssoIssuerUrl();
-        String host = OpenAMHelper.getIssoHostUrl();
         String jwks = OpenAMHelper.getIssoJwksUrl();
-        return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds,
-                skipAudienceValidation, identTyper);
+        return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, allowedClockSkewInSeconds,
+                skipAudienceValidation);
     }
 
-    private OpenIDProviderConfig createStsConfiguration(String providerName, boolean useProxyForJwks, int allowedClockSkewInSeconds,
-            boolean skipAudienceValidation, Set<IdentType> identTyper) {
-        String issuer = OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.ALT_ISSUER_URL_KEY);
+    private OpenIDProviderConfig stsConfiguration(String providerName, boolean useProxyForJwks, int allowedClockSkewInSeconds,
+            boolean skipAudienceValidation) {
+        String issuer = ENV.getProperty(providerName + OidcTokenValidatorProvider.ALT_ISSUER_URL_KEY);
         if (null == issuer) {
             return null;
         }
         String clientName = "Client name is not used for STS";
-        String clientPassword = "Client password is not used for STS";
-        String host = "https://host.is.not.used.for.STS";
-        String jwks = OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.ALT_JWKS_URL_KEY);
-        return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds,
-                skipAudienceValidation, identTyper);
-    }
-
-    private OpenIDProviderConfig createConfiguration(String providerName, boolean useProxyForJwks, int allowedClockSkewInSeconds,
-            boolean skipAudienceValidation, Set<IdentType> identTyper) {
-        String clientName = OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.AGENT_NAME_KEY);
-        String clientPassword = OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.PASSWORD_KEY);
-        String issuer = OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.ISSUER_URL_KEY);
-        String host = OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.HOST_URL_KEY);
-        String jwks = OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.JWKS_URL_KEY);
-        return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, clientPassword, host, allowedClockSkewInSeconds,
-                skipAudienceValidation, identTyper);
+        String jwks = ENV.getProperty(providerName + OidcTokenValidatorProvider.ALT_JWKS_URL_KEY);
+        return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, allowedClockSkewInSeconds,
+                skipAudienceValidation);
     }
 
     private OpenIDProviderConfig createTokenXConfiguration(String wellKnownUrl) {
@@ -88,51 +70,53 @@ class OpenIDProviderConfigProvider {
                 getJwksFra(wellKnownUrl),
                 false,
                 ENV.getRequiredProperty(TOKEN_X_CLIENT_ID),
-                null,
-                "http://bare.tull.ikke.brukt",
                 30,
-                false,
-                eksterneIdentTyper);
+                false);
+    }
+
+    private OpenIDProviderConfig createConfiguration(String providerName, boolean useProxyForJwks, int allowedClockSkewInSeconds,
+            boolean skipAudienceValidation) {
+        String clientName = ENV.getProperty(providerName + OidcTokenValidatorProvider.AGENT_NAME_KEY);
+        String issuer = ENV.getProperty(providerName + OidcTokenValidatorProvider.ISSUER_URL_KEY);
+        String jwks = ENV.getProperty(providerName + OidcTokenValidatorProvider.JWKS_URL_KEY);
+        return createConfiguration(providerName, issuer, jwks, useProxyForJwks, clientName, allowedClockSkewInSeconds,
+                skipAudienceValidation);
     }
 
     private OpenIDProviderConfig createOIDCConfiguration(String providerName, boolean useProxyForJwks, int allowedClockSkewInSeconds,
-            boolean skipAudienceValidation, Set<IdentType> identTyper) {
+            boolean skipAudienceValidation) {
         return createConfiguration(providerName, issuer(providerName), jwks(providerName), useProxyForJwks, clientName(providerName),
-                OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.PASSWORD_KEY),
-                OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.HOST_URL_KEY), allowedClockSkewInSeconds,
-                skipAudienceValidation, identTyper);
+                allowedClockSkewInSeconds,
+                skipAudienceValidation);
     }
 
     private static String clientName(String providerName) {
-        return Optional.ofNullable(OidcTokenValidatorProvider.ENV.getProperty(LOGINSERVICE_IDPORTEN_AUDIENCE))
-                .orElse(OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.AGENT_NAME_KEY));
+        return Optional.ofNullable(ENV.getProperty(LOGINSERVICE_IDPORTEN_AUDIENCE))
+                .orElse(ENV.getProperty(providerName + OidcTokenValidatorProvider.AGENT_NAME_KEY));
     }
 
     private static String jwks(String providerName) {
-        return Optional.ofNullable(OidcTokenValidatorProvider.ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL))
+        return Optional.ofNullable(ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL))
                 .map(OpenAMHelper::getJwksFra)
-                .orElse(OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.JWKS_URL_KEY));
+                .orElse(ENV.getProperty(providerName + OidcTokenValidatorProvider.JWKS_URL_KEY));
     }
 
     private static String issuer(String providerName) {
-        return Optional.ofNullable(OidcTokenValidatorProvider.ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL))
+        return Optional.ofNullable(ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL))
                 .map(OpenAMHelper::getIssuerFra)
-                .orElse(OidcTokenValidatorProvider.ENV.getProperty(providerName + OidcTokenValidatorProvider.ISSUER_URL_KEY));
+                .orElse(ENV.getProperty(providerName + OidcTokenValidatorProvider.ISSUER_URL_KEY));
     }
 
     private OpenIDProviderConfig createConfiguration(String providerName, String issuer, String jwks, boolean useProxyForJwks, String clientName,
-            String clientPassword, String host, int allowedClockSkewInSeconds, boolean skipAudienceValidation, Set<IdentType> identTyper) {
+            int allowedClockSkewInSeconds, boolean skipAudienceValidation) {
         return Optional.ofNullable(clientName)
                 .map(c -> new OpenIDProviderConfig(
                         url(issuer, "issuer", providerName),
                         url(jwks, "jwks", providerName),
                         useProxyForJwks,
                         c,
-                        clientPassword,
-                        url(host, "host", providerName),
                         allowedClockSkewInSeconds,
-                        skipAudienceValidation,
-                        identTyper))
+                        skipAudienceValidation))
                 .orElse(null);
 
     }

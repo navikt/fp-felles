@@ -9,8 +9,6 @@ import no.nav.vedtak.sikkerhet.domene.IdentType;
 
 public class OidcTokenValidatorProvider {
     static final String AGENT_NAME_KEY = "agentName";
-    static final String PASSWORD_KEY = "password";
-    static final String HOST_URL_KEY = "hostUrl";
     static final String ISSUER_URL_KEY = "issuerUrl";
     static final String JWKS_URL_KEY = "jwksUrl";
     static final String ALT_ISSUER_URL_KEY = "issuer.url";
