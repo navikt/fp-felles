@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
@@ -24,6 +27,8 @@ import no.nav.vedtak.util.Tuple;
  */
 @Dependent
 public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(XacmlRequestBuilderTjenesteImpl.class);
 
     public XacmlRequestBuilderTjenesteImpl() {
     }
@@ -42,7 +47,7 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
         if (identer.isEmpty()) {
             populerResources(xacmlBuilder, pdpRequest, null);
         } else {
-            for (Tuple<String, String> ident : identer) {
+            for (var ident : identer) {
                 populerResources(xacmlBuilder, pdpRequest, ident);
             }
         }
@@ -65,8 +70,10 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
             found = true;
         }
         if (found) {
+            LOG.trace("Legger til subject attributter {}", attrs);
             xacmlBuilder.addSubjectAttributeSet(attrs);
         }
+        LOG.trace("Legger IKKE til suject attributter");
     }
 
     protected void populerResources(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest, Tuple<String, String> ident) {
