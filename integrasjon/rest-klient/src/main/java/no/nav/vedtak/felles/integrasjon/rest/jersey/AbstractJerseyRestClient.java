@@ -38,11 +38,11 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent;
-import no.nav.vedtak.util.env.Environment;
 
 /**
  *
@@ -76,6 +76,8 @@ public abstract class AbstractJerseyRestClient {
     public static final String NAV_CONSUMER_TOKEN_HEADER = "Nav-Consumer-Token";
     public static final String DEFAULT_NAV_CALLID = "Nav-Callid";
     public static final String ALT_NAV_CALL_ID = "nav-call-id";
+    public static final String ALT_NAV_CALL_ID1 = "callId";
+
     public static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractJerseyRestClient.class);

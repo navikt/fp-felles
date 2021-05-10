@@ -20,6 +20,7 @@ import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.pdl.GeografiskTilknytning;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
 import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
@@ -43,7 +44,6 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @Dependent
 @Jersey
