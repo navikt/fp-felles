@@ -1,32 +1,23 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
 import java.net.URL;
-import java.util.Set;
-
-import no.nav.vedtak.sikkerhet.domene.IdentType;
 
 public class OpenIDProviderConfig {
     private final URL issuer;
     private final URL jwks;
     private boolean useProxyForJwks;
     private final String clientName;
-    private final String clientPassword;
-    private final URL host;
     private final int allowedClockSkewInSeconds;
     private final boolean skipAudienceValidation;
-    private final Set<IdentType> identTyper;
 
-    public OpenIDProviderConfig(URL issuer, URL jwks, boolean useProxyForJwks, String clientName, String clientPassword, URL host,
-            int allowedClockSkewInSeconds, boolean skipAudienceValidation, Set<IdentType> identTyper) {
+    public OpenIDProviderConfig(URL issuer, URL jwks, boolean useProxyForJwks, String clientName,
+            int allowedClockSkewInSeconds, boolean skipAudienceValidation) {
         this.issuer = issuer;
         this.jwks = jwks;
         this.useProxyForJwks = useProxyForJwks;
         this.clientName = clientName;
-        this.clientPassword = clientPassword;
-        this.host = host;
         this.allowedClockSkewInSeconds = allowedClockSkewInSeconds;
         this.skipAudienceValidation = skipAudienceValidation;
-        this.identTyper = identTyper;
     }
 
     public URL getIssuer() {
@@ -45,14 +36,6 @@ public class OpenIDProviderConfig {
         return clientName;
     }
 
-    public URL getHost() {
-        return host;
-    }
-
-    public String getClientPassword() {
-        return clientPassword;
-    }
-
     public int getAllowedClockSkewInSeconds() {
         return allowedClockSkewInSeconds;
     }
@@ -64,9 +47,5 @@ public class OpenIDProviderConfig {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<issuer=" + issuer + ">";
-    }
-
-    public Set<IdentType> getIdentTyper() {
-        return identTyper;
     }
 }
