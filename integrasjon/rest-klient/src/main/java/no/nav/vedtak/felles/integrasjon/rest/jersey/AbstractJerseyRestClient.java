@@ -8,7 +8,9 @@ import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.c
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
+import static org.glassfish.jersey.client.ClientProperties.CONNECT_TIMEOUT;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
+import static org.glassfish.jersey.client.ClientProperties.READ_TIMEOUT;
 import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
 import static org.glassfish.jersey.logging.LoggingFeature.Verbosity.PAYLOAD_ANY;
 
@@ -112,12 +114,15 @@ public abstract class AbstractJerseyRestClient {
             LOG.info("Registrer filter {}", f.getClass());
             cfg.register(f);
         });
+
         cfg.register(ErrorResponseHandlingClientResponseFilter.class);
         if (ENV.isDev()) {
             cfg.register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
                     FINE, PAYLOAD_ANY, 10000));
         }
         client = ClientBuilder.newClient(cfg);
+        client.property(CONNECT_TIMEOUT, 10000);
+        client.property(READ_TIMEOUT, 30000);
     }
 
     private static JacksonJaxbJsonProvider jacksonProvider(ObjectMapper mapper) {
