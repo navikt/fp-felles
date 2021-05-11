@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.felles.integrasjon.rest;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.vedtak.exception.TekniskException;
+
 public class DefaultJsonMapper {
 
     private DefaultJsonMapper() {
@@ -29,6 +31,8 @@ public class DefaultJsonMapper {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.setTimeZone(TimeZone.getTimeZone("Europe/Oslo"));
+        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         return mapper;
     }
 
