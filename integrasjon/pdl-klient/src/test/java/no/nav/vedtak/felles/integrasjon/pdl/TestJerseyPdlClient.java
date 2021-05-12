@@ -29,6 +29,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
@@ -149,12 +150,7 @@ class TestJerseyPdlClient {
             res = client.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
-            // verify(sts).accessToken();
-            Thread.sleep(1000);
-            IntStream.range(1, 10)
-                    .forEach(i -> client.hentPerson(pq(), pp()));
-            client.hentPerson(pq(), pp());
-            verify(sts, times(0)).accessToken();
+            verifyNoInteractions(sts);
         }
     }
 
