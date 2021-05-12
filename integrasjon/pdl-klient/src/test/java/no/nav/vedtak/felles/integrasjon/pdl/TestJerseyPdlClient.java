@@ -138,11 +138,8 @@ class TestJerseyPdlClient {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(post(urlPathEqualTo(GRAPHQL))
                     .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-                    // .withHeader(DEFAULT_NAV_CONSUMERID, equalTo(USERNAME))
                     .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
                     .withHeader(AUTHORIZATION, containing(TOKENXTOKEN))
-                    // .withHeader(NAV_CONSUMER_TOKEN_HEADER, containing(OIDC_AUTH_HEADER_PREFIX))
-                    // .withHeader(NAV_CONSUMER_TOKEN_HEADER, containing(SYSTEMTOKEN))
                     .withHeader(TEMA, equalTo(FOR))
                     .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
                     .willReturn(responseBody(responsFor("pdl/personResponse.json"))));
@@ -170,11 +167,8 @@ class TestJerseyPdlClient {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(post(urlPathEqualTo(GRAPHQL))
                     .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-                    // .withHeader(DEFAULT_NAV_CONSUMERID, equalTo(USERNAME))
                     .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
                     .withHeader(AUTHORIZATION, containing(SYSTEMTOKEN))
-                    // .withHeader(NAV_CONSUMER_TOKEN_HEADER, containing(SYSTEMTOKEN))
-                    // .withHeader(NAV_CONSUMER_TOKEN_HEADER, containing(OIDC_AUTH_HEADER_PREFIX))
                     .withHeader(TEMA, equalTo(FOR))
                     .withHeader(DEFAULT_NAV_CALLID, equalTo(CALLID))
                     .willReturn(responseBody(responsFor("pdl/personResponse.json"))));
