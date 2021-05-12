@@ -120,9 +120,9 @@ public abstract class AbstractJerseyRestClient {
             cfg.register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
                     FINE, PAYLOAD_ANY, 10000));
         }
-        client = ClientBuilder.newClient(cfg);
-        client.property(CONNECT_TIMEOUT, 10000);
-        client.property(READ_TIMEOUT, 30000);
+        client = ClientBuilder.newClient(cfg)
+                .property(CONNECT_TIMEOUT, 10000)
+                .property(READ_TIMEOUT, 30000);
     }
 
     private static JacksonJaxbJsonProvider jacksonProvider(ObjectMapper mapper) {
