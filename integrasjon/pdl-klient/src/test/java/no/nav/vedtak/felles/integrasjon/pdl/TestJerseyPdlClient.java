@@ -131,7 +131,7 @@ class TestJerseyPdlClient {
     }
 
     @Test
-    @DisplayName("Test at Authorization og Tema  blir satt for tokenX token, tester også cache")
+    @DisplayName("Test at kun Authorization og Tema  blir satt for tokenX token")
     void testPersonAuthWithUserToken() throws Exception {
         when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
         doReturn(TOKENXTOKEN).when(subjectHandler).getInternSsoToken();
@@ -176,7 +176,7 @@ class TestJerseyPdlClient {
     }
 
     @Test
-    @DisplayName("Test at Authorization, Nav-Consumer-Id, Nav-Consumer-Token, Nav-Consumer-Id og Tema alle blir satt tester også cache")
+    @DisplayName("Test at Authorization,Nav-Consumer-Token, Nav-Consumer-Id og Tema alle blir satt tester også cache")
     void testPersonAuthWithLoginServiceToken() throws Exception {
         when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
         doReturn(LOGINSERVICETOKEN).when(subjectHandler).getInternSsoToken();
