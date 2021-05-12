@@ -9,6 +9,7 @@ import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestCli
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
+import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -28,6 +29,7 @@ import com.nimbusds.jwt.SignedJWT;
 import no.nav.vedtak.exception.TekniskException;
 
 public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
+
     private static final Duration CACHE_DURATION = Duration.ofMinutes(55);
     private static final Logger LOG = LoggerFactory.getLogger(StsAccessTokenClientRequestFilter.class);
     private final StsAccessTokenJerseyClient sts;
@@ -47,9 +49,16 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     @Override
     public void filter(ClientRequestContext ctx) {
         ctx.getHeaders().add(DEFAULT_NAV_CONSUMERID, sts.getUsername());
-        ctx.getHeaders().add(NAV_CONSUMER_TOKEN_HEADER, OIDC_AUTH_HEADER_PREFIX + systemToken());
-        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + accessToken());
         ctx.getHeaders().add(TEMA, tema);
+        var token = accessToken();
+        if (TokenType.OIDC.equals(tokenType(token))) {
+            LOG.trace("Dette er et loginservice token");
+            ctx.getHeaders().add(NAV_CONSUMER_TOKEN_HEADER, OIDC_AUTH_HEADER_PREFIX + systemToken());
+            ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + token);
+        } else {
+            LOG.trace("Dette er et TokenX token");
+            ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + token);
+        }
     }
 
     @Override
@@ -61,6 +70,16 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
 
     private String systemToken() {
         return cache.get("systemToken");
+    }
+
+    private static TokenType tokenType(String token) {
+        try {
+            return URI.create(SignedJWT.parse(token)
+                    .getJWTClaimsSet().getIssuer()).getHost().contains("tokendings") ? TokenType.TOKENX : TokenType.OIDC;
+
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Ukjent token type");
+        }
     }
 
     private static LoadingCache<String, String> cache(int size, Duration duration, StsAccessTokenJerseyClient sts) {
@@ -108,4 +127,10 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     public String toString() {
         return getClass().getSimpleName() + " [sts=" + sts + ", cache=" + cache + ", tema=" + tema + "]";
     }
+
+    static enum TokenType {
+        OIDC,
+        TOKENX,
+    }
+
 }
