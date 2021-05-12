@@ -3,7 +3,6 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey;
 import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CONSUMERID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.NAV_CONSUMER_TOKEN_HEADER;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
@@ -48,7 +47,7 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
 
     @Override
     public void filter(ClientRequestContext ctx) {
-        ctx.getHeaders().add(DEFAULT_NAV_CONSUMERID, sts.getUsername());
+        // ctx.getHeaders().add(DEFAULT_NAV_CONSUMERID, sts.getUsername());
         ctx.getHeaders().add(TEMA, tema);
         var token = accessToken();
         if (TokenType.OIDC.equals(tokenType(token))) {
@@ -78,7 +77,7 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
                     .getJWTClaimsSet().getIssuer()).getHost().contains("tokendings") ? TokenType.TOKENX : TokenType.OIDC;
 
         } catch (Exception e) {
-            throw new IllegalArgumentException("Ukjent token type");
+            return TokenType.SAML;
         }
     }
 
@@ -131,6 +130,7 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
     static enum TokenType {
         OIDC,
         TOKENX,
+        SAML,
     }
 
 }
