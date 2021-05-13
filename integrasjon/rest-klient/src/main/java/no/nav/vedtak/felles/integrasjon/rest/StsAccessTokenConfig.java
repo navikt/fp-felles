@@ -10,7 +10,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @Dependent
 public class StsAccessTokenConfig {
