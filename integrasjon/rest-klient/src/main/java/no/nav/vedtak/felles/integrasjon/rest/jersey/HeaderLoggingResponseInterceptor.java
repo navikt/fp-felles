@@ -10,14 +10,15 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public class HeaderLoggingResponseInterceptor implements HttpResponseInterceptor {
     private static final Logger LOG = LoggerFactory.getLogger(HeaderLoggingResponseInterceptor.class);
+    private static final Environment ENV = Environment.current();
 
     @Override
     public void process(HttpResponse res, HttpContext context) throws HttpException, IOException {
-        if (!Environment.current().isProd()) {
+        if (!ENV.isProd()) {
             Arrays.stream(res.getAllHeaders())
                     .forEach(e -> LOG.trace("{} -> {}", e.getName(), e.getValue()));
         }

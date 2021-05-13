@@ -6,6 +6,11 @@ import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestCli
 
 import javax.ws.rs.client.ClientRequestContext;
 
+/**
+ * Dette filteret skal brukes når man vet man mottar et token som støtter
+ * on-behalf-of, og når mottakende system krever kun dette
+ *
+ */
 public class OnBehalfOfTokenRequestFilter extends OidcTokenRequestFilter {
 
     private final String tema;

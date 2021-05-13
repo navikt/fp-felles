@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.OAuth2AccessTokenJerseyClient;
 
 /**
@@ -62,12 +63,12 @@ class OAuth2AccessTokenClient {
         try {
             responseEntity = closeableHttpClient.execute(httpPost, new BasicResponseHandler());
         } catch (IOException e) {
-            throw OidcRestClientFeil.ioException(tokenEndpoint, e);
+            throw new TekniskException("F-432937", String.format("IOException ved kommunikasjon med server [%s]", tokenEndpoint), e);
         }
         try {
             return (ObjectNode) mapper.readTree(responseEntity);
         } catch (JsonProcessingException e) {
-            throw DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
+            throw new TekniskException("F-208314", "Kunne ikke serialisere objekt til JSON", e);
         }
     }
 

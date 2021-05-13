@@ -25,6 +25,11 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.nimbusds.jwt.SignedJWT;
 
+/**
+ *
+ * Dette filteret setter system token i 2 headere.
+ *
+ */
 public class SystemTokenClientRequestFilter implements ClientRequestFilter {
 
     private static final Duration CACHE_DURATION = Duration.ofMinutes(55);
@@ -45,9 +50,10 @@ public class SystemTokenClientRequestFilter implements ClientRequestFilter {
 
     @Override
     public void filter(ClientRequestContext ctx) {
+        String systemToken = systemToken();
         ctx.getHeaders().add(TEMA, tema);
-        ctx.getHeaders().add(NAV_CONSUMER_TOKEN_HEADER, OIDC_AUTH_HEADER_PREFIX + systemToken());
-        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + systemToken());
+        ctx.getHeaders().add(NAV_CONSUMER_TOKEN_HEADER, OIDC_AUTH_HEADER_PREFIX + systemToken);
+        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + systemToken);
     }
 
     private String systemToken() {
