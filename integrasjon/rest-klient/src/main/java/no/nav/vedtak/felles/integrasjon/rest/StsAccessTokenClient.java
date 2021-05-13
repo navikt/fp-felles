@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
@@ -44,12 +45,12 @@ public class StsAccessTokenClient {
         try {
             responseEntity = httpClient.execute(httpPost(), new BasicResponseHandler());
         } catch (IOException e) {
-            throw OidcRestClientFeil.ioException(config.getStsURI(), e);
+            throw new TekniskException("F-432937", String.format("IOException ved kommunikasjon med server [%s]", config.getStsURI()), e);
         }
         try {
             return mapper.readTree(responseEntity).get("access_token").asText();
         } catch (JsonProcessingException e) {
-            throw DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
+            throw new TekniskException("F-208314", "Kunne ikke serialisere objekt til JSON", e);
         }
     }
 

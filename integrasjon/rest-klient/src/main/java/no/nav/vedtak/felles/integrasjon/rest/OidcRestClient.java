@@ -4,6 +4,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
@@ -38,7 +39,7 @@ public class OidcRestClient extends AbstractOidcRestClient {
             LOG.trace("SAML token OK");
             return veksleSamlTokenTilOIDCToken(samlToken);
         }
-        throw OidcRestClientFeil.klarteIkkeSkaffeOIDCToken();
+        throw new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token");
     }
 
     // TODO fra P2: Kalle STS for å veksle SAML til OIDC.

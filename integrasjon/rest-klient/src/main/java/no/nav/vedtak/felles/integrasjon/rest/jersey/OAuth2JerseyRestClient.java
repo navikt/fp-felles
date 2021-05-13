@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class OAuth2JerseyRestClient extends AbstractJerseyRestClient {
 
-    private OAuth2JerseyRestClient(
+    public OAuth2JerseyRestClient(
             URI tokenEndpoint,
             URI proxy,
             String clientId,
@@ -17,6 +17,7 @@ public class OAuth2JerseyRestClient extends AbstractJerseyRestClient {
         super(proxy, new Oauth2JerseyClientRequestFilter(new OAuth2AccessTokenJerseyClient(tokenEndpoint, clientId, clientSecret, scopes)));
     }
 
+    @Deprecated
     public static Builder builder() {
         return new Builder();
     }

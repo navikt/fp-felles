@@ -250,7 +250,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         try {
             return mapper.writeValueAsString(dto);
         } catch (JsonProcessingException e) {
-            throw DefaultJsonMapperFeil.kunneIkkeSerialisereJson(e);
+            throw new TekniskException("F-208314", "Kunne ikke serialisere objekt til JSON", e);
         }
     }
 

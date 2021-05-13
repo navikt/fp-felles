@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,21 +25,24 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.nimbusds.jwt.SignedJWT;
 
-import no.nav.vedtak.exception.TekniskException;
-
-public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
+/**
+ *
+ * Dette filteret setter system token i 2 headere.
+ *
+ */
+public class SystemTokenClientRequestFilter implements ClientRequestFilter {
 
     private static final Duration CACHE_DURATION = Duration.ofMinutes(55);
-    private static final Logger LOG = LoggerFactory.getLogger(StsAccessTokenClientRequestFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SystemTokenClientRequestFilter.class);
     private final StsAccessTokenJerseyClient sts;
     private final LoadingCache<String, String> cache;
     private final String tema;
 
-    public StsAccessTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema) {
+    public SystemTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema) {
         this(sts, tema, cache(1, CACHE_DURATION, sts));
     }
 
-    public StsAccessTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema, LoadingCache<String, String> cache) {
+    public SystemTokenClientRequestFilter(StsAccessTokenJerseyClient sts, String tema, LoadingCache<String, String> cache) {
         this.sts = sts;
         this.cache = cache;
         this.tema = tema;
@@ -46,16 +50,10 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
 
     @Override
     public void filter(ClientRequestContext ctx) {
+        String systemToken = systemToken();
         ctx.getHeaders().add(TEMA, tema);
-        ctx.getHeaders().add(NAV_CONSUMER_TOKEN_HEADER, OIDC_AUTH_HEADER_PREFIX + systemToken());
-        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + accessToken());
-    }
-
-    @Override
-    protected String exchangedToken() {
-        return Optional.ofNullable(samlToken())
-                .map(t -> systemToken())
-                .orElseThrow(() -> new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token"));
+        ctx.getHeaders().add(NAV_CONSUMER_TOKEN_HEADER, OIDC_AUTH_HEADER_PREFIX + systemToken);
+        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + systemToken);
     }
 
     private String systemToken() {

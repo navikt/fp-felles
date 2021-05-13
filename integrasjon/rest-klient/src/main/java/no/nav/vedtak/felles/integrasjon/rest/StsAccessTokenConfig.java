@@ -10,7 +10,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @Dependent
 public class StsAccessTokenConfig {
@@ -18,17 +18,13 @@ public class StsAccessTokenConfig {
     private static final String DEFAULT_PATH = "/rest/v1/sts/token";
     public static final String GRANT_TYPE = "grant_type";
     public static final String SCOPE = "scope";
-    public static final List<NameValuePair> params = List.of(
+    private static final List<NameValuePair> PARAMS = List.of(
             new BasicNameValuePair(GRANT_TYPE, "client_credentials"),
             new BasicNameValuePair(SCOPE, "openid"));
     private final String username;
     private final String password;
     private final String stsUri;
     private final String tokenEndpointPath;
-
-    public StsAccessTokenConfig(String issuerUrl, String username, String password) {
-        this(issuerUrl, DEFAULT_PATH, username, password);
-    }
 
     @Inject
     StsAccessTokenConfig(@KonfigVerdi("oidc.sts.issuer.url") String issuerUrl,
@@ -56,7 +52,7 @@ public class StsAccessTokenConfig {
     }
 
     public List<NameValuePair> getFormParams() {
-        return params;
+        return PARAMS;
     }
 
     @Override
