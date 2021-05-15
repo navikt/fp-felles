@@ -112,7 +112,6 @@ class TestJerseyPdlClient {
 
     @BeforeEach
     void beforeEach() throws Exception {
-        when(sts.getUsername()).thenReturn(USERNAME);
         legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR, cache));
         tokenXClient = new OnBehalfOfJerseyPdlKlient(URI, FOR);
     }
