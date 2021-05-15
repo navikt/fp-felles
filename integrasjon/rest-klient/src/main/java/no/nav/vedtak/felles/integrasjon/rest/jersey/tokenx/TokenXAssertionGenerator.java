@@ -14,7 +14,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-class TokenXAssertionGenerator implements AssertionGenerator {
+class TokenXAssertionGenerator {
 
     private final TokenXConfig cfg;
     private final TokenXConfigMetadata metadata;
@@ -24,7 +24,6 @@ class TokenXAssertionGenerator implements AssertionGenerator {
         this.metadata = metadata;
     }
 
-    @Override
     public String assertion() {
         var now = Date.from(Instant.now());
         try {

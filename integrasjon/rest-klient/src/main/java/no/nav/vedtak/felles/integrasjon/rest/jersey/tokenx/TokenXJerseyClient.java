@@ -13,7 +13,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
 
 public class TokenXJerseyClient extends AbstractJerseyRestClient implements TokenXClient {
 
-    private final AssertionGenerator assertionGenerator;
+    private final TokenXAssertionGenerator assertionGenerator;
     private TokenXConfigMetadata metadata;
 
     public TokenXJerseyClient() {
@@ -25,7 +25,7 @@ public class TokenXJerseyClient extends AbstractJerseyRestClient implements Toke
         this.assertionGenerator = new TokenXAssertionGenerator(cfg, metadata);
     }
 
-    TokenXJerseyClient(TokenXConfigMetadata metdata, AssertionGenerator assertionGenerator) {
+    TokenXJerseyClient(TokenXConfigMetadata metdata, TokenXAssertionGenerator assertionGenerator) {
         this.metadata = metdata;
         this.assertionGenerator = assertionGenerator;
     }
