@@ -47,6 +47,13 @@ public enum Cluster {
                 .findFirst()
                 .orElse(LOCAL);
     }
+    
+    public static Cluster of(String name) {
+        return Arrays.stream(values())
+                .filter(v -> v.name.equals(name))
+                .findFirst()
+                .orElseThrow();
+    }
 
     private boolean isActive() {
         return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
