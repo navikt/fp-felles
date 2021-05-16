@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.TokenXTokenRequestFilter;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXTokenRequestFilter;
 
 @Dependent
 @Jersey("onbehalf")

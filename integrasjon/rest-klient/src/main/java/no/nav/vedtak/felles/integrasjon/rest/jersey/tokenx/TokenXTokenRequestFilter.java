@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.rest.jersey;
+package no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
@@ -9,10 +9,6 @@ import java.util.Optional;
 
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
-
-import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXAudienceGenerator;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXClient;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXJerseyClient;
 
 /**
  * Dette filteret skal brukes når man vet man mottar et token som støtter

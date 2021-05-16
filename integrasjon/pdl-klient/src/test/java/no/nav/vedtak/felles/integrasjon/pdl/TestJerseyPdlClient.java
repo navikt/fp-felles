@@ -69,8 +69,8 @@ import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.TokenXTokenRequestFilter;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXTokenRequestFilter;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
