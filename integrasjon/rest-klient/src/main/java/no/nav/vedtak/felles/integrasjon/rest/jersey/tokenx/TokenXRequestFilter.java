@@ -5,10 +5,16 @@ import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestCli
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
+import java.net.URI;
 import java.util.Optional;
 
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nimbusds.jwt.SignedJWT;
 
 /**
  * Dette filteret skal brukes når man vet man mottar et token som støtter
@@ -16,7 +22,7 @@ import javax.ws.rs.client.ClientRequestFilter;
  *
  */
 public class TokenXRequestFilter implements ClientRequestFilter {
-
+    private static final Logger LOG = LoggerFactory.getLogger(TokenXRequestFilter.class);
     private final String tema;
     private final TokenXClient client;
     private final TokenXAudienceGenerator audienceGenerator;
@@ -41,12 +47,31 @@ public class TokenXRequestFilter implements ClientRequestFilter {
 
     @Override
     public void filter(ClientRequestContext ctx) {
+        String token = originalToken();
         ctx.getHeaders().add(TEMA, tema);
-        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + client.exchange(originalToken(), audienceGenerator.audience(ctx.getUri())));
+        if (isTokenXToken(token)) {
+            LOG.trace("Veksler tokenX token for {}", ctx.getUri());
+            ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + client.exchange(token, audienceGenerator.audience(ctx.getUri())));
+        } else {
+            LOG.warn("Dette er intet tokenX token, sender originalt token videre til {}", ctx.getUri());
+            ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + token);
+
+        }
     }
 
     private String originalToken() {
         return Optional.ofNullable(getSubjectHandler().getInternSsoToken()).orElseThrow();
+    }
+
+    private boolean isTokenXToken(String token) {
+        try {
+            return URI.create(SignedJWT.parse(token)
+                    .getJWTClaimsSet().getIssuer()).getHost().contains("tokendings");
+
+        } catch (Exception e) {
+            LOG.warn("Kunne ikke sjekke token type", e);
+            return false;
+        }
     }
 
     @Override
