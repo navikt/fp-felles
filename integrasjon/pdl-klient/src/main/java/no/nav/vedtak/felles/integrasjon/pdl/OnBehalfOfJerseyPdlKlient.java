@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXTokenRequestFilter;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXRequestFilter;
 
 @Dependent
 @Jersey("onbehalf")
@@ -17,10 +17,10 @@ public class OnBehalfOfJerseyPdlKlient extends AbstractJerseyPdlKlient {
     public OnBehalfOfJerseyPdlKlient(
             @KonfigVerdi(value = "pdl.base.url", defaultVerdi = HTTP_PDL_API_DEFAULT_GRAPHQL) URI endpoint,
             @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema) {
-        this(endpoint, new TokenXTokenRequestFilter(tema));
+        this(endpoint, new TokenXRequestFilter(tema));
     }
 
-    OnBehalfOfJerseyPdlKlient(URI endpoint, TokenXTokenRequestFilter tokenXTokenRequestFilter) {
+    OnBehalfOfJerseyPdlKlient(URI endpoint, TokenXRequestFilter tokenXTokenRequestFilter) {
         super(endpoint, tokenXTokenRequestFilter);
     }
 

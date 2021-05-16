@@ -70,7 +70,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXClient;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXTokenRequestFilter;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXRequestFilter;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
@@ -119,7 +119,7 @@ class TestJerseyPdlClient {
     @BeforeEach
     void beforeEach() throws Exception {
         legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR, cache));
-        tokenXClient = new OnBehalfOfJerseyPdlKlient(URI, new TokenXTokenRequestFilter(FOR, client));
+        tokenXClient = new OnBehalfOfJerseyPdlKlient(URI, new TokenXRequestFilter(FOR, client));
     }
 
     @Test

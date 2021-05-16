@@ -26,7 +26,7 @@ public class TokenXAudienceGenerator {
         if (elems.length == 2) {
             return new TokenXAudience(cluster(host), Namespace.of(elems[1]), elems[0]);
         }
-        throw new IllegalArgumentException("Kan ikke analysere " + host + " " + elems.length);
+        throw new IllegalArgumentException("Kan ikke analysere " + host + "(" + elems.length + ")");
     }
 
     private Cluster cluster(String key) {

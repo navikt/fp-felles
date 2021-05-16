@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
 public class TokenXJerseyClient extends AbstractJerseyRestClient implements TokenXClient {
 
     private final TokenXAssertionGenerator assertionGenerator;
-    private TokenXConfigMetadata metadata;
+    private final TokenXConfigMetadata metadata;
 
     public TokenXJerseyClient() {
         this(TokenXConfig.fraEnv());
@@ -52,5 +52,10 @@ public class TokenXJerseyClient extends AbstractJerseyRestClient implements Toke
                 .request(APPLICATION_JSON_TYPE)
                 .get(TokenXConfigMetadata.class);
 
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [assertionGenerator=" + assertionGenerator + ", metadata=" + metadata + "]";
     }
 }

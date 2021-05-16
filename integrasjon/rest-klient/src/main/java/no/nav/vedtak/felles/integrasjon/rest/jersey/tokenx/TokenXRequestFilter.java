@@ -15,25 +15,25 @@ import javax.ws.rs.client.ClientRequestFilter;
  * on-behalf-of, og når mottakende system krever kun dette
  *
  */
-public class TokenXTokenRequestFilter implements ClientRequestFilter {
+public class TokenXRequestFilter implements ClientRequestFilter {
 
     private final String tema;
     private final TokenXClient client;
     private final TokenXAudienceGenerator audienceGenerator;
 
-    public TokenXTokenRequestFilter() {
+    public TokenXRequestFilter() {
         this("FOR");
     }
 
-    public TokenXTokenRequestFilter(String tema) {
+    public TokenXRequestFilter(String tema) {
         this(tema, new TokenXJerseyClient());
     }
 
-    public TokenXTokenRequestFilter(String tema, TokenXClient client) {
+    public TokenXRequestFilter(String tema, TokenXClient client) {
         this(tema, client, new TokenXAudienceGenerator());
     }
 
-    public TokenXTokenRequestFilter(String tema, TokenXClient client, TokenXAudienceGenerator audienceGenerator) {
+    public TokenXRequestFilter(String tema, TokenXClient client, TokenXAudienceGenerator audienceGenerator) {
         this.tema = tema;
         this.client = client;
         this.audienceGenerator = audienceGenerator;
