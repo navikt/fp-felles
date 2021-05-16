@@ -46,6 +46,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -68,6 +69,8 @@ import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.TokenXTokenRequestFilter;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXClient;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
 
@@ -83,6 +86,9 @@ class TestJerseyPdlClient {
     private static final String GRAPHQL = "/graphql";
     private Pdl legacyClient;
     private Pdl tokenXClient;
+
+    @Mock
+    TokenXClient client;
 
     @Mock
     private StsAccessTokenJerseyClient sts;
@@ -113,7 +119,7 @@ class TestJerseyPdlClient {
     @BeforeEach
     void beforeEach() throws Exception {
         legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR, cache));
-        tokenXClient = new OnBehalfOfJerseyPdlKlient(URI, FOR);
+        tokenXClient = new OnBehalfOfJerseyPdlKlient(URI, new TokenXTokenRequestFilter(FOR, client));
     }
 
     @Test
@@ -134,9 +140,9 @@ class TestJerseyPdlClient {
     @Test
     @DisplayName("Test at kun Authorization og Tema  blir satt for tokenX token")
     void testPersonAuthWithUserToken() throws Exception {
-        when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
         doReturn(TOKENXTOKEN).when(subjectHandler).getInternSsoToken();
         try (var s = mockStatic(SubjectHandler.class)) {
+            when(client.exchange(Mockito.any(), Mockito.any())).thenReturn(TOKENXTOKEN);
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(post(urlPathEqualTo(GRAPHQL))
                     .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
@@ -151,7 +157,6 @@ class TestJerseyPdlClient {
             res = legacyClient.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
-            verify(sts).accessToken();
         }
     }
 

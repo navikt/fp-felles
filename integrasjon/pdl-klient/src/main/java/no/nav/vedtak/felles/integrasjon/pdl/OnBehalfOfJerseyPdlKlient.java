@@ -17,6 +17,11 @@ public class OnBehalfOfJerseyPdlKlient extends AbstractJerseyPdlKlient {
     public OnBehalfOfJerseyPdlKlient(
             @KonfigVerdi(value = "pdl.base.url", defaultVerdi = HTTP_PDL_API_DEFAULT_GRAPHQL) URI endpoint,
             @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema) {
-        super(endpoint, new TokenXTokenRequestFilter(tema));
+        this(endpoint, new TokenXTokenRequestFilter(tema));
     }
+
+    OnBehalfOfJerseyPdlKlient(URI endpoint, TokenXTokenRequestFilter tokenXTokenRequestFilter) {
+        super(endpoint, tokenXTokenRequestFilter);
+    }
+
 }
