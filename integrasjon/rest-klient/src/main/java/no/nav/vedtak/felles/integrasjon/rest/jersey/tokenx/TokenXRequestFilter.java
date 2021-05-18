@@ -53,9 +53,7 @@ public class TokenXRequestFilter implements ClientRequestFilter {
             LOG.trace("Veksler tokenX token for {}", ctx.getUri());
             ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + client.exchange(token, audienceGenerator.audience(ctx.getUri())));
         } else {
-            LOG.warn("Dette er intet tokenX token, sender originalt token videre til {}", ctx.getUri());
-            ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + token);
-
+            throw new IllegalStateException("Dette er intet tokenX token");
         }
     }
 
