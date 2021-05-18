@@ -43,6 +43,7 @@ public class TokenXJerseyClient extends AbstractJerseyRestClient implements Toke
         return client
                 .target(metadata.tokenEndpoint())
                 .request(APPLICATION_FORM_URLENCODED_TYPE)
+                .accept(APPLICATION_JSON_TYPE)
                 .post(form(form), TokenXResponse.class).accessToken();
     }
 
@@ -50,6 +51,7 @@ public class TokenXJerseyClient extends AbstractJerseyRestClient implements Toke
         return client
                 .target(uri)
                 .request(APPLICATION_JSON_TYPE)
+                .accept(APPLICATION_JSON_TYPE)
                 .get(TokenXConfigMetadata.class);
 
     }
