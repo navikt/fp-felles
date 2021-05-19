@@ -7,6 +7,7 @@ import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.to
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
+import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.CONNECT_TIMEOUT;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
@@ -124,6 +125,8 @@ public abstract class AbstractJerseyRestClient {
         client = ClientBuilder.newClient(cfg)
                 .property(CONNECT_TIMEOUT, 10000)
                 .property(READ_TIMEOUT, 30000);
+        LOG.trace(CONFIDENTIAL, "Client properties {}", client.getConfiguration().getProperties());
+        ;
     }
 
     private static JacksonJaxbJsonProvider jacksonProvider(ObjectMapper mapper) {
