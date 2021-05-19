@@ -4,14 +4,19 @@ import static com.nimbusds.oauth2.sdk.auth.JWTAuthentication.CLIENT_ASSERTION_TY
 import static javax.ws.rs.client.Entity.form;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
 
 import java.net.URI;
 
 import javax.ws.rs.core.Form;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
 
 public class TokenXJerseyClient extends AbstractJerseyRestClient implements TokenXClient {
+    private static final Logger LOG = LoggerFactory.getLogger(TokenXJerseyClient.class);
 
     private final TokenXAssertionGenerator assertionGenerator;
     private final TokenXConfigMetadata metadata;
@@ -39,12 +44,15 @@ public class TokenXJerseyClient extends AbstractJerseyRestClient implements Toke
                 .param("client_assertion", assertionGenerator.assertion())
                 .param("subject_token_type", "urn:ietf:params:oauth:token-type:jwt")
                 .param("audience", audience.asAudience());
-
-        return client
+        LOG.trace(CONFIDENTIAL, "Veksler  {}", form);
+        var exchangedToken = client
                 .target(metadata.tokenEndpoint())
                 .request(APPLICATION_FORM_URLENCODED_TYPE)
                 .accept(APPLICATION_JSON_TYPE)
                 .post(form(form), TokenXResponse.class).accessToken();
+        LOG.trace(CONFIDENTIAL, "Veksler  til {}", exchangedToken);
+        return exchangedToken;
+
     }
 
     private TokenXConfigMetadata metadataFra(URI uri) {

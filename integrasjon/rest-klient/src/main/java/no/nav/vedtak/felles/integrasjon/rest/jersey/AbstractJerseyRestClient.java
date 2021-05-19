@@ -132,7 +132,7 @@ public abstract class AbstractJerseyRestClient {
     private static JacksonJaxbJsonProvider jacksonProvider(ObjectMapper mapper) {
         return Optional.ofNullable(mapper)
                 .map(m -> new JacksonJaxbJsonProvider(m, DEFAULT_ANNOTATIONS))
-                .orElse(new JacksonJaxbJsonProvider());
+                .orElseGet(() -> new JacksonJaxbJsonProvider());
     }
 
     protected String patch(URI endpoint, Object obj, Header... headers) {
