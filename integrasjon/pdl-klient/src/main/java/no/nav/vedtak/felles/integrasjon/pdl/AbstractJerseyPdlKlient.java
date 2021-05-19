@@ -55,7 +55,6 @@ public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient i
         super(filters);
         this.endpoint = endpoint;
         this.errorHandler = errorHandler;
-        LOG.info("Klient konstruert");
     }
 
     @Override
