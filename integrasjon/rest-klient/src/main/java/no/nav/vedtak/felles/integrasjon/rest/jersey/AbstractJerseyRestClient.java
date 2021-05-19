@@ -118,8 +118,7 @@ public abstract class AbstractJerseyRestClient {
 
         cfg.register(ErrorResponseHandlingClientResponseFilter.class);
         if (ENV.isDev()) {
-            cfg.register(new HeaderLoggingRequestInterceptor())
-                    .register(new HeaderLoggingResponseInterceptor())
+            cfg.register(new HeaderLoggingFilter())
                     .register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
                             FINE, PAYLOAD_ANY, 10000));
         }
