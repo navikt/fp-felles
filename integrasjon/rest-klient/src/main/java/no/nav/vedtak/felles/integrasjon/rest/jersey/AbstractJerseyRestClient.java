@@ -126,7 +126,7 @@ public abstract class AbstractJerseyRestClient {
                 .property(CONNECT_TIMEOUT, 10000)
                 .property(READ_TIMEOUT, 30000);
         LOG.trace(CONFIDENTIAL, "Client properties {}", client.getConfiguration().getProperties());
-        LOG.trace("Klient konstruert med filtre {}", filters);
+        LOG.trace("Klient {} konstruert med filtre {}", getClass().getName(), filters);
 
     }
 
