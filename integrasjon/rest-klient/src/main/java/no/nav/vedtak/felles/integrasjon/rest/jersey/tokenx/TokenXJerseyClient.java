@@ -44,7 +44,7 @@ public class TokenXJerseyClient extends AbstractJerseyRestClient implements Toke
                 .param("client_assertion", assertionGenerator.assertion())
                 .param("subject_token_type", "urn:ietf:params:oauth:token-type:jwt")
                 .param("audience", audience.asAudience());
-        LOG.trace(CONFIDENTIAL, "Veksler  {}", form);
+        LOG.trace(CONFIDENTIAL, "Veksler  {}", form.asMap());
         var exchangedToken = client
                 .target(metadata.tokenEndpoint())
                 .request(APPLICATION_FORM_URLENCODED_TYPE)
