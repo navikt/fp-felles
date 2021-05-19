@@ -123,8 +123,8 @@ public abstract class AbstractJerseyRestClient {
                             FINE, PAYLOAD_ANY, 10000));
         }
         client = ClientBuilder.newClient(cfg)
-                .property(CONNECT_TIMEOUT, 10000)
-                .property(READ_TIMEOUT, 30000);
+                .property(CONNECT_TIMEOUT, ENV.getProperty(CONNECT_TIMEOUT, int.class, 10000))
+                .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, 30000));
         LOG.trace(CONFIDENTIAL, "Client properties {}", client.getConfiguration().getProperties());
         LOG.trace("Klient {} konstruert med filtre {}", getClass().getName(), filters);
 
