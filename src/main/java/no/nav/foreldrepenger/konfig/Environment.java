@@ -34,7 +34,8 @@ public final class Environment {
         // første gang.
         static final Environment CURRENT = of(Cluster.current(), Namespace.current());
 
-        private Init() {}
+        private Init() {
+        }
 
         private static Environment of(Cluster cluster, Namespace namespace) {
             return new Environment(cluster, namespace);
@@ -83,7 +84,9 @@ public final class Environment {
         return cluster.clusterName();
     }
 
-    public String getNaisAppName() { return getProperty(NAIS_APP_NAME, "local-app"); }
+    public String getNaisAppName() {
+        return getProperty(NAIS_APP_NAME, "local-app");
+    }
 
     public Properties getPropertiesWithPrefix(String prefix) {
         Properties props = new Properties();
@@ -189,6 +192,9 @@ public final class Environment {
             if (targetType.equals(Integer.class) || targetType.equals(int.class)) {
                 return construct(IntegerConverter.class);
             }
+            if (targetType.equals(Long.class) || targetType.equals(long.class)) {
+                return construct(LongConverter.class);
+            }
             return null;
         } catch (Exception e) {
             throw new IllegalArgumentException("Uventet feil ved konstruksjon av konverter for " + targetType);
@@ -196,16 +202,16 @@ public final class Environment {
     }
 
     private static <T> Converter<T> construct(Class<? extends Converter<T>> clazz)
-        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         return clazz.getDeclaredConstructor().newInstance();
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName()
-            + "[cluster=" + cluster
-            + ", namespace=" + namespace
-            + ", propertySources=" + propertySources
-            + "]";
+                + "[cluster=" + cluster
+                + ", namespace=" + namespace
+                + ", propertySources=" + propertySources
+                + "]";
     }
 }
