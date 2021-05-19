@@ -200,6 +200,9 @@ public final class Environment {
             if (targetType.equals(Integer.class) || targetType.equals(int.class)) {
                 return construct(IntegerConverter.class);
             }
+            if (targetType.equals(long.class) || targetType.equals(Long.class)) {
+                return construct(LongConverter.class);
+            }
             return null;
         } catch (Exception e) {
             throw new IllegalArgumentException("Uventet feil ved konstruksjon av konverter for " + targetType);

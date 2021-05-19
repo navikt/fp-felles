@@ -84,8 +84,8 @@ public abstract class AbstractJerseyRestClient {
     public static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractJerseyRestClient.class);
-    private static final long DEFAULT_CONNECT_TIMEOUT_MS = SECONDS.toMillis(30);
-    private static final long DEFAULT_READ_TIMEOUT_MS = SECONDS.toMillis(10);
+    private static final int DEFAULT_CONNECT_TIMEOUT_MS = (int) SECONDS.toMillis(30);
+    private static final int DEFAULT_READ_TIMEOUT_MS = (int) SECONDS.toMillis(10);
 
     protected final Client client;
 
@@ -127,8 +127,8 @@ public abstract class AbstractJerseyRestClient {
                             FINE, PAYLOAD_ANY, 10000));
         }
         client = ClientBuilder.newClient(cfg)
-                .property(CONNECT_TIMEOUT, ENV.getProperty(CONNECT_TIMEOUT, long.class, DEFAULT_CONNECT_TIMEOUT_MS))
-                .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, long.class, DEFAULT_READ_TIMEOUT_MS));
+                .property(CONNECT_TIMEOUT, ENV.getProperty(CONNECT_TIMEOUT, int.class, DEFAULT_CONNECT_TIMEOUT_MS))
+                .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, DEFAULT_READ_TIMEOUT_MS));
         LOG.trace(CONFIDENTIAL, "Client properties {}", client.getConfiguration().getProperties());
         LOG.trace("Klient {} konstruert med filtre {}", getClass().getName(), filters);
 
