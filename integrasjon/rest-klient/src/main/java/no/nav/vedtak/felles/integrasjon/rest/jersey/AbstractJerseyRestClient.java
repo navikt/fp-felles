@@ -117,8 +117,9 @@ public abstract class AbstractJerseyRestClient {
 
         cfg.register(ErrorResponseHandlingClientResponseFilter.class);
         if (ENV.isDev()) {
-            cfg.register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
-                    FINE, PAYLOAD_ANY, 10000));
+            cfg.register(new HeaderLoggingRequestInterceptor())
+                    .register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
+                            FINE, PAYLOAD_ANY, 10000));
         }
         client = ClientBuilder.newClient(cfg)
                 .property(CONNECT_TIMEOUT, 10000)

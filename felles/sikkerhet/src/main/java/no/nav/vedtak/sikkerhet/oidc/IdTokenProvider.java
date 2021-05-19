@@ -17,10 +17,11 @@ public class IdTokenProvider {
     private static final Logger LOG = LoggerFactory.getLogger(IdTokenProvider.class);
 
     public Optional<OidcTokenHolder> getToken(OidcTokenHolder idToken, String refreshToken) {
-        String oidcClientName = JwtUtil.getClientName(idToken.getToken());
-        LOG.debug("Refreshing token, using client name {}", LoggerUtils.removeLineBreaks(oidcClientName)); //NOSONAR CRLF håndtert
-        Optional<String> newToken = TokenProviderUtil.getTokenOptional(() -> createTokenRequest(oidcClientName, refreshToken), s -> TokenProviderUtil.findToken(s, "id_token"));
-        return newToken.map(s -> new OidcTokenHolder(s, idToken.isFromCookie()));
+        String oidcClientName = JwtUtil.getClientName(idToken.token());
+        LOG.debug("Refreshing token, using client name {}", LoggerUtils.removeLineBreaks(oidcClientName)); // NOSONAR CRLF håndtert
+        Optional<String> newToken = TokenProviderUtil.getTokenOptional(() -> createTokenRequest(oidcClientName, refreshToken),
+                s -> TokenProviderUtil.findToken(s, "id_token"));
+        return newToken.map(s -> new OidcTokenHolder(s, idToken.fromCookie()));
     }
 
     private HttpRequestBase createTokenRequest(String oidcClientName, String refreshToken) {
@@ -36,7 +37,7 @@ public class IdTokenProvider {
                 + "&scope=openid"
                 + "&realm=" + realm
                 + "&refresh_token=" + refreshToken;
-        LOG.debug("Refreshing ID-token by POST to {}", LoggerUtils.removeLineBreaks(host)); //NOSONAR CRLF håndtert
+        LOG.debug("Refreshing ID-token by POST to {}", LoggerUtils.removeLineBreaks(host)); // NOSONAR CRLF håndtert
         request.setEntity(new StringEntity(data, "UTF-8"));
         return request;
     }
