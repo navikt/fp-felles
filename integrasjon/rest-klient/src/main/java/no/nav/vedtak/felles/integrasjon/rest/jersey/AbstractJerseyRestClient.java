@@ -1,6 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.FINE;
 import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.toJson;
@@ -83,6 +84,9 @@ public abstract class AbstractJerseyRestClient {
     public static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractJerseyRestClient.class);
+    private static final long DEFAULT_CONNECT_TIMEOUT_MS = SECONDS.toMillis(30);
+    private static final long DEFAULT_READ_TIMEOUT_MS = SECONDS.toMillis(10);
+
     protected final Client client;
 
     AbstractJerseyRestClient() {
@@ -123,8 +127,8 @@ public abstract class AbstractJerseyRestClient {
                             FINE, PAYLOAD_ANY, 10000));
         }
         client = ClientBuilder.newClient(cfg)
-                .property(CONNECT_TIMEOUT, ENV.getProperty(CONNECT_TIMEOUT, int.class, 10000))
-                .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, 30000));
+                .property(CONNECT_TIMEOUT, ENV.getProperty(CONNECT_TIMEOUT, long.class, DEFAULT_CONNECT_TIMEOUT_MS))
+                .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, long.class, DEFAULT_READ_TIMEOUT_MS));
         LOG.trace(CONFIDENTIAL, "Client properties {}", client.getConfiguration().getProperties());
         LOG.trace("Klient {} konstruert med filtre {}", getClass().getName(), filters);
 
