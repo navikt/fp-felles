@@ -119,6 +119,7 @@ public abstract class AbstractJerseyRestClient {
         cfg.register(ErrorResponseHandlingClientResponseFilter.class);
         if (ENV.isDev()) {
             cfg.register(new HeaderLoggingRequestInterceptor())
+                    .register(new HeaderLoggingResponseInterceptor())
                     .register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
                             FINE, PAYLOAD_ANY, 10000));
         }
@@ -126,7 +127,6 @@ public abstract class AbstractJerseyRestClient {
                 .property(CONNECT_TIMEOUT, 10000)
                 .property(READ_TIMEOUT, 30000);
         LOG.trace(CONFIDENTIAL, "Client properties {}", client.getConfiguration().getProperties());
-        ;
     }
 
     private static JacksonJaxbJsonProvider jacksonProvider(ObjectMapper mapper) {
