@@ -4,10 +4,12 @@ import static java.lang.System.getenv;
 
 import java.util.Arrays;
 import java.util.Optional;
+
 @Deprecated(since = "3.2.x", forRemoval = true)
 /* Bruk klasser fra no.nav.foreldrepenger:konfig:1.1 istedenfor. */
 public enum Cluster {
     LOCAL("local"),
+    VTP("vtp"),
     DEV_FSS("dev-fss"),
     DEV_SBS("dev-sbs"),
     DEV_GCP("dev-gcp"),
@@ -53,5 +55,9 @@ public enum Cluster {
         return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
                 .filter(name::equals)
                 .isPresent();
+    }
+
+    boolean isVTP() {
+        return name.startsWith(VTP.name);
     }
 }
