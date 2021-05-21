@@ -70,13 +70,13 @@ public class TokenXRequestFilter implements ClientRequestFilter {
         }
     }
 
-    private boolean isTokenXToken(String token) {
+    private static boolean isTokenXToken(String token) {
         try {
             return URI.create(SignedJWT.parse(token)
                     .getJWTClaimsSet().getIssuer()).getHost().contains("tokendings");
 
         } catch (Exception e) {
-            LOG.warn("Kunne ikke sjekke token type", e);
+            LOG.warn("Kunne ikke sjekke token issuer", e);
             return false;
         }
     }
