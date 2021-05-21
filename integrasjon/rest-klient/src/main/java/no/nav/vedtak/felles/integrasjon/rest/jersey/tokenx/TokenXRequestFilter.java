@@ -3,6 +3,7 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
+import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
 
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
@@ -54,7 +55,7 @@ public class TokenXRequestFilter implements ClientRequestFilter {
         String token = tokenProvider.getToken();
         ctx.getHeaders().add(TEMA, tema);
         if (tokenProvider.isTokenX()) {
-            LOG.trace("Veksler tokenX token for {}", ctx.getUri());
+            LOG.trace(CONFIDENTIAL, "Veksler tokenX token {} for {}", token, ctx.getUri());
             ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + client.exchange(token, audienceGenerator.audience(ctx.getUri())));
         } else {
             if (ENV.isVTP()) {
