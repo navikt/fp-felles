@@ -30,6 +30,7 @@ import no.nav.vedtak.konfig.KonfigVerdiProvider;
 import no.nav.vedtak.konfig.PropertySourceMetaData;
 import no.nav.vedtak.konfig.StandardPropertySource;
 import no.nav.vedtak.konfig.SystemPropertiesKonfigVerdiProvider;
+
 @Deprecated(since = "3.2.x", forRemoval = true)
 /* Bruk klasser fra no.nav.foreldrepenger:konfig:1.1 istedenfor. */
 public final class Environment {
@@ -73,6 +74,10 @@ public final class Environment {
 
     public Namespace getNamespace() {
         return namespace;
+    }
+
+    public boolean isVTP() {
+        return cluster.isVTP();
     }
 
     public boolean isProd() {
