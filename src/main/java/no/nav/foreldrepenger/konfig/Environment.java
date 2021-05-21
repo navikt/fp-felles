@@ -72,6 +72,10 @@ public final class Environment {
         return cluster.isProd();
     }
 
+    public boolean isVTP() {
+        return cluster.isVTP();
+    }
+
     public boolean isDev() {
         return cluster.isDev();
     }

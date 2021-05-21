@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public enum Cluster {
     LOCAL("local"),
+    VTP("vtp"),
     DEV_FSS("dev-fss"),
     DEV_SBS("dev-sbs"),
     DEV_GCP("dev-gcp"),
@@ -37,6 +38,10 @@ public enum Cluster {
         return name.startsWith(DEV);
     }
 
+    boolean isVTP() {
+        return name.startsWith(VTP.name);
+    }
+
     public boolean isLocal() {
         return !isProd() && !isDev();
     }
@@ -47,7 +52,7 @@ public enum Cluster {
                 .findFirst()
                 .orElse(LOCAL);
     }
-    
+
     public static Cluster of(String name) {
         return Arrays.stream(values())
                 .filter(v -> v.name.equals(name))
@@ -60,4 +65,5 @@ public enum Cluster {
                 .filter(name::equals)
                 .isPresent();
     }
+
 }
