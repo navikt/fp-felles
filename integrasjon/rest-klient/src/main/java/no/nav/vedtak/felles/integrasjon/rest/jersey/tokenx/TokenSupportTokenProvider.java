@@ -7,7 +7,7 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import no.nav.security.token.support.jaxrs.JaxrsTokenValidationContextHolder;
 
-public class TokenSupportTokenXTokenProvider implements TokenXTokenProvider {
+public class TokenSupportTokenProvider implements TokenProvider {
 
     @Override
     public String getToken() {
@@ -15,5 +15,11 @@ public class TokenSupportTokenXTokenProvider implements TokenXTokenProvider {
                 .map(TokenValidationContextHolder::getTokenValidationContext)
                 .map(TokenValidationContext::getFirstValidToken)
                 .orElse(null).map(JwtToken::getTokenAsString).orElseThrow();
+    }
+
+    @Override
+    public boolean isTokenX() {
+        // TODO Auto-generated method stub
+        return false;
     }
 }

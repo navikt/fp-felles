@@ -4,16 +4,12 @@ import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
 
-import java.net.URI;
-
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.nimbusds.jwt.SignedJWT;
 
 import no.nav.foreldrepenger.konfig.Environment;
 
@@ -28,7 +24,7 @@ public class TokenXRequestFilter implements ClientRequestFilter {
     private final String tema;
     private final TokenXClient client;
     private final TokenXAudienceGenerator audienceGenerator;
-    private final TokenXTokenProvider tokenProvider;
+    private final TokenProvider tokenProvider;
 
     public TokenXRequestFilter() {
         this("FOR");
@@ -43,10 +39,10 @@ public class TokenXRequestFilter implements ClientRequestFilter {
     }
 
     public TokenXRequestFilter(String tema, TokenXClient client, TokenXAudienceGenerator audienceGenerator) {
-        this(tema, client, audienceGenerator, new SubjectHandlerTokenXTokenProvider());
+        this(tema, client, audienceGenerator, new SubjectHandlerTokenProvider());
     }
 
-    public TokenXRequestFilter(String tema, TokenXClient client, TokenXAudienceGenerator audienceGenerator, TokenXTokenProvider tokenProvider) {
+    public TokenXRequestFilter(String tema, TokenXClient client, TokenXAudienceGenerator audienceGenerator, TokenProvider tokenProvider) {
         this.tema = tema;
         this.client = client;
         this.audienceGenerator = audienceGenerator;
@@ -57,7 +53,7 @@ public class TokenXRequestFilter implements ClientRequestFilter {
     public void filter(ClientRequestContext ctx) {
         String token = tokenProvider.getToken();
         ctx.getHeaders().add(TEMA, tema);
-        if (isTokenXToken(token)) {
+        if (tokenProvider.isTokenX()) {
             LOG.trace("Veksler tokenX token for {}", ctx.getUri());
             ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + client.exchange(token, audienceGenerator.audience(ctx.getUri())));
         } else {
@@ -67,17 +63,6 @@ public class TokenXRequestFilter implements ClientRequestFilter {
             } else {
                 throw new IllegalStateException("Dette er intet tokenX token");
             }
-        }
-    }
-
-    private static boolean isTokenXToken(String token) {
-        try {
-            return URI.create(SignedJWT.parse(token)
-                    .getJWTClaimsSet().getIssuer()).getHost().contains("tokendings");
-
-        } catch (Exception e) {
-            LOG.warn("Kunne ikke sjekke token issuer", e);
-            return false;
         }
     }
 
