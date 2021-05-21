@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import javax.persistence.TypedQuery;
 
+import no.nav.vedtak.exception.TekniskException;
+
 /**
  * Enkle hjelpemetoder for å hente ut hibernate resultater på litt andre måter
  * enn hibernate API gir som default. Eksempel: som Optional, kast exception
@@ -20,7 +22,7 @@ public class HibernateVerktøy {
     public static <T> Optional<T> hentUniktResultat(TypedQuery<T> query) {
         List<T> resultatListe = query.getResultList();
         if (resultatListe.size() > 1) {
-            throw HibernateFeil.ikkeUniktResultat(formatter(query));
+            throw new TekniskException("F-108088", String.format("Spørringen %s returnerte ikke et unikt resultat", formatter(query)));
         }
         return resultatListe.size() == 1 ? Optional.of(resultatListe.get(0)) : Optional.empty();
     }
@@ -28,10 +30,10 @@ public class HibernateVerktøy {
     public static <T> T hentEksaktResultat(TypedQuery<T> query) {
         List<T> resultatListe = query.getResultList();
         if (resultatListe.size() > 1) {
-            throw HibernateFeil.merEnnEttResultat(formatter(query));
+            throw new TekniskException("F-029343", String.format("Spørringen %s returnerte mer enn eksakt ett resultat", formatter(query)));
         }
         if (resultatListe.isEmpty()) {
-            throw HibernateFeil.tomtResultat(formatter(query));
+            throw new TomtResultatException("F-650018", String.format("Spørringen %s returnerte tomt resultat", formatter(query)));
         }
         return resultatListe.get(0);
     }

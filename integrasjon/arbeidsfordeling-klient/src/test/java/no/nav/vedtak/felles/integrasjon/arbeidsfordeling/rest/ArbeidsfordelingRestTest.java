@@ -34,6 +34,6 @@ class ArbeidsfordelingRestTest {
         String json = WRITER.writeValueAsString(respons);
         ArbeidsfordelingResponse roundTripped = READER.forType(ArbeidsfordelingResponse.class).readValue(json);
         assertThat(roundTripped).isNotNull();
-        assertThat(roundTripped.getEnhetNr()).isEqualTo("4806");
+        assertThat(roundTripped.enhetNr()).isEqualTo("4806");
     }
 }

@@ -50,7 +50,7 @@ public class TokenXJerseyClient extends AbstractJerseyRestClient implements Toke
                 .request(APPLICATION_FORM_URLENCODED_TYPE)
                 .accept(APPLICATION_JSON_TYPE)
                 .post(form(form), TokenXResponse.class).accessToken();
-        LOG.trace(CONFIDENTIAL, "Veksler  til {}", exchangedToken);
+        LOG.trace(CONFIDENTIAL, "Vekslet OK til {}", exchangedToken);
         return exchangedToken;
 
     }
@@ -61,7 +61,6 @@ public class TokenXJerseyClient extends AbstractJerseyRestClient implements Toke
                 .request(APPLICATION_JSON_TYPE)
                 .accept(APPLICATION_JSON_TYPE)
                 .get(TokenXConfigMetadata.class);
-
     }
 
     @Override
