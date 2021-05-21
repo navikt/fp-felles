@@ -8,15 +8,15 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 /**
  *
- * @deprecated Bruk {@link ArbeidsfordelingJerseyRestKlient} som implementer
- *             samme grensesnittet på en bedre måte
+ * @deprecated Bruk {@link JerseyArbeidsfordelingKlient} som implementer samme
+ *             grensesnittet på en bedre måte
  *
  */
 @Deprecated(since = "3.0.x", forRemoval = true)
@@ -56,7 +56,7 @@ public class ArbeidsfordelingRestKlient implements Arbeidsfordeling {
         try {
             var respons = restClient.post(uri, request, ArbeidsfordelingResponse[].class);
             return Arrays.stream(respons)
-                    .filter(response -> "AKTIV".equalsIgnoreCase(response.getStatus()))
+                    .filter(response -> "AKTIV".equalsIgnoreCase(response.status()))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new IntegrasjonException("F-016913", String.format("NORG2 arbeidsfordeling feil ved oppslag mot %s", uri), e);

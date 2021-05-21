@@ -8,7 +8,6 @@ import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.to
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
-import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.CONNECT_TIMEOUT;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
@@ -129,7 +128,6 @@ public abstract class AbstractJerseyRestClient {
         client = ClientBuilder.newClient(cfg)
                 .property(CONNECT_TIMEOUT, ENV.getProperty(CONNECT_TIMEOUT, int.class, DEFAULT_CONNECT_TIMEOUT_MS))
                 .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, DEFAULT_READ_TIMEOUT_MS));
-        LOG.trace(CONFIDENTIAL, "Client properties {}", client.getConfiguration().getProperties());
         LOG.trace("Klient {} konstruert med filtre {}", getClass().getName(), filters);
 
     }
