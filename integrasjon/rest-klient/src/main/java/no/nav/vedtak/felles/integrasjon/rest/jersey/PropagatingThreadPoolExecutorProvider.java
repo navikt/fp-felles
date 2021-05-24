@@ -53,7 +53,7 @@ class PropagatingThreadPoolExecutorProvider extends ThreadPoolExecutorProvider {
             super.execute(propagate(task));
         }
 
-        static Runnable propagate(Runnable task) {
+        private static Runnable propagate(Runnable task) {
             return new PropagatingRunnable(task, getSubjectHandler().getSubject(), getHolder().getTokenValidationContext(), getCopyOfContextMap());
         }
     }
