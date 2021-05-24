@@ -323,8 +323,8 @@ type Familierelasjon {
 
 type ForelderBarnRelasjon {
     relatertPersonsIdent: String!
-    relatertPersonsRolle: Familierelasjonsrolle!
-    minRolleForPerson: Familierelasjonsrolle
+    relatertPersonsRolle: ForelderBarnRelasjonRolle!
+    minRolleForPerson: ForelderBarnRelasjonRolle
 
     folkeregistermetadata: Folkeregistermetadata
     metadata: Metadata!
@@ -337,6 +337,13 @@ type DoedfoedtBarn {
 }
 
 enum Familierelasjonsrolle {
+    BARN,
+    MOR,
+    FAR,
+    MEDMOR
+}
+
+enum ForelderBarnRelasjonRolle {
     BARN,
     MOR,
     FAR,
@@ -493,12 +500,8 @@ enum Oppholdstillatelse {
 type Sivilstand {
     type: Sivilstandstype!
     gyldigFraOgMed: Date
-    myndighet: String @deprecated(reason: "Feltene myndighet, kommune, sted og utland fjernes i nær fremtid")
-    kommune: String @deprecated(reason: "Feltene myndighet, kommune, sted og utland fjernes i nær fremtid")
-    sted: String @deprecated(reason: "Feltene myndighet, kommune, sted og utland fjernes i nær fremtid")
-    utland: String @deprecated(reason: "Feltene myndighet, kommune, sted og utland fjernes i nær fremtid")
     relatertVedSivilstand: String
-    bekreftelsesdato: String
+    bekreftelsesdato: Date
 
     folkeregistermetadata: Folkeregistermetadata
     metadata: Metadata!
@@ -551,6 +554,7 @@ type VergemaalEllerFremtidsfullmakt {
 type Foreldreansvar {
     ansvar: String
     ansvarlig: String
+    ansvarssubjekt: String
     ansvarligUtenIdentifikator: RelatertBiPerson
 
     folkeregistermetadata: Folkeregistermetadata
@@ -731,14 +735,16 @@ type AdresseSearchResult {
 
 }
 type AdresseSearchHit {
-    vegadresse :Adresse
+    vegadresse : VegadresseResult
+    matrikkeladresse : MatrikkeladresseResult
     score :Float
 }
-type Adresse {
+type VegadresseResult {
     matrikkelId:String
     husnummer:Int
     husbokstav:String
     adressenavn:String
+    adressekode:String
     tilleggsnavn:String
     fylkesnavn:String
     fylkesnummer:String
@@ -749,10 +755,23 @@ type Adresse {
     bydelsnavn:String
     bydelsnummer:String
 }
+type MatrikkeladresseResult {
+    matrikkelId:String
+    tilleggsnavn:String
+    kommunenummer:String
+    gardsnummer:String
+    bruksnummer:String
+    postnummer:String
+    poststed:String
+}
 
 type AdresseCompletionResult {
     suggestions: [String!]!
-    addressFound : Adresse
+    addressFound : CompletionAdresse
+}
+type CompletionAdresse {
+    vegadresse : VegadresseResult
+    matrikkeladresse : MatrikkeladresseResult
 }
 
 input CompletionParameters {
@@ -765,4 +784,3 @@ input CompletionFieldValue {
     fieldName: String!
     fieldValue: String
 }
-
