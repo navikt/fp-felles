@@ -29,11 +29,7 @@ class PropagatingThreadPoolExecutorProvider extends ThreadPoolExecutorProvider {
     private static final Logger LOG = LoggerFactory.getLogger(PropagatingThreadPoolExecutorProvider.class);
 
     public PropagatingThreadPoolExecutorProvider() {
-        this(PropagatingThreadPoolExecutorProvider.class.getSimpleName());
-    }
-
-    private PropagatingThreadPoolExecutorProvider(String name) {
-        super(name);
+        super(PropagatingThreadPoolExecutorProvider.class.getSimpleName());
     }
 
     @Override
