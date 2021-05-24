@@ -1,12 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
-import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.NAV_CONSUMER_TOKEN_HEADER;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
-import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -68,17 +66,17 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
                 .maximumSize(size)
                 .removalListener(new RemovalListener<String, String>() {
                     @Override
-                    public void onRemoval(String key, String value, RemovalCause cause) {
-                        LOG.info("Fjerner system token fra cache grunnet {}", cause);
+                    public void onRemoval(String key, String token, RemovalCause cause) {
+                        LOG.info("Fjerner system token som utgår {} fra cache grunnet {}", expiry(token), cause);
                     }
                 })
-                .build(k -> load(sts, duration));
+                .build(k -> load(sts));
     }
 
-    private static String load(StsAccessTokenJerseyClient sts, Duration duration) {
-        LOG.info("Oppdaterer cache med system token, cache innslag er gyldig til {}", format(now().plus(duration)));
+    private static String load(StsAccessTokenJerseyClient sts) {
+        LOG.info("Oppdaterer cache med system token");
         var token = sts.accessToken();
-        LOG.info("System token er gyldig til {}", format(expiry()));
+        LOG.info("System token er gyldig til {}", format(expiry(token)));
         return token;
     }
 
@@ -88,10 +86,9 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
                 .orElse("<null>");
     }
 
-    private static LocalDateTime expiry() {
+    private static LocalDateTime expiry(String token) {
         try {
-            return SignedJWT.parse(getSubjectHandler()
-                    .getInternSsoToken())
+            return SignedJWT.parse(token)
                     .getJWTClaimsSet()
                     .getExpirationTime()
                     .toInstant()
