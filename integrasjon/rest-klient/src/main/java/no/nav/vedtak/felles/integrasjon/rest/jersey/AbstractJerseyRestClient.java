@@ -87,6 +87,7 @@ public abstract class AbstractJerseyRestClient {
     private static final int DEFAULT_READ_TIMEOUT_MS = (int) SECONDS.toMillis(10);
 
     protected final Client client;
+    protected final Client asyncClient;
 
     AbstractJerseyRestClient() {
         this(null, Set.of());
@@ -128,6 +129,8 @@ public abstract class AbstractJerseyRestClient {
         client = ClientBuilder.newClient(cfg)
                 .property(CONNECT_TIMEOUT, ENV.getProperty(CONNECT_TIMEOUT, int.class, DEFAULT_CONNECT_TIMEOUT_MS))
                 .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, DEFAULT_READ_TIMEOUT_MS));
+
+        asyncClient = client.register(PropagatingThreadPoolExecutorProvider.class);
         LOG.trace("Klient {} konstruert med filtre {}", getClass().getName(), filters);
 
     }
