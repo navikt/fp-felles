@@ -67,7 +67,7 @@ public class StsAccessTokenClientRequestFilter extends OidcTokenRequestFilter {
                 .removalListener(new RemovalListener<String, String>() {
                     @Override
                     public void onRemoval(String key, String token, RemovalCause cause) {
-                        LOG.info("Fjerner system token som utgår {} fra cache grunnet {}", expiry(token), cause);
+                        LOG.info("Fjerner system token som utgår {} fra cache", expiry(token));
                     }
                 })
                 .build(k -> load(sts));
