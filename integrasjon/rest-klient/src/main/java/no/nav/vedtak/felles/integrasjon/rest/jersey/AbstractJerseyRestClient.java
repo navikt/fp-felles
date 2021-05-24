@@ -41,6 +41,10 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.httpcomponents.MicrometerHttpRequestExecutor;
+import io.micrometer.prometheus.PrometheusConfig;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
@@ -113,6 +117,9 @@ public abstract class AbstractJerseyRestClient {
                     .setKeepAliveStrategy(createKeepAliveStrategy(30))
                     .setDefaultRequestConfig(defaultRequestConfig())
                     .setRetryHandler(new HttpRequestRetryHandler())
+                    .setRequestExecutor(MicrometerHttpRequestExecutor
+                            .builder(new PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
+                            .build())
                     .setConnectionManager(connectionManager());
         });
         filters.stream().forEach(f -> {
