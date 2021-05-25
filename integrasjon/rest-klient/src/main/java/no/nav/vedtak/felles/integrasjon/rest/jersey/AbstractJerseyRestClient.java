@@ -42,6 +42,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.httpcomponents.MicrometerHttpRequestExecutor;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -70,9 +71,11 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent;
  */
 public abstract class AbstractJerseyRestClient {
 
+    public static final PrometheusMeterRegistry REGISTRY = new PrometheusMeterRegistry(DEFAULT);
     private static final Environment ENV = Environment.current();
 
     static {
+        Metrics.addRegistry(REGISTRY);
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.install();
     }
@@ -82,7 +85,6 @@ public abstract class AbstractJerseyRestClient {
     public static final String NAV_CONSUMER_TOKEN_HEADER = "Nav-Consumer-Token";
     public static final String DEFAULT_NAV_CALLID = "Nav-Callid";
     public static final String ALT_NAV_CALL_ID = "nav-call-id";
-
     public static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractJerseyRestClient.class);
@@ -109,7 +111,6 @@ public abstract class AbstractJerseyRestClient {
         Optional.ofNullable(proxy)
                 .ifPresent(p -> cfg.property(PROXY_URI, p));
         cfg.register(jacksonProvider(MAPPER));
-
         cfg.connectorProvider(new ApacheConnectorProvider());
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
             return b.addInterceptorFirst(new StandardHeadersRequestInterceptor())
@@ -117,7 +118,7 @@ public abstract class AbstractJerseyRestClient {
                     .setDefaultRequestConfig(defaultRequestConfig())
                     .setRetryHandler(new HttpRequestRetryHandler())
                     .setRequestExecutor(MicrometerHttpRequestExecutor
-                            .builder(new PrometheusMeterRegistry(DEFAULT))
+                            .builder(REGISTRY)
                             .build())
                     .setConnectionManager(connectionManager());
         });
@@ -125,7 +126,6 @@ public abstract class AbstractJerseyRestClient {
             LOG.info("Registrer filter {}", f.getClass());
             cfg.register(f);
         });
-
         cfg.register(ErrorResponseHandlingClientResponseFilter.class);
         if (ENV.isDev()) {
             cfg.register(new HeaderLoggingFilter())
