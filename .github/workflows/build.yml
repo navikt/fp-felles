@@ -12,7 +12,7 @@ on:
       - 'CODEOWNERS'
       - 'dev/**'
 
-jobs:    
+jobs:
   build:
     runs-on: ubuntu-latest
     steps:
@@ -36,10 +36,10 @@ jobs:
           echo "Bygget og testet OK"
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN  }}
-      
+
       - name: Release Drafter
         uses: release-drafter/release-drafter@v5
         if: success()
