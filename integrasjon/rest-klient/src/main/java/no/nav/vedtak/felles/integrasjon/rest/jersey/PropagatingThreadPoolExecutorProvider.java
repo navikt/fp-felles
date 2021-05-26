@@ -57,7 +57,7 @@ class PropagatingThreadPoolExecutorProvider extends ThreadPoolExecutorProvider {
         }
     }
 
-    static class PropagatingRunnable implements Runnable {
+    private static class PropagatingRunnable implements Runnable {
 
         private static final Logger LOG = LoggerFactory.getLogger(PropagatingRunnable.class);
         private final Runnable task;
@@ -98,15 +98,11 @@ class PropagatingThreadPoolExecutorProvider extends ThreadPoolExecutorProvider {
         }
 
         private void propagateSubjectIfSet() {
-            try {
-                if (subject != null) {
-                    LOG.trace("Propagerer subject fra subject handler");
-                    ThreadLocalSubjectHandler.class.cast(getSubjectHandler()).setSubject(subject);
-                } else {
-                    LOG.trace("Intet subject å propagere");
-                }
-            } catch (Exception e) {
-                LOG.warn("Feil ved propagering av subject", e);
+            if (subject != null) {
+                LOG.trace("Propagerer subject fra subject handler");
+                ThreadLocalSubjectHandler.class.cast(getSubjectHandler()).setSubject(subject);
+            } else {
+                LOG.trace("Intet subject å propagere");
             }
         }
 
