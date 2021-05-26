@@ -12,7 +12,8 @@ public record TokenXConfig(URI wellKnownUrl, String clientId, String privateJwk)
     private static final Environment ENV = Environment.current();
 
     static TokenXConfig fraEnv() {
-        return new TokenXConfig(ENV.getRequiredProperty("token.x.well.known.url", URI.class),
+        return new TokenXConfig(
+                ENV.getRequiredProperty("token.x.well.known.url", URI.class),
                 ENV.getRequiredProperty("token.x.client.id"),
                 ENV.getRequiredProperty("token.x.private.jwk"));
     }
