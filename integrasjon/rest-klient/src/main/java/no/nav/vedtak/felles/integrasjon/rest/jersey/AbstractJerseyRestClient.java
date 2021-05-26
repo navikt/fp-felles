@@ -107,6 +107,7 @@ public abstract class AbstractJerseyRestClient {
     }
 
     private AbstractJerseyRestClient(URI proxy, Set<? extends ClientRequestFilter> filters) {
+
         var cfg = new ClientConfig();
         Optional.ofNullable(proxy)
                 .ifPresent(p -> cfg.property(PROXY_URI, p));

@@ -3,6 +3,7 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx;
 import static com.nimbusds.jose.JOSEObjectType.JWT;
 import static com.nimbusds.jose.JWSAlgorithm.RS256;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
@@ -17,11 +18,11 @@ import com.nimbusds.jwt.SignedJWT;
 class TokenXAssertionGenerator {
 
     private final TokenXConfig cfg;
-    private final TokenXConfigMetadata metadata;
+    private final String audience;
 
-    TokenXAssertionGenerator(TokenXConfig cfg, TokenXConfigMetadata metadata) {
+    TokenXAssertionGenerator(TokenXConfig cfg, URI audience) {
         this.cfg = cfg;
-        this.metadata = metadata;
+        this.audience = audience.toString();
     }
 
     public String assertion() {
@@ -30,7 +31,7 @@ class TokenXAssertionGenerator {
             return sign(new JWTClaimsSet.Builder()
                     .subject(cfg.clientId())
                     .issuer(cfg.clientId())
-                    .audience(metadata.tokenEndpoint().toString())
+                    .audience(audience)
                     .issueTime(now)
                     .notBeforeTime(now)
                     .expirationTime(Date.from(Instant.now().plusSeconds(60)))
@@ -52,6 +53,6 @@ class TokenXAssertionGenerator {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [cfg=" + cfg + ", metadata=" + metadata + "]";
+        return getClass().getSimpleName() + " [cfg=" + cfg + ", audience=" + audience + "]";
     }
 }
