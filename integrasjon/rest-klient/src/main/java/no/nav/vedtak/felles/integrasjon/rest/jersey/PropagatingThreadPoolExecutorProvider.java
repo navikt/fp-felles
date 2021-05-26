@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import no.nav.security.token.support.core.context.TokenValidationContext;
@@ -44,7 +45,7 @@ class PropagatingThreadPoolExecutorProvider extends ThreadPoolExecutorProvider {
         PropagatingThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
                 ThreadFactory threadFactory, RejectedExecutionHandler handler) {
             super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
-            new ExecutorServiceMetrics(this, getClass().getSimpleName(), Tags.empty()).bindTo(AbstractJerseyRestClient.REGISTRY);
+            new ExecutorServiceMetrics(this, getClass().getSimpleName(), Tags.empty()).bindTo(Metrics.globalRegistry);
         }
 
         @Override

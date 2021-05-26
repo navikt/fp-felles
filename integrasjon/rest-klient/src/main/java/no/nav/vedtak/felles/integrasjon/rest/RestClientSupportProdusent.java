@@ -26,8 +26,8 @@ import org.apache.http.message.BasicHeaderElementIterator;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
+import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.httpcomponents.PoolingHttpClientConnectionManagerMetricsBinder;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.HeaderLoggingRequestInterceptor;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.HeaderLoggingResponseInterceptor;
 
@@ -130,7 +130,7 @@ public class RestClientSupportProdusent {
         connManager.setMaxTotal(100);
         connManager.setDefaultConnectionConfig(defaultConnectionConfig);
         connManager.setValidateAfterInactivity(100);
-        new PoolingHttpClientConnectionManagerMetricsBinder(connManager, "jersey-pool").bindTo(AbstractJerseyRestClient.REGISTRY);
+        new PoolingHttpClientConnectionManagerMetricsBinder(connManager, "jersey-pool").bindTo(Metrics.globalRegistry);
         return connManager;
     }
 

@@ -71,11 +71,10 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent;
  */
 public abstract class AbstractJerseyRestClient {
 
-    public static final PrometheusMeterRegistry REGISTRY = new PrometheusMeterRegistry(DEFAULT);
     private static final Environment ENV = Environment.current();
 
     static {
-        Metrics.addRegistry(REGISTRY);
+        Metrics.addRegistry(new PrometheusMeterRegistry(DEFAULT));
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.install();
     }
@@ -119,7 +118,7 @@ public abstract class AbstractJerseyRestClient {
                     .setDefaultRequestConfig(defaultRequestConfig())
                     .setRetryHandler(new HttpRequestRetryHandler())
                     .setRequestExecutor(MicrometerHttpRequestExecutor
-                            .builder(REGISTRY)
+                            .builder(Metrics.globalRegistry)
                             .build())
                     .setConnectionManager(connectionManager());
         });
