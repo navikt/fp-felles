@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
 import static io.micrometer.prometheus.PrometheusConfig.DEFAULT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -120,8 +121,7 @@ public abstract class AbstractJerseyRestClient {
                     .setDefaultRequestConfig(defaultRequestConfig())
                     .setRetryHandler(new HttpRequestRetryHandler())
                     .setRequestExecutor(MicrometerHttpRequestExecutor
-                            .builder(Metrics.globalRegistry)
-                            .exportTagsForRoute(true)
+                            .builder(globalRegistry)
                             .tags(List.of(Tag.of("client", getClass().getSimpleName())))
                             .build())
                     .setConnectionManager(connectionManager());
