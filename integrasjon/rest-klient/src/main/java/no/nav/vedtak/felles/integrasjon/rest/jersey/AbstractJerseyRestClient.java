@@ -19,6 +19,7 @@ import static org.glassfish.jersey.logging.LoggingFeature.Verbosity.PAYLOAD_ANY;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.LogManager;
@@ -121,7 +122,7 @@ public abstract class AbstractJerseyRestClient {
                     .setRequestExecutor(MicrometerHttpRequestExecutor
                             .builder(Metrics.globalRegistry)
                             .exportTagsForRoute(true)
-                            .tags(List.of(Tag.of(NAV_CONSUMER_TOKEN_HEADER, ALT_NAV_CALL_ID)))
+                            .tags(List.of(Tag.of("client", getClass().getSimpleName())))
                             .build())
                     .setConnectionManager(connectionManager());
         });
