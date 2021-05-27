@@ -43,6 +43,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.binder.httpcomponents.MicrometerHttpRequestExecutor;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -119,6 +120,8 @@ public abstract class AbstractJerseyRestClient {
                     .setRetryHandler(new HttpRequestRetryHandler())
                     .setRequestExecutor(MicrometerHttpRequestExecutor
                             .builder(Metrics.globalRegistry)
+                            .exportTagsForRoute(true)
+                            .tags(List.of(Tag.of(NAV_CONSUMER_TOKEN_HEADER, ALT_NAV_CALL_ID)))
                             .build())
                     .setConnectionManager(connectionManager());
         });
@@ -128,6 +131,7 @@ public abstract class AbstractJerseyRestClient {
         });
         cfg.register(ErrorResponseHandlingClientResponseFilter.class);
         if (ENV.isDev()) {
+
             cfg.register(new HeaderLoggingFilter())
                     .register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
                             FINE, PAYLOAD_ANY, 10000));

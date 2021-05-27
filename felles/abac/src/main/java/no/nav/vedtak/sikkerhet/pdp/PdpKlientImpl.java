@@ -79,7 +79,8 @@ public class PdpKlientImpl implements PdpKlient {
                 String keyX = ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
                 LOG.trace("Legger IKKE ved token med type tokenX på {}", keyX);
 //                try {
-                    // attrs.addAttribute(keyX, SignedJWT.parse(idToken.getToken()).getPayload().toBase64URL().toString());
+                // attrs.addAttribute(keyX,
+                // SignedJWT.parse(idToken.getToken()).getPayload().toBase64URL().toString());
 //                } catch (ParseException e) {
 //                    throw new IllegalArgumentException("Ukjent token type");
 //                }
