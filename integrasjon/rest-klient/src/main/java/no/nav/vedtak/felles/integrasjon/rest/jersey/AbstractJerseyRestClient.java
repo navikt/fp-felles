@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
-import static io.micrometer.prometheus.PrometheusConfig.DEFAULT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.FINE;
@@ -44,10 +43,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.binder.httpcomponents.MicrometerHttpRequestExecutor;
-import io.micrometer.prometheus.PrometheusMeterRegistry;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
@@ -77,7 +74,6 @@ public abstract class AbstractJerseyRestClient {
     private static final Environment ENV = Environment.current();
 
     static {
-        Metrics.addRegistry(new PrometheusMeterRegistry(DEFAULT));
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.install();
     }
