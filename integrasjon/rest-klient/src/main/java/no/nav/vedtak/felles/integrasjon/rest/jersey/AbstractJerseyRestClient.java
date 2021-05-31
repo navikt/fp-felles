@@ -119,6 +119,7 @@ public abstract class AbstractJerseyRestClient {
                     .setRetryHandler(new HttpRequestRetryHandler())
                     .setRequestExecutor(MicrometerHttpRequestExecutor
                             .builder(globalRegistry)
+                            .exportTagsForRoute(true)
                             .uriMapper(new JerseyUriMapper())
                             .tags(List.of(Tag.of("client", getClass().getSimpleName())))
                             .build())
