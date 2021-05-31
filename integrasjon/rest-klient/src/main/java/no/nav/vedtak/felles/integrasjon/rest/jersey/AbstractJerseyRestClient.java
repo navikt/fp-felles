@@ -8,7 +8,7 @@ import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MA
 import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.toJson;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
-import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.defaultRequestConfig;
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.requestConfig;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.CONNECT_TIMEOUT;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
@@ -114,7 +114,7 @@ public abstract class AbstractJerseyRestClient {
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
             return b.addInterceptorFirst(new StandardHeadersRequestInterceptor())
                     .setKeepAliveStrategy(createKeepAliveStrategy(30))
-                    .setDefaultRequestConfig(defaultRequestConfig())
+                    .setDefaultRequestConfig(requestConfig())
                     .setRetryHandler(new HttpRequestRetryHandler())
                     .setRequestExecutor(MicrometerHttpRequestExecutor
                             .builder(globalRegistry)

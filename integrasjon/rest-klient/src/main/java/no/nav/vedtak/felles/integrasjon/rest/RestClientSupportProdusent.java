@@ -99,24 +99,22 @@ public class RestClientSupportProdusent {
                 .setSSLHostnameVerifier(new DefaultHostnameVerifier())
                 .setConnectionManager(connManager)
                 .setDefaultHeaders(defaultHeaders())
-                .setDefaultRequestConfig(defaultRequestConfig())
+                .setDefaultRequestConfig(requestConfig())
                 .setRetryHandler(new HttpRequestRetryHandler())
                 .setKeepAliveStrategy(createKeepAliveStrategy(30))
                 .build();
     }
 
     private static ConnectionConfig defaultConnectionConfig() {
-        ConnectionConfig defaultConnectionConfig = ConnectionConfig.custom()
+        return ConnectionConfig.custom()
                 .setCharset(Consts.UTF_8)
                 .build();
-        return defaultConnectionConfig;
     }
 
-    public static RequestConfig defaultRequestConfig() {
-        RequestConfig defaultRequestConfig = RequestConfig.custom()
+    public static RequestConfig requestConfig() {
+        return RequestConfig.custom()
                 .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
                 .build();
-        return defaultRequestConfig;
     }
 
     public static List<Header> defaultHeaders() {
