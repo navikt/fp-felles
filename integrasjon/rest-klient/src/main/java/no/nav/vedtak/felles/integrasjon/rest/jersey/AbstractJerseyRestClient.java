@@ -36,6 +36,7 @@ import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.apache.connector.ApacheHttpClientBuilderConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,7 +144,7 @@ public abstract class AbstractJerseyRestClient {
 
     }
 
-    private static JacksonJaxbJsonProvider jacksonProvider(ObjectMapper mapper) {
+    private static JacksonJsonProvider jacksonProvider(ObjectMapper mapper) {
         return Optional.ofNullable(mapper)
                 .map(m -> new JacksonJaxbJsonProvider(m, DEFAULT_ANNOTATIONS))
                 .orElseGet(() -> new JacksonJaxbJsonProvider());
