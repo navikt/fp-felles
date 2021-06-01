@@ -1,5 +1,8 @@
 package no.nav.vedtak.felles.jpa;
 
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
+import static io.micrometer.core.instrument.binder.jpa.HibernateMetrics.monitor;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,6 +16,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
 import javax.persistence.Persistence;
 
+import org.hibernate.SessionFactory;
 import org.hibernate.jpa.QueryHints;
 
 /**
@@ -35,13 +39,13 @@ public class EntityManagerProducer {
     }
 
     private synchronized EntityManager createNewEntityManager(String key) {
-
         if (!CACHE_FACTORIES.containsKey(key)) {
             CACHE_FACTORIES.put(key, createEntityManager(key));
         }
-        var entityManagerFactory = CACHE_FACTORIES.get(key);
-        var em = entityManagerFactory.createEntityManager();
-        initConfig(em, entityManagerFactory.getProperties());
+        var emf = CACHE_FACTORIES.get(key);
+        monitor(globalRegistry, emf.unwrap(SessionFactory.class), "pu-default");
+        var em = emf.createEntityManager();
+        initConfig(em, emf.getProperties());
         return em;
     }
 

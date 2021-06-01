@@ -27,6 +27,7 @@
     </modules>
 
     <properties>
+        <hibernate.version>5.4.32.Final</hibernate.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.persistence.version>2.2.3</jakarta.persistence.version>
         <jakarta.enterprise.version>2.0.2</jakarta.enterprise.version>
@@ -206,7 +207,7 @@
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
-                <version>5.4.32.Final</version>
+                <version>${hibernate.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.jboss.spec.javax.transaction</groupId>

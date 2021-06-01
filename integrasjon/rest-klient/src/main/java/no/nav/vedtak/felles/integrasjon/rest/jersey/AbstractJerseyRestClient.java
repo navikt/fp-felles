@@ -129,13 +129,11 @@ public abstract class AbstractJerseyRestClient {
             LOG.info("Registrer filter {}", f.getClass());
             cfg.register(f);
         });
-        cfg.register(ErrorResponseHandlingClientResponseFilter.class);
-        if (ENV.isDev()) {
+        cfg.register(ErrorResponseHandlingClientResponseFilter.class)
+                .register(new HeaderLoggingFilter())
+                .register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
+                        FINE, PAYLOAD_ANY, 10000));
 
-            cfg.register(new HeaderLoggingFilter())
-                    .register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
-                            FINE, PAYLOAD_ANY, 10000));
-        }
         client = ClientBuilder.newClient(cfg)
                 .property(CONNECT_TIMEOUT, ENV.getProperty(CONNECT_TIMEOUT, int.class, DEFAULT_CONNECT_TIMEOUT_MS))
                 .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, DEFAULT_READ_TIMEOUT_MS));
