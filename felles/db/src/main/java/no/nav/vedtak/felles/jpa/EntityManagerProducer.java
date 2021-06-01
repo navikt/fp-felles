@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.jpa;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
-import static io.micrometer.core.instrument.binder.jpa.HibernateMetrics.monitor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +17,11 @@ import javax.persistence.Persistence;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.jpa.QueryHints;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.micrometer.core.instrument.binder.jpa.HibernateMetrics;
+import io.micrometer.core.instrument.binder.jpa.HibernateQueryMetrics;
 
 /**
  * Denne klassen initialiserer {@link EntityManagerFactory} ihenhold til angitt
@@ -27,6 +31,8 @@ import org.hibernate.jpa.QueryHints;
 @ApplicationScoped
 public class EntityManagerProducer {
 
+    private static final String EM_NAME = "pu-default";
+    private static final Logger LOG = LoggerFactory.getLogger(EntityManagerProducer.class);
     /**
      * registrerte {@link EntityManagerFactory}.
      */
@@ -35,7 +41,7 @@ public class EntityManagerProducer {
     @Produces
     @RequestScoped
     public EntityManager createEntityManager() {
-        return createNewEntityManager("pu-default");
+        return createNewEntityManager(EM_NAME);
     }
 
     private synchronized EntityManager createNewEntityManager(String key) {
@@ -43,7 +49,10 @@ public class EntityManagerProducer {
             CACHE_FACTORIES.put(key, createEntityManager(key));
         }
         var emf = CACHE_FACTORIES.get(key);
-        monitor(globalRegistry, emf.unwrap(SessionFactory.class), "pu-default");
+        var sf = emf.unwrap(SessionFactory.class);
+        LOG.info("Muliggjør hibernate monitorering, slås på med hibernate.generate_statistics=true i de enkeltes persistence.xml");
+        HibernateMetrics.monitor(globalRegistry, sf, EM_NAME);
+        HibernateQueryMetrics.monitor(globalRegistry, sf, EM_NAME);
         var em = emf.createEntityManager();
         initConfig(em, emf.getProperties());
         return em;
