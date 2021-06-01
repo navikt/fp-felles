@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.micrometer.core.instrument.binder.jpa.HibernateMetrics;
-import io.micrometer.core.instrument.binder.jpa.HibernateQueryMetrics;
 
 /**
  * Denne klassen initialiserer {@link EntityManagerFactory} ihenhold til angitt
@@ -52,7 +51,7 @@ public class EntityManagerProducer {
         var sf = emf.unwrap(SessionFactory.class);
         LOG.info("Muliggjør hibernate monitorering, slås på med hibernate.generate_statistics=true i de enkeltes persistence.xml");
         HibernateMetrics.monitor(globalRegistry, sf, EM_NAME);
-        HibernateQueryMetrics.monitor(globalRegistry, sf, EM_NAME + "_query");
+        // HibernateQueryMetrics.monitor(globalRegistry, sf, EM_NAME + "_query");
         var em = emf.createEntityManager();
         initConfig(em, emf.getProperties());
         return em;
