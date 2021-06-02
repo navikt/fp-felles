@@ -125,10 +125,7 @@ public abstract class AbstractJerseyRestClient {
                             .build())
                     .setConnectionManager(connectionManager());
         });
-        filters.stream().forEach(f -> {
-            LOG.info("Registrer filter {}", f.getClass());
-            cfg.register(f);
-        });
+        filters.stream().forEach(cfg::register);
         cfg.register(ErrorResponseHandlingClientResponseFilter.class)
                 .register(new HeaderLoggingFilter())
                 .register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
@@ -139,8 +136,6 @@ public abstract class AbstractJerseyRestClient {
                 .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, DEFAULT_READ_TIMEOUT_MS));
 
         asyncClient = client.register(PropagatingThreadPoolExecutorProvider.class);
-        LOG.trace("Klient {} konstruert med filtre {}", getClass().getName(), filters);
-
     }
 
     private static JacksonJsonProvider jacksonProvider(ObjectMapper mapper) {

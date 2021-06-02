@@ -45,13 +45,12 @@ public class EntityManagerProducer {
 
     private synchronized EntityManager createNewEntityManager(String key) {
         if (!CACHE_FACTORIES.containsKey(key)) {
-            CACHE_FACTORIES.put(key, createEntityManager(key));
+            EntityManagerFactory f = createEntityManager(key);
+            CACHE_FACTORIES.put(key, f);
+            LOG.info("Muliggjør hibernate monitorering, slås på med hibernate.generate_statistics=true i de enkeltes persistence.xml");
+            HibernateMetrics.monitor(globalRegistry, f.unwrap(SessionFactory.class), EM_NAME);
         }
         var emf = CACHE_FACTORIES.get(key);
-        var sf = emf.unwrap(SessionFactory.class);
-        LOG.info("Muliggjør hibernate monitorering, slås på med hibernate.generate_statistics=true i de enkeltes persistence.xml");
-        HibernateMetrics.monitor(globalRegistry, sf, EM_NAME);
-        // HibernateQueryMetrics.monitor(globalRegistry, sf, EM_NAME + "_query");
         var em = emf.createEntityManager();
         initConfig(em, emf.getProperties());
         return em;
