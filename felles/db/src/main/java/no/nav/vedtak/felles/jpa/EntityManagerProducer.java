@@ -45,10 +45,7 @@ public class EntityManagerProducer {
 
     private synchronized EntityManager createNewEntityManager(String key) {
         if (!CACHE_FACTORIES.containsKey(key)) {
-            EntityManagerFactory f = createEntityManager(key);
-            CACHE_FACTORIES.put(key, f);
-            LOG.info("Muliggjør hibernate monitorering, slås på med hibernate.generate_statistics=true i de enkeltes persistence.xml");
-            HibernateMetrics.monitor(globalRegistry, f.unwrap(SessionFactory.class), EM_NAME);
+            CACHE_FACTORIES.put(key, createEntityManager(key));
         }
         var emf = CACHE_FACTORIES.get(key);
         var em = emf.createEntityManager();
@@ -68,7 +65,10 @@ public class EntityManagerProducer {
     }
 
     public EntityManagerFactory createEntityManager(String key) {
-        return Persistence.createEntityManagerFactory(key);
+        var emf = Persistence.createEntityManagerFactory(key);
+        LOG.info("Muliggjør hibernate monitorering, slås på med hibernate.generate_statistics=true i de enkeltes persistence.xml");
+        HibernateMetrics.monitor(globalRegistry, emf.unwrap(SessionFactory.class), EM_NAME);
+        return emf;
     }
 
     public void dispose(@Disposes EntityManager mgr) {
