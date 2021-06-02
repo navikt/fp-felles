@@ -123,11 +123,10 @@ public class RestClientSupportProdusent {
     }
 
     public static PoolingHttpClientConnectionManager connectionManager() {
-        ConnectionConfig defaultConnectionConfig = defaultConnectionConfig();
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(55, TimeUnit.MINUTES);
         connManager.setMaxTotal(100);
-        connManager.setDefaultConnectionConfig(defaultConnectionConfig);
-        connManager.setValidateAfterInactivity(100);
+        connManager.setDefaultConnectionConfig(defaultConnectionConfig());
+        connManager.setValidateAfterInactivity(30000);
         new PoolingHttpClientConnectionManagerMetricsBinder(connManager, "jersey-pool").bindTo(Metrics.globalRegistry);
         return connManager;
     }
