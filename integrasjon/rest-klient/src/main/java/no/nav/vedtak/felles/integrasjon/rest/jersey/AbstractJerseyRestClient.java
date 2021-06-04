@@ -50,6 +50,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.PropagatingThreadPoolExecutorProvider;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent;
 
 /**

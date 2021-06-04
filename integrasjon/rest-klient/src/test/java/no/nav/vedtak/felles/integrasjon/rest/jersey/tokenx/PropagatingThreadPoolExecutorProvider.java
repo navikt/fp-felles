@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.rest.jersey;
+package no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx;
 
 import static no.nav.security.token.support.jaxrs.JaxrsTokenValidationContextHolder.getHolder;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
