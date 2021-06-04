@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.client.Invocation;
 
@@ -42,7 +44,7 @@ class TestTokenX {
                 throw new SocketTimeoutException();
             }
         });
-        assertThrows(IntegrasjonException.class, () -> new ExceptionTranslatingInvoker().invoke(i, String.class));
+        assertThrows(IntegrasjonException.class, () -> new ExceptionTranslatingInvoker(List.of(IOException.class)).invoke(i, String.class));
     }
 
 }
