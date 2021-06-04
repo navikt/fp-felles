@@ -5,13 +5,14 @@ import javax.ws.rs.client.Invocation;
 
 import no.nav.vedtak.exception.IntegrasjonException;
 
-class ExceptionTranslatingInvoker {
+@SuppressWarnings("unchecked")
+public class ExceptionTranslatingInvoker {
 
-    <T> T invoke(Invocation i, Class<T> clazz) {
+    public <T> T invoke(Invocation i, Class<T> clazz) {
         return invoke(i, clazz, ProcessingException.class);
     }
 
-    <T> T invoke(Invocation i, Class<T> clazz, Class<? extends Exception>... translatableExceptions) {
+    public <T> T invoke(Invocation i, Class<T> clazz, Class<? extends Exception>... translatableExceptions) {
         try {
             return i.invoke(clazz);
         } catch (Exception ex) {
