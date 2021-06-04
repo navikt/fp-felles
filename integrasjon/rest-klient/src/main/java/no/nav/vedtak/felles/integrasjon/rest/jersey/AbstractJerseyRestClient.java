@@ -44,8 +44,12 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.micrometer.core.instrument.Meter.Id;
+import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.binder.httpcomponents.MicrometerHttpRequestExecutor;
+import io.micrometer.core.instrument.config.MeterFilter;
+import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
@@ -75,6 +79,17 @@ public abstract class AbstractJerseyRestClient {
     private static final Environment ENV = Environment.current();
 
     static {
+        Metrics.globalRegistry.config().meterFilter(new MeterFilter() {
+            @Override
+            public DistributionStatisticConfig configure(Id id, DistributionStatisticConfig config) {
+                if (id.getName().equals("httpcomponents.httpclient.request")) {
+                    return DistributionStatisticConfig.builder()
+                            .percentilesHistogram(true)
+                            .percentiles(0.5, 0.95, 0.99).build().merge(config);
+                }
+                return config;
+            }
+        });
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.install();
     }
