@@ -1,25 +1,17 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
-import java.util.List;
-
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Invocation;
 
 import no.nav.vedtak.exception.IntegrasjonException;
 
-public class ExceptionTranslatingInvoker {
+class ExceptionTranslatingInvoker {
 
-    private List<Class<? extends Exception>> translatableExceptions;
-
-    public ExceptionTranslatingInvoker() {
-        this(List.of(ProcessingException.class));
+    <T> T invoke(Invocation i, Class<T> clazz) {
+        return invoke(i, clazz, ProcessingException.class);
     }
 
-    public ExceptionTranslatingInvoker(List<Class<? extends Exception>> translatableExceptions) {
-        this.translatableExceptions = translatableExceptions;
-    }
-
-    public <T> T invoke(Invocation i, Class<T> clazz) {
+    <T> T invoke(Invocation i, Class<T> clazz, Class<? extends Exception>... translatableExceptions) {
         try {
             return i.invoke(clazz);
         } catch (Exception ex) {
@@ -30,10 +22,5 @@ public class ExceptionTranslatingInvoker {
             }
             throw ex;
         }
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + " [translatableExceptions=" + translatableExceptions + "]";
     }
 }

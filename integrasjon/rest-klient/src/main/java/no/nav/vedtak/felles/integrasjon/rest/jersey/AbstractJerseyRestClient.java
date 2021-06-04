@@ -92,6 +92,7 @@ public abstract class AbstractJerseyRestClient {
 
     protected final Client client;
     protected final Client asyncClient;
+    protected final ExceptionTranslatingInvoker invoker;
 
     AbstractJerseyRestClient() {
         this(null, Set.of());
@@ -136,6 +137,7 @@ public abstract class AbstractJerseyRestClient {
                 .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, DEFAULT_READ_TIMEOUT_MS));
 
         asyncClient = client.register(PropagatingThreadPoolExecutorProvider.class);
+        invoker = new ExceptionTranslatingInvoker();
     }
 
     private static JacksonJsonProvider jacksonProvider(ObjectMapper mapper) {
