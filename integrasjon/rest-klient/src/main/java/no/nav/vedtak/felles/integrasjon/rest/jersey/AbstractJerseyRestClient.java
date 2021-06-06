@@ -9,6 +9,7 @@ import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.to
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.requestConfig;
+import static no.nav.vedtak.log.metrics.MetricsUtil.utvidMedHistogram;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.CONNECT_TIMEOUT;
 import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
@@ -44,12 +45,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.micrometer.core.instrument.Meter.Id;
-import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.binder.httpcomponents.MicrometerHttpRequestExecutor;
-import io.micrometer.core.instrument.config.MeterFilter;
-import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
@@ -79,20 +76,10 @@ public abstract class AbstractJerseyRestClient {
     private static final Environment ENV = Environment.current();
 
     static {
-        Metrics.globalRegistry.config().meterFilter(new MeterFilter() {
-            @Override
-            public DistributionStatisticConfig configure(Id id, DistributionStatisticConfig config) {
-                if (id.getName().equals("httpcomponents.httpclient.request")) {
-                    return DistributionStatisticConfig.builder()
-                            .percentilesHistogram(true)
-                            .percentiles(0.5, 0.95, 0.99).build().merge(config);
-                }
-                return config;
-            }
-        });
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.install();
     }
+
     public static final String TEMA = "TEMA";
     public static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     public static final String DEFAULT_NAV_CONSUMERID = "Nav-Consumer-Id";
@@ -141,6 +128,7 @@ public abstract class AbstractJerseyRestClient {
                             .build())
                     .setConnectionManager(connectionManager());
         });
+        utvidMedHistogram("httpcomponents.httpclient.request");
         filters.stream().forEach(cfg::register);
         cfg.register(ErrorResponseHandlingClientResponseFilter.class)
                 .register(new HeaderLoggingFilter())
