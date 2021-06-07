@@ -20,7 +20,6 @@ public class MetricsUtil {
     public static final PrometheusMeterRegistry REGISTRY = new PrometheusMeterRegistry(DEFAULT);
 
     static {
-
         Metrics.addRegistry(REGISTRY);
         new ClassLoaderMetrics().bindTo(globalRegistry);
         new JvmMemoryMetrics().bindTo(globalRegistry);
