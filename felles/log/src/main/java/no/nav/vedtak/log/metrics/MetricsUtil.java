@@ -19,6 +19,10 @@ import io.micrometer.prometheus.PrometheusMeterRegistry;
 public class MetricsUtil {
     public static final PrometheusMeterRegistry REGISTRY = new PrometheusMeterRegistry(DEFAULT);
 
+    private MetricsUtil() {
+
+    }
+
     static {
         Metrics.addRegistry(REGISTRY);
         new ClassLoaderMetrics().bindTo(globalRegistry);
@@ -36,7 +40,6 @@ public class MetricsUtil {
 
     public static void utvidMedHistogram(String navn) {
         utvidMedHistogram(navn, 0.5, 0.95, 0.99);
-
     }
 
     public static void utvidMedHistogram(String navn, double... percentiles) {
