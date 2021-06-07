@@ -35,13 +35,20 @@ public class MetricsUtil {
     }
 
     public static void utvidMedHistogram(String navn) {
+        utvidMedHistogram(navn, 0.5, 0.95, 0.99);
+
+    }
+
+    public static void utvidMedHistogram(String navn, double... percentiles) {
         globalRegistry.config().meterFilter(new MeterFilter() {
             @Override
             public DistributionStatisticConfig configure(Id id, DistributionStatisticConfig config) {
                 if (id.getName().equals(navn)) {
                     return DistributionStatisticConfig.builder()
                             .percentilesHistogram(true)
-                            .percentiles(0.5, 0.95, 0.99).build().merge(config);
+                            .percentiles(percentiles)
+                            .build()
+                            .merge(config);
                 }
                 return config;
             }
