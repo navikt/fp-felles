@@ -43,12 +43,10 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
     private static final String GRAPHQL = "/graphql";
 
     private static final Logger LOG = LoggerFactory.getLogger(SafJerseyTjeneste.class);
-    private URI base;
-    private GraphQLErrorHandler errorHandler;
+    private final URI base;
+    private final GraphQLErrorHandler errorHandler;
 
-    SafJerseyTjeneste() {
-
-    }
+    
 
     @Inject
     public SafJerseyTjeneste(@KonfigVerdi(value = "saf.base.url", defaultVerdi = DEFAULT_BASE) URI base) {
