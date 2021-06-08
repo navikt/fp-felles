@@ -101,7 +101,7 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         try {
-            LOG.info("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
+            LOG.trace("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
             var res = client.target(base)
                     .path(GRAPHQL)
                     .request(APPLICATION_JSON_TYPE)
