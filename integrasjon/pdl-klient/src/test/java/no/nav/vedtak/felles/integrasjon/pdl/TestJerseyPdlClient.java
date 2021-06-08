@@ -66,7 +66,7 @@ import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXClient;
@@ -218,7 +218,7 @@ class TestJerseyPdlClient {
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(post(urlPathEqualTo(GRAPHQL)));
-            assertThrows(TekniskException.class, () -> legacyClient.hentPerson(pq(), pp()));
+            assertThrows(VLException.class, () -> legacyClient.hentPerson(pq(), pp()));
         }
     }
 
