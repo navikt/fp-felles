@@ -7,7 +7,6 @@ import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import java.net.URI;
 import java.util.List;
 
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
 
@@ -95,23 +93,15 @@ public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient i
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
-        try {
-            LOG.trace("Henter resultat for {} fra {}", clazz.getName(), endpoint);
-            var res = client.target(endpoint)
-                    .request(APPLICATION_JSON_TYPE)
-                    .buildPost(json(req.toHttpJsonBody()))
-                    .invoke(clazz);
-            if (res.hasErrors()) {
-                return errorHandler.handleError(res.getErrors(), endpoint, PDL_ERROR_RESPONSE);
-            }
-            LOG.trace("Hentet resultat for {} fra {} OK", clazz.getName(), endpoint);
-            return res;
-        } catch (ProcessingException e) {
-            if (e.getCause()instanceof VLException v) {
-                throw v;
-            }
-            throw e;
+        LOG.trace("Henter resultat for {} fra {}", clazz.getName(), endpoint);
+        var res = invoke(client.target(endpoint)
+                .request(APPLICATION_JSON_TYPE)
+                .buildPost(json(req.toHttpJsonBody())), clazz);
+        if (res.hasErrors()) {
+            return errorHandler.handleError(res.getErrors(), endpoint, PDL_ERROR_RESPONSE);
         }
+        LOG.trace("Hentet resultat for {} fra {} OK", clazz.getName(), endpoint);
+        return res;
     }
 
 }

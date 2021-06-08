@@ -28,6 +28,7 @@ import java.util.logging.LogManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.client.Invocation;
 
 import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
@@ -39,8 +40,6 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
 import org.glassfish.jersey.logging.LoggingFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,6 +72,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent;
  */
 public abstract class AbstractJerseyRestClient {
 
+    private static final String HTTPCOMPONENTS_HTTPCLIENT_REQUEST = "httpcomponents.httpclient.request";
     private static final Environment ENV = Environment.current();
 
     static {
@@ -88,13 +88,12 @@ public abstract class AbstractJerseyRestClient {
     public static final String ALT_NAV_CALL_ID = "nav-call-id";
     public static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractJerseyRestClient.class);
     private static final int DEFAULT_CONNECT_TIMEOUT_MS = (int) SECONDS.toMillis(30);
     private static final int DEFAULT_READ_TIMEOUT_MS = (int) SECONDS.toMillis(10);
 
     protected final Client client;
     protected final Client asyncClient;
-    protected final ExceptionTranslatingInvoker invoker;
+    private final ExceptionTranslatingInvoker invoker;
 
     AbstractJerseyRestClient() {
         this(null, Set.of());
@@ -128,7 +127,7 @@ public abstract class AbstractJerseyRestClient {
                             .build())
                     .setConnectionManager(connectionManager());
         });
-        utvidMedHistogram("httpcomponents.httpclient.request");
+        utvidMedHistogram(HTTPCOMPONENTS_HTTPCLIENT_REQUEST);
         filters.stream().forEach(cfg::register);
         cfg.register(ErrorResponseHandlingClientResponseFilter.class)
                 .register(new HeaderLoggingFilter())
@@ -147,6 +146,10 @@ public abstract class AbstractJerseyRestClient {
         return Optional.ofNullable(mapper)
                 .map(m -> new JacksonJaxbJsonProvider(m, DEFAULT_ANNOTATIONS))
                 .orElseGet(() -> new JacksonJaxbJsonProvider());
+    }
+
+    protected <T> T invoke(Invocation i, Class<T> clazz) {
+        return invoker.invoke(i, clazz);
     }
 
     protected String patch(URI endpoint, Object obj, Header... headers) {
