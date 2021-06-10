@@ -12,7 +12,7 @@ public final class EnumUtil {
     }
 
     public static <E extends Enum<E>> E matchOrThrow(Class<E> type, Predicate<? super E> p) {
-        return matchOrThrow(type, p, () -> new IllegalArgumentException("fant ingen match for predikat " + p));
+        return matchOrThrow(type, p, () -> new IllegalArgumentException("Fant ingen match for predikat " + p));
     }
 
     public static <E extends Enum<E>> E matchOrThrow(Class<E> type, Predicate<? super E> p, Supplier<? extends RuntimeException> exceptionSupplier) {
