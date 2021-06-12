@@ -152,6 +152,10 @@ public abstract class AbstractJerseyRestClient {
         return invoker.invoke(i, clazz);
     }
 
+    protected void invoke(Invocation i) {
+        invoker.invoke(i);
+    }
+
     protected String patch(URI endpoint, Object obj, Header... headers) {
         var entity = new HttpPatch(endpoint);
         entity.setEntity(new StringEntity(toJson(obj), UTF_8));

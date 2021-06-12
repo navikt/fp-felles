@@ -9,6 +9,11 @@ import no.nav.vedtak.exception.IntegrasjonException;
 public class ExceptionTranslatingInvoker implements Invoker {
 
     @Override
+    public void invoke(Invocation i) {
+        invoke(i, ProcessingException.class);
+    }
+
+    @Override
     public <T> T invoke(Invocation i, Class<T> clazz) {
         return invoke(i, clazz, ProcessingException.class);
     }
@@ -26,4 +31,19 @@ public class ExceptionTranslatingInvoker implements Invoker {
             throw ex;
         }
     }
+
+    @Override
+    public void invoke(Invocation i, Class<? extends Exception>... translatableExceptions) {
+        try {
+            i.invoke();
+        } catch (Exception ex) {
+            for (var te : translatableExceptions) {
+                if (te.isAssignableFrom(ex.getClass())) {
+                    throw new IntegrasjonException("F-999999", "Oversatte exception " + ex.getClass().getName(), ex);
+                }
+            }
+            throw ex;
+        }
+    }
+
 }
