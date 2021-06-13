@@ -1,7 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
+import java.util.Arrays;
+
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
 
 import no.nav.vedtak.exception.IntegrasjonException;
 
@@ -19,31 +22,41 @@ public class ExceptionTranslatingInvoker implements Invoker {
     }
 
     @Override
-    public <T> T invoke(Invocation i, Class<T> clazz, Class<? extends Exception>... translatableExceptions) {
+    public <T> T invoke(Invocation i, Class<T> clazz, Class<? extends RuntimeException>... translatables) {
         try {
             return i.invoke(clazz);
-        } catch (Exception ex) {
-            for (var te : translatableExceptions) {
-                if (te.isAssignableFrom(ex.getClass())) {
-                    throw new IntegrasjonException("F-999999", "Oversatte exception " + ex.getClass().getName(), ex);
-                }
-            }
-            throw ex;
+        } catch (RuntimeException e) {
+            return handle(e, translatables);
         }
     }
 
     @Override
-    public void invoke(Invocation i, Class<? extends Exception>... translatableExceptions) {
+    public void invoke(Invocation i, Class<? extends RuntimeException>... translatables) {
         try {
             i.invoke();
-        } catch (Exception ex) {
-            for (var te : translatableExceptions) {
-                if (te.isAssignableFrom(ex.getClass())) {
-                    throw new IntegrasjonException("F-999999", "Oversatte exception " + ex.getClass().getName(), ex);
-                }
-            }
-            throw ex;
+        } catch (RuntimeException e) {
+            handle(e, translatables);
         }
     }
 
+    @Override
+    public <T> T invoke(Invocation i, GenericType<T> type, Class<? extends RuntimeException>... translatables) {
+        try {
+            return i.invoke(type);
+        } catch (RuntimeException e) {
+            return handle(e, translatables);
+        }
+    }
+
+    private static <T> T handle(RuntimeException e, Class<? extends RuntimeException>... translatables) {
+        throw Arrays.stream(translatables)
+                .filter(t -> t.isAssignableFrom(e.getClass()))
+                .findFirst()
+                .map(t -> translate(e))
+                .orElseGet(() -> e);
+    }
+
+    private static RuntimeException translate(RuntimeException e) {
+        throw new IntegrasjonException("F-999999", "Oversatte exception " + e.getClass().getName(), e);
+    }
 }

@@ -29,6 +29,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
 
 import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
@@ -154,6 +155,10 @@ public abstract class AbstractJerseyRestClient {
 
     public void invoke(Invocation i) {
         invoker.invoke(i);
+    }
+
+    public <T> T invoke(Invocation i, GenericType<T> type) {
+        return invoker.invoke(i, type);
     }
 
     protected String patch(URI endpoint, Object obj, Header... headers) {
