@@ -1,8 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor;
 
-import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Invocation;
@@ -62,7 +64,10 @@ public class ExceptionTranslatingInvoker implements Invoker {
     }
 
     private <T> T handle(RuntimeException e, Class<? extends RuntimeException>... translatables) {
-        throw Arrays.stream(translatables)
+        throw Stream.concat(Set.of(translatables).stream(),
+                Stream.of(ProcessingException.class))
+                .collect(toSet())
+                .stream()
                 .filter(t -> t.isAssignableFrom(e.getClass()))
                 .findFirst()
                 .map(t -> this.translate(e))
