@@ -1,15 +1,28 @@
 package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
+import static org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor;
+
 import java.util.Arrays;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
 
-import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.VLException;
 
 @SuppressWarnings("unchecked")
 public class ExceptionTranslatingInvoker implements Invoker {
+
+    private final Class<? extends VLException> translatedException;
+
+    public ExceptionTranslatingInvoker() {
+        this(TekniskException.class);
+    }
+
+    public ExceptionTranslatingInvoker(Class<? extends VLException> translatedException) {
+        this.translatedException = translatedException;
+    }
 
     @Override
     public void invoke(Invocation i) {
@@ -48,15 +61,24 @@ public class ExceptionTranslatingInvoker implements Invoker {
         }
     }
 
-    private static <T> T handle(RuntimeException e, Class<? extends RuntimeException>... translatables) {
+    private <T> T handle(RuntimeException e, Class<? extends RuntimeException>... translatables) {
         throw Arrays.stream(translatables)
                 .filter(t -> t.isAssignableFrom(e.getClass()))
                 .findFirst()
-                .map(t -> translate(e))
+                .map(t -> this.translate(e))
                 .orElseGet(() -> e);
     }
 
-    private static RuntimeException translate(RuntimeException e) {
-        throw new IntegrasjonException("F-999999", "Oversatte exception " + e.getClass().getName(), e);
+    private RuntimeException translate(RuntimeException e) {
+        try {
+            throw invokeConstructor(translatedException, "F-999999", "Oversatte exception " + e.getClass().getName(), e);
+        } catch (Exception e1) {
+            throw new IllegalArgumentException(e1);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [translatedException=" + translatedException + "]";
     }
 }
