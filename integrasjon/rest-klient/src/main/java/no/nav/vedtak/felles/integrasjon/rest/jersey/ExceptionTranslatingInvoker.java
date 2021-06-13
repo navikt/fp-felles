@@ -8,7 +8,7 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
 
-import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.VLException;
 
 @SuppressWarnings("unchecked")
@@ -17,7 +17,7 @@ public class ExceptionTranslatingInvoker implements Invoker {
     private final Class<? extends VLException> translatedException;
 
     public ExceptionTranslatingInvoker() {
-        this(TekniskException.class);
+        this(IntegrasjonException.class);
     }
 
     public ExceptionTranslatingInvoker(Class<? extends VLException> translatedException) {
@@ -72,6 +72,8 @@ public class ExceptionTranslatingInvoker implements Invoker {
     private RuntimeException translate(RuntimeException e) {
         try {
             throw invokeConstructor(translatedException, "F-999999", "Oversatte exception " + e.getClass().getName(), e);
+        } catch (VLException v) {
+            throw v;
         } catch (Exception e1) {
             throw new IllegalArgumentException(e1);
         }
