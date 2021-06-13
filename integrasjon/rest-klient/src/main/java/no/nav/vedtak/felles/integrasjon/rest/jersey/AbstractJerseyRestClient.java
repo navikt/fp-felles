@@ -148,11 +148,11 @@ public abstract class AbstractJerseyRestClient {
                 .orElseGet(() -> new JacksonJaxbJsonProvider());
     }
 
-    protected <T> T invoke(Invocation i, Class<T> clazz) {
+    public <T> T invoke(Invocation i, Class<T> clazz) {
         return invoker.invoke(i, clazz);
     }
 
-    protected void invoke(Invocation i) {
+    public void invoke(Invocation i) {
         invoker.invoke(i);
     }
 
