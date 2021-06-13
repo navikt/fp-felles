@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.TekniskException;
 
 @ExtendWith(MockitoExtension.class)
 public class TestExceptionTranslatingInvoker {
@@ -30,6 +31,19 @@ public class TestExceptionTranslatingInvoker {
             }
         });
         assertThrows(IntegrasjonException.class, () -> new ExceptionTranslatingInvoker().invoke(i, String.class));
+    }
+
+    @Test
+    void testInvocationTranslationNonDefault() {
+        when(i.invoke(String.class)).thenAnswer(new Answer<String>() {
+
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                throw new NullPointerException("OOPS");
+            }
+        });
+        assertThrows(TekniskException.class,
+                () -> new ExceptionTranslatingInvoker(TekniskException.class).invoke(i, String.class, NullPointerException.class));
     }
 
 }
