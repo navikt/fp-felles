@@ -10,11 +10,10 @@ public class OAuth2JerseyRestClient extends AbstractJerseyRestClient {
 
     public OAuth2JerseyRestClient(
             URI tokenEndpoint,
-            URI proxy,
             String clientId,
             String clientSecret,
             Set<String> scopes) {
-        super(proxy, new Oauth2JerseyClientRequestFilter(new OAuth2AccessTokenJerseyClient(tokenEndpoint, clientId, clientSecret, scopes)));
+        super(new Oauth2JerseyClientRequestFilter(new OAuth2AccessTokenJerseyClient(tokenEndpoint, clientId, clientSecret, scopes)));
     }
 
     @Deprecated
@@ -67,7 +66,6 @@ public class OAuth2JerseyRestClient extends AbstractJerseyRestClient {
                 throw new IllegalArgumentException("Må settes minst et scope.");
             return new OAuth2JerseyRestClient(
                     requireNonNull(tokenEndpoint),
-                    tokenEndpointProxy,
                     requireNonNull(clientId),
                     requireNonNull(clientSecret),
                     scopes);
