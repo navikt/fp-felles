@@ -12,7 +12,6 @@ import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.r
 import static no.nav.vedtak.log.metrics.MetricsUtil.utvidMedHistogram;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.CONNECT_TIMEOUT;
-import static org.glassfish.jersey.client.ClientProperties.PROXY_URI;
 import static org.glassfish.jersey.client.ClientProperties.READ_TIMEOUT;
 import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
 import static org.glassfish.jersey.logging.LoggingFeature.Verbosity.PAYLOAD_ANY;
@@ -94,7 +93,7 @@ public abstract class AbstractJerseyRestClient {
 
     protected final Client client;
     protected final Client asyncClient;
-    private final ExceptionTranslatingInvoker invoker;
+    private final Invoker invoker;
 
     AbstractJerseyRestClient() {
         this(null, Set.of());
@@ -104,15 +103,13 @@ public abstract class AbstractJerseyRestClient {
         this(null, filters);
     }
 
-    AbstractJerseyRestClient(URI proxy, ClientRequestFilter... filters) {
-        this(proxy, Set.of(filters));
+    AbstractJerseyRestClient(Invoker invoker, ClientRequestFilter... filters) {
+        this(invoker, Set.of(filters));
     }
 
-    private AbstractJerseyRestClient(URI proxy, Set<? extends ClientRequestFilter> filters) {
+    private AbstractJerseyRestClient(Invoker invoker, Set<? extends ClientRequestFilter> filters) {
 
         var cfg = new ClientConfig();
-        Optional.ofNullable(proxy)
-                .ifPresent(p -> cfg.property(PROXY_URI, p));
         cfg.register(jacksonProvider(MAPPER));
         cfg.connectorProvider(new ApacheConnectorProvider());
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
@@ -135,12 +132,12 @@ public abstract class AbstractJerseyRestClient {
                 .register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
                         FINE, PAYLOAD_ANY, 10000));
 
-        client = ClientBuilder.newClient(cfg)
+        this.client = ClientBuilder.newClient(cfg)
                 .property(CONNECT_TIMEOUT, ENV.getProperty(CONNECT_TIMEOUT, int.class, DEFAULT_CONNECT_TIMEOUT_MS))
                 .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, DEFAULT_READ_TIMEOUT_MS));
 
-        asyncClient = client.register(PropagatingThreadPoolExecutorProvider.class);
-        invoker = new ExceptionTranslatingInvoker();
+        this.asyncClient = client.register(PropagatingThreadPoolExecutorProvider.class);
+        this.invoker = invoker != null ? invoker : new ExceptionTranslatingInvoker();
     }
 
     private static JacksonJsonProvider jacksonProvider(ObjectMapper mapper) {
