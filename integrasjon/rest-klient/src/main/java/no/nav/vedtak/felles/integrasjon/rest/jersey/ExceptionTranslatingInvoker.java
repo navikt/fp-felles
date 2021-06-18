@@ -3,6 +3,7 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -10,12 +11,16 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.VLException;
 
 @SuppressWarnings("unchecked")
 public class ExceptionTranslatingInvoker implements Invoker {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ExceptionTranslatingInvoker.class);
     private final Class<? extends VLException> translatedException;
 
     public ExceptionTranslatingInvoker() {
@@ -77,12 +82,12 @@ public class ExceptionTranslatingInvoker implements Invoker {
     private RuntimeException translate(RuntimeException e) {
         try {
             return invokeConstructor(translatedException, "F-999999",
-                    "Oversatte exception " + e.getClass().getName() + " til " + translatedException.getClass().getName(), e);
-        } catch (VLException v) {
-            return v;
-        } catch (Exception e1) {
-            return new IllegalArgumentException(e1);
+                    "Oversatt exception " + e.getClass().getName() + " til " + translatedException.getClass().getName(), e);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e1) {
+            LOG.warn("Kunne ikke oversette {}", e.getClass().getName(), e);
+            return e;
         }
+
     }
 
     @Override
