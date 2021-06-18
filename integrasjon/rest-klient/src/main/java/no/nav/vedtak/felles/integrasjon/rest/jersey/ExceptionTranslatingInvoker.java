@@ -76,12 +76,12 @@ public class ExceptionTranslatingInvoker implements Invoker {
 
     private RuntimeException translate(RuntimeException e) {
         try {
-            throw invokeConstructor(translatedException, "F-999999",
+            return invokeConstructor(translatedException, "F-999999",
                     "Oversatte exception " + e.getClass().getName() + " til " + translatedException.getClass().getName(), e);
         } catch (VLException v) {
-            throw v;
+            return v;
         } catch (Exception e1) {
-            throw new IllegalArgumentException(e1);
+            return new IllegalArgumentException(e1);
         }
     }
 
