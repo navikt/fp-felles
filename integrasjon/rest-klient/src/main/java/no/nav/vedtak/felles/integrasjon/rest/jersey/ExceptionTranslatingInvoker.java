@@ -20,11 +20,13 @@ import no.nav.vedtak.exception.VLException;
 @SuppressWarnings("unchecked")
 public class ExceptionTranslatingInvoker implements Invoker {
 
+    private static final Class<? extends VLException> DEFAULT_TRANSLATED_EXCEPTION = IntegrasjonException.class;
+    private static final Class<ProcessingException> DEFAULT_TRANSLATABLE_EXCEPTION = ProcessingException.class;
     private static final Logger LOG = LoggerFactory.getLogger(ExceptionTranslatingInvoker.class);
     private final Class<? extends VLException> translatedException;
 
     public ExceptionTranslatingInvoker() {
-        this(IntegrasjonException.class);
+        this(DEFAULT_TRANSLATED_EXCEPTION);
     }
 
     public ExceptionTranslatingInvoker(Class<? extends VLException> translatedException) {
@@ -33,12 +35,12 @@ public class ExceptionTranslatingInvoker implements Invoker {
 
     @Override
     public void invoke(Invocation i) {
-        invoke(i, ProcessingException.class);
+        invoke(i, DEFAULT_TRANSLATABLE_EXCEPTION);
     }
 
     @Override
     public <T> T invoke(Invocation i, Class<T> clazz) {
-        return invoke(i, clazz, ProcessingException.class);
+        return invoke(i, clazz, DEFAULT_TRANSLATABLE_EXCEPTION);
     }
 
     @Override
@@ -70,7 +72,7 @@ public class ExceptionTranslatingInvoker implements Invoker {
 
     private <T> T handle(RuntimeException e, Class<? extends RuntimeException>... translatables) {
         throw Stream.concat(Set.of(translatables).stream(),
-                Stream.of(ProcessingException.class))
+                Stream.of(DEFAULT_TRANSLATABLE_EXCEPTION))
                 .collect(toSet())
                 .stream()
                 .filter(t -> t.isAssignableFrom(e.getClass()))
