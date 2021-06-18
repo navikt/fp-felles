@@ -2,11 +2,13 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey;
 
 import static java.util.stream.Collectors.joining;
 
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.apache.http.HttpRequest;
+import org.apache.http.client.utils.URIBuilder;
 
 class JerseyUriMapper implements Function<HttpRequest, String> {
 
@@ -14,9 +16,18 @@ class JerseyUriMapper implements Function<HttpRequest, String> {
 
     @Override
     public String apply(HttpRequest req) {
-        return Arrays.stream(req.getRequestLine().getUri().split(SLASH))
+        String uri = removeQuery(req.getRequestLine().getUri());
+        return Arrays.stream(uri.split(SLASH))
                 .filter(Predicate.not(this::digits))
                 .collect(joining(SLASH));
+    }
+
+    private String removeQuery(String uri) {
+        try {
+            return new URIBuilder(uri).removeQuery().build().toString();
+        } catch (URISyntaxException e) {
+            return uri;
+        }
     }
 
     private boolean digits(String element) {
