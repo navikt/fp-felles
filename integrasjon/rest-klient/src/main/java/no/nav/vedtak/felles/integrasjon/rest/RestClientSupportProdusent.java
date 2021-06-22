@@ -113,6 +113,7 @@ public class RestClientSupportProdusent {
 
     public static RequestConfig requestConfig() {
         return RequestConfig.custom()
+                .setConnectionRequestTimeout(20000)
                 .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
                 .build();
     }
