@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.nav.foreldrepenger.felles</groupId>
     <artifactId>felles-root</artifactId>
-    <version>0.0.0-SNAPSHOT</version>
+    <version>1.7-20200518053328-cff89f9</version>
     <packaging>pom</packaging>
     <name>Felles-root</name>
     <modules>
