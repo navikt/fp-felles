@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <junit5.version>5.7.2</junit5.version>
-        <mockito.version>3.11.1</mockito.version>
+        <mockito.version>3.11.2</mockito.version>
         <assertj.version>3.20.2</assertj.version>
         <tjenestespesifikasjoner.version>1.2020.01.27-14.53-7065a2d75840</tjenestespesifikasjoner.version>
         <additionalparam>-Xdoclint:none</additionalparam>
