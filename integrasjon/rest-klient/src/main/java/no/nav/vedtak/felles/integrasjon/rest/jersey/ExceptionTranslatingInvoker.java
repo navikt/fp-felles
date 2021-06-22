@@ -113,11 +113,11 @@ public class ExceptionTranslatingInvoker implements Invoker {
 		return switch (w.getResponse().getStatusInfo().getFamily()) {
 		case CLIENT_ERROR -> {
 			if (code == FORBIDDEN.getStatusCode()) {
-				yield new ManglerTilgangException(ERRORCODE, "Mangler tilgang");
+				yield new ManglerTilgangException(ERRORCODE, "Mangler tilgang",w);
 			}
-			yield new IntegrasjonException(ERRORCODE, String.format("Uventet respons %s", code));
+			yield new IntegrasjonException(ERRORCODE, String.format("Uventet respons %s", code),w);
 		}
-		case SERVER_ERROR ->  new IntegrasjonException(ERRORCODE, String.format("Uventet respons %s", code));
+		case SERVER_ERROR ->  new IntegrasjonException(ERRORCODE, String.format("Uventet respons %s", code),w);
 		default -> w;
 		};	
 	}
