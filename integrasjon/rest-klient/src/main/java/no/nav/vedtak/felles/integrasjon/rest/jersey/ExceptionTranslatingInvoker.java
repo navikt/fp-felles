@@ -41,12 +41,12 @@ public class ExceptionTranslatingInvoker implements Invoker {
 
     @Override
     public void invoke(Invocation i) {
-        invoke(i, PROCESSING_EXCEPTION, WEBAPPLICATION_EXCEPTION);
+        invoke(i, PROCESSING_EXCEPTION);
     }
 
     @Override
     public <T> T invoke(Invocation i, Class<T> clazz) {
-        return invoke(i, clazz, PROCESSING_EXCEPTION, WEBAPPLICATION_EXCEPTION);
+        return invoke(i, clazz, PROCESSING_EXCEPTION);
     }
 
     @Override
