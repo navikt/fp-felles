@@ -125,6 +125,7 @@ public class RestClientSupportProdusent {
     public static PoolingHttpClientConnectionManager connectionManager() {
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(55, TimeUnit.MINUTES);
         connManager.setMaxTotal(100);
+        connManager.setDefaultMaxPerRoute(25);
         connManager.setDefaultConnectionConfig(defaultConnectionConfig());
         connManager.setValidateAfterInactivity(30000);
         new PoolingHttpClientConnectionManagerMetricsBinder(connManager, "jersey-pool").bindTo(Metrics.globalRegistry);
