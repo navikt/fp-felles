@@ -127,7 +127,7 @@ public abstract class AbstractJerseyRestClient {
         });
         utvidMedHistogram(HTTPCOMPONENTS_HTTPCLIENT_REQUEST);
         filters.stream().forEach(cfg::register);
-        cfg.register(ErrorResponseHandlingClientResponseFilter.class)
+        cfg//.register(ErrorResponseHandlingClientResponseFilter.class)
                 .register(new HeaderLoggingFilter())
                 .register(new LoggingFeature(java.util.logging.Logger.getLogger(getClass().getName()),
                         FINE, PAYLOAD_ANY, 10000));
