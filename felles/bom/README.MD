@@ -1,1 +1,0 @@
-BOM (Bill-Of-Material) for å trekke inn alle felles-biblioteker (istedet for å plukke de individuelt)
