@@ -77,13 +77,13 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
     public byte[] hentDokument(HentDokumentQuery q) {
         try {
             LOG.trace("Henter dokument");
-            var doc = client.target(base)
+            var doc = invoke(client.target(base)
                     .path(HENTDOKUMENT)
                     .resolveTemplate("journalpostId", q.getJournalpostId())
                     .resolveTemplate("dokumentInfoId", q.getDokumentInfoId())
                     .resolveTemplate("variantFormat", q.getVariantFormat())
                     .request()
-                    .get(byte[].class);
+                    .buildGet(), byte[].class);
             LOG.info("Hentet dokument OK");
             return doc;
         } catch (WebApplicationException e) {
@@ -100,11 +100,10 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         try {
             LOG.trace("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
-            var res = client.target(base)
+            var res = invoke(client.target(base)
                     .path(GRAPHQL)
                     .request(APPLICATION_JSON_TYPE)
-                    .buildPost(json(req.toHttpJsonBody()))
-                    .invoke(clazz);
+                    .buildPost(json(req.toHttpJsonBody())), clazz);
             if (res.hasErrors()) {
                 return errorHandler.handleError(res.getErrors(), base, F_240613);
             }
