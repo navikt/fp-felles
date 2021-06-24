@@ -24,6 +24,10 @@ public class PdlException extends GraphQLException {
         return extension;
     }
 
+    public PDLExceptionDetails getDetails() {
+        return getExtension().details();
+    }
+
     public int getStatus() {
         return status;
     }

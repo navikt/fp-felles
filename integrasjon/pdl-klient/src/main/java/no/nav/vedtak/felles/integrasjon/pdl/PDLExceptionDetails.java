@@ -1,34 +1,21 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class PDLExceptionDetails {
-    private final String type;
-    private final String cause;
-    private final String policy;
-
-    @JsonCreator
-    public PDLExceptionDetails(@JsonProperty("type") String type, @JsonProperty("cause") String cause, @JsonProperty("policy") String policy) {
-        this.type = type;
-        this.cause = cause;
-        this.policy = policy;
-    }
-
+public record PDLExceptionDetails(String type, String cause,String policy) {
+     
+    @Deprecated(since = "2.3", forRemoval = true)
     public String getType() {
-        return type;
+        return type();
     }
 
+    @Deprecated(since = "2.3", forRemoval = true)
     public String getCause() {
-        return cause;
+        return cause();
     }
 
+    @Deprecated(since = "2.3", forRemoval = true)
     public String getPolicy() {
-        return policy;
+        return policy();
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + " [type=" + type + ", cause=" + cause + ", policy=" + policy + "]";
-    }
+    
 }
