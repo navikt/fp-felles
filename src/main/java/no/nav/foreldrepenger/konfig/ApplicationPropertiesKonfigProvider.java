@@ -29,7 +29,7 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
         private static Properties lesFra() {
             var c = new Properties();
             lesFra(namespaceKonfig(), lesFra(clusterKonfig(), lesFra("", new Properties())))
-                    .forEach((k, v) -> c.put(k.toString().toLowerCase(), v.toString().toLowerCase()));
+                    .forEach((k, v) -> c.put(k.toString().toLowerCase(), v.toString()));
             return c;
         }
 
