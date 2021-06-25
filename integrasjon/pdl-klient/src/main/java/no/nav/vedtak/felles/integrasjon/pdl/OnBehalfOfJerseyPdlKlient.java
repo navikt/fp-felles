@@ -30,8 +30,11 @@ public class OnBehalfOfJerseyPdlKlient extends AbstractJerseyPdlKlient {
         this(endpoint, errorHandler, new TokenXRequestFilter(tema));
     }
 
-    protected OnBehalfOfJerseyPdlKlient(URI endpoint, GraphQLErrorHandler errorHandler, ClientRequestFilter filter) {
-        super(endpoint, errorHandler, filter);
+    protected OnBehalfOfJerseyPdlKlient(URI endpoint, GraphQLErrorHandler errorHandler, ClientRequestFilter... filters) {
+        super(endpoint, errorHandler, filters);
     }
 
+    protected OnBehalfOfJerseyPdlKlient(URI uri, ClientRequestFilter... filters) {
+        this(uri, new PdlDefaultErrorHandler(), filters);
+    }
 }
