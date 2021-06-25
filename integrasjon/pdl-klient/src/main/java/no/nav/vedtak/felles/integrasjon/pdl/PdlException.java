@@ -20,7 +20,7 @@ public class PdlException extends GraphQLException {
         this.uri = uri;
     }
 
-    @Deprecated
+    @Deprecated(since = "3.2", forRemoval = true)
     public PDLExceptionExtension getExtension() {
         return extension;
     }
