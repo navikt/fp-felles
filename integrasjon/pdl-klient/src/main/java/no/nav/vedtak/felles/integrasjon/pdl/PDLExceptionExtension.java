@@ -4,7 +4,7 @@ public record PDLExceptionExtension(String code, PDLExceptionDetails details) {
 
     @Deprecated(since = "2.3", forRemoval = true)
     public PDLExceptionDetails getDetails() {
-        return details;
+        return details();
     }
 
     @Deprecated(since = "2.3", forRemoval = true)

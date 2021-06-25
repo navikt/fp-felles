@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXRequestFilter;
 
@@ -18,11 +19,19 @@ public class OnBehalfOfJerseyPdlKlient extends AbstractJerseyPdlKlient {
     public OnBehalfOfJerseyPdlKlient(
             @KonfigVerdi(value = "pdl.base.url", defaultVerdi = HTTP_PDL_API_DEFAULT_GRAPHQL) URI endpoint,
             @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema) {
-        this(endpoint, new TokenXRequestFilter(tema));
+        this(endpoint, new PdlDefaultErrorHandler(), new TokenXRequestFilter(tema));
     }
 
-    OnBehalfOfJerseyPdlKlient(URI endpoint, ClientRequestFilter filter) {
-        super(endpoint, filter);
+    protected OnBehalfOfJerseyPdlKlient(GraphQLErrorHandler errorHandler) {
+        this(URI.create(HTTP_PDL_API_DEFAULT_GRAPHQL), errorHandler, FOR);
+    }
+
+    protected OnBehalfOfJerseyPdlKlient(URI endpoint, GraphQLErrorHandler errorHandler, String tema) {
+        this(endpoint, errorHandler, new TokenXRequestFilter(tema));
+    }
+
+    protected OnBehalfOfJerseyPdlKlient(URI endpoint, GraphQLErrorHandler errorHandler, ClientRequestFilter filter) {
+        super(endpoint, errorHandler, filter);
     }
 
 }
