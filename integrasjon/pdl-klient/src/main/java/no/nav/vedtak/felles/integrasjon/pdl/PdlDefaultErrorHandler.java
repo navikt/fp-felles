@@ -1,9 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
+import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_ERROR_RESPONSE;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_INTERNAL;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_KLIENT_NOT_FOUND_KODE;
-import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -55,18 +55,13 @@ public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
         if (extension == null) {
             return exceptionFra(errors, SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, extension, uri);
         }
-        switch (extension.getCode()) {
-            case FORBUDT:
-                return exceptionFra(errors, SC_UNAUTHORIZED, extension, uri);
-            case UAUTENTISERT:
-                return exceptionFra(errors, SC_FORBIDDEN, extension, uri);
-            case IKKEFUNNET:
-                return exceptionFra(errors, SC_NOT_FOUND, PDL_KLIENT_NOT_FOUND_KODE, extension, uri);
-            case UGYLDIG:
-                return exceptionFra(errors, SC_BAD_REQUEST, extension, uri);
-            default:
-                return exceptionFra(errors, SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, extension, uri);
-        }
+        return switch (extension.code()) {
+            case FORBUDT -> exceptionFra(errors, SC_UNAUTHORIZED, extension, uri);
+            case UAUTENTISERT -> exceptionFra(errors, SC_FORBIDDEN, extension, uri);
+            case IKKEFUNNET -> exceptionFra(errors, SC_NOT_FOUND, PDL_KLIENT_NOT_FOUND_KODE, extension, uri);
+            case UGYLDIG -> exceptionFra(errors, SC_BAD_REQUEST, extension, uri);
+            default -> exceptionFra(errors, SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, extension, uri);
+        };
     }
 
     private static PdlException exceptionFra(List<GraphQLError> errors, int status, PDLExceptionExtension extension, URI uri) {

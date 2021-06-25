@@ -20,12 +20,13 @@ public class PdlException extends GraphQLException {
         this.uri = uri;
     }
 
+    @Deprecated(since = "3.2", forRemoval = true)
     public PDLExceptionExtension getExtension() {
         return extension;
     }
 
     public PDLExceptionDetails getDetails() {
-        return getExtension().details();
+        return extension.details();
     }
 
     public int getStatus() {
@@ -34,6 +35,6 @@ public class PdlException extends GraphQLException {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [status=" + status + ", extension=" + extension + "uri=" + uri + "]";
+        return getClass().getSimpleName() + " [status=" + status + ", details=" + getDetails() + "uri=" + uri + "]";
     }
 }
