@@ -14,6 +14,17 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 
 @Dependent
 @Jersey
+@Deprecated
+/**
+ * 
+ * Denne klienten prøver først å finne et brukertoken på tråden. Om dette ikke
+ * finnes benyttes et system token. Dette kan være litt forvirrende, og det
+ * anbefales at man bruker en av de mer spesialierte implementasjonene som
+ * bruker kun ett av disse
+ *
+ * @See OnBehalfOfJerseyPdlKlient
+ * @See SystemJerseyPdlKlient
+ */
 public class JerseyPdlKlient extends AbstractJerseyPdlKlient {
 
     @Inject
