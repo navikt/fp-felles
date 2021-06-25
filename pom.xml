@@ -25,6 +25,7 @@
         <mockito.version>3.11.2</mockito.version>
         <assertj.version>3.20.2</assertj.version>
         <tjenestespesifikasjoner.version>1.2021.02.22-10.45-4201aaea72fb</tjenestespesifikasjoner.version>
+        <no.nav.security.version>1.3.7</no.nav.security.version>
         <additionalparam>-Xdoclint:none</additionalparam>
         <argLine>-Dfile.encoding=UTF-8 --illegal-access=permit</argLine>
     </properties>
@@ -121,6 +122,17 @@
                 <artifactId>felles-integrasjon-pom</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>no.nav.security</groupId>
+                <artifactId>token-client-core</artifactId>
+                <version>${no.nav.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.security</groupId>
+                <artifactId>token-validation-jaxrs</artifactId>
+                <version>${no.nav.security.version}</version>
             </dependency>
 
             <!-- Diverse enforcer resolutions for -->
