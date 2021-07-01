@@ -3,7 +3,7 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.TEMA;
-import static no.nav.vedtak.util.env.ConfidentialMarkerFilter.CONFIDENTIAL;
+import static no.nav.vedtak.log.util.ConfidentialMarkerFilter.CONFIDENTIAL;
 
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;

@@ -25,7 +25,7 @@ import org.apache.cxf.ws.policy.attachment.reference.RemoteReferenceResolver;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.neethi.Policy;
 
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @SuppressWarnings("deprecation")
 public class StsConfigurationUtil {

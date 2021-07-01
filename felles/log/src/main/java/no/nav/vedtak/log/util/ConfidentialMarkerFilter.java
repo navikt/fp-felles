@@ -1,4 +1,4 @@
-package no.nav.vedtak.util.env;
+package no.nav.vedtak.log.util;
 
 import static ch.qos.logback.core.spi.FilterReply.DENY;
 import static ch.qos.logback.core.spi.FilterReply.NEUTRAL;
@@ -10,6 +10,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.turbo.MarkerFilter;
 import ch.qos.logback.core.spi.FilterReply;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public class ConfidentialMarkerFilter extends MarkerFilter {
 

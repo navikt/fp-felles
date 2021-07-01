@@ -15,7 +15,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @Default
 @ApplicationScoped

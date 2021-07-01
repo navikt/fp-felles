@@ -29,11 +29,11 @@ import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.w3c.dom.Element;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
-import no.nav.vedtak.util.env.Environment;
 
 /**
  * CXF Soap interceptor som validerer SAML-token og logger caller inn i

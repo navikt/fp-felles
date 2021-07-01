@@ -24,8 +24,7 @@ public class LdapBrukeroppslag {
     private static final Pattern IDENT_PATTERN = Pattern.compile("^\\p{LD}+$");
 
     public LdapBrukeroppslag() {
-        context = LdapInnlogging.lagLdapContext();
-        searchBase = lagLdapSearchBase();
+        this(LdapInnlogging.lagLdapContext(), lagLdapSearchBase());
     }
 
     LdapBrukeroppslag(LdapContext context, LdapName searcBase) {
@@ -34,10 +33,8 @@ public class LdapBrukeroppslag {
     }
 
     public LdapBruker hentBrukerinformasjon(String ident) {
-        SearchResult result = ldapSearch(ident);
-        String displayName = getDisplayName(result);
-        Collection<String> groups = getMemberOf(result);
-        return new LdapBruker(displayName, groups);
+        var result = ldapSearch(ident);
+        return new LdapBruker(getDisplayName(result), getMemberOf(result));
     }
 
     private SearchResult ldapSearch(String ident) {
@@ -54,7 +51,7 @@ public class LdapBrukeroppslag {
         controls.setCountLimit(1);
         String søkestreng = String.format("(cn=%s)", ident);
         try {
-            NamingEnumeration<SearchResult> result = context.search(searchBase, søkestreng, controls); // NOSONAR
+            var result = context.search(searchBase, søkestreng, controls); // NOSONAR
             if (result.hasMoreElements()) {
                 return result.nextElement();
             }

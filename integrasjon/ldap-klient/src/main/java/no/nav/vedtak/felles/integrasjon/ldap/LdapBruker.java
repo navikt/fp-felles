@@ -2,20 +2,16 @@ package no.nav.vedtak.felles.integrasjon.ldap;
 
 import java.util.Collection;
 
-public class LdapBruker {
-    private final String displayName;
-    private final Collection<String> groups;
+public record LdapBruker(String displayName, Collection<String> groups) {
 
-    public LdapBruker(String displayName, Collection<String> groups) {
-        this.displayName = displayName;
-        this.groups = groups;
-    }
 
+    @Deprecated
     public String getDisplayName() {
-        return displayName;
+        return displayName();
     }
 
+    @Deprecated
     public Collection<String> getGroups() {
-        return groups;
+        return groups();
     }
 }
