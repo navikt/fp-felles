@@ -31,8 +31,6 @@
     <properties>
         <wiremock.version>2.27.2</wiremock.version>
         <sob.melding.version>1.1.0</sob.melding.version>
-        <felles.adapter.version>0.1.8</felles.adapter.version>
-        <unleash.version>4.4.0</unleash.version>
         <influxdb-java.version>2.21</influxdb-java.version>
         <cxf.version>3.4.4</cxf.version>
     </properties>
@@ -98,16 +96,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>unleash-klient</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.finn.unleash</groupId>
-                <artifactId>unleash-client-java</artifactId>
-                <version>${unleash.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>medl-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -160,11 +148,6 @@
                 <groupId>org.influxdb</groupId>
                 <artifactId>influxdb-java</artifactId>
                 <version>${influxdb-java.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>sensu-klient</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.tomakehurst</groupId>

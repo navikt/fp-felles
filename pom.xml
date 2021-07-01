@@ -121,12 +121,6 @@
 			</dependency>
 			<dependency>
 				<groupId>no.nav.foreldrepenger.felles</groupId>
-				<artifactId>felles-bom</artifactId>
-				<type>pom</type>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>no.nav.foreldrepenger.felles</groupId>
 				<artifactId>felles-integrasjon-pom</artifactId>
 				<version>${project.version}</version>
 				<type>pom</type>
