@@ -29,10 +29,6 @@ class LdapFeil {
         return new IntegrasjonException("F-703197", String.format("Kunne ikke definere base-søk mot LDAP %s", baseSøk), e);
     }
 
-    static TekniskException manglerLdapKonfigurasjon(String navn) {
-        return new TekniskException("F-055498", String.format("Klarte ikke koble til LDAP da påkrevd system property (%s) ikke er satt", navn));
-    }
-
     static IntegrasjonException ukjentFeilVedLdapSøk(String søkestreng, NamingException e) {
         return new IntegrasjonException("F-690609", String.format("Uventet feil ved LDAP-søk %s", søkestreng), e);
     }
