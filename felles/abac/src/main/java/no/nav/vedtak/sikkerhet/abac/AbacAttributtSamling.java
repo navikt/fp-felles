@@ -50,16 +50,6 @@ public class AbacAttributtSamling {
         return idToken;
     }
 
-    @Override
-    public String toString() {
-        return AbacAttributtSamling.class.getSimpleName() + '{' + idToken +
-                " action='" + action + "'" +
-                " actionType='" + actionType + "'" +
-                " resource='" + resource + "' " +
-                dataAttributter +
-                '}';
-    }
-
     public AbacAttributtSamling setActionType(BeskyttetRessursActionAttributt actionType) {
         this.actionType = actionType;
         return this;
@@ -108,4 +98,9 @@ public class AbacAttributtSamling {
         }
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [idToken=" + idToken + ", dataAttributter=" + dataAttributter + ", actionType=" + actionType
+                + ", resource=" + resource + ", action=" + action + "]";
+    }
 }

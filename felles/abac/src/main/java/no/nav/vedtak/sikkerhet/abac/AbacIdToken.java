@@ -18,7 +18,7 @@ public class AbacIdToken {
 
     @Deprecated
     public static AbacIdToken withOidcToken(String token) {
-        return new AbacIdToken(token, TokenType.OIDC);
+        return withToken(token, TokenType.OIDC);
     }
 
     public static AbacIdToken withToken(String token, TokenType type) {
@@ -27,7 +27,7 @@ public class AbacIdToken {
 
     @Deprecated
     public static AbacIdToken withSamlToken(String token) {
-        return new AbacIdToken(token, TokenType.SAML);
+        return withToken(token, TokenType.SAML);
     }
 
     public TokenType getTokenType() {
@@ -35,17 +35,10 @@ public class AbacIdToken {
     }
 
     private String token() {
-        switch (tokenType) {
-            case SAML:
-                return "samlToken='MASKERT'";
-            default:
-                return "jwtToken='" + maskerOidcToken(token) + '\'';
-        }
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + " [token=" + token() + ", tokenType=" + tokenType + "]";
+        return switch (tokenType) {
+            case SAML -> "samlToken='MASKERT'";
+            default -> "jwtToken='" + maskerOidcToken(token) + '\'';
+        };
     }
 
     @Deprecated
@@ -66,4 +59,8 @@ public class AbacIdToken {
         return token.substring(0, token.lastIndexOf('.')) + ".MASKERT";
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [token=" + token() + ", tokenType=" + tokenType + "]";
+    }
 }

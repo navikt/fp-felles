@@ -2,41 +2,20 @@ package no.nav.vedtak.felles.integrasjon.saf;
 
 import javax.validation.constraints.NotNull;
 
-public class HentDokumentQuery {
+public record HentDokumentQuery(@NotNull String journalpostId, @NotNull String dokumentId, @NotNull String variantFormat) {
 
-    @NotNull
-    private final String journalpostId;
-
-    @NotNull
-    private final String dokumentId;
-
-    @NotNull
-    private final String variantFormat;
-
-    public HentDokumentQuery(@NotNull String journalpostId, @NotNull String dokumentId, @NotNull String variantFormat) {
-        this.journalpostId = journalpostId;
-        this.dokumentId = dokumentId;
-        this.variantFormat = variantFormat;
-    }
-
+    @Deprecated
     public String getJournalpostId() {
-        return journalpostId;
+        return journalpostId();
     }
 
+    @Deprecated
     public String getDokumentInfoId() {
-        return dokumentId;
+        return dokumentId();
     }
 
+    @Deprecated
     public String getVariantFormat() {
-        return variantFormat;
-    }
-
-    @Override
-    public String toString() {
-        return "HentDokumentQuery{" +
-            "journalpostId='" + journalpostId + '\'' +
-            ", dokumentId='" + dokumentId + '\'' +
-            ", variantFormat='" + variantFormat + '\'' +
-            '}';
+        return variantFormat();
     }
 }

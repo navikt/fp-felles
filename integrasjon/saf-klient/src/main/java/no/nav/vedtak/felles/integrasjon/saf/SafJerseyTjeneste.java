@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import no.nav.saf.JournalpostQueryResponse;
 import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
-import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
@@ -75,21 +73,16 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
 
     @Override
     public byte[] hentDokument(HentDokumentQuery q) {
-        try {
             LOG.trace("Henter dokument");
             var doc = invoke(client.target(base)
                     .path(HENTDOKUMENT)
-                    .resolveTemplate("journalpostId", q.getJournalpostId())
-                    .resolveTemplate("dokumentInfoId", q.getDokumentInfoId())
-                    .resolveTemplate("variantFormat", q.getVariantFormat())
+                    .resolveTemplate("journalpostId", q.journalpostId())
+                    .resolveTemplate("dokumentInfoId", q.dokumentId())
+                    .resolveTemplate("variantFormat", q.variantFormat())
                     .request()
                     .buildGet(), byte[].class);
             LOG.info("Hentet dokument OK");
             return doc;
-        } catch (WebApplicationException e) {
-            LOG.trace("Henting dokument feilet", e);
-            throw new TekniskException(F_240613, String.format("Feil ved henting av dokument fra %s", base), e);
-        }
     }
 
     @Override
@@ -98,7 +91,6 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
-        try {
             LOG.trace("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
             var res = invoke(client.target(base)
                     .path(GRAPHQL)
@@ -109,9 +101,6 @@ public class SafJerseyTjeneste extends AbstractJerseyOidcRestClient implements S
             }
             LOG.info("Eksekvert GraphQL query OK");
             return res;
-        } catch (WebApplicationException e) {
-            throw new TekniskException(F_240613, String.format("Feil ved Eksekvering av GraphQL query mot %s", base), e);
-        }
     }
 
     @Override

@@ -1,10 +1,10 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
+import static no.nav.foreldrepenger.konfig.Environment.NAIS_APP_NAME;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
-import static no.nav.vedtak.util.env.Environment.NAIS_APP_NAME;
 
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.nimbusds.jwt.SignedJWT;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
@@ -32,7 +33,6 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.BiasedDecisionResponse;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class PdpKlientImpl implements PdpKlient {
@@ -99,10 +99,10 @@ public class PdpKlientImpl implements PdpKlient {
     }
 
     private static AbacResultat resultatFraResponse(BiasedDecisionResponse response) {
-        if (response.getBiasedDecision() == Decision.Permit) {
+        if (response.biasedDecision() == Decision.Permit) {
             return AbacResultat.GODKJENT;
         }
-        var denyAdvice = response.getXacmlResponse().getAdvice();
+        var denyAdvice = response.xacmlResponse().getAdvice();
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Deny fra PDP, advice var: " + LoggerUtils.toStringWithoutLineBreaks(denyAdvice));
@@ -144,7 +144,7 @@ public class PdpKlientImpl implements PdpKlient {
     }
 
     private static void handlObligation(BiasedDecisionResponse response) {
-        var obligations = response.getXacmlResponse().getObligations();
+        var obligations = response.xacmlResponse().getObligations();
         if (!obligations.isEmpty()) {
             throw new TekniskException("F-576027", String.format("Mottok ukjente obligations fra PDP: %s", obligations));
         }

@@ -19,7 +19,6 @@ public class TokenSupportTokenProvider implements TokenProvider {
 
     @Override
     public boolean isTokenX() {
-        // TODO Auto-generated method stub
         return false;
     }
 }

@@ -19,6 +19,10 @@
             <artifactId>felles-feil</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>konfig</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-log</artifactId>
         </dependency>

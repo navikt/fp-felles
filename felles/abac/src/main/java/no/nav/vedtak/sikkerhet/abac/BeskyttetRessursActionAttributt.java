@@ -1,23 +1,17 @@
 package no.nav.vedtak.sikkerhet.abac;
 
 public enum BeskyttetRessursActionAttributt {
-    READ("read"),
-    UPDATE("update"),
-    CREATE("create"),
-    DELETE("delete"),
+    READ,
+    UPDATE,
+    CREATE,
+    DELETE,
 
     /**
      * Skal kun brukes av Interceptor
      */
-    DUMMY(null);
-
-    private String eksternKode;
-
-    BeskyttetRessursActionAttributt(String eksternKode) {
-        this.eksternKode = eksternKode;
-    }
+    DUMMY;
 
     public String getEksternKode() {
-        return eksternKode;
+        return this != DUMMY ? name().toLowerCase() : null;
     }
 }

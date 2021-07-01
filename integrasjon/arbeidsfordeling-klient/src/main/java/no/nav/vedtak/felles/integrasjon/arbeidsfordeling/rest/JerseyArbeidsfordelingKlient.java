@@ -8,7 +8,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
@@ -21,22 +21,19 @@ import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
-@ApplicationScoped
+@Dependent
 @Jersey
 public class JerseyArbeidsfordelingKlient extends AbstractJerseyOidcRestClient implements Arbeidsfordeling {
 
+    private static final String AKTIV = "AKTIV";
     private static final Logger LOG = LoggerFactory.getLogger(JerseyArbeidsfordelingKlient.class);
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
 
-    private URI uri;
-
-    JerseyArbeidsfordelingKlient() {
-    }
+    private final URI uri;
 
     @Inject
-    public JerseyArbeidsfordelingKlient(
-            @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
+    public JerseyArbeidsfordelingKlient(@KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
         this.uri = uri;
     }
 
@@ -60,7 +57,7 @@ public class JerseyArbeidsfordelingKlient extends AbstractJerseyOidcRestClient i
                     .buildPost(json(req))
                     .invoke(new GenericType<List<ArbeidsfordelingResponse>>() {
                     }).stream()
-                    .filter(r -> "AKTIV".equalsIgnoreCase(r.status()))
+                    .filter(r -> AKTIV.equalsIgnoreCase(r.status()))
                     .collect(toList());
         } catch (Exception e) {
             LOG.warn("Henting av enheter feilet", e);

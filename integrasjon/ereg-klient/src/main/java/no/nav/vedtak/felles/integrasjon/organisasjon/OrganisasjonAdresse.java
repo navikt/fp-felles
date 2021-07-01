@@ -2,40 +2,18 @@ package no.nav.vedtak.felles.integrasjon.organisasjon;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
+import java.util.Optional;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+public record OrganisasjonAdresse(String organisasjonsnummer, OrganisasjonstypeEReg type, Navn navn,
+        OrganisasjonDetaljer organisasjonDetaljer) {
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class OrganisasjonAdresse {
-
-    @JsonProperty("organisasjonsnummer")
-    private String organisasjonsnummer;
-    @JsonProperty("type")
-    private OrganisasjonstypeEReg type;
-    @JsonProperty("navn")
-    private Navn navn;
-    @JsonProperty("organisasjonDetaljer")
-    private OrganisasjonDetaljer organisasjonDetaljer;
-
-    public String getOrganisasjonsnummer() {
-        return organisasjonsnummer;
-    }
-
-    public OrganisasjonstypeEReg getType() {
-        return type;
-    }
 
     public String getNavn() {
-        return navn != null ? navn.getNavn() : null;
+        return Optional.ofNullable(navn)
+                .map(Navn::getNavn)
+                .orElse(null);
     }
 
     public AdresseEReg getKorrespondanseadresse() {
@@ -43,73 +21,44 @@ public class OrganisasjonAdresse {
     }
 
     public List<AdresseEReg> getForretningsadresser() {
-        return organisasjonDetaljer != null ? organisasjonDetaljer.getForretningsadresser() : Collections.emptyList();
+        return Optional.ofNullable(organisasjonDetaljer)
+                .map(OrganisasjonDetaljer::getForretningsadresser)
+                .filter(Objects::nonNull)
+                .orElseGet(() -> List.of());
     }
 
     public List<AdresseEReg> getPostadresser() {
-        return organisasjonDetaljer != null ? organisasjonDetaljer.getPostadresser() : Collections.emptyList();
+        return Optional.ofNullable(organisasjonDetaljer)
+                .map(OrganisasjonDetaljer::getPostadresser)
+                .filter(Objects::nonNull)
+                .orElseGet(() -> List.of());
     }
 
     public LocalDate getRegistreringsdato() {
-        return (organisasjonDetaljer != null) && (organisasjonDetaljer.getRegistreringsdato() != null)
-                ? organisasjonDetaljer.getRegistreringsdato().toLocalDate()
-                : null;
+        return Optional.ofNullable(organisasjonDetaljer)
+                .map(OrganisasjonDetaljer::registreringsdato)
+                .filter(Objects::nonNull)
+                .map(LocalDateTime::toLocalDate)
+                .orElse(null);
     }
 
     public LocalDate getOpphørsdato() {
-        return organisasjonDetaljer != null ? organisasjonDetaljer.getOpphoersdato() : null;
+        return Optional.ofNullable(organisasjonDetaljer)
+                .map(OrganisasjonDetaljer::opphoersdato)
+                .filter(Objects::nonNull)
+                .orElse(null);
     }
 
-    private static class Navn {
 
-        @JsonProperty("navnelinje1")
-        private String navnelinje1;
-        @JsonProperty("navnelinje2")
-        private String navnelinje2;
-        @JsonProperty("navnelinje3")
-        private String navnelinje3;
-        @JsonProperty("navnelinje4")
-        private String navnelinje4;
-        @JsonProperty("navnelinje5")
-        private String navnelinje5;
-
-        private Navn() {
-        }
-
-        private String getNavn() {
-            return Stream.of(navnelinje1, navnelinje2, navnelinje3, navnelinje4, navnelinje5)
-                    .filter(Objects::nonNull)
-                    .map(String::trim)
-                    .filter(n -> !n.isEmpty())
-                    .reduce("", (a, b) -> a + " " + b).trim();
-        }
-    }
-
-    private static class OrganisasjonDetaljer {
-
-        @JsonProperty("registreringsdato")
-        private LocalDateTime registreringsdato;
-        @JsonProperty("opphoersdato")
-        private LocalDate opphoersdato;
-        @JsonProperty("forretningsadresser")
-        private List<AdresseEReg> forretningsadresser;
-        @JsonProperty("postadresser")
-        private List<AdresseEReg> postadresser;
-
-        private LocalDateTime getRegistreringsdato() {
-            return registreringsdato;
-        }
-
-        private LocalDate getOpphoersdato() {
-            return opphoersdato;
-        }
+    private static record OrganisasjonDetaljer(LocalDateTime registreringsdato, LocalDate opphoersdato,
+            List<AdresseEReg> forretningsadresser, List<AdresseEReg> postadresser) {
 
         private List<AdresseEReg> getForretningsadresser() {
-            return forretningsadresser != null ? forretningsadresser : Collections.emptyList();
+            return forretningsadresser != null ? forretningsadresser : List.of();
         }
 
         private List<AdresseEReg> getPostadresser() {
-            return postadresser != null ? postadresser : Collections.emptyList();
+            return postadresser != null ? postadresser : List.of();
         }
     }
 

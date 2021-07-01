@@ -6,7 +6,9 @@ import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 
 interface MetadataProvider {
 
-    AuthorizationServerMetadata retrieve(String uri);
+    default AuthorizationServerMetadata retrieve(String uri) {
+        return retrieve(URI.create(uri));
+    }
 
     AuthorizationServerMetadata retrieve(URI uri);
 

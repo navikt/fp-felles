@@ -2,22 +2,15 @@ package no.nav.vedtak.sikkerhet.pdp.xacml;
 
 import no.nav.vedtak.sikkerhet.abac.Decision;
 
-public class BiasedDecisionResponse {
+public record BiasedDecisionResponse(Decision biasedDecision, XacmlResponseWrapper xacmlResponse) {
 
-    private final Decision biasedDecision;
-    private final XacmlResponseWrapper xacmlResponse;
-
-    public BiasedDecisionResponse(Decision biasedDecision, XacmlResponseWrapper xacmlResponse) {
-        this.biasedDecision = biasedDecision;
-        this.xacmlResponse = xacmlResponse;
-    }
-
+    @Deprecated
     public Decision getBiasedDecision() {
-        return biasedDecision;
+        return biasedDecision();
     }
 
+    @Deprecated
     public XacmlResponseWrapper getXacmlResponse() {
-        return xacmlResponse;
+        return xacmlResponse();
     }
-
 }

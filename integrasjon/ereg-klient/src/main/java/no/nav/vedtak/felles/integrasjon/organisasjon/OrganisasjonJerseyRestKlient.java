@@ -10,9 +10,9 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @Jersey
@@ -43,17 +43,14 @@ public class OrganisasjonJerseyRestKlient extends AbstractJerseyOidcRestClient i
     }
 
     private <T> T get(String orgnummer, Class<T> clazz) {
-        try {
             var target = client.target(endpoint).path(orgnummer);
-            LOG.warn("Henter organisasjoninfo for {} fra {}", orgnummer, target.getUri());
-            return target
+            LOG.trace("Henter organisasjoninfo for {} fra {}", orgnummer, target.getUri());
+            var res = invoke(target
                     .path(orgnummer)
                     .request(APPLICATION_JSON_TYPE)
-                    .get(clazz);
-        } catch (Exception e) {
-            LOG.warn("Kunne ikke hente organisasjoninfo", e);
-            throw e;
-        }
+                    .buildGet(), clazz);
+            LOG.info("Hentet organisasjoninfo for {} fra {} OK", orgnummer, target.getUri());
+            return res;
     }
 
     @Override
