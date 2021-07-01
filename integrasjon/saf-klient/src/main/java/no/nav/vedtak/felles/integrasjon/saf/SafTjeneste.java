@@ -22,6 +22,7 @@ import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.saf.Dokumentoversikt;
 import no.nav.saf.DokumentoversiktFagsakQueryRequest;
 import no.nav.saf.DokumentoversiktFagsakQueryResponse;
@@ -36,7 +37,6 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 /**
  *

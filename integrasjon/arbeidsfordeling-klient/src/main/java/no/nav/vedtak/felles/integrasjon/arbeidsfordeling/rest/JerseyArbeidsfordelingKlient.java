@@ -25,7 +25,6 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 @Jersey
 public class JerseyArbeidsfordelingKlient extends AbstractJerseyOidcRestClient implements Arbeidsfordeling {
 
-    private static final String AKTIV = "AKTIV";
     private static final Logger LOG = LoggerFactory.getLogger(JerseyArbeidsfordelingKlient.class);
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
