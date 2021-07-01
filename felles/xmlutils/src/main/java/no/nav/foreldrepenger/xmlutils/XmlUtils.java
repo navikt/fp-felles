@@ -18,6 +18,8 @@ import javax.xml.validation.SchemaFactory;
 
 import org.xml.sax.SAXException;
 
+import no.nav.vedtak.exception.TekniskException;
+
 public final class XmlUtils {
 
     private static final String TARGET_NAMESPACE = "targetNamespace";
@@ -42,9 +44,9 @@ public final class XmlUtils {
                 tempMap.put(namespaces.get(i), new SimpleEntry<>(jaxbClass, schema));
             }
         } catch (SAXException e) {
-            throw XmlUtilsFeil.feiletVedInstansieringAvSchema(e);
+            throw new TekniskException("F-350888", "Feilet på instansiering av schema for xsd-validering.", e);
         } catch (ClassNotFoundException e) {
-            throw XmlUtilsFeil.fantIkkeJaxbClass(jaxbClassName, e);
+            throw new TekniskException("F-991095", String.format("Fant ikke jaxb-class '%s'", jaxbClassName), e);
         }
         return Collections.unmodifiableMap(tempMap);
     }
@@ -60,9 +62,9 @@ public final class XmlUtils {
                     .newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocation).toExternalForm()));
             tempMap = Collections.singletonMap(namespace, new SimpleEntry<>(jaxbClass, schema));
         } catch (SAXException e) {
-            throw XmlUtilsFeil.feiletVedInstansieringAvSchema(e);
+            throw new TekniskException("F-350888", "Feilet på instansiering av schema for xsd-validering.", e);
         } catch (ClassNotFoundException e) {
-            throw XmlUtilsFeil.fantIkkeJaxbClass(jaxbClassName, e);
+            throw new TekniskException("F-991095", String.format("Fant ikke jaxb-class '%s'", jaxbClassName), e);
         }
         return Collections.unmodifiableMap(tempMap);
     }

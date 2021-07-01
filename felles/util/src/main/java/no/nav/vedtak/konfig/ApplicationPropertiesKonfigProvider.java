@@ -1,9 +1,9 @@
 package no.nav.vedtak.konfig;
 
 import static java.lang.System.getenv;
+import static no.nav.foreldrepenger.konfig.Cluster.NAIS_CLUSTER_NAME;
+import static no.nav.foreldrepenger.konfig.Namespace.NAIS_NAMESPACE_NAME;
 import static no.nav.vedtak.konfig.StandardPropertySource.APP_PROPERTIES;
-import static no.nav.vedtak.util.env.Cluster.NAIS_CLUSTER_NAME;
-import static no.nav.vedtak.util.env.Namespace.NAIS_NAMESPACE_NAME;
 
 import java.io.IOException;
 import java.util.Optional;

@@ -121,7 +121,7 @@ class EregRestTest {
         var org = fromJson(json, OrganisasjonAdresse.class);
 
         assertThat(org.getNavn()).isEqualTo("NAV IKT");
-        assertThat(org.getKorrespondanseadresse().getAdresselinje1()).isEqualTo("Postboks 5 St Olavs plass");
+        assertThat(org.getKorrespondanseadresse().adresselinje1()).isEqualTo("Postboks 5 St Olavs plass");
     }
 
     private static <T> T fromJson(String json, Class<T> clazz) throws IOException {

@@ -16,16 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.AvsluttedeSaker;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.AvsluttetSak;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.IkkeStartetSak;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.LøpendeSak;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Sak;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.SakResultat;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.SakType;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saksnummer;
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Utbetaling;
 
 class SerializationTest {
 
@@ -102,67 +93,67 @@ class SerializationTest {
         return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
     }
 
-    private static Saksnummer saksnummer(int n) {
-        return new Saksnummer("B", n);
+    private static Saker.Sak.Saksnummer saksnummer(int n) {
+        return new Saker.Sak.Saksnummer("B", n);
     }
 
-    private static Sak enSak(int n) {
-        return new Sak(plusDays(n), SakResultat.FB, saksnummer(n), "FI", SakType.S, plusDays(1));
+    private static Saker.Sak enSak(int n) {
+        return new Saker.Sak(plusDays(n), Saker.Sak.SakResultat.FB, saksnummer(n), "FI", Saker.Sak.SakType.S, plusDays(1));
     }
 
-    private static LøpendeSak åpenSak(int n) {
-        return new LøpendeSak(plusDays(n), utbetalinger(n));
+    private static Saker.LøpendeSak åpenSak(int n) {
+        return new Saker.LøpendeSak(plusDays(n), utbetalinger(n));
     }
 
-    private static AvsluttedeSaker avsluttedeSaker(int n) {
-        return new AvsluttedeSaker(plusDays(n), alleAvsluttedeSaker(n));
+    private static Saker.AvsluttedeSaker avsluttedeSaker(int n) {
+        return new Saker.AvsluttedeSaker(plusDays(n), alleAvsluttedeSaker(n));
     }
 
-    private static AvsluttetSak enAvsluttetSak(int n) {
-        return new AvsluttetSak(plusDays(n), plusDays(n + 1), utbetalinger(n));
+    private static Saker.AvsluttedeSaker.AvsluttetSak enAvsluttetSak(int n) {
+        return new Saker.AvsluttedeSaker.AvsluttetSak(plusDays(n), plusDays(n + 1), utbetalinger(n));
     }
 
-    private static IkkeStartetSak enIkkeStartetSak(int n) {
-        return new IkkeStartetSak(plusDays(n), plusDays(n + 1));
+    private static Saker.IkkeStartetSak enIkkeStartetSak(int n) {
+        return new Saker.IkkeStartetSak(plusDays(n), plusDays(n + 1));
     }
 
-    private static List<AvsluttetSak> alleAvsluttedeSaker(int n) {
+    private static List<Saker.AvsluttedeSaker.AvsluttetSak> alleAvsluttedeSaker(int n) {
         return IntStream.range(0, n)
                 .boxed()
                 .map(SerializationTest::enAvsluttetSak)
                 .collect(toList());
     }
 
-    private static List<Utbetaling> utbetalinger(int n) {
+    private static List<Saker.Utbetaling> utbetalinger(int n) {
         return IntStream.range(0, n)
                 .boxed()
                 .map(SerializationTest::utbetaling)
                 .collect(toList());
     }
 
-    private static List<LøpendeSak> åpneSaker(int n) {
+    private static List<Saker.LøpendeSak> åpneSaker(int n) {
         return IntStream.range(0, n)
                 .boxed()
                 .map(SerializationTest::åpenSak)
                 .collect(toList());
     }
 
-    private static List<Sak> saker(int n) {
+    private static List<Saker.Sak> saker(int n) {
         return IntStream.range(0, n)
                 .boxed()
                 .map(SerializationTest::enSak)
                 .collect(toList());
     }
 
-    private static List<IkkeStartetSak> ikkeStartedeSaker(int n) {
+    private static List<Saker.IkkeStartetSak> ikkeStartedeSaker(int n) {
         return IntStream.range(0, n)
                 .boxed()
                 .map(SerializationTest::enIkkeStartetSak)
                 .collect(toList());
     }
 
-    private static Utbetaling utbetaling(int n) {
-        return new Utbetaling(80, plusDays(n), plusDays(n + 1));
+    private static Saker.Utbetaling utbetaling(int n) {
+        return new Saker.Utbetaling(80, plusDays(n), plusDays(n + 1));
     }
 
     private static LocalDate plusDays(int n) {

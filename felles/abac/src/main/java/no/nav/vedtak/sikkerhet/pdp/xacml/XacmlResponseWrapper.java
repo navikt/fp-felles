@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
@@ -22,75 +21,70 @@ public class XacmlResponseWrapper {
     private static final String POLICY_IDENTIFIER = "no.nav.abac.attributter.adviceorobligation.deny_policy";
     private static final String DENY_ADVICE_IDENTIFIER = "no.nav.abac.advices.reason.deny_reason";
 
-    private JsonObject responseJson;
+    private final JsonObject responseJson;
 
     public XacmlResponseWrapper(JsonObject response) {
         this.responseJson = response;
     }
 
     public List<Obligation> getObligations() {
-        JsonValue v = responseJson.get(RESPONSE);
+        var v = responseJson.get(RESPONSE);
         if (v.getValueType() == JsonValue.ValueType.ARRAY) {
-            JsonArray jsonArray = responseJson.getJsonArray(RESPONSE);
+            var jsonArray = responseJson.getJsonArray(RESPONSE);
             return jsonArray.stream()
-                .map(this::getObligationsFromObject)
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-        } else {
-            return getObligationsFromObject(responseJson.getJsonObject(RESPONSE));
+                    .map(this::getObligationsFromObject)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
         }
+        return getObligationsFromObject(responseJson.getJsonObject(RESPONSE));
     }
 
     private List<Obligation> getObligationsFromObject(JsonValue jsonValue) {
         if (jsonValue.getValueType() == JsonValue.ValueType.ARRAY) {
             return jsonValue.asJsonArray()
-                .stream()
-                .map(this::getObligationsFromObject)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-        } else {
-            return getObligationsFromObject(jsonValue.asJsonObject());
+                    .stream()
+                    .map(this::getObligationsFromObject)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
         }
+        return getObligationsFromObject(jsonValue.asJsonObject());
     }
 
     private List<Obligation> getObligationsFromObject(JsonObject jsonObject) {
         if (jsonObject.containsKey(OBLIGATIONS)) {
             if (jsonObject.get(OBLIGATIONS).getValueType() == JsonValue.ValueType.ARRAY) {
-                JsonArray jsonArray = jsonObject.getJsonArray(OBLIGATIONS);
+                var jsonArray = jsonObject.getJsonArray(OBLIGATIONS);
                 return jsonArray.stream()
-                    .map(jsonValue -> new Obligation((JsonObject) jsonValue))
-                    .collect(Collectors.toList());
-            } else {
-                Obligation obligation = new Obligation(jsonObject.getJsonObject(OBLIGATIONS));
-                return Collections.singletonList(obligation);
+                        .map(jsonValue -> new Obligation((JsonObject) jsonValue))
+                        .collect(Collectors.toList());
             }
+            var obligation = new Obligation(jsonObject.getJsonObject(OBLIGATIONS));
+            return List.of(obligation);
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     public List<Advice> getAdvice() {
-        JsonValue v = responseJson.get(RESPONSE);
+        var v = responseJson.get(RESPONSE);
         if (v.getValueType() == JsonValue.ValueType.ARRAY) {
-            JsonArray jsonArray = responseJson.getJsonArray(RESPONSE);
+            var jsonArray = responseJson.getJsonArray(RESPONSE);
             return jsonArray.stream()
-                .map(this::getAdviceFromObject)
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-        } else {
-            return getAdvicefromObject(responseJson.getJsonObject(RESPONSE));
+                    .map(this::getAdviceFromObject)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
         }
+        return getAdvicefromObject(responseJson.getJsonObject(RESPONSE));
     }
 
     private List<Advice> getAdviceFromObject(JsonValue jsonValue) {
         if (jsonValue.getValueType() == JsonValue.ValueType.ARRAY) {
             return jsonValue.asJsonArray()
-                .stream()
-                .map(this::getAdviceFromObject)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-        } else {
-            return getAdvicefromObject(jsonValue.asJsonObject());
+                    .stream()
+                    .map(this::getAdviceFromObject)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
         }
+        return getAdvicefromObject(jsonValue.asJsonObject());
     }
 
     private List<Advice> getAdvicefromObject(JsonObject responseObject) {
@@ -100,68 +94,60 @@ public class XacmlResponseWrapper {
         var objectValue = responseObject.get(ADVICE);
         if (objectValue.getValueType() == JsonValue.ValueType.ARRAY) {
             return objectValue.asJsonArray().stream()
-                .map(JsonValue::asJsonObject)
-                .map(this::getAdvice)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-        } else {
-            JsonObject adviceObject = objectValue.asJsonObject();
-            if (!DENY_ADVICE_IDENTIFIER.equals(adviceObject.getString("Id"))) {
-                return Collections.emptyList();
-            }
-            return getAdvice(adviceObject);
+                    .map(JsonValue::asJsonObject)
+                    .map(this::getAdvice)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
         }
+        var adviceObject = objectValue.asJsonObject();
+        if (!DENY_ADVICE_IDENTIFIER.equals(adviceObject.getString("Id"))) {
+            return List.of();
+        }
+        return getAdvice(adviceObject);
     }
 
     private List<Advice> getAdvice(JsonObject responseObject) {
         if (responseObject.get(ATTRIBUTE_ASSIGNMENT).getValueType() == JsonValue.ValueType.ARRAY) {
-            JsonArray adviceArray = responseObject.getJsonArray(ATTRIBUTE_ASSIGNMENT);
+            var adviceArray = responseObject.getJsonArray(ATTRIBUTE_ASSIGNMENT);
             return adviceArray.stream()
-                .map(jsonValue -> jsonToAdvice((JsonObject) jsonValue))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-        } else {
-            Optional<Advice> advice = jsonToAdvice(responseObject.getJsonObject(ATTRIBUTE_ASSIGNMENT));
-            return advice.map(Collections::singletonList).orElse(Collections.emptyList());
+                    .map(jsonValue -> jsonToAdvice((JsonObject) jsonValue))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
         }
+        var advice = jsonToAdvice(responseObject.getJsonObject(ATTRIBUTE_ASSIGNMENT));
+        return advice.map(Collections::singletonList).orElse(List.of());
     }
 
     private Optional<Advice> jsonToAdvice(JsonObject advice) {
-        String attributeId = advice.getString("AttributeId");
-        String attributeValue = advice.getString("Value");
+        var attributeId = advice.getString("AttributeId");
+        var attributeValue = advice.getString("Value");
 
         if (!POLICY_IDENTIFIER.equals(attributeId)) {
             return Optional.empty();
         }
-        switch (attributeValue) {
-            case "fp3_behandle_egen_ansatt":
-                return Optional.of(Advice.DENY_EGEN_ANSATT);
-            case "fp2_behandle_kode7":
-                return Optional.of(Advice.DENY_KODE_7);
-            case "fp1_behandle_kode6":
-                return Optional.of(Advice.DENY_KODE_6);
-            default:
-                return Optional.empty();
-        }
+        return switch (attributeValue) {
+            case "fp3_behandle_egen_ansatt" -> Optional.of(Advice.DENY_EGEN_ANSATT);
+            case "fp2_behandle_kode7" -> Optional.of(Advice.DENY_KODE_7);
+            case "fp1_behandle_kode6" -> Optional.of(Advice.DENY_KODE_6);
+            default -> Optional.empty();
+        };
     }
 
     public List<Decision> getDecisions() {
-        JsonValue response = responseJson.get(RESPONSE);
+        var response = responseJson.get(RESPONSE);
         if (response.getValueType() == JsonValue.ValueType.ARRAY) {
             return responseJson.getJsonArray(RESPONSE).stream()
-                .map(jsonValue -> ((JsonObject) jsonValue).getString(DECISION))
-                .map(Decision::valueOf)
-                .collect(Collectors.toList());
+                    .map(jsonValue -> ((JsonObject) jsonValue).getString(DECISION))
+                    .map(Decision::valueOf)
+                    .collect(Collectors.toList());
 
-        } else {
-            return Collections.singletonList(Decision.valueOf(responseJson.getJsonObject(RESPONSE).getString(DECISION)));
         }
+        return List.of(Decision.valueOf(responseJson.getJsonObject(RESPONSE).getString(DECISION)));
     }
 
     @Override
     public String toString() {
-        return "XacmlResponse(" + responseJson + ")";
+        return getClass().getSimpleName() + " [responseJson=" + responseJson + "]";
     }
-
 }

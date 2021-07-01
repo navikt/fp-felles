@@ -1,81 +1,85 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons;
 
-import static java.util.Collections.emptyList;
+import static com.fasterxml.jackson.annotation.Nulls.AS_EMPTY;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class Saker {
-    private final String info;
-    private final List<Sak> saker;
-    private final List<LøpendeSak> løpendeSaker;
-    private final AvsluttedeSaker avsluttedeSaker;
-    private final List<IkkeStartetSak> ikkeStartedeSaker;
+public record Saker(String info, @JsonProperty("saker") @JsonSetter(nulls = AS_EMPTY) List<Sak> saker,
+        @JsonAlias("apneSakerMedLopendeUtbetaling") @JsonSetter(nulls = AS_EMPTY) List<LøpendeSak> løpendeSaker,
+        AvsluttedeSaker avsluttedeSaker, @JsonProperty("ikkeStartet") @JsonSetter(nulls = AS_EMPTY) List<IkkeStartetSak> ikkeStartet) {
 
-    @JsonCreator
-    public Saker(
-            @JsonProperty("info") String info,
-            @JsonProperty("saker") List<Sak> saker,
-            @JsonProperty("løpendeSaker") @JsonAlias("apneSakerMedLopendeUtbetaling") List<LøpendeSak> løpendeSaker,
-            @JsonProperty("avsluttedeSaker") AvsluttedeSaker avsluttedeSaker,
-            @JsonProperty("ikkeStartet") List<IkkeStartetSak> ikkeStartet) {
-        this.info = info;
-        this.saker = Optional.ofNullable(saker).orElse(emptyList());
-        this.løpendeSaker = Optional.ofNullable(løpendeSaker).orElse(emptyList());
-        this.avsluttedeSaker = avsluttedeSaker;
-        this.ikkeStartedeSaker = Optional.ofNullable(ikkeStartet).orElse(emptyList());
-    }
+    public record Sak(LocalDate iverksatt, SakResultat resultat, Saksnummer sakId, String status, SakType type, LocalDate vedtatt) {
 
-    public String getInfo() {
-        return info;
-    }
-
-    public List<Sak> getSaker() {
-        return saker;
-    }
-
-    public List<IkkeStartetSak> getIkkeStartedeSaker() {
-        return ikkeStartedeSaker;
-    }
-
-    public List<LøpendeSak> getLøpendeSaker() {
-        return løpendeSaker;
-    }
-
-    public AvsluttedeSaker getAvsluttedeSaker() {
-        return avsluttedeSaker;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(saker, løpendeSaker, avsluttedeSaker, ikkeStartedeSaker, info);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof Saker)) {
-            return false;
+        @JsonIgnore
+        public String getSaksnummer() {
+            return sakId().blokk() + nrFra(sakId().nr());
         }
-        if (this == obj) {
-            return true;
+
+        private static String nrFra(int nr) {
+            return nr < 10 ? "0" + nr : String.valueOf(nr);
         }
-        Saker that = (Saker) obj;
-        return Objects.equals(that.saker, this.saker) &&
-                Objects.equals(that.ikkeStartedeSaker, this.ikkeStartedeSaker) &&
-                Objects.equals(that.avsluttedeSaker, this.avsluttedeSaker) &&
-                Objects.equals(that.info, this.info) &&
-                Objects.equals(that.løpendeSaker, this.løpendeSaker);
+        public enum SakResultat {
+            @JsonEnumDefaultValue
+            UKJENT,
+            A,
+            AK,
+            AV,
+            DI,
+            DT,
+            FB,
+            FI,
+            H,
+            HB,
+            I,
+            IN,
+            IS,
+            IT,
+            MO,
+            MT,
+            NB,
+            O,
+            PA,
+            R,
+            SB,
+            TB,
+            TH,
+            TO,
+            UB,
+            Ø;
+        }
+
+        public enum SakType {
+            @JsonEnumDefaultValue
+            UKJENT,
+            S,
+            R,
+            K,
+            A
+        }
+
+        public record Saksnummer(String blokk, int nr) {
+        }
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[info=" + info + ", saker=" + saker + ", løpendeSaker=" + løpendeSaker
-                + ", avsluttedeSaker=" + avsluttedeSaker + ", ikkeStartedeSaker=" + ikkeStartedeSaker + "]";
+    public record AvsluttedeSaker(LocalDate fraOgMed, @JsonProperty("saker") @JsonSetter(nulls = AS_EMPTY) List<AvsluttetSak> saker) {
+        public record AvsluttetSak(LocalDate iverksatt, LocalDate stoppdato,
+                @JsonProperty("utbetalinger") @JsonSetter(nulls = AS_EMPTY) List<Utbetaling> utbetalinger) {
+        }
     }
 
+    public record Utbetaling(int gradering, LocalDate utbetaltFom, LocalDate utbetaltTom) {
+    }
+    public record IkkeStartetSak(LocalDate iverksatt, LocalDate registrert) {
+    }
+
+    public record LøpendeSak(LocalDate iverksatt,
+            @JsonProperty("utbetalinger") @JsonSetter(nulls = AS_EMPTY) List<Utbetaling> utbetalinger) {
+    }
 }

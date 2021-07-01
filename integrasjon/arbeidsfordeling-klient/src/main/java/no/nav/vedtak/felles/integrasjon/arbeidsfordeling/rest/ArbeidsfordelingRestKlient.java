@@ -5,19 +5,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
-@ApplicationScoped
+@Dependent
 /**
  *
- * @deprecated Bruk {@link JerseyArbeidsfordelingKlient} som implementer samme
- *             grensesnittet på en bedre måte
- *
+ * @see JerseyArbeidsfordelingKlient
  */
 @Deprecated(since = "3.0.x", forRemoval = true)
 public class ArbeidsfordelingRestKlient implements Arbeidsfordeling {
@@ -25,10 +23,10 @@ public class ArbeidsfordelingRestKlient implements Arbeidsfordeling {
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
 
-    private OidcRestClient restClient;
-    private URI alleEnheterUri;
-    private URI besteEnhetUri;
-    private String uriString;
+    private final OidcRestClient restClient;
+    private final URI alleEnheterUri;
+    private final URI besteEnhetUri;
+    private final String uriString;
 
     @Inject
     public ArbeidsfordelingRestKlient(OidcRestClient restClient,
@@ -37,9 +35,6 @@ public class ArbeidsfordelingRestKlient implements Arbeidsfordeling {
         this.alleEnheterUri = uri;
         this.besteEnhetUri = URI.create(uri + BEST_MATCH);
         this.uriString = uri.toString();
-    }
-
-    ArbeidsfordelingRestKlient() {
     }
 
     @Override
@@ -56,11 +51,16 @@ public class ArbeidsfordelingRestKlient implements Arbeidsfordeling {
         try {
             var respons = restClient.post(uri, request, ArbeidsfordelingResponse[].class);
             return Arrays.stream(respons)
-                    .filter(response -> "AKTIV".equalsIgnoreCase(response.status()))
+                    .filter(response -> AKTIV.equalsIgnoreCase(response.status()))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new IntegrasjonException("F-016913", String.format("NORG2 arbeidsfordeling feil ved oppslag mot %s", uri), e);
         }
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [restClient=" + restClient + ", alleEnheterUri=" + alleEnheterUri + ", besteEnhetUri="
+                + besteEnhetUri + ", uriString=" + uriString + "]";
+    }
 }

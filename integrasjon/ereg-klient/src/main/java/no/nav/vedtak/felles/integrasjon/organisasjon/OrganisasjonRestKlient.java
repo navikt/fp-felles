@@ -10,7 +10,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 
 /**
  *
- * @deprecated * @deprecated Bruk {@link OrganisasjonJerseyRestKlient}
+ * @see OrganisasjonJerseyRestKlient
  *
  */
 @Deprecated

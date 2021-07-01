@@ -25,10 +25,8 @@
         <module>pdl-klient</module>
         <module>ereg-klient</module>
         <module>kodeverk-klient</module>
-        <module>unleash-klient</module>
         <module>saf-klient</module>
         <module>sak-klient</module>
-        <module>sensu-klient</module>
     </modules>
     <properties>
         <wiremock.version>2.27.2</wiremock.version>

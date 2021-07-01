@@ -104,4 +104,9 @@ public abstract class AbstractJerseyPdlKlient extends AbstractJerseyRestClient i
         return res;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [endpoint=" + endpoint + ", errorHandler=" + errorHandler + "]";
+    }
+
 }

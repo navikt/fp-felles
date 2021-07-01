@@ -6,7 +6,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.ws.rs.Path;
 
-public class ActionUthenter {
+class ActionUthenter {
 
     private static final String SLASH = "/";
 
@@ -14,7 +14,7 @@ public class ActionUthenter {
 
     }
 
-    public static String action(Class<?> clazz, Method method) {
+    static String action(Class<?> clazz, Method method) {
         return clazz.getAnnotation(WebService.class) != null
                 ? actionForWebServiceMethod(clazz, method)
                 : actionForRestMethod(clazz, method);

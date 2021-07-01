@@ -23,11 +23,6 @@ class DefaultMetadataProvider implements MetadataProvider {
     }
 
     @Override
-    public AuthorizationServerMetadata retrieve(String uri) {
-        return retrieve(URI.create(uri));
-    }
-
-    @Override
     public AuthorizationServerMetadata retrieve(URI uri) {
         try {
             return AuthorizationServerMetadata.parse(retriever.retrieveResource(uri.toURL()).getContent());

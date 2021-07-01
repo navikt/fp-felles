@@ -37,8 +37,7 @@ public class PdpRequest {
     }
 
     public Optional<String> getOptional(String key) {
-        Objects.requireNonNull(key, "Key must not be null");
-        return Optional.ofNullable(attributeMap.get(key)).map(String::valueOf);
+        return Optional.ofNullable(getString(key));
     }
 
     @SuppressWarnings("unchecked")

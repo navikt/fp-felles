@@ -14,8 +14,8 @@ import javax.jws.WebService;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.util.env.Environment;
 
 @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, resource = "")
 @Interceptor

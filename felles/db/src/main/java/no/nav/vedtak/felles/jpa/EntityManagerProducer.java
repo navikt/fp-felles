@@ -17,10 +17,10 @@ import javax.persistence.Persistence;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.jpa.QueryHints;
+import org.hibernate.stat.HibernateMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.micrometer.core.instrument.binder.jpa.HibernateMetrics;
 
 /**
  * Denne klassen initialiserer {@link EntityManagerFactory} ihenhold til angitt

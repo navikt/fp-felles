@@ -29,7 +29,7 @@ public class DateUtil {
         if (localDateTime == null) {
             return null;
         }
-        GregorianCalendar gregorianCalendar = new GregorianCalendar();
+        var gregorianCalendar = new GregorianCalendar();
         gregorianCalendar.setTime(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
         return DATATYPE_FACTORY.newXMLGregorianCalendar(gregorianCalendar);
     }
@@ -38,7 +38,7 @@ public class DateUtil {
         if (localDate == null) {
             return null;
         }
-        GregorianCalendar gregorianCalendar = GregorianCalendar.from(localDate.atStartOfDay(ZoneId.systemDefault()));
+        var gregorianCalendar = GregorianCalendar.from(localDate.atStartOfDay(ZoneId.systemDefault()));
         return DATATYPE_FACTORY.newXMLGregorianCalendar(gregorianCalendar);
     }
 
