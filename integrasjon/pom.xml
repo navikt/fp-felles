@@ -14,7 +14,6 @@
     <name>Felles :: Integrasjon</name>
     <modules>
         <module>webservice</module>
-        <module>rest</module>
         <module>rest-klient</module>
         <module>ldap-klient</module>
         <module>arbeidsfordeling-klient</module>
@@ -58,11 +57,6 @@
                 <version>${project.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>felles-integrasjon-rest</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
