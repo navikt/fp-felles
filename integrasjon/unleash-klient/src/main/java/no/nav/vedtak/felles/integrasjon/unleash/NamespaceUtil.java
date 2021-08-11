@@ -41,6 +41,6 @@ class NamespaceUtil {
                 .stream()
                 .flatMap(Arrays::stream)
                 .map(String::trim)
-                .collect(toList());
+                .toList();
     }
 }

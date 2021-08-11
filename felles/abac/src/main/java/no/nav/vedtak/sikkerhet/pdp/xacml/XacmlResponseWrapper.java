@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.json.JsonObject;
 import javax.json.JsonValue;
@@ -34,7 +33,7 @@ public class XacmlResponseWrapper {
             return jsonArray.stream()
                     .map(this::getObligationsFromObject)
                     .flatMap(List::stream)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return getObligationsFromObject(responseJson.getJsonObject(RESPONSE));
     }
@@ -45,7 +44,7 @@ public class XacmlResponseWrapper {
                     .stream()
                     .map(this::getObligationsFromObject)
                     .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return getObligationsFromObject(jsonValue.asJsonObject());
     }
@@ -56,7 +55,7 @@ public class XacmlResponseWrapper {
                 var jsonArray = jsonObject.getJsonArray(OBLIGATIONS);
                 return jsonArray.stream()
                         .map(jsonValue -> new Obligation((JsonObject) jsonValue))
-                        .collect(Collectors.toList());
+                        .toList();
             }
             var obligation = new Obligation(jsonObject.getJsonObject(OBLIGATIONS));
             return List.of(obligation);
@@ -71,7 +70,7 @@ public class XacmlResponseWrapper {
             return jsonArray.stream()
                     .map(this::getAdviceFromObject)
                     .flatMap(List::stream)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return getAdvicefromObject(responseJson.getJsonObject(RESPONSE));
     }
@@ -82,7 +81,7 @@ public class XacmlResponseWrapper {
                     .stream()
                     .map(this::getAdviceFromObject)
                     .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return getAdvicefromObject(jsonValue.asJsonObject());
     }
@@ -97,7 +96,7 @@ public class XacmlResponseWrapper {
                     .map(JsonValue::asJsonObject)
                     .map(this::getAdvice)
                     .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         var adviceObject = objectValue.asJsonObject();
         if (!DENY_ADVICE_IDENTIFIER.equals(adviceObject.getString("Id"))) {
@@ -113,7 +112,7 @@ public class XacmlResponseWrapper {
                     .map(jsonValue -> jsonToAdvice((JsonObject) jsonValue))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         var advice = jsonToAdvice(responseObject.getJsonObject(ATTRIBUTE_ASSIGNMENT));
         return advice.map(Collections::singletonList).orElse(List.of());
@@ -140,8 +139,7 @@ public class XacmlResponseWrapper {
             return responseJson.getJsonArray(RESPONSE).stream()
                     .map(jsonValue -> ((JsonObject) jsonValue).getString(DECISION))
                     .map(Decision::valueOf)
-                    .collect(Collectors.toList());
-
+                    .toList();
         }
         return List.of(Decision.valueOf(responseJson.getJsonObject(RESPONSE).getString(DECISION)));
     }

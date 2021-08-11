@@ -121,28 +121,28 @@ class SerializationTest {
         return IntStream.range(0, n)
                 .boxed()
                 .map(SerializationTest::enAvsluttetSak)
-                .collect(toList());
+                .toList();
     }
 
     private static List<Saker.Utbetaling> utbetalinger(int n) {
         return IntStream.range(0, n)
                 .boxed()
                 .map(SerializationTest::utbetaling)
-                .collect(toList());
+                .toList();
     }
 
     private static List<Saker.LøpendeSak> åpneSaker(int n) {
         return IntStream.range(0, n)
                 .boxed()
                 .map(SerializationTest::åpenSak)
-                .collect(toList());
+                .toList();
     }
 
     private static List<Saker.Sak> saker(int n) {
         return IntStream.range(0, n)
                 .boxed()
                 .map(SerializationTest::enSak)
-                .collect(toList());
+                .toList();
     }
 
     private static List<Saker.IkkeStartetSak> ikkeStartedeSaker(int n) {

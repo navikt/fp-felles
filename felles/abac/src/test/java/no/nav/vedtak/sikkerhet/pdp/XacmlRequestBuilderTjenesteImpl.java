@@ -10,7 +10,6 @@ import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.XACML10_SUBJ
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 
@@ -103,7 +102,7 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
     private static List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
         List<Tuple<String, String>> identer = new ArrayList<>();
         for (String key : identNøkler) {
-            identer.addAll(pdpRequest.getListOfString(key).stream().map(it -> new Tuple<>(key, it)).collect(Collectors.toList()));
+            identer.addAll(pdpRequest.getListOfString(key).stream().map(it -> new Tuple<>(key, it)).toList());
         }
         return identer;
     }

@@ -3,7 +3,6 @@ package no.nav.vedtak.log.util;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +39,7 @@ public class MemoryAppender extends ListAppender<ILoggingEvent> {
     public List<ILoggingEvent> search(String string) {
         return this.list.stream()
                 .filter(event -> event.getMessage().toString().contains(string))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ILoggingEvent> searchInfo(String string) {
@@ -51,7 +50,7 @@ public class MemoryAppender extends ListAppender<ILoggingEvent> {
         return this.list.stream()
                 .filter(event -> event.getMessage().toString().contains(string)
                         && event.getLevel().equals(level))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public int getSize() {
