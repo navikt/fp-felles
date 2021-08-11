@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest;
 
-import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.client.Entity.json;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
@@ -57,7 +56,7 @@ public class JerseyArbeidsfordelingKlient extends AbstractJerseyOidcRestClient i
                     .invoke(new GenericType<List<ArbeidsfordelingResponse>>() {
                     }).stream()
                     .filter(r -> AKTIV.equalsIgnoreCase(r.status()))
-                    .collect(toList());
+                    .toList();
         } catch (Exception e) {
             LOG.warn("Henting av enheter feilet", e);
             throw new IntegrasjonException("F-016913", String.format("Henting av enheter fra %s feilet", uri));
