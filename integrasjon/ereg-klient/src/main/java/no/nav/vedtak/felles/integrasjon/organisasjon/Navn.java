@@ -1,6 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.organisasjon;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 record Navn(String navnelinje1,
@@ -13,7 +14,7 @@ record Navn(String navnelinje1,
         return Stream.of(navnelinje1, navnelinje2, navnelinje3, navnelinje4, navnelinje5)
                 .filter(Objects::nonNull)
                 .map(String::trim)
-                .filter(n -> !n.isEmpty())
+                .filter(Predicate.not(String::isEmpty))
                 .reduce("", (a, b) -> a + " " + b).trim();
     }
 }

@@ -11,7 +11,7 @@ public record OrganisasjonAdresse(String organisasjonsnummer, OrganisasjonstypeE
 
 
     public String getNavn() {
-        return Optional.ofNullable(navn)
+        return Optional.ofNullable(navn())
                 .map(Navn::getNavn)
                 .orElse(null);
     }
@@ -21,21 +21,21 @@ public record OrganisasjonAdresse(String organisasjonsnummer, OrganisasjonstypeE
     }
 
     public List<AdresseEReg> getForretningsadresser() {
-        return Optional.ofNullable(organisasjonDetaljer)
+        return Optional.ofNullable(organisasjonDetaljer())
                 .map(OrganisasjonDetaljer::getForretningsadresser)
                 .filter(Objects::nonNull)
                 .orElseGet(() -> List.of());
     }
 
     public List<AdresseEReg> getPostadresser() {
-        return Optional.ofNullable(organisasjonDetaljer)
+        return Optional.ofNullable(organisasjonDetaljer())
                 .map(OrganisasjonDetaljer::getPostadresser)
                 .filter(Objects::nonNull)
                 .orElseGet(() -> List.of());
     }
 
     public LocalDate getRegistreringsdato() {
-        return Optional.ofNullable(organisasjonDetaljer)
+        return Optional.ofNullable(organisasjonDetaljer())
                 .map(OrganisasjonDetaljer::registreringsdato)
                 .filter(Objects::nonNull)
                 .map(LocalDateTime::toLocalDate)
@@ -43,7 +43,7 @@ public record OrganisasjonAdresse(String organisasjonsnummer, OrganisasjonstypeE
     }
 
     public LocalDate getOpphørsdato() {
-        return Optional.ofNullable(organisasjonDetaljer)
+        return Optional.ofNullable(organisasjonDetaljer())
                 .map(OrganisasjonDetaljer::opphoersdato)
                 .filter(Objects::nonNull)
                 .orElse(null);
@@ -54,12 +54,11 @@ public record OrganisasjonAdresse(String organisasjonsnummer, OrganisasjonstypeE
             List<AdresseEReg> forretningsadresser, List<AdresseEReg> postadresser) {
 
         private List<AdresseEReg> getForretningsadresser() {
-            return forretningsadresser != null ? forretningsadresser : List.of();
+            return Optional.ofNullable(forretningsadresser()).orElseGet(() -> List.of());
         }
 
         private List<AdresseEReg> getPostadresser() {
-            return postadresser != null ? postadresser : List.of();
+            return Optional.ofNullable(postadresser()).orElseGet(() -> List.of());
         }
     }
-
 }

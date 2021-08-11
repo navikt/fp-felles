@@ -3,118 +3,74 @@ package no.nav.vedtak.felles.integrasjon.organisasjon;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class OrganisasjonEReg {
+public record OrganisasjonEReg(String organisasjonsnummer, OrganisasjonstypeEReg type, Navn navn, OrganisasjonDetaljer organisasjonDetaljer,
+        VirksomhetDetaljer virksomhetDetaljer) {
 
-    @JsonProperty("organisasjonsnummer")
-    private String organisasjonsnummer;
-    @JsonProperty("type")
-    private OrganisasjonstypeEReg type;
-    @JsonProperty("navn")
-    private Navn navn;
-    @JsonProperty("organisasjonDetaljer")
-    private OrganisasjonDetaljer organisasjonDetaljer;
-    @JsonProperty("virksomhetDetaljer")
-    private VirksomhetDetaljer virksomhetDetaljer;
-
+    @Deprecated
     public String getOrganisasjonsnummer() {
-        return organisasjonsnummer;
+        return organisasjonsnummer();
     }
 
+    @Deprecated
     public OrganisasjonstypeEReg getType() {
-        return type;
+        return type();
     }
 
     public String getNavn() {
-        return navn != null ? navn.getNavn() : null;
+        return Optional.ofNullable(navn())
+                .map(Navn::getNavn)
+                .orElse(null);
     }
 
     public LocalDate getRegistreringsdato() {
-        return (organisasjonDetaljer != null) && (organisasjonDetaljer.getRegistreringsdato() != null)
-                ? organisasjonDetaljer.getRegistreringsdato().toLocalDate()
-                : null;
+        return Optional.ofNullable(organisasjonDetaljer())
+                .map(OrganisasjonDetaljer::registreringsdato)
+                .filter(Objects::nonNull)
+                .map(LocalDateTime::toLocalDate)
+                .orElse(null);
     }
 
     public LocalDate getOpphørsdato() {
-        return organisasjonDetaljer != null ? organisasjonDetaljer.getOpphoersdato() : null;
+        return Optional.ofNullable(organisasjonDetaljer())
+                .map(OrganisasjonDetaljer::opphoersdato)
+                .orElse(null);
     }
 
     public LocalDate getOppstartsdato() {
-        return virksomhetDetaljer != null ? virksomhetDetaljer.getOppstartsdato() : null;
+        return Optional.ofNullable(virksomhetDetaljer())
+                .map(VirksomhetDetaljer::oppstartsdato)
+                .orElse(null);
     }
 
     public LocalDate getNedleggelsesdato() {
-        return virksomhetDetaljer != null ? virksomhetDetaljer.getNedleggelsesdato() : null;
+        return Optional.ofNullable(virksomhetDetaljer())
+                .map(VirksomhetDetaljer::nedleggelsesdato)
+                .orElse(null);
     }
 
-    private static class Navn {
-
-        @JsonProperty("navnelinje1")
-        private String navnelinje1;
-        @JsonProperty("navnelinje2")
-        private String navnelinje2;
-        @JsonProperty("navnelinje3")
-        private String navnelinje3;
-        @JsonProperty("navnelinje4")
-        private String navnelinje4;
-        @JsonProperty("navnelinje5")
-        private String navnelinje5;
-
-        private Navn() {
-        }
+    private static record Navn(String navnelinje1, String navnelinje2, String navnelinje3, String navnelinje4, String navnelinje5) {
 
         private String getNavn() {
-            return Stream.of(navnelinje1, navnelinje2, navnelinje3, navnelinje4, navnelinje5)
+            return Stream.of(navnelinje1(), navnelinje2(), navnelinje3(), navnelinje4(), navnelinje5())
                     .filter(Objects::nonNull)
                     .map(String::trim)
-                    .filter(n -> !n.isEmpty())
+                    .filter(Predicate.not(String::isEmpty))
                     .reduce("", (a, b) -> a + " " + b).trim();
         }
     }
 
-    private static class OrganisasjonDetaljer {
-
-        @JsonProperty("registreringsdato")
-        private LocalDateTime registreringsdato;
-        @JsonProperty("opphoersdato")
-        private LocalDate opphoersdato;
-
-        private LocalDateTime getRegistreringsdato() {
-            return registreringsdato;
-        }
-
-        private LocalDate getOpphoersdato() {
-            return opphoersdato;
-        }
+    private static record OrganisasjonDetaljer(LocalDateTime registreringsdato, LocalDate opphoersdato) {
 
     }
 
-    private static class VirksomhetDetaljer {
-
-        @JsonProperty("oppstartsdato")
-        private LocalDate oppstartsdato;
-        @JsonProperty("nedleggelsesdato")
-        private LocalDate nedleggelsesdato;
-
-        private VirksomhetDetaljer() {
-        }
-
-        private LocalDate getOppstartsdato() {
-            return oppstartsdato;
-        }
-
-        private LocalDate getNedleggelsesdato() {
-            return nedleggelsesdato;
-        }
+    private static record VirksomhetDetaljer(LocalDate oppstartsdato, LocalDate nedleggelsesdato) {
     }
 
 }

@@ -1,6 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.organisasjon;
 
-public record AdresseEReg(String adresselinje1,
+record AdresseEReg(String adresselinje1,
         String adresselinje2,
         String adresselinje3,
         String kommunenummer,
