@@ -13,10 +13,6 @@
     <name>Felles :: ABAC</name>
     <packaging>jar</packaging>
 
-    <properties>
-        <resteasy.version>4.6.2.Final</resteasy.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
@@ -51,10 +47,9 @@
         </dependency>
         <dependency>
             <!-- kun for Xacml - kan erstattes ved å bytte JsonUtil til Jackson ObjectMapper -->
-            <!-- kan vi få fjernet denne? -->
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-json-p-provider</artifactId>
-            <version>${resteasy.version}</version>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.json</artifactId>
+            <version>1.1.6</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
