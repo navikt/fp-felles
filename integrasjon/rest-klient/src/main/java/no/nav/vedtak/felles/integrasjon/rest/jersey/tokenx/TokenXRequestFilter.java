@@ -58,7 +58,7 @@ public class TokenXRequestFilter implements ClientRequestFilter {
             LOG.trace(CONFIDENTIAL, "Veksler tokenX token {} for {}", token, ctx.getUri());
             ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + client.exchange(token, audienceGenerator.audience(ctx.getUri())));
         } else {
-            if (ENV.isVTP()) {
+            if (ENV.isLocal()) {
                 LOG.warn("Dette er intet tokenX token, sender originalt token videre til {} siden VTP er mangelfull her", ctx.getUri());
                 ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + token);
             } else {
