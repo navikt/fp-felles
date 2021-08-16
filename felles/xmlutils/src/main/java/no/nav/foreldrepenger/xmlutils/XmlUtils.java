@@ -39,7 +39,7 @@ public final class XmlUtils {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             tempMap = new HashMap<>();
             for (int i = 0; i < namespaces.size(); i++) {
-                final Schema schema = schemaFactory
+                var schema = schemaFactory
                         .newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocations.get(i)).toExternalForm()));
                 tempMap.put(namespaces.get(i), new SimpleEntry<>(jaxbClass, schema));
             }
@@ -57,7 +57,7 @@ public final class XmlUtils {
         try {
             final Class<?> jaxbClass = Class.forName(jaxbClassName);
 
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            var schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             final Schema schema = schemaFactory
                     .newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocation).toExternalForm()));
             tempMap = Collections.singletonMap(namespace, new SimpleEntry<>(jaxbClass, schema));

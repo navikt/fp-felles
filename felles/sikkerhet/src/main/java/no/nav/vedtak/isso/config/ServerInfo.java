@@ -41,7 +41,7 @@ public final class ServerInfo {
     private static String schemeHostPortFromSystemProperties() {
 
         return ENV.getRequiredProperty(PROPERTY_KEY_LOADBALANCER_URL,
-                () -> new TekniskException("F-720999", String.format("Mangler nødvendig system property '%s'", PROPERTY_KEY_LOADBALANCER_URL)));
+                () -> new TekniskException("F-720999", String.format("Mangler nødvendig property '%s'", PROPERTY_KEY_LOADBALANCER_URL)));
     }
 
     private static String cookieDomain(String schemeHostPort) {

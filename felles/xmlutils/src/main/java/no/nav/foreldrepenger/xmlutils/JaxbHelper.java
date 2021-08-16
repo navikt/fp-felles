@@ -61,12 +61,12 @@ public final class JaxbHelper {
         if (!CONTEXTS.containsKey(schemaAndClass.getKey())) {
             CONTEXTS.put(schemaAndClass.getKey(), JAXBContext.newInstance(schemaAndClass.getKey()));
         }
-        Marshaller marshaller = CONTEXTS.get(schemaAndClass.getKey()).createMarshaller();
+        var marshaller = CONTEXTS.get(schemaAndClass.getKey()).createMarshaller();
 
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, formatted);
         marshaller.setSchema(schemaAndClass.getValue());
 
-        StringWriter writer = new StringWriter();
+        var writer = new StringWriter();
         marshaller.marshal(jaxbObject, writer);
         return writer.toString();
     }
@@ -75,7 +75,7 @@ public final class JaxbHelper {
         if (!CONTEXTS.containsKey(clazz)) {
             CONTEXTS.put(clazz, JAXBContext.newInstance(clazz));
         }
-        Marshaller marshaller = CONTEXTS.get(clazz).createMarshaller();
+        var marshaller = CONTEXTS.get(clazz).createMarshaller();
 
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         Schema schema = getSchema(xsdLocation);
@@ -90,7 +90,7 @@ public final class JaxbHelper {
         if (!CONTEXTS.containsKey(clazz)) {
             CONTEXTS.put(clazz, JAXBContext.newInstance(clazz));
         }
-        Marshaller marshaller = CONTEXTS.get(clazz).createMarshaller();
+        var marshaller = CONTEXTS.get(clazz).createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         if (schema != null) {

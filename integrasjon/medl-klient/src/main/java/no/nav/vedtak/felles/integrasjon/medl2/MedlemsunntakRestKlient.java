@@ -26,7 +26,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
  *             Swagger https://app-q1.adeo.no/medl2/swagger-ui.html
  */
 
-@Deprecated
+@Deprecated(since = "4.0.x", forRemoval = true)
 @ApplicationScoped
 public class MedlemsunntakRestKlient implements Medlemsskap {
 

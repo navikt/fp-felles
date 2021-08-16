@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Optional;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
@@ -35,11 +36,10 @@ public class DateUtil {
     }
 
     public static XMLGregorianCalendar convertToXMLGregorianCalendar(LocalDate localDate) {
-        if (localDate == null) {
-            return null;
-        }
-        var gregorianCalendar = GregorianCalendar.from(localDate.atStartOfDay(ZoneId.systemDefault()));
-        return DATATYPE_FACTORY.newXMLGregorianCalendar(gregorianCalendar);
+        return Optional.ofNullable(localDate)
+                .map(d -> GregorianCalendar.from(d.atStartOfDay(ZoneId.systemDefault())))
+                .map(DATATYPE_FACTORY::newXMLGregorianCalendar)
+                .orElse(null);
     }
 
     public static XMLGregorianCalendar convertToXMLGregorianCalendarRemoveTimezone(LocalDate localDate) {

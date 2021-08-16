@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
 
 @Dependent
 @Jersey
-@Deprecated
+@Deprecated(since = "4.0.x", forRemoval = true)
 /**
  * 
  * Denne klienten prøver først å finne et brukertoken på tråden. Om dette ikke

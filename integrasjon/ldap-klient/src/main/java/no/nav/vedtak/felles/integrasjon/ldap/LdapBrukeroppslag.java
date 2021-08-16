@@ -16,6 +16,9 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.TekniskException;
+
 public class LdapBrukeroppslag {
 
     private final LdapContext context;
@@ -39,11 +42,11 @@ public class LdapBrukeroppslag {
 
     private SearchResult ldapSearch(String ident) {
         if (ident == null || ident.isEmpty()) {
-            throw LdapFeil.kanIkkeSlåOppBrukernavnDaIdentIkkeErSatt();
+            throw new TekniskException("F-344885", "Kan ikke slå opp brukernavn uten å ha ident");
         }
         Matcher matcher = IDENT_PATTERN.matcher(ident);
         if (!matcher.matches()) {
-            throw LdapFeil.ugyldigIdent(ident);
+            throw new TekniskException("F-271934", String.format("Mulig LDAP-injection forsøk. Søkte med ugyldig ident '%s'", ident));
         }
 
         SearchControls controls = new SearchControls();
@@ -55,11 +58,12 @@ public class LdapBrukeroppslag {
             if (result.hasMoreElements()) {
                 return result.nextElement();
             }
-            throw LdapFeil.fantIngenBrukerForIdent(ident);
+            throw new IntegrasjonException("F-418891", String.format("Fikk ingen treff på søk mot LDAP etter ident %s", ident));
         } catch (LimitExceededException lee) {
-            throw LdapFeil.ikkeEntydigResultat(ident, lee);
+            throw new IntegrasjonException("F-137440",
+            String.format("Forventet ett unikt resultat på søk mot LDAP etter ident %s, men fikk flere treff", ident), lee);
         } catch (NamingException e) {
-            throw LdapFeil.ukjentFeilVedLdapSøk(søkestreng, e);
+            throw new IntegrasjonException("F-690609", String.format("Uventet feil ved LDAP-søk %s", søkestreng), e);
         }
     }
 
@@ -69,7 +73,7 @@ public class LdapBrukeroppslag {
         try {
             return displayName.get().toString();
         } catch (NamingException e) {
-            throw LdapFeil.kunneIkkeHenteUtAttributtverdi(attributeName, displayName, e);
+            throw new TekniskException("F-314006", String.format("Kunne ikke hente ut attributtverdi %s fra %s", attributeName, attributeName), e);
         }
     }
 
@@ -129,7 +133,7 @@ public class LdapBrukeroppslag {
                 groups.add(dnValue);
             }
         } catch (NamingException e) {
-            throw LdapFeil.kunneIkkeHenteUtAttributtverdi(attributeName, memberOf, e);
+            throw new TekniskException("F-314006", String.format("Kunne ikke hente ut attributtverdi %s fra %s", attributeName, attributeName), e);
         }
         return groups;
     }
@@ -137,7 +141,7 @@ public class LdapBrukeroppslag {
     private static Attribute find(SearchResult element, String attributeName) {
         Attribute attribute = element.getAttributes().get(attributeName);
         if (attribute == null) {
-            throw LdapFeil.resultatFraLdapMangletAttributt(attributeName);
+            throw new IntegrasjonException("F-828846", String.format("Resultat fra LDAP manglet påkrevet attributtnavn %s", attributeName));
         }
         return attribute;
     }
@@ -147,7 +151,7 @@ public class LdapBrukeroppslag {
         try {
             return new LdapName(userBaseDn); // NOSONAR
         } catch (InvalidNameException e) {
-            throw LdapFeil.klarteIkkeDefinereBaseSøk(userBaseDn, e);
+            throw new IntegrasjonException("F-703197", String.format("Kunne ikke definere base-søk mot LDAP %s", userBaseDn), e);
         }
     }
 }

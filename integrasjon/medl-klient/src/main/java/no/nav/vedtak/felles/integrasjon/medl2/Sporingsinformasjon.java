@@ -4,12 +4,12 @@ import java.time.LocalDate;
 
 public record Sporingsinformasjon(LocalDate besluttet, String kilde) {
 
-    @Deprecated
+    @Deprecated(since = "4.0.x", forRemoval = true)
     LocalDate getBesluttet() {
         return besluttet();
     }
 
-    @Deprecated
+    @Deprecated(since = "4.0.x", forRemoval = true)
     String getKilde() {
         return kilde();
     }

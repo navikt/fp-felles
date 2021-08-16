@@ -1,33 +1,32 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 
 public record Arbeidsforhold(
-            @JsonProperty("orgnr") @JsonAlias("arbeidsgiverOrgnr") Orgnummer orgnr,
-            @JsonProperty("inntekt") @JsonAlias("inntektForPerioden") Integer inntekt,
-            @JsonProperty("inntektsperiode") Inntektsperiode inntektperiode,
-            @JsonProperty("refusjon") Boolean refusjon) {
+        @JsonAlias("arbeidsgiverOrgnr") Orgnummer orgnr,
+        @JsonAlias("inntektForPerioden") Integer inntekt,
+        Inntektsperiode inntektperiode,
+        Boolean refusjon) {
 
 
-    @Deprecated
+    @Deprecated(since = "4.0.x", forRemoval = true)
     public Orgnummer getOrgnr() {
         return orgnr();
     }
 
-    @Deprecated
+    @Deprecated(since = "4.0.x", forRemoval = true)
     public Integer getInntekt() {
         return inntekt();
     }
 
-    @Deprecated
+    @Deprecated(since = "4.0.x", forRemoval = true)
     public Inntektsperiode getInntektperiode() {
         return inntektperiode();
     }
 
-    @Deprecated
+    @Deprecated(since = "4.0.x", forRemoval = true)
     public Boolean getRefusjon() {
         return refusjon();
     }

@@ -43,7 +43,7 @@ public class LdapInnlogging {
         try {
             return new InitialLdapContext(environment, null);
         } catch (NamingException e) {
-            throw LdapFeil.klarteIkkeKobleTilLdap(url, e);
+            throw new TekniskException("F-222862", String.format("Klarte ikke koble til LDAP på URL %s", url));
         }
     }
 

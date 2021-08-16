@@ -22,7 +22,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
  * @deprecated bruk {@link OppgaveJerseyRestKlient}
  *
  */
-@Deprecated
+@Deprecated(since = "4.0.x", forRemoval = true)
 @ApplicationScoped
 public class OppgaveRestKlient implements Oppgaver {
 

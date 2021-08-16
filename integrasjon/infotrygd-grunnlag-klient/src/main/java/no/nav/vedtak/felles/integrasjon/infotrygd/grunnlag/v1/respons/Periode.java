@@ -5,12 +5,12 @@ import java.time.LocalDate;
 
 public record Periode(LocalDate fom, LocalDate tom) {
 
-    @Deprecated
+    @Deprecated(since = "4.0.x", forRemoval = true)
     public LocalDate getFom() {
         return fom();
     }
 
-    @Deprecated
+    @Deprecated(since = "4.0.x", forRemoval = true)
     public LocalDate getTom() {
         return tom();
     }

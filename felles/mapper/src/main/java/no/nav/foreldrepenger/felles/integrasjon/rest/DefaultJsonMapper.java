@@ -36,7 +36,6 @@ public class DefaultJsonMapper {
         return mapper;
     }
 
-    @Deprecated(since = "4.0", forRemoval = true)
     public static <T> List<T> fromJson(String json, TypeReference<List<T>> typeReference) {
         try {
             return MAPPER.readValue(json, typeReference);
@@ -45,7 +44,6 @@ public class DefaultJsonMapper {
         }
     }
 
-    @Deprecated(since = "4.0", forRemoval = true)
     public static String toJson(Object obj) {
         try {
             return MAPPER.writeValueAsString(obj);

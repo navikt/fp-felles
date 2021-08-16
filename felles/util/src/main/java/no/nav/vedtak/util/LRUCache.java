@@ -4,6 +4,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * 
+ * Bruk heller Caffeine
+ *
+ */
+@Deprecated(since = "4.0.x", forRemoval = true)
 public class LRUCache<K extends Comparable<?>, V> {
     private final long timeoutMillis;
     private final Map<K, Item<V>> cacheMap;
