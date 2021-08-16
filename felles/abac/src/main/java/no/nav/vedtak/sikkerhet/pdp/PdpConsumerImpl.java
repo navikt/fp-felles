@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
-import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class PdpConsumerImpl implements PdpConsumer {
@@ -63,7 +62,14 @@ public class PdpConsumerImpl implements PdpConsumer {
     private String passord;
     private HttpHost target;
 
-    private Tuple<CloseableHttpClient, AuthCache> activeConfiguration;
+    private record Respons(StatusLine status, JsonObject res) {
+        
+    }
+    private record CacheConfig(CloseableHttpClient client, AuthCache cache) {
+
+    }
+
+    private CacheConfig activeConfiguration;
 
     PdpConsumerImpl() {
     } // CDI
@@ -79,7 +85,7 @@ public class PdpConsumerImpl implements PdpConsumer {
         activeConfiguration = buildClient();
     }
 
-    private Tuple<CloseableHttpClient, AuthCache> buildClient() {
+    private CacheConfig buildClient() {
         var cm = new PoolingHttpClientConnectionManager();
         cm.setDefaultMaxPerRoute(MAX_TOTAL_CONNECTIONS_PER_ROUTE);
         cm.setMaxTotal(3 * MAX_TOTAL_CONNECTIONS_PER_ROUTE); // i tilfelle redirects
@@ -103,7 +109,7 @@ public class PdpConsumerImpl implements PdpConsumer {
         AuthCache authCache = new BasicAuthCache();
         authCache.put(target, new BasicScheme());
 
-        return new Tuple<>(client, authCache);
+        return new CacheConfig(client, authCache);
     }
 
     @Override
@@ -118,12 +124,12 @@ public class PdpConsumerImpl implements PdpConsumer {
 
         LOG.trace("PDP-request: {}", request);
 
-        Tuple<CloseableHttpClient, AuthCache> active = activeConfiguration;
+        CacheConfig active = activeConfiguration;
 
-        Tuple<StatusLine, JsonObject> response = call(active, post);
-        int statusCode = response.getElement1().getStatusCode();
+        Respons response = call(active, post);
+        int statusCode = response.status().getStatusCode();
         if (HttpStatus.SC_OK == statusCode) {
-            return response.getElement2();
+            return response.res();
         }
         if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
             synchronized (this) {
@@ -139,9 +145,9 @@ public class PdpConsumerImpl implements PdpConsumer {
             active = activeConfiguration;
 
             response = call(active, post);
-            statusCode = response.getElement1().getStatusCode();
+            statusCode = response.status().getStatusCode();
             if (HttpStatus.SC_OK == statusCode) {
-                return response.getElement2();
+                return response.res();
             }
             if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
                 throw new TekniskException("F-867412",
@@ -150,13 +156,13 @@ public class PdpConsumerImpl implements PdpConsumer {
             }
         }
         throw new TekniskException("F-815365",
-                String.format("Mottok HTTP error fra PDP: HTTP %s - %s", statusCode, response.getElement1().getReasonPhrase()));
+                String.format("Mottok HTTP error fra PDP: HTTP %s - %s", statusCode, response.status().getReasonPhrase()));
 
     }
 
-    private Tuple<StatusLine, JsonObject> call(Tuple<CloseableHttpClient, AuthCache> active, HttpPost post) {
-        final CloseableHttpClient client = active.getElement1();
-        final AuthCache authCache = active.getElement2();
+    private Respons call(CacheConfig active, HttpPost post) {
+        final CloseableHttpClient client = active.client();
+        final AuthCache authCache = active.cache();
 
         int retries = 2;
         StatusLine statusLine = null;
@@ -170,7 +176,7 @@ public class PdpConsumerImpl implements PdpConsumer {
                     try (JsonReader reader = Json.createReader(entity.getContent())) {
                         JsonObject jsonResponse = reader.readObject();
                         LOG.trace("PDP-response: {}", jsonResponse);
-                        return new Tuple<>(statusLine, jsonResponse);
+                        return new Respons(statusLine, jsonResponse);
                     }
                 }
                 break;
@@ -187,7 +193,7 @@ public class PdpConsumerImpl implements PdpConsumer {
             }
         }
 
-        return new Tuple<>(statusLine, JsonValue.EMPTY_JSON_OBJECT);
+        return new Respons(statusLine, JsonValue.EMPTY_JSON_OBJECT);
     }
 
     private String getSchemaAndHostFromURL(String pdpUrl) {
