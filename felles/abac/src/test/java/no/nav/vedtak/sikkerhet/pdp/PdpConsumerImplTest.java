@@ -1,6 +1,5 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
-import static no.nav.vedtak.log.util.MemoryAppender.sniff;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -13,15 +12,12 @@ import javax.json.Json;
 import javax.json.JsonObject;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.sun.net.httpserver.HttpServer;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.log.util.MemoryAppender;
-import no.nav.vedtak.util.AppLoggerFactory;
 
 public class PdpConsumerImplTest {
     private static HttpServer httpServer;
@@ -32,12 +28,10 @@ public class PdpConsumerImplTest {
     private static final String fakeEndPoint = server + context;
     private final JsonObject jsonRequest = Json.createObjectBuilder().add("Request", "dummy").build();
 
-    private static MemoryAppender logSniffer;
 
     @SuppressWarnings("resource")
     @BeforeAll
     public static void setUp() throws Exception {
-        logSniffer = sniff(AppLoggerFactory.getSporingLogger(PdpConsumerImplTest.class));
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.createContext(context, exchange -> {
             final Object[] resp = responses.remove(0);
@@ -49,10 +43,7 @@ public class PdpConsumerImplTest {
         httpServer.start();
     }
 
-    @AfterEach
-    public void afterEach() {
-        logSniffer.reset();
-    }
+
 
     @AfterAll
     public static void tearDown() throws Exception {
@@ -73,7 +64,6 @@ public class PdpConsumerImplTest {
 
         assertThat(impl.execute(jsonRequest).toString()).isEqualTo(response1);
         assertThat(impl.execute(jsonRequest).toString()).isEqualTo(response3);
-        assertThat(logSniffer.searchInfo("F-563467")).isNotNull();
     }
 
     @Test
@@ -90,6 +80,5 @@ public class PdpConsumerImplTest {
         assertThat(impl.execute(jsonRequest).toString()).isEqualTo(response1);
         assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> impl.execute(jsonRequest))
                 .withMessageStartingWith("F-867412");
-        assertThat(logSniffer.searchInfo("F-563467")).isNotNull();
     }
 }

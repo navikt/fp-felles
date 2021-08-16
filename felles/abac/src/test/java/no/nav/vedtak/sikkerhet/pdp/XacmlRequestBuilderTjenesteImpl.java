@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
-import no.nav.vedtak.util.Tuple;
 
 /**
  * Eksemple {@link XacmlRequestBuilderTjeneste} for enhetstest.
@@ -40,7 +39,7 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
         actionAttributeSet.addAttribute(XACML10_ACTION_ACTION_ID,
                 pdpRequest.getString(XACML10_ACTION_ACTION_ID));
         xacmlBuilder.addActionAttributeSet(actionAttributeSet);
-        List<Tuple<String, String>> identer = hentIdenter(pdpRequest, RESOURCE_FELLES_PERSON_FNR,
+        var identer = hentIdenter(pdpRequest, RESOURCE_FELLES_PERSON_FNR,
                 RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
 
         if (identer.isEmpty()) {
@@ -75,10 +74,10 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
         LOG.trace("Legger IKKE til suject attributter");
     }
 
-    protected void populerResources(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest, Tuple<String, String> ident) {
+    protected void populerResources(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest, Ident ident) {
         var attributter = byggRessursAttributter(pdpRequest);
         if (ident != null) {
-            attributter.addAttribute(ident.getElement1(), ident.getElement2());
+            attributter.addAttribute(ident.one(), ident.two());
         }
         xacmlBuilder.addResourceAttributeSet(attributter);
     }
@@ -99,11 +98,15 @@ public class XacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjene
         pdpRequest.getOptional(key).ifPresent(s -> resourceAttributeSet.addAttribute(key, s));
     }
 
-    private static List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
-        List<Tuple<String, String>> identer = new ArrayList<>();
+    private static List<Ident> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
+        List<Ident> identer = new ArrayList<>();
         for (String key : identNøkler) {
-            identer.addAll(pdpRequest.getListOfString(key).stream().map(it -> new Tuple<>(key, it)).toList());
+            identer.addAll(pdpRequest.getListOfString(key).stream().map(it -> new Ident(key, it)).toList());
         }
         return identer;
+    }
+
+    private record Ident(String one, String two) {
+
     }
 }

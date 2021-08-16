@@ -16,9 +16,6 @@ import javax.interceptor.InvocationContext;
 import javax.ws.rs.Path;
 
 import org.assertj.core.api.Fail;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,13 +23,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.log.audit.Auditdata;
 import no.nav.vedtak.log.audit.Auditlogger;
-import no.nav.vedtak.log.util.MemoryAppender;
-import no.nav.vedtak.util.AppLoggerFactory;
 
 @ExtendWith(MockitoExtension.class)
 class BeskyttetRessursInterceptorTest {
