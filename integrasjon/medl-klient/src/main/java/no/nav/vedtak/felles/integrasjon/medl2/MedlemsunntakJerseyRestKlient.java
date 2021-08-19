@@ -25,7 +25,7 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @Dependent
 @Jersey
-public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient implements Medlemsskap {
+public class MedlemsunntakJerseyRestKlient extends AbstractJerseyOidcRestClient implements Medlemskap {
 
     private static final String ENDPOINT_KEY = "medl2.rs.url";
     private static final String DEFAULT_URI = "https://app.adeo.no/medl2/api/v1/medlemskapsunntak";

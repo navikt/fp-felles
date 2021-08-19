@@ -3,11 +3,10 @@ package no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons;
 import com.fasterxml.jackson.annotation.JsonAlias;
 
 
-
 public record Arbeidsforhold(
         @JsonAlias("arbeidsgiverOrgnr") Orgnummer orgnr,
         @JsonAlias("inntektForPerioden") Integer inntekt,
-        Inntektsperiode inntektperiode,
+        Inntektsperiode inntektsperiode,
         Boolean refusjon) {
 
 
@@ -23,7 +22,7 @@ public record Arbeidsforhold(
 
     @Deprecated(since = "4.0.x", forRemoval = true)
     public Inntektsperiode getInntektperiode() {
-        return inntektperiode();
+        return inntektsperiode();
     }
 
     @Deprecated(since = "4.0.x", forRemoval = true)
