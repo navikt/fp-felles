@@ -28,7 +28,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 
 @Deprecated(since = "4.0.x", forRemoval = true)
 @ApplicationScoped
-public class MedlemsunntakRestKlient implements Medlemsskap {
+public class MedlemsunntakRestKlient implements Medlemskap {
 
     private static final String ENDPOINT_KEY = "medl2.rs.url";
     private static final String DEFAULT_URI = "https://app.adeo.no/medl2/api/v1/medlemskapsunntak";
