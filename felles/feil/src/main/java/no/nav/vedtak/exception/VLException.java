@@ -7,7 +7,7 @@ public abstract class VLException extends RuntimeException {
     private final Throwable cause;
 
     protected VLException(String kode, String msg, Throwable cause) {
-        super(kode + ":" + msg);
+        super(kode + ":" + msg, cause);
         this.kode = kode;
         this.msg = msg;
         this.cause = cause;
