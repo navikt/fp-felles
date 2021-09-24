@@ -82,7 +82,6 @@ public class OidcAuthModuleTest {
         OpenAMHelper.setWellKnownConfig(JsonUtil.toJson(testData));
         Map<String, OidcTokenValidator> map = new HashMap<>();
         map.put(OidcTokenGenerator.ISSUER, tokenValidator);
-        OidcTokenValidatorProvider.setValidators(map);
         OidcTokenValidatorProviderForTest.setValidators(map);
     }
 
