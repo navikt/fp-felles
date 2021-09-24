@@ -70,8 +70,8 @@ class OpenIDProviderConfigProvider {
      */
     private OpenIDProviderConfig createStsConfiguration() {
         String clientName = "Client name is not used for Gandalf STS";
-        String issuer = ENV.getProperty("oidc_sts.issuer.url");
-        String jwks = ENV.getProperty("oidc_sts.jwks.url");
+        String issuer = ENV.getProperty("oidc.sts.issuer.url");
+        String jwks = ENV.getProperty("oidc.sts.jwks.url");
         return createConfiguration("gandalfsts", issuer, jwks, false, clientName,
             true);
     }
