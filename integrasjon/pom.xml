@@ -30,7 +30,7 @@
     <properties>
         <wiremock.version>2.27.2</wiremock.version>
         <sob.melding.version>1.1.0</sob.melding.version>
-        <influxdb-java.version>2.21</influxdb-java.version>
+        <influxdb-java.version>2.22</influxdb-java.version>
         <cxf.version>3.4.4</cxf.version>
     </properties>
     <dependencyManagement>
