@@ -16,39 +16,50 @@ import no.nav.vedtak.isso.OpenAMHelper;
 class OpenIDProviderConfigProvider {
     private static final Environment ENV = Environment.current();
 
-    private static final String OPEN_AM_WELL_KNOWN_URL = "open.am.well.known.url";
+    private static final String OPEN_AM_WELL_KNOWN_URL = ENV.getProperty("open.am.well.known.url");
     private static final String OPEN_AM_CLIENT_ID = "open.am.client.id";
-    private static final String GANDALF_STS_WELL_KNOWN_URL = "gandalf.sts.well.known.url";
-    private static final String LOGINSERVICE_IDPORTEN_DISCOVERY_URL = "loginservice.idporten.discovery.url";
+
+    private static final String GANDALF_STS_WELL_KNOWN_URL = ENV.getProperty("gandalf.sts.well.known.url");
+
+    private static final String LOGINSERVICE_IDPORTEN_DISCOVERY_URL = ENV.getProperty("loginservice.idporten.discovery.url");
     private static final String LOGINSERVICE_CLIENT_ID = "loginservice.idporten.audience";
-    private static final String TOKEN_X_WELL_KNOWN_URL = "token.x.well.known.url";
+
+    private static final String AZURE_WELL_KNOWS_URL = ENV.getProperty("azure.app.well.known.url");
+    private static final String AZURE_CLIENT_ID = "azure.app.client.id";
+
+    private static final String TOKEN_X_WELL_KNOWN_URL = ENV.getProperty("token.x.well.known.url");
     private static final String TOKEN_X_CLIENT_ID = "token.x.client.id";
 
     public Set<OpenIDProviderConfig> getConfigs() {
         Set<OpenIDProviderConfig> configs = new HashSet<>();
 
         // OpenAM
-        if (ENV.getProperty(OPEN_AM_WELL_KNOWN_URL) != null) {
-            configs.add(createOpenAmConfiguration(ENV.getProperty(OPEN_AM_WELL_KNOWN_URL)));
+        if (OPEN_AM_WELL_KNOWN_URL != null) {
+            configs.add(createOpenAmConfiguration(OPEN_AM_WELL_KNOWN_URL));
         } else { // fallback til gammel måte
             configs.add(createOpenAmConfiguration());
         }
 
         // Gandalf STS
-        if (ENV.getProperty(GANDALF_STS_WELL_KNOWN_URL) != null) {
-            configs.add(createGandalfStsConfiguration(ENV.getProperty(GANDALF_STS_WELL_KNOWN_URL)));
+        if (GANDALF_STS_WELL_KNOWN_URL != null) {
+            configs.add(createGandalfStsConfiguration(GANDALF_STS_WELL_KNOWN_URL));
         } else {
             configs.add(createStsConfiguration());
         }
 
+        // Azure
+        if (AZURE_WELL_KNOWS_URL != null) {
+            configs.add(createAzureAppConfiguration(AZURE_WELL_KNOWS_URL));
+        }
+
         // Loginservice
-        if (ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL) != null) {
-            configs.add(createLoginServiceConfiguration(ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL)));
+        if (LOGINSERVICE_IDPORTEN_DISCOVERY_URL != null) {
+            configs.add(createLoginServiceConfiguration(LOGINSERVICE_IDPORTEN_DISCOVERY_URL));
         }
 
         // TokenX
-        if (ENV.getProperty(TOKEN_X_WELL_KNOWN_URL) != null) {
-            configs.add(createTokenXConfiguration(ENV.getProperty(TOKEN_X_WELL_KNOWN_URL)));
+        if (TOKEN_X_WELL_KNOWN_URL != null) {
+            configs.add(createTokenXConfiguration(TOKEN_X_WELL_KNOWN_URL));
         }
 
         return configs;
@@ -94,6 +105,15 @@ class OpenIDProviderConfigProvider {
             true);
     }
 
+    private OpenIDProviderConfig createAzureAppConfiguration(final String wellKnownUrl) {
+        return createConfiguration("azure",
+            getIssuerFra(wellKnownUrl),
+            getJwksFra(wellKnownUrl),
+            !ENV.isLocal(),
+            ENV.getRequiredProperty(AZURE_CLIENT_ID),
+            true);
+    }
+
     private OpenIDProviderConfig createLoginServiceConfiguration(String wellKnownUrl) {
         return createConfiguration("loginservice",
             getIssuerFra(wellKnownUrl),
@@ -112,7 +132,11 @@ class OpenIDProviderConfigProvider {
             false);
     }
 
-    private OpenIDProviderConfig createConfiguration(String providerName, String issuer, String jwks, boolean useProxyForJwks, String clientName,
+    private OpenIDProviderConfig createConfiguration(String providerName,
+                                                     String issuer,
+                                                     String jwks,
+                                                     boolean useProxyForJwks,
+                                                     String clientName,
                                                      boolean skipAudienceValidation) {
         return Optional.ofNullable(clientName)
                 .map(c -> new OpenIDProviderConfig(
@@ -122,8 +146,7 @@ class OpenIDProviderConfigProvider {
                         c,
                     30,
                         skipAudienceValidation))
-                .orElse(null);
-
+                .orElseThrow();
     }
 
     private static URL url(String url, String key, String providerName) {
@@ -131,8 +154,7 @@ class OpenIDProviderConfigProvider {
             return new URL(url);
         } catch (MalformedURLException e) {
             throw new TekniskException("F-644196",
-                    String.format("Syntaksfeil i OIDC konfigurasjonen av '%s' for '%s'", key, providerName), e);
+                    String.format("Syntaksfeil i token validator konfigurasjonen av '%s' for '%s'", key, providerName), e);
         }
     }
-
 }
