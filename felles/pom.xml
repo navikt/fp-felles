@@ -79,6 +79,12 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+            <!-- trengs for Java17 inntil jetty 10.0.7 kommer -->
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>9.2</version>
+            </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-bom</artifactId>
