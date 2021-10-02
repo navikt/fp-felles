@@ -65,6 +65,12 @@
                 <artifactId>jakarta.activation</artifactId>
                 <version>${jakarta.activation.version}</version>
             </dependency>
+            <!-- jandex brukes av weld (leser format 2.3 prdousert av jandex-maven 1.1.1 (ikke 1.2.0) + dto-tester -->
+            <dependency>
+                <groupId>org.jboss</groupId>
+                <artifactId>jandex</artifactId>
+                <version>2.4.0.Final</version>
+            </dependency>
             <dependency>
                 <groupId>org.jboss.weld</groupId>
                 <artifactId>weld-core-bom</artifactId>
@@ -79,7 +85,7 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-            <!-- trengs for Java17 inntil jetty 10.0.7 kommer -->
+            <!-- trengs for Java17 inntil jetty 10.0.7 kommer 11 oct 2021 -->
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
@@ -168,11 +174,6 @@
                 <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
                 <artifactId>felles-sikkerhet</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.enterprise</groupId>
-                <artifactId>jakarta.enterprise.cdi-api</artifactId>
-                <version>2.0.2</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.ws.rs</groupId>
