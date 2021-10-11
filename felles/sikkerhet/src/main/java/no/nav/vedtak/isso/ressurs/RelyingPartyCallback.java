@@ -12,6 +12,7 @@ import static no.nav.vedtak.sikkerhet.Constants.REFRESH_TOKEN_COOKIE_NAME;
 import static no.nav.vedtak.sikkerhet.oidc.JwtUtil.getIssuser;
 
 import java.net.URI;
+import java.util.Objects;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -62,22 +63,45 @@ public class RelyingPartyCallback {
             return status(FORBIDDEN).build();
         }
 
+        var builder = temporaryRedirect(URI.create(decode(redirect.getValue(), UTF_8)));
+
+        // rydd krims-krams cookies
+        cleanCookieJar(builder, headers);
+        // definitiv wipe angitt state cookie param
+        wipeStateCookie(builder, redirect.getName(), redirect.getPath(), redirect.getDomain());
+
         boolean sslOnlyCookie = ServerInfo.instance().isUsingTLS();
         String cookieDomain = ServerInfo.instance().getCookieDomain();
         String cookiePath = ServerInfo.instance().getCookiePath();
-        var tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token, cookiePath, cookieDomain, "", DEFAULT_MAX_AGE, sslOnlyCookie, true);
-        var refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken(), cookiePath, cookieDomain, "",
-                DEFAULT_MAX_AGE, sslOnlyCookie, true);
-        var deleteOldStateCookie = new NewCookie(state, "", "/", null, "", 0, sslOnlyCookie, true);
 
-        // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the
-        // state-cookie containing redirectURL shold be encrypted to avoid tampering)
-        var builder = temporaryRedirect(URI.create(decode(redirect.getValue(), UTF_8)));
+        var tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token, cookiePath, cookieDomain, "", DEFAULT_MAX_AGE, sslOnlyCookie, true);
         builder.cookie(tokenCookie);
+
+        var refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken(), cookiePath, cookieDomain, "",
+            DEFAULT_MAX_AGE, sslOnlyCookie, true);
         builder.cookie(refreshTokenCookie);
-        builder.cookie(deleteOldStateCookie);
+
         builder.cacheControl(noCache());
         return builder.build();
+    }
+
+    private void cleanCookieJar(Response.ResponseBuilder builder, HttpHeaders headers) {
+        String cookieDomain = ServerInfo.instance().getCookieDomain();
+        String cookiePath = ServerInfo.instance().getCookiePath();
+
+        /* rydd vekk alle state cookies lagt på. */
+        headers.getCookies().entrySet().stream()
+            .filter(e -> e.getKey().matches("^state_.+$")
+                && Objects.equals(cookieDomain, e.getValue().getDomain())
+                && Objects.equals(cookiePath, e.getValue().getPath()))
+            .forEach(e -> wipeStateCookie(builder, e.getKey(), e.getValue().getPath(), e.getValue().getDomain()));
+
+    }
+
+    private void wipeStateCookie(Response.ResponseBuilder builder, String cookieName, String cookiePath, String cookieDomain) {
+        boolean sslOnlyCookie = ServerInfo.instance().isUsingTLS();
+        var deleteCookie = new NewCookie(cookieName, "", cookiePath, cookieDomain, "", 0, sslOnlyCookie, true);
+        builder.cookie(deleteCookie);
     }
 
     private static CacheControl noCache() {
