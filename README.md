@@ -36,6 +36,11 @@ Minimum oppsett:
 - ```
     @KonfigVerdi(value = "min.property")
     private String minProperty
+  
+Det er mulig å hente konfig direkte fra koden ved å kalle `getProperty` eller `getRequiredProperty` fra `Environment` klassen:
+- ```Environment.current().getProperty("min.property")``` - returnerer en String eller null om det ikke finnes. 
+- ```Environment.current().getProperty("min.property", Integer.class)``` - returnerer en Integer, null om det ikke finnes eller Exception om ikke integer. 
+- ```Environment.current().getRequiredProperty("min.property")``` - returnerer en String, eller Exception om verdien ikke finnes. 
 
 Følgende typer støttes og kan bli returnert:
 - String (default)
@@ -49,10 +54,10 @@ Følgende typer støttes og kan bli returnert:
 - URL
 
 ### Bruk eksempler
-- ```@KonfigVerdi(value = "test.enabled", required = false) boolean enabled```
-- ```@KonfigVerdi(value = "bruker.navn" String bruker```
-- ```@KonfigVerdi(value = "periode.fp") Period periode```
-- ```@KonfigVerdi(value = HENDELSE_BASE_ENDPOINT, defaultValue=DEFAULT_BASE_ENDPOINT) URI baseEndpoint```
+- ```@KonfigVerdi(value = "test.enabled", required = false) boolean enabled``` == ```Environment.current().getProperty("test.enabled", integer.class)```
+- ```@KonfigVerdi(value = "bruker.navn" String bruker``` == ```Environment.current().getProperty("bruker.navn")```
+- ```@KonfigVerdi(value = "periode.fp") Period periode``` == ```Environment.current().getProperty("periode.fp", Period.class)```
+- ```@KonfigVerdi(value = HENDELSE_BASE_ENDPOINT, defaultValue=DEFAULT_BASE_ENDPOINT) URI baseEndpoint``` == ```Environment.current().getProperty(HENDELSE_BASE_ENDPOINT, URI.class, DEFAULT_BASE_ENDPOINT)```
 
 ### Utilities
 - `Environment` - statisk klasse som gir informasjon om miljøet appen kjører i.
