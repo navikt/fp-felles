@@ -16,15 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2.1.6
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: '16'
-          check-latest: true
+          check-latest: true,
+          cache: 'maven'
       - name: Build
         shell: bash
         run: |
