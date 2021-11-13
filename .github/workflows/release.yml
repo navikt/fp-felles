@@ -18,16 +18,9 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '16'
-          check-latest: true
+          check-latest: true,
+          cache: 'maven'
 
-      - name: Setup build cache
-        uses: actions/cache@v2.1.6
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-            
       - name: Publish artifact
         env:
           NEW_VERSION: ${{ github.event.release.tag_name }}
