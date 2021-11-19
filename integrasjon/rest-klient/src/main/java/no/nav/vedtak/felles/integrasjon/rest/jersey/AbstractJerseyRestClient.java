@@ -13,6 +13,8 @@ import static no.nav.vedtak.log.metrics.MetricsUtil.utvidMedHistogram;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.CONNECT_TIMEOUT;
 import static org.glassfish.jersey.client.ClientProperties.READ_TIMEOUT;
+import static org.glassfish.jersey.client.ClientProperties.REQUEST_ENTITY_PROCESSING;
+import static org.glassfish.jersey.client.RequestEntityProcessing.BUFFERED;
 import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
 import static org.glassfish.jersey.logging.LoggingFeature.Verbosity.PAYLOAD_ANY;
 
@@ -134,7 +136,8 @@ public abstract class AbstractJerseyRestClient {
 
         this.client = ClientBuilder.newClient(cfg)
                 .property(CONNECT_TIMEOUT, ENV.getProperty(CONNECT_TIMEOUT, int.class, DEFAULT_CONNECT_TIMEOUT_MS))
-                .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, DEFAULT_READ_TIMEOUT_MS));
+                .property(READ_TIMEOUT, ENV.getProperty(READ_TIMEOUT, int.class, DEFAULT_READ_TIMEOUT_MS))
+                .property(REQUEST_ENTITY_PROCESSING, BUFFERED);
 
         this.asyncClient = client.register(PropagatingThreadPoolExecutorProvider.class);
         this.invoker = invoker != null ? invoker : new ExceptionTranslatingInvoker();
