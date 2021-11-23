@@ -23,7 +23,7 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '16'
-          check-latest: true,
+          check-latest: true
           cache: 'maven'
       - name: Bygg og  test
         shell: bash
