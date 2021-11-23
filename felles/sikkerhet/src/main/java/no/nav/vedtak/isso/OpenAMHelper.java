@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 
@@ -37,6 +37,8 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
+import no.nav.vedtak.sikkerhet.oidc.OpenIDProviderConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper;
 
 // TODO, denne klassen er en katastrofe
 public class OpenAMHelper {
@@ -52,14 +54,12 @@ public class OpenAMHelper {
 
     private static final String OAUTH2_ENDPOINT = "/oauth2";
     private static final String JSON_AUTH_ENDPOINT = "/json/authenticate";
-    private static final String WELL_KNOWN_ENDPOINT = "/.well-known/openid-configuration";
+    public static final String WELL_KNOWN_ENDPOINT = "/.well-known/openid-configuration";
     public static final String ISSUER_KEY = "issuer";
     public static final String JWKS_URI_KEY = "jwks_uri";
     public static final String AUTHORIZATION_ENDPOINT_KEY = "authorization_endpoint";
 
     private String redirectUriEncoded;
-
-    private static AuthorizationServerMetadata wellKnownConfig;
 
     public OpenAMHelper() {
         try {
@@ -71,27 +71,31 @@ public class OpenAMHelper {
     }
 
     public static String getIssoHostUrl() {
-        return ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST);
+        return getOpenAmWellKnownConfig().getIssuer().getValue();
     }
 
     public static String getIssoUserName() {
-        return ENV.getProperty(OPEN_ID_CONNECT_USERNAME);
+        return Optional.ofNullable(ENV.getProperty(OpenIDProviderConfigProvider.OPEN_AM_CLIENT_ID)).orElse(ENV.getProperty(OPEN_ID_CONNECT_USERNAME));
     }
 
     public static String getIssoPassword() {
-        return ENV.getProperty(OPEN_ID_CONNECT_PASSWORD);
+        return Optional.ofNullable(ENV.getProperty(OpenIDProviderConfigProvider.OPEN_AM_CLIENT_SECRET)).orElse(ENV.getProperty(OPEN_ID_CONNECT_PASSWORD));
+    }
+
+    public static AuthorizationServerMetadata getOpenAmWellKnownConfig() {
+        return WellKnownConfigurationHelper.getWellKnownConfig(Optional.ofNullable(OpenIDProviderConfigProvider.OPEN_AM_WELL_KNOWN_URL).orElse(ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST) + WELL_KNOWN_ENDPOINT));
     }
 
     public static String getIssoIssuerUrl() {
-        return getWellKnownConfig().getIssuer().getValue();
+        return getOpenAmWellKnownConfig().getIssuer().getValue();
     }
 
     public static String getIssoJwksUrl() {
-        return getWellKnownConfig().getJWKSetURI().toString();
+        return getOpenAmWellKnownConfig().getJWKSetURI().toString();
     }
 
     public static String getAuthorizationEndpoint() {
-        return getWellKnownConfig().getAuthorizationEndpointURI().toString();
+        return getOpenAmWellKnownConfig().getAuthorizationEndpointURI().toString();
     }
 
     public IdTokenAndRefreshToken getToken() throws IOException {
@@ -111,32 +115,7 @@ public class OpenAMHelper {
         }
     }
 
-    public static void setWellKnownConfig(String jsonAsString) {
-        try {
-            wellKnownConfig = AuthorizationServerMetadata.parse(jsonAsString);
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Ugyldig json: ", e);
-        }
-    }
 
-    public static void unsetWellKnownConfig() {
-        wellKnownConfig = null;
-    }
-
-    public static AuthorizationServerMetadata getWellKnownConfig() {
-        return getWellKnownConfig(getIssoHostUrl() + WELL_KNOWN_ENDPOINT);
-    }
-
-    public static AuthorizationServerMetadata getWellKnownConfig(String url) {
-        if (wellKnownConfig == null) {
-            return retrieveAuthorizationServerMetadata(url);
-        }
-        return wellKnownConfig;
-    }
-
-    private static AuthorizationServerMetadata getWellKnownConfigUncached(String url) {
-        return retrieveAuthorizationServerMetadata(url);
-    }
 
     private void authenticateUser(CloseableHttpClient httpClient, CookieStore cookieStore, String brukernavn,
             String passord) throws IOException {
@@ -232,24 +211,6 @@ public class OpenAMHelper {
                     response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
         } finally {
             get.reset();
-        }
-    }
-
-    public static String getJwksFra(String discoveryURL) {
-        return getWellKnownConfigUncached(discoveryURL).getJWKSetURI().toString();
-    }
-
-    public static String getIssuerFra(String discoveryURL) {
-        return getWellKnownConfigUncached(discoveryURL).getIssuer().getValue();
-    }
-
-    private static AuthorizationServerMetadata retrieveAuthorizationServerMetadata(String wellKnownUrl) {
-        try {
-            var resourceRetriever = new DefaultResourceRetriever();
-            var url = URI.create(wellKnownUrl).toURL();
-            return AuthorizationServerMetadata.parse(resourceRetriever.retrieveResource(url).getContent());
-        } catch (ParseException | IOException e) {
-            throw new TekniskException("F-999999", String.format("exception when retrieving metadata from issuer %s", wellKnownUrl), e);
         }
     }
 

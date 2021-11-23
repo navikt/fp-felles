@@ -44,9 +44,9 @@ import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenGenerator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProviderForTest;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorResult;
+import no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper;
 
 public class OidcAuthModuleTest {
 
@@ -64,14 +64,14 @@ public class OidcAuthModuleTest {
     private Subject subject = new Subject();
     private Subject serviceSubject = new Subject();
 
-    public OidcAuthModuleTest() throws Exception {
+    public void setupAll() throws Exception {
         when(request.getRequestURI()).thenReturn("/fpsak");
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://foo.devillo.no/fpsak/"));
         when(request.getHeader("Accept")).thenReturn("application/json");
         authModule.initialize(null, null, callbackHandler, null);
 
         System.setProperty(OPEN_ID_CONNECT_USERNAME, "OIDC");
-        System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://bar.devillo.no/isso/oauth2");
+        System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, OidcTokenGenerator.ISSUER);
         System.setProperty(ConsumerId.SYSTEMUSER_USERNAME, "JUnit Test");
 
         Map<String, String> testData = new HashMap<>() {
@@ -79,15 +79,16 @@ public class OidcAuthModuleTest {
                 put(OpenAMHelper.ISSUER_KEY, OidcTokenGenerator.ISSUER);
             }
         };
-        OpenAMHelper.setWellKnownConfig(JsonUtil.toJson(testData));
+        WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + OpenAMHelper.WELL_KNOWN_ENDPOINT, JsonUtil.toJson(testData));
         Map<String, OidcTokenValidator> map = new HashMap<>();
         map.put(OidcTokenGenerator.ISSUER, tokenValidator);
         OidcTokenValidatorProviderForTest.setValidators(map);
     }
 
     @BeforeEach
-    public void setUp() {
-        OpenAMHelper.unsetWellKnownConfig();
+    public void setUp() throws Exception{
+        WellKnownConfigurationHelper.unsetWellKnownConfig();
+        setupAll();
     }
 
     @BeforeAll
@@ -166,7 +167,7 @@ public class OidcAuthModuleTest {
         assertThat(stateCookie.getSecure()).isTrue();
         String stateCookieName = stateCookie.getName(); // name er tilfeldig valgt, men starter med state_
         verify(response).sendRedirect(
-                "https://bar.devillo.no/isso/oauth2/authorize?session=winssochain&authIndexType=service&authIndexValue=winssochain&response_type=code&scope=openid&client_id=OIDC&state="
+            OidcTokenGenerator.ISSUER + "/authorize?session=winssochain&authIndexType=service&authIndexValue=winssochain&response_type=code&scope=openid&client_id=OIDC&state="
                         + stateCookieName + "&redirect_uri=https%3A%2F%2Ffoo.devillo.no%2Ffpsak%2Fcb");
         verifyNoMoreInteractions(response);
     }

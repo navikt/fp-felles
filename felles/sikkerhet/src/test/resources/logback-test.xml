@@ -7,7 +7,7 @@
         </encoder>
     </appender>
 
-    <logger name="no.nav" level="${log.level.no.nav:-INFO}" />
+    <logger name="no.nav" level="${log.level.no.nav:-DEBUG}" />
     <logger name="ch.qos.logback" level="${ch.qos.logback:-WARN}" />
     <logger name="org.apache" level="${org.apache:-ERROR}" />
     <logger name="org.jboss.weld" level="${org.jboss.weld:-WARN}" />

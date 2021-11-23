@@ -1,7 +1,7 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import static no.nav.vedtak.isso.OpenAMHelper.getIssuerFra;
-import static no.nav.vedtak.isso.OpenAMHelper.getJwksFra;
+import static no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper.getIssuerFra;
+import static no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper.getJwksFra;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,39 +13,32 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.OpenAMHelper;
 
-class OpenIDProviderConfigProvider {
+public class OpenIDProviderConfigProvider {
     private static final Environment ENV = Environment.current();
 
-    private static final String OPEN_AM_WELL_KNOWN_URL = ENV.getProperty("open.am.well.known.url");
-    private static final String OPEN_AM_CLIENT_ID = "open.am.client.id";
+    public static final String OPEN_AM_WELL_KNOWN_URL = ENV.getProperty("oidc.open.am.well.known.url");
+    public static final String OPEN_AM_CLIENT_ID = "oidc.open.am.client.id";
+    public static final String OPEN_AM_CLIENT_SECRET = "oidc.open.am.client.secret";
 
-    private static final String GANDALF_STS_WELL_KNOWN_URL = ENV.getProperty("gandalf.sts.well.known.url");
+    private static final String STS_WELL_KNOWN_URL = ENV.getProperty("oidc.sts.well.known.url");
 
-    private static final String LOGINSERVICE_IDPORTEN_DISCOVERY_URL = ENV.getProperty("loginservice.idporten.discovery.url");
-    private static final String LOGINSERVICE_CLIENT_ID = "loginservice.idporten.audience";
+    private static final String LOGINSERVICE_IDPORTEN_DISCOVERY_URL = ENV.getProperty("loginservice.idporten.discovery.url"); // naiserator
+    private static final String LOGINSERVICE_CLIENT_ID = "loginservice.idporten.audience"; // naiserator
 
-    private static final String AZURE_WELL_KNOWS_URL = ENV.getProperty("azure.app.well.known.url");
-    private static final String AZURE_CLIENT_ID = "azure.app.client.id";
+    private static final String AZURE_WELL_KNOWS_URL = ENV.getProperty("azure.app.well.known.url"); // naiserator
+    private static final String AZURE_CLIENT_ID = "azure.app.client.id"; // naiserator
 
-    private static final String TOKEN_X_WELL_KNOWN_URL = ENV.getProperty("token.x.well.known.url");
-    private static final String TOKEN_X_CLIENT_ID = "token.x.client.id";
+    private static final String TOKEN_X_WELL_KNOWN_URL = ENV.getProperty("token.x.well.known.url"); // naiserator
+    private static final String TOKEN_X_CLIENT_ID = "token.x.client.id"; // naiserator
 
     public Set<OpenIDProviderConfig> getConfigs() {
         Set<OpenIDProviderConfig> configs = new HashSet<>();
 
         // OpenAM
-        if (OPEN_AM_WELL_KNOWN_URL != null) {
-            configs.add(createOpenAmConfiguration(OPEN_AM_WELL_KNOWN_URL));
-        } else { // fallback til gammel måte
-            configs.add(createOpenAmConfiguration());
-        }
+        configs.add(createOpenAmConfiguration(OPEN_AM_WELL_KNOWN_URL));
 
-        // Gandalf STS
-        if (GANDALF_STS_WELL_KNOWN_URL != null) {
-            configs.add(createGandalfStsConfiguration(GANDALF_STS_WELL_KNOWN_URL));
-        } else {
-            configs.add(createStsConfiguration());
-        }
+        // OIDC STS
+        configs.add(createStsConfiguration(STS_WELL_KNOWN_URL));
 
         // Azure
         if (AZURE_WELL_KNOWS_URL != null) {
@@ -65,68 +58,46 @@ class OpenIDProviderConfigProvider {
         return configs;
     }
 
-    /**
-     * For bakoverkompabilitet for eksisterende måte å konfigurere opp OIDC mot openAm
-     */
-    private OpenIDProviderConfig createOpenAmConfiguration() {
-        var clientName = OpenAMHelper.getIssoUserName();
-        var  issuer = OpenAMHelper.getIssoIssuerUrl();
-        var  jwks = OpenAMHelper.getIssoJwksUrl();
-        return createConfiguration("openam", issuer, jwks, false, clientName,
-            true);
-    }
-
-    /**
-     * For bakoverkompabilitet for eksisterende måte å konfigurere opp OIDC mot gandalf sts
-     */
-    private OpenIDProviderConfig createStsConfiguration() {
-        String clientName = "Client name is not used for Gandalf STS";
-        String issuer = ENV.getProperty("oidc.sts.issuer.url");
-        String jwks = ENV.getProperty("oidc.sts.jwks.url");
-        return createConfiguration("gandalfsts", issuer, jwks, false, clientName,
-            true);
-    }
-
     private OpenIDProviderConfig createOpenAmConfiguration(String wellKnownUrl) {
-        return createConfiguration("openam",
-            getIssuerFra(wellKnownUrl),
-            getJwksFra(wellKnownUrl),
+        return createConfiguration("oidc_openam",
+            getIssuerFra(wellKnownUrl).orElse(OpenAMHelper.getIssoIssuerUrl()),
+            getJwksFra(wellKnownUrl).orElse(OpenAMHelper.getIssoJwksUrl()),
             false,
-            ENV.getRequiredProperty(OPEN_AM_CLIENT_ID),
+            OpenAMHelper.getIssoUserName(),
             true);
     }
 
-    private OpenIDProviderConfig createGandalfStsConfiguration(String wellKnownUrl) {
-        return createConfiguration("gandalfsts",
-            getIssuerFra(wellKnownUrl),
-            getJwksFra(wellKnownUrl),
+    private OpenIDProviderConfig createStsConfiguration(String wellKnownUrl) {
+        return createConfiguration("oidc_sts",
+            getIssuerFra(wellKnownUrl).orElse(ENV.getRequiredProperty("oidc.sts.issuer.url")),
+            getJwksFra(wellKnownUrl).orElse(ENV.getRequiredProperty("oidc.sts.jwks.url")),
             false,
-            "Client name is not used for Gandalf STS",
+            "Client name is not used for OIDC STS",
             true);
     }
 
     private OpenIDProviderConfig createAzureAppConfiguration(final String wellKnownUrl) {
-        return createConfiguration("azure",
-            getIssuerFra(wellKnownUrl),
-            getJwksFra(wellKnownUrl),
+        return createConfiguration("oidc_azure",
+            getIssuerFra(wellKnownUrl).orElseThrow(),
+            getJwksFra(wellKnownUrl).orElseThrow(),
             !ENV.isLocal(),
             ENV.getRequiredProperty(AZURE_CLIENT_ID),
             true);
     }
 
     private OpenIDProviderConfig createLoginServiceConfiguration(String wellKnownUrl) {
-        return createConfiguration("loginservice",
-            getIssuerFra(wellKnownUrl),
-            getJwksFra(wellKnownUrl),
+        return createConfiguration("oidc_loginservice",
+            getIssuerFra(wellKnownUrl).orElseThrow(),
+            getJwksFra(wellKnownUrl).orElseThrow(),
             !ENV.isLocal(),
             ENV.getRequiredProperty(LOGINSERVICE_CLIENT_ID),
             false);
     }
 
     private OpenIDProviderConfig createTokenXConfiguration(String wellKnownUrl) {
-        return createConfiguration("tokenx",
-            getIssuerFra(wellKnownUrl),
-            getJwksFra(wellKnownUrl),
+        return createConfiguration("oidc_tokenx",
+            getIssuerFra(wellKnownUrl).orElseThrow(),
+            getJwksFra(wellKnownUrl).orElseThrow(),
             false,
             ENV.getRequiredProperty(TOKEN_X_CLIENT_ID),
             false);
