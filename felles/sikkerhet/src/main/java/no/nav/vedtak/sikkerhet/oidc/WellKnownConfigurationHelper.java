@@ -42,14 +42,14 @@ public class WellKnownConfigurationHelper {
             Optional.empty();
     }
 
-    private static AuthorizationServerMetadata retrieveAuthorizationServerMetadata(String wellKnownUrl) {
+    private static AuthorizationServerMetadata retrieveAuthorizationServerMetadata(String discoveryURL) {
         try {
-            LOG.debug("Henter well-known konfig fra '{}'", wellKnownUrl);
+            LOG.debug("Henter well-known konfig fra '{}'", discoveryURL);
             var resourceRetriever = new DefaultResourceRetriever();
-            var url = URI.create(wellKnownUrl).toURL();
+            var url = URI.create(discoveryURL).toURL();
             return AuthorizationServerMetadata.parse(resourceRetriever.retrieveResource(url).getContent());
         } catch (ParseException | IOException e) {
-            throw new TekniskException("F-999999", String.format("Exception when retrieving metadata from issuer %s", wellKnownUrl), e);
+            throw new TekniskException("F-999999", String.format("Exception when retrieving metadata from issuer %s", discoveryURL), e);
         }
     }
 
