@@ -70,7 +70,9 @@ public class OpenAMHelper {
     }
 
     public static String getIssoHostUrl() {
-        return getOpenAmWellKnownConfig().getIssuer().getValue();
+        return Optional.ofNullable(OpenIDProviderConfigProvider.OPEN_AM_WELL_KNOWN_URL)
+            .map(url -> url.replace(WELL_KNOWN_ENDPOINT, ""))
+            .orElse(ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST));
     }
 
     public static String getIssoUserName() {
