@@ -30,6 +30,7 @@
 		<no.nav.security.version>1.3.9</no.nav.security.version>
 		<additionalparam>-Xdoclint:none</additionalparam>
 		<argLine>-Dfile.encoding=UTF-8</argLine>
+        <mock-oauth2-server.version>0.4.0</mock-oauth2-server.version>
 	</properties>
 
 	<scm>
@@ -136,6 +137,13 @@
 				<artifactId>byte-buddy</artifactId>
 				<version>1.12.1</version>
 			</dependency>
+
+            <dependency>
+                <groupId>no.nav.security</groupId>
+                <artifactId>mock-oauth2-server</artifactId>
+                <version>${mock-oauth2-server.version}</version>
+                <scope>test</scope>
+            </dependency>
 		</dependencies>
 	</dependencyManagement>
 	<build>

@@ -6,6 +6,8 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
+import no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper;
+
 import org.jose4j.json.JsonUtil;
 import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
@@ -24,8 +26,6 @@ public class OpenAMHelperTest {
 
     private String rpUsername;
     private String rpPassword;
-    private String systembrukerUsername;
-    private String systembrukerPassword;
 
     private static Level ORG_HTTP_CLIENT_LOG_LEVEL;
     private static Logger HTTP_CLIENT_LOGGER;
@@ -47,9 +47,7 @@ public class OpenAMHelperTest {
 
     @BeforeEach
     public void setUp() {
-        OpenAMHelper.unsetWellKnownConfig();
-
-        // logSniffer.clearLog();
+        WellKnownConfigurationHelper.unsetWellKnownConfig();
 
         System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://isso-t.adeo.no/isso/oauth2");
         System.setProperty(OPEN_ID_CONNECT_USERNAME, "fpsak-localhost");
@@ -117,7 +115,7 @@ public class OpenAMHelperTest {
 
     @Test
     public void should_be_able_to_read_from_well_known_config() {
-        String expectedIssuer = "http://isso.example.com/rest/isso/oauth2";
+        String expectedIssuer = "https://isso-t.adeo.no/isso/oauth2/";
         String expextedJwks = "http://isso.example.com/rest/isso/oauth2/connect/jwk_uri";
         String expectedAutorizationEndpoint = "http://isso.example.com/rest/isso/oauth2/authorize";
         Map<String, String> testData = Map.of(
@@ -125,7 +123,7 @@ public class OpenAMHelperTest {
                 OpenAMHelper.JWKS_URI_KEY, expextedJwks,
                 OpenAMHelper.AUTHORIZATION_ENDPOINT_KEY, expectedAutorizationEndpoint);
 
-        OpenAMHelper.setWellKnownConfig(JsonUtil.toJson(testData));
+        WellKnownConfigurationHelper.setWellKnownConfig(System.getProperty(OPEN_ID_CONNECT_ISSO_HOST) + WELL_KNOWN_ENDPOINT, JsonUtil.toJson(testData));
         assertThat(OpenAMHelper.getIssoIssuerUrl()).isEqualTo(expectedIssuer);
         assertThat(OpenAMHelper.getIssoJwksUrl()).isEqualTo(expextedJwks);
         assertThat(OpenAMHelper.getAuthorizationEndpoint()).isEqualTo(expectedAutorizationEndpoint);

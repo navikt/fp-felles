@@ -16,6 +16,7 @@ import java.util.Map;
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -27,14 +28,15 @@ public class OidcTokenValidatorTest {
 
     private OidcTokenValidator tokenValidator;
 
-    public OidcTokenValidatorTest() throws MalformedURLException {
-        System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://foo.bar.adeo.no");
+    @BeforeEach
+    public void beforeEach() throws MalformedURLException {
+        System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://foo.bar.adeo.no/openam/oauth2");
         Map<String, String> testData = new HashMap<>() {
             {
                 put(OpenAMHelper.ISSUER_KEY, "https://foo.bar.adeo.no/openam/oauth2");
             }
         };
-        OpenAMHelper.setWellKnownConfig(JsonUtil.toJson(testData));
+        WellKnownConfigurationHelper.setWellKnownConfig("https://foo.bar.adeo.no/openam/oauth2" + OpenAMHelper.WELL_KNOWN_ENDPOINT, JsonUtil.toJson(testData));
         System.setProperty(OPEN_ID_CONNECT_USERNAME, "OIDC");
         tokenValidator = new OidcTokenValidator(new JwksKeyHandlerFromString(KeyStoreTool.getJwks()));
     }
@@ -172,7 +174,7 @@ public class OidcTokenValidatorTest {
     @Test
     @Disabled("should fix test or use a proper framework, if setWellKnown contains errors it will be throwed before assertions")
     public void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_issuer() throws Exception {
-        OpenAMHelper.setWellKnownConfig("{}");
+        WellKnownConfigurationHelper.setWellKnownConfig("openAm", "{}");
         var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(new JwksKeyHandlerFromString(KeyStoreTool.getJwks())));
         assertTrue(e.getMessage().contains("Expected issuer must be configured"));
     }
