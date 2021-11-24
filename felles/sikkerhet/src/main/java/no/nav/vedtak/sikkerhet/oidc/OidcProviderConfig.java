@@ -120,8 +120,8 @@ public final class OidcProviderConfig {
     private static OidcProvider createStsConfiguration(String wellKnownUrl) {
         LOG.debug("Oppretter OpenAM konfig fra '{}'", wellKnownUrl);
         return createConfiguration("oidc_sts",
-            getIssuerFra(wellKnownUrl).orElse(ENV.getRequiredProperty("oidc.sts.issuer.url")),
-            getJwksFra(wellKnownUrl).orElse(ENV.getRequiredProperty("oidc.sts.jwks.url")),
+            getIssuerFra(wellKnownUrl).orElse(ENV.getProperty("oidc.sts.issuer.url")),
+            getJwksFra(wellKnownUrl).orElse(ENV.getProperty("oidc.sts.jwks.url")),
             false,
             "Client name is not used for OIDC STS",
             true);
