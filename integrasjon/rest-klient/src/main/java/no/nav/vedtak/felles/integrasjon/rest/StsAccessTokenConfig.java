@@ -11,6 +11,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper;
 
 @Dependent
 public class StsAccessTokenConfig {
@@ -23,18 +24,17 @@ public class StsAccessTokenConfig {
             new BasicNameValuePair(SCOPE, "openid"));
     private final String username;
     private final String password;
-    private final String stsUri;
-    private final String tokenEndpointPath;
+    private final String tokenEndpointUri;
 
     @Inject
-    StsAccessTokenConfig(@KonfigVerdi("oidc.sts.issuer.url") String issuerUrl,
-            @KonfigVerdi(value = "oidc.sts.token.path", defaultVerdi = DEFAULT_PATH, required = false) String tokenEndpointPath,
+    StsAccessTokenConfig(@KonfigVerdi(value = "oidc.sts.well.known.url", required = false) String wellKnownConfig,
+                         @KonfigVerdi(value = "oidc.sts.issuer.url", required = false) String issuerUrl,
+                         @KonfigVerdi(value = "oidc.sts.token.path", defaultVerdi = DEFAULT_PATH, required = false) String tokenEndpointPath,
             @KonfigVerdi("systembruker.username") String username,
             @KonfigVerdi("systembruker.password") String password) {
         this.username = username;
         this.password = password;
-        this.stsUri = issuerUrl;
-        this.tokenEndpointPath = tokenEndpointPath;
+        this.tokenEndpointUri = WellKnownConfigurationHelper.getTokenEndpointFra(wellKnownConfig).orElse(issuerUrl + tokenEndpointPath);
     }
 
     public String getUsername() {
@@ -46,9 +46,7 @@ public class StsAccessTokenConfig {
     }
 
     public URI getStsURI() {
-        return UriBuilder.fromUri(stsUri)
-                .path(tokenEndpointPath)
-                .build();
+        return UriBuilder.fromUri(tokenEndpointUri).build();
     }
 
     public List<NameValuePair> getFormParams() {
@@ -57,7 +55,7 @@ public class StsAccessTokenConfig {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [username=" + username + ", stsUri=" + stsUri + ", tokenEndpointPath=" + tokenEndpointPath + "]";
+        return getClass().getSimpleName() + " [username=" + username + ", tokenEndpointUri=" + tokenEndpointUri + "]";
     }
 
 }

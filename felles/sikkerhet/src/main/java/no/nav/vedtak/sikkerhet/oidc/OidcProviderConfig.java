@@ -6,7 +6,6 @@ import static no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper.getJwksF
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,7 +75,9 @@ public final class OidcProviderConfig {
         idProviderConfigs.add(createOpenAmConfiguration(ENV.getProperty(OPEN_AM_WELL_KNOWN_URL)));
 
         // OIDC STS
-        idProviderConfigs.add(createStsConfiguration(ENV.getProperty(STS_WELL_KNOWN_URL)));
+        if (ENV.getProperty(STS_WELL_KNOWN_URL) != null || ENV.getProperty("oidc.sts.issuer.url") != null) { // Det er kanskje noen apper som ikke bruker STS token validering??
+            idProviderConfigs.add(createStsConfiguration(ENV.getProperty(STS_WELL_KNOWN_URL)));
+        }
 
         // Azure
         var azureKonfigUrl = ENV.getProperty(AZURE_WELL_KNOWN_URL);
