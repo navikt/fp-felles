@@ -23,23 +23,28 @@ public class WellKnownConfigurationHelper {
 
     private static Map<String, AuthorizationServerMetadata> wellKnownConfigMap = new HashMap<>();
 
-    public WellKnownConfigurationHelper() {}
-
     public static AuthorizationServerMetadata getWellKnownConfig(String discoveryUrl) {
         return wellKnownConfigMap.computeIfAbsent(discoveryUrl, WellKnownConfigurationHelper::retrieveAuthorizationServerMetadata);
     }
 
     public static Optional<String> getIssuerFra(String discoveryURL) {
-        LOG.debug("Henter Issuer fra {}", discoveryURL);
+        LOG.debug("Henter issuer fra {}", discoveryURL);
         return discoveryURL != null ?
             Optional.of(getWellKnownConfig(discoveryURL).getIssuer().getValue()) :
             Optional.empty();
     }
 
     public static Optional<String> getJwksFra(String discoveryURL) {
-        LOG.debug("Henter Jwks fra {}", discoveryURL);
+        LOG.debug("Henter jwki_uri fra {}", discoveryURL);
         return discoveryURL != null ?
             Optional.of(getWellKnownConfig(discoveryURL).getJWKSetURI().toString()) :
+            Optional.empty();
+    }
+
+    public static Optional<String> getTokenEndpointFra(String discoveryURL) {
+        LOG.debug("Henter token_endpoint fra {}", discoveryURL);
+        return discoveryURL != null ?
+            Optional.of(getWellKnownConfig(discoveryURL).getTokenEndpointURI().toString()) :
             Optional.empty();
     }
 
