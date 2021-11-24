@@ -6,6 +6,6 @@ public class OidcTokenValidatorProviderForTest {
 
     // Exposing for test
     public static void setValidators(Map<String, OidcTokenValidator> validators) {
-        OidcTokenValidatorProvider.setValidators(validators);
+        OidcTokenValidatorConfig.setValidators(validators);
     }
 }

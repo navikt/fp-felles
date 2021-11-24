@@ -9,7 +9,7 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
 import static no.nav.vedtak.sikkerhet.Constants.REFRESH_TOKEN_COOKIE_NAME;
-import static no.nav.vedtak.sikkerhet.oidc.JwtUtil.getIssuser;
+import static no.nav.vedtak.sikkerhet.oidc.JwtUtil.getIssuer;
 
 import java.net.URI;
 import java.util.Objects;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProvider;
+import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorConfig;
 
 @Path("")
 public class RelyingPartyCallback {
@@ -59,7 +59,7 @@ public class RelyingPartyCallback {
 
         var tokens = tokenProvider.getToken(authorizationCode);
         var token = tokens.idToken().getToken();
-        if (!OidcTokenValidatorProvider.instance().getValidator(getIssuser(token)).validate(new OidcTokenHolder(token, false)).isValid()) {
+        if (!OidcTokenValidatorConfig.instance().getValidator(getIssuer(token)).validate(new OidcTokenHolder(token, false)).isValid()) {
             return status(FORBIDDEN).build();
         }
 

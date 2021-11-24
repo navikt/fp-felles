@@ -19,7 +19,6 @@ import no.nav.vedtak.exception.TekniskException;
 public class WellKnownConfigurationHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(WellKnownConfigurationHelper.class);
-
     private static final Environment ENV = Environment.current();
 
     private static Map<String, AuthorizationServerMetadata> wellKnownConfigMap = new HashMap<>();
@@ -31,12 +30,14 @@ public class WellKnownConfigurationHelper {
     }
 
     public static Optional<String> getIssuerFra(String discoveryURL) {
+        LOG.debug("Henter Issuer fra {}", discoveryURL);
         return discoveryURL != null ?
             Optional.of(getWellKnownConfig(discoveryURL).getIssuer().getValue()) :
             Optional.empty();
     }
 
     public static Optional<String> getJwksFra(String discoveryURL) {
+        LOG.debug("Henter Jwks fra {}", discoveryURL);
         return discoveryURL != null ?
             Optional.of(getWellKnownConfig(discoveryURL).getJWKSetURI().toString()) :
             Optional.empty();

@@ -35,7 +35,7 @@ public class JwtUtil {
         }
     }
 
-    public static String getIssuser(String jwt) {
+    public static String getIssuer(String jwt) {
         try {
             return unvalidatingConsumer.processToClaims(jwt).getIssuer();
         } catch (InvalidJwtException | MalformedClaimException e) {

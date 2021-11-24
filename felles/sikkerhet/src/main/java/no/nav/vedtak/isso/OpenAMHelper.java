@@ -1,5 +1,7 @@
 package no.nav.vedtak.isso;
 
+import static no.nav.vedtak.sikkerhet.oidc.OidcProviderConfig.OPEN_AM_WELL_KNOWN_URL;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,7 +38,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
-import no.nav.vedtak.sikkerhet.oidc.OpenIDProviderConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.OidcProviderConfig;
 import no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper;
 
 // TODO, denne klassen er en katastrofe
@@ -70,21 +72,25 @@ public class OpenAMHelper {
     }
 
     public static String getIssoHostUrl() {
-        return Optional.ofNullable(OpenIDProviderConfigProvider.OPEN_AM_WELL_KNOWN_URL)
+        return Optional.ofNullable(ENV.getProperty(OPEN_AM_WELL_KNOWN_URL))
             .map(url -> url.replace(WELL_KNOWN_ENDPOINT, ""))
             .orElse(ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST));
     }
 
     public static String getIssoUserName() {
-        return Optional.ofNullable(ENV.getProperty(OpenIDProviderConfigProvider.OPEN_AM_CLIENT_ID)).orElse(ENV.getProperty(OPEN_ID_CONNECT_USERNAME));
+        return Optional.ofNullable(ENV.getProperty(OidcProviderConfig.OPEN_AM_CLIENT_ID))
+            .orElse(ENV.getProperty(OPEN_ID_CONNECT_USERNAME));
     }
 
     public static String getIssoPassword() {
-        return Optional.ofNullable(ENV.getProperty(OpenIDProviderConfigProvider.OPEN_AM_CLIENT_SECRET)).orElse(ENV.getProperty(OPEN_ID_CONNECT_PASSWORD));
+        return Optional.ofNullable(ENV.getProperty(OidcProviderConfig.OPEN_AM_CLIENT_SECRET))
+            .orElse(ENV.getProperty(OPEN_ID_CONNECT_PASSWORD));
     }
 
     public static AuthorizationServerMetadata getOpenAmWellKnownConfig() {
-        return WellKnownConfigurationHelper.getWellKnownConfig(Optional.ofNullable(OpenIDProviderConfigProvider.OPEN_AM_WELL_KNOWN_URL).orElse(ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST) + WELL_KNOWN_ENDPOINT));
+        return WellKnownConfigurationHelper.getWellKnownConfig
+            (Optional.ofNullable(ENV.getProperty(OPEN_AM_WELL_KNOWN_URL))
+                .orElse(ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST) + WELL_KNOWN_ENDPOINT));
     }
 
     public static String getIssoIssuerUrl() {
@@ -115,8 +121,6 @@ public class OpenAMHelper {
             return new IdTokenAndRefreshTokenProvider().getToken(authorizationCode);
         }
     }
-
-
 
     private void authenticateUser(CloseableHttpClient httpClient, CookieStore cookieStore, String brukernavn,
             String passord) throws IOException {
