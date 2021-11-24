@@ -28,7 +28,7 @@ public class OidcTokenValidator {
     private final int allowedClockSkewInSeconds;
     private final boolean skipAudienceValidation;
 
-    public OidcTokenValidator(OpenIDProviderConfig config) {
+    public OidcTokenValidator(OidcProvider config) {
         this(config.getIssuer().toExternalForm(), new JwksKeyHandlerImpl(config.getJwks(), config.isUseProxyForJwks()), config.getClientName(),
                 config.getAllowedClockSkewInSeconds(), config.isSkipAudienceValidation());
     }

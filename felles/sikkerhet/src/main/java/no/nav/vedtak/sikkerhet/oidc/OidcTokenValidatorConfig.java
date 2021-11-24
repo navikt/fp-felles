@@ -3,23 +3,23 @@ package no.nav.vedtak.sikkerhet.oidc;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class OidcTokenValidatorProvider {
+public class OidcTokenValidatorConfig {
 
-    private static volatile OidcTokenValidatorProvider instance; // NOSONAR
+    private static volatile OidcTokenValidatorConfig instance; // NOSONAR
     private final Map<String, OidcTokenValidator> validators;
 
-    private OidcTokenValidatorProvider() {
+    private OidcTokenValidatorConfig() {
         this(init());
     }
 
-    private OidcTokenValidatorProvider(Map<String, OidcTokenValidator> validators) {
+    private OidcTokenValidatorConfig(Map<String, OidcTokenValidator> validators) {
         this.validators = validators;
     }
 
-    public static OidcTokenValidatorProvider instance() {
+    public static OidcTokenValidatorConfig instance() {
         var inst= instance;
         if (inst == null) {
-            inst = new OidcTokenValidatorProvider();
+            inst = new OidcTokenValidatorConfig();
             instance = inst;
         }
         return inst;
@@ -27,7 +27,7 @@ public class OidcTokenValidatorProvider {
 
     // For test
     static void setValidators(Map<String, OidcTokenValidator> validators) {
-        instance = new OidcTokenValidatorProvider(validators);
+        instance = new OidcTokenValidatorConfig(validators);
     }
 
     public OidcTokenValidator getValidator(String issuer) {
@@ -35,10 +35,10 @@ public class OidcTokenValidatorProvider {
     }
 
     private static Map<String, OidcTokenValidator> init() {
-        var configs = new OpenIDProviderConfigProvider().getConfigs();
-        return configs.stream().collect(Collectors.toMap(
-                config -> config.getIssuer().toExternalForm(),
-                OidcTokenValidator::new));
+        return OidcProviderConfig.instance().getOidcProviders().stream()
+                .collect(Collectors.toMap(
+                    config -> config.getIssuer().toExternalForm(),
+                    OidcTokenValidator::new));
     }
 
     @Override
