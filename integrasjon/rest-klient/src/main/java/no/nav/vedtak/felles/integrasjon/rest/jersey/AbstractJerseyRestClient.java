@@ -125,7 +125,8 @@ public abstract class AbstractJerseyRestClient {
                             .uriMapper(new JerseyUriMapper())
                             .tags(List.of(Tag.of("client", getClass().getSimpleName())))
                             .build())
-                    .setConnectionManager(connectionManager());
+                    .setConnectionManager(connectionManager())
+                    .disableCookieManagement();
         });
         utvidMedHistogram(HTTPCOMPONENTS_HTTPCLIENT_REQUEST);
         filters.stream().forEach(cfg::register);
