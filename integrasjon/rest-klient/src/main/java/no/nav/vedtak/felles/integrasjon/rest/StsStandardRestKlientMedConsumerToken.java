@@ -49,7 +49,7 @@ public class StsStandardRestKlientMedConsumerToken extends AbstractOidcRestClien
 
         var samlToken = SubjectHandler.getSubjectHandler().getSamlToken();
         if (samlToken != null) {
-            return systemUserOIDCToken();
+            return veksleSamlTokenTilOIDCToken(samlToken);
         }
         throw new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token");
     }
