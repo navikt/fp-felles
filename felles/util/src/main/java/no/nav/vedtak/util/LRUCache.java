@@ -4,13 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- *
- * Bruk heller Caffeine
- * Hvorfor ? Vi driver ikke avansert caching og en plain sak gjør jobben
- *
- */
-@Deprecated(since = "4.0.x", forRemoval = true)
 public class LRUCache<K extends Comparable<?>, V> {
     private final long timeoutMillis;
     private final Map<K, Item<V>> cacheMap;

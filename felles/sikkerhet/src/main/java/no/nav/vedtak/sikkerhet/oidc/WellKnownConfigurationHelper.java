@@ -41,10 +41,10 @@ public class WellKnownConfigurationHelper {
             Optional.empty();
     }
 
-    public static Optional<String> getTokenEndpointFra(String discoveryURL) {
+    public static Optional<URI> getTokenEndpointFra(String discoveryURL) {
         LOG.debug("Henter token_endpoint fra {}", discoveryURL);
         return discoveryURL != null ?
-            Optional.of(getWellKnownConfig(discoveryURL).getTokenEndpointURI().toString()) :
+            Optional.of(getWellKnownConfig(discoveryURL).getTokenEndpointURI()) :
             Optional.empty();
     }
 

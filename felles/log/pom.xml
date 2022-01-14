@@ -20,7 +20,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>1.8.1</version>
+            <version>${micrometer.version}</version>
         </dependency>
     </dependencies>
 </project>

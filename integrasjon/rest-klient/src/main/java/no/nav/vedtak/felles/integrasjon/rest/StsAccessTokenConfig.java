@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import javax.ws.rs.core.UriBuilder;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -24,7 +23,7 @@ public class StsAccessTokenConfig {
             new BasicNameValuePair(SCOPE, "openid"));
     private final String username;
     private final String password;
-    private final String tokenEndpointUri;
+    private final URI tokenEndpointUri;
 
     @Inject
     StsAccessTokenConfig(@KonfigVerdi(value = "oidc.sts.well.known.url", required = false) String wellKnownConfig,
@@ -34,7 +33,8 @@ public class StsAccessTokenConfig {
             @KonfigVerdi("systembruker.password") String password) {
         this.username = username;
         this.password = password;
-        this.tokenEndpointUri = WellKnownConfigurationHelper.getTokenEndpointFra(wellKnownConfig).orElse(issuerUrl + tokenEndpointPath);
+        this.tokenEndpointUri = WellKnownConfigurationHelper.getTokenEndpointFra(wellKnownConfig)
+            .orElseGet(() -> URI.create(issuerUrl + tokenEndpointPath));
     }
 
     public String getUsername() {
@@ -46,7 +46,7 @@ public class StsAccessTokenConfig {
     }
 
     public URI getStsURI() {
-        return UriBuilder.fromUri(tokenEndpointUri).build();
+        return tokenEndpointUri;
     }
 
     public List<NameValuePair> getFormParams() {

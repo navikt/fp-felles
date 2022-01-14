@@ -112,12 +112,21 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return patch(endpoint, dto, headers, createStringResponseHandler(endpoint));
     }
 
+    public String patchAcceptConflict(URI endpoint, Object dto, Set<Header> headers) {
+        return patch(endpoint, dto, headers, new OidcRestClientResponseHandler.StringResponseHandlerPermitConflict(endpoint));
+    }
+
     public String post(URI endpoint, Object dto) {
         return post(endpoint, dto, createStringResponseHandler(endpoint));
     }
 
     public <T> T post(URI endpoint, Object dto, Class<T> clazz) {
         String entity = post(endpoint, dto, createStringResponseHandler(endpoint));
+        return fromJson(entity, clazz);
+    }
+
+    public <T> T postAcceptConflict(URI endpoint, Object dto, Class<T> clazz) {
+        String entity = post(endpoint, dto, new OidcRestClientResponseHandler.StringResponseHandlerPermitConflict(endpoint));
         return fromJson(entity, clazz);
     }
 
