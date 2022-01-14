@@ -30,7 +30,7 @@
 		<no.nav.security.version>1.3.9</no.nav.security.version>
 		<additionalparam>-Xdoclint:none</additionalparam>
 		<argLine>-Dfile.encoding=UTF-8</argLine>
-        <mock-oauth2-server.version>0.4.0</mock-oauth2-server.version>
+        <mock-oauth2-server.version>0.4.1</mock-oauth2-server.version>
 	</properties>
 
 	<scm>
