@@ -2,14 +2,17 @@ package no.nav.vedtak.sikkerhet.oidc;
 
 import static no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper.getIssuerFra;
 import static no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper.getJwksFra;
+import static no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper.getTokenEndpointFra;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.ietf.jgss.Oid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +61,10 @@ public final class OidcProviderConfig {
 
     public Set<OidcProvider> getOidcProviders() {
         return providers;
+    }
+
+    public Optional<OidcProvider> getOidcProvider(OidcProviderType type) {
+        return providers.stream().filter(p -> p.getType().equals(type)).findFirst();
     }
 
     private static Set<OidcProvider> init() {
@@ -110,9 +117,11 @@ public final class OidcProviderConfig {
 
     private static OidcProvider createOpenAmConfiguration(String wellKnownUrl) {
         LOG.debug("Oppretter OpenAM konfig fra '{}'", wellKnownUrl);
-        return createConfiguration("oidc_openam",
+        return createConfiguration(OidcProviderType.ISSO,
+            "oidc_openam",
             getIssuerFra(wellKnownUrl).orElse(OpenAMHelper.getIssoIssuerUrl()),
             getJwksFra(wellKnownUrl).orElse(OpenAMHelper.getIssoJwksUrl()),
+            getTokenEndpointFra(wellKnownUrl).orElse(null),
             false,
             OpenAMHelper.getIssoUserName(),
             true);
@@ -120,51 +129,63 @@ public final class OidcProviderConfig {
 
     private static OidcProvider createStsConfiguration(String wellKnownUrl) {
         LOG.debug("Oppretter OpenAM konfig fra '{}'", wellKnownUrl);
-        return createConfiguration("oidc_sts",
+        return createConfiguration(OidcProviderType.STS,
+            "oidc_sts",
             getIssuerFra(wellKnownUrl).orElse(ENV.getProperty("oidc.sts.issuer.url")),
             getJwksFra(wellKnownUrl).orElse(ENV.getProperty("oidc.sts.jwks.url")),
+            getTokenEndpointFra(wellKnownUrl).orElse(null),
             false,
             "Client name is not used for OIDC STS",
             true);
     }
 
     private static OidcProvider createAzureAppConfiguration(final String wellKnownUrl) {
-        return createConfiguration("oidc_azure",
+        return createConfiguration(OidcProviderType.AZUREAD,
+            "oidc_azure",
             getIssuerFra(wellKnownUrl).orElseThrow(),
             getJwksFra(wellKnownUrl).orElseThrow(),
+            getTokenEndpointFra(wellKnownUrl).orElse(null),
             !ENV.isLocal(),
             ENV.getRequiredProperty(AZURE_CLIENT_ID),
             true);
     }
 
     private static OidcProvider createLoginServiceConfiguration(String wellKnownUrl) {
-        return createConfiguration("oidc_loginservice",
+        return createConfiguration(OidcProviderType.LOGINSERVICE,
+            "oidc_loginservice",
             getIssuerFra(wellKnownUrl).orElseThrow(),
             getJwksFra(wellKnownUrl).orElseThrow(),
+            getTokenEndpointFra(wellKnownUrl).orElse(null),
             !ENV.isLocal(),
             ENV.getRequiredProperty(LOGINSERVICE_CLIENT_ID),
             false);
     }
 
     private static OidcProvider createTokenXConfiguration(String wellKnownUrl) {
-        return createConfiguration("oidc_tokenx",
+        return createConfiguration(OidcProviderType.TOKENX,
+            "oidc_tokenx",
             getIssuerFra(wellKnownUrl).orElseThrow(),
             getJwksFra(wellKnownUrl).orElseThrow(),
+            getTokenEndpointFra(wellKnownUrl).orElse(null),
             false,
             ENV.getRequiredProperty(TOKEN_X_CLIENT_ID),
             false);
     }
 
-    private static OidcProvider createConfiguration(String providerName,
+    private static OidcProvider createConfiguration(OidcProviderType type,
+                                                    String providerName,
                                                     String issuer,
                                                     String jwks,
+                                                    URI tokenEndpoint,
                                                     boolean useProxyForJwks,
                                                     String clientName,
                                                     boolean skipAudienceValidation) {
         return Optional.ofNullable(clientName)
                 .map(c -> new OidcProvider(
+                        type,
                         url(issuer, "issuer", providerName),
                         url(jwks, "jwks", providerName),
+                        tokenEndpoint,
                         useProxyForJwks,
                         c,
                     30,

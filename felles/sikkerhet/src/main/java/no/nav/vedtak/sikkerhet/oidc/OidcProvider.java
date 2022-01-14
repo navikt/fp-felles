@@ -1,23 +1,34 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
+import java.net.URI;
 import java.net.URL;
 
 public final class OidcProvider {
+    private final OidcProviderType type;
     private final URL issuer;
     private final URL jwks;
+    private final URI tokenEndpoint;
     private final boolean useProxyForJwks;
     private final String clientName;
     private final int allowedClockSkewInSeconds;
     private final boolean skipAudienceValidation;
 
-    public OidcProvider(URL issuer, URL jwks, boolean useProxyForJwks, String clientName,
+    public OidcProvider(OidcProviderType type,
+                        URL issuer, URL jwks, URI tokenEndpoint,
+                        boolean useProxyForJwks, String clientName,
                         int allowedClockSkewInSeconds, boolean skipAudienceValidation) {
+        this.type = type;
         this.issuer = issuer;
         this.jwks = jwks;
         this.useProxyForJwks = useProxyForJwks;
+        this.tokenEndpoint = tokenEndpoint;
         this.clientName = clientName;
         this.allowedClockSkewInSeconds = allowedClockSkewInSeconds;
         this.skipAudienceValidation = skipAudienceValidation;
+    }
+
+    public OidcProviderType getType() {
+        return type;
     }
 
     public URL getIssuer() {
@@ -26,6 +37,10 @@ public final class OidcProvider {
 
     public URL getJwks() {
         return jwks;
+    }
+
+    public URI getTokenEndpoint() {
+        return tokenEndpoint;
     }
 
     public boolean isUseProxyForJwks() {

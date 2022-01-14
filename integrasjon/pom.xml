@@ -23,15 +23,13 @@
         <module>oppgave-rest-klient</module>
         <module>pdl-klient</module>
         <module>ereg-klient</module>
-        <module>kodeverk-klient</module>
         <module>saf-klient</module>
         <module>sak-klient</module>
+        <module>spokelse-klient</module>
     </modules>
     <properties>
         <wiremock.version>2.27.2</wiremock.version>
-        <sob.melding.version>1.1.0</sob.melding.version>
-        <influxdb-java.version>2.22</influxdb-java.version>
-        <cxf.version>3.4.5</cxf.version>
+        <cxf.version>3.5.0</cxf.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -72,21 +70,6 @@
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>ldap-klient</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>kodeverk-klient</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.tjenestespesifikasjoner</groupId>
-                <artifactId>nav-fim-kodeverk-v2-tjenestespesifikasjon</artifactId>
-                <version>${tjenestespesifikasjoner.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.tjenestespesifikasjoner</groupId>
-                <artifactId>nav-kodeverk-v3-tjenestespesifikasjon</artifactId>
-                <version>${tjenestespesifikasjoner.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
@@ -139,9 +122,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.influxdb</groupId>
-                <artifactId>influxdb-java</artifactId>
-                <version>${influxdb-java.version}</version>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>spokelse-klient</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.tomakehurst</groupId>

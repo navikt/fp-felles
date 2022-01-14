@@ -13,14 +13,16 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ObjectReader;
 
 import no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.OAuth2AccessTokenJerseyClient;
+import no.nav.vedtak.felles.integrasjon.rest.tokenhenter.OidcTokenResponse;
 
 /**
  *
@@ -29,7 +31,9 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.OAuth2AccessTokenJerseyClien
  */
 @Deprecated(since = "3.0.x", forRemoval = true)
 class OAuth2AccessTokenClient {
-    private static final ObjectMapper mapper = DefaultJsonMapper.getObjectMapper();
+
+    private static final Logger LOG = LoggerFactory.getLogger(OAuth2AccessTokenClient.class);
+    private static final ObjectReader READER = DefaultJsonMapper.getObjectMapper().readerFor(OidcTokenResponse.class);
 
     private final CloseableHttpClient closeableHttpClient;
     private final URI tokenEndpoint;
@@ -53,10 +57,12 @@ class OAuth2AccessTokenClient {
     }
 
     String hentAccessToken(Set<String> scopes) {
-        return hentTokens(scopes).get("access_token").asText();
+        var token = hentTokens(scopes);
+        LOG.info("AzureAD hentet for scope {} fikk token av type {} utløper {}", scopes, token.token_type(), token.expires_in());
+        return token.access_token();
     }
 
-    private ObjectNode hentTokens(Set<String> scopes) {
+    private OidcTokenResponse hentTokens(Set<String> scopes) {
         var entity = entity(scopes);
         var httpPost = httpPost(entity);
         String responseEntity;
@@ -66,7 +72,7 @@ class OAuth2AccessTokenClient {
             throw new TekniskException("F-432937", String.format("IOException ved kommunikasjon med server [%s]", tokenEndpoint), e);
         }
         try {
-            return (ObjectNode) mapper.readTree(responseEntity);
+            return READER.readValue(responseEntity);
         } catch (JsonProcessingException e) {
             throw new TekniskException("F-208314", "Kunne ikke serialisere objekt til JSON", e);
         }

@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>5.0.0</version>
+			<version>5.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -64,7 +64,7 @@
 		<dependency>
 			<groupId>io.github.classgraph</groupId>
 			<artifactId>classgraph</artifactId>
-			<version>4.8.137</version>
+			<version>4.8.138</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

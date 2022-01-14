@@ -73,14 +73,14 @@ public class OppgaveRestKlient implements Oppgaver {
     public void ferdigstillOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.getId(), oppgave.getVersjon(), Oppgavestatus.FERDIGSTILT);
-        oidcRestClient.patch(getEndpointForOppgaveId(oppgaveId), patch, lagHeader());
+        oidcRestClient.patchAcceptConflict(getEndpointForOppgaveId(oppgaveId), patch, lagHeader());
     }
 
     @Override
     public void feilregistrerOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.getId(), oppgave.getVersjon(), Oppgavestatus.FEILREGISTRERT);
-        oidcRestClient.patch(getEndpointForOppgaveId(oppgaveId), patch, lagHeader());
+        oidcRestClient.patchAcceptConflict(getEndpointForOppgaveId(oppgaveId), patch, lagHeader());
     }
 
     @Override
