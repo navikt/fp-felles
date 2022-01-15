@@ -16,7 +16,7 @@ public class OidcTokenValidatorConfig {
         this.validators = validators;
     }
 
-    public static OidcTokenValidatorConfig instance() {
+    public static synchronized OidcTokenValidatorConfig instance() {
         var inst= instance;
         if (inst == null) {
             inst = new OidcTokenValidatorConfig();

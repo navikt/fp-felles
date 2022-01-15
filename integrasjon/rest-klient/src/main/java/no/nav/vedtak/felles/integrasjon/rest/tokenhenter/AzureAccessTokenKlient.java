@@ -75,6 +75,9 @@ public class AzureAccessTokenKlient {
         } catch (IOException e) {
             throw new TekniskException("F-432937", String.format("IOException ved kommunikasjon med server [%s]", tokenEndpoint), e);
         }
+        if (responseEntity == null) {
+            throw new TekniskException("F-157385", "Kunne ikke hente AAD token");
+        }
         try {
             return READER.readValue(responseEntity);
         } catch (JsonProcessingException e) {

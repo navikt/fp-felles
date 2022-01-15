@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
 
 import no.nav.vedtak.felles.integrasjon.rest.AbstractOidcRestClient;
@@ -16,13 +17,13 @@ import no.nav.vedtak.felles.integrasjon.rest.tokenhenter.StsAccessTokenKlient;
 /*
  * Restklient som setter Authorization ut fra kontekst og legger på et STS Nav-Consumer-Token
  */
-public class StsSystemRestKlientMedConsumerToken extends AbstractOidcRestClient {
+public class StsSystemXtraTokenRestKlient extends AbstractOidcRestClient {
 
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     private static final String NAV_CONSUMER_TOKEN_HEADER = "Nav-Consumer-Token";
 
-    public StsSystemRestKlientMedConsumerToken(StsAccessTokenConfig config) {
-        super(createHttpClient());
+    public StsSystemXtraTokenRestKlient(CloseableHttpClient client) {
+        super(client);
     }
 
     @Override
