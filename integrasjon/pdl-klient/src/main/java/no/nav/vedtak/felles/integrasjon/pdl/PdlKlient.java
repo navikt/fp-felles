@@ -18,6 +18,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -58,7 +59,7 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.Objec
 import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
 import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
 
-@Dependent
+@ApplicationScoped
 public class PdlKlient implements Pdl {
     private static final ObjectMapper MAPPER = mapper();
     @Deprecated(forRemoval = true, since = "3.0.x")
