@@ -3,7 +3,8 @@ package no.nav.vedtak.felles.integrasjon.rest.tokenhenter;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
@@ -27,7 +28,11 @@ import no.nav.vedtak.sikkerhet.oidc.OidcProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcProviderConfig;
 import no.nav.vedtak.sikkerhet.oidc.OidcProviderType;
 
-
+/*
+ * TODO kandidat for global static
+ * Lære mere om Token for API og deretter scope under api - OBS at scope=.../.default tar bare ett scope
+ * Se ann om vi har scope på app eller endepunkt-nivå
+ */
 public class AzureAccessTokenKlient {
 
     private static final Environment ENV = Environment.current();
@@ -39,12 +44,12 @@ public class AzureAccessTokenKlient {
     private final String clientSecret;
     private final String azureProxy;
 
-    private static final int EXPIRE_IN_SECONDS = 15 * 60;
+    private static final long EXPIRE_IN_MILLISECONDS = 15L * 60 * 1000;
 
-    private String accessToken;
-    private Instant accessTokenExpiryTime;
+    private Map<String, LocalTokenHolder> tokenHolderMap;
 
     public AzureAccessTokenKlient() {
+        tokenHolderMap = new LinkedHashMap<>();
         tokenEndpoint = OidcProviderConfig.instance().getOidcProvider(OidcProviderType.AZUREAD).map(OidcProvider::getTokenEndpoint).orElseThrow();
         clientId = ENV.getProperty("azure.app.client.id", "foreldrepenger");
         clientSecret = ENV.getProperty("azure.app.client.secret", "foreldrepenger");
@@ -52,8 +57,9 @@ public class AzureAccessTokenKlient {
     }
 
     public synchronized String hentAccessToken(String scope) {
-        if (accessToken != null && accessTokenExpiryTime.isAfter(Instant.now())) {
-            return accessToken;
+        var heldToken = tokenHolderMap.get(scope);
+        if (heldToken != null && System.currentTimeMillis() < heldToken.expiry()) {
+            return heldToken.token();
         }
         var token = hentToken(clientId,
             clientSecret,
@@ -61,9 +67,8 @@ public class AzureAccessTokenKlient {
             azureProxy,
             scope);
         LOG.info("AzureAD hentet token for scope {} fikk token av type {} utløper {}", scope, token.token_type(), token.expires_in());
-        accessToken = token.access_token();
-        accessTokenExpiryTime = Instant.now().plusSeconds(EXPIRE_IN_SECONDS);
-        return accessToken;
+        tokenHolderMap.put(scope, new LocalTokenHolder(token.access_token(), System.currentTimeMillis() + EXPIRE_IN_MILLISECONDS));
+        return token.access_token();
     }
 
     private static OidcTokenResponse hentToken(String clientId, String clientSecret, URI tokenEndpoint, String proxy, String scope) {
@@ -102,4 +107,6 @@ public class AzureAccessTokenKlient {
         }
         return post;
     }
+
+    private record LocalTokenHolder(String token, long expiry) {}
 }
