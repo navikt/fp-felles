@@ -8,6 +8,7 @@ import java.time.Duration;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 
@@ -24,13 +25,13 @@ import no.nav.vedtak.util.LRUCache;
 /*
  * Restklient som setter Authorization ut fra kontekst og legger på et STS Nav-Consumer-Token
  */
-public class StsStandardRestKlientMedConsumerToken extends AbstractOidcRestClient {
+public class StsStandardXtraTokenRestKlient extends AbstractOidcRestClient {
 
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     private static final String NAV_CONSUMER_TOKEN_HEADER = "Nav-Consumer-Token";
 
-    public StsStandardRestKlientMedConsumerToken(StsAccessTokenConfig config) {
-        super(createHttpClient());
+    public StsStandardXtraTokenRestKlient(CloseableHttpClient client) {
+        super(client);
     }
 
     @Override
@@ -47,18 +48,13 @@ public class StsStandardRestKlientMedConsumerToken extends AbstractOidcRestClien
             return oidcToken;
         }
 
+        // Leftover P2 - vil sanere WS+SAML som tilbys
         var samlToken = SubjectHandler.getSubjectHandler().getSamlToken();
         if (samlToken != null) {
-            return veksleSamlTokenTilOIDCToken(samlToken);
+            return systemUserOIDCToken();
         }
         throw new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token");
     }
-
-    // Gammel - bør heller sanere WS som tilbys
-    private String veksleSamlTokenTilOIDCToken(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
-        return StsAccessTokenKlient.hentAccessToken();
-    }
-
 
     private String systemUserOIDCToken() {
         return StsAccessTokenKlient.hentAccessToken();

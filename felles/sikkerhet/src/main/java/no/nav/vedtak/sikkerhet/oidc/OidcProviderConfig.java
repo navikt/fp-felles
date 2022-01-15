@@ -50,7 +50,7 @@ public final class OidcProviderConfig {
         OidcProviderConfig.providers = providers;
     }
 
-    public static OidcProviderConfig instance() {
+    public static synchronized OidcProviderConfig instance() {
         var inst= instance;
         if (inst == null) {
             inst = new OidcProviderConfig();

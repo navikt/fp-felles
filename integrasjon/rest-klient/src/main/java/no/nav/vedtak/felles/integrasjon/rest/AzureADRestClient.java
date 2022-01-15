@@ -15,17 +15,14 @@ import no.nav.vedtak.util.LRUCache;
  */
 public class AzureADRestClient extends AbstractOidcRestClient {
 
-    private static final String CACHE_KEY = "AzureADRestClient";
     private final String scope;
 
-    private final LRUCache<String, String> cache;
     private final AzureAccessTokenKlient azureAccessTokenClient;
 
     private AzureADRestClient(String scope) {
         super(createHttpClient());
         this.scope = scope;
         this.azureAccessTokenClient = new AzureAccessTokenKlient();
-        this.cache = new LRUCache<>(1, Duration.ofMinutes(15).toMillis());
     }
 
     public static Builder builder() {
@@ -34,13 +31,7 @@ public class AzureADRestClient extends AbstractOidcRestClient {
 
     @Override
     String getOIDCToken() {
-        var cachedAccessToken = cache.get(CACHE_KEY);
-        if (cachedAccessToken != null) {
-            return cachedAccessToken;
-        }
-        var nyttAccessToken = azureAccessTokenClient.hentAccessToken(scope);
-        cache.put(CACHE_KEY, nyttAccessToken);
-        return nyttAccessToken;
+        return azureAccessTokenClient.hentAccessToken(scope);
     }
 
     @Override

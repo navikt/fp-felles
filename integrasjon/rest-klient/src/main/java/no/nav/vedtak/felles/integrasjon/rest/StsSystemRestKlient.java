@@ -1,5 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
+import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createHttpClient;
+
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

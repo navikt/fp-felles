@@ -2,7 +2,9 @@ package no.nav.vedtak.sikkerhet.oidc;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,7 +23,7 @@ public class WellKnownConfigurationHelper {
     private static final Logger LOG = LoggerFactory.getLogger(WellKnownConfigurationHelper.class);
     private static final Environment ENV = Environment.current();
 
-    private static Map<String, AuthorizationServerMetadata> wellKnownConfigMap = new HashMap<>();
+    private static Map<String, AuthorizationServerMetadata> wellKnownConfigMap = Collections.synchronizedMap(new LinkedHashMap<>());;
 
     public static AuthorizationServerMetadata getWellKnownConfig(String discoveryUrl) {
         return wellKnownConfigMap.computeIfAbsent(discoveryUrl, WellKnownConfigurationHelper::retrieveAuthorizationServerMetadata);

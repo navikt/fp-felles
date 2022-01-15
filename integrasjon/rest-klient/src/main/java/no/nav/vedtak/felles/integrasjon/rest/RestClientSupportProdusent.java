@@ -36,10 +36,19 @@ public class RestClientSupportProdusent {
 
     private final OidcRestClient oidcRestClient;
     private final SystemUserOidcRestClient systemUserOidcRestClient;
+    private final StsStandardRestKlient stsStandardRestKlient;
+    private final StsStandardXtraTokenRestKlient stsStandardXtraTokenRestKlient;
+    private final StsSystemRestKlient stsSystemRestKlient;
+    private final StsSystemXtraTokenRestKlient stsSystemXtraTokenRestKlient;
 
     public RestClientSupportProdusent() {
         this.oidcRestClient = createOidcRestClient();
         this.systemUserOidcRestClient = creatSystemUserOidcRestClient();
+        var stsClient = createHttpClient();
+        this.stsStandardRestKlient = new StsStandardRestKlient(stsClient);
+        this.stsStandardXtraTokenRestKlient = new StsStandardXtraTokenRestKlient(stsClient);
+        this.stsSystemRestKlient = new StsSystemRestKlient(stsClient);
+        this.stsSystemXtraTokenRestKlient = new StsSystemXtraTokenRestKlient(stsClient);
     }
 
     /**
@@ -74,6 +83,26 @@ public class RestClientSupportProdusent {
     @Produces
     public SystemUserOidcRestClient getSystemUserOidcRestClient() {
         return systemUserOidcRestClient;
+    }
+
+    @Produces
+    public StsStandardRestKlient getStandardStsRestKlient() {
+        return stsStandardRestKlient;
+    }
+
+    @Produces
+    public StsStandardXtraTokenRestKlient getStandardStsMedConsumerTokenRestKlient() {
+        return stsStandardXtraTokenRestKlient;
+    }
+
+    @Produces
+    public StsSystemRestKlient getSystemStsRestKlient() {
+        return stsSystemRestKlient;
+    }
+
+    @Produces
+    public StsSystemXtraTokenRestKlient getSystemStsMedConsumerTokenRestKlient() {
+        return stsSystemXtraTokenRestKlient;
     }
 
     private OidcRestClient createOidcRestClient() {

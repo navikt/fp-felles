@@ -27,15 +27,15 @@ public class StsStandardRestKlient extends AbstractOidcRestClient {
             return oidcToken;
         }
 
+        // Leftover P2 - vil sanere WS+SAML som tilbys
         var samlToken = SubjectHandler.getSubjectHandler().getSamlToken();
         if (samlToken != null) {
-            return veksleSamlTokenTilOIDCToken(samlToken);
+            return systemUserOIDCToken();
         }
         throw new TekniskException("F-937072", "Klarte ikke å fremskaffe et OIDC token");
     }
 
-    // Gammel - bør heller sanere WS som tilbys
-    private String veksleSamlTokenTilOIDCToken(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
+    private String systemUserOIDCToken() {
         return StsAccessTokenKlient.hentAccessToken();
     }
 

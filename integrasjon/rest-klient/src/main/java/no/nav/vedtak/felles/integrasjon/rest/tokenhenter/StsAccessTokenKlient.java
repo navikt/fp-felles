@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 
@@ -45,19 +44,19 @@ public class StsAccessTokenKlient {
     private static final URI TOKEN_ENDPOINT = OidcProviderConfig.instance()
         .getOidcProvider(OidcProviderType.STS).map(OidcProvider::getTokenEndpoint).orElseThrow();
 
-    private static final int EXPIRE_IN_SECONDS = 55 * 60;
+    private static final long EXPIRE_IN_MILLISECONDS = 55L * 60 * 1000;
 
     private static String accessToken;
-    private static Instant accessTokenExpiryTime;
+    private static long accessTokenExpiry;
 
     public static synchronized String hentAccessToken() {
-        if (accessToken != null && accessTokenExpiryTime.isAfter(Instant.now())) {
+        if (accessToken != null && System.currentTimeMillis() < accessTokenExpiry) {
             return accessToken;
         }
         var token = hentToken();
         LOG.info("STS hentet og fikk token av type {} utløper {}", token.token_type(), token.expires_in());
         accessToken = token.access_token();
-        accessTokenExpiryTime = Instant.now().plusSeconds(EXPIRE_IN_SECONDS);
+        accessTokenExpiry = System.currentTimeMillis() + EXPIRE_IN_MILLISECONDS;
         return accessToken;
     }
 
@@ -67,6 +66,9 @@ public class StsAccessTokenKlient {
             responseEntity = httpClient.execute(httpPost(), new BasicResponseHandler());
         } catch (IOException e) {
             throw new TekniskException("F-432937", String.format("IOException ved kommunikasjon med server [%s]", TOKEN_ENDPOINT), e);
+        }
+        if (responseEntity == null) {
+            throw new TekniskException("F-157385", "Kunne ikke hente STS token");
         }
         try {
             return READER.readValue(responseEntity);
