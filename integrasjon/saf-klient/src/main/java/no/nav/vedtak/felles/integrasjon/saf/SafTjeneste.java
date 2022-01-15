@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -43,7 +44,7 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
  * @deprecated Denne koden er en katastrofe, bruk {@link JerseySafTjeneste}
  */
 @Deprecated
-@Dependent
+@ApplicationScoped
 public class SafTjeneste implements Saf {
 
     private static List<Integer> HTTP_KODER_TOM_RESPONS = List.of(
