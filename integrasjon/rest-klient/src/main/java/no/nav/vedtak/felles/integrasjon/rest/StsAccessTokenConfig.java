@@ -3,7 +3,6 @@ package no.nav.vedtak.felles.integrasjon.rest;
 import java.net.URI;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -13,7 +12,7 @@ import org.apache.http.message.BasicNameValuePair;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper;
 
-@ApplicationScoped
+@Dependent
 public class StsAccessTokenConfig {
 
     private static final String DEFAULT_PATH = "/rest/v1/sts/token";
