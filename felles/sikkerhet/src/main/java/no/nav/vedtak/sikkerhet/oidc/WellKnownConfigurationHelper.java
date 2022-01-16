@@ -67,7 +67,9 @@ public class WellKnownConfigurationHelper {
             var resourceRetriever = new DefaultResourceRetriever();
             Optional.ofNullable(proxyUrl)
                 .map(URI::create)
-                .ifPresent(u -> resourceRetriever.setProxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(u.getHost(), u.getPort()))));
+                .map(u -> new InetSocketAddress(u.getHost(), u.getPort()))
+                .map(s -> new Proxy(Proxy.Type.HTTP, s))
+                .ifPresent(resourceRetriever::setProxy);
             var url = URI.create(discoveryURL).toURL();
             return AuthorizationServerMetadata.parse(resourceRetriever.retrieveResource(url).getContent());
         } catch (ParseException | IOException e) {
