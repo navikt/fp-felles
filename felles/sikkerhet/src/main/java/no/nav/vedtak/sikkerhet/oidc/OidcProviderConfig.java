@@ -123,8 +123,8 @@ public final class OidcProviderConfig {
         LOG.debug("Oppretter OpenAM konfig fra '{}'", wellKnownUrl);
         return createConfiguration(OidcProviderType.ISSO,
             "oidc_openam",
-            getIssuerFra(wellKnownUrl).orElse(OpenAMHelper.getIssoIssuerUrl()),
-            getJwksFra(wellKnownUrl).orElse(OpenAMHelper.getIssoJwksUrl()),
+            getIssuerFra(wellKnownUrl).orElseGet(OpenAMHelper::getIssoIssuerUrl),
+            getJwksFra(wellKnownUrl).orElseGet(OpenAMHelper::getIssoJwksUrl),
             getTokenEndpointFra(wellKnownUrl).orElse(null),
             false, null,
             OpenAMHelper.getIssoUserName(),
@@ -135,8 +135,8 @@ public final class OidcProviderConfig {
         LOG.debug("Oppretter OpenAM konfig fra '{}'", wellKnownUrl);
         return createConfiguration(OidcProviderType.STS,
             "oidc_sts",
-            getIssuerFra(wellKnownUrl).orElse(ENV.getProperty("oidc.sts.issuer.url")),
-            getJwksFra(wellKnownUrl).orElse(ENV.getProperty("oidc.sts.jwks.url")),
+            getIssuerFra(wellKnownUrl).orElseGet(() -> ENV.getProperty("oidc.sts.issuer.url")),
+            getJwksFra(wellKnownUrl).orElseGet(() -> ENV.getProperty("oidc.sts.jwks.url")),
             getTokenEndpointFra(wellKnownUrl).orElse(null),
             false, null,
             "Client name is not used for OIDC STS",
@@ -145,24 +145,26 @@ public final class OidcProviderConfig {
 
     @SuppressWarnings("unused")
     private static OidcProvider createAzureAppConfiguration(String wellKnownUrl) {
-        // Antar at satt via Azureator iht dokumentasjon - ellers må man bruke proxy for å hente well-known ....
+        var useProxy = ENV.isLocal() ? null : ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy());
         return createConfiguration(OidcProviderType.AZUREAD,
             "oidc_azure",
-            ENV.getRequiredProperty("azure.openid.config.issuer"),
-            ENV.getRequiredProperty("azure.openid.config.jwks.uri"),
-            URI.create(ENV.getRequiredProperty("azure.openid.config.token.endpoint")),
-            !ENV.isLocal(), ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy()),
+            getIssuerFra(wellKnownUrl, useProxy).orElseGet(() -> ENV.getProperty("azure.openid.config.issuer")),
+            getJwksFra(wellKnownUrl, useProxy).orElseGet(() -> ENV.getRequiredProperty("azure.openid.config.jwks.uri")),
+            getTokenEndpointFra(wellKnownUrl, useProxy).orElseGet(() ->
+                Optional.ofNullable(ENV.getRequiredProperty("azure.openid.config.token.endpoint")).map(URI::create).orElse(null)),
+            !ENV.isLocal(), useProxy,
             ENV.getRequiredProperty(AZURE_CLIENT_ID),
             true);
     }
 
     private static OidcProvider createLoginServiceConfiguration(String wellKnownUrl) {
+        var useProxy = ENV.isLocal() ? null : getDefaultProxy();
         return createConfiguration(OidcProviderType.LOGINSERVICE,
             "oidc_loginservice",
-            getIssuerFra(wellKnownUrl).orElseThrow(),
-            getJwksFra(wellKnownUrl).orElseThrow(),
-            getTokenEndpointFra(wellKnownUrl).orElse(null),
-            !ENV.isLocal(), getDefaultProxy(),
+            getIssuerFra(wellKnownUrl, useProxy).orElseThrow(),
+            getJwksFra(wellKnownUrl, useProxy).orElseThrow(),
+            getTokenEndpointFra(wellKnownUrl, useProxy).orElse(null),
+            !ENV.isLocal(), useProxy,
             ENV.getRequiredProperty(LOGINSERVICE_CLIENT_ID),
             false);
     }
