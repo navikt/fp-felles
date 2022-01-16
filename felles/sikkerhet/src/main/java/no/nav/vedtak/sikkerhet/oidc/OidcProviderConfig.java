@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.ietf.jgss.Oid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,12 +138,14 @@ public final class OidcProviderConfig {
             true);
     }
 
-    private static OidcProvider createAzureAppConfiguration(final String wellKnownUrl) {
+    @SuppressWarnings("unused")
+    private static OidcProvider createAzureAppConfiguration(String wellKnownUrl) {
+        // Antar at satt via Azureator iht dokumentasjon - ellers må man bruke proxy for å hente well-known ....
         return createConfiguration(OidcProviderType.AZUREAD,
             "oidc_azure",
-            getIssuerFra(wellKnownUrl).orElseThrow(),
-            getJwksFra(wellKnownUrl).orElseThrow(),
-            getTokenEndpointFra(wellKnownUrl).orElse(null),
+            ENV.getRequiredProperty("azure.openid.config.issuer"),
+            ENV.getRequiredProperty("azure.openid.config.jwks.uri"),
+            URI.create(ENV.getRequiredProperty("azure.openid.config.token.endpoint")),
             !ENV.isLocal(),
             ENV.getRequiredProperty(AZURE_CLIENT_ID),
             true);
