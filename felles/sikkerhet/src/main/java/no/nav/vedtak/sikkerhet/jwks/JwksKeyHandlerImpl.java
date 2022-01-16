@@ -24,32 +24,26 @@ import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
-    private static final Environment ENV = Environment.current();
-
-    public static final String PROXY_KEY = "proxy.url";
 
     private static final Logger LOG = LoggerFactory.getLogger(JwksKeyHandlerImpl.class);
-    private static final String DEFAULT_PROXY_URL = "http://webproxy.nais:8088";
-    private static final RequestConfig PROXY_CONFIG = createProxyConfig();
 
     private final Supplier<String> jwksStringSupplier;
     private final URL url;
 
     private JsonWebKeySet keyCache;
 
-    public JwksKeyHandlerImpl(URL url, boolean useProxyForJwks) {
-        this(() -> httpGet(url, useProxyForJwks), url);
+    public JwksKeyHandlerImpl(URL url, boolean useProxyForJwks, String proxy) {
+        this(() -> httpGet(url, useProxyForJwks, proxy), url);
     }
 
     public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, String url) throws MalformedURLException {
         this(jwksStringSupplier, new URL(url));
     }
 
-    public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, URL url) {
+    private JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, URL url) {
         this.jwksStringSupplier = jwksStringSupplier;
         this.url = url;
     }
@@ -99,20 +93,20 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         }
     }
 
-    private static RequestConfig createProxyConfig() {
+    private static RequestConfig createProxyConfig(String proxy) {
         return RequestConfig.custom()
-                .setProxy(HttpHost.create(ENV.getProperty(PROXY_KEY, DEFAULT_PROXY_URL)))
+                .setProxy(HttpHost.create(proxy))
                 .build();
     }
 
-    private static String httpGet(URL url, boolean useProxyForJwks) {
+    private static String httpGet(URL url, boolean useProxyForJwks, String proxy) {
         if (url == null) {
             throw new TekniskException("F-836283", "Mangler konfigurasjon av jwks url");
         }
         HttpGet httpGet = new HttpGet(url.toExternalForm());
         httpGet.addHeader("accept", "application/json");
         if (useProxyForJwks) {
-            httpGet.setConfig(PROXY_CONFIG);
+            httpGet.setConfig(createProxyConfig(proxy));
         }
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {

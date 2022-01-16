@@ -29,8 +29,8 @@ public class OidcTokenValidator {
     private final boolean skipAudienceValidation;
 
     public OidcTokenValidator(OidcProvider config) {
-        this(config.getIssuer().toExternalForm(), new JwksKeyHandlerImpl(config.getJwks(), config.isUseProxyForJwks()), config.getClientName(),
-                config.getAllowedClockSkewInSeconds(), config.isSkipAudienceValidation());
+        this(config.getIssuer().toExternalForm(), new JwksKeyHandlerImpl(config.getJwks(), config.isUseProxyForJwks(), config.getProxy()),
+            config.getClientName(), config.getAllowedClockSkewInSeconds(), config.isSkipAudienceValidation());
     }
 
     // Skal bare brukes direkte fra tester, prod-kode skal kalle public constructors
