@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,9 +35,13 @@ public final class OidcProviderConfig {
 
     private static final String AZURE_WELL_KNOWN_URL = "azure.app.well.known.url"; // naiserator
     private static final String AZURE_CLIENT_ID = "azure.app.client.id"; // naiserator
+    private static final String AZURE_HTTP_PROXY = "azure.http.proxy"; // settes ikke av naiserator
 
     private static final String TOKEN_X_WELL_KNOWN_URL = "token.x.well.known.url"; // naiserator
     private static final String TOKEN_X_CLIENT_ID = "token.x.client.id"; // naiserator
+
+    private static final String PROXY_KEY = "proxy.url"; // FP-oppsett lite brukt
+    private static final String DEFAULT_PROXY_URL = "http://webproxy.nais:8088";
 
     private static volatile OidcProviderConfig instance; // NOSONAR
     private static Set<OidcProvider> providers = new HashSet<>();
@@ -121,7 +126,7 @@ public final class OidcProviderConfig {
             getIssuerFra(wellKnownUrl).orElse(OpenAMHelper.getIssoIssuerUrl()),
             getJwksFra(wellKnownUrl).orElse(OpenAMHelper.getIssoJwksUrl()),
             getTokenEndpointFra(wellKnownUrl).orElse(null),
-            false,
+            false, null,
             OpenAMHelper.getIssoUserName(),
             true);
     }
@@ -133,7 +138,7 @@ public final class OidcProviderConfig {
             getIssuerFra(wellKnownUrl).orElse(ENV.getProperty("oidc.sts.issuer.url")),
             getJwksFra(wellKnownUrl).orElse(ENV.getProperty("oidc.sts.jwks.url")),
             getTokenEndpointFra(wellKnownUrl).orElse(null),
-            false,
+            false, null,
             "Client name is not used for OIDC STS",
             true);
     }
@@ -146,7 +151,7 @@ public final class OidcProviderConfig {
             ENV.getRequiredProperty("azure.openid.config.issuer"),
             ENV.getRequiredProperty("azure.openid.config.jwks.uri"),
             URI.create(ENV.getRequiredProperty("azure.openid.config.token.endpoint")),
-            !ENV.isLocal(),
+            !ENV.isLocal(), ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy()),
             ENV.getRequiredProperty(AZURE_CLIENT_ID),
             true);
     }
@@ -157,7 +162,7 @@ public final class OidcProviderConfig {
             getIssuerFra(wellKnownUrl).orElseThrow(),
             getJwksFra(wellKnownUrl).orElseThrow(),
             getTokenEndpointFra(wellKnownUrl).orElse(null),
-            !ENV.isLocal(),
+            !ENV.isLocal(), getDefaultProxy(),
             ENV.getRequiredProperty(LOGINSERVICE_CLIENT_ID),
             false);
     }
@@ -168,7 +173,7 @@ public final class OidcProviderConfig {
             getIssuerFra(wellKnownUrl).orElseThrow(),
             getJwksFra(wellKnownUrl).orElseThrow(),
             getTokenEndpointFra(wellKnownUrl).orElse(null),
-            false,
+            false, null,
             ENV.getRequiredProperty(TOKEN_X_CLIENT_ID),
             false);
     }
@@ -179,19 +184,23 @@ public final class OidcProviderConfig {
                                                     String jwks,
                                                     URI tokenEndpoint,
                                                     boolean useProxyForJwks,
+                                                    String proxy,
                                                     String clientName,
                                                     boolean skipAudienceValidation) {
-        return Optional.ofNullable(clientName)
-                .map(c -> new OidcProvider(
+        return new OidcProvider(
                         type,
                         url(issuer, "issuer", providerName),
                         url(jwks, "jwks", providerName),
                         tokenEndpoint,
                         useProxyForJwks,
-                        c,
+                        proxy,
+                        Objects.requireNonNull(clientName),
                     30,
-                        skipAudienceValidation))
-                .orElseThrow();
+                        skipAudienceValidation);
+    }
+
+    private static String getDefaultProxy() {
+        return ENV.getProperty(PROXY_KEY, DEFAULT_PROXY_URL);
     }
 
     private static URL url(String url, String key, String providerName) {

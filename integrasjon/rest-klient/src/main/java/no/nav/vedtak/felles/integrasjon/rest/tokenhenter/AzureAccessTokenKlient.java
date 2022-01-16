@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.sikkerhet.oidc.OidcProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcProviderConfig;
 import no.nav.vedtak.sikkerhet.oidc.OidcProviderType;
 
@@ -49,11 +48,12 @@ public class AzureAccessTokenKlient {
     private Map<String, LocalTokenHolder> tokenHolderMap;
 
     public AzureAccessTokenKlient() {
+        var tokenProviderConfig = OidcProviderConfig.instance().getOidcProvider(OidcProviderType.AZUREAD).orElseThrow();
         tokenHolderMap = new LinkedHashMap<>();
-        tokenEndpoint = OidcProviderConfig.instance().getOidcProvider(OidcProviderType.AZUREAD).map(OidcProvider::getTokenEndpoint).orElseThrow();
+        tokenEndpoint = tokenProviderConfig.getTokenEndpoint();
+        azureProxy = tokenProviderConfig.getProxy();
         clientId = ENV.getProperty("azure.app.client.id", "foreldrepenger");
         clientSecret = ENV.getProperty("azure.app.client.secret", "foreldrepenger");
-        azureProxy = ENV.getProperty("azure.http.proxy","http://webproxy.nais:8088");
     }
 
     public synchronized String hentAccessToken(String scope) {
