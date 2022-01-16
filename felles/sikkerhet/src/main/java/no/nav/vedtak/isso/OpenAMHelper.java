@@ -90,7 +90,7 @@ public class OpenAMHelper {
     public static AuthorizationServerMetadata getOpenAmWellKnownConfig() {
         return WellKnownConfigurationHelper.getWellKnownConfig
             (Optional.ofNullable(ENV.getProperty(OPEN_AM_WELL_KNOWN_URL))
-                .orElse(ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST) + WELL_KNOWN_ENDPOINT));
+                .orElse(ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST) + WELL_KNOWN_ENDPOINT), null);
     }
 
     public static String getIssoIssuerUrl() {

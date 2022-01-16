@@ -5,6 +5,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
@@ -98,13 +99,10 @@ public class AzureAccessTokenKlient {
         HttpPost post = new HttpPost(tokenEndpoint);
         post.setEntity(new StringEntity(entity, StandardCharsets.UTF_8));
         post.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_FORM_URLENCODED.toString());
-        if (tokenEndpointProxy != null) {
-            HttpHost httpHostProxy = HttpHost.create(tokenEndpointProxy);
-            var requestConfig = RequestConfig.custom()
-                .setProxy(httpHostProxy)
-                .build();
-            post.setConfig(requestConfig);
-        }
+        Optional.ofNullable(tokenEndpointProxy)
+            .map(HttpHost::create)
+            .map(h -> RequestConfig.custom().setProxy(h).build())
+            .ifPresent(post::setConfig);
         return post;
     }
 
