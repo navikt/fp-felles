@@ -7,6 +7,7 @@ import java.util.TimeZone;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -39,6 +40,14 @@ public class DefaultJsonMapper {
     public static <T> List<T> fromJson(String json, TypeReference<List<T>> typeReference) {
         try {
             return MAPPER.readValue(json, typeReference);
+        } catch (IOException e) {
+            throw new TekniskException("F-919328", "Fikk IO exception ved parsing av JSON", e);
+        }
+    }
+
+    public static JsonNode treeFromJson(String json) {
+        try {
+            return MAPPER.readTree(json);
         } catch (IOException e) {
             throw new TekniskException("F-919328", "Fikk IO exception ved parsing av JSON", e);
         }

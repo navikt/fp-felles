@@ -1,5 +1,6 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
+import static no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper.getAuthorizationEndpointFra;
 import static no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper.getIssuerFra;
 import static no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper.getJwksFra;
 import static no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper.getTokenEndpointFra;
@@ -29,11 +30,17 @@ public final class OidcProviderConfig {
     public static final String OPEN_AM_CLIENT_SECRET = "oidc.open.am.client.secret";
 
     private static final String STS_WELL_KNOWN_URL = "oidc.sts.well.known.url";
+    private static final String STS_CONFIG_ISSUER = "oidc.sts.openid.config.issuer";
+    private static final String STS_CONFIG_JWKS_URI = "oidc.sts.openid.config.jwks.uri";
+    private static final String STS_CONFIG_TOKEN_ENDPOINT = "oidc.sts.openid.config.token.endpoint";
 
     private static final String LOGINSERVICE_IDPORTEN_DISCOVERY_URL = "loginservice.idporten.discovery.url"; // naiserator
     private static final String LOGINSERVICE_CLIENT_ID = "loginservice.idporten.audience"; // naiserator
 
     private static final String AZURE_WELL_KNOWN_URL = "azure.app.well.known.url"; // naiserator
+    private static final String AZURE_CONFIG_ISSUER = "azure.openid.config.issuer"; // naiserator
+    private static final String AZURE_CONFIG_JWKS_URI = "azure.openid.config.jwks.uri"; // naiserator
+    private static final String AZURE_CONFIG_TOKEN_ENDPOINT = "azure.openid.config.token.endpoint"; // naiserator
     private static final String AZURE_CLIENT_ID = "azure.app.client.id"; // naiserator
     private static final String AZURE_HTTP_PROXY = "azure.http.proxy"; // settes ikke av naiserator
 
@@ -86,7 +93,7 @@ public final class OidcProviderConfig {
         idProviderConfigs.add(createOpenAmConfiguration(ENV.getProperty(OPEN_AM_WELL_KNOWN_URL)));
 
         // OIDC STS
-        if (ENV.getProperty(STS_WELL_KNOWN_URL) != null || ENV.getProperty("oidc.sts.issuer.url") != null) { // Det er kanskje noen apper som ikke bruker STS token validering??
+        if (ENV.getProperty(STS_WELL_KNOWN_URL) != null || ENV.getProperty("oidc.sts.issuer.url") != null || ENV.getProperty(STS_CONFIG_ISSUER) != null) { // Det er kanskje noen apper som ikke bruker STS token validering??
             idProviderConfigs.add(createStsConfiguration(ENV.getProperty(STS_WELL_KNOWN_URL)));
         }
 
@@ -112,8 +119,8 @@ public final class OidcProviderConfig {
         }
 
         LOG.info("ID Providere som er tilgjengelig: {}", idProviderConfigs.stream()
-            .map(OidcProvider::getIssuer)
-            .map(URL::getHost)
+            .map(OidcProvider::getType)
+            .map(OidcProviderType::name)
             .collect(Collectors.joining(", ")));
 
         return idProviderConfigs;
@@ -126,18 +133,25 @@ public final class OidcProviderConfig {
             getIssuerFra(wellKnownUrl).orElseGet(OpenAMHelper::getIssoIssuerUrl),
             getJwksFra(wellKnownUrl).orElseGet(OpenAMHelper::getIssoJwksUrl),
             getTokenEndpointFra(wellKnownUrl).orElse(null),
+            getAuthorizationEndpointFra(wellKnownUrl).orElse(null),
             false, null,
             OpenAMHelper.getIssoUserName(),
             true);
     }
 
     private static OidcProvider createStsConfiguration(String wellKnownUrl) {
-        LOG.debug("Oppretter OpenAM konfig fra '{}'", wellKnownUrl);
+        LOG.debug("Oppretter STS konfig fra '{}'", wellKnownUrl);
         return createConfiguration(OidcProviderType.STS,
             "oidc_sts",
-            getIssuerFra(wellKnownUrl).orElseGet(() -> ENV.getProperty("oidc.sts.issuer.url")),
-            getJwksFra(wellKnownUrl).orElseGet(() -> ENV.getProperty("oidc.sts.jwks.url")),
-            getTokenEndpointFra(wellKnownUrl).orElse(null),
+            Optional.ofNullable(ENV.getProperty(STS_CONFIG_ISSUER))
+                .or(() -> getIssuerFra(wellKnownUrl))
+                .orElseGet(() -> ENV.getProperty("oidc.sts.issuer.url")),
+            Optional.ofNullable(ENV.getProperty(STS_CONFIG_JWKS_URI))
+                .or(() -> getJwksFra(wellKnownUrl))
+                .orElseGet(() -> ENV.getProperty("oidc.sts.jwks.url")),
+            Optional.ofNullable(ENV.getProperty(STS_CONFIG_TOKEN_ENDPOINT)).map(URI::create)
+                .or(() -> getTokenEndpointFra(wellKnownUrl)).orElse(null),
+            null,
             false, null,
             "Client name is not used for OIDC STS",
             true);
@@ -148,10 +162,13 @@ public final class OidcProviderConfig {
         var useProxy = ENV.isLocal() ? null : ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy());
         return createConfiguration(OidcProviderType.AZUREAD,
             "oidc_azure",
-            getIssuerFra(wellKnownUrl, useProxy).orElseGet(() -> ENV.getProperty("azure.openid.config.issuer")),
-            getJwksFra(wellKnownUrl, useProxy).orElseGet(() -> ENV.getRequiredProperty("azure.openid.config.jwks.uri")),
-            getTokenEndpointFra(wellKnownUrl, useProxy).orElseGet(() ->
-                Optional.ofNullable(ENV.getRequiredProperty("azure.openid.config.token.endpoint")).map(URI::create).orElse(null)),
+            Optional.ofNullable(ENV.getProperty(AZURE_CONFIG_ISSUER))
+                .orElseGet(() -> getIssuerFra(wellKnownUrl, useProxy).orElse(null)),
+            Optional.ofNullable(ENV.getProperty(AZURE_CONFIG_JWKS_URI))
+                .orElseGet(() -> getJwksFra(wellKnownUrl, useProxy).orElse(null)),
+            Optional.ofNullable(ENV.getProperty(AZURE_CONFIG_TOKEN_ENDPOINT)).map(URI::create)
+                .orElseGet(() -> getTokenEndpointFra(wellKnownUrl, useProxy).orElse(null)),
+            null,
             !ENV.isLocal(), useProxy,
             ENV.getRequiredProperty(AZURE_CLIENT_ID),
             true);
@@ -164,6 +181,7 @@ public final class OidcProviderConfig {
             getIssuerFra(wellKnownUrl, useProxy).orElseThrow(),
             getJwksFra(wellKnownUrl, useProxy).orElseThrow(),
             getTokenEndpointFra(wellKnownUrl, useProxy).orElse(null),
+            getAuthorizationEndpointFra(wellKnownUrl).orElse(null),
             !ENV.isLocal(), useProxy,
             ENV.getRequiredProperty(LOGINSERVICE_CLIENT_ID),
             false);
@@ -175,6 +193,7 @@ public final class OidcProviderConfig {
             getIssuerFra(wellKnownUrl).orElseThrow(),
             getJwksFra(wellKnownUrl).orElseThrow(),
             getTokenEndpointFra(wellKnownUrl).orElse(null),
+            getAuthorizationEndpointFra(wellKnownUrl).orElse(null),
             false, null,
             ENV.getRequiredProperty(TOKEN_X_CLIENT_ID),
             false);
@@ -185,6 +204,7 @@ public final class OidcProviderConfig {
                                                     String issuer,
                                                     String jwks,
                                                     URI tokenEndpoint,
+                                                    URI authorizationEndpoint,
                                                     boolean useProxyForJwks,
                                                     String proxy,
                                                     String clientName,
@@ -194,6 +214,7 @@ public final class OidcProviderConfig {
                         url(issuer, "issuer", providerName),
                         url(jwks, "jwks", providerName),
                         tokenEndpoint,
+                        authorizationEndpoint,
                         useProxyForJwks,
                         proxy,
                         Objects.requireNonNull(clientName),

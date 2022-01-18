@@ -24,7 +24,6 @@
         <module>pdl-klient</module>
         <module>ereg-klient</module>
         <module>saf-klient</module>
-        <module>sak-klient</module>
         <module>spokelse-klient</module>
     </modules>
     <properties>
@@ -114,11 +113,6 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>oppgave-rest-klient</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>sak-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

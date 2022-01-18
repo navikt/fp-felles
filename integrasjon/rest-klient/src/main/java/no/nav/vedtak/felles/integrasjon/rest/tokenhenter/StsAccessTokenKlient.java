@@ -44,8 +44,6 @@ public class StsAccessTokenKlient {
     private static final URI TOKEN_ENDPOINT = OidcProviderConfig.instance()
         .getOidcProvider(OidcProviderType.STS).map(OidcProvider::getTokenEndpoint).orElseThrow();
 
-    private static final long EXPIRE_IN_MILLISECONDS = 55L * 60 * 1000;
-
     private static String accessToken;
     private static long accessTokenExpiry;
 
@@ -56,7 +54,8 @@ public class StsAccessTokenKlient {
         var token = hentToken();
         LOG.info("STS hentet og fikk token av type {} utløper {}", token.token_type(), token.expires_in());
         accessToken = token.access_token();
-        accessTokenExpiry = System.currentTimeMillis() + EXPIRE_IN_MILLISECONDS;
+        var exipry = token.expires_in() < 300 ? 10L : token.expires_in() - 240; // Sekunder
+        accessTokenExpiry = System.currentTimeMillis() + (exipry * 1000); // Millisekunder
         return accessToken;
     }
 

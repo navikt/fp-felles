@@ -10,7 +10,9 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper;
+import no.nav.vedtak.sikkerhet.oidc.OidcProvider;
+import no.nav.vedtak.sikkerhet.oidc.OidcProviderConfig;
+import no.nav.vedtak.sikkerhet.oidc.OidcProviderType;
 
 @Dependent
 public class StsAccessTokenConfig {
@@ -33,7 +35,8 @@ public class StsAccessTokenConfig {
             @KonfigVerdi("systembruker.password") String password) {
         this.username = username;
         this.password = password;
-        this.tokenEndpointUri = WellKnownConfigurationHelper.getTokenEndpointFra(wellKnownConfig)
+        this.tokenEndpointUri = OidcProviderConfig.instance().getOidcProvider(OidcProviderType.STS)
+            .map(OidcProvider::getTokenEndpoint)
             .orElseGet(() -> URI.create(issuerUrl + tokenEndpointPath));
     }
 
