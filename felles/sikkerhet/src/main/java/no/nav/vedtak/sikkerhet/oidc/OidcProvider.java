@@ -8,6 +8,7 @@ public final class OidcProvider {
     private final URL issuer;
     private final URL jwks;
     private final URI tokenEndpoint;
+    private final URI authorizationEndpoint;
     private final boolean useProxyForJwks;
     private final String proxy;
     private final String clientName;
@@ -15,7 +16,7 @@ public final class OidcProvider {
     private final boolean skipAudienceValidation;
 
     public OidcProvider(OidcProviderType type,
-                        URL issuer, URL jwks, URI tokenEndpoint,
+                        URL issuer, URL jwks, URI tokenEndpoint, URI authorizationEndpoint,
                         boolean useProxyForJwks, String proxy, String clientName,
                         int allowedClockSkewInSeconds, boolean skipAudienceValidation) {
         this.type = type;
@@ -24,6 +25,7 @@ public final class OidcProvider {
         this.useProxyForJwks = useProxyForJwks;
         this.proxy = proxy;
         this.tokenEndpoint = tokenEndpoint;
+        this.authorizationEndpoint = authorizationEndpoint;
         this.clientName = clientName;
         this.allowedClockSkewInSeconds = allowedClockSkewInSeconds;
         this.skipAudienceValidation = skipAudienceValidation;
@@ -43,6 +45,10 @@ public final class OidcProvider {
 
     public URI getTokenEndpoint() {
         return tokenEndpoint;
+    }
+
+    public URI getAuthorizationEndpoint() {
+        return authorizationEndpoint;
     }
 
     public boolean isUseProxyForJwks() {

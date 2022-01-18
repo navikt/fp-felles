@@ -44,8 +44,6 @@ public class AzureAccessTokenKlient {
     private final String clientSecret;
     private final String azureProxy;
 
-    private static final long EXPIRE_IN_MILLISECONDS = 15L * 60 * 1000;
-
     private Map<String, LocalTokenHolder> tokenHolderMap;
 
     public AzureAccessTokenKlient() {
@@ -68,7 +66,9 @@ public class AzureAccessTokenKlient {
             azureProxy,
             scope);
         LOG.info("AzureAD hentet token for scope {} fikk token av type {} utløper {}", scope, token.token_type(), token.expires_in());
-        tokenHolderMap.put(scope, new LocalTokenHolder(token.access_token(), System.currentTimeMillis() + EXPIRE_IN_MILLISECONDS));
+        var exipry = token.expires_in() < 300 ? 10L : token.expires_in() - 240; // Sekunder
+        var accessTokenExpiry = System.currentTimeMillis() + (exipry * 1000); // Millisekunder
+        tokenHolderMap.put(scope, new LocalTokenHolder(token.access_token(), accessTokenExpiry));
         return token.access_token();
     }
 

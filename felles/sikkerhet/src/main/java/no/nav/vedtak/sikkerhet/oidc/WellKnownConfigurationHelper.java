@@ -2,8 +2,11 @@ package no.nav.vedtak.sikkerhet.oidc;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Proxy;
+import java.net.ProxySelector;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -13,10 +16,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nimbusds.jose.util.DefaultResourceRetriever;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
-
+import no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -25,54 +25,72 @@ public class WellKnownConfigurationHelper {
     private static final Logger LOG = LoggerFactory.getLogger(WellKnownConfigurationHelper.class);
     private static final Environment ENV = Environment.current();
 
-    private static Map<String, AuthorizationServerMetadata> wellKnownConfigMap = Collections.synchronizedMap(new LinkedHashMap<>());;
+    private static Map<String, WellKnownOpenIdConfiguration> wellKnownConfigMap = Collections.synchronizedMap(new LinkedHashMap<>());;
 
-    public static synchronized AuthorizationServerMetadata getWellKnownConfig(String discoveryUrl, String proxyUrl) {
+    public static WellKnownOpenIdConfiguration getWellKnownConfig(URI discoveryUrl) {
+        return getWellKnownConfig(discoveryUrl.toString(), null);
+    }
+
+    public static synchronized WellKnownOpenIdConfiguration getWellKnownConfig(String discoveryUrl, String proxyUrl) {
         if (wellKnownConfigMap.get(discoveryUrl) == null) {
-            wellKnownConfigMap.put(discoveryUrl, retrieveAuthorizationServerMetadata(discoveryUrl, proxyUrl));
+            wellKnownConfigMap.put(discoveryUrl, hentWellKnownConfig(discoveryUrl, proxyUrl));
         }
         return wellKnownConfigMap.get(discoveryUrl);
     }
 
-    public static Optional<String> getIssuerFra(String discoveryURL) {
+    static Optional<String> getIssuerFra(String discoveryURL) {
         return getIssuerFra(discoveryURL, null);
     }
 
-    public static Optional<String> getIssuerFra(String discoveryURL, String proxyUrl) {
+    static Optional<String> getIssuerFra(String discoveryURL, String proxyUrl) {
         LOG.debug("Henter issuer fra {}", discoveryURL);
-        return Optional.ofNullable(discoveryURL).map(u -> getWellKnownConfig(u, proxyUrl).getIssuer().getValue());
+        return Optional.ofNullable(discoveryURL).map(u -> getWellKnownConfig(u, proxyUrl).issuer());
     }
 
-    public static Optional<String> getJwksFra(String discoveryURL) {
+    static Optional<String> getJwksFra(String discoveryURL) {
         return getJwksFra(discoveryURL, null);
     }
 
-    public static Optional<String> getJwksFra(String discoveryURL, String proxyUrl) {
+    static Optional<String> getJwksFra(String discoveryURL, String proxyUrl) {
         LOG.debug("Henter jwki_uri fra {}", discoveryURL);
-        return Optional.ofNullable(discoveryURL).map(u -> getWellKnownConfig(u, proxyUrl).getJWKSetURI().toString());
+        return Optional.ofNullable(discoveryURL).map(u -> getWellKnownConfig(u, proxyUrl).jwks_uri().toString());
     }
 
-    public static Optional<URI> getTokenEndpointFra(String discoveryURL) {
+    static Optional<URI> getTokenEndpointFra(String discoveryURL) {
         return getTokenEndpointFra(discoveryURL, null);
     }
 
-    public static Optional<URI> getTokenEndpointFra(String discoveryURL, String proxyUrl) {
+    static Optional<URI> getTokenEndpointFra(String discoveryURL, String proxyUrl) {
         LOG.debug("Henter token_endpoint fra {}", discoveryURL);
-        return Optional.ofNullable(discoveryURL).map(u -> getWellKnownConfig(u, proxyUrl).getTokenEndpointURI());
+        return Optional.ofNullable(discoveryURL).map(u -> getWellKnownConfig(u, proxyUrl).token_endpoint()).map(URI::create);
     }
 
-    private static AuthorizationServerMetadata retrieveAuthorizationServerMetadata(String discoveryURL, String proxyUrl) {
+    static Optional<URI> getAuthorizationEndpointFra(String discoveryURL) {
+        return Optional.ofNullable(discoveryURL).map(u -> getWellKnownConfig(u, null).authorization_endpoint()).map(URI::create);
+    }
+
+    private static WellKnownOpenIdConfiguration hentWellKnownConfig(String discoveryURL, String proxyUrl) {
         try {
             LOG.debug("Henter well-known konfig fra '{}'", discoveryURL);
-            var resourceRetriever = new DefaultResourceRetriever();
+            var clientBuilder = HttpClient.newBuilder();
             Optional.ofNullable(proxyUrl)
+                .filter(s -> !s.isEmpty())
                 .map(URI::create)
                 .map(u -> new InetSocketAddress(u.getHost(), u.getPort()))
-                .map(s -> new Proxy(Proxy.Type.HTTP, s))
-                .ifPresent(resourceRetriever::setProxy);
-            var url = URI.create(discoveryURL).toURL();
-            return AuthorizationServerMetadata.parse(resourceRetriever.retrieveResource(url).getContent());
-        } catch (ParseException | IOException e) {
+                .map(ProxySelector::of)
+                .ifPresent(clientBuilder::proxy);
+            var client = clientBuilder.build();
+            var request = HttpRequest.newBuilder()
+                .uri(URI.create(discoveryURL))
+                .header("accept", "application/json")
+                .GET()
+                .build();
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+            return response != null ? DefaultJsonMapper.MAPPER.readerFor(WellKnownOpenIdConfiguration.class).readValue(response) : null;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new TekniskException("F-999999", String.format("Exception when retrieving metadata from issuer %s", discoveryURL), e);
+        } catch (IOException e) {
             throw new TekniskException("F-999999", String.format("Exception when retrieving metadata from issuer %s", discoveryURL), e);
         }
     }
@@ -81,8 +99,8 @@ public class WellKnownConfigurationHelper {
         guardForTestOnly();
         wellKnownConfigMap.computeIfAbsent(discoveryUrl, key -> {
             try {
-                return AuthorizationServerMetadata.parse(jsonAsString);
-            } catch (ParseException e) {
+                return DefaultJsonMapper.MAPPER.readerFor(WellKnownOpenIdConfiguration.class).readValue(jsonAsString);
+            } catch (IOException e) {
                 throw new IllegalArgumentException("Ugyldig json: ", e);
             }
         });

@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
@@ -40,6 +39,7 @@ import no.nav.vedtak.sikkerhet.domene.IdTokenAndRefreshToken;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcProviderConfig;
 import no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper;
+import no.nav.vedtak.sikkerhet.oidc.WellKnownOpenIdConfiguration;
 
 // TODO, denne klassen er en katastrofe
 public class OpenAMHelper {
@@ -87,22 +87,22 @@ public class OpenAMHelper {
             .orElse(ENV.getProperty(OPEN_ID_CONNECT_PASSWORD));
     }
 
-    public static AuthorizationServerMetadata getOpenAmWellKnownConfig() {
-        return WellKnownConfigurationHelper.getWellKnownConfig
-            (Optional.ofNullable(ENV.getProperty(OPEN_AM_WELL_KNOWN_URL))
-                .orElse(ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST) + WELL_KNOWN_ENDPOINT), null);
+    public static WellKnownOpenIdConfiguration getOpenAmWellKnownConfig() {
+        var discoveryURL = Optional.ofNullable(ENV.getProperty(OPEN_AM_WELL_KNOWN_URL))
+            .orElse(ENV.getProperty(OPEN_ID_CONNECT_ISSO_HOST) + WELL_KNOWN_ENDPOINT);
+        return WellKnownConfigurationHelper.getWellKnownConfig(discoveryURL, null);
     }
 
     public static String getIssoIssuerUrl() {
-        return getOpenAmWellKnownConfig().getIssuer().getValue();
+        return getOpenAmWellKnownConfig().issuer();
     }
 
     public static String getIssoJwksUrl() {
-        return getOpenAmWellKnownConfig().getJWKSetURI().toString();
+        return getOpenAmWellKnownConfig().jwks_uri();
     }
 
     public static String getAuthorizationEndpoint() {
-        return getOpenAmWellKnownConfig().getAuthorizationEndpointURI().toString();
+        return getOpenAmWellKnownConfig().authorization_endpoint();
     }
 
     public IdTokenAndRefreshToken getToken() throws IOException {

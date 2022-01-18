@@ -44,9 +44,7 @@ public class SpøkelseKlient implements Spøkelse {
                 .addParameter("fodselsnummer", fnr)
                 .build();
             var grunnlag = restClient.get(request, SykepengeVedtak[].class);
-            var resultat = Arrays.asList(grunnlag);
-            LOG.info("SPokelse felles {} fikk grunnlag {}", uriString, resultat);
-            return resultat;
+            return Arrays.asList(grunnlag);
         } catch (Exception e) {
             LOG.info("SPokelse felles: feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);
             throw new TekniskException( "FP-180126", String.format("SPokelse %s gir feil, ta opp med team sykepenger.", uriString), e);
@@ -60,9 +58,7 @@ public class SpøkelseKlient implements Spøkelse {
                 .addParameter("fodselsnummer", fnr)
                 .build();
             var grunnlag = restClient.get(request, SykepengeVedtak[].class);
-            var resultat = Arrays.asList(grunnlag);
-            LOG.info("SPokelse felles {} fikk grunnlag {}", uriString, resultat);
-            return resultat;
+            return Arrays.asList(grunnlag);
         } catch (Exception e) {
             LOG.info("SPokelse felles: feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);
             return List.of();
