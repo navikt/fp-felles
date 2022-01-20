@@ -150,11 +150,17 @@ public final class OidcProviderConfig {
                 .or(() -> getJwksFra(wellKnownUrl))
                 .orElseGet(() -> ENV.getProperty("oidc.sts.jwks.url")),
             Optional.ofNullable(ENV.getProperty(STS_CONFIG_TOKEN_ENDPOINT)).map(URI::create)
-                .or(() -> getTokenEndpointFra(wellKnownUrl)).orElse(null),
+                .or(() -> getTokenEndpointFra(wellKnownUrl)).orElseGet(OidcProviderConfig::tokenEndpointFromLegacySTS),
             null,
             false, null,
             "Client name is not used for OIDC STS",
             true);
+    }
+
+    private static URI tokenEndpointFromLegacySTS() {
+        var issuer =  ENV.getProperty("oidc.sts.issuer.url");
+        var endpointpath = Optional.ofNullable(ENV.getProperty("oidc.sts.token.path")).orElse("/rest/v1/sts/token");
+        return issuer != null ? URI.create(issuer + endpointpath) : null;
     }
 
     @SuppressWarnings("unused")
