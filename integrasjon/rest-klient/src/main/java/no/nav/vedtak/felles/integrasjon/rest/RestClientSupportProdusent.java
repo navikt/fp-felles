@@ -131,7 +131,6 @@ public class RestClientSupportProdusent {
                 .setDefaultRequestConfig(requestConfig())
                 .setRetryHandler(new HttpRequestRetryHandler())
                 .setKeepAliveStrategy(createKeepAliveStrategy(30))
-                .disableCookieManagement()
                 .build();
     }
 
