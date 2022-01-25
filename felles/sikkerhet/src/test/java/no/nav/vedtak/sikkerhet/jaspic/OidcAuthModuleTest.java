@@ -1,7 +1,5 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
 import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,10 +33,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
-import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
-import no.nav.vedtak.sikkerhet.domene.ConsumerId;
+import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
@@ -46,7 +43,10 @@ import no.nav.vedtak.sikkerhet.oidc.OidcTokenGenerator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProviderForTest;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorResult;
-import no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper;
+import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
+import no.nav.vedtak.sikkerhet.oidc.config.impl.OpenAmProperties;
+import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public class OidcAuthModuleTest {
 
@@ -65,24 +65,22 @@ public class OidcAuthModuleTest {
     private Subject serviceSubject = new Subject();
 
     public void setupAll() throws Exception {
-        when(request.getRequestURI()).thenReturn("/fpsak");
+        when(request.getRequestURI()).thenReturn("https://foo.devillo.no/fpsak/");
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://foo.devillo.no/fpsak/"));
         when(request.getHeader("Accept")).thenReturn("application/json");
         authModule.initialize(null, null, callbackHandler, null);
 
-        System.setProperty(OPEN_ID_CONNECT_USERNAME, "OIDC");
-        System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, OidcTokenGenerator.ISSUER);
+        System.setProperty(OidcProviderConfig.OPEN_AM_CLIENT_ID, "OIDC");
+        System.setProperty(OpenAmProperties.OPEN_ID_CONNECT_ISSO_HOST, OidcTokenGenerator.ISSUER);
+        System.setProperty(OpenAmProperties.OPEN_ID_CONNECT_ISSO_ISSUER, OidcTokenGenerator.ISSUER);
         System.setProperty(ConsumerId.SYSTEMUSER_USERNAME, "JUnit Test");
 
-        Map<String, String> testData = new HashMap<>() {
-            {
-                put(OpenAMHelper.ISSUER_KEY, OidcTokenGenerator.ISSUER);
-            }
-        };
-        WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + OpenAMHelper.WELL_KNOWN_ENDPOINT, JsonUtil.toJson(testData));
-        Map<String, OidcTokenValidator> map = new HashMap<>();
-        map.put(OidcTokenGenerator.ISSUER, tokenValidator);
-        OidcTokenValidatorProviderForTest.setValidators(map);
+        Map<String, String> testData = Map.of(
+            OpenAmProperties.ISSUER_KEY, OidcTokenGenerator.ISSUER,
+            OpenAmProperties.JWKS_KEY, OidcTokenGenerator.ISSUER + "/" + OpenAmProperties.JWKS_KEY
+        );
+        WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + OpenAmProperties.WELL_KNOWN_ENDPOINT, JsonUtil.toJson(testData));
+        OidcTokenValidatorProviderForTest.setValidators(OidcTokenGenerator.ISSUER, tokenValidator);
     }
 
     @BeforeEach
@@ -130,7 +128,7 @@ public class OidcAuthModuleTest {
         OidcTokenHolder utløptIdToken = getUtløptToken(false);
 
         when(request.getHeader("Accept")).thenReturn(null);
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + utløptIdToken);
+        when(request.getHeader("Authorization")).thenReturn(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE + utløptIdToken);
         MessageInfo request = createRequestForProtectedResource();
 
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(utløptIdToken));
@@ -307,7 +305,7 @@ public class OidcAuthModuleTest {
 
         authModule.validateRequest(request, subject, serviceSubject);
 
-        Cookie forventetCookie = new Cookie(ID_TOKEN_COOKIE_NAME, nyttGyldigIdToken.getToken());
+        Cookie forventetCookie = new Cookie(ID_TOKEN_COOKIE_NAME, nyttGyldigIdToken.token());
         forventetCookie.setSecure(true);
         forventetCookie.setHttpOnly(true);
         forventetCookie.setPath("/");
@@ -359,7 +357,7 @@ public class OidcAuthModuleTest {
 
         verify(idTokenProvider).getToken(gyldigIdToken, gyldigRefreshToken);
 
-        Cookie forventetCookie = new Cookie(ID_TOKEN_COOKIE_NAME, nyttGyldigIdToken.getToken());
+        Cookie forventetCookie = new Cookie(ID_TOKEN_COOKIE_NAME, nyttGyldigIdToken.token());
         forventetCookie.setSecure(true);
         forventetCookie.setHttpOnly(true);
         forventetCookie.setPath("/");

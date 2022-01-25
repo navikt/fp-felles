@@ -1,15 +1,12 @@
 package no.nav.vedtak.felles.integrasjon.organisasjon;
 
-import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class EregRestTest {
 
@@ -102,15 +99,9 @@ class EregRestTest {
             "  }\n" +
             "}";
 
-    @BeforeAll
-    static void setup() {
-        MAPPER.registerModule(new JavaTimeModule());
-        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
-
     @Test
     void mapping_organisasjon() throws IOException {
-        var org = fromJson(json, OrganisasjonEReg.class);
+        var org = DefaultJsonMapper.fromJson(json, OrganisasjonEReg.class);
 
         assertThat(org.getNavn()).isEqualTo("NAV IKT");
         assertThat(org.getType()).isEqualTo(OrganisasjonstypeEReg.VIRKSOMHET);
@@ -118,13 +109,9 @@ class EregRestTest {
 
     @Test
     void mapping_adresse() throws IOException {
-        var org = fromJson(json, OrganisasjonAdresse.class);
+        var org = DefaultJsonMapper.fromJson(json, OrganisasjonAdresse.class);
 
         assertThat(org.getNavn()).isEqualTo("NAV IKT");
         assertThat(org.getKorrespondanseadresse().adresselinje1()).isEqualTo("Postboks 5 St Olavs plass");
-    }
-
-    private static <T> T fromJson(String json, Class<T> clazz) throws IOException {
-        return MAPPER.readerFor(clazz).readValue(json);
     }
 }

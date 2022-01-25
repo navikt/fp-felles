@@ -15,11 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
+import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /**
  * Programmatisk innlogging på en tråd i containeren. Brukes av bakgrunnsjobber
@@ -33,7 +34,7 @@ public class ContainerLogin {
     private OidcTokenHolder tokenHolder;
 
     public ContainerLogin() {
-        loginContext = createLoginContext();
+        this.loginContext = createLoginContext();
     }
 
     public void login() {
@@ -62,8 +63,8 @@ public class ContainerLogin {
             @Override
             public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
                 for (var callback : callbacks) {
-                    if (callback instanceof TokenCallback) {
-                        ((TokenCallback) callback).setToken(tokenHolder);
+                    if (callback instanceof TokenCallback tokenCallback) {
+                        tokenCallback.setToken(tokenHolder);
                     } else {
                         // Should never happen
                         throw new UnsupportedCallbackException(callback, TokenCallback.class + " is the only supported Callback");
@@ -82,7 +83,7 @@ public class ContainerLogin {
 
     private void ensureWeHaveTokens() {
         if (tokenHolder == null) {
-            tokenHolder = new OidcTokenHolder(SystemUserIdTokenProvider.getSystemUserIdToken().getToken(), false);
+            tokenHolder = new OidcTokenHolder(TokenProvider.getTokenFor(SikkerhetContext.SYSTEM).token(), false);
         }
     }
 

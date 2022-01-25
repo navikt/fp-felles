@@ -8,9 +8,10 @@ import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 public class IdTokenProvider {
 
@@ -25,11 +26,12 @@ public class IdTokenProvider {
     }
 
     private HttpRequestBase createTokenRequest(String oidcClientName, String refreshToken) {
-        String host = OpenAMHelper.getIssoHostUrl();
+        var providerConfig = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.ISSO).orElseThrow();
+        var tokenEndpoint = providerConfig.tokenEndpoint();
         String realm = "/";
-        String password = OpenAMHelper.getIssoPassword();
+        String password = providerConfig.clientSecret();
 
-        HttpPost request = new HttpPost(host + "/access_token");
+        HttpPost request = new HttpPost(tokenEndpoint);
         request.setHeader("Authorization", TokenProviderUtil.basicCredentials(oidcClientName, password));
         request.setHeader("Cache-Control", "no-cache");
         request.setHeader("Content-type", "application/x-www-form-urlencoded");
@@ -37,7 +39,7 @@ public class IdTokenProvider {
                 + "&scope=openid"
                 + "&realm=" + realm
                 + "&refresh_token=" + refreshToken;
-        LOG.debug("Refreshing ID-token by POST to {}", LoggerUtils.removeLineBreaks(host)); // NOSONAR CRLF håndtert
+        LOG.debug("Refreshing ID-token by POST to {}", LoggerUtils.removeLineBreaks(tokenEndpoint.toString())); // NOSONAR CRLF håndtert
         request.setEntity(new StringEntity(data, "UTF-8"));
         return request;
     }

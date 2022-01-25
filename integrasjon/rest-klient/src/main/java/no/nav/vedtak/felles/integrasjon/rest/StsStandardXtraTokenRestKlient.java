@@ -1,33 +1,24 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createHttpClient;
-
 import java.io.IOException;
-import java.time.Duration;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.AbstractOidcRestClient;
-import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenClient;
-import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.SystemConsumerJerseyStsRestClient;
-import no.nav.vedtak.felles.integrasjon.rest.tokenhenter.StsAccessTokenKlient;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
-import no.nav.vedtak.util.LRUCache;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /*
  * Restklient som setter Authorization ut fra kontekst og legger på et STS Nav-Consumer-Token
  */
 public class StsStandardXtraTokenRestKlient extends AbstractOidcRestClient {
 
-    private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     private static final String NAV_CONSUMER_TOKEN_HEADER = "Nav-Consumer-Token";
 
     public StsStandardXtraTokenRestKlient(CloseableHttpClient client) {
@@ -36,14 +27,14 @@ public class StsStandardXtraTokenRestKlient extends AbstractOidcRestClient {
 
     @Override
     protected CloseableHttpResponse doExecute(HttpHost target, HttpRequest request, HttpContext context) throws IOException {
-        request.setHeader(NAV_CONSUMER_TOKEN_HEADER, OIDC_AUTH_HEADER_PREFIX + systemUserOIDCToken());
+        request.setHeader(NAV_CONSUMER_TOKEN_HEADER, OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE + systemUserOIDCToken());
 
         return super.doExecute(target, request, context);
     }
 
     @Override
     protected String getOIDCToken() {
-        String oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
+        String oidcToken = TokenProvider.getTokenFor(SikkerhetContext.BRUKER).token();
         if (oidcToken != null) {
             return oidcToken;
         }
@@ -57,6 +48,6 @@ public class StsStandardXtraTokenRestKlient extends AbstractOidcRestClient {
     }
 
     private String systemUserOIDCToken() {
-        return StsAccessTokenKlient.hentAccessToken();
+        return TokenProvider.getStsSystemToken().token();
     }
 }

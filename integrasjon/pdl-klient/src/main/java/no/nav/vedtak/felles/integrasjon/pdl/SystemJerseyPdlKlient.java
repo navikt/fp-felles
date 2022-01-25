@@ -8,9 +8,8 @@ import javax.ws.rs.client.ClientRequestFilter;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
-import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenProvider;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.SystemTokenClientRequestFilter;
 
 @Dependent
@@ -19,10 +18,10 @@ public class SystemJerseyPdlKlient extends AbstractJerseyPdlKlient {
 
     @Inject
     public SystemJerseyPdlKlient(
-            @KonfigVerdi(value = "pdl.base.url", defaultVerdi = HTTP_PDL_API_DEFAULT_GRAPHQL) URI endpoint,
-            StsAccessTokenConfig config,
-            @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema) {
-        this(endpoint, new SystemTokenClientRequestFilter(new StsAccessTokenJerseyClient(config), tema));
+        @KonfigVerdi(value = "pdl.base.url", defaultVerdi = HTTP_PDL_API_DEFAULT_GRAPHQL) URI endpoint,
+        @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema,
+        StsAccessTokenProvider provider) {
+        this(endpoint, new SystemTokenClientRequestFilter(provider, tema));
     }
 
     protected SystemJerseyPdlKlient(GraphQLErrorHandler errorHandler) {

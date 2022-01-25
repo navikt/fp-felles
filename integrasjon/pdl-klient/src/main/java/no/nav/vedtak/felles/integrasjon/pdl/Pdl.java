@@ -24,6 +24,14 @@ import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLQueryable;
 
+/*
+ * PDL kan kalles i 3 ganske ulike sammenhenger: Systemressurs, EksternBruker, InternBruker,
+ * Bruk henholdsvis @Jersey("system"), @Jersey("onbehalf"), eller @Jersey
+
+ * @Jersey virker også når "innlogget" = Systemressurs - klassisk oppsett
+ * Ettersom det dukker opp OBO-flyter i flere sammenhenger etterhvert, må man enten skille klientene eller
+ * gå over til å sjekke type "innlogget" Principal for å avgjøre OBO vs CC-flyt
+ */
 public interface Pdl extends GraphQLQueryable {
 
     static final String PDL_ERROR_RESPONSE = "F-399735";

@@ -5,8 +5,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
-import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.isso.config.ServerInfo;
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 public class AuthorizationRequestBuilder {
 
@@ -34,14 +35,15 @@ public class AuthorizationRequestBuilder {
     }
 
     public String buildRedirectString() {
-        String clientId = OpenAMHelper.getIssoUserName();
+        var providerConfig = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.ISSO).orElseThrow();
+        String clientId = providerConfig.clientId();
         String state = stateIndex;
         String redirectUrl = ServerInfo.instance().getCallbackUrl();
         String kerberosTrigger = useKerberos
                 ? "session=winssochain&authIndexType=service&authIndexValue=winssochain&"
                 : "";
         return String.format("%s/authorize?%sresponse_type=code&scope=%s&client_id=%s&state=%s&redirect_uri=%s",
-                OpenAMHelper.getIssoHostUrl(),
+                providerConfig.issuer(),
                 kerberosTrigger,
                 SCOPE,
                 URLEncoder.encode(clientId, StandardCharsets.UTF_8),

@@ -1,14 +1,11 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.AbstractOidcRestClient;
-import no.nav.vedtak.felles.integrasjon.rest.tokenhenter.StsAccessTokenKlient;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
+import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /**
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og callId
@@ -22,7 +19,7 @@ public class StsStandardRestKlient extends AbstractOidcRestClient {
 
     @Override
     protected String getOIDCToken() {
-        String oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
+        String oidcToken = TokenProvider.getTokenFor(SikkerhetContext.BRUKER).token();
         if (oidcToken != null) {
             return oidcToken;
         }
@@ -36,7 +33,7 @@ public class StsStandardRestKlient extends AbstractOidcRestClient {
     }
 
     private String systemUserOIDCToken() {
-        return StsAccessTokenKlient.hentAccessToken();
+        return TokenProvider.getStsSystemToken().token();
     }
 
 }

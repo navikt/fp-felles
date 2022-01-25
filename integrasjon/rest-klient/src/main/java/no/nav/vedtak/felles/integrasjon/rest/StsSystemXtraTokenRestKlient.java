@@ -1,7 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createHttpClient;
-
 import java.io.IOException;
 
 import org.apache.http.HttpHost;
@@ -10,16 +8,14 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
 
-import no.nav.vedtak.felles.integrasjon.rest.AbstractOidcRestClient;
-import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
-import no.nav.vedtak.felles.integrasjon.rest.tokenhenter.StsAccessTokenKlient;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /*
  * Restklient som setter Authorization ut fra kontekst og legger på et STS Nav-Consumer-Token
  */
 public class StsSystemXtraTokenRestKlient extends AbstractOidcRestClient {
 
-    private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     private static final String NAV_CONSUMER_TOKEN_HEADER = "Nav-Consumer-Token";
 
     public StsSystemXtraTokenRestKlient(CloseableHttpClient client) {
@@ -28,7 +24,7 @@ public class StsSystemXtraTokenRestKlient extends AbstractOidcRestClient {
 
     @Override
     protected CloseableHttpResponse doExecute(HttpHost target, HttpRequest request, HttpContext context) throws IOException {
-        request.setHeader(NAV_CONSUMER_TOKEN_HEADER, OIDC_AUTH_HEADER_PREFIX + systemUserOIDCToken());
+        request.setHeader(NAV_CONSUMER_TOKEN_HEADER, OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE + systemUserOIDCToken());
 
         return super.doExecute(target, request, context);
     }
@@ -40,6 +36,6 @@ public class StsSystemXtraTokenRestKlient extends AbstractOidcRestClient {
 
 
     private String systemUserOIDCToken() {
-        return StsAccessTokenKlient.hentAccessToken();
+        return TokenProvider.getStsSystemToken().token();
     }
 }

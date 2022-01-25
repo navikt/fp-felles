@@ -1,8 +1,6 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
 import static java.util.Arrays.asList;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_ISSO_HOST;
-import static no.nav.vedtak.isso.OpenAMHelper.OPEN_ID_CONNECT_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,9 +18,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
+import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
+import no.nav.vedtak.sikkerhet.oidc.config.impl.OpenAmProperties;
+import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
 
 public class OidcTokenValidatorTest {
 
@@ -30,14 +30,15 @@ public class OidcTokenValidatorTest {
 
     @BeforeEach
     public void beforeEach() throws MalformedURLException {
-        System.setProperty(OPEN_ID_CONNECT_ISSO_HOST, "https://foo.bar.adeo.no/openam/oauth2");
+        System.setProperty(OpenAmProperties.OPEN_ID_CONNECT_ISSO_HOST,OidcTokenGenerator.ISSUER);
         Map<String, String> testData = new HashMap<>() {
             {
-                put(OpenAMHelper.ISSUER_KEY, "https://foo.bar.adeo.no/openam/oauth2");
+                put(OpenAmProperties.ISSUER_KEY, OidcTokenGenerator.ISSUER);
             }
         };
-        WellKnownConfigurationHelper.setWellKnownConfig("https://foo.bar.adeo.no/openam/oauth2" + OpenAMHelper.WELL_KNOWN_ENDPOINT, JsonUtil.toJson(testData));
-        System.setProperty(OPEN_ID_CONNECT_USERNAME, "OIDC");
+        WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + OpenAmProperties.WELL_KNOWN_ENDPOINT, JsonUtil.toJson(testData));
+        System.setProperty(OidcProviderConfig.OPEN_AM_CLIENT_ID, "OIDC");
+        System.setProperty(OpenAmProperties.OPEN_ID_CONNECT_ISSO_ISSUER, OidcTokenGenerator.ISSUER);
         tokenValidator = new OidcTokenValidator(new JwksKeyHandlerFromString(KeyStoreTool.getJwks()));
     }
 
@@ -181,7 +182,7 @@ public class OidcTokenValidatorTest {
 
     @Test
     public void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_audience() throws Exception {
-        System.clearProperty(OPEN_ID_CONNECT_USERNAME);
+        System.clearProperty(OidcProviderConfig.OPEN_AM_CLIENT_ID);
         var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(new JwksKeyHandlerFromString(KeyStoreTool.getJwks())));
         assertTrue(e.getMessage().contains("Expected audience must be configured"));
     }
@@ -230,8 +231,8 @@ public class OidcTokenValidatorTest {
 
     @AfterEach
     public void cleanSystemProperties() {
-        System.clearProperty(OPEN_ID_CONNECT_ISSO_HOST);
-        System.clearProperty(OPEN_ID_CONNECT_USERNAME);
+        System.clearProperty(OpenAmProperties.OPEN_ID_CONNECT_ISSO_HOST);
+        System.clearProperty(OidcProviderConfig.OPEN_AM_CLIENT_ID);
     }
 
     private static class JwksKeyHandlerFromString extends JwksKeyHandlerImpl {

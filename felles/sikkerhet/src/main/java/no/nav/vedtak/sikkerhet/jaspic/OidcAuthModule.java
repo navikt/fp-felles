@@ -48,6 +48,7 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 /**
  * Stjålet mye fra https://github.com/omnifaces/omnisecurity
@@ -135,28 +136,24 @@ public class OidcAuthModule implements ServerAuthModule {
 
     protected void validateCleanSubjecthandler() {
         final Subject subject = SubjectHandler.getSubjectHandler().getSubject();
-        if (subject != null) {
-            if (SubjectHandler.getSubjectHandler() instanceof ThreadLocalSubjectHandler) {
-                final Set<String> credidentialClasses = new HashSet<>();
-                for (Object publicCredential : subject.getPublicCredentials()) {
-                    credidentialClasses.add(publicCredential.getClass().getName());
-                }
-                LOG.error(
-                        "Denne SKAL rapporteres som en bug hvis den dukker opp. Tråden inneholdt allerede et Subject med følgende principals {} og PublicCredentials klasser {}. Sletter det før autentisering fortsetter.",
-                        subject.getPrincipals(), credidentialClasses);
-                ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(null);
+        if (subject != null  && SubjectHandler.getSubjectHandler() instanceof ThreadLocalSubjectHandler tlsh) {
+            final Set<String> credidentialClasses = new HashSet<>();
+            for (Object publicCredential : subject.getPublicCredentials()) {
+                credidentialClasses.add(publicCredential.getClass().getName());
             }
+            LOG.error(
+                "Denne SKAL rapporteres som en bug hvis den dukker opp. Tråden inneholdt allerede et Subject med følgende principals {} og PublicCredentials klasser {}. Sletter det før autentisering fortsetter.",
+                subject.getPrincipals(), credidentialClasses);
+            tlsh.setSubject(null);
         }
     }
 
     public void setCallAndConsumerId(HttpServletRequest request) {
-        String callId = request.getHeader(MDCOperations.HTTP_HEADER_CALL_ID); // NOSONAR Akseptertet headere
-        String callId1 = request.getHeader(MDCOperations.HTTP_HEADER_ALT_CALL_ID); // NOSONAR Akseptertet headere
+        String callId = Optional.ofNullable(request.getHeader(MDCOperations.HTTP_HEADER_CALL_ID)) // NOSONAR Akseptertet headere
+            .orElseGet(() -> request.getHeader(MDCOperations.HTTP_HEADER_ALT_CALL_ID));
         if (callId != null) {
             MDCOperations.putCallId(callId);
-        } if (callId1 != null) {
-            MDCOperations.putCallId(callId1);
-        }else {
+        } else {
             MDCOperations.putCallId();
         }
 
@@ -217,8 +214,8 @@ public class OidcAuthModule implements ServerAuthModule {
             @Override
             public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
                 for (Callback callback : callbacks) {
-                    if (callback instanceof TokenCallback) {
-                        ((TokenCallback) callback).setToken(tokenHolder);
+                    if (callback instanceof TokenCallback tc) {
+                        tc.setToken(tokenHolder);
                     } else {
                         // Should never happen
                         throw new UnsupportedCallbackException(callback, TokenCallback.class + " is the only supported Callback");
@@ -245,7 +242,7 @@ public class OidcAuthModule implements ServerAuthModule {
 
     private void registerUpdatedTokenAtUserAgent(MessageInfo messageInfo, OidcTokenHolder updatedIdToken) {
         HttpServletResponse response = (HttpServletResponse) messageInfo.getResponseMessage();
-        response.addCookie(lagCookie(ID_TOKEN_COOKIE_NAME, updatedIdToken.getToken(), "/", ServerInfo.instance().getCookieDomain()));
+        response.addCookie(lagCookie(ID_TOKEN_COOKIE_NAME, updatedIdToken.token(), "/", ServerInfo.instance().getCookieDomain()));
     }
 
     private Cookie lagCookie(String name, String value, String path, String domain) {
@@ -265,7 +262,7 @@ public class OidcAuthModule implements ServerAuthModule {
                 .map(d -> d.handleProtectedResource(originalRequest, clientSubject, containerCallbackHandler))
                 .filter(Optional::isPresent)
                 .findFirst()
-                .map(m -> m.get());
+                .map(Optional::get);
 
         if (delegatedAuthStatus.isEmpty()) {
             return oidcLogin(messageInfo, clientSubject, originalRequest);
@@ -297,13 +294,12 @@ public class OidcAuthModule implements ServerAuthModule {
         String authorizationHeader = request.getHeader("Authorization"); // NOSONAR Akseptertet headere
         try {
             if ((acceptHeader != null && acceptHeader.contains("application/json"))
-                    || (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))) {
+                    || (authorizationHeader != null && authorizationHeader.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE))) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
             } else {
                 AuthorizationRequestBuilder builder = new AuthorizationRequestBuilder();
                 // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the
-                // state-cookie containing redirectURL shold be encrypted to avoid
-                // tampering)
+                // state-cookie containing redirectURL shold be encrypted to avoid tampering)
                 response.addCookie(
                         lagCookie(builder.getStateIndex(), encode(getOriginalUrl(request)), ServerInfo.instance().getRelativeCallbackUrl(), null));
                 response.sendRedirect(builder.buildRedirectString());

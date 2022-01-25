@@ -27,11 +27,11 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import no.nav.vedtak.log.util.LoggerUtils;
-import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
-import no.nav.vedtak.sikkerhet.domene.ConsumerId;
-import no.nav.vedtak.sikkerhet.domene.IdentType;
-import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
-import no.nav.vedtak.sikkerhet.domene.SluttBruker;
+import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
+import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
+import no.nav.vedtak.sikkerhet.context.containers.IdentType;
+import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 
 /**

@@ -1,13 +1,11 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
-import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.apache.http.HttpStatus;
@@ -38,6 +36,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 /**
  *
@@ -55,9 +54,9 @@ public class SafTjeneste implements Saf {
     private URI graphqlEndpoint;
     private URI hentDokumentEndpoint;
     private CloseableHttpClient restKlient;
-    private final ObjectReader objectReaderJournalpostResponse = MAPPER.readerFor(JournalpostQueryResponse.class);
-    private final ObjectReader objectReaderDokumentoversiktFagsakResponse = MAPPER.readerFor(DokumentoversiktFagsakQueryResponse.class);
-    private final ObjectReader objectReaderTilknyttedeJournalposteResponse = MAPPER.readerFor(TilknyttedeJournalposterQueryResponse.class);
+    private final ObjectReader objectReaderJournalpostResponse = DefaultJsonMapper.getObjectMapper().readerFor(JournalpostQueryResponse.class);
+    private final ObjectReader objectReaderDokumentoversiktFagsakResponse = DefaultJsonMapper.getObjectMapper().readerFor(DokumentoversiktFagsakQueryResponse.class);
+    private final ObjectReader objectReaderTilknyttedeJournalposteResponse = DefaultJsonMapper.getObjectMapper().readerFor(TilknyttedeJournalposterQueryResponse.class);
 
     private GraphQLErrorHandler errorHandler;
 
@@ -116,7 +115,7 @@ public class SafTjeneste implements Saf {
 
     @Override
     public <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
-        return query(new GraphQLRequest(q, p), MAPPER.readerFor(clazz));
+        return query(new GraphQLRequest(q, p), DefaultJsonMapper.getObjectMapper().readerFor(clazz));
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest request, ObjectReader objectReader) {

@@ -1,7 +1,9 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 
 public class OidcTokenValidatorConfig {
 
@@ -9,11 +11,7 @@ public class OidcTokenValidatorConfig {
     private final Map<String, OidcTokenValidator> validators;
 
     private OidcTokenValidatorConfig() {
-        this(init());
-    }
-
-    private OidcTokenValidatorConfig(Map<String, OidcTokenValidator> validators) {
-        this.validators = validators;
+        this.validators = new LinkedHashMap<>();
     }
 
     public static synchronized OidcTokenValidatorConfig instance() {
@@ -26,19 +24,21 @@ public class OidcTokenValidatorConfig {
     }
 
     // For test
-    static void setValidators(Map<String, OidcTokenValidator> validators) {
-        instance = new OidcTokenValidatorConfig(validators);
+    static void addValidator(String issuer, OidcTokenValidator validator) {
+        instance = new OidcTokenValidatorConfig();
+        instance.validators.put(issuer, validator);
     }
 
     public OidcTokenValidator getValidator(String issuer) {
-        return validators.get(issuer);
-    }
-
-    private static Map<String, OidcTokenValidator> init() {
-        return OidcProviderConfig.instance().getOidcProviders().stream()
-                .collect(Collectors.toMap(
-                    config -> config.getIssuer().toExternalForm(),
-                    OidcTokenValidator::new));
+        var validator = validators.get(issuer);
+        if (validator == null) {
+            var cfg = ConfigProvider.getOpenIDConfiguration(issuer);
+            validator = cfg.map(OidcTokenValidator::new).orElse(null);
+            if (validator != null) {
+                validators.put(issuer, validator);
+            }
+        }
+        return validator;
     }
 
     @Override

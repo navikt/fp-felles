@@ -36,7 +36,7 @@ class TokenXAssertionGenerator {
                     .notBeforeTime(now)
                     .expirationTime(Date.from(Instant.now().plusSeconds(60)))
                     .jwtID(UUID.randomUUID().toString())
-                    .build(), cfg.rsaKey())
+                    .build(), cfg.privateKey())
                             .serialize();
         } catch (JOSEException e) {
             throw new IllegalArgumentException(e);

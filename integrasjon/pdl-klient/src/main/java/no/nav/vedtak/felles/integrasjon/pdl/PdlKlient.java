@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.TimeZone;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.apache.http.HttpStatus;
@@ -56,8 +55,7 @@ import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
-import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
-import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.StsStandardXtraTokenRestKlient;
 
 @ApplicationScoped
 public class PdlKlient implements Pdl {
@@ -75,10 +73,10 @@ public class PdlKlient implements Pdl {
     }
 
     @Inject
-    public PdlKlient(@KonfigVerdi(value = "pdl.base.url", defaultVerdi = "http://pdl-api.pdl/graphql") URI endpoint,
-            @KonfigVerdi(value = "pdl.tema", defaultVerdi = "FOR") String tema,
-            StsAccessTokenConfig config) {
-        this(endpoint, tema, new SystemConsumerStsRestClient(config), new PdlDefaultErrorHandler());
+    public PdlKlient(StsStandardXtraTokenRestKlient restKLient,
+                     @KonfigVerdi(value = "pdl.base.url", defaultVerdi = "http://pdl-api.pdl/graphql") URI endpoint,
+                     @KonfigVerdi(value = "pdl.tema", defaultVerdi = "FOR") String tema) {
+        this(endpoint, tema, restKLient, new PdlDefaultErrorHandler());
     }
 
     PdlKlient(URI endpoint, String tema, CloseableHttpClient klient, GraphQLErrorHandler errorHandler) {

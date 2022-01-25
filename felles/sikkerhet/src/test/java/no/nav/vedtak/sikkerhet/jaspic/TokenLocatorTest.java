@@ -8,10 +8,13 @@ import static org.mockito.Mockito.when;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 @ExtendWith(MockitoExtension.class)
 class TokenLocatorTest {
@@ -19,6 +22,11 @@ class TokenLocatorTest {
     @Mock
     private HttpServletRequest requestContext;
     private TokenLocator tokenLocator = new TokenLocator();
+
+    @BeforeEach
+    void setUp() {
+        ContextPathHolder.instance("/fpsak");
+    }
 
     @Test
     void skal_finne_token_i_authorization_header() {

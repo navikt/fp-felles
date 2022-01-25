@@ -31,7 +31,7 @@ public class JwtUtil {
             String jwtBody = ((JsonWebSignature) jsonObjects.get(0)).getUnverifiedPayload();
             return Base64.encode(jwtBody.getBytes(StandardCharsets.UTF_8));
         } catch (InvalidJwtException e) {
-            throw new TekniskException("F-026968", "Feil ved parsing av JWT", e);
+            throw ugyldigJwt(e);
         }
     }
 
@@ -39,7 +39,7 @@ public class JwtUtil {
         try {
             return unvalidatingConsumer.processToClaims(jwt).getIssuer();
         } catch (InvalidJwtException | MalformedClaimException e) {
-            throw new TekniskException("F-026968", "Feil ved parsing av JWT", e);
+            throw ugyldigJwt(e);
         }
     }
 
@@ -48,7 +48,7 @@ public class JwtUtil {
             long expirationTime = unvalidatingConsumer.processToClaims(jwt).getExpirationTime().getValue();
             return Instant.ofEpochSecond(expirationTime);
         } catch (InvalidJwtException | MalformedClaimException e) {
-            throw new TekniskException("F-026968", "Feil ved parsing av JWT", e);
+            throw ugyldigJwt(e);
         }
     }
 
@@ -65,9 +65,13 @@ public class JwtUtil {
             }
             throw new TekniskException("F-026678", String.format("Kan ikke utlede clientName siden 'azp' ikke er satt og 'aud' er %s", audience));
         } catch (InvalidJwtException | MalformedClaimException e) {
-            throw new TekniskException("F-026968", "Feil ved parsing av JWT", e);
+            throw ugyldigJwt(e);
         }
 
+    }
+
+    private static TekniskException ugyldigJwt(Exception e) {
+        return new TekniskException("F-026968", "Feil ved parsing av JWT", e);
     }
 
 }

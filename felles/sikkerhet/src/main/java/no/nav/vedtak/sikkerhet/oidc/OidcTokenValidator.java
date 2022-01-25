@@ -9,18 +9,15 @@ import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.jwx.JsonWebStructure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.isso.OpenAMHelper;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandler;
 import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.jwks.JwtHeader;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.impl.OpenAmProperties;
 
 public class OidcTokenValidator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(OidcTokenValidator.class);
 
     private final String expectedIssuer;
     private final String clientName;
@@ -28,14 +25,14 @@ public class OidcTokenValidator {
     private final int allowedClockSkewInSeconds;
     private final boolean skipAudienceValidation;
 
-    public OidcTokenValidator(OidcProvider config) {
-        this(config.getIssuer().toExternalForm(), new JwksKeyHandlerImpl(config.getJwks(), config.isUseProxyForJwks(), config.getProxy()),
-            config.getClientName(), config.getAllowedClockSkewInSeconds(), config.isSkipAudienceValidation());
+    public OidcTokenValidator(OpenIDConfiguration config) {
+        this(config.issuer().toString(), new JwksKeyHandlerImpl(config.jwksUri(), config.useProxyForJwks(), config.proxy()),
+            config.clientId(), 30, config.skipAudienceValidation());
     }
 
     // Skal bare brukes direkte fra tester, prod-kode skal kalle public constructors
     OidcTokenValidator(JwksKeyHandler keyHandler) {
-        this(OpenAMHelper.getIssoIssuerUrl(), keyHandler, OpenAMHelper.getIssoUserName(), 30, true);
+        this(OpenAmProperties.getIssoIssuerUrl(), keyHandler, OpenAmProperties.getIssoUserName(), 30, true);
 
         if (this.expectedIssuer == null) {
             throw new IllegalStateException("Expected issuer must be configured.");
@@ -60,7 +57,6 @@ public class OidcTokenValidator {
     }
 
     private OidcTokenValidatorResult validate(OidcTokenHolder tokenHolder, int allowedClockSkewInSeconds) {
-        LOG.trace("Validerer token for issuer {} {}", expectedIssuer, clientName);
         if (tokenHolder == null) {
             return OidcTokenValidatorResult.invalid("Missing token (token was null)");
         }

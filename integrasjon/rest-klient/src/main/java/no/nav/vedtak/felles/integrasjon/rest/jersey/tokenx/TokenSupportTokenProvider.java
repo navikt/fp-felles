@@ -13,8 +13,8 @@ public class TokenSupportTokenProvider implements TokenProvider {
     public String getToken() {
         return Optional.ofNullable(JaxrsTokenValidationContextHolder.getHolder())
                 .map(TokenValidationContextHolder::getTokenValidationContext)
-                .map(TokenValidationContext::getFirstValidToken)
-                .orElse(null).map(JwtToken::getTokenAsString).orElseThrow();
+                .flatMap(TokenValidationContext::getFirstValidToken)
+                .map(JwtToken::getTokenAsString).orElseThrow();
     }
 
     @Override

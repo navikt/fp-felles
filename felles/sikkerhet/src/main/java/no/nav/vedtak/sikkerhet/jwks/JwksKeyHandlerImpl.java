@@ -3,8 +3,7 @@ package no.nav.vedtak.sikkerhet.jwks;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.List;
@@ -31,19 +30,19 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
     private static final Logger LOG = LoggerFactory.getLogger(JwksKeyHandlerImpl.class);
 
     private final Supplier<String> jwksStringSupplier;
-    private final URL url;
+    private final URI url;
 
     private JsonWebKeySet keyCache;
 
-    public JwksKeyHandlerImpl(URL url, boolean useProxyForJwks, String proxy) {
+    public JwksKeyHandlerImpl(URI url, boolean useProxyForJwks, URI proxy) {
         this(() -> httpGet(url, useProxyForJwks, proxy), url);
     }
 
-    public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, String url) throws MalformedURLException {
-        this(jwksStringSupplier, new URL(url));
+    public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, String url) {
+        this(jwksStringSupplier, URI.create(url));
     }
 
-    private JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, URL url) {
+    private JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, URI url) {
         this.jwksStringSupplier = jwksStringSupplier;
         this.url = url;
     }
@@ -93,31 +92,34 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         }
     }
 
-    private static RequestConfig createProxyConfig(String proxy) {
+    private static RequestConfig createProxyConfig(URI proxy) {
         return RequestConfig.custom()
-                .setProxy(HttpHost.create(proxy))
+                .setProxy(HttpHost.create(proxy.toString()))
                 .build();
     }
 
-    private static String httpGet(URL url, boolean useProxyForJwks, String proxy) {
+    private static String httpGet(URI url, boolean useProxyForJwks, URI proxy) {
         if (url == null) {
             throw new TekniskException("F-836283", "Mangler konfigurasjon av jwks url");
         }
-        HttpGet httpGet = new HttpGet(url.toExternalForm());
+        HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("accept", "application/json");
         if (useProxyForJwks) {
+            if (proxy == null) {
+                throw kunneIkkeOppdatereJwksCache(url, new IllegalArgumentException("Skal bruke proxy, men ingen verdi angitt"));
+            }
             httpGet.setConfig(createProxyConfig(proxy));
         }
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
                 if (response.getStatusLine().getStatusCode() != 200) {
-                    throw new TekniskException("F-580666", String.format("Klarte ikke oppdatere jwks cache for %s", url), null);
+                    throw kunneIkkeOppdatereJwksCache(url, null);
                 }
                 return readContent(response);
             }
         } catch (IOException e) {
-            throw new TekniskException("F-580666", String.format("Klarte ikke oppdatere jwks cache for %s", url), e);
+            throw kunneIkkeOppdatereJwksCache(url, e);
         } finally {
             httpGet.reset();
         }
@@ -129,6 +131,10 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
                 return br.lines().collect(Collectors.joining("\n"));
             }
         }
+    }
+
+    private static TekniskException kunneIkkeOppdatereJwksCache(URI jwksUri, Exception e) {
+        return new TekniskException("F-580666", String.format("Klarte ikke oppdatere jwks cache for %s", jwksUri.toString()), e);
     }
 
 }

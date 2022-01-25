@@ -6,9 +6,10 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
-import no.nav.vedtak.isso.SystemUserIdTokenProvider;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
+import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
+import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /**
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og
@@ -28,7 +29,7 @@ public class OidcRestClient extends AbstractOidcRestClient {
 
     @Override
     protected String getOIDCToken() {
-        String oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
+        String oidcToken = TokenProvider.getTokenFor(SikkerhetContext.BRUKER).token();
         if (oidcToken != null) {
             LOG.trace("Internal token OK");
             return oidcToken;
@@ -45,9 +46,7 @@ public class OidcRestClient extends AbstractOidcRestClient {
     // TODO fra P2: Kalle STS for å veksle SAML til OIDC.
     // Gammel - bør heller sanere WS som tilbys
     private String veksleSamlTokenTilOIDCToken(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
-        var t = SystemUserIdTokenProvider.getSystemUserIdToken().getToken();
-        LOG.trace("SAML token null :" + (t != null));
-        return t;
+        return TokenProvider.getTokenFor(SikkerhetContext.SYSTEM).token();
     }
 
 }

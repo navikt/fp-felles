@@ -2,7 +2,6 @@ package no.nav.vedtak.sikkerhet.loginmodule.oidc;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -16,10 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.domene.AuthenticationLevelCredential;
-import no.nav.vedtak.sikkerhet.domene.ConsumerId;
-import no.nav.vedtak.sikkerhet.domene.OidcCredential;
-import no.nav.vedtak.sikkerhet.domene.SluttBruker;
+import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
+import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
+import no.nav.vedtak.sikkerhet.context.containers.OidcCredential;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
@@ -67,13 +66,12 @@ public class OIDCLoginModule extends LoginModuleBase {
 
     @Override
     public boolean login() throws LoginException {
-        logger.trace("Enter login method");
         ssoToken = getSSOToken();
 
         String issuer = JwtUtil.getIssuer(ssoToken.token());
         var tokenValidator = OidcTokenValidatorConfig.instance().getValidator(issuer);
-        logger.trace("Issuer er {}, validator er {}", issuer, tokenValidator);
-        OidcLogin oidcLogin = new OidcLogin(Optional.of(ssoToken), tokenValidator);
+        logger.trace("Issuer er {}", issuer);
+        OidcLogin oidcLogin = new OidcLogin(ssoToken, tokenValidator);
         OidcLogin.LoginResult loginResult = oidcLogin.doLogin();
         if (loginResult == OidcLogin.LoginResult.SUCCESS) {
             sluttBruker = SluttBruker.internBruker(oidcLogin.getSubject());
@@ -99,7 +97,7 @@ public class OIDCLoginModule extends LoginModuleBase {
         } else {
             this.consumerId = new ConsumerId();
         }
-        oidcCredential = new OidcCredential(ssoToken.getToken());
+        oidcCredential = new OidcCredential(ssoToken.token());
 
         subject.getPrincipals().add(sluttBruker);
         subject.getPrincipals().add(this.consumerId);
