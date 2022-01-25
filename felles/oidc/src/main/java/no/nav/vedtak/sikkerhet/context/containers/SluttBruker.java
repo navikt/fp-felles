@@ -1,6 +1,7 @@
 package no.nav.vedtak.sikkerhet.context.containers;
 
 import java.security.Principal;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.security.auth.Destroyable;
@@ -21,7 +22,7 @@ public final class SluttBruker implements Principal, Destroyable {
     }
 
     public static SluttBruker internBruker(String uid) {
-        if (ConsumerId.SYSTEMUSER_USERNAME.equals(uid)) {
+        if (Objects.equals(ConsumerId.SYSTEMUSER_USERNAME, uid)) {
             return new SluttBruker(uid, IdentType.Prosess);
         } else if (uid != null && (VALID_AKTØRID.matcher(uid).matches() || VALID_PERSONIDENT.matcher(uid).matches())) {
             return new SluttBruker(uid, IdentType.EksternBruker);

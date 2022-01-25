@@ -73,7 +73,7 @@ public class OidcAuthModuleTest {
         System.setProperty(OidcProviderConfig.OPEN_AM_CLIENT_ID, "OIDC");
         System.setProperty(OpenAmProperties.OPEN_ID_CONNECT_ISSO_HOST, OidcTokenGenerator.ISSUER);
         System.setProperty(OpenAmProperties.OPEN_ID_CONNECT_ISSO_ISSUER, OidcTokenGenerator.ISSUER);
-        System.setProperty(ConsumerId.SYSTEMUSER_USERNAME, "JUnit Test");
+        System.setProperty(ConsumerId.SYSTEMUSER_USERNAME_PROPERTY, "JUnit Test");
 
         Map<String, String> testData = Map.of(
             OpenAmProperties.ISSUER_KEY, OidcTokenGenerator.ISSUER,
