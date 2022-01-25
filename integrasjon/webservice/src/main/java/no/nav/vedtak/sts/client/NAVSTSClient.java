@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.domene.IdentType;
-import no.nav.vedtak.sikkerhet.domene.SluttBruker;
+import no.nav.vedtak.sikkerhet.context.containers.IdentType;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 
 public class NAVSTSClient extends STSClient {
     private static final Environment ENV = Environment.current();

@@ -1,17 +1,12 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
 import java.time.Instant;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 
 public class OidcLogin {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OidcLogin.class);
     private static final Environment ENV = Environment.current();
 
     public enum LoginResult {
@@ -24,34 +19,30 @@ public class OidcLogin {
     private static final String REFRESH_TIME = "no.nav.vedtak.sikkerhet.minimum_time_to_expiry_before_refresh.seconds";
     public static final int DEFAULT_REFRESH_TIME = 120;
 
-    private final Optional<OidcTokenHolder> idToken;
+    private final OidcTokenHolder idToken;
     private final OidcTokenValidator tokenValidator;
 
     private String subject;
     private String errorMessage;
 
-    public OidcLogin(Optional<OidcTokenHolder> idToken, OidcTokenValidator tokenValidator) {
+    public OidcLogin(OidcTokenHolder idToken, OidcTokenValidator tokenValidator) {
         this.idToken = idToken;
         this.tokenValidator = tokenValidator;
     }
 
     public LoginResult doLogin() {
-        if (!idToken.isPresent()) {
-            LOG.trace("No token");
+        if (idToken == null) {
             return LoginResult.ID_TOKEN_MISSING;
         }
-        OidcTokenValidatorResult validateResult = tokenValidator.validate(idToken.get());
-        if (needToRefreshToken(idToken.get(), validateResult)) {
-            LOG.trace("Token expired");
+        OidcTokenValidatorResult validateResult = tokenValidator.validate(idToken);
+        if (needToRefreshToken(idToken, validateResult)) {
             return LoginResult.ID_TOKEN_EXPIRED;
         }
         if (validateResult.isValid()) {
-            LOG.trace("Token OK");
             this.subject = validateResult.getSubject();
             return LoginResult.SUCCESS;
         }
         errorMessage = validateResult.getErrorMessage();
-        LOG.trace("Token invalid {}", errorMessage);
         return LoginResult.ID_TOKEN_INVALID;
     }
 

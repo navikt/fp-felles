@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
-import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_ERROR_RESPONSE;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_INTERNAL;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_KLIENT_NOT_FOUND_KODE;
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
     private static final Logger LOG = LoggerFactory.getLogger(PdlDefaultErrorHandler.class);
@@ -43,7 +43,7 @@ public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
 
     private static PDLExceptionExtension details(Map<String, Object> details) {
         try {
-            return MAPPER.convertValue(details, PDLExceptionExtension.class);
+            return DefaultJsonMapper.getObjectMapper().convertValue(details, PDLExceptionExtension.class);
         } catch (IllegalArgumentException e) {
             LOG.warn("Kunne ikke konvertere {} til extension", details, e);
             return null;

@@ -15,6 +15,7 @@
     <modules>
         <module>testutilities</module>
         <module>sikkerhet</module>
+        <module>oidc</module>
         <module>feil</module>
         <module>log</module>
         <module>util</module>
@@ -85,16 +86,10 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-            <!-- trengs for Java17 inntil jetty 10.0.7 kommer 11 oct 2021 -->
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
-                <version>9.2</version>
-            </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-bom</artifactId>
-                <version>10.0.6</version>
+                <version>10.0.7</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -163,6 +158,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-mapper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles-oidc</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

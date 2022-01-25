@@ -30,7 +30,7 @@ import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.rest.SystemConsumerStsRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.StsStandardXtraTokenRestKlient;
 
 @ExtendWith(MockitoExtension.class)
 class PdlKlientTest {
@@ -38,7 +38,7 @@ class PdlKlientTest {
     private Pdl pdlKlient;
 
     @Mock
-    private SystemConsumerStsRestClient restClient;
+    private StsStandardXtraTokenRestKlient restClient;
     @Mock
     private CloseableHttpResponse response;
     @Mock

@@ -3,10 +3,7 @@ package no.nav.vedtak.felles.integrasjon.rest;
 import static java.util.Objects.requireNonNull;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createHttpClient;
 
-import java.time.Duration;
-
-import no.nav.vedtak.felles.integrasjon.rest.tokenhenter.AzureAccessTokenKlient;
-import no.nav.vedtak.util.LRUCache;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /**
  *
@@ -17,12 +14,9 @@ public class AzureADRestClient extends AbstractOidcRestClient {
 
     private final String scope;
 
-    private final AzureAccessTokenKlient azureAccessTokenClient;
-
     private AzureADRestClient(String scope) {
         super(createHttpClient());
         this.scope = scope;
-        this.azureAccessTokenClient = new AzureAccessTokenKlient();
     }
 
     public static Builder builder() {
@@ -31,7 +25,7 @@ public class AzureADRestClient extends AbstractOidcRestClient {
 
     @Override
     String getOIDCToken() {
-        return azureAccessTokenClient.hentAccessToken(scope);
+        return TokenProvider.getAzureSystemToken(scope).token();
     }
 
     @Override

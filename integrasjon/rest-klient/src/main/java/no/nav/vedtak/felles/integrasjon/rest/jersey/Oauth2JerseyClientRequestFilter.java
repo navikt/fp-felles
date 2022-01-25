@@ -8,16 +8,19 @@ import java.io.IOException;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 
-class Oauth2JerseyClientRequestFilter implements ClientRequestFilter {
-    private final OAuth2AccessTokenJerseyClient client;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
-    public Oauth2JerseyClientRequestFilter(OAuth2AccessTokenJerseyClient client) {
-        this.client = client;
+class Oauth2JerseyClientRequestFilter implements ClientRequestFilter {
+
+    private String scope;
+
+    public Oauth2JerseyClientRequestFilter(String scope) {
+        this.scope = scope;
     }
 
     @Override
     public void filter(ClientRequestContext ctx) throws IOException {
-        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + client.accessToken());
+        ctx.getHeaders().add(AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + TokenProvider.getAzureSystemToken(scope).token());
     }
 
 }

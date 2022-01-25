@@ -3,7 +3,6 @@ package no.nav.vedtak.felles.integrasjon.rest.jersey;
 import static javax.ws.rs.Priorities.AUTHENTICATION;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.OIDC_AUTH_HEADER_PREFIX;
-import static no.nav.vedtak.isso.SystemUserIdTokenProvider.getSystemUserIdToken;
 import static no.nav.vedtak.sikkerhet.context.SubjectHandler.getSubjectHandler;
 
 import java.util.Optional;
@@ -14,7 +13,9 @@ import javax.ws.rs.client.ClientRequestFilter;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
-import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
+import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
+import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /**
  * Dette filteret erstatter {@link OidcRestClient} og er funksjonelt ekvivalent
@@ -38,7 +39,11 @@ public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenP
     }
 
     protected String suppliedToken() {
-        return getSubjectHandler().getInternSsoToken();
+        try {
+            return TokenProvider.getTokenFor(SikkerhetContext.BRUKER).token();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     protected String exchangedToken() {
@@ -52,7 +57,7 @@ public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenP
     }
 
     private String exchange(@SuppressWarnings("unused") SAMLAssertionCredential samlToken) {
-        return getSystemUserIdToken().getToken();
+        return TokenProvider.getTokenFor(SikkerhetContext.SYSTEM).token();
     }
 
 }

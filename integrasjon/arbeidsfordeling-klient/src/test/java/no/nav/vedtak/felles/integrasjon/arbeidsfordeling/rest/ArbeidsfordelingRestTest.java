@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest;
 
-import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -8,10 +7,12 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+
 class ArbeidsfordelingRestTest {
 
-    private static final ObjectWriter WRITER = MAPPER.writerWithDefaultPrettyPrinter();
-    private static final ObjectReader READER = MAPPER.reader();
+    private static final ObjectWriter WRITER = DefaultJsonMapper.getObjectMapper().writerWithDefaultPrettyPrinter();
+    private static final ObjectReader READER = DefaultJsonMapper.getObjectMapper().reader();
 
     @Test
     void test_request() throws Exception {
@@ -21,8 +22,8 @@ class ArbeidsfordelingRestTest {
                 .medBehandlingstype("ae0028")
                 .build();
 
-        String json = WRITER.writeValueAsString(request);
-        ArbeidsfordelingRequest roundTripped = READER.forType(ArbeidsfordelingRequest.class).readValue(json);
+        String json = DefaultJsonMapper.toJson(request);
+        ArbeidsfordelingRequest roundTripped = DefaultJsonMapper.fromJson(json, ArbeidsfordelingRequest.class);
         assertThat(roundTripped).isNotNull();
         assertThat(roundTripped.getTema()).isEqualTo("FOR");
         assertThat(roundTripped.getBehandlingstype()).isEqualTo("ae0028");
@@ -32,7 +33,7 @@ class ArbeidsfordelingRestTest {
     void test_response() throws Exception {
         var respons = new ArbeidsfordelingResponse("4806", "Drammen", "Aktiv", "FPY");
         String json = WRITER.writeValueAsString(respons);
-        ArbeidsfordelingResponse roundTripped = READER.forType(ArbeidsfordelingResponse.class).readValue(json);
+        ArbeidsfordelingResponse roundTripped = DefaultJsonMapper.fromJson(json, ArbeidsfordelingResponse.class);
         assertThat(roundTripped).isNotNull();
         assertThat(roundTripped.enhetNr()).isEqualTo("4806");
     }

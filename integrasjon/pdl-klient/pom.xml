@@ -16,10 +16,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>felles-integrasjon-rest-klient</artifactId>
         </dependency>

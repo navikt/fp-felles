@@ -29,12 +29,13 @@ import org.apache.http.protocol.HttpContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ByteArrayResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 /**
  * Klassen legger dynamisk på headere for å propagere sikkerhetskonteks og
@@ -48,7 +49,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     private static final String DEFAULT_NAV_CALLID = "Nav-Callid";
     public static final String ALT_NAV_CALL_ID = "nav-call-id";
 
-    private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
+    private static final String OIDC_AUTH_HEADER_PREFIX = OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE;
 
     private CloseableHttpClient client;
 
@@ -179,11 +180,7 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
     }
 
     protected <T> T fromJson(String json, Class<T> clazz) {
-        try {
-            return mapper.readValue(json, clazz);
-        } catch (IOException e) {
-            throw new TekniskException("F-919328", "Fikk IO exception ved parsing av JSON", e);
-        }
+        return DefaultJsonMapper.fromJson(json, clazz);
     }
 
     /** Få tak i en kopi av definert ObjectMapper. */

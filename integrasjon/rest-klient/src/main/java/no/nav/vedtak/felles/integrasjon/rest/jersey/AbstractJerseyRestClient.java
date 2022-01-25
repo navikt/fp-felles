@@ -4,12 +4,11 @@ import static io.micrometer.core.instrument.Metrics.globalRegistry;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.FINE;
-import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
-import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.toJson;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.connectionManager;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.createKeepAliveStrategy;
 import static no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent.requestConfig;
 import static no.nav.vedtak.log.metrics.MetricsUtil.utvidMedHistogram;
+import static no.nav.vedtak.mapper.json.DefaultJsonMapper.toJson;
 import static org.glassfish.jersey.apache.connector.ApacheConnectorProvider.getHttpClient;
 import static org.glassfish.jersey.client.ClientProperties.CONNECT_TIMEOUT;
 import static org.glassfish.jersey.client.ClientProperties.READ_TIMEOUT;
@@ -53,6 +52,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.HttpRequestRetryHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.StringResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientSupportProdusent;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 /**
  *
@@ -112,7 +112,7 @@ public abstract class AbstractJerseyRestClient {
     private AbstractJerseyRestClient(Invoker invoker, Set<? extends ClientRequestFilter> filters) {
 
         var cfg = new ClientConfig();
-        cfg.register(jacksonProvider(MAPPER));
+        cfg.register(jacksonProvider(DefaultJsonMapper.getObjectMapper()));
         cfg.connectorProvider(new ApacheConnectorProvider());
         cfg.register((ApacheHttpClientBuilderConfigurator) (b) -> {
             return b.addInterceptorFirst(new StandardHeadersRequestInterceptor())

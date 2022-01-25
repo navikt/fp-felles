@@ -3,7 +3,6 @@ package no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.readAllBytes;
 import static java.util.stream.Collectors.toList;
-import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class SerializationTest {
 
@@ -65,7 +65,7 @@ class SerializationTest {
     }
 
     private static void testJson(String json, Class<?> clazz, boolean log) throws Exception {
-        var deser = MAPPER.readValue(json, clazz);
+        var deser = DefaultJsonMapper.fromJson(json, clazz);
         if (log) {
             System.out.println("##");
             System.out.println(json);
@@ -79,7 +79,7 @@ class SerializationTest {
 
     private static void test(Object object, boolean log) throws IOException {
         String ser = write(object);
-        var deser = MAPPER.readValue(ser, object.getClass());
+        var deser = DefaultJsonMapper.fromJson(ser, object.getClass());
         if (log) {
             System.out.println("##");
             System.out.println("Før serialisering: " + object);
@@ -90,7 +90,7 @@ class SerializationTest {
     }
 
     private static String write(Object object) throws JsonProcessingException {
-        return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        return DefaultJsonMapper.toJson(object);
     }
 
     private static Saker.Sak.Saksnummer saksnummer(int n) {

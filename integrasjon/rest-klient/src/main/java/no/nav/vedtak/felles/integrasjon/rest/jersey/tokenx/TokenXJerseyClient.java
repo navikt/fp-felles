@@ -7,7 +7,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.vedtak.log.util.ConfidentialMarkerFilter.CONFIDENTIAL;
 
 import java.net.URI;
-import java.util.Optional;
 
 import javax.ws.rs.core.Form;
 
@@ -17,8 +16,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient;
-import no.nav.vedtak.sikkerhet.oidc.WellKnownConfigurationHelper;
-import no.nav.vedtak.sikkerhet.oidc.WellKnownOpenIdConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 public class TokenXJerseyClient extends AbstractJerseyRestClient implements TokenXClient {
     private static final Logger LOG = LoggerFactory.getLogger(TokenXJerseyClient.class);
@@ -31,8 +31,8 @@ public class TokenXJerseyClient extends AbstractJerseyRestClient implements Toke
     }
 
     public TokenXJerseyClient(TokenXConfig cfg) {
-        var config = WellKnownConfigurationHelper.getWellKnownConfig(cfg.wellKnownUrl());
-        this.tokenEndpoint = Optional.ofNullable(config).map(WellKnownOpenIdConfiguration::token_endpoint).map(URI::create).orElse(null);
+        var config = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX);
+        this.tokenEndpoint = config.map(OpenIDConfiguration::tokenEndpoint).orElse(null);
         this.assertionGenerator = new TokenXAssertionGenerator(cfg, tokenEndpoint);
     }
 

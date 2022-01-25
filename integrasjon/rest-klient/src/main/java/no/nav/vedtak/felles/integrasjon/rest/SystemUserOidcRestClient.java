@@ -2,7 +2,8 @@ package no.nav.vedtak.felles.integrasjon.rest;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import no.nav.vedtak.isso.SystemUserIdTokenProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /**
  *
@@ -24,6 +25,6 @@ public class SystemUserOidcRestClient extends AbstractOidcRestClient {
 
     @Override
     String getOIDCToken() {
-        return SystemUserIdTokenProvider.getSystemUserIdToken().getToken();
+        return TokenProvider.getTokenFor(SikkerhetContext.SYSTEM).token();
     }
 }

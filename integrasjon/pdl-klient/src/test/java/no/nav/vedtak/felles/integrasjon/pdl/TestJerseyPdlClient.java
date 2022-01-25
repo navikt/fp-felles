@@ -9,7 +9,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper.MAPPER;
 import static no.nav.vedtak.felles.integrasjon.pdl.PdlDefaultErrorHandler.FORBUDT;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.DEFAULT_NAV_CALLID;
 import static no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyRestClient.NAV_CONSUMER_TOKEN_HEADER;
@@ -32,7 +31,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -55,10 +53,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.github.benmanes.caffeine.cache.RemovalCause;
-import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
@@ -68,11 +62,12 @@ import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenClientRequestFilter;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenJerseyClient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.StsAccessTokenProvider;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXClient;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXRequestFilter;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.domene.SAMLAssertionCredential;
+import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -91,7 +86,7 @@ class TestJerseyPdlClient {
     TokenXClient client;
 
     @Mock
-    private StsAccessTokenJerseyClient sts;
+    private StsAccessTokenProvider sts;
     @Mock
     private SubjectHandler subjectHandler;
     @Mock
@@ -100,7 +95,6 @@ class TestJerseyPdlClient {
     private static final String USERNAME = "ZAPHOD";
     private static WireMockServer server;
     private static URI URI;
-    private final LoadingCache<String, String> cache = cache(1, Duration.ofSeconds(1));
 
     @BeforeAll
     static void startServer() throws Exception {
@@ -117,14 +111,14 @@ class TestJerseyPdlClient {
     }
 
     @BeforeEach
-    void beforeEach() throws Exception {
-        legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR, cache));
+    void beforeEach() {
+        legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
         tokenXClient = new OnBehalfOfJerseyPdlKlient(URI, new TokenXRequestFilter(FOR, client));
     }
 
     @Test
     @DisplayName("Test error handler")
-    void testErrorHandler() throws Exception {
+    void testErrorHandler() {
         var handler = new PdlDefaultErrorHandler();
         var error = new GraphQLError();
         error.setExtensions(Map.of("code", FORBUDT, "details",
@@ -140,6 +134,8 @@ class TestJerseyPdlClient {
     @Test
     @DisplayName("Test at kun Authorization og Tema  blir satt for tokenX token")
     void testPersonAuthWithUserToken() throws Exception {
+        doReturn(TOKENXTOKEN).when(sts).accessToken();
+        legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
         doReturn(TOKENXTOKEN).when(subjectHandler).getInternSsoToken();
         try (var s = mockStatic(SubjectHandler.class)) {
             when(client.exchange(Mockito.any(), Mockito.any())).thenReturn(TOKENXTOKEN);
@@ -163,7 +159,9 @@ class TestJerseyPdlClient {
     @Test
     @DisplayName("Test at Authorization blir satt til system token når vi ikke har et internt oidc token")
     void testPersonAuthWithSystemToken() throws Exception {
-        when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
+        doReturn(SYSTEMTOKEN).when(sts).accessToken();
+        doReturn(SYSTEMTOKEN).when(sts).systemToken();
+        legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
         doReturn(saml).when(subjectHandler).getSamlToken();
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
@@ -177,14 +175,16 @@ class TestJerseyPdlClient {
             var res = legacyClient.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
-            verify(sts).accessToken();
+            verify(sts, times(2)).systemToken();
         }
     }
 
     @Test
     @DisplayName("Test at Authorization,Nav-Consumer-Token, Nav-Consumer-Id og Tema alle blir satt tester også cache")
     void testPersonAuthWithLoginServiceToken() throws Exception {
-        when(sts.accessToken()).thenReturn(SYSTEMTOKEN);
+        doReturn(LOGINSERVICETOKEN).when(sts).accessToken();
+        doReturn(SYSTEMTOKEN).when(sts).systemToken();
+        legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
         doReturn(LOGINSERVICETOKEN).when(subjectHandler).getInternSsoToken();
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
@@ -203,18 +203,22 @@ class TestJerseyPdlClient {
             res = legacyClient.hentPerson(pq(), pp());
             assertNotNull(res.getNavn());
             assertNotNull(res.getNavn().get(0).getFornavn());
-            verify(sts).accessToken();
+            verify(sts, times(2)).systemToken();
             Thread.sleep(1000);
             IntStream.range(1, 10)
                     .forEach(i -> legacyClient.hentPerson(pq(), pp()));
             legacyClient.hentPerson(pq(), pp());
-            verify(sts, times(2)).accessToken();
+            verify(sts, times(12)).systemToken();
         }
     }
 
     @Test
     @DisplayName("Test at exception kastes når vi ikke har tokens")
     void testPersonNoTokens() throws Exception {
+        when(sts.accessToken()).thenReturn(null);
+        when(sts.systemToken()).thenReturn(null);
+        doReturn(null).when(subjectHandler).getInternSsoToken();
+        legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(post(urlPathEqualTo(GRAPHQL)));
@@ -224,7 +228,7 @@ class TestJerseyPdlClient {
 
     private <T> GraphQLResult<T> responsFor(String fil) {
         try (var is = getClass().getClassLoader().getResourceAsStream(fil)) {
-            return MAPPER.readValue(IOUtils.toString(is, UTF_8),
+            return DefaultJsonMapper.getObjectMapper().readValue(IOUtils.toString(is, UTF_8),
                     new TypeReference<GraphQLResult<T>>() {
                     });
         } catch (Exception e) {
@@ -244,25 +248,7 @@ class TestJerseyPdlClient {
         return aResponse()
                 .withStatus(SC_OK)
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                .withBody(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(body));
-    }
-
-    private LoadingCache<String, String> cache(int size, Duration duration) {
-        return Caffeine.newBuilder()
-                .expireAfterWrite(duration)
-                .maximumSize(size)
-                .removalListener(new RemovalListener<String, String>() {
-                    @Override
-                    public void onRemoval(String key, String value, RemovalCause cause) {
-                        LOG.info("Fjerner system token fra cache grunnet {}", cause);
-                    }
-                })
-                .build(k -> load(sts));
-    }
-
-    private String load(StsAccessTokenJerseyClient sts) {
-        LOG.info("LOADING");
-        return sts.accessToken();
+                .withBody(DefaultJsonMapper.toJson(body));
     }
 
 }

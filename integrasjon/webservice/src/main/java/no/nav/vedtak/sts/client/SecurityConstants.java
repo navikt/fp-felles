@@ -1,6 +1,6 @@
 package no.nav.vedtak.sts.client;
 
-import no.nav.vedtak.sikkerhet.domene.ConsumerId;
+import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 
 public class SecurityConstants {
 
