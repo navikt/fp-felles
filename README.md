@@ -22,6 +22,10 @@ Prioriteten på kilder er som følge:
 - Miljø variabler (generelt alt som finnes i *System.getenv()*)
 - System properties (generelt alt som finnes i *System.getProperties()*)
 
+For kjøring utenfor kubernetes f.eks. fra IDE defaultes cluster navn til "local" og namespace til verdi satt
+i System.getProperty("app.name");
+Dvs at man kan nå properties under application.properties, application-lokal.properties og application-lokal-<app.name>.properties
+
 Det er mulig å plugge inn en egen provider ved å implementere `PropertiesKonfigVerdiProvider` klassen.
 
 Løsningen er CDI basert.

@@ -55,6 +55,11 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
             var namespaceName = namespaceName();
             if (namespaceName != null) {
                 return clusterKonfig() + "-" + namespaceName;
+            } else {
+                var appName = System.getProperty("app.name");
+                if (appName != null) {
+                    return clusterKonfig() + "-" + appName;
+                }
             }
             return null;
         }
