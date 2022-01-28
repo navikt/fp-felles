@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.konfig.KonfigVerdiProviderOutput.ProviderOutput;
 @ApplicationScoped
 public class KonfigVerdiProdusent {
     private static final DefaultValueKonfigProvider DEFAULTVALUEPROVIDER = new DefaultValueKonfigProvider();
-    private static final Pattern SKJUL = Pattern.compile(".*(passw?ord|[k|c]redential).*"); //$NON-NLS-1$
+    private static final Pattern SKJUL = Pattern.compile(".*(passw?ord|[k|c]redential|secret).*"); //$NON-NLS-1$
     private static final Logger log = LoggerFactory.getLogger(KonfigVerdiProdusent.class);
 
     private Instance<KonfigVerdiProvider> providerBeans;

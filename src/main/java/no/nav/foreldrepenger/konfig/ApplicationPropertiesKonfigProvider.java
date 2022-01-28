@@ -60,8 +60,7 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
         }
 
         private static String namespaceName() {
-            return Optional.ofNullable(getenv(NAIS_NAMESPACE_NAME))
-                    .orElse(null);
+            return getenv(NAIS_NAMESPACE_NAME);
         }
 
         private static String clusterKonfig() {
