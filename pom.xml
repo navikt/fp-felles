@@ -14,7 +14,7 @@
 		<module>integrasjon</module>
 	</modules>
 	<properties>
-	    <konfig.version>1.1.4</konfig.version>
+	    <konfig.version>1.1.5</konfig.version>
 		<jersey.version>2.35</jersey.version>
 		<logback.version>1.2.10</logback.version>
 		<slf4j.version>1.7.35</slf4j.version>
