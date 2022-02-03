@@ -28,7 +28,7 @@ public record OpenIDToken(OpenIDProvider provider,
                        String scope,
                        Integer expireIn) {
         this(provider, tokenType, token, scope,
-            System.currentTimeMillis() + (MILLIS * expireIn > LONGLIFE ? expireIn - BUFFER : expireIn));
+            System.currentTimeMillis() + (MILLIS * (expireIn > LONGLIFE ? expireIn - BUFFER : expireIn)));
     }
 
     public boolean isExpired() {

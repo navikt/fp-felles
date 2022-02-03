@@ -38,7 +38,7 @@
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>konfig</artifactId>
-            <version>1.1.4</version>
+            <version>${konfig.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-            <version>0.5.5</version>
+            <version>0.7.9</version>
         </dependency>
         <dependency>
             <groupId>jakarta.json</groupId>

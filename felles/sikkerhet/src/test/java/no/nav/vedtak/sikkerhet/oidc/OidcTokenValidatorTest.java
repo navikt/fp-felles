@@ -71,7 +71,7 @@ public class OidcTokenValidatorTest {
 
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertInvalid(result,
-                "rejected due to invalid claims. Additional details: [Issuer (iss) claim value (https://tull.nav.no) doesn't match expected value of https://foo.bar.adeo.no/openam/oauth2]");
+                "rejected due to invalid claims or other invalid content. Additional details: [[12] Issuer (iss) claim value (https://tull.nav.no) doesn't match expected value of https://foo.bar.adeo.no/openam/oauth2]");
     }
 
     @Test
@@ -144,7 +144,7 @@ public class OidcTokenValidatorTest {
         OidcTokenValidator tokenValidator = new OidcTokenValidator(new JwksKeyHandlerFromString(
                 "{\"keys\":[{\"kty\":\"RSA\",\"kid\":\"1\",\"use\":\"sig\",\"alg\":\"RS256\",\"n\":\"AM2uHZfbHbDfkCTG8GaZO2zOBDmL4sQgNzCSFqlQ-ikAwTV5ptyAHYC3JEy_LtMcRSv3E7r0yCW_7WtzT-CgBYQilb_lz1JmED3TgiThEolN2kaciY06UGycSj8wEYik-3PxuVeKr3uw6LVEohM3rrCjdlkQ_jctuvuUrCedbsb2hVw6Q17PQbWURq8v3gtXmGMD8KcR7e0dtf0ZoMOfZQoFJZ-a5dMFzXeP8Ffz_c0uBLSddd-FqOhzVDiMbvFI9XKE22TWghYanPpPsGGZYioQbJfu5VtphR6zNjiUp9O4lA_qEkbBpRA8SaUTCz3PcirFYDg0zvV8p2hgY9jyCj0\",\"e\":\"AQAB\"}]}"));
         OidcTokenValidatorResult result = tokenValidator.validate(token);
-        assertInvalid(result, "JWS signature is invalid");
+        assertInvalid(result, "JWT rejected due to invalid signature");
     }
 
     @Test
@@ -208,17 +208,17 @@ public class OidcTokenValidatorTest {
     public void skal_ikke_godta_noe_som_ikke_er_et_gyldig_JWT() throws Exception {
         OidcTokenValidatorResult result1 = tokenValidator.validate(new OidcTokenHolder("", false));
         assertInvalid(result1,
-                "Invalid OIDC Unable to process JOSE object",
+                "Invalid OIDC JWT processing failed",
                 "Invalid JOSE Compact Serialization. Expecting either 3 or 5 parts for JWS or JWE respectively but was 1.)");
 
         OidcTokenValidatorResult result2 = tokenValidator.validate(new OidcTokenHolder("tull", false));
         assertInvalid(result2,
-                "Invalid OIDC Unable to process JOSE object",
+                "Invalid OIDC JWT processing failed",
                 "Invalid JOSE Compact Serialization. Expecting either 3 or 5 parts for JWS or JWE respectively but was 1.)");
 
         OidcTokenValidatorResult result3 = tokenValidator.validate(new OidcTokenHolder("a.b.c", false));
         assertInvalid(result3,
-                "Invalid OIDC Unable to process JOSE object",
+                "Invalid OIDC JWT processing failed",
                 "cause: org.jose4j.lang.JoseException: Parsing error: org.jose4j.json.internal.json_simple.parser.ParseException: Unexpected token END OF FILE at position 0.): a.b.c");
 
         String header = "{\"kid\":\"1\", \"alg\": \"RS256\""; // mangler } på slutten
@@ -226,7 +226,7 @@ public class OidcTokenValidatorTest {
         String h = Base64.getEncoder().encodeToString(header.getBytes()).replaceAll("=", "");
         String p = Base64.getEncoder().encodeToString(claims.getBytes()).replaceAll("=", "");
         OidcTokenValidatorResult result4 = tokenValidator.validate(new OidcTokenHolder(h + "." + p + ".123", false));
-        assertInvalid(result4, "Invalid OIDC Unable to process JOSE object");
+        assertInvalid(result4, "Invalid OIDC JWT processing failed");
     }
 
     @AfterEach
