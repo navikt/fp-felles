@@ -25,7 +25,7 @@
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>konfig</artifactId>
-            <version>1.1.4</version>
+            <version>${konfig.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.kobylynskyi</groupId>
