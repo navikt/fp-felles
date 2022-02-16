@@ -14,6 +14,7 @@ import no.nav.vedtak.sikkerhet.context.containers.IdentType;
 import no.nav.vedtak.sikkerhet.context.containers.OidcCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public abstract class SubjectHandler {
     public abstract Subject getSubject();
@@ -58,6 +59,15 @@ public abstract class SubjectHandler {
                 .filter(Objects::nonNull)
                 .map(OidcCredential::getToken)
                 .orElse(null);
+    }
+
+    public OpenIDToken getOpenIDToken() {
+        return Optional.ofNullable(getSubject())
+            .map(s -> s.getPublicCredentials(OidcCredential.class))
+            .map(SubjectHandler::getTheOnlyOneInSet)
+            .filter(Objects::nonNull)
+            .map(OidcCredential::getOpenIDToken)
+            .orElse(null);
     }
 
     public SAMLAssertionCredential getSamlToken() {

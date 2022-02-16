@@ -1,5 +1,7 @@
 package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
+import java.util.Optional;
+
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
@@ -11,13 +13,16 @@ import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 public class BrukerTokenProvider {
 
     public static synchronized OpenIDToken getToken() {
-        String oidcToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
+        return Optional.ofNullable(SubjectHandler.getSubjectHandler().getOpenIDToken())
+            .orElseThrow(() -> new IllegalStateException("Klarte ikke skaffe OIDC-token for :: " + SikkerhetContext.BRUKER));
+    }
 
-        if (oidcToken != null) {
-            return new OpenIDToken(oidcToken);
-        }
+    public static boolean harSattBrukerOidcToken() {
+        return SubjectHandler.getSubjectHandler().getInternSsoToken() != null;
+    }
 
-        throw new IllegalStateException("Klarte ikke skaffe OIDC-token for :: " + SikkerhetContext.BRUKER);
+    public static boolean harSattBrukerSamlToken() {
+        return SubjectHandler.getSubjectHandler().getSamlToken() != null;
     }
 
     public static String getUserId() {

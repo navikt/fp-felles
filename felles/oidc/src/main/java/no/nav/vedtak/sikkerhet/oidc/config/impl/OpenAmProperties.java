@@ -52,6 +52,14 @@ public class OpenAmProperties {
             .orElseGet(() -> getOpenAmWellKnownConfig().jwks_uri());
     }
 
+    public static String getIssoTokenUrl() {
+        return getIssoIssuerUrl() + "/access-token";
+    }
+
+    public static String getIssoAuthUrl() {
+        return getIssoIssuerUrl() + "/authorize";
+    }
+
     private static WellKnownOpenIdConfiguration getOpenAmWellKnownConfig() {
         var discoveryURL = Optional.ofNullable(ENV.getProperty(OPEN_AM_WELL_KNOWN_URL))
             .orElseGet(() -> getIssoHostUrl() + WELL_KNOWN_ENDPOINT);

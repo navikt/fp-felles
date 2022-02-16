@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
@@ -14,11 +15,13 @@ import org.junit.jupiter.api.Test;
 
 public class JwksKeyHandlerTest {
 
+    private static final URI STD_URI = URI.create("http://www.vg.no");
+
     @Test
     public void skal_parse_jwks_og_hente_ut_key() throws Exception {
         String jsonStreng = les("example-jwks.json");
 
-        JwksKeyHandler handler = new JwksKeyHandlerImpl(new TestKeySupplier(jsonStreng), "http://www.vg.no");
+        JwksKeyHandler handler = new JwksKeyHandlerImpl(new TestKeySupplier(jsonStreng), STD_URI);
 
         Key key = handler.getValidationKey(new JwtHeader("", "RS256"));
 
@@ -36,7 +39,7 @@ public class JwksKeyHandlerTest {
     public void skal_returnere_null_dersom_key_ikke_finnes_i_jwks() throws Exception {
         String jsonStreng = les("example-jwks.json");
 
-        JwksKeyHandler handler = new JwksKeyHandlerImpl(new TestKeySupplier(jsonStreng), "http://www.vg.no");
+        JwksKeyHandler handler = new JwksKeyHandlerImpl(new TestKeySupplier(jsonStreng), STD_URI);
 
         Key key = handler.getValidationKey(new JwtHeader("tull og tøys", "RS256"));
         assertThat(key).isNull();
@@ -49,7 +52,7 @@ public class JwksKeyHandlerTest {
         TestKeySupplier keySupplier = new TestKeySupplier(jwks2, jwks1);
 
         // first time a key is requested, jwks2 will be downloaded
-        JwksKeyHandler handler = new JwksKeyHandlerImpl(keySupplier, "http://www.vg.no");
+        JwksKeyHandler handler = new JwksKeyHandlerImpl(keySupplier, STD_URI);
         Key key = handler.getValidationKey(new JwtHeader("8d3074d68906276778eb3aea6a4b698e893d934b", "RS256"));
         assertThat(key).isInstanceOf(RSAPublicKey.class);
         assertThat(keySupplier.getCounter()).isEqualTo(1);
@@ -68,7 +71,7 @@ public class JwksKeyHandlerTest {
         TestKeySupplier keySupplier = new TestKeySupplier(jwks1, jwks2);
 
         // asks for key with blank kid, will download jwks1 (which has one entry)
-        JwksKeyHandler handler = new JwksKeyHandlerImpl(keySupplier, "http://www.vg.no");
+        JwksKeyHandler handler = new JwksKeyHandlerImpl(keySupplier, STD_URI);
         Key key = handler.getValidationKey(new JwtHeader("", "RS256"));
         assertThat(key).isInstanceOf(RSAPublicKey.class);
         assertThat(keySupplier.getCounter()).isEqualTo(1);

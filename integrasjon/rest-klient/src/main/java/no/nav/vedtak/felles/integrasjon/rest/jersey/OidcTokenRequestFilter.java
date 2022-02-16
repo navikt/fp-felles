@@ -40,7 +40,7 @@ public class OidcTokenRequestFilter implements ClientRequestFilter, AccessTokenP
 
     protected String suppliedToken() {
         try {
-            return TokenProvider.getTokenFor(SikkerhetContext.BRUKER).token();
+            return TokenProvider.getTokenUtenSamlFallback(SikkerhetContext.BRUKER).token();
         } catch (Exception e) {
             return null;
         }

@@ -11,21 +11,25 @@ import javax.servlet.http.HttpServletRequest;
 
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 class TokenLocator {
 
-    public Optional<OidcTokenHolder> getToken(HttpServletRequest request) {
-        Optional<String> tokenFromCookie = getCookie(request, ID_TOKEN_COOKIE_NAME);
+    public boolean isTokenFromCookie(HttpServletRequest request) {
+        return getCookie(request, ID_TOKEN_COOKIE_NAME).isPresent();
+    }
+
+    public Optional<TokenString> getToken(HttpServletRequest request) {
+        var tokenFromCookie = getCookie(request, ID_TOKEN_COOKIE_NAME);
         return tokenFromCookie
-            .map(s -> new OidcTokenHolder(s, true))
             .or(() -> getTokenFromHeader(request));
     }
 
-    public Optional<String> getRefreshToken(HttpServletRequest request) {
+    public Optional<TokenString> getRefreshToken(HttpServletRequest request) {
         return getCookie(request, REFRESH_TOKEN_COOKIE_NAME);
     }
 
-    private Optional<String> getCookie(HttpServletRequest request, String cookieName) {
+    private Optional<TokenString> getCookie(HttpServletRequest request, String cookieName) {
         if (request.getCookies() == null) {
             return Optional.empty();
         }
@@ -39,13 +43,14 @@ class TokenLocator {
                 .filter(c -> c.getValue() != null)
                 .filter(c -> cookieName.equalsIgnoreCase(c.getName()))
                 .findFirst())
-            .map(Cookie::getValue);
+            .map(Cookie::getValue)
+            .map(TokenString::new);
     }
 
-    private Optional<OidcTokenHolder> getTokenFromHeader(HttpServletRequest request) {
+    private Optional<TokenString> getTokenFromHeader(HttpServletRequest request) {
         String headerValue = request.getHeader("Authorization");
         return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE)
-                ? Optional.of(new OidcTokenHolder(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length()), false))
+                ? Optional.of(new TokenString(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length())))
                 : Optional.empty();
     }
 

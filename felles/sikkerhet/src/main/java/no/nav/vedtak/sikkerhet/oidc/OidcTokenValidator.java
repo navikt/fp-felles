@@ -10,12 +10,12 @@ import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.jwx.JsonWebStructure;
 
-import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandler;
 import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.jwks.JwtHeader;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.OpenAmProperties;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public class OidcTokenValidator {
 
@@ -52,12 +52,12 @@ public class OidcTokenValidator {
         this.skipAudienceValidation = skipAudienceValidation;
     }
 
-    public OidcTokenValidatorResult validate(OidcTokenHolder tokenHolder) {
+    public OidcTokenValidatorResult validate(TokenString tokenHolder) {
         return validate(tokenHolder, allowedClockSkewInSeconds);
     }
 
-    private OidcTokenValidatorResult validate(OidcTokenHolder tokenHolder, int allowedClockSkewInSeconds) {
-        if (tokenHolder == null) {
+    private OidcTokenValidatorResult validate(TokenString tokenHolder, int allowedClockSkewInSeconds) {
+        if (tokenHolder == null || tokenHolder.token() == null) {
             return OidcTokenValidatorResult.invalid("Missing token (token was null)");
         }
         String token = tokenHolder.token();
@@ -98,7 +98,7 @@ public class OidcTokenValidator {
         }
     }
 
-    public OidcTokenValidatorResult validateWithoutExpirationTime(OidcTokenHolder tokenHolder) {
+    public OidcTokenValidatorResult validateWithoutExpirationTime(TokenString tokenHolder) {
         return validate(tokenHolder, Integer.MAX_VALUE);
     }
 

@@ -1,17 +1,18 @@
 package no.nav.vedtak.isso.ressurs;
+
 import javax.security.auth.callback.Callback;
 
-import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public class TokenCallback implements Callback, java.io.Serializable {
 
-    public OidcTokenHolder getToken() {
+    public OpenIDToken getToken() {
         return token;
     }
 
-    public void setToken(OidcTokenHolder token) {
+    public void setToken(OpenIDToken token) {
         this.token = token;
     }
 
-    private OidcTokenHolder token;
+    private OpenIDToken token;
 }

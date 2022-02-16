@@ -12,7 +12,7 @@ import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.NumericDate;
 import org.jose4j.lang.JoseException;
 
-import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public class OidcTokenGenerator {
     public static final String ISSUER = "https://foo.bar.adeo.no/openam/oauth2";
@@ -71,12 +71,12 @@ public class OidcTokenGenerator {
         return this;
     }
 
-    public OidcTokenHolder createCookieTokenHolder() {
-        return new OidcTokenHolder(create(), true);
+    public TokenString createCookieTokenHolder() {
+        return new TokenString(create());
     }
 
-    public OidcTokenHolder createHeaderTokenHolder() {
-        return new OidcTokenHolder(create(), false);
+    public TokenString createHeaderTokenHolder() {
+        return new TokenString(create());
     }
 
     public String create() {

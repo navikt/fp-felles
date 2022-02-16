@@ -1,13 +1,8 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import java.time.Instant;
-
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public class OidcLogin {
-
-    private static final Environment ENV = Environment.current();
 
     public enum LoginResult {
         SUCCESS,
@@ -16,60 +11,27 @@ public class OidcLogin {
         ID_TOKEN_INVALID
     }
 
-    private static final String REFRESH_TIME = "no.nav.vedtak.sikkerhet.minimum_time_to_expiry_before_refresh.seconds";
-    public static final int DEFAULT_REFRESH_TIME = 120;
+    public record Resultat(LoginResult loginResult,
+                           String subject,
+                           String errorMessage) {}
 
-    private final OidcTokenHolder idToken;
-    private final OidcTokenValidator tokenValidator;
-
-    private String subject;
-    private String errorMessage;
-
-    public OidcLogin(OidcTokenHolder idToken, OidcTokenValidator tokenValidator) {
-        this.idToken = idToken;
-        this.tokenValidator = tokenValidator;
-    }
-
-    public LoginResult doLogin() {
-        if (idToken == null) {
-            return LoginResult.ID_TOKEN_MISSING;
+    public static Resultat validerToken(OpenIDToken openIDToken) {
+        if (openIDToken == null || openIDToken.provider() == null) {
+            return new Resultat(LoginResult.ID_TOKEN_MISSING, null, null);
         }
-        OidcTokenValidatorResult validateResult = tokenValidator.validate(idToken);
-        if (needToRefreshToken(idToken, validateResult)) {
-            return LoginResult.ID_TOKEN_EXPIRED;
+        var tokenValidator = OidcTokenValidatorConfig.instance().getValidator(openIDToken.provider());
+        var validateResult = tokenValidator.validate(openIDToken.primary());
+        if (needToRefreshToken(openIDToken, validateResult, tokenValidator)) {
+            return new Resultat(LoginResult.ID_TOKEN_EXPIRED, null, null);
         }
         if (validateResult.isValid()) {
-            this.subject = validateResult.getSubject();
-            return LoginResult.SUCCESS;
+            return new Resultat(LoginResult.SUCCESS, validateResult.getSubject(), null);
         }
-        errorMessage = validateResult.getErrorMessage();
-        return LoginResult.ID_TOKEN_INVALID;
+        return new Resultat(LoginResult.ID_TOKEN_INVALID, null, validateResult.getErrorMessage());
     }
 
-    public String getSubject() {
-        return subject;
+    private static boolean needToRefreshToken(OpenIDToken token, OidcTokenValidatorResult validateResult, OidcTokenValidator tokenValidator) {
+        return !validateResult.isValid() && tokenValidator.validateWithoutExpirationTime(token.primary()).isValid();
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    private boolean needToRefreshToken(OidcTokenHolder idToken, OidcTokenValidatorResult validateResult) {
-        if (validateResult.isValid()) {
-            if (idToken.fromCookie()) {
-                return tokenIsSoonExpired(validateResult);
-            } else {
-                return false;
-            }
-        }
-        return tokenValidator.validateWithoutExpirationTime(idToken).isValid();
-    }
-
-    private boolean tokenIsSoonExpired(OidcTokenValidatorResult validateResult) {
-        return validateResult.getExpSeconds() * 1000 - Instant.now().toEpochMilli() < getMinimumTimeToExpiryBeforeRefresh();
-    }
-
-    public static int getMinimumTimeToExpiryBeforeRefresh() {
-        return ENV.getProperty(REFRESH_TIME, Integer.class, DEFAULT_REFRESH_TIME) * 1000;
-    }
 }
