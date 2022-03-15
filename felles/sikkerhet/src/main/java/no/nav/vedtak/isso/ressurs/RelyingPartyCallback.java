@@ -3,13 +3,12 @@ package no.nav.vedtak.isso.ressurs;
 import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
-import static javax.ws.rs.core.Response.status;
-import static javax.ws.rs.core.Response.temporaryRedirect;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.status;
+import static javax.ws.rs.core.Response.temporaryRedirect;
 import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
 import static no.nav.vedtak.sikkerhet.Constants.REFRESH_TOKEN_COOKIE_NAME;
-import static no.nav.vedtak.sikkerhet.oidc.JwtUtil.getIssuer;
 
 import java.net.URI;
 import java.util.Objects;
@@ -29,15 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
-import no.nav.vedtak.sikkerhet.oidc.IdTokenAndRefreshTokenProvider;
+import no.nav.vedtak.isso.oidc.OpenAmTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorConfig;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 @Path("")
 public class RelyingPartyCallback {
     private static final Logger LOG = LoggerFactory.getLogger(RelyingPartyCallback.class);
-
-    private IdTokenAndRefreshTokenProvider tokenProvider = new IdTokenAndRefreshTokenProvider();
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -57,9 +54,8 @@ public class RelyingPartyCallback {
             return status(BAD_REQUEST).build();
         }
 
-        var tokens = tokenProvider.getToken(authorizationCode);
-        var token = tokens.idToken().getToken();
-        if (!OidcTokenValidatorConfig.instance().getValidator(getIssuer(token)).validate(new OidcTokenHolder(token, false)).isValid()) {
+        var token = new OpenAmTokenProvider().exhangeOpenAmAuthCode(authorizationCode, ServerInfo.instance().getCallbackUrl());
+        if (!OidcTokenValidatorConfig.instance().getValidator(OpenIDProvider.ISSO).validate(token.primary()).isValid()) {
             return status(FORBIDDEN).build();
         }
 
@@ -74,12 +70,14 @@ public class RelyingPartyCallback {
         String cookieDomain = ServerInfo.instance().getCookieDomain();
         String cookiePath = ServerInfo.instance().getCookiePath();
 
-        var tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token, cookiePath, cookieDomain, "", DEFAULT_MAX_AGE, sslOnlyCookie, true);
+        var tokenCookie = new NewCookie(ID_TOKEN_COOKIE_NAME, token.token(), cookiePath, cookieDomain, "", DEFAULT_MAX_AGE, sslOnlyCookie, true);
         builder.cookie(tokenCookie);
 
-        var refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken(), cookiePath, cookieDomain, "",
-            DEFAULT_MAX_AGE, sslOnlyCookie, true);
-        builder.cookie(refreshTokenCookie);
+        token.refreshToken().ifPresent(refresh -> {
+            var refreshTokenCookie = new NewCookie(REFRESH_TOKEN_COOKIE_NAME, refresh, cookiePath, cookieDomain, "",
+                DEFAULT_MAX_AGE, sslOnlyCookie, true);
+            builder.cookie(refreshTokenCookie);
+        });
 
         builder.cacheControl(noCache());
         return builder.build();

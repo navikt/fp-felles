@@ -10,6 +10,7 @@ public final class SluttBruker implements Principal, Destroyable {
 
     private static final Pattern VALID_AKTØRID = Pattern.compile("^\\d{13}$", Pattern.CASE_INSENSITIVE);
     private static final Pattern VALID_PERSONIDENT = Pattern.compile("^\\d{11}$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VALID_ANSATTIDENT = Pattern.compile("^\\w\\d{6}$", Pattern.CASE_INSENSITIVE);
 
 
     private String uid;
@@ -21,15 +22,28 @@ public final class SluttBruker implements Principal, Destroyable {
         this.identType = identType;
     }
 
-    public static SluttBruker internBruker(String uid) {
-        if (Objects.equals(ConsumerId.SYSTEMUSER_USERNAME, uid)) {
-            return new SluttBruker(uid, IdentType.Prosess);
-        } else if (uid != null && (VALID_AKTØRID.matcher(uid).matches() || VALID_PERSONIDENT.matcher(uid).matches())) {
-            return new SluttBruker(uid, IdentType.EksternBruker);
-        }
-        // Evt sjekke på kjente interne ident-patterns og systembruker-patterns
-        return new SluttBruker(uid, IdentType.InternBruker);
+    public static SluttBruker utledBruker(String uid) {
+        return new SluttBruker(uid, utledIdentType(uid));
     }
+
+    public static SluttBruker lokalSystembrukerProsess() {
+        return new SluttBruker(ConsumerId.SYSTEMUSER_USERNAME, IdentType.Prosess);
+    }
+
+    private static IdentType utledIdentType(String uid) {
+        if (Objects.equals(ConsumerId.SYSTEMUSER_USERNAME, uid)) {
+            return IdentType.Systemressurs;
+        } else if (uid != null && (VALID_AKTØRID.matcher(uid).matches() || VALID_PERSONIDENT.matcher(uid).matches())) {
+            return IdentType.EksternBruker;
+        } else if (uid != null && uid.startsWith("srv")) {
+            return IdentType.Systemressurs;
+        } else if (uid != null && VALID_ANSATTIDENT.matcher(uid).matches()) {
+            return IdentType.InternBruker;
+        }
+        // TODO - her skal det strengt tatt være en exception .... Skal på sikt brukes til oppførsel for tokenprovider
+        return IdentType.InternBruker;
+    }
+
 
     public IdentType getIdentType() {
         return identType;

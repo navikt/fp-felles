@@ -32,7 +32,6 @@ class TokenLocatorTest {
     void skal_finne_token_i_authorization_header() {
         when(requestContext.getHeader("Authorization")).thenReturn("Bearer eyJhbGciOiJS...");
         assertThat(tokenLocator.getToken(requestContext).get().token()).isEqualTo("eyJhbGciOiJS...");
-        assertThat(tokenLocator.getToken(requestContext).get().fromCookie()).isFalse();
     }
 
     @Test
@@ -48,7 +47,6 @@ class TokenLocatorTest {
     void skal_finne_id_token_i_cookie() {
         when(requestContext.getCookies()).thenReturn(new Cookie[] { new Cookie(ID_TOKEN_COOKIE_NAME, "eyJhbGciOiJS...") });
         assertThat(tokenLocator.getToken(requestContext).get().token()).isEqualTo("eyJhbGciOiJS...");
-        assertThat(tokenLocator.getToken(requestContext).get().fromCookie()).isTrue();
     }
 
     @Test
@@ -60,7 +58,7 @@ class TokenLocatorTest {
     @Test
     void skal_finne_refresh_token_i_cookie() {
         when(requestContext.getCookies()).thenReturn(new Cookie[] { new Cookie(REFRESH_TOKEN_COOKIE_NAME, "123fas1-1234-a1r2") });
-        assertThat(tokenLocator.getRefreshToken(requestContext).get()).isEqualTo("123fas1-1234-a1r2");
+        assertThat(tokenLocator.getRefreshToken(requestContext).get().token()).isEqualTo("123fas1-1234-a1r2");
     }
 
     @Test

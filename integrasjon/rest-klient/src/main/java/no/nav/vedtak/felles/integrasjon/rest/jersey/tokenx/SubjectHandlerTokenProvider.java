@@ -10,7 +10,7 @@ public class SubjectHandlerTokenProvider implements TokenProvider {
 
     @Override
     public String getToken() {
-        return Optional.ofNullable(no.nav.vedtak.sikkerhet.oidc.token.TokenProvider.getTokenFor(SikkerhetContext.BRUKER))
+        return Optional.ofNullable(no.nav.vedtak.sikkerhet.oidc.token.TokenProvider.getTokenUtenSamlFallback(SikkerhetContext.BRUKER))
             .map(OpenIDToken::token)
             .orElseThrow();
     }

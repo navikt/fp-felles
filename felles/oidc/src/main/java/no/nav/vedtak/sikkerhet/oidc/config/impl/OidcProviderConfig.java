@@ -146,10 +146,10 @@ public final class OidcProviderConfig {
                 .orElseGet(OpenAmProperties::getIssoJwksUrl),
             Optional.ofNullable(ENV.getProperty(OPEN_AM_CONFIG_TOKEN_ENDPOINT))
                 .or(() -> getTokenEndpointFra(wellKnownUrl))
-                .orElse(null),
+                .orElseGet(OpenAmProperties::getIssoTokenUrl),
             Optional.ofNullable(ENV.getProperty(OPEN_AM_CONFIG_AUTH_ENDPOINT))
                 .or(() -> getAuthorizationEndpointFra(wellKnownUrl))
-                .orElse(null),
+                .orElseGet(OpenAmProperties::getIssoAuthUrl),
             false, null,
             Optional.ofNullable(ENV.getProperty(OPEN_AM_CLIENT_ID))
                 .orElseGet(OpenAmProperties::getIssoUserName),

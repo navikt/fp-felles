@@ -18,7 +18,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
@@ -31,7 +31,7 @@ public class ContainerLogin {
 
     private final LoginContext loginContext;
 
-    private OidcTokenHolder tokenHolder;
+    private OpenIDToken token;
 
     public ContainerLogin() {
         this.loginContext = createLoginContext();
@@ -64,7 +64,7 @@ public class ContainerLogin {
             public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
                 for (var callback : callbacks) {
                     if (callback instanceof TokenCallback tokenCallback) {
-                        tokenCallback.setToken(tokenHolder);
+                        tokenCallback.setToken(token);
                     } else {
                         // Should never happen
                         throw new UnsupportedCallbackException(callback, TokenCallback.class + " is the only supported Callback");
@@ -82,8 +82,8 @@ public class ContainerLogin {
     }
 
     private void ensureWeHaveTokens() {
-        if (tokenHolder == null) {
-            tokenHolder = new OidcTokenHolder(TokenProvider.getTokenFor(SikkerhetContext.SYSTEM).token(), false);
+        if (token == null) {
+            token = TokenProvider.getTokenFor(SikkerhetContext.SYSTEM);
         }
     }
 

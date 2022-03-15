@@ -1,22 +1,20 @@
 package no.nav.vedtak.sikkerhet.jwks;
 
-import java.io.BufferedReader;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.security.Key;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.JsonWebKeySet;
 import org.jose4j.lang.JoseException;
@@ -35,14 +33,10 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
     private JsonWebKeySet keyCache;
 
     public JwksKeyHandlerImpl(URI url, boolean useProxyForJwks, URI proxy) {
-        this(() -> httpGet(url, useProxyForJwks, proxy), url);
+        this(() -> nativeGet(url, useProxyForJwks, proxy), url);
     }
 
-    public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, String url) {
-        this(jwksStringSupplier, URI.create(url));
-    }
-
-    private JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, URI url) {
+    public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier, URI url) {
         this.jwksStringSupplier = jwksStringSupplier;
         this.url = url;
     }
@@ -92,44 +86,42 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         }
     }
 
-    private static RequestConfig createProxyConfig(URI proxy) {
-        return RequestConfig.custom()
-                .setProxy(HttpHost.create(proxy.toString()))
-                .build();
-    }
-
-    private static String httpGet(URI url, boolean useProxyForJwks, URI proxy) {
+    private static String nativeGet(URI url, boolean useProxyForJwks, URI proxy) {
         if (url == null) {
             throw new TekniskException("F-836283", "Mangler konfigurasjon av jwks url");
         }
-        HttpGet httpGet = new HttpGet(url);
-        httpGet.addHeader("accept", "application/json");
-        if (useProxyForJwks) {
-            if (proxy == null) {
-                throw kunneIkkeOppdatereJwksCache(url, new IllegalArgumentException("Skal bruke proxy, men ingen verdi angitt"));
-            }
-            httpGet.setConfig(createProxyConfig(proxy));
-        }
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() != 200) {
-                    throw kunneIkkeOppdatereJwksCache(url, null);
+        try {
+            var clientBuilder = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(20));
+            if (useProxyForJwks) {
+                if (proxy == null) {
+                    throw kunneIkkeOppdatereJwksCache(url, new IllegalArgumentException("Skal bruke proxy, men ingen verdi angitt"));
                 }
-                return readContent(response);
+                Optional.of(proxy)
+                    .map(p -> new InetSocketAddress(p.getHost(), p.getPort()))
+                .map(ProxySelector::of)
+                .ifPresent(clientBuilder::proxy);
             }
+
+            var client = clientBuilder.build();
+            var request = HttpRequest.newBuilder()
+                .header("Accept", "application/json")
+                .timeout(Duration.ofSeconds(10))
+                .uri(url)
+                .GET()
+                .build();
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
+            if (response == null || response.body() == null) {
+                throw new TekniskException("F-157385", "Kunne ikke hente token");
+            }
+            LOG.info("Hentet JWKS fra {}", url);
+            return response.body();
         } catch (IOException e) {
             throw kunneIkkeOppdatereJwksCache(url, e);
-        } finally {
-            httpGet.reset();
-        }
-    }
-
-    private static String readContent(CloseableHttpResponse response) throws IOException {
-        try (InputStreamReader isr = new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8.name())) {
-            try (BufferedReader br = new BufferedReader(isr)) {
-                return br.lines().collect(Collectors.joining("\n"));
-            }
+        }  catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw kunneIkkeOppdatereJwksCache(url, e);
         }
     }
 

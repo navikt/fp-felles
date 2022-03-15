@@ -68,6 +68,9 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenXRequestFilter;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -136,7 +139,7 @@ class TestJerseyPdlClient {
     void testPersonAuthWithUserToken() throws Exception {
         doReturn(TOKENXTOKEN).when(sts).accessToken();
         legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
-        doReturn(TOKENXTOKEN).when(subjectHandler).getInternSsoToken();
+        doReturn(new OpenIDToken(OpenIDProvider.TOKENX, new TokenString(TOKENXTOKEN))).when(subjectHandler).getOpenIDToken();
         try (var s = mockStatic(SubjectHandler.class)) {
             when(client.exchange(Mockito.any(), Mockito.any())).thenReturn(TOKENXTOKEN);
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
@@ -185,7 +188,7 @@ class TestJerseyPdlClient {
         doReturn(LOGINSERVICETOKEN).when(sts).accessToken();
         doReturn(SYSTEMTOKEN).when(sts).systemToken();
         legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
-        doReturn(LOGINSERVICETOKEN).when(subjectHandler).getInternSsoToken();
+        doReturn(new OpenIDToken(OpenIDProvider.LOGINSERVICE, new TokenString(LOGINSERVICETOKEN))).when(subjectHandler).getOpenIDToken();
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(post(urlPathEqualTo(GRAPHQL))
@@ -217,7 +220,7 @@ class TestJerseyPdlClient {
     void testPersonNoTokens() throws Exception {
         when(sts.accessToken()).thenReturn(null);
         when(sts.systemToken()).thenReturn(null);
-        doReturn(null).when(subjectHandler).getInternSsoToken();
+        doReturn(null).when(subjectHandler).getOpenIDToken();
         legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);

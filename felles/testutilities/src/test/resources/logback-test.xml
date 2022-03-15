@@ -16,8 +16,6 @@
     <logger name="ch.qos.logback" level="${ch.qos.logback:-WARN}" />
     <logger name="org.flywaydb" level="${org.flywaydb:-INFO}" />
     
-    <logger name="org.apache" level="${org.apache:-ERROR}" />
-    
     <logger name="org.jboss.weld" level="${org.jboss.weld:-WARN}" />
     
     <logger name="org.eclipse.jetty" level="${org.eclipse.jetty:-WARN}" />

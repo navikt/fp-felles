@@ -52,7 +52,7 @@ public class JwtUtil {
         }
     }
 
-    static String getClientName(String jwt) {
+    public static String getClientName(String jwt) {
         try {
             JwtClaims claims = unvalidatingConsumer.processToClaims(jwt);
             String azp = claims.getStringClaimValue("azp");

@@ -19,11 +19,9 @@ import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.context.containers.OidcCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
-import no.nav.vedtak.sikkerhet.jaspic.OidcTokenHolder;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
-import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorConfig;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 /**
  * <p>
@@ -45,7 +43,7 @@ public class OIDCLoginModule extends LoginModuleBase {
     private CallbackHandler callbackHandler;
 
     // Set during login()
-    private OidcTokenHolder ssoToken;
+    private OpenIDToken ssoToken;
     private SluttBruker sluttBruker;
 
     // Set during commit()
@@ -68,24 +66,20 @@ public class OIDCLoginModule extends LoginModuleBase {
     public boolean login() throws LoginException {
         ssoToken = getSSOToken();
 
-        String issuer = JwtUtil.getIssuer(ssoToken.token());
-        var tokenValidator = OidcTokenValidatorConfig.instance().getValidator(issuer);
-        logger.trace("Issuer er {}", issuer);
-        OidcLogin oidcLogin = new OidcLogin(ssoToken, tokenValidator);
-        OidcLogin.LoginResult loginResult = oidcLogin.doLogin();
-        if (loginResult == OidcLogin.LoginResult.SUCCESS) {
-            sluttBruker = SluttBruker.internBruker(oidcLogin.getSubject());
+        OidcLogin.Resultat resultat = OidcLogin.validerToken(ssoToken);
+        if (OidcLogin.LoginResult.SUCCESS.equals(resultat.loginResult())) {
+            sluttBruker = SluttBruker.utledBruker(resultat.subject());
             setLoginSuccess(true);
             logger.trace("Login successful for user {}", sluttBruker);
             return true;
         }
-        if (loginResult == OidcLogin.LoginResult.ID_TOKEN_EXPIRED) {
+        if (OidcLogin.LoginResult.ID_TOKEN_EXPIRED.equals(resultat.loginResult())) {
             throw new CredentialExpiredException();
         }
-        if (oidcLogin.getErrorMessage() != null) {
-            throw new LoginException(oidcLogin.getErrorMessage());
+        if (resultat.errorMessage() != null) {
+            throw new LoginException(resultat.errorMessage());
         }
-        throw new LoginException(loginResult.name());
+        throw new LoginException(resultat.loginResult().name());
     }
 
     @Override
@@ -97,7 +91,7 @@ public class OIDCLoginModule extends LoginModuleBase {
         } else {
             this.consumerId = new ConsumerId();
         }
-        oidcCredential = new OidcCredential(ssoToken.token());
+        oidcCredential = new OidcCredential(ssoToken);
 
         subject.getPrincipals().add(sluttBruker);
         subject.getPrincipals().add(this.consumerId);
@@ -147,7 +141,7 @@ public class OIDCLoginModule extends LoginModuleBase {
     /*
      * Called by login() to acquire the ID Token.
      */
-    protected OidcTokenHolder getSSOToken() throws LoginException {
+    protected OpenIDToken getSSOToken() throws LoginException {
         logger.trace("Getting the SSO-token from callback");
 
         if (callbackHandler == null) {

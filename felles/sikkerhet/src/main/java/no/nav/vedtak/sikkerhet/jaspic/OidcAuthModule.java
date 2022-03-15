@@ -9,6 +9,7 @@ import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,13 +43,19 @@ import org.slf4j.MDC;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.config.ServerInfo;
+import no.nav.vedtak.isso.oidc.OpenAmTokenProvider;
+import no.nav.vedtak.isso.ressurs.IssoAuthorizationRequestBuilder;
 import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
-import no.nav.vedtak.sikkerhet.oidc.IdTokenProvider;
+import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
+import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 /**
  * Stjålet mye fra https://github.com/omnifaces/omnisecurity
@@ -71,7 +78,7 @@ public class OidcAuthModule implements ServerAuthModule {
     // it to false.
     private static final String IS_MANDATORY = "javax.security.auth.message.MessagePolicy.isMandatory";
 
-    private final IdTokenProvider tokenProvider;
+    private OpenAmTokenProvider openAmTokenProvider;
     private final TokenLocator tokenLocator;
     private final Configuration loginConfiguration;
 
@@ -80,7 +87,7 @@ public class OidcAuthModule implements ServerAuthModule {
     private final List<DelegatedProtectedResource> delegatedProtectedList;
 
     public OidcAuthModule() {
-        this.tokenProvider = new IdTokenProvider();
+        this.openAmTokenProvider = new OpenAmTokenProvider();
         this.tokenLocator = new TokenLocator();
         this.loginConfiguration = new LoginContextConfiguration();
 
@@ -91,9 +98,9 @@ public class OidcAuthModule implements ServerAuthModule {
     /**
      * used for unit-testing
      */
-    OidcAuthModule(IdTokenProvider tokenProvider, TokenLocator tokenLocator, Configuration loginConfiguration,
-            DelegatedProtectedResource delegatedProtectedResource) {
-        this.tokenProvider = tokenProvider;
+    OidcAuthModule(OpenAmTokenProvider tokenProvider, TokenLocator tokenLocator, Configuration loginConfiguration,
+                   DelegatedProtectedResource delegatedProtectedResource) {
+        this.openAmTokenProvider = tokenProvider;
         this.tokenLocator = tokenLocator;
         this.loginConfiguration = loginConfiguration;
         this.delegatedProtectedList = delegatedProtectedResource == null ? List.of() : List.of(delegatedProtectedResource);
@@ -125,6 +132,7 @@ public class OidcAuthModule implements ServerAuthModule {
         }
 
         if (FAILURE.equals(authStatus)) {
+            // Eventuell redirect til ekstern Login for å få id_token
             authStatus = responseUnAuthorized(messageInfo);
         }
 
@@ -165,35 +173,30 @@ public class OidcAuthModule implements ServerAuthModule {
 
     protected AuthStatus oidcLogin(MessageInfo messageInfo, Subject clientSubject, HttpServletRequest request) {
         // Get token
-        Optional<OidcTokenHolder> oidcToken = tokenLocator.getToken(request);
-        Optional<String> refreshToken = tokenLocator.getRefreshToken(request);
-
-        OidcTokenHolder tokenHolder;
-        if (oidcToken.isPresent()) {
-            tokenHolder = oidcToken.get();
-        } else {
+        var oidcToken = tokenLocator.getToken(request);
+        if (oidcToken.isEmpty()) {
             return FAILURE;
         }
+        var refreshToken = tokenLocator.getRefreshToken(request);
+        var configuration = oidcToken.flatMap(t -> ConfigProvider.getOpenIDConfiguration(JwtUtil.getIssuer(t.token())));
+        if (configuration.isEmpty()) {
+            return FAILURE;
+        }
+        var expiresAt = oidcToken.map(t -> JwtUtil.getExpirationTime(t.token())).orElseGet(() -> Instant.now().plusSeconds(300));
+        var token = new OpenIDToken(configuration.get().type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, oidcToken.get(), null,
+            refreshToken.orElseGet(() -> new TokenString(null)), expiresAt.toEpochMilli());
+
+        var refreshed = refreshCookieTokenVedBehov(request, token);
+        refreshed.ifPresent(r -> registerUpdatedTokenAtUserAgent(messageInfo, r));
+        token = refreshed.orElse(token);
 
         // Setup login context
-        LoginContext loginContext = createLoginContext(clientSubject, tokenHolder);
+        LoginContext loginContext = createLoginContext(clientSubject, token);
 
         // Do login
         try {
-            try {
-                loginContext.login();
-            } catch (CredentialExpiredException cee) { // NOSONAR
-                Optional<OidcTokenHolder> tokenRefreshed = idTokenRefreshed(tokenHolder, refreshToken);
-                if (tokenRefreshed.isPresent()) {
-                    OidcTokenHolder newToken = tokenRefreshed.get();
-                    LoginContext loginContextRefresh = createLoginContext(clientSubject, newToken);
-                    loginContextRefresh.login();
-                    registerUpdatedTokenAtUserAgent(messageInfo, newToken);
-                } else {
-                    return FAILURE;
-                }
-            }
-        } catch (LoginException le) {
+            loginContext.login();
+        } catch (LoginException e) {
             return FAILURE;
         }
 
@@ -201,21 +204,21 @@ public class OidcAuthModule implements ServerAuthModule {
         return handleValidatedToken(clientSubject, SubjectHandler.getUid(clientSubject));
     }
 
-    private Optional<OidcTokenHolder> idTokenRefreshed(OidcTokenHolder originalToken, Optional<String> refreshToken) {
-        if (refreshToken.isPresent()) {
-            Optional<OidcTokenHolder> nyttToken = tokenProvider.getToken(originalToken, refreshToken.get());
-            return nyttToken;
+    private Optional<OpenIDToken> refreshCookieTokenVedBehov(HttpServletRequest request, OpenIDToken token) {
+        if (OpenIDProvider.ISSO.equals(token.provider()) && openAmTokenProvider.isOpenAmTokenSoonExpired(token) && tokenLocator.isTokenFromCookie(request)
+            && Set.of(OidcLogin.LoginResult.SUCCESS, OidcLogin.LoginResult.ID_TOKEN_EXPIRED).contains(OidcLogin.validerToken(token).loginResult())) {
+            return openAmTokenProvider.refreshOpenAmIdToken(token);
         }
         return Optional.empty();
     }
 
-    private LoginContext createLoginContext(Subject clientSubject, OidcTokenHolder tokenHolder) {
+    private LoginContext createLoginContext(Subject clientSubject, OpenIDToken token) {
         class TokenCallbackHandler implements CallbackHandler {
             @Override
             public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
                 for (Callback callback : callbacks) {
                     if (callback instanceof TokenCallback tc) {
-                        tc.setToken(tokenHolder);
+                        tc.setToken(token);
                     } else {
                         // Should never happen
                         throw new UnsupportedCallbackException(callback, TokenCallback.class + " is the only supported Callback");
@@ -240,7 +243,7 @@ public class OidcAuthModule implements ServerAuthModule {
         messageInfo.setRequestMessage(new StatelessHttpServletRequest((HttpServletRequest) messageInfo.getRequestMessage()));
     }
 
-    private void registerUpdatedTokenAtUserAgent(MessageInfo messageInfo, OidcTokenHolder updatedIdToken) {
+    private void registerUpdatedTokenAtUserAgent(MessageInfo messageInfo, OpenIDToken updatedIdToken) {
         HttpServletResponse response = (HttpServletResponse) messageInfo.getResponseMessage();
         response.addCookie(lagCookie(ID_TOKEN_COOKIE_NAME, updatedIdToken.token(), "/", ServerInfo.instance().getCookieDomain()));
     }
@@ -287,6 +290,9 @@ public class OidcAuthModule implements ServerAuthModule {
         return authStatus;
     }
 
+    /*
+     * Dersom req med Bearer: 401, ellers redirect til OpenAm login
+     */
     protected AuthStatus responseUnAuthorized(MessageInfo messageInfo) {
         HttpServletRequest request = (HttpServletRequest) messageInfo.getRequestMessage();
         HttpServletResponse response = (HttpServletResponse) messageInfo.getResponseMessage();
@@ -297,7 +303,7 @@ public class OidcAuthModule implements ServerAuthModule {
                     || (authorizationHeader != null && authorizationHeader.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE))) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
             } else {
-                AuthorizationRequestBuilder builder = new AuthorizationRequestBuilder();
+                IssoAuthorizationRequestBuilder builder = new IssoAuthorizationRequestBuilder();
                 // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the
                 // state-cookie containing redirectURL shold be encrypted to avoid tampering)
                 response.addCookie(

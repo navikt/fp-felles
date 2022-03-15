@@ -2,24 +2,33 @@ package no.nav.vedtak.sikkerhet.context.containers;
 
 import javax.security.auth.Destroyable;
 
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+
 public class OidcCredential implements Destroyable {
     private boolean destroyed;
-    private String jwt;
+    private OpenIDToken openIDToken;
 
-    public OidcCredential(String jwt) {
-        this.jwt = jwt;
+    public OidcCredential(OpenIDToken openIDToken) {
+        this.openIDToken = openIDToken;
+    }
+
+    public OpenIDToken getOpenIDToken() {
+        if (destroyed) {
+            throw new IllegalStateException("This credential is no longer valid");
+        }
+        return openIDToken;
     }
 
     public String getToken() {
         if (destroyed) {
             throw new IllegalStateException("This credential is no longer valid");
         }
-        return jwt;
+        return openIDToken.token();
     }
 
     @Override
     public void destroy() {
-        jwt = null;
+        openIDToken = null;
         destroyed = true;
     }
 
@@ -33,7 +42,7 @@ public class OidcCredential implements Destroyable {
         if (destroyed) {
             return "OidcCredential[destroyed]";
         }
-        return "OidcCredential[" + this.jwt + "]";
+        return "OidcCredential[" + this.openIDToken.provider() + "," + this.openIDToken.expiresAt() + "]";
     }
 
 }

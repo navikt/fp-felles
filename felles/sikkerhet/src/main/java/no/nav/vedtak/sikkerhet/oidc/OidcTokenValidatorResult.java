@@ -1,17 +1,6 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-public class OidcTokenValidatorResult {
-    private final boolean isValid;
-    private final String errorMessage;
-    private final String subject;
-    private final long expSeconds;
-
-    private OidcTokenValidatorResult(boolean isValid, String errorMessage, String subject, long expSeconds) {
-        this.isValid = isValid;
-        this.errorMessage = errorMessage;
-        this.subject = subject;
-        this.expSeconds = expSeconds;
-    }
+public record OidcTokenValidatorResult(boolean isValid, String errorMessage, String subject, long expSeconds)  {
 
     public static OidcTokenValidatorResult invalid(String errorMessage) {
         return new OidcTokenValidatorResult(false, errorMessage, null, 0);
@@ -19,10 +8,6 @@ public class OidcTokenValidatorResult {
 
     public static OidcTokenValidatorResult valid(String subject, long expSeconds) {
         return new OidcTokenValidatorResult(true, null, subject, expSeconds);
-    }
-
-    public boolean isValid() {
-        return isValid;
     }
 
     public String getErrorMessage() {

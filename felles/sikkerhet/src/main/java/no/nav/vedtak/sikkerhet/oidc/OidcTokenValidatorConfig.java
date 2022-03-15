@@ -4,11 +4,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 public class OidcTokenValidatorConfig {
 
     private static volatile OidcTokenValidatorConfig instance; // NOSONAR
-    private final Map<String, OidcTokenValidator> validators;
+    private final Map<OpenIDProvider, OidcTokenValidator> validators;
 
     private OidcTokenValidatorConfig() {
         this.validators = new LinkedHashMap<>();
@@ -24,18 +25,18 @@ public class OidcTokenValidatorConfig {
     }
 
     // For test
-    static void addValidator(String issuer, OidcTokenValidator validator) {
+    static void addValidator(OpenIDProvider provider, OidcTokenValidator validator) {
         instance = new OidcTokenValidatorConfig();
-        instance.validators.put(issuer, validator);
+        instance.validators.put(provider, validator);
     }
 
-    public OidcTokenValidator getValidator(String issuer) {
-        var validator = validators.get(issuer);
+    public OidcTokenValidator getValidator(OpenIDProvider provider) {
+        var validator = validators.get(provider);
         if (validator == null) {
-            var cfg = ConfigProvider.getOpenIDConfiguration(issuer);
+            var cfg = ConfigProvider.getOpenIDConfiguration(provider);
             validator = cfg.map(OidcTokenValidator::new).orElse(null);
             if (validator != null) {
-                validators.put(issuer, validator);
+                validators.put(provider, validator);
             }
         }
         return validator;
