@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.val;
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.Namespace;
@@ -18,7 +17,7 @@ public class TokenXAudienceGenerator {
     public TokenXAudience audience(URI uri) {
         LOG.trace("Utleder audience for {}", uri);
         String host = uri.getHost();
-        val elems = host.split("\\.");
+        var elems = host.split("\\.");
 
         if (elems.length == 1) {
             return new TokenXAudience(cluster(host), ENV.getNamespace(), elems[0]);
@@ -32,6 +31,6 @@ public class TokenXAudienceGenerator {
     private Cluster cluster(String key) {
         return Optional.ofNullable(ENV.getProperty(key))
                 .map(Cluster::of)
-                .orElseGet(() -> ENV.getCluster());
+                .orElseGet(ENV::getCluster);
     }
 }
