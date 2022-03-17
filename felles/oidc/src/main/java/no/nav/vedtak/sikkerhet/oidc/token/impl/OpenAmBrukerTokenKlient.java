@@ -50,6 +50,9 @@ public class OpenAmBrukerTokenKlient {
         var request = lagRequest(clientName, data);
         var response = GeneriskTokenKlient.hentToken(request, null);
         LOG.info("ISSO hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
+        if (response.token_type() == null || response.expires_in() == null) {
+            return Optional.empty();
+        }
         var token = new OpenIDToken(OpenIDProvider.ISSO, response.token_type(), new TokenString(response.id_token()),
             SCOPE, new TokenString(response.refresh_token()), response.expires_in());
         return Optional.of(token);
