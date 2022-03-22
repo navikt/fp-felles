@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.vedtak.exception.TekniskException;
 
-@Deprecated // Bruk no.nav.vedtak.mapper.json.DefaultJsonMapper
+@Deprecated(forRemoval = true) // Bruk no.nav.vedtak.mapper.json.DefaultJsonMapper
 public class DefaultJsonMapper {
 
     private DefaultJsonMapper() {

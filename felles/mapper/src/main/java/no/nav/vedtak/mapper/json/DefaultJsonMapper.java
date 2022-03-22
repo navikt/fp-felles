@@ -29,16 +29,17 @@ public class DefaultJsonMapper {
     }
 
     private static ObjectMapper createObjectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new Jdk8Module());
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.setTimeZone(TimeZone.getTimeZone("Europe/Oslo"));
-        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
-        return mapper;
+        return new ObjectMapper()
+            .registerModule(new Jdk8Module())
+            .registerModule(new JavaTimeModule())
+            .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
     }
 
     public static <T> List<T> fromJson(String json, TypeReference<List<T>> typeReference) {

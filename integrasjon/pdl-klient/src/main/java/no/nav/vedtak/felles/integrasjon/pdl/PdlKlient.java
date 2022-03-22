@@ -1,12 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
-import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY;
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.LOWER_CAMEL_CASE;
-import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS;
 import static org.apache.http.HttpStatus.SC_ACCEPTED;
 import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.apache.http.HttpStatus.SC_NOT_MODIFIED;
@@ -16,7 +9,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -28,8 +20,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
@@ -56,10 +46,11 @@ import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
 import no.nav.vedtak.felles.integrasjon.rest.StsStandardXtraTokenRestKlient;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 public class PdlKlient implements Pdl {
-    private static final ObjectMapper MAPPER = mapper();
+    private static final ObjectMapper MAPPER = DefaultJsonMapper.getObjectMapper();
     @Deprecated(forRemoval = true, since = "3.0.x")
     public static final String PDL_KLIENT_NOT_FOUND_KODE = Pdl.PDL_KLIENT_NOT_FOUND_KODE;
     private static final List<Integer> HTTP_KODER_TOM_RESPONS = List.of(SC_NOT_MODIFIED, SC_NO_CONTENT, SC_ACCEPTED);
@@ -156,20 +147,6 @@ public class PdlKlient implements Pdl {
         } catch (IOException e) {
             throw new IntegrasjonException(PDL_IO_EXCEPTION, "IO-exception", e);
         }
-    }
-
-    private static ObjectMapper mapper() {
-        return new ObjectMapper()
-                .registerModule(new Jdk8Module())
-                .registerModule(new JavaTimeModule())
-                .setPropertyNamingStrategy(LOWER_CAMEL_CASE)
-                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-                .disable(WRITE_DATES_AS_TIMESTAMPS)
-                .disable(WRITE_DURATIONS_AS_TIMESTAMPS)
-                .disable(FAIL_ON_EMPTY_BEANS)
-                .configure(WRITE_BIGDECIMAL_AS_PLAIN, true)
-                .enable(FAIL_ON_READING_DUP_TREE_KEY)
-                .enable(FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     @Override
