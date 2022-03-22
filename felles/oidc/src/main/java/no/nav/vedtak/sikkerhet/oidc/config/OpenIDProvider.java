@@ -5,6 +5,5 @@ public enum OpenIDProvider {
     STS,
     AZUREAD,
     TOKENX,
-    LOGINSERVICE,
     IDPORTEN
 }

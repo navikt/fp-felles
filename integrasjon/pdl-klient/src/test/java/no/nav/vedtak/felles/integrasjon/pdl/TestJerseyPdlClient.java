@@ -80,7 +80,6 @@ class TestJerseyPdlClient {
     private static final String FOR = Tema.FOR.name();
     private static final String SYSTEMTOKEN = "SYSTEMTOKEN";
     private static final String TOKENXTOKEN = "eyJraWQiOiI3Mzk2ZGIyZC1hN2MyLTQ1OGEtYjkzNC02ODNiNDgzYzUyNDIiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdF9oYXNoIjoiRzJ1Zl83OW1TTUhHSWFfNjFxTnJfUSIsInN1YiI6IjA5MDg4NDIwNjcyIiwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6XC9cL3Rva2VuZGluZ3MuZGV2LWdjcC5uYWlzLmlvIiwibm9uY2UiOiJWR1dyS1Zsa3RXZ3hCdTlMZnNnMHliMmdMUVhoOHRaZHRaVTJBdWdPZVl3IiwiY2xpZW50X2lkIjoiZGV2LWZzczp0ZWFtZm9yZWxkcmVwZW5nZXI6ZnBzb2tuYWQtbW90dGFrIiwiYXVkIjoiZGV2LWZzczp0ZWFtZm9yZWxkcmVwZW5nZXI6ZnBpbmZvIiwiYWNyIjoiTGV2ZWw0IiwibmJmIjoxNjE2Njg1NDA0LCJpZHAiOiJodHRwczpcL1wvbmF2dGVzdGIyYy5iMmNsb2dpbi5jb21cL2QzOGYyNWFhLWVhYjgtNGM1MC05ZjI4LWViZjkyYzEyNTZmMlwvdjIuMFwvIiwiYXV0aF90aW1lIjoxNjE2Njg1NDAyLCJleHAiOjE2MTY2ODU3MDQsImlhdCI6MTYxNjY4NTQwNCwianRpIjoiNGMwNzBmMGUtNzI0Ny00ZTdjLWE1OWEtYzk2Yjk0NWMxZWZhIn0.OvzjuabvPHG9nlRVc_KlCUTHOdfeT9GtBkASUGIoMayWGeIBDkr4-jc9gu6uT_WQqi9IJnvPkWgP3veqYHcOHpapD1yVNaQpxlrJQ04yP6N3gvkn-DcrBRDb3II_6qSaPQ_us2PJBDPq2VD5TGrNOL6EFwr8FK3zglYr-PgjW016ULTcmx_7gdHmbiC5PEn1_OtGNxzoUhSGKoD3YtUWP0qdsXzoKyeFL5FG9uZMSrDHHiJBZQFXGL9OzBU49Zb2K-iEPqa9m91O2JZGkhebfLjCAIPLPN4J68GFyfTvtNkZO71znorjo-e1nWxz53Wkj---RDY3JlIqNqzqHTfJgQ";
-    private static final String LOGINSERVICETOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImZ5akpfczQwN1ZqdnRzT0NZcEItRy1IUTZpYzJUeDNmXy1JT3ZqVEFqLXcifQ.eyJleHAiOjE2MjA4NTQxNjksIm5iZiI6MTYyMDg1MDU2OSwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9uYXZ0ZXN0YjJjLmIyY2xvZ2luLmNvbS9kMzhmMjVhYS1lYWI4LTRjNTAtOWYyOC1lYmY5MmMxMjU2ZjIvdjIuMC8iLCJzdWIiOiIwMzEyNzgyMjQ0MCIsImF1ZCI6IjAwOTBiNmUxLWZmY2MtNGMzNy1iYzIxLTA0OWY3ZDFmMGZlNSIsImFjciI6IkxldmVsNCIsIm5vbmNlIjoid09qVHBNc3pvNnpHMS11VFFBNlBLSlc1WTVDTTZfSEVPWmt2OWpOaVFzOCIsImlhdCI6MTYyMDg1MDU2OSwiYXV0aF90aW1lIjoxNjIwODUwNTY4LCJqdGkiOiJKYW4tT2xhdi5FaWRlQG5hdi5ubzpkYjBjNjAwMy0zYjkyLTQzODItODM3YS03ZGU5ODNkOGIzOTAiLCJhdF9oYXNoIjoidUI4N2tvcnBObk9zRm9KSEFzLUd6QSJ9.sWqGd0YLcAU18aDcO39SoK0i6GOxUC30S-Mg1nQq11t2s3V7NVhyjqBQyiD6goqcWBiLpNCiNBYpV2RllEf39ZPJzsu_E52jUJfMqd6XAY_xQ7_v1b8IvIGGMPbC-a84ss22K5ILXXfoiwnFE4D1u95tYnrLU5rQVT56I-Zc5t9s6nUTPsPFE1ISbVglWkbEHerVwlPxB7fHxo_7KvL0XaK6HF4WdEYxb7L4D-NfyLJoYKVYn38Z49fl36eEvfYf4Go-t0V5mNhCkjTFtLjztabhRWWH8szY51e1a8QMpp6SwwLxIZJtT0z6VKahK7LRE98qfshaEIn5YL7HtFGYAg";
     private static final String GRAPHQL = "/graphql";
     private Pdl legacyClient;
     private Pdl tokenXClient;
@@ -184,17 +183,17 @@ class TestJerseyPdlClient {
 
     @Test
     @DisplayName("Test at Authorization,Nav-Consumer-Token, Nav-Consumer-Id og Tema alle blir satt tester også cache")
-    void testPersonAuthWithLoginServiceToken() throws Exception {
-        doReturn(LOGINSERVICETOKEN).when(sts).accessToken();
+    void testPersonAuthWithTokenXToken() throws Exception {
+        doReturn(TOKENXTOKEN).when(sts).accessToken();
         doReturn(SYSTEMTOKEN).when(sts).systemToken();
         legacyClient = new JerseyPdlKlient(URI, new StsAccessTokenClientRequestFilter(sts, FOR));
-        doReturn(new OpenIDToken(OpenIDProvider.LOGINSERVICE, new TokenString(LOGINSERVICETOKEN))).when(subjectHandler).getOpenIDToken();
+        doReturn(new OpenIDToken(OpenIDProvider.TOKENX, new TokenString(TOKENXTOKEN))).when(subjectHandler).getOpenIDToken();
         try (var s = mockStatic(SubjectHandler.class)) {
             s.when(SubjectHandler::getSubjectHandler).thenReturn(subjectHandler);
             stubFor(post(urlPathEqualTo(GRAPHQL))
                     .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
                     .withHeader(AUTHORIZATION, containing(OIDC_AUTH_HEADER_PREFIX))
-                    .withHeader(AUTHORIZATION, containing(LOGINSERVICETOKEN))
+                    .withHeader(AUTHORIZATION, containing(TOKENXTOKEN))
                     .withHeader(NAV_CONSUMER_TOKEN_HEADER, containing(OIDC_AUTH_HEADER_PREFIX))
                     .withHeader(NAV_CONSUMER_TOKEN_HEADER, containing(SYSTEMTOKEN))
                     .withHeader(TEMA, equalTo(FOR))
