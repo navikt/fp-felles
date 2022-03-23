@@ -39,9 +39,6 @@ public final class OidcProviderConfig {
     private static final String STS_CONFIG_JWKS_URI = "oidc.sts.openid.config.jwks.uri";
     private static final String STS_CONFIG_TOKEN_ENDPOINT = "oidc.sts.openid.config.token.endpoint";
 
-    private static final String LOGINSERVICE_IDPORTEN_DISCOVERY_URL = "loginservice.idporten.discovery.url"; // naiserator
-    private static final String LOGINSERVICE_CLIENT_ID = "loginservice.idporten.audience"; // naiserator
-
     private static final String AZURE_WELL_KNOWN_URL = "azure.app.well.known.url"; // naiserator
     private static final String AZURE_CONFIG_ISSUER = "azure.openid.config.issuer"; // naiserator
     private static final String AZURE_CONFIG_JWKS_URI = "azure.openid.config.jwks.uri"; // naiserator
@@ -112,13 +109,6 @@ public final class OidcProviderConfig {
         if (azureKonfigUrl != null) {
             LOG.debug("Oppretter AzureAD konfig fra '{}'", azureKonfigUrl);
             idProviderConfigs.add(createAzureAppConfiguration(azureKonfigUrl));
-        }
-
-        // Loginservice
-        var loginserviceKonfigUrl = ENV.getProperty(LOGINSERVICE_IDPORTEN_DISCOVERY_URL);
-        if (loginserviceKonfigUrl != null) {
-            LOG.debug("Oppretter Loginservice konfig fra '{}'", loginserviceKonfigUrl);
-            idProviderConfigs.add(createLoginServiceConfiguration(loginserviceKonfigUrl));
         }
 
         // TokenX
@@ -197,19 +187,6 @@ public final class OidcProviderConfig {
             ENV.getRequiredProperty(AZURE_CLIENT_ID),
             null,
             true);
-    }
-
-    private static OpenIDConfiguration createLoginServiceConfiguration(String wellKnownUrl) {
-        var useProxy = ENV.isLocal() ? null : URI.create(getDefaultProxy());
-        return createConfiguration(OpenIDProvider.LOGINSERVICE,
-            getIssuerFra(wellKnownUrl, useProxy).orElseThrow(),
-            getJwksFra(wellKnownUrl, useProxy).orElseThrow(),
-            getTokenEndpointFra(wellKnownUrl, useProxy).orElse(null),
-            getAuthorizationEndpointFra(wellKnownUrl).orElse(null),
-            !ENV.isLocal(), useProxy,
-            ENV.getRequiredProperty(LOGINSERVICE_CLIENT_ID),
-            null,
-            false);
     }
 
     private static OpenIDConfiguration createTokenXConfiguration(String wellKnownUrl) {
