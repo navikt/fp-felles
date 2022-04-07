@@ -17,4 +17,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           command: monitor
-          args: --org=teamforeldrepenger -- -s .github/.m2/settings.xml --all-projects --remote-repo-url=https://github.com/${{ github.repository }}.git
+          args: --org=teamforeldrepenger -- -s ./.m2/settings.xml --all-projects --remote-repo-url=https://github.com/${{ github.repository }}.git
