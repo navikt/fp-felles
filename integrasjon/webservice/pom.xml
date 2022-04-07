@@ -13,6 +13,10 @@
     <packaging>jar</packaging>
     <name>Felles :: Integrasjon :: WebService</name>
 
+    <properties>
+        <cxf.version>3.5.1</cxf.version>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
