@@ -8,6 +8,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Bygg og install
+        shell: bash
+        run: |
+          echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
+          mvn install -e --batch-mode --settings ./.m2/settings.xml -DtrimStackTrace=false
+          echo "Bygget og testet OK"
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/maven@master
         env:
@@ -17,4 +29,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           command: monitor
-          args: --org=teamforeldrepenger -- --settings ./.m2/settings.xml
+          args: --org=teamforeldrepenger --all-projects -- --settings ./.m2/settings.xml
