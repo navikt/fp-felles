@@ -7,8 +7,3 @@ queries:
     uses: security-extended
   - name: Security and Quality
     uses: security-and-quality
-
-paths-ignore:
-  - '**/src/test/**'
-  - 'src/test/**'
-  - '**/testutilities/**'
