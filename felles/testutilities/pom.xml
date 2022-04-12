@@ -17,7 +17,11 @@
 			<groupId>no.nav.foreldrepenger.felles</groupId>
 			<artifactId>felles-db</artifactId>
 		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+        </dependency>
+        <dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 			<scope>compile</scope>
