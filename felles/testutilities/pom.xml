@@ -26,9 +26,5 @@
 			<artifactId>junit-jupiter-api</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-			<groupId>jakarta.persistence</groupId>
-			<artifactId>jakarta.persistence-api</artifactId>
-		</dependency>
 	</dependencies>
 </project>
