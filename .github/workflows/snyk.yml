@@ -9,24 +9,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - uses: snyk/actions/setup@master
 
-      - name: Create snyk-settings.xml
+      - name: Create settings.xml
         uses: whelk-io/maven-settings-xml-action@v20
         with:
           repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/fp-felles", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }]'
-          output_file: snyk-settings.xml
-
-      - name: Run Snyk
-        continue-on-error: true
-        uses: snyk/actions/maven@master
-        with:
-          command: monitor
-          args: |
-            --org=teamforeldrepenger
-            --all-projects
-            --configuration-attributes=usage:java-runtime
-            --remote-repo-url=https://github.com/${{ github.repository }}.git
-            -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
+          output_file: settings.xml
+          
+      - name: Run mvn clean install
+        run: mvn clean install -B -s settings.xml -DskipTests
+      
+      - name: Run Snyk monitor
+        run: >
+          snyk monitor
+          --org=teamforeldrepenger
+          --all-projects
+          --configuration-attributes=usage:java-runtime
+          --remote-repo-url=https://github.com/${{ github.repository }}.git
+          -- -s settings.xml
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
