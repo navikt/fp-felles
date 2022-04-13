@@ -1,37 +1,31 @@
-name: Vulnerabilities scanning of dependencies
+name: Snyk vulnerabilities scanning of dependencies
 on:
   schedule:
     - cron:  '0 0 * * 1'
   workflow_dispatch:
+  
 jobs:
-  security:
+  snyk:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          check-latest: true
-      - name: Bygg og install
-        shell: bash
-        run: |
-          echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn install -e --batch-mode --settings ./.m2/settings.xml -DtrimStackTrace=false
-          echo "Bygget og testet OK"
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Snyk to check for vulnerabilities
+      - name: Create snyk-settings.xml
+        uses: whelk-io/maven-settings-xml-action@v20
+        with:
+          repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/fp-felles", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GH_ACCESS_TOKEN }}" }]'
+          output_file: snyk-settings.xml
+
+      - name: Run Snyk
         uses: snyk/actions/maven@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JAVA_HOME: /usr/local/openjdk-11
         with:
           command: monitor
-          args: --org=teamforeldrepenger --all-projects -- --settings ./.m2/settings.xml
+          args: |
+            --org=teamforeldrepenger
+            --all-projects
+            --configuration-attributes=usage:java-runtime
+            --remote-repo-url=https://github.com/${{ github.repository }}.git
+            -- --settings snyk-settings.xml
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
