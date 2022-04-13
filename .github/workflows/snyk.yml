@@ -18,6 +18,7 @@ jobs:
           output_file: snyk-settings.xml
 
       - name: Run Snyk
+        continue-on-error: true
         uses: snyk/actions/maven@master
         with:
           command: monitor
@@ -26,6 +27,6 @@ jobs:
             --all-projects
             --configuration-attributes=usage:java-runtime
             --remote-repo-url=https://github.com/${{ github.repository }}.git
-            -- --settings snyk-settings.xml
+            -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
