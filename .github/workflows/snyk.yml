@@ -14,7 +14,7 @@ jobs:
         uses: whelk-io/maven-settings-xml-action@v20
         with:
           repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/fp-felles", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GH_ACCESS_TOKEN }}" }]'
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }]'
           output_file: snyk-settings.xml
 
       - name: Run Snyk
