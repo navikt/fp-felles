@@ -13,6 +13,13 @@ jobs:
         with:
           ref: 'master'
 
+      - name: Setup maven
+        uses: whelk-io/maven-settings-xml-action@v20
+        with:
+          repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
+          output_file: settings.xml
+
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -27,5 +34,5 @@ jobs:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mvn -B --settings .github/.m2/settings.xml versions:set -DnewVersion=${NEW_VERSION}
-          mvn -B --settings .github/.m2/settings.xml clean deploy
+          mvn -B -s settings.xml versions:set -DnewVersion=${NEW_VERSION}
+          mvn -B -s settings.xml clean deploy

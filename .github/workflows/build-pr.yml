@@ -16,17 +16,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: Setup maven
+        uses: whelk-io/maven-settings-xml-action@v20
+        with:
+          repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }]'
+          output_file: settings.xml
+
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
           check-latest: true
           cache: 'maven'
+
       - name: Build
         shell: bash
         run: |
           echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn test -e --batch-mode --settings .github/.m2/settings.xml -DtrimStackTrace=false
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          mvn test -e -B -s settings.xml -DtrimStackTrace=false
