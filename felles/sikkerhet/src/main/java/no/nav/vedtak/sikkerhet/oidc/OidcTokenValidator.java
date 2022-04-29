@@ -1,7 +1,9 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
+import java.net.URI;
 import java.security.Key;
 import java.util.List;
+import java.util.Optional;
 
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.MalformedClaimException;
@@ -90,7 +92,11 @@ public class OidcTokenValidator {
             if (error != null) {
                 return OidcTokenValidatorResult.invalid(error);
             }
-            return OidcTokenValidatorResult.valid(claims.getSubject(), claims.getExpirationTime().getValue());
+            String subject = claims.getSubject();
+            if (erTokenX(claims)) {
+                subject = Optional.ofNullable(claims.getStringClaimValue("pid")).orElse(subject);
+            }
+            return OidcTokenValidatorResult.valid(subject, claims.getExpirationTime().getValue());
         } catch (InvalidJwtException e) {
             return OidcTokenValidatorResult.invalid(e.toString());
         } catch (MalformedClaimException e) {
@@ -111,6 +117,14 @@ public class OidcTokenValidator {
             return "Either an azp-claim or a single value aud-claim is required";
         }
         return null;
+    }
+
+    private boolean erTokenX(JwtClaims claims) {
+        try {
+            return URI.create(claims.getIssuer()).getHost().contains("tokendings");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private JwtHeader getHeader(String jwt) throws InvalidJwtException {
