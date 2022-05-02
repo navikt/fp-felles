@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.OpenAmProperties;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
@@ -40,7 +41,7 @@ public class OidcTokenValidatorTest {
         WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + OpenAmProperties.WELL_KNOWN_ENDPOINT, JsonUtil.toJson(testData));
         System.setProperty(OidcProviderConfig.OPEN_AM_CLIENT_ID, "OIDC");
         System.setProperty(OpenAmProperties.OPEN_ID_CONNECT_ISSO_ISSUER, OidcTokenGenerator.ISSUER);
-        tokenValidator = new OidcTokenValidator(new JwksKeyHandlerFromString(KeyStoreTool.getJwks()));
+        tokenValidator = new OidcTokenValidator(OpenIDProvider.ISSO, new JwksKeyHandlerFromString(KeyStoreTool.getJwks()));
     }
 
     @Test
@@ -142,7 +143,7 @@ public class OidcTokenValidatorTest {
 
         var token = new OidcTokenGenerator().createHeaderTokenHolder();
 
-        OidcTokenValidator tokenValidator = new OidcTokenValidator(new JwksKeyHandlerFromString(
+        OidcTokenValidator tokenValidator = new OidcTokenValidator(OpenIDProvider.ISSO, new JwksKeyHandlerFromString(
                 "{\"keys\":[{\"kty\":\"RSA\",\"kid\":\"1\",\"use\":\"sig\",\"alg\":\"RS256\",\"n\":\"AM2uHZfbHbDfkCTG8GaZO2zOBDmL4sQgNzCSFqlQ-ikAwTV5ptyAHYC3JEy_LtMcRSv3E7r0yCW_7WtzT-CgBYQilb_lz1JmED3TgiThEolN2kaciY06UGycSj8wEYik-3PxuVeKr3uw6LVEohM3rrCjdlkQ_jctuvuUrCedbsb2hVw6Q17PQbWURq8v3gtXmGMD8KcR7e0dtf0ZoMOfZQoFJZ-a5dMFzXeP8Ffz_c0uBLSddd-FqOhzVDiMbvFI9XKE22TWghYanPpPsGGZYioQbJfu5VtphR6zNjiUp9O4lA_qEkbBpRA8SaUTCz3PcirFYDg0zvV8p2hgY9jyCj0\",\"e\":\"AQAB\"}]}"));
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertInvalid(result, "JWT rejected due to invalid signature");
@@ -177,14 +178,14 @@ public class OidcTokenValidatorTest {
     @Disabled("should fix test or use a proper framework, if setWellKnown contains errors it will be throwed before assertions")
     public void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_issuer() throws Exception {
         WellKnownConfigurationHelper.setWellKnownConfig("openAm", "{}");
-        var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(new JwksKeyHandlerFromString(KeyStoreTool.getJwks())));
+        var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(OpenIDProvider.ISSO, new JwksKeyHandlerFromString(KeyStoreTool.getJwks())));
         assertTrue(e.getMessage().contains("Expected issuer must be configured"));
     }
 
     @Test
     public void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_audience() throws Exception {
         System.clearProperty(OidcProviderConfig.OPEN_AM_CLIENT_ID);
-        var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(new JwksKeyHandlerFromString(KeyStoreTool.getJwks())));
+        var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(OpenIDProvider.ISSO, new JwksKeyHandlerFromString(KeyStoreTool.getJwks())));
         assertTrue(e.getMessage().contains("Expected audience must be configured"));
     }
 

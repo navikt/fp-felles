@@ -16,11 +16,13 @@ import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandler;
 import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.jwks.JwtHeader;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.OpenAmProperties;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public class OidcTokenValidator {
 
+    private final OpenIDProvider provider;
     private final String expectedIssuer;
     private final String clientName;
     private final JwksKeyHandler jwks;
@@ -28,13 +30,13 @@ public class OidcTokenValidator {
     private final boolean skipAudienceValidation;
 
     public OidcTokenValidator(OpenIDConfiguration config) {
-        this(config.issuer().toString(), new JwksKeyHandlerImpl(config.jwksUri(), config.useProxyForJwks(), config.proxy()),
+        this(config.type(), config.issuer().toString(), new JwksKeyHandlerImpl(config.jwksUri(), config.useProxyForJwks(), config.proxy()),
             config.clientId(), 30, config.skipAudienceValidation());
     }
 
     // Skal bare brukes direkte fra tester, prod-kode skal kalle public constructors
-    OidcTokenValidator(JwksKeyHandler keyHandler) {
-        this(OpenAmProperties.getIssoIssuerUrl(), keyHandler, OpenAmProperties.getIssoUserName(), 30, true);
+    OidcTokenValidator(OpenIDProvider provider, JwksKeyHandler keyHandler) {
+        this(provider, OpenAmProperties.getIssoIssuerUrl(), keyHandler, OpenAmProperties.getIssoUserName(), 30, true);
 
         if (this.expectedIssuer == null) {
             throw new IllegalStateException("Expected issuer must be configured.");
@@ -45,8 +47,9 @@ public class OidcTokenValidator {
 
     }
 
-    private OidcTokenValidator(String expectedIssuer, JwksKeyHandler jwks, String clientName, int allowedClockSkewInSeconds,
+    private OidcTokenValidator(OpenIDProvider provider, String expectedIssuer, JwksKeyHandler jwks, String clientName, int allowedClockSkewInSeconds,
             boolean skipAudienceValidation) {
+        this.provider = provider;
         this.expectedIssuer = expectedIssuer;
         this.jwks = jwks;
         this.clientName = clientName;
@@ -93,7 +96,7 @@ public class OidcTokenValidator {
                 return OidcTokenValidatorResult.invalid(error);
             }
             String subject = claims.getSubject();
-            if (erTokenX(claims)) {
+            if (OpenIDProvider.TOKENX.equals(provider)) {
                 subject = Optional.ofNullable(claims.getStringClaimValue("pid")).orElse(subject);
             }
             return OidcTokenValidatorResult.valid(subject, claims.getExpirationTime().getValue());
@@ -117,14 +120,6 @@ public class OidcTokenValidator {
             return "Either an azp-claim or a single value aud-claim is required";
         }
         return null;
-    }
-
-    private boolean erTokenX(JwtClaims claims) {
-        try {
-            return URI.create(claims.getIssuer()).getHost().contains("tokendings");
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     private JwtHeader getHeader(String jwt) throws InvalidJwtException {
