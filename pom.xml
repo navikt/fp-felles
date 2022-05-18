@@ -27,7 +27,7 @@
 		<mockito.version>4.5.1</mockito.version>
 		<assertj.version>3.22.0</assertj.version>
 		<no.nav.security.version>2.0.20</no.nav.security.version>
-        <micrometer.version>1.8.5</micrometer.version>
+        <micrometer.version>1.9.0</micrometer.version>
 		<additionalparam>-Xdoclint:none</additionalparam>
 		<argLine>-Dfile.encoding=UTF-8</argLine>
 	</properties>
