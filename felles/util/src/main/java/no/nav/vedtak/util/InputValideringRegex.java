@@ -6,23 +6,21 @@ public class InputValideringRegex {
 
     private static final String ALFABET_ENGELSK = "a-zA-Z";
     private static final String ALFABET_NORSK = ALFABET_ENGELSK + "æøåÆØÅ";
-    private static final String ALFABET_SAMISK = "AaÁáBbCcČčDdĐđEeFfGgHhIiJjKkLlMmNnŊŋOoPpRrSsŠšTtŦŧUuVvZzŽž";
-    private static final String AKSENTER_NORSKE = "éôèÉ";
-    private static final String AKSENTER_ANDRE_AKTUELLE = "öüäÖÜÄ";
-    private static final String ANDRE_TEGN_NAVN = " .'\\-"; // eksempler: Jan-Ole O'Brian Jr.
-    private static final String ANDRE_TEGN_ADRESSE = "/\n"; // eksempler: c/o
+    private static final String ALFABET_ALLE = "\\p{L}";
     private static final String TALL = "0-9";
+    private static final String ANDRE_TEGN_NAVN = "\\p{Blank}.'\\-\\–"; // eksempler: Jan-Ole O'Brian Jr.
+    private static final String ANDRE_TEGN_ADRESSE = "/\\p{Space}"; // eksempler: c/o
 
-    private static final String TEGN_NAVN = TALL + ALFABET_NORSK + ALFABET_SAMISK + AKSENTER_NORSKE + AKSENTER_ANDRE_AKTUELLE + ANDRE_TEGN_NAVN; //TODO bør fjerne tall, men syntetiske brukere i test har tall her
-    private static final String TEGN_ADRESSE = TEGN_NAVN + ANDRE_TEGN_ADRESSE;
-    private static final String TEGN_FRITEKST = TEGN_ADRESSE + "%§\\!?@_()+:;,=\"&";
+    private static final String TEGN_NAVN = ALFABET_ALLE + ANDRE_TEGN_NAVN;
+    private static final String TEGN_ADRESSE = TEGN_NAVN + TALL + ANDRE_TEGN_ADRESSE;
+    private static final String TEGN_FRITEKST = TEGN_ADRESSE + "%§\\!?@_()+:;,=\"&\\p{Sc}";
 
     /**
      * Bruk dette mønsteret for å validere koder i kodeverk.
      * <p>
      * Koder i kodeverk forventers å være kombinasjon av tall, bokstaver, underscore og bindestrek.
      */
-    public static final String KODEVERK = REGEXP_START + ALFABET_NORSK +"_\\-" + TALL + REGEXP_SLUTT; //TODO Bør fjerne æøåÆØÅ fra kodeverk, men det er i bruk nå
+    public static final String KODEVERK = REGEXP_START + ALFABET_NORSK +"_\\-\\–" + TALL + REGEXP_SLUTT; //TODO Bør fjerne æøåÆØÅ fra kodeverk, men det er i bruk nå
 
     /**
      * Bruk dette mønsteret for å validere navn på personer eller enheter.
