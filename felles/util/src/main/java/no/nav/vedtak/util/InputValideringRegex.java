@@ -7,12 +7,12 @@ public class InputValideringRegex {
     private static final String ALFABET_ENGELSK = "a-zA-Z";
     private static final String ALFABET_NORSK = ALFABET_ENGELSK + "æøåÆØÅ";
     private static final String ALFABET_ALLE = "\\p{L}";
-    private static final String TALL = "\\p{Digit}";
+    private static final String TALL = "0-9";
     private static final String ANDRE_TEGN_NAVN = "\\p{Blank}.'\\-\\–"; // eksempler: Jan-Ole O'Brian Jr.
     private static final String ANDRE_TEGN_ADRESSE = "/\\p{Space}"; // eksempler: c/o
 
-    private static final String TEGN_NAVN = TALL + ALFABET_ALLE + ANDRE_TEGN_NAVN; //TODO bør fjerne tall, men syntetiske brukere i test har tall her
-    private static final String TEGN_ADRESSE = TEGN_NAVN + ANDRE_TEGN_ADRESSE;
+    private static final String TEGN_NAVN = ALFABET_ALLE + ANDRE_TEGN_NAVN;
+    private static final String TEGN_ADRESSE = TEGN_NAVN + TALL + ANDRE_TEGN_ADRESSE;
     private static final String TEGN_FRITEKST = TEGN_ADRESSE + "%§\\!?@_()+:;,=\"&\\p{Sc}";
 
     /**

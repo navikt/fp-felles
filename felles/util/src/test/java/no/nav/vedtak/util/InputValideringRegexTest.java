@@ -20,11 +20,14 @@ public class InputValideringRegexTest {
         assertThat("Åsne").matches(NAVN);
 
         // for å enklere teste, bør antagelig fjernes
-        assertThat("Andersen Syntetisk 134").matches(NAVN);
+        assertThat("Andersen Syntetisk 134").doesNotMatch(NAVN);
 
         // samisk navn
         assertThat("Áigesárri").matches(NAVN);
         assertThat("Bážá").matches(NAVN);
+
+        // Polsk bonanza
+        assertThat("Zażółć gęślą jaźń").matches(NAVN);
     }
 
     @Test
@@ -35,7 +38,7 @@ public class InputValideringRegexTest {
 
     @Test
     public void skal_matche_adreser() throws Exception {
-        assertThat("Kari Normann\nParkveien 1\n0141 OSLO").matches(ADRESSE);
+        assertThat("Kari Normann\n\tParkveien 1\n0141 OSLO").matches(ADRESSE);
         assertThat("Mc'Donald\nc/o Kari Normann\nParkveien 1\n4124 Bærum verk\nNORGE").matches(ADRESSE);
     }
 
