@@ -17,8 +17,8 @@ import org.slf4j.MDC;
 public class MdcExtendedLogContext {
 
     private static final Pattern ILLEGAL_CHARS = Pattern.compile("[\\[\\];=]");
-    private String paramName;
-    private String baseFormat;
+    private final String paramName;
+    private final String baseFormat;
 
     public MdcExtendedLogContext(String paramName) {
         Objects.requireNonNull(paramName, "paramName");
@@ -110,7 +110,6 @@ public class MdcExtendedLogContext {
             return Collections.emptyList();
         }
         String content = orgValue.substring(paramName.length() + 1, orgValue.length() - 1);
-        List<String> contentList = new ArrayList<>(Arrays.asList(content.split(";")));
-        return contentList;
+        return new ArrayList<>(Arrays.asList(content.split(";")));
     }
 }
