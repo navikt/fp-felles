@@ -5,7 +5,6 @@ import java.util.UUID;
 final class CallIdGenerator {
 
     private CallIdGenerator() {
-
     }
 
     static String create() {
