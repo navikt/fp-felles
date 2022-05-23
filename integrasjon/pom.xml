@@ -29,7 +29,6 @@
     </modules>
     <properties>
         <wiremock.version>2.32.0</wiremock.version>
-        <cxf.version>3.5.2</cxf.version>
     </properties>
     <dependencyManagement>
         <dependencies>

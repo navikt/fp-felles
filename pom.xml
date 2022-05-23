@@ -7,7 +7,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>0.2.0</version>
+        <version>0.3.0</version>
     </parent>
 
     <artifactId>felles-root</artifactId>
@@ -19,23 +19,10 @@
 		<module>felles</module>
 		<module>integrasjon</module>
 	</modules>
+
 	<properties>
 		<java.version>17</java.version>
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<argLine>-Dfile.encoding=UTF-8</argLine>
-
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     </properties>
-
-	<scm>
-		<connection>scm:git:https://github.com/navikt/fp-felles.git</connection>
-		<developerConnection>scm:git:https://github.com/navikt/fp-felles.git</developerConnection>
-		<url>https://github.com/navikt/fp-felles/</url>
-		<tag>HEAD</tag>
-	</scm>
 
 	<build>
 		<plugins>
@@ -47,13 +34,6 @@
 					<flattenMode>bom</flattenMode>
 				</configuration>
 				<executions>
-					<execution>
-						<id>flatten</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>flatten</goal>
-						</goals>
-					</execution>
 					<execution>
 						<id>flatten.clean</id>
 						<phase>clean</phase>
@@ -92,6 +72,13 @@
 		</plugins>
 	</build>
 
+    <scm>
+        <connection>scm:git:https://github.com/navikt/fp-felles.git</connection>
+        <developerConnection>scm:git:https://github.com/navikt/fp-felles.git</developerConnection>
+        <url>https://github.com/navikt/fp-felles/</url>
+        <tag>HEAD</tag>
+    </scm>
+
 	<distributionManagement>
 		<repository>
 			<id>github</id>
@@ -99,5 +86,4 @@
 			<url>https://maven.pkg.github.com/navikt/fp-felles</url>
 		</repository>
 	</distributionManagement>
-
 </project>
