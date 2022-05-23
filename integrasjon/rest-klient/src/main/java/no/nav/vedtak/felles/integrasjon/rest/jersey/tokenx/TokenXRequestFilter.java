@@ -8,7 +8,6 @@ import static no.nav.vedtak.log.util.ConfidentialMarkerFilter.CONFIDENTIAL;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 
-import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

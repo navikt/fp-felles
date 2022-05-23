@@ -10,31 +10,18 @@
     <artifactId>felles-integrasjon-rest-klient</artifactId>
     <packaging>jar</packaging>
     <name>Felles :: Integrasjon :: REST-klient</name>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.glassfish.jersey</groupId>
-                <artifactId>jersey-bom</artifactId>
-                <version>${jersey.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>konfig</artifactId>
-            <version>${konfig.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.kobylynskyi</groupId>
             <artifactId>graphql-java-codegen</artifactId>
-            <version>5.4.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock</artifactId>
+            <artifactId>wiremock-jre8</artifactId>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -84,14 +71,6 @@
             <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
@@ -115,7 +94,6 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>${micrometer.version}</version>
         </dependency>
     </dependencies>
 </project>

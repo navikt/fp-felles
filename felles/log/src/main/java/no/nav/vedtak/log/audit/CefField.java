@@ -2,8 +2,8 @@ package no.nav.vedtak.log.audit;
 
 public final class CefField {
 
-    private CefFieldName key;
-    private String value;
+    private final CefFieldName key;
+    private final String value;
 
     public CefField(CefFieldName key, String value) {
         this.key = key;
@@ -15,7 +15,7 @@ public final class CefField {
         this.value = Long.toString(value);
     }
 
-    private static final String cefValueEscape(String s) {
+    private static String cefValueEscape(String s) {
         return s.replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r").replace("=", "\\=");
     }
 

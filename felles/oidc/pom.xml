@@ -20,10 +20,6 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-log</artifactId>
         </dependency>
         <dependency>
@@ -33,15 +29,10 @@
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>konfig</artifactId>
-            <version>${konfig.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.enterprise</groupId>
-            <artifactId>jakarta.enterprise.cdi-api</artifactId>
         </dependency>
     </dependencies>
 

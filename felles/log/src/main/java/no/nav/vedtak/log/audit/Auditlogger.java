@@ -30,11 +30,8 @@ public class Auditlogger {
     private final String defaultProduct;
 
     @Inject
-    public Auditlogger(@KonfigVerdi(value = "auditlogger.vendor", required = false) String defaultVendor,
-            @KonfigVerdi(value = "auditlogger.product", required = false) String defaultProduct) {
-
-        Objects.requireNonNull(defaultVendor, "defaultVendor == null");
-        Objects.requireNonNull(defaultProduct, "defaultProduct == null");
+    public Auditlogger(@KonfigVerdi(value = "auditlogger.vendor") String defaultVendor,
+            @KonfigVerdi(value = "auditlogger.product") String defaultProduct) {
 
         this.defaultVendor = defaultVendor;
         this.defaultProduct = defaultProduct;
