@@ -55,11 +55,12 @@ public final class MDCOperations {
     }
 
     public static String getCallId() {
-        return get(NAV_CALL_ID);
+        return Optional.ofNullable(get(NAV_CALL_ID)).orElse(get(MDC_CALL_ID));
     }
 
     public static void removeCallId() {
         remove(NAV_CALL_ID);
+        remove(MDC_CALL_ID);
     }
 
     public static void putConsumerId(String consumerId) {
@@ -67,11 +68,12 @@ public final class MDCOperations {
     }
 
     public static String getConsumerId() {
-        return get(NAV_CONSUMER_ID);
+        return Optional.ofNullable(get(NAV_CONSUMER_ID)).orElse(get(MDC_CONSUMER_ID));
     }
 
     public static void removeConsumerId() {
         remove(NAV_CONSUMER_ID);
+        remove(MDC_CONSUMER_ID);
     }
 
     public static void putUserId(String userId) {
@@ -87,11 +89,12 @@ public final class MDCOperations {
     }
 
     public static String getUserId() {
-        return get(NAV_USER_ID);
+        return Optional.ofNullable(get(NAV_USER_ID)).orElse(MDC_USER_ID);
     }
 
     public static void removeUserId() {
         remove(NAV_USER_ID);
+        remove(MDC_USER_ID);
     }
 
     public static String generateCallId() {
