@@ -12,7 +12,7 @@
         <java.version>17</java.version>
         <jakarta.enterprise.version>2.0.2</jakarta.enterprise.version>
         <slf4j.version>1.7.35</slf4j.version>
-        <logback-classic.version>1.2.10</logback-classic.version>
+        <logback-classic.version>1.2.11</logback-classic.version>
         <junit5.version>5.8.2</junit5.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
