@@ -126,6 +126,10 @@ public abstract class AbstractOidcRestClient extends CloseableHttpClient {
         return fromJson(entity, clazz);
     }
 
+    public String postAcceptConflict(URI endpoint, Object dto) {
+        return post(endpoint, dto, new OidcRestClientResponseHandler.StringResponseHandlerPermitConflict(endpoint));
+    }
+
     public <T> T postAcceptConflict(URI endpoint, Object dto, Class<T> clazz) {
         String entity = post(endpoint, dto, new OidcRestClientResponseHandler.StringResponseHandlerPermitConflict(endpoint));
         return fromJson(entity, clazz);
