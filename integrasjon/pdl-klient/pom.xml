@@ -90,7 +90,7 @@
                         <groupId>org.eclipse.jetty</groupId>
                         <artifactId>jetty-bom</artifactId>
                         <!-- Wiremock støtter ikke jetty 10 eller 11 -->
-                        <version>9.4.37.v20210219</version>
+                        <version>10.0.10</version>
                         <scope>import</scope>
                         <type>pom</type>
                     </dependency>
