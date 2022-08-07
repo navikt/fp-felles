@@ -35,10 +35,7 @@ public class AbacIdToken {
     }
 
     private String token() {
-        return switch (tokenType) {
-            case SAML -> "samlToken='MASKERT'";
-            default -> "jwtToken='" + maskerOidcToken(token) + '\'';
-        };
+        return TokenType.SAML.equals(tokenType) ? "samlToken='MASKERT'" : "jwtToken='" + maskerOidcToken(token) + '\'';
     }
 
     @Deprecated
