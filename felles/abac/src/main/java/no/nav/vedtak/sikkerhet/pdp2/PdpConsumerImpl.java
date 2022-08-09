@@ -35,8 +35,8 @@ public class PdpConsumerImpl implements Pdp2Consumer {
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final Logger LOG = LoggerFactory.getLogger(PdpConsumerImpl.class);
 
-    private static final HttpClient CLIENT = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-    private static final ObjectReader READER = DefaultJsonMapper.getObjectMapper().readerFor(XacmlResponse.class);
+    private HttpClient client;
+    private ObjectReader reader;
 
     private URI pdpUrl;
     private String brukernavn;
@@ -55,6 +55,9 @@ public class PdpConsumerImpl implements Pdp2Consumer {
         this.pdpUrl = pdpUrl;
         this.brukernavn = brukernavn;
         this.basicCredentials = basicCredentials(brukernavn, passord);
+        // TODO - vurder om bør settes static final?
+        this.client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+        this.reader = DefaultJsonMapper.getObjectMapper().readerFor(XacmlResponse.class);
     }
 
     @Override
@@ -72,12 +75,12 @@ public class PdpConsumerImpl implements Pdp2Consumer {
             .build();
 
         try {
-            var response = CLIENT.send(request, java.net.http.HttpResponse.BodyHandlers.ofString(UTF_8));
+            var response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString(UTF_8));
             if (response == null || response.statusCode() == 401 || response.body() == null) {
                 LOG.info("ingen response fra PDP status = {}", response == null ? "null" : response.statusCode());
                 throw new TekniskException("F-157385", "Kunne ikke hente svar fra ABAC");
             }
-            var resultat = READER.readValue(response.body(), XacmlResponse.class);
+            var resultat = reader.readValue(response.body(), XacmlResponse.class);
             LOG.trace("PDP2 svar {}", resultat);
             return resultat;
         } catch (JsonProcessingException e) {
