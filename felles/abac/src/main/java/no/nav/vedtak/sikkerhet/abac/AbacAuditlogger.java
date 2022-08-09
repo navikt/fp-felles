@@ -137,17 +137,12 @@ public class AbacAuditlogger {
     }
 
     private static final EventClassId finnEventClassIdFra(String abacAction) {
-        switch (abacAction) {
-            case "read":
-                return AUDIT_ACCESS;
-            case "delete": /* Fall-through */
-            case "update":
-                return AUDIT_UPDATE;
-            case "create":
-                return AUDIT_CREATE;
-            default:
-                throw new IllegalArgumentException("Ukjent abacAction: " + abacAction);
-        }
+        return switch (abacAction) {
+            case "read" -> AUDIT_ACCESS; /* Fall-through */
+            case "delete", "update" -> AUDIT_UPDATE;
+            case "create" -> AUDIT_CREATE;
+            default -> throw new IllegalArgumentException("Ukjent abacAction: " + abacAction);
+        };
     }
 
     private static final List<String> allNonNullValues(PdpRequest pdpRequest, String key) {

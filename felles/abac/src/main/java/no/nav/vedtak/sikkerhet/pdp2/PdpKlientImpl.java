@@ -1,4 +1,4 @@
-package no.nav.vedtak.sikkerhet.pdp;
+package no.nav.vedtak.sikkerhet.pdp2;
 
 import static no.nav.foreldrepenger.konfig.Environment.NAIS_APP_NAME;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
@@ -29,41 +29,41 @@ import no.nav.vedtak.sikkerhet.abac.Decision;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
-import no.nav.vedtak.sikkerhet.pdp.xacml.Advice;
-import no.nav.vedtak.sikkerhet.pdp.xacml.BiasedDecisionResponse;
-import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
-import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
-import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
+import no.nav.vedtak.sikkerhet.pdp2.xacml.Advice;
+import no.nav.vedtak.sikkerhet.pdp2.xacml.XacmlAttributeSet;
+import no.nav.vedtak.sikkerhet.pdp2.xacml.XacmlRequestBuilder2;
+import no.nav.vedtak.sikkerhet.pdp2.xacml.XacmlResponse;
+import no.nav.vedtak.sikkerhet.pdp2.xacml.XacmlResponseMapper;
 
 @ApplicationScoped
-@Named("pdp1")
+@Named("pdp2")
 public class PdpKlientImpl implements PdpKlient {
 
     private static final Environment ENV = Environment.current();
     private static final Logger LOG = LoggerFactory.getLogger(PdpKlientImpl.class);
-    private XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste;
+    private XacmlRequestBuilder2Tjeneste xamlRequestBuilderTjeneste;
 
-    private PdpConsumer pdp;
+    private Pdp2Consumer pdp;
 
     public PdpKlientImpl() {
     }
 
     @Inject
-    public PdpKlientImpl(PdpConsumer pdp, XacmlRequestBuilderTjeneste xamlRequestBuilderTjeneste) {
+    public PdpKlientImpl(Pdp2Consumer pdp, XacmlRequestBuilder2Tjeneste xamlRequestBuilderTjeneste) {
         this.pdp = pdp;
         this.xamlRequestBuilderTjeneste = xamlRequestBuilderTjeneste;
     }
 
     @Override
     public Tilgangsbeslutning forespørTilgang(PdpRequest req) {
-        var builder = xamlRequestBuilderTjeneste.lagXacmlRequestBuilder(req);
+        var builder = xamlRequestBuilderTjeneste.lagXacmlRequestBuilder2(req);
         leggPåTokenInformasjon(builder, req);
         var response = pdp.evaluate(builder);
-        var hovedresultat = resultatFraResponse(evaluateWithBias(response));
-        return new Tilgangsbeslutning(hovedresultat, response.getDecisions(), req);
+        var hovedresultat = resultatFraResponse(response);
+        return new Tilgangsbeslutning(hovedresultat, XacmlResponseMapper.getDecisions(response), req);
     }
 
-    static void leggPåTokenInformasjon(XacmlRequestBuilder builder, PdpRequest req) {
+    static void leggPåTokenInformasjon(XacmlRequestBuilder2 builder, PdpRequest req) {
         var attrs = new XacmlAttributeSet();
         attrs.addAttribute(ENVIRONMENT_FELLES_PEP_ID, getPepId());
         var idToken = AbacIdToken.class.cast(req.get(ENVIRONMENT_AUTH_TOKEN));
@@ -80,12 +80,14 @@ public class PdpKlientImpl implements PdpKlient {
             case TOKENX:
                 String keyX = ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
                 LOG.trace("Legger IKKE ved token med type tokenX på {}", keyX);
-//                try {
-                // attrs.addAttribute(keyX,
-                // SignedJWT.parse(idToken.getToken()).getPayload().toBase64URL().toString());
-//                } catch (ParseException e) {
-//                    throw new IllegalArgumentException("Ukjent token type");
-//                }
+                /*
+                    try {
+                        attrs.addAttribute(keyX,
+                        SignedJWT.parse(idToken.getToken()).getPayload().toBase64URL().toString());
+                    } catch (ParseException e) {
+                        throw new IllegalArgumentException("Ukjent token type");
+                    }
+                 */
                 break;
             case SAML:
                 LOG.trace("Legger på token med type saml");
@@ -100,14 +102,27 @@ public class PdpKlientImpl implements PdpKlient {
         return Base64.getEncoder().encodeToString(samlToken.getBytes(StandardCharsets.UTF_8));
     }
 
-    private static AbacResultat resultatFraResponse(BiasedDecisionResponse response) {
-        if (response.biasedDecision() == Decision.Permit) {
+    private static AbacResultat resultatFraResponse(XacmlResponse response) {
+        var decisions = XacmlResponseMapper.getDecisions(response);
+
+        for (var decision : decisions) {
+            if (decision == Decision.Indeterminate) {
+                throw new TekniskException("F-080281",
+                    String.format("Decision %s fra PDP, dette skal aldri skje. Full JSON response: %s", decision, response));
+            }
+        }
+
+        var biasedDecision = createAggregatedDecision(decisions);
+        handlObligation(response);
+
+        if (biasedDecision == Decision.Permit) {
             return AbacResultat.GODKJENT;
         }
-        var denyAdvice = response.xacmlResponse().getAdvice();
+
+        var denyAdvice = XacmlResponseMapper.getAdvice(response);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Deny fra PDP, advice var: " + LoggerUtils.toStringWithoutLineBreaks(denyAdvice));
+            LOG.debug("Deny fra PDP, advice var: {}", LoggerUtils.toStringWithoutLineBreaks(denyAdvice));
         }
         if (denyAdvice.contains(Advice.DENY_KODE_6)) {
             return AbacResultat.AVSLÅTT_KODE_6;
@@ -121,22 +136,6 @@ public class PdpKlientImpl implements PdpKlient {
         return AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
     }
 
-    private static BiasedDecisionResponse evaluateWithBias(XacmlResponseWrapper response) {
-        var decisions = response.getDecisions();
-
-        for (var decision : decisions) {
-            if (decision == Decision.Indeterminate) {
-                throw new TekniskException("F-080281",
-                        String.format("Decision %s fra PDP, dette skal aldri skje. Full JSON response: %s", decision, response));
-            }
-        }
-
-        var biasedDecision = createAggregatedDecision(decisions);
-        var decisionResponse = new BiasedDecisionResponse(biasedDecision, response);
-        handlObligation(decisionResponse);
-        return decisionResponse;
-    }
-
     private static Decision createAggregatedDecision(List<Decision> decisions) {
         for (var decision : decisions) {
             if (decision != Decision.Permit)
@@ -145,8 +144,8 @@ public class PdpKlientImpl implements PdpKlient {
         return Decision.Permit;
     }
 
-    private static void handlObligation(BiasedDecisionResponse response) {
-        var obligations = response.xacmlResponse().getObligations();
+    private static void handlObligation(XacmlResponse response) {
+        var obligations = XacmlResponseMapper.getObligations(response);
         if (!obligations.isEmpty()) {
             throw new TekniskException("F-576027", String.format("Mottok ukjente obligations fra PDP: %s", obligations));
         }
