@@ -1,19 +1,14 @@
 package no.nav.vedtak.sikkerhet.pdp.xacml;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-
 public class XacmlRequestBuilder {
-
-    private static final String REQUEST = "Request";
 
     private Map<Category, List<XacmlAttributeSet>> attributeSets = new EnumMap<>(Category.class);
 
@@ -48,24 +43,25 @@ public class XacmlRequestBuilder {
         }
     }
 
-    public JsonObject build() {
-        JsonObjectBuilder categories = Json.createObjectBuilder();
+    public XacmlRequest build() {
+        var attributeMap = new LinkedHashMap<Category, List<XacmlRequest.Attributes>>();
 
         Set<Category> keys = attributeSets.keySet();
         for (Category xacmlCategory : keys) {
+            attributeMap.putIfAbsent(xacmlCategory, new ArrayList<>());
             List<XacmlAttributeSet> attrsList = attributeSets.get(xacmlCategory);
-            if (attrsList.size() == 1) {
-                categories.add(xacmlCategory.name(), attrsList.get(0).getAttributes());
-            } else {
-                JsonArrayBuilder bob = Json.createArrayBuilder();
-                for (XacmlAttributeSet attributeSet : attrsList) {
-                    bob.add(attributeSet.getAttributes());
-                }
-                categories.add(xacmlCategory.name(), bob);
-            }
+            var attrList = attrsList.stream()
+                .map(XacmlAttributeSet::getAttributes)
+                .flatMap(Collection::stream)
+                .distinct()
+                .toList();
+            var rq = new XacmlRequest.Attributes(attrList);
+            attributeMap.get(xacmlCategory).add(rq);
         }
 
+        var request = new XacmlRequest(attributeMap);
+
         attributeSets.clear();
-        return Json.createObjectBuilder().add(REQUEST, categories).build();
+        return request;
     }
 }

@@ -14,7 +14,6 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
@@ -24,7 +23,6 @@ public class PepImpl implements Pep {
     private final static String PIP = "pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker";
 
     private PdpKlient pdpKlient;
-    private PdpKlient pdp2Klient;
     private PdpRequestBuilder builder;
 
     private Set<String> pipUsers;
@@ -35,22 +33,12 @@ public class PepImpl implements Pep {
     }
 
     @Inject
-    public PepImpl(@Named("pdp1") PdpKlient pdpKlient,
+    public PepImpl(PdpKlient pdpKlient,
             TokenProvider tokenProvider,
             PdpRequestBuilder pdpRequestBuilder,
             AbacAuditlogger auditlogger,
             @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
-        this(pdpKlient, null, tokenProvider, pdpRequestBuilder, auditlogger, pipUsers);
-    }
-
-    public PepImpl(PdpKlient pdpKlient,
-                   PdpKlient pdp2Klient,
-                   TokenProvider tokenProvider,
-                   PdpRequestBuilder pdpRequestBuilder,
-                   AbacAuditlogger auditlogger,
-                   String pipUsers) {
         this.pdpKlient = pdpKlient;
-        this.pdp2Klient = pdp2Klient;
         this.builder = pdpRequestBuilder;
         this.tokenProvider = tokenProvider;
         this.auditlogger = auditlogger;
@@ -71,11 +59,7 @@ public class PepImpl implements Pep {
         if (PIP.equals(attributter.getResource())) {
             return vurderTilgangTilPipTjeneste(pdpRequest, attributter);
         }
-        if (pdp2Klient != null) {
-            return pdp2Klient.forespørTilgang(pdpRequest);
-        } else {
-            return pdpKlient.forespørTilgang(pdpRequest);
-        }
+        return pdpKlient.forespørTilgang(pdpRequest);
     }
 
     protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(PdpRequest pdpRequest, AbacAttributtSamling attributter) {
