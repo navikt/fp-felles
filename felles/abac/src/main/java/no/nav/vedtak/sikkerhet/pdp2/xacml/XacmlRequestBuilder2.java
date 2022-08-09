@@ -51,11 +51,12 @@ public class XacmlRequestBuilder2 {
         for (Category xacmlCategory : keys) {
             attributeMap.putIfAbsent(xacmlCategory, new ArrayList<>());
             List<XacmlAttributeSet> attrsList = attributeSets.get(xacmlCategory);
-            var alist = attrsList.stream()
+            var attrList = attrsList.stream()
                 .map(XacmlAttributeSet::getAttributes)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-            var rq = new XacmlRequest.Attributes(alist);
+                .distinct()
+                .toList();
+            var rq = new XacmlRequest.Attributes(attrList);
             attributeMap.get(xacmlCategory).add(rq);
         }
 

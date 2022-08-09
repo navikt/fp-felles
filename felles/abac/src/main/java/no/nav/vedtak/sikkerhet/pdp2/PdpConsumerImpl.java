@@ -61,7 +61,9 @@ public class PdpConsumerImpl implements Pdp2Consumer {
     }
 
     @Override
-    public XacmlResponse evaluate(XacmlRequestBuilder2 xacmlRequest) {
+    public XacmlResponse evaluate(XacmlRequestBuilder2 xacmlRequestBuilder) {
+        var xacmlRequest = xacmlRequestBuilder.build();
+        LOG.trace("PDP2 svar {}", xacmlRequest);
         // TODO : hvilke headere trenger abac egentlig - utenom Auth og Content-type
         var request = HttpRequest.newBuilder()
             .header("Authorization", basicCredentials)
@@ -71,7 +73,7 @@ public class PdpConsumerImpl implements Pdp2Consumer {
             .header("Content-type", MEDIA_TYPE)
             .timeout(Duration.ofSeconds(5))
             .uri(pdpUrl)
-            .POST(HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(xacmlRequest.build()), UTF_8))
+            .POST(HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(xacmlRequest), UTF_8))
             .build();
 
         try {
