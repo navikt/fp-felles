@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Base64;
 
@@ -20,7 +21,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
@@ -72,20 +74,33 @@ public class PdpConsumerImpl implements PdpConsumer {
             .POST(HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(xacmlRequest.build()), UTF_8))
             .build();
 
+        // Enkel retry
         try {
-            var response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString(UTF_8));
-            if (response == null || response.statusCode() == HttpURLConnection.HTTP_UNAUTHORIZED || response.body() == null) {
+            return send(request);
+        } catch (IntegrasjonException e) {
+            LOG.info("F-157387 IntegrasjonException ved første kall til PDP", e);
+        }
+        return send(request);
+    }
+
+    private XacmlResponse send(HttpRequest request) {
+        try {
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
+            if (response != null && response.statusCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                throw new ManglerTilgangException("F-157388", "Ingen tilgang fra PDP");
+            }
+            if (response == null || response.body() == null) {
                 LOG.info("ingen response fra PDP status = {}", response == null ? "null" : response.statusCode());
-                throw new TekniskException("F-157385", "Kunne ikke hente svar fra ABAC");
+                throw new IntegrasjonException("F-157386", "Kunne ikke hente svar fra PDP");
             }
             return reader.readValue(response.body(), XacmlResponse.class);
         } catch (JsonProcessingException e) {
-            throw new TekniskException("F-208314", "Kunne ikke deserialisere objekt til JSON", e);
+            throw new IntegrasjonException("F-208314", "Kunne ikke deserialisere objekt til JSON", e);
         } catch (IOException e) {
-            throw new TekniskException("F-091324", "Uventet IO-exception mot PDP", e);
+            throw new IntegrasjonException("F-091324", "Uventet IO-exception mot PDP", e);
         }  catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TekniskException("F-432938", "InterruptedException ved kall mot PDP", e);
+            throw new IntegrasjonException("F-432938", "InterruptedException ved kall mot PDP", e);
         }
     }
 
