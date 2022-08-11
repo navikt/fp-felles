@@ -1,4 +1,4 @@
-package no.nav.vedtak.sikkerhet.pdp2.xacml;
+package no.nav.vedtak.sikkerhet.pdp.xacml;
 
 import java.util.Collection;
 import java.util.List;
