@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
@@ -56,7 +55,7 @@ public class PdpConsumerImpl implements PdpConsumer {
         this.brukernavn = brukernavn;
         this.basicCredentials = basicCredentials(brukernavn, passord);
         // TODO - vurder om bør settes static final?
-        this.client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+        this.client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).proxy(HttpClient.Builder.NO_PROXY).build();
         this.reader = DefaultJsonMapper.getObjectMapper().readerFor(XacmlResponse.class);
     }
 
@@ -65,9 +64,6 @@ public class PdpConsumerImpl implements PdpConsumer {
         // TODO : hvilke headere trenger abac egentlig - utenom Auth og Content-type
         var request = HttpRequest.newBuilder()
             .header("Authorization", basicCredentials)
-            .header("Nav-Consumer-Id", brukernavn)
-            .header("Nav-Call-Id", MDCOperations.getCallId())
-            .header("Nav-Callid", MDCOperations.getCallId())
             .header("Content-type", MEDIA_TYPE)
             .timeout(Duration.ofSeconds(5))
             .uri(pdpUrl)

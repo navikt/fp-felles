@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -70,19 +71,21 @@ public class WellKnownConfigurationHelper {
         return Optional.ofNullable(wellKnownURL).map(u -> getWellKnownConfig(u, null).authorization_endpoint());
     }
 
-    private static WellKnownOpenIdConfiguration hentWellKnownConfig(String wellKnownURL, URI proxyUrl) {
+    private static WellKnownOpenIdConfiguration hentWellKnownConfig(String wellKnownURL, URI proxy) {
         try {
             if (wellKnownURL == null) return null;
             if (!wellKnownURL.toLowerCase().contains(STANDARD_WELL_KNOWN_PATH)) {
                 // TODO: øk til warn eller prøv å legge på / standard path med
                 LOG.info("WELLKNOWN OPENID-CONFIGURATION url uten standard suffix {}", wellKnownURL);
             }
-            var clientBuilder = HttpClient.newBuilder();
-            Optional.ofNullable(proxyUrl)
-                .map(u -> new InetSocketAddress(u.getHost(), u.getPort()))
+            var useProxySelector = Optional.ofNullable(proxy)
+                .map(p -> new InetSocketAddress(p.getHost(), p.getPort()))
                 .map(ProxySelector::of)
-                .ifPresent(clientBuilder::proxy);
-            var client = clientBuilder.build();
+                .orElse(HttpClient.Builder.NO_PROXY);
+            var client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .proxy(useProxySelector)
+                .build();
             var request = HttpRequest.newBuilder()
                 .uri(URI.create(wellKnownURL))
                 .header("accept", "application/json")

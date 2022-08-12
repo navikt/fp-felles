@@ -91,20 +91,18 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
             throw new TekniskException("F-836283", "Mangler konfigurasjon av jwks url");
         }
         try {
-            var clientBuilder = HttpClient.newBuilder()
-                .followRedirects(HttpClient.Redirect.NEVER)
-                .connectTimeout(Duration.ofSeconds(20));
-            if (useProxyForJwks) {
-                if (proxy == null) {
-                    throw kunneIkkeOppdatereJwksCache(url, new IllegalArgumentException("Skal bruke proxy, men ingen verdi angitt"));
-                }
-                Optional.of(proxy)
-                    .map(p -> new InetSocketAddress(p.getHost(), p.getPort()))
-                .map(ProxySelector::of)
-                .ifPresent(clientBuilder::proxy);
+            if (useProxyForJwks && proxy == null) {
+                throw kunneIkkeOppdatereJwksCache(url, new IllegalArgumentException("Skal bruke proxy, men ingen verdi angitt"));
             }
+            var useProxySelector = Optional.ofNullable(proxy)
+                .map(p -> new InetSocketAddress(p.getHost(), p.getPort()))
+                .map(ProxySelector::of)
+                .orElse(HttpClient.Builder.NO_PROXY);
+            var client = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(20))
+                .proxy(useProxySelector).build();
 
-            var client = clientBuilder.build();
             var request = HttpRequest.newBuilder()
                 .header("Accept", "application/json")
                 .timeout(Duration.ofSeconds(10))
