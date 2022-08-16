@@ -25,14 +25,15 @@ public class GeneriskTokenKlient {
 
     public static OidcTokenResponse hentToken(HttpRequest request, URI proxy) {
         try {
-            var clientBuilder = HttpClient.newBuilder()
-                .followRedirects(HttpClient.Redirect.NEVER)
-                .connectTimeout(Duration.ofSeconds(20));
-            Optional.ofNullable(proxy)
+            var useProxySelector = Optional.ofNullable(proxy)
                 .map(p -> new InetSocketAddress(p.getHost(), p.getPort()))
                 .map(ProxySelector::of)
-                .ifPresent(clientBuilder::proxy);
-            var client = clientBuilder.build();
+                .orElse(HttpClient.Builder.NO_PROXY);
+            var client = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(20))
+                .proxy(useProxySelector)
+                .build();
             var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
             if (response == null || response.body() == null) {
                 throw new TekniskException("F-157385", "Kunne ikke hente token");
