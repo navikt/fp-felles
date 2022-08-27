@@ -11,5 +11,7 @@ public interface XacmlRequestBuilderTjeneste {
      *                   requestet
      * @return XacmlRequestBuilder
      */
-    XacmlRequestBuilder lagXacmlRequestBuilder(PdpRequest req);
+    default XacmlRequestBuilder lagXacmlRequestBuilder(PdpRequest req) {
+        return new XacmlRequestBuilder();
+    }
 }
