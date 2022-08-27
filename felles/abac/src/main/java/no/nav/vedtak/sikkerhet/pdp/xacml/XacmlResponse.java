@@ -9,7 +9,7 @@ public record XacmlResponse(@JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_
                              @JsonProperty("Response") List<Result> response) {
 
     public static record Result(
-        @JsonProperty("Decision") String decision,
+        @JsonProperty("Decision") Decision decision,
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         @JsonProperty("Obligations") List<ObligationOrAdvice> obligations,
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)

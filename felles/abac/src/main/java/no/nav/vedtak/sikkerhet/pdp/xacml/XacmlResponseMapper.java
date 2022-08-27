@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import no.nav.vedtak.sikkerhet.abac.Decision;
-
 public final class XacmlResponseMapper {
 
     private static final String POLICY_IDENTIFIER = "no.nav.abac.attributter.adviceorobligation.deny_policy";
@@ -60,7 +58,6 @@ public final class XacmlResponseMapper {
     public static List<Decision> getDecisions(XacmlResponse response) {
         return response.response().stream()
             .map(XacmlResponse.Result::decision)
-            .map(Decision::valueOf)
             .collect(Collectors.toList());
     }
 }

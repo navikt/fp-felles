@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
 
@@ -61,13 +62,18 @@ public class PdpConsumerImpl implements PdpConsumer {
 
     @Override
     public XacmlResponse evaluate(XacmlRequestBuilder xacmlRequest) {
+       return evaluate(xacmlRequest.build());
+    }
+
+    @Override
+    public XacmlResponse evaluate(XacmlRequest xacmlRequest) {
         // TODO : hvilke headere trenger abac egentlig - utenom Auth og Content-type
         var request = HttpRequest.newBuilder()
             .header("Authorization", basicCredentials)
             .header("Content-type", MEDIA_TYPE)
             .timeout(Duration.ofSeconds(5))
             .uri(pdpUrl)
-            .POST(HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(xacmlRequest.build()), UTF_8))
+            .POST(HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(xacmlRequest), UTF_8))
             .build();
 
         // Enkel retry

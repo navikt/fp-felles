@@ -1,5 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.vedtak.log.audit.Auditlogger;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,7 +40,7 @@ class PepImplTest {
     void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
         when(tokenProvider.getUid()).thenReturn("srvpdp");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
-                .setResource("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
+                .setResource(RESOURCE_TYPE_INTERNAL_PIP)
                 .setAction("READ");
 
         when(pdpRequestBuilder.lagPdpRequest(attributter))
@@ -55,7 +55,7 @@ class PepImplTest {
     void skal_nekte_tilgang_til_saksbehandler_for_piptjeneste() {
         when(tokenProvider.getUid()).thenReturn("z142443");
         AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
-                .setResource("pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker")
+                .setResource(RESOURCE_TYPE_INTERNAL_PIP)
                 .setAction("READ");
 
         when(pdpRequestBuilder.lagPdpRequest(attributter))
