@@ -20,6 +20,7 @@
         <module>log</module>
         <module>util</module>
         <module>mapper</module>
+        <module>klient</module>
         <module>db</module>
         <module>abac</module>
         <module>xmlutils</module>
@@ -66,6 +67,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-mapper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
