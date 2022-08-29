@@ -25,7 +25,6 @@ import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
-import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -34,13 +33,19 @@ import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.pdp.BehandlingStatus;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.pdp.xacml.Category;
+import no.nav.vedtak.sikkerhet.pdp.xacml.NavFellesAttributter;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
 
 public class PdpKlientNyImplTest {
 
-    public static final String JWT_TOKEN = "eyAidHlwIjogIkpXVCIsICJraWQiOiAiU0gxSWVSU2sxT1VGSDNzd1orRXVVcTE5VHZRPSIsICJhbGciOiAiUlMyNTYiIH0.eyAiYXRfaGFzaCI6ICIyb2c1RGk5ZW9LeFhOa3VPd0dvVUdBIiwgInN1YiI6ICJzMTQyNDQzIiwgImF1ZGl0VHJhY2tpbmdJZCI6ICI1NTM0ZmQ4ZS03MmE2LTRhMWQtOWU5YS1iZmEzYThhMTljMDUtNjE2NjA2NyIsICJpc3MiOiAiaHR0cHM6Ly9pc3NvLXQuYWRlby5ubzo0NDMvaXNzby9vYXV0aDIiLCAidG9rZW5OYW1lIjogImlkX3Rva2VuIiwgImF1ZCI6ICJPSURDIiwgImNfaGFzaCI6ICJiVWYzcU5CN3dTdi0wVlN0bjhXLURnIiwgIm9yZy5mb3JnZXJvY2sub3BlbmlkY29ubmVjdC5vcHMiOiAiMTdhOGZiMzYtMGI0Ny00YzRkLWE4YWYtZWM4Nzc3Y2MyZmIyIiwgImF6cCI6ICJPSURDIiwgImF1dGhfdGltZSI6IDE0OTgwMzk5MTQsICJyZWFsbSI6ICIvIiwgImV4cCI6IDE0OTgwNDM1MTUsICJ0b2tlblR5cGUiOiAiSldUVG9rZW4iLCAiaWF0IjogMTQ5ODAzOTkxNSB9.S2DKQweQWZIfjaAT2UP9_dxrK5zqpXj8IgtjDLt5PVfLYfZqpWGaX-ckXG0GlztDVBlRK4ylmIYacTmEAUV_bRa_qWKRNxF83SlQRgHDSiE82SGv5WHOGEcAxf2w_d50XsgA2KDBCyv0bFIp9bCiKzP11uWPW0v4uIkyw2xVxMVPMCuiMUtYFh80sMDf9T4FuQcFd0LxoYcSFDEDlwCdRiF3ufw73qtMYBlNIMbTGHx-DZWkZV7CgukmCee79gwQIvGwdLrgaDrHFCJUDCbB1FFEaE3p3_BZbj0T54fCvL69aHyWm1zEd9Pys15yZdSh3oSSr4yVNIxhoF-nQ7gY-g;";
+    private static final String JWT_TOKENSTRING = "eyAidHlwIjogIkpXVCIsICJraWQiOiAiU0gxSWVSU2sxT1VGSDNzd1orRXVVcTE5VHZRPSIsICJhbGciOiAiUlMyNTYiIH0.eyAiYXRfaGFzaCI6ICIyb2c1RGk5ZW9LeFhOa3VPd0dvVUdBIiwgInN1YiI6ICJzMTQyNDQzIiwgImF1ZGl0VHJhY2tpbmdJZCI6ICI1NTM0ZmQ4ZS03MmE2LTRhMWQtOWU5YS1iZmEzYThhMTljMDUtNjE2NjA2NyIsICJpc3MiOiAiaHR0cHM6Ly9pc3NvLXQuYWRlby5ubzo0NDMvaXNzby9vYXV0aDIiLCAidG9rZW5OYW1lIjogImlkX3Rva2VuIiwgImF1ZCI6ICJPSURDIiwgImNfaGFzaCI6ICJiVWYzcU5CN3dTdi0wVlN0bjhXLURnIiwgIm9yZy5mb3JnZXJvY2sub3BlbmlkY29ubmVjdC5vcHMiOiAiMTdhOGZiMzYtMGI0Ny00YzRkLWE4YWYtZWM4Nzc3Y2MyZmIyIiwgImF6cCI6ICJPSURDIiwgImF1dGhfdGltZSI6IDE0OTgwMzk5MTQsICJyZWFsbSI6ICIvIiwgImV4cCI6IDE0OTgwNDM1MTUsICJ0b2tlblR5cGUiOiAiSldUVG9rZW4iLCAiaWF0IjogMTQ5ODAzOTkxNSB9.S2DKQweQWZIfjaAT2UP9_dxrK5zqpXj8IgtjDLt5PVfLYfZqpWGaX-ckXG0GlztDVBlRK4ylmIYacTmEAUV_bRa_qWKRNxF83SlQRgHDSiE82SGv5WHOGEcAxf2w_d50XsgA2KDBCyv0bFIp9bCiKzP11uWPW0v4uIkyw2xVxMVPMCuiMUtYFh80sMDf9T4FuQcFd0LxoYcSFDEDlwCdRiF3ufw73qtMYBlNIMbTGHx-DZWkZV7CgukmCee79gwQIvGwdLrgaDrHFCJUDCbB1FFEaE3p3_BZbj0T54fCvL69aHyWm1zEd9Pys15yZdSh3oSSr4yVNIxhoF-nQ7gY-g;";
+    public static final OpenIDToken JWT_TOKEN = new OpenIDToken(OpenIDProvider.STS, new TokenString(JWT_TOKENSTRING));
+    public static final OpenIDToken JWT_TOKENX_TOKEN = new OpenIDToken(OpenIDProvider.TOKENX, new TokenString(JWT_TOKENSTRING));
     private static final String DOMENE = "foreldrepenger";
 
     private PdpKlient pdpKlient;
@@ -65,7 +70,7 @@ public class PdpKlientNyImplTest {
         var ressurs = AppRessursData.builder().leggTilFødselsnummer("12345678900").build();
         pdpKlient.forespørTilgang(felles, DOMENE, ressurs);
 
-        assertThat(captor.getValue().toString().contains(NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN)).isTrue();
+        assertThat(captor.getValue().toString()).contains(NavFellesAttributter.ENVIRONMENT_FELLES_SAML_TOKEN);
     }
 
     @Test
@@ -80,7 +85,7 @@ public class PdpKlientNyImplTest {
         var ressurs = AppRessursData.builder().build();
         pdpKlient.forespørTilgang(felles, DOMENE, ressurs);
 
-        assertThat(captor.getValue().toString().contains(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR)).isFalse();
+        assertThat(captor.getValue().toString()).doesNotContain(NavFellesAttributter.RESOURCE_FELLES_PERSON_FNR);
     }
 
     @Test
@@ -95,11 +100,26 @@ public class PdpKlientNyImplTest {
         var ressurs = AppRessursData.builder().leggTilFødselsnummer("12345678900").build();
         pdpKlient.forespørTilgang(felles, DOMENE, ressurs);
 
-        assertThat(captor.getValue().toString().contains(NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY)).isTrue();
+        assertThat(captor.getValue().toString()).contains(NavFellesAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY);
     }
 
     @Test
-    public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn1() throws FileNotFoundException {
+    public void kallPdpMedJwtTokenBodyNårIdTokenErTokeXToken() throws Exception {
+        var idToken = Token.withOidcToken(JWT_TOKENX_TOKEN);
+        var responseWrapper = createResponse("xacmlresponse.json");
+        var captor = ArgumentCaptor.forClass(XacmlRequest.class);
+
+        when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
+
+        var felles = lagBeskyttetRessursAttributter(idToken, AbacDataAttributter.opprett());
+        var ressurs = AppRessursData.builder().leggTilFødselsnummer("12345678900").build();
+        pdpKlient.forespørTilgang(felles, DOMENE, ressurs);
+
+        assertThat(captor.getValue().toString()).contains(NavFellesAttributter.ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY);
+    }
+
+    @Test
+    public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn1() {
         var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacml3response.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -122,7 +142,7 @@ public class PdpKlientNyImplTest {
     }
 
     @Test
-    public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn2() throws FileNotFoundException {
+    public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn2() {
         var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacmlresponse-array.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -145,7 +165,7 @@ public class PdpKlientNyImplTest {
     }
 
     @Test
-    public void sporingsloggListeSkalHaSammeRekkefølgePåidenterSomXacmlRequest() throws FileNotFoundException {
+    public void sporingsloggListeSkalHaSammeRekkefølgePåidenterSomXacmlRequest() {
         var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacml3response.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -165,7 +185,7 @@ public class PdpKlientNyImplTest {
         var personArray = resourceArray.stream()
             .map(XacmlRequest.Attributes::attribute)
             .flatMap(Collection::stream)
-            .filter(a -> NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR.equals(a.attributeId()))
+            .filter(a -> NavFellesAttributter.RESOURCE_FELLES_PERSON_FNR.equals(a.attributeId()))
             .toList();
 
         var personer = new ArrayList<>(ressurs.getFødselsnumre());
@@ -188,7 +208,7 @@ public class PdpKlientNyImplTest {
         var request = jsonRequest.request();
         var environment = request.get(Category.Environment);
 
-        assertHasAttribute(environment, NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN,
+        assertHasAttribute(environment, NavFellesAttributter.ENVIRONMENT_FELLES_SAML_TOKEN,
                 Base64.getEncoder().encodeToString("<dummy SAML token>".getBytes(StandardCharsets.UTF_8)));
 
         environment.get(0).attribute().get(0).attributeId();

@@ -81,18 +81,6 @@ public class BeskyttetRessursAttributter {
             return this;
         }
 
-        public Builder medToken(ServiceType serviceType, String token) {
-            pdpRequest.serviceType = serviceType;
-            pdpRequest.token = ServiceType.WEBSERVICE.equals(serviceType) ? Token.withSamlToken(token) : Token.withOidcToken(token);
-            return this;
-        }
-
-        public Builder medToken(String token) {
-            pdpRequest.serviceType = ServiceType.REST;
-            pdpRequest.token = Token.withOidcToken(token);
-            return this;
-        }
-
         public Builder medToken(Token token) {
             pdpRequest.serviceType = Token.TokenType.SAML.equals(token.getTokenType()) ? ServiceType.WEBSERVICE : ServiceType.REST;
             pdpRequest.token = token;

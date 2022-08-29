@@ -81,7 +81,7 @@ public class BeskyttetRessursInterceptor {
         var serviceType = clazz.getAnnotation(WebService.class) != null ? ServiceType.WEBSERVICE : ServiceType.REST;
         var attributter = ServiceType.WEBSERVICE.equals(serviceType)
                 ? AbacAttributtSamling.medSamlToken(tokenProvider.samlToken())
-                : AbacAttributtSamling.medJwtToken(tokenProvider.userToken());
+                : AbacAttributtSamling.medJwtToken(tokenProvider.openIdToken().token());
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
 
         attributter.setActionType(mapToBeskyttetRessursActionAttributt(beskyttetRessurs));
@@ -102,7 +102,7 @@ public class BeskyttetRessursInterceptor {
 
         var token = ServiceType.WEBSERVICE.equals(serviceType)
             ? Token.withSamlToken(tokenProvider.samlToken())
-            : Token.withOidcToken(tokenProvider.userToken());
+            : Token.withOidcToken(tokenProvider.openIdToken());
 
         return BeskyttetRessursAttributter.builder()
             .medUserId(tokenProvider.getUid())
