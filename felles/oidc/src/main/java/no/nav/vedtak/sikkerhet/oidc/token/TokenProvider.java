@@ -1,5 +1,6 @@
 package no.nav.vedtak.sikkerhet.oidc.token;
 
+import java.net.URI;
 import java.util.Optional;
 
 import no.nav.vedtak.exception.TekniskException;
@@ -10,6 +11,7 @@ import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureSystemTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.BrukerTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.OpenAmBrukerTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.StsSystemTokenKlient;
+import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
 
 public final class TokenProvider {
 
@@ -56,9 +58,9 @@ public final class TokenProvider {
         throw new TekniskException("F-872314", "Azure exchange ikke implementert ennå");
     }
 
-    public static OpenIDToken exchangeTokenX(String tokenToExchange, String audience) {
-        // Senere: bytte OBO token - ta inn kode fra rest. Trenger å lande JWT-bibliotek
-        throw new TekniskException("F-872314", "TokenX exchange ikke integrert ennå");
+    public static OpenIDToken exchangeTokenX(OpenIDToken token, String assertion, URI targetEndpoint) {
+        // Assertion må være generert av den som skal bytte. Et JWT, RSA-signert, basert på injisert private jwk
+        return TokenXExchangeKlient.exchangeToken(token, assertion, targetEndpoint);
     }
 
     private static OpenIDToken getTokenForBrukerMedFallbackDersomSaml(boolean fallback) {

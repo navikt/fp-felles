@@ -1,6 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import java.net.URI;
 import java.security.Key;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +11,7 @@ import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.jwx.JsonWebStructure;
 
+import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandler;
 import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.jwks.JwtHeader;
@@ -97,9 +97,10 @@ public class OidcTokenValidator {
             }
             String subject = claims.getSubject();
             if (OpenIDProvider.TOKENX.equals(provider)) {
-                subject = Optional.ofNullable(claims.getStringClaimValue("pid")).orElse(subject);
+                return validateTokenX(claims, subject);
+            } else {
+                return OidcTokenValidatorResult.valid(subject, claims.getExpirationTime().getValue());
             }
-            return OidcTokenValidatorResult.valid(subject, claims.getExpirationTime().getValue());
         } catch (InvalidJwtException e) {
             return OidcTokenValidatorResult.invalid(e.toString());
         } catch (MalformedClaimException e) {
@@ -111,8 +112,7 @@ public class OidcTokenValidator {
         return validate(tokenHolder, Integer.MAX_VALUE);
     }
 
-    // Validates some of the rules set in OpenID Connect Core 1.0 incorporating
-    // errata set 1,
+    // Validates some of the rules set in OpenID Connect Core 1.0 incorporatin errata set 1,
     // which is not already validated by using JwtConsumer
     private String validateClaims(JwtClaims claims) throws MalformedClaimException {
         String azp = claims.getStringClaimValue("azp");
@@ -120,6 +120,16 @@ public class OidcTokenValidator {
             return "Either an azp-claim or a single value aud-claim is required";
         }
         return null;
+    }
+
+    private OidcTokenValidatorResult validateTokenX(JwtClaims claims, String subject) throws MalformedClaimException {
+        var level4 = Optional.ofNullable(claims.getStringClaimValue("acr"))
+            .filter(AuthenticationLevelCredential.AUTHENTICATION_LEVEL_ID_PORTEN::equals).isPresent();
+        if (!level4) {
+            return OidcTokenValidatorResult.invalid("TokenX token ikke på nivå 4");
+        }
+        var brukSubject = Optional.ofNullable(claims.getStringClaimValue("pid")).orElse(subject);
+        return OidcTokenValidatorResult.valid(brukSubject, claims.getExpirationTime().getValue());
     }
 
     private JwtHeader getHeader(String jwt) throws InvalidJwtException {
