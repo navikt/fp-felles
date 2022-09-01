@@ -2,13 +2,9 @@ package no.nav.vedtak.sikkerhet.abac;
 
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
-import static no.nav.vedtak.sikkerhet.abac.Decision.Deny;
-import static no.nav.vedtak.sikkerhet.abac.Decision.Permit;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,11 +12,14 @@ import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
 
 @Default
 @ApplicationScoped
 public class PepImpl implements Pep {
-    private final static String PIP = "pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker";
+    private static final String PIP = ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
 
     private PdpKlient pdpKlient;
     private PdpRequestBuilder builder;
@@ -62,26 +61,47 @@ public class PepImpl implements Pep {
         return pdpKlient.forespørTilgang(pdpRequest);
     }
 
+    @Override
+    public Tilgangsbeslutning vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
+        var appRessurser = builder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
+
+        if (PIP.equals(beskyttetRessursAttributter.getResourceType())) {
+            return vurderTilgangTilPipTjeneste(beskyttetRessursAttributter, appRessurser);
+        }
+        return pdpKlient.forespørTilgang(beskyttetRessursAttributter, builder.abacDomene(), appRessurser);
+    }
+
+    @Override
+    public boolean nyttAbacGrensesnitt() {
+        return builder.nyttAbacGrensesnitt();
+    }
+
     protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(PdpRequest pdpRequest, AbacAttributtSamling attributter) {
         String uid = tokenProvider.getUid();
         if (pipUsers.contains(uid.toLowerCase())) {
             return lagPipPermit(pdpRequest);
         }
         var tilgangsbeslutning = lagPipDeny(pdpRequest);
-        auditlogger.loggDeny(uid, tilgangsbeslutning.getPdpRequest(), attributter);
+        auditlogger.loggDeny(uid, tilgangsbeslutning, attributter);
+        return tilgangsbeslutning;
+    }
+
+    protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+        String uid = tokenProvider.getUid();
+        if (pipUsers.contains(uid.toLowerCase())) {
+            return new Tilgangsbeslutning(GODKJENT, beskyttetRessursAttributter, appRessursData);
+        }
+        var tilgangsbeslutning = new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessursData);
+        auditlogger.loggDeny(uid, tilgangsbeslutning, null);
         return tilgangsbeslutning;
     }
 
     protected Tilgangsbeslutning lagPipPermit(PdpRequest pdpRequest) {
-        int antallResources = antallResources(pdpRequest);
-        var decisions = lagDecisions(antallResources, Permit);
-        return new Tilgangsbeslutning(GODKJENT, decisions, pdpRequest);
+        return new Tilgangsbeslutning(GODKJENT, pdpRequest);
     }
 
     protected Tilgangsbeslutning lagPipDeny(PdpRequest pdpRequest) {
-        int antallResources = antallResources(pdpRequest);
-        var decisions = lagDecisions(antallResources, Deny);
-        return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, decisions, pdpRequest);
+        return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, pdpRequest);
     }
 
     protected int antallResources(PdpRequest pdpRequest) {
@@ -99,14 +119,6 @@ public class PepImpl implements Pep {
         // Template method. Regn evt ut antall aksjonspunkter el andre typer ressurser
         // som behandles i denne requesten (hvis mer enn 1)
         return 1;
-    }
-
-    private List<Decision> lagDecisions(int antallDecisions, Decision decision) {
-        List<Decision> decisions = new ArrayList<>();
-        for (int i = 0; i < antallDecisions; i++) {
-            decisions.add(decision);
-        }
-        return decisions;
     }
 
 }

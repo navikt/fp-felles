@@ -1,26 +1,19 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import java.util.List;
+import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 
+public record Tilgangsbeslutning(AbacResultat beslutningKode, PdpRequest pdpRequest, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
 
-public record Tilgangsbeslutning(AbacResultat beslutningKode, List<Decision> delbeslutninger, PdpRequest pdpRequest) {
+    public Tilgangsbeslutning(AbacResultat beslutningKode, PdpRequest pdpRequest) {
+        this(beslutningKode, pdpRequest, null, null);
+    }
+
+    public Tilgangsbeslutning(AbacResultat beslutningKode, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+        this(beslutningKode, null, beskyttetRessursAttributter, appRessursData);
+    }
 
     public boolean fikkTilgang() {
         return beslutningKode == AbacResultat.GODKJENT;
-    }
-
-    @Deprecated
-    public AbacResultat getBeslutningKode() {
-        return beslutningKode();
-    }
-
-    @Deprecated
-    public List<Decision> getDelbeslutninger() {
-        return delbeslutninger();
-    }
-
-    @Deprecated
-    public PdpRequest getPdpRequest() {
-        return pdpRequest();
     }
 }

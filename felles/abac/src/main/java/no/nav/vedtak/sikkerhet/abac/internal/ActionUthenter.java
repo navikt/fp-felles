@@ -1,12 +1,13 @@
-package no.nav.vedtak.sikkerhet.abac;
+package no.nav.vedtak.sikkerhet.abac.internal;
 
 import java.lang.reflect.Method;
 
 import javax.jws.WebMethod;
-import javax.jws.WebService;
 import javax.ws.rs.Path;
 
-class ActionUthenter {
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
+
+public class ActionUthenter {
 
     private static final String SLASH = "/";
 
@@ -14,9 +15,13 @@ class ActionUthenter {
 
     }
 
-    static String action(Class<?> clazz, Method method) {
-        return clazz.getAnnotation(WebService.class) != null
-                ? actionForWebServiceMethod(clazz, method)
+    public static String action(Class<?> clazz, Method method) {
+        return action(clazz, method, ServiceType.REST);
+    }
+
+    public static String action(Class<?> clazz, Method method, ServiceType serviceType) {
+        return ServiceType.WEBSERVICE.equals(serviceType)
+                ? actionForWebServiceMethod(method)
                 : actionForRestMethod(clazz, method);
     }
 
@@ -34,11 +39,11 @@ class ActionUthenter {
         return path;
     }
 
-    private static String actionForWebServiceMethod(Class<?> clazz, Method method) {
+    private static String actionForWebServiceMethod(Method method) {
         WebMethod webMethodAnnotation = finnWebMethod(method);
         if (webMethodAnnotation.action().isEmpty()) {
             throw new IllegalArgumentException(
-                    "Mangler action på @WebMethod-annotering for metode på Webservice " + clazz.getName() + "." + method.getName());
+                    "Mangler action på @WebMethod-annotering for metode på Webservice " + method.getName());
         }
         return webMethodAnnotation.action();
     }

@@ -1,4 +1,4 @@
-package no.nav.vedtak.sikkerhet.abac;
+package no.nav.vedtak.sikkerhet.abac.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,6 +7,8 @@ import javax.jws.WebService;
 import javax.ws.rs.Path;
 
 import org.junit.jupiter.api.Test;
+
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
 class ActionUthenterTest {
 
@@ -21,7 +23,7 @@ class ActionUthenterTest {
 
     @Test
     void skal_ha_at_action_for_webservice_er_action_i_webmethod() throws Exception {
-        assertThat(ActionUthenter.action(MyWebService.class, MyWebService.class.getDeclaredMethod("coinToss")))
+        assertThat(ActionUthenter.action(MyWebService.class, MyWebService.class.getDeclaredMethod("coinToss"), ServiceType.WEBSERVICE))
                 .isEqualTo("http://foobar.com/biased/coin/toss/v1");
     }
 

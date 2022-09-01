@@ -1,6 +1,5 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
-import static no.nav.foreldrepenger.konfig.Environment.NAIS_APP_NAME;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_PEP_ID;
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.ENVIRONMENT_FELLES_SAML_TOKEN;
@@ -24,11 +23,13 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
-import no.nav.vedtak.sikkerhet.abac.Decision;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
+import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.pdp.xacml.Advice;
+import no.nav.vedtak.sikkerhet.pdp.xacml.Decision;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
@@ -58,7 +59,15 @@ public class PdpKlientImpl implements PdpKlient {
         leggPåTokenInformasjon(builder, req);
         var response = pdp.evaluate(builder);
         var hovedresultat = resultatFraResponse(response);
-        return new Tilgangsbeslutning(hovedresultat, XacmlResponseMapper.getDecisions(response), req);
+        return new Tilgangsbeslutning(hovedresultat, req);
+    }
+
+    @Override
+    public Tilgangsbeslutning forespørTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, String domene, AppRessursData appRessursData) {
+        var request = XacmlRequestMapper.lagXacmlRequest(beskyttetRessursAttributter, domene, appRessursData);
+        var response = pdp.evaluate(request);
+        var hovedresultat = resultatFraResponse(response);
+        return new Tilgangsbeslutning(hovedresultat, beskyttetRessursAttributter, appRessursData);
     }
 
     static void leggPåTokenInformasjon(XacmlRequestBuilder builder, PdpRequest req) {
@@ -153,6 +162,6 @@ public class PdpKlientImpl implements PdpKlient {
     }
 
     private static String getPepId() {
-        return ENV.getProperty(NAIS_APP_NAME, "local-app");
+        return ENV.getNaisAppName();
     }
 }

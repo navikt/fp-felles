@@ -34,6 +34,8 @@ import no.nav.vedtak.log.audit.AuditdataHeader;
 import no.nav.vedtak.log.audit.Auditlogger;
 import no.nav.vedtak.log.audit.CefField;
 import no.nav.vedtak.log.audit.EventClassId;
+import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 
 /**
  * Dette loggformatet er avklart med Arcsight. Eventuelle nye felter skal
@@ -50,12 +52,20 @@ public class AbacAuditlogger {
         this.auditlogger = auditlogger;
     }
 
-    public void loggTilgang(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter) {
-        logg(userId, pdpRequest, attributter, Access.GRANTED);
+    public void loggTilgang(String userId, Tilgangsbeslutning tilgangsbeslutning, AbacAttributtSamling attributter) {
+        logg(userId, tilgangsbeslutning, attributter, Access.GRANTED);
     }
 
-    public void loggDeny(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter) {
-        logg(userId, pdpRequest, attributter, Access.DENIED);
+    public void loggDeny(String userId, Tilgangsbeslutning tilgangsbeslutning, AbacAttributtSamling attributter) {
+        logg(userId, tilgangsbeslutning, attributter, Access.DENIED);
+    }
+
+    private void logg(String userId, Tilgangsbeslutning tilgangsbeslutning, AbacAttributtSamling attributter, Access access) {
+        if (tilgangsbeslutning.pdpRequest() != null) {
+            logg(userId, tilgangsbeslutning.pdpRequest(), attributter, access);
+        } else {
+            logg(userId, tilgangsbeslutning.beskyttetRessursAttributter(), tilgangsbeslutning.appRessursData(), access);
+        }
     }
 
     private void logg(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter, Access access) {
@@ -71,6 +81,20 @@ public class AbacAuditlogger {
         }
     }
 
+    private void logg(String userId, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData, Access access) {
+        requireNonNull(beskyttetRessursAttributter);
+        requireNonNull(beskyttetRessursAttributter.getDataAttributter());
+
+        String abacAction = requireNonNull(beskyttetRessursAttributter.getActionType().getEksternKode());
+        var header = createHeader(abacAction, access);
+        var fields = createDefaultAbacFields(userId, beskyttetRessursAttributter);
+
+        List<String> ids = getBerortBrukerId(appRessursData);
+        for (String aktorId : ids) {
+            loggTilgangPerBerortAktoer(header, fields, aktorId);
+        }
+    }
+
     private void loggTilgangPerBerortAktoer(AuditdataHeader header, Set<CefField> fields, String id) {
         var fieldsWithBerortBruker = new HashSet<>(fields);
         fieldsWithBerortBruker.add(new CefField(BERORT_BRUKER_ID, id));
@@ -80,12 +104,12 @@ public class AbacAuditlogger {
 
     private AuditdataHeader createHeader(String abacAction, Access access) {
         return new AuditdataHeader.Builder()
-                .medVendor(auditlogger.getDefaultVendor())
-                .medProduct(auditlogger.getDefaultProduct())
-                .medEventClassId(finnEventClassIdFra(abacAction))
-                .medName("ABAC Sporingslogg")
-                .medSeverity(access.getSeverity())
-                .build();
+            .medVendor(auditlogger.getDefaultVendor())
+            .medProduct(auditlogger.getDefaultProduct())
+            .medEventClassId(finnEventClassIdFra(abacAction))
+            .medName("ABAC Sporingslogg")
+            .medSeverity(access.getSeverity())
+            .build();
     }
 
     private Set<CefField> createDefaultAbacFields(String userId, PdpRequest pdpRequest, AbacAttributtSamling attributter) {
@@ -113,6 +137,31 @@ public class AbacAuditlogger {
         return Set.copyOf(fields);
     }
 
+    private Set<CefField> createDefaultAbacFields(String userId, BeskyttetRessursAttributter beskyttetRessursAttributter) {
+        String abacAction = requireNonNull(beskyttetRessursAttributter.getActionType().getEksternKode());
+        String abacResourceType = requireNonNull(beskyttetRessursAttributter.getResourceType());
+
+        Set<CefField> fields = new HashSet<>();
+        fields.add(new CefField(EVENT_TIME, System.currentTimeMillis()));
+        fields.add(new CefField(REQUEST, beskyttetRessursAttributter.getServicePath()));
+        fields.add(new CefField(ABAC_RESOURCE_TYPE, abacResourceType));
+        fields.add(new CefField(ABAC_ACTION, abacAction));
+
+        if (userId != null) {
+            fields.add(new CefField(USER_ID, userId));
+        }
+
+        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), SAKSNUMMER, FAGSAK_ID).ifPresent(fagsak -> {
+            fields.addAll(forSaksnummer(fagsak));
+        });
+
+        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), BEHANDLING_UUID, BEHANDLING_ID).ifPresent(behandling -> {
+            fields.addAll(forBehandling(behandling));
+        });
+
+        return Set.copyOf(fields);
+    }
+
     private List<String> getBerortBrukerId(PdpRequest pdpRequest) {
         /*
          * Arcsight foretrekker FNR fremfor AktørID, men det er uklart hvordan de
@@ -126,7 +175,30 @@ public class AbacAuditlogger {
         return allNonNullValues(pdpRequest, RESOURCE_FELLES_PERSON_FNR);
     }
 
+    private List<String> getBerortBrukerId(AppRessursData appRessursData) {
+        /*
+         * Arcsight foretrekker FNR fremfor AktørID, men det er uklart hvordan de
+         * håndterer blanding (har sendt forespørsel, men ikke fått svar). Velger derfor
+         * at AktørID prioriteres (siden alle kallene i k9-sak har denne).
+         */
+        final List<String> ids = appRessursData.getAktørIdSet().stream().filter(Objects::nonNull).collect(Collectors.toList());
+        if (!ids.isEmpty()) {
+            return ids;
+        }
+        return appRessursData.getFødselsnumre().stream().filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
     private static final Optional<String> getOneOf(AbacAttributtSamling attributter, AbacAttributtType... typer) {
+        for (AbacAttributtType key : typer) {
+            final Set<Object> values = attributter.getVerdier(key);
+            if (!values.isEmpty()) {
+                return Optional.of(values.stream().map(v -> v.toString()).collect(Collectors.joining(",")));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static final Optional<String> getOneOfNew(AbacDataAttributter attributter, AbacAttributtType... typer) {
         for (AbacAttributtType key : typer) {
             final Set<Object> values = attributter.getVerdier(key);
             if (!values.isEmpty()) {
@@ -147,8 +219,8 @@ public class AbacAuditlogger {
 
     private static final List<String> allNonNullValues(PdpRequest pdpRequest, String key) {
         return pdpRequest.getListOfString(key).stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     /**

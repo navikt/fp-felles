@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +25,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.Decision;
 import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
@@ -215,8 +213,7 @@ public class PdpKlientImplTest {
         pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, personnr);
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         Tilgangsbeslutning resultat = pdpKlient.forespørTilgang(pdpRequest);
-        assertThat(resultat.getBeslutningKode()).isEqualTo(AbacResultat.AVSLÅTT_EGEN_ANSATT);
-        assertThat(resultat.getDelbeslutninger()).isEqualTo(Arrays.asList(Decision.Deny, Decision.Permit));
+        assertThat(resultat.beslutningKode()).isEqualTo(AbacResultat.AVSLÅTT_EGEN_ANSATT);
     }
 
     private void assertHasAttribute(List<XacmlRequest.Attributes> attributes, String attributeName, String expectedValue) {

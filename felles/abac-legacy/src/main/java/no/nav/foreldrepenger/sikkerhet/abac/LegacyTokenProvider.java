@@ -4,6 +4,7 @@ import javax.enterprise.context.Dependent;
 
 import no.nav.vedtak.sikkerhet.abac.TokenProvider;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 @Dependent
 public class LegacyTokenProvider implements TokenProvider {
@@ -16,6 +17,11 @@ public class LegacyTokenProvider implements TokenProvider {
     @Override
     public String userToken() {
         return SubjectHandler.getSubjectHandler().getInternSsoToken();
+    }
+
+    @Override
+    public OpenIDToken openIdToken() {
+        return SubjectHandler.getSubjectHandler().getOpenIDToken();
     }
 
     @Override
