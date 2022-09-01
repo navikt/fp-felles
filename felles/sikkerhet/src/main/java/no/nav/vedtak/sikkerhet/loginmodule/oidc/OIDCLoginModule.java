@@ -36,7 +36,6 @@ import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 public class OIDCLoginModule extends LoginModuleBase {
 
     private static final Logger logger = LoggerFactory.getLogger(OIDCLoginModule.class);
-    private static final int AUTHENTICATION_LEVEL_INTERN_BRUKER = 4;
 
     // Set during initialize()
     private Subject subject;
@@ -84,7 +83,7 @@ public class OIDCLoginModule extends LoginModuleBase {
 
     @Override
     public void doCommit() throws LoginException {
-        authenticationLevelCredential = new AuthenticationLevelCredential(AUTHENTICATION_LEVEL_INTERN_BRUKER);
+        authenticationLevelCredential = AuthenticationLevelCredential.forInternBruker();
         String mdcConsumerId = MDCOperations.getConsumerId();
         if (mdcConsumerId != null) {
             this.consumerId = new ConsumerId(mdcConsumerId);
