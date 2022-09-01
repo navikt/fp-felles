@@ -44,6 +44,7 @@ public final class OidcProviderConfig {
     private static final String AZURE_CONFIG_JWKS_URI = "azure.openid.config.jwks.uri"; // naiserator
     private static final String AZURE_CONFIG_TOKEN_ENDPOINT = "azure.openid.config.token.endpoint"; // naiserator
     private static final String AZURE_CLIENT_ID = "azure.app.client.id"; // naiserator
+    private static final String AZURE_CLIENT_SECRET = "azure.app.client.secret"; // naiserator
     private static final String AZURE_HTTP_PROXY = "azure.http.proxy"; // settes ikke av naiserator
 
     private static final String TOKEN_X_WELL_KNOWN_URL = "token.x.well.known.url"; // naiserator
@@ -182,10 +183,12 @@ public final class OidcProviderConfig {
                 .orElseGet(() -> getJwksFra(wellKnownUrl, useProxy).orElse(null)),
             Optional.ofNullable(ENV.getProperty(AZURE_CONFIG_TOKEN_ENDPOINT))
                 .orElseGet(() -> getTokenEndpointFra(wellKnownUrl, useProxy).orElse(null)),
-            null,
+            Optional.ofNullable(ENV.getProperty(AZURE_CONFIG_TOKEN_ENDPOINT))
+                .map(s -> s.replace("/token", "/authorize"))
+                .orElseGet(() -> getAuthorizationEndpointFra(wellKnownUrl, useProxy).orElse(null)),
             !ENV.isLocal(), useProxy,
             ENV.getRequiredProperty(AZURE_CLIENT_ID),
-            null,
+            ENV.getProperty(AZURE_CLIENT_SECRET),
             true);
     }
 

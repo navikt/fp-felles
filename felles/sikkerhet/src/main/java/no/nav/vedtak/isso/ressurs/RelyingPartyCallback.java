@@ -28,9 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.isso.config.ServerInfo;
+import no.nav.vedtak.isso.oidc.AzureADTokenProvider;
 import no.nav.vedtak.isso.oidc.OpenAmTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorConfig;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 @Path("")
 public class RelyingPartyCallback {
@@ -54,9 +56,17 @@ public class RelyingPartyCallback {
             return status(BAD_REQUEST).build();
         }
 
-        var token = new OpenAmTokenProvider().exhangeOpenAmAuthCode(authorizationCode, ServerInfo.instance().getCallbackUrl());
-        if (!OidcTokenValidatorConfig.instance().getValidator(OpenIDProvider.ISSO).validate(token.primary()).isValid()) {
-            return status(FORBIDDEN).build();
+        OpenIDToken token;
+        if (AzureConfigProperties.isAzureEnabled()) {
+            token = new AzureADTokenProvider().exhangeAzureAuthCode(authorizationCode, ServerInfo.instance().getCallbackUrl());
+            if (!OidcTokenValidatorConfig.instance().getValidator(OpenIDProvider.AZUREAD).validate(token.primary()).isValid()) {
+                return status(FORBIDDEN).build();
+            }
+        } else {
+            token = new OpenAmTokenProvider().exhangeOpenAmAuthCode(authorizationCode, ServerInfo.instance().getCallbackUrl());
+            if (!OidcTokenValidatorConfig.instance().getValidator(OpenIDProvider.ISSO).validate(token.primary()).isValid()) {
+                return status(FORBIDDEN).build();
+            }
         }
 
         var builder = temporaryRedirect(URI.create(decode(redirect.getValue(), UTF_8)));
