@@ -58,7 +58,7 @@ public class RelyingPartyCallback {
 
         OpenIDToken token;
         if (AzureConfigProperties.isAzureEnabled()) {
-            token = new AzureADTokenProvider().exhangeAzureAuthCode(authorizationCode, ServerInfo.instance().getCallbackUrl());
+            token = AzureADTokenProvider.exhangeAzureAuthCode(authorizationCode, ServerInfo.instance().getCallbackUrl());
             if (!OidcTokenValidatorConfig.instance().getValidator(OpenIDProvider.AZUREAD).validate(token.primary()).isValid()) {
                 return status(FORBIDDEN).build();
             }
