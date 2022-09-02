@@ -40,7 +40,7 @@ public class AzureAuthorizationRequestBuilder {
         return providerConfig.authorizationEndpoint().toString() +
             "&response_type=code" +
             "&response_mode=query" +
-            "&scope=" + scopes +
+            "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
             "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8) +
             "&state="+ getStateIndex() +
             "&redirect_uri=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);

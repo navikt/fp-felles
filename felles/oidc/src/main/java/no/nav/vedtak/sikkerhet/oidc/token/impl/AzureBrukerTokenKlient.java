@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URLEncoder;
 import java.net.http.HttpRequest;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -24,7 +25,7 @@ public class AzureBrukerTokenKlient {
 
     public static OpenIDToken exhangeAuthCode(String authorizationCode, String callback, String scopes) {
         String data = "client_id=" + CONFIGURATION.clientId() +
-            "&scope=" + scopes +
+            "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
             "&code=" + authorizationCode +
             "&redirect_uri=" + URLEncoder.encode(callback, UTF_8) +
             "&grant_type=authorization_code" +
@@ -47,7 +48,7 @@ public class AzureBrukerTokenKlient {
         //&grant_type=refresh_token
         //&client_secret=sampleCredentia1s
         var data = "client_id=" + CONFIGURATION.clientId() +
-            "&scope=" + scopes +
+            "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
             "&refresh_token=" + expiredToken.refreshToken().get() +
             "&grant_type=refresh_token" +
             "&client_secret=" + CONFIGURATION.clientSecret();
