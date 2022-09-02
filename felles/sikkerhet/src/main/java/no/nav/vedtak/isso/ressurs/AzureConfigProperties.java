@@ -15,8 +15,11 @@ public final class AzureConfigProperties {
     // Sett = true for å aktivere
     private static final String AZURE_TRIAL_ENABLED = "fp.trial.azure.enabled";
 
+    private static final String OPENID_SCOPE = "openid";
 
-    private static final String AZURE_SCOPES = ENV.getProperty(AZURE_SCOPES_PROPERTY_NAME);
+
+    private static final String AZURE_SCOPES = Optional.ofNullable(ENV.getProperty(AZURE_SCOPES_PROPERTY_NAME))
+        .map(s -> s.replace("\\*", " ")).orElse(OPENID_SCOPE);
     private static final boolean AZURE_ENABLED  = Optional.ofNullable(ENV.getProperty(AZURE_TRIAL_ENABLED)).filter("true"::equals).isPresent();
 
     private AzureConfigProperties() {
@@ -28,7 +31,7 @@ public final class AzureConfigProperties {
         return AZURE_ENABLED;
     }
 
-    public static Optional<String> getAzureScopes() {
-        return Optional.ofNullable(AZURE_SCOPES);
+    public static String getAzureScopes() {
+        return AZURE_SCOPES;
     }
 }

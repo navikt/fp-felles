@@ -20,7 +20,7 @@ public class AzureBrukerTokenKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(AzureBrukerTokenKlient.class);
 
-    private static final OpenIDConfiguration CONFIGURATION = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.AZUREAD).orElseThrow();
+    private static final OpenIDConfiguration CONFIGURATION = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.AZUREAD).orElse(null);
 
     public static OpenIDToken exhangeAuthCode(String authorizationCode, String callback, String scopes) {
         String data = "client_id=" + CONFIGURATION.clientId() +
@@ -31,7 +31,7 @@ public class AzureBrukerTokenKlient {
             //"&code_verifier=" + "ThisIsntRandomButItNeedsToBe43CharactersLong" +
             "&client_secret=" + CONFIGURATION.clientSecret();
         var request = lagRequest(data);
-        var response = GeneriskTokenKlient.hentToken(request, null);
+        var response = GeneriskTokenKlient.hentToken(request, CONFIGURATION.proxy());
         LOG.info("ISSO hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
         return new OpenIDToken(OpenIDProvider.ISSO, response.token_type(), new TokenString(response.id_token()),
             scopes, new TokenString(response.refresh_token()), response.expires_in());
@@ -52,7 +52,7 @@ public class AzureBrukerTokenKlient {
             "&grant_type=refresh_token" +
             "&client_secret=" + CONFIGURATION.clientSecret();
         var request = lagRequest(data);
-        var response = GeneriskTokenKlient.hentToken(request, null);
+        var response = GeneriskTokenKlient.hentToken(request, CONFIGURATION.proxy());
         LOG.info("ISSO hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
         if (response.token_type() == null || response.expires_in() == null) {
             return Optional.empty();

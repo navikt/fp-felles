@@ -11,7 +11,7 @@ public final class AzureADTokenProvider {
 
     private static final Environment ENV = Environment.current();
 
-    private static final String SCOPES = AzureConfigProperties.getAzureScopes().orElse("openid");
+    private static final String SCOPES = AzureConfigProperties.getAzureScopes();
 
     private static final String REFRESH_TIME = "no.nav.vedtak.sikkerhet.minimum_time_to_expiry_before_refresh.seconds";
     public static final int DEFAULT_REFRESH_TIME = 120;

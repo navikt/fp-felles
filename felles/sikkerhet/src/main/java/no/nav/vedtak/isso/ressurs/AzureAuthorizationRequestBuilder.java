@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.Optional;
 
 import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
@@ -13,8 +12,6 @@ import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 public class AzureAuthorizationRequestBuilder {
 
     private static final SecureRandom RND = new SecureRandom();
-
-    private static final String SCOPE = "openid";
 
     private String stateIndex;
 
@@ -30,9 +27,7 @@ public class AzureAuthorizationRequestBuilder {
     }
 
     public String buildRedirectString() {
-        var scopes = AzureConfigProperties.getAzureScopes()
-            .map(s -> s.replace("\\*", " "))
-            .orElse(SCOPE);
+        var scopes = AzureConfigProperties.getAzureScopes();
         var providerConfig = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.AZUREAD).orElseThrow();
         var clientId = providerConfig.clientId();
         var redirectUrl = ServerInfo.instance().getCallbackUrl();
