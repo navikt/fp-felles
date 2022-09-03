@@ -100,9 +100,10 @@ public class OidcTokenValidator {
                 return validateAzure(claims, subject);
             } else if (OpenIDProvider.TOKENX.equals(provider)) {
                 return validateTokenX(claims, subject);
-            } else {
-                return OidcTokenValidatorResult.valid(subject, claims.getExpirationTime().getValue());
+            } else if (OpenIDProvider.AZUREAD.equals(provider)) {
+                subject = Optional.ofNullable(claims.getStringClaimValue("NAVident")).orElse(subject);
             }
+            return OidcTokenValidatorResult.valid(subject, claims.getExpirationTime().getValue());
         } catch (InvalidJwtException e) {
             return OidcTokenValidatorResult.invalid(e.toString());
         } catch (MalformedClaimException e) {

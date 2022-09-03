@@ -3,6 +3,7 @@ package no.nav.vedtak.sikkerhet.oidc.token.impl;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.util.LinkedHashMap;
@@ -80,7 +81,8 @@ public class AzureSystemTokenKlient {
     }
 
     private static HttpRequest.BodyPublisher ofFormData(String clientId, String clientSecret, String scope) {
-        var formdata = "grant_type=client_credentials&client_id=" + clientId + "&client_secret=" + clientSecret + "&scope=" + scope;
+        var encodedScope = URLEncoder.encode(scope, UTF_8);
+        var formdata = "grant_type=client_credentials&client_id=" + clientId + "&client_secret=" + clientSecret + "&scope=" + encodedScope;
         return HttpRequest.BodyPublishers.ofString(formdata, UTF_8);
     }
 

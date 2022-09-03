@@ -33,8 +33,8 @@ public class AzureBrukerTokenKlient {
             "&client_secret=" + CONFIGURATION.clientSecret();
         var request = lagRequest(data);
         var response = GeneriskTokenKlient.hentToken(request, CONFIGURATION.proxy());
-        LOG.info("ISSO hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
-        return new OpenIDToken(OpenIDProvider.ISSO, response.token_type(), new TokenString(response.id_token()),
+        LOG.info("AzureBruker hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
+        return new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.id_token()),
             scopes, new TokenString(response.refresh_token()), response.expires_in());
 
     }
@@ -42,11 +42,6 @@ public class AzureBrukerTokenKlient {
     public static Optional<OpenIDToken> refreshIdToken(OpenIDToken expiredToken, String scopes) {
         if (expiredToken.refreshToken().isEmpty())
             return Optional.empty();
-        //client_id=535fb089-9ff3-47b6-9bfb-4f1264799865
-        //&scope=https%3A%2F%2Fgraph.microsoft.com%2Fmail.read
-        //&refresh_token=OAAABAAAAiL9Kn2Z27UubvWFPbm0gLWQJVzCTE9UkP3pSx1aXxUjq...
-        //&grant_type=refresh_token
-        //&client_secret=sampleCredentia1s
         var data = "client_id=" + CONFIGURATION.clientId() +
             "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
             "&refresh_token=" + expiredToken.refreshToken().get() +
@@ -54,13 +49,28 @@ public class AzureBrukerTokenKlient {
             "&client_secret=" + CONFIGURATION.clientSecret();
         var request = lagRequest(data);
         var response = GeneriskTokenKlient.hentToken(request, CONFIGURATION.proxy());
-        LOG.info("ISSO hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
+        LOG.info("AzureBruker hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
         if (response.token_type() == null || response.expires_in() == null) {
             return Optional.empty();
         }
-        var token = new OpenIDToken(OpenIDProvider.ISSO, response.token_type(), new TokenString(response.id_token()),
+        var token = new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.id_token()),
             scopes, new TokenString(response.refresh_token()), response.expires_in());
         return Optional.of(token);
+    }
+
+    public static OpenIDToken oboExchangeToken(OpenIDToken incomingToken, String scopes) {
+        // TODO: vurder caching av incoming+scopes -> exchanged
+        var data = "client_id=" + CONFIGURATION.clientId() +
+            "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
+            "&assertion=" + incomingToken.token() +
+            "&grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer" +
+            "&requested_token_use=on_behalf_of" +
+            "&client_secret=" + CONFIGURATION.clientSecret();
+        var request = lagRequest(data);
+        var response = GeneriskTokenKlient.hentToken(request, CONFIGURATION.proxy());
+        LOG.info("AzureBruker hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
+        return new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.access_token()),
+            scopes, new TokenString(response.refresh_token()), response.expires_in());
     }
 
     private static HttpRequest lagRequest(String data) {

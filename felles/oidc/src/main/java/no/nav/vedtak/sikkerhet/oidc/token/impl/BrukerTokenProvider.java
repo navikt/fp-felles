@@ -3,6 +3,7 @@ package no.nav.vedtak.sikkerhet.oidc.token.impl;
 import java.util.Optional;
 
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.context.containers.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 
@@ -27,5 +28,9 @@ public class BrukerTokenProvider {
 
     public static String getUserId() {
         return SubjectHandler.getSubjectHandler().getUid();
+    }
+
+    public static IdentType getIdentType() {
+        return SubjectHandler.getSubjectHandler().getIdentType();
     }
 }

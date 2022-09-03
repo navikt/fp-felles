@@ -1,15 +1,14 @@
 package no.nav.vedtak.sikkerhet.oidc.token;
 
 import java.net.URI;
-import java.util.Optional;
 
-import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.sikkerhet.context.containers.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureBrukerTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureSystemTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.BrukerTokenProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.impl.OpenAmBrukerTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.StsSystemTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
 
@@ -30,6 +29,13 @@ public final class TokenProvider {
         };
     }
 
+    public static OpenIDToken getTokenForScope(SikkerhetContext context, String scopes) {
+        return switch (context) {
+            case BRUKER -> getAzureTokenForBrukerMedFallbackDersomSaml(true, scopes);
+            case SYSTEM -> getAzureSystemToken(scopes);
+        };
+    }
+
     public static String getUserIdFor(SikkerhetContext context) {
         return switch (context) {
             case BRUKER -> BrukerTokenProvider.getUserId();
@@ -45,19 +51,6 @@ public final class TokenProvider {
         return AzureSystemTokenKlient.instance().hentAccessToken(scope);
     }
 
-    public static OpenIDToken exhangeOpenAmAuthCode(String authorizationCode, String callback) {
-        return OpenAmBrukerTokenKlient.exhangeAuthCode(authorizationCode, callback);
-    }
-
-    public static Optional<OpenIDToken> refreshOpenAmIdToken(OpenIDToken expiredToken, String clientName) {
-        return OpenAmBrukerTokenKlient.refreshIdToken(expiredToken, clientName);
-    }
-
-    public static OpenIDToken exchangeAzureOBO(String tokenToExchange, String scope) {
-        // Senere: bytte OBO token
-        throw new TekniskException("F-872314", "Azure exchange ikke implementert ennå");
-    }
-
     public static OpenIDToken exchangeTokenX(OpenIDToken token, String assertion, URI targetEndpoint) {
         // Assertion må være generert av den som skal bytte. Et JWT, RSA-signert, basert på injisert private jwk
         return TokenXExchangeKlient.instance().exchangeToken(token, assertion, targetEndpoint);
@@ -68,6 +61,18 @@ public final class TokenProvider {
             return getStsSystemToken();
         }
         return BrukerTokenProvider.getToken();
+    }
+
+    private static OpenIDToken getAzureTokenForBrukerMedFallbackDersomSaml(boolean fallback, String scopes) {
+        if (!BrukerTokenProvider.harSattBrukerOidcToken() && BrukerTokenProvider.harSattBrukerSamlToken() && fallback) {
+            return getAzureSystemToken(scopes);
+        }
+        var token = BrukerTokenProvider.getToken();
+        if (token != null && token.token() != null && OpenIDProvider.AZUREAD.equals(token.provider()) &&
+            IdentType.InternBruker.equals(BrukerTokenProvider.getIdentType())) {
+            return AzureBrukerTokenKlient.oboExchangeToken(token, scopes);
+        }
+        return token;
     }
 
 }
