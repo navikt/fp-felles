@@ -6,6 +6,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,22 +35,18 @@ public final class DefaultHttpKlient {
     }
 
     public String send(HttpRequest request) {
-        DefaultRequest.validateHeaders(request);
-        return ResponseHandler.handleResponse(doSendExpectStringRetry(request), request.uri());
+        return ResponseHandler.handleResponse(doSendExpectStringRetry(request), request.uri(), Set.of());
     }
 
-    public String sendPermitConflict(HttpRequest request) {
-        DefaultRequest.validateHeaders(request);
-        return ResponseHandler.handleResponsePermitConflict(doSendExpectStringRetry(request), request.uri());
+    public String send(HttpRequest request, Set<Integer> permits) {
+        return ResponseHandler.handleResponse(doSendExpectStringRetry(request), request.uri(), permits);
     }
 
     public Optional<byte[]> sendHandleResponse(HttpRequest request) {
-        DefaultRequest.validateHeaders(request);
-        return Optional.ofNullable(ResponseHandler.handleResponse(doSendExpectBytearrayRetry(request), request.uri()));
+        return Optional.ofNullable(ResponseHandler.handleResponse(doSendExpectBytearrayRetry(request), request.uri(), Set.of()));
     }
 
     public HttpResponse<String> sendNoResponseHandler(HttpRequest request) {
-        DefaultRequest.validateHeaders(request);
         return doSendExpectStringRetry(request);
     }
 

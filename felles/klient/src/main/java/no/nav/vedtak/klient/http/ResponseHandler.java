@@ -14,15 +14,7 @@ final class ResponseHandler {
         // NOSONAR
     }
 
-    static <W> W handleResponse(final HttpResponse<W> response, URI endpoint) {
-        return handleResponse(response, endpoint, Set.of());
-    }
-
-    static <W> W handleResponsePermitConflict(final HttpResponse<W> response, URI endpoint) {
-        return handleResponse(response, endpoint, Set.of(HttpURLConnection.HTTP_CONFLICT));
-    }
-
-    private static <W> W handleResponse(final HttpResponse<W> response, URI endpoint, Set<Integer> permits) {
+    static <W> W handleResponse(final HttpResponse<W> response, URI endpoint, Set<Integer> permits) {
         int status = response.statusCode();
         if (status == HttpURLConnection.HTTP_NO_CONTENT) {
             return null;
