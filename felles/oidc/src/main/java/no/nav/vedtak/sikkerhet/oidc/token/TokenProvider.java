@@ -60,7 +60,7 @@ public final class TokenProvider {
 
     public static OpenIDToken exchangeTokenX(OpenIDToken token, String assertion, URI targetEndpoint) {
         // Assertion må være generert av den som skal bytte. Et JWT, RSA-signert, basert på injisert private jwk
-        return TokenXExchangeKlient.exchangeToken(token, assertion, targetEndpoint);
+        return TokenXExchangeKlient.instance().exchangeToken(token, assertion, targetEndpoint);
     }
 
     private static OpenIDToken getTokenForBrukerMedFallbackDersomSaml(boolean fallback) {
