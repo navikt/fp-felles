@@ -5,6 +5,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 import org.slf4j.Logger;
@@ -20,22 +21,31 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public final class TokenXExchangeKlient {
 
-    private static final Environment ENV = Environment.current();
-    private static final String CLUSTER = ENV.getCluster().clusterName();
-    private static final String NAMESPACE = ENV.getNamespace().getName();
-
     private static final Logger LOG = LoggerFactory.getLogger(TokenXExchangeKlient.class);
 
-    private static final String CLIENT_ID = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX)
-        .map(OpenIDConfiguration::clientId).orElse(null);
-    private static final URI TOKEN_ENDPOINT = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX)
-        .map(OpenIDConfiguration::tokenEndpoint).orElse(null);
+    private static volatile TokenXExchangeKlient INSTANCE; // NOSONAR
+
+    private final Optional<OpenIDConfiguration> configuration;
+    private final String cluster;
+    private final String namespace;
+
 
     private TokenXExchangeKlient() {
-        // NOSONAR
+        this.configuration = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX);
+        this.cluster = Environment.current().clusterName();
+        this.namespace = Environment.current().namespace();
     }
 
-    public static OpenIDToken exchangeToken(OpenIDToken token, String assertion, URI targetEndpoint) {
+    public static synchronized TokenXExchangeKlient instance() {
+        var inst = INSTANCE;
+        if (inst == null) {
+            inst = new TokenXExchangeKlient();
+            INSTANCE = inst;
+        }
+        return inst;
+    }
+
+    public OpenIDToken exchangeToken(OpenIDToken token, String assertion, URI targetEndpoint) {
         var audience = audience(targetEndpoint);
         var response = hentToken(token, assertion, audience);
         LOG.info("TokenX byttet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
@@ -43,14 +53,14 @@ public final class TokenXExchangeKlient {
             new TokenString(response.access_token()), audience, response.expires_in());
     }
 
-    private static OidcTokenResponse hentToken(OpenIDToken token, String assertion, String audience) {
+    private OidcTokenResponse hentToken(OpenIDToken token, String assertion, String audience) {
         var request = HttpRequest.newBuilder()
-            .header("Nav-Consumer-Id", CLIENT_ID)
+            .header("Nav-Consumer-Id", configuration.map(OpenIDConfiguration::clientId).orElse(null))
             .header("Nav-Call-Id", MDCOperations.getCallId())
             .header("Cache-Control", "no-cache")
             .header("Content-type", "application/x-www-form-urlencoded")
             .timeout(Duration.ofSeconds(10))
-            .uri(TOKEN_ENDPOINT)
+            .uri(configuration.map(OpenIDConfiguration::tokenEndpoint).orElse(null))
             .POST(ofFormData(token, assertion, audience))
             .build();
         return GeneriskTokenKlient.hentToken(request, null);
@@ -66,14 +76,14 @@ public final class TokenXExchangeKlient {
         return HttpRequest.BodyPublishers.ofString(formdata, UTF_8);
     }
 
-    private static String audience(URI uri) {
+    private String audience(URI uri) {
         String host = uri.getHost();
         var elems = host.split("\\.");
         var joiner = new StringJoiner(":");
-        joiner.add(CLUSTER);
+        joiner.add(cluster);
 
         if (elems.length == 1) {
-            joiner.add(NAMESPACE);
+            joiner.add(namespace);
             joiner.add(elems[0]);
             return joiner.toString();
         }

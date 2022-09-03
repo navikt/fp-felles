@@ -35,7 +35,7 @@ public final class TokenXchange {
     public static OpenIDToken exchange(OpenIDToken token, URI targetEndpoint) {
         if (token != null && OpenIDProvider.TOKENX.equals(token.provider())) {
             LOG.trace(CONFIDENTIAL, "Veksler tokenX token {} for {}", token, targetEndpoint);
-            var assertion = TokenXAssertionGenerator.assertion();
+            var assertion = TokenXAssertionGenerator.instance().assertion();
             return TokenProvider.exchangeTokenX(token, assertion, targetEndpoint);
         } else {
             if (token != null && ENV.isLocal()) {
