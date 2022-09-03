@@ -5,7 +5,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.time.Duration;
-import java.util.Optional;
 import java.util.StringJoiner;
 
 import org.slf4j.Logger;
@@ -25,15 +24,18 @@ public final class TokenXExchangeKlient {
 
     private static TokenXExchangeKlient INSTANCE;
 
-    private final Optional<OpenIDConfiguration> configuration;
     private final String cluster;
     private final String namespace;
+    private final URI tokenEndpoint;
+    private final String clientId;
 
 
     private TokenXExchangeKlient() {
-        this.configuration = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX);
+        var provider = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX);
         this.cluster = Environment.current().clusterName();
         this.namespace = Environment.current().namespace();
+        this.tokenEndpoint = provider.map(OpenIDConfiguration::tokenEndpoint).orElse(null);
+        this.clientId = provider.map(OpenIDConfiguration::clientId).orElse(null);
     }
 
     public static synchronized TokenXExchangeKlient instance() {
@@ -55,12 +57,12 @@ public final class TokenXExchangeKlient {
 
     private OidcTokenResponse hentToken(OpenIDToken token, String assertion, String audience) {
         var request = HttpRequest.newBuilder()
-            .header("Nav-Consumer-Id", configuration.map(OpenIDConfiguration::clientId).orElse(null))
+            .header("Nav-Consumer-Id", clientId)
             .header("Nav-Call-Id", MDCOperations.getCallId())
             .header("Cache-Control", "no-cache")
             .header("Content-type", "application/x-www-form-urlencoded")
             .timeout(Duration.ofSeconds(10))
-            .uri(configuration.map(OpenIDConfiguration::tokenEndpoint).orElse(null))
+            .uri(tokenEndpoint)
             .POST(ofFormData(token, assertion, audience))
             .build();
         return GeneriskTokenKlient.hentToken(request, null);

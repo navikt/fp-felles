@@ -18,11 +18,11 @@ public final class AzureADTokenProvider {
 
 
     public static OpenIDToken exhangeAzureAuthCode(String authorizationCode, String callback) {
-        return AzureBrukerTokenKlient.exhangeAuthCode(authorizationCode, callback, SCOPES);
+        return AzureBrukerTokenKlient.instance().exhangeAuthCode(authorizationCode, callback, SCOPES);
     }
 
     public static Optional<OpenIDToken> refreshAzureIdToken(OpenIDToken expiredToken) {
-        return AzureBrukerTokenKlient.refreshIdToken(expiredToken, SCOPES);
+        return AzureBrukerTokenKlient.instance().refreshIdToken(expiredToken, SCOPES);
     }
 
     public static boolean isAzureTokenSoonExpired(OpenIDToken token) {

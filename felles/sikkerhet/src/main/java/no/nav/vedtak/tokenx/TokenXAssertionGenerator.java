@@ -3,6 +3,7 @@ package no.nav.vedtak.tokenx;
 import static com.nimbusds.jose.JOSEObjectType.JWT;
 import static com.nimbusds.jose.JWSAlgorithm.RS256;
 
+import java.net.URI;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
@@ -25,12 +26,16 @@ final class TokenXAssertionGenerator {
 
     private static TokenXAssertionGenerator INSTANCE;
 
-    private final Optional<OpenIDConfiguration> configuration;
+    private final String clientId;
+    private final URI tokenEndpoint;
     private final RSAKey privateKey;
 
 
     private TokenXAssertionGenerator() {
-        this.configuration = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX);
+        this.tokenEndpoint = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX)
+            .map(OpenIDConfiguration::tokenEndpoint).orElse(null);
+        this.clientId = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX)
+            .map(OpenIDConfiguration::clientId).orElse(null);
         this.privateKey = Optional.ofNullable(Environment.current().getProperty("token.x.private.jwk"))
             .map(TokenXAssertionGenerator::rsaKey).orElse(null);
     }
@@ -47,9 +52,9 @@ final class TokenXAssertionGenerator {
         var now = Date.from(Instant.now());
         try {
             var claimsSet = new JWTClaimsSet.Builder()
-                .subject(configuration.map(OpenIDConfiguration::clientId).orElse(null))
-                .issuer(configuration.map(OpenIDConfiguration::clientId).orElse(null))
-                .audience(configuration.map(c -> c.tokenEndpoint().toString()).orElse(null))
+                .subject(clientId)
+                .issuer(clientId)
+                .audience(tokenEndpoint.toString())
                 .issueTime(now)
                 .notBeforeTime(now)
                 .expirationTime(Date.from(Instant.now().plusSeconds(60)))

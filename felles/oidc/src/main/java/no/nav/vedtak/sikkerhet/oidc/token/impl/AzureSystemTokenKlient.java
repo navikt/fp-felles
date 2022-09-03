@@ -44,10 +44,10 @@ public class AzureSystemTokenKlient {
 
     private AzureSystemTokenKlient() {
         var provider = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.AZUREAD).orElseThrow();
-        tokenEndpoint = provider.tokenEndpoint();
-        azureProxy = provider.proxy();
-        clientId = provider.clientId();
-        clientSecret = ENV.getProperty("azure.app.client.secret", "foreldrepenger");
+        this.tokenEndpoint = provider.tokenEndpoint();
+        this.azureProxy = provider.proxy();
+        this.clientId = provider.clientId();
+        this.clientSecret = provider.clientSecret();
     }
 
     public synchronized OpenIDToken hentAccessToken(String scope) {

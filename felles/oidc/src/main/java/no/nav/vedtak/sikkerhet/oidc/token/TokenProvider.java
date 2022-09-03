@@ -70,7 +70,7 @@ public final class TokenProvider {
         var token = BrukerTokenProvider.getToken();
         if (token != null && token.token() != null && OpenIDProvider.AZUREAD.equals(token.provider()) &&
             IdentType.InternBruker.equals(BrukerTokenProvider.getIdentType())) {
-            return AzureBrukerTokenKlient.oboExchangeToken(token, scopes);
+            return AzureBrukerTokenKlient.instance().oboExchangeToken(token, scopes);
         }
         return token;
     }
