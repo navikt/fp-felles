@@ -10,7 +10,6 @@ import javax.ws.rs.core.UriBuilder;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.rest.NativeKlient;
 import no.nav.vedtak.felles.integrasjon.rest.RestKlient;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 
 @NativeKlient
@@ -48,7 +47,7 @@ public class OrganisasjonNativeRestKlient implements OrgInfo {
 
     private HttpRequest lagRequest(String orgnummer) {
         var path = UriBuilder.fromUri(endpoint).path(orgnummer).build();
-        return RestRequest.builder(SikkerhetContext.BRUKER)
+        return restKlient.request().builder(SikkerhetContext.BRUKER)
             .uri(path)
             .GET()
             .build();

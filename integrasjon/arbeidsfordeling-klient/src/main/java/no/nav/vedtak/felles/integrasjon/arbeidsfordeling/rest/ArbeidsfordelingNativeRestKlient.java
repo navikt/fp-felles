@@ -22,14 +22,14 @@ public class ArbeidsfordelingNativeRestKlient implements Arbeidsfordeling {
     private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
 
-    private RestKlient restClient;
+    private RestKlient restKlient;
     private URI alleEnheterUri;
     private URI besteEnhetUri;
 
     @Inject
-    public ArbeidsfordelingNativeRestKlient(RestKlient restClient,
+    public ArbeidsfordelingNativeRestKlient(RestKlient restKlient,
                                             @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
-        this.restClient = restClient;
+        this.restKlient = restKlient;
         this.alleEnheterUri = uri;
         this.besteEnhetUri = URI.create(uri + BEST_MATCH);
     }
@@ -50,11 +50,11 @@ public class ArbeidsfordelingNativeRestKlient implements Arbeidsfordeling {
 
     private List<ArbeidsfordelingResponse> hentEnheterFor(ArbeidsfordelingRequest request, URI uri) {
         try {
-            var httpRequest = RestRequest.builder(SikkerhetContext.BRUKER)
+            var httpRequest = restKlient.request().builder(SikkerhetContext.BRUKER)
                 .uri(uri)
                 .POST(RestRequest.serialiser(request))
                 .build();
-            var respons = restClient.send(httpRequest, ArbeidsfordelingResponse[].class);
+            var respons = restKlient.send(httpRequest, ArbeidsfordelingResponse[].class);
             return Arrays.stream(respons)
                 .filter(response -> "AKTIV".equalsIgnoreCase(response.status()))
                 .collect(Collectors.toList());

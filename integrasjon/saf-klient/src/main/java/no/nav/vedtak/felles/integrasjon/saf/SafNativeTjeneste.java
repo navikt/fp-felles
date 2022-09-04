@@ -45,12 +45,18 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
     private static final Logger LOG = LoggerFactory.getLogger(SafNativeTjeneste.class);
 
     private RestKlient restKlient;
+    private RestRequest restRequest;
     private URI base;
     private GraphQLErrorHandler errorHandler;
 
     @Inject
     public SafNativeTjeneste(RestKlient restKlient, @KonfigVerdi(value = "saf.base.url", defaultVerdi = DEFAULT_BASE) URI base) {
+        this(restKlient, restKlient.request(), base);
+    }
+
+    SafNativeTjeneste(RestKlient restKlient, RestRequest restRequest, URI base) {
         this.restKlient = restKlient;
+        this.restRequest = restRequest;
         this.base = base;
         this.errorHandler = new SafErrorHandler();
     }
@@ -82,7 +88,7 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
             .resolveTemplate("dokumentInfoId", q.dokumentId())
             .resolveTemplate("variantFormat", q.variantFormat())
             .build();
-        var request = RestRequest.builder(SikkerhetContext.BRUKER)
+        var request = restRequest.builder(SikkerhetContext.BRUKER)
             .uri(path)
             .GET();
         var doc = restKlient.sendHandleResponse(request.build());
@@ -97,7 +103,7 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
             LOG.trace("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
-            var request = RestRequest.builder(SikkerhetContext.BRUKER)
+            var request = restRequest.builder(SikkerhetContext.BRUKER)
                 .uri(UriBuilder.fromUri(base).path(GRAPHQL).build())
                 .POST(HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
             var res = restKlient.send(request.build(), clazz);

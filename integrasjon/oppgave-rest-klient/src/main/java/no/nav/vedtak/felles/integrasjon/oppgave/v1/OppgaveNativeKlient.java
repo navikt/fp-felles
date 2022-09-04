@@ -95,7 +95,7 @@ public class OppgaveNativeKlient implements Oppgaver {
     }
 
     private HttpRequest.Builder lagRequest() {
-        return RestRequest.builder(SikkerhetContext.BRUKER)
+        return restKlient.request().builder(SikkerhetContext.BRUKER)
             .header(HEADER_CORRELATION_ID, MDCOperations.getCallId());
     }
 

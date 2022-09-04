@@ -9,10 +9,10 @@ import javax.ws.rs.core.MediaType;
 
 import no.nav.vedtak.klient.http.DefaultRequest;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-import no.nav.vedtak.sikkerhet.oidc.token.OidcRequest;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 
-public final class RestRequest {
+public class RestRequest {
 
     private static final String HEADER_NAV_CONSUMER_ID = "Nav-Consumer-Id";
     private static final String HEADER_NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
@@ -21,26 +21,43 @@ public final class RestRequest {
 
     private static final Set<String> REST_HEADERS = Set.of(HEADER_NAV_CONSUMER_ID, HttpHeaders.AUTHORIZATION);
 
+    private static volatile RestRequest REQUEST; // NOSONAR
+
+    private final RequestContextSupplier supplier;
+
+    // Local test purposes
+    protected RestRequest(RequestContextSupplier supplier) {
+        this.supplier = supplier;
+    }
 
     private RestRequest() {
-        // NOSONAR
+        this(new OidcContextSupplier());
     }
 
-    public static HttpRequest.Builder builder(SikkerhetContext context) {
-        return builder(OidcRequest.tokenFor(context), OidcRequest.consumerIdFor(context));
+    public static synchronized RestRequest request() {
+        var inst= REQUEST;
+        if (inst == null) {
+            inst = new RestRequest();
+            REQUEST = inst;
+        }
+        return inst;
     }
 
-    public static HttpRequest.Builder builderConsumerToken(SikkerhetContext context) {
-        return builder(OidcRequest.tokenFor(context), OidcRequest.consumerIdFor(context))
-            .header(HEADER_NAV_CONSUMER_TOKEN, OidcRequest.stsSystemToken().get());
+    public HttpRequest.Builder builder(SikkerhetContext context) {
+        return builder(supplier.tokenFor(context), supplier.consumerIdFor(context));
     }
 
-    public static HttpRequest.Builder builderSystemSTS() {
-        return builder(OidcRequest.stsSystemToken(), OidcRequest.consumerId());
+    public HttpRequest.Builder builderConsumerToken(SikkerhetContext context) {
+        return builder(supplier.tokenFor(context), supplier.consumerIdFor(context))
+            .header(HEADER_NAV_CONSUMER_TOKEN, supplier.consumerToken().get().token());
     }
 
-    public static HttpRequest.Builder builderSystemAzure(String scope) {
-        return builder(OidcRequest.azureSystemToken(scope), OidcRequest.consumerId());
+    public HttpRequest.Builder builderSystemSTS() {
+        return builder(supplier.stsSystemToken(), supplier.consumerId());
+    }
+
+    public HttpRequest.Builder builderSystemAzure(String scope) {
+        return builder(supplier.azureSystemToken(scope), supplier.consumerId());
     }
 
     public static void patch(HttpRequest.Builder builder, Object o) {
@@ -52,10 +69,10 @@ public final class RestRequest {
         return HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(object));
     }
 
-    private static HttpRequest.Builder builder(Supplier<String> authToken, Supplier<String> consumerId) {
+    private static HttpRequest.Builder builder(Supplier<OpenIDToken> authToken, Supplier<String> consumerId) {
         return DefaultRequest.builder()
             .header(HEADER_NAV_CONSUMER_ID, consumerId.get())
-            .header(HttpHeaders.AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + authToken.get())
+            .header(HttpHeaders.AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + authToken.get().token())
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
             .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
     }

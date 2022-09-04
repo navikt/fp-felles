@@ -13,7 +13,6 @@ import javax.ws.rs.core.UriBuilder;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.rest.NativeKlient;
 import no.nav.vedtak.felles.integrasjon.rest.RestKlient;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 
@@ -61,7 +60,7 @@ public class MedlemsunntakNativeRestKlient implements Medlemskap {
             .queryParam(PARAM_TIL_OG_MED, d2s(tom))
             .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_GYLD)
             .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK);
-        var request = RestRequest.builder(SikkerhetContext.BRUKER)
+        var request = restKlient.request().builder(SikkerhetContext.BRUKER)
             .header(HEADER_NAV_CALL_ID, MDCOperations.getCallId())
             .header(HEADER_NAV_PERSONIDENT, aktørId)
             .uri(uri.build())

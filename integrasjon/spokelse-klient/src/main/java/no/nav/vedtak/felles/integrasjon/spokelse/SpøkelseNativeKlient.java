@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.NativeKlient;
 import no.nav.vedtak.felles.integrasjon.rest.RestKlient;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
 @NativeKlient
 @ApplicationScoped
@@ -46,7 +45,7 @@ public class SpøkelseNativeKlient implements Spøkelse {
             var path = UriBuilder.fromUri(uri)
                 .queryParam("fodselsnummer", fnr)
                 .build();
-            var request = RestRequest.builderSystemAzure(scope)
+            var request = restKlient.request().builderSystemAzure(scope)
                 .uri(path)
                 .GET()
                 .build();

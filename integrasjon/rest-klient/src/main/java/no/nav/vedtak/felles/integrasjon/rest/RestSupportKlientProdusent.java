@@ -11,5 +11,9 @@ public class RestSupportKlientProdusent {
         return RestKlient.client();
     }
 
+    @Produces
+    public RestRequest getRestRequest() {
+        return RestRequest.request();
+    }
 
 }

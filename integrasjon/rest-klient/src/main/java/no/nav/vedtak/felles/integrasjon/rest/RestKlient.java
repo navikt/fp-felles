@@ -28,6 +28,10 @@ public final class RestKlient {
         return inst;
     }
 
+    public RestRequest request() {
+        return RestRequest.request();
+    }
+
     public <T> T send(HttpRequest request, Class<T> clazz) {
         RestRequest.validateRestHeaders(request);
         var response = httpClient.send(request);

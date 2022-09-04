@@ -52,6 +52,7 @@ public class NativePdlKlient implements Pdl {
     private GraphQLErrorHandler errorHandler;
     private String tema;
     private RestKlient restKlient;
+    private RestRequest restRequest;
 
     /**
      * TODO: Utvide med ulike varianter ifm azure - Bruker, System, OBO, etc. Evt deleger til TokenProvider/OidcRequest
@@ -61,7 +62,12 @@ public class NativePdlKlient implements Pdl {
     public NativePdlKlient(RestKlient restKlient,
             @KonfigVerdi(value = "pdl.base.url", defaultVerdi = HTTP_PDL_API_DEFAULT_GRAPHQL) URI endpoint,
             @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema) {
+        this(restKlient, restKlient.request(), endpoint, tema);
+    }
+
+    NativePdlKlient(RestKlient restKlient, RestRequest restRequest, URI endpoint, String tema) {
         this.restKlient = restKlient;
+        this.restRequest = restRequest;
         this.endpoint = endpoint;
         this.tema = tema;
         this.errorHandler = new PdlDefaultErrorHandler();
@@ -110,7 +116,7 @@ public class NativePdlKlient implements Pdl {
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         LOG.trace("Henter resultat for {} fra {}", clazz.getName(), endpoint);
-        var request = RestRequest.builderConsumerToken(SikkerhetContext.BRUKER)
+        var request = restRequest.builderConsumerToken(SikkerhetContext.BRUKER)
             .header("TEMA", tema)
             .uri(endpoint)
             .POST(HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()))

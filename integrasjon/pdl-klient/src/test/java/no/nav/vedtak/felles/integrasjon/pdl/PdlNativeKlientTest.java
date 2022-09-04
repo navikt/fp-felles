@@ -1,66 +1,79 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
 import static java.util.List.of;
+import static no.nav.vedtak.felles.integrasjon.pdl.PdlDefaultErrorHandler.FORBUDT;
+import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpRequest;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicStatusLine;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
+
 import no.nav.pdl.HentIdenterBolkQueryRequest;
+import no.nav.pdl.HentIdenterBolkQueryResponse;
 import no.nav.pdl.HentIdenterBolkResultResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
+import no.nav.pdl.HentIdenterQueryResponse;
 import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.HentPersonQueryResponse;
 import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.rest.StsStandardXtraTokenRestKlient;
+import no.nav.vedtak.felles.integrasjon.rest.RestKlient;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
-class NativeKlientTest {
+class PdlNativeKlientTest {
 
     private Pdl pdlKlient;
+    private URI endpoint = URI.create("http://dummyendpoint/graphql");
 
     @Mock
-    private StsStandardXtraTokenRestKlient restClient;
-    @Mock
-    private CloseableHttpResponse response;
-    @Mock
-    private HttpEntity httpEntity;
+    private RestKlient restClient;
+
+    private static class PdlRequest extends RestRequest {
+        private PdlRequest() {
+            super(new TestContextSupplier());
+        }
+    }
 
     @BeforeEach
     void setUp() throws IOException {
-        when(restClient.execute(any(HttpPost.class))).thenReturn(response);
-
-        when(response.getEntity()).thenReturn(httpEntity);
-        when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "FINE!"));
-
         // Service setup
-        URI endpoint = URI.create("dummyendpoint/graphql");
-        pdlKlient = new PdlKlient(endpoint, Tema.OMS.name(), restClient, new PdlDefaultErrorHandler());
+        MDCOperations.putCallId();
+        pdlKlient = new NativePdlKlient(restClient, new PdlRequest(), endpoint, Tema.FOR.name());
     }
 
     @Test
     void skal_returnere_person() throws IOException {
         // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111",
         // fagsaksystem: "AO01"}, foerste: 5)
-        when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/personResponse.json"));
+        var resource = getClass().getClassLoader().getResource("pdl/personResponse.json");
+        var response = DefaultJsonMapper.fromJson(resource, HentPersonQueryResponse.class);
+        var captor = ArgumentCaptor.forClass(HttpRequest.class);
+
+        when(restClient.send(captor.capture(), any())).thenReturn(response);
 
         var query = new HentPersonQueryRequest();
         query.setIdent("12345678901");
@@ -71,11 +84,18 @@ class NativeKlientTest {
         var person = pdlKlient.hentPerson(query, projection);
 
         assertThat(person.getNavn().get(0).getFornavn()).isNotEmpty();
+        var rq = captor.getValue();
+        assertThat(rq.headers().map().get("Authorization")).isNotEmpty();
+        assertThat(rq.headers().map().get("Nav-Consumer-Token")).isNotEmpty();
+        assertThat(rq.headers().map().get("Nav-Consumer-Id")).contains("user");
+        assertThat(rq.headers().map().get("TEMA")).contains("FOR");
     }
 
     @Test
     void skal_returnere_ident() throws IOException {
-        when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerResponse.json"));
+        var resource = getClass().getClassLoader().getResource("pdl/identerResponse.json");
+        var response = DefaultJsonMapper.fromJson(resource, HentIdenterQueryResponse.class);
+        when(restClient.send(any(HttpRequest.class), any())).thenReturn(response);
 
         var queryRequest = new HentIdenterQueryRequest();
         queryRequest.setIdent("12345678901");
@@ -92,7 +112,9 @@ class NativeKlientTest {
 
     @Test
     void skal_returnere_bolk_med_identer() throws IOException {
-        when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/identerBolkResponse.json"));
+        var resource = getClass().getClassLoader().getResource("pdl/identerBolkResponse.json");
+        var response = DefaultJsonMapper.fromJson(resource, HentIdenterBolkQueryResponse.class);
+        when(restClient.send(any(HttpRequest.class), any())).thenReturn(response);
 
         var queryRequest = new HentIdenterBolkQueryRequest();
         queryRequest.setIdenter(of("12345678901"));
@@ -113,7 +135,10 @@ class NativeKlientTest {
 
     @Test
     void skal_returnere_ikke_funnet() throws IOException {
-        when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream("pdl/errorResponse.json"));
+        var resource = getClass().getClassLoader().getResource("pdl/errorResponse.json");
+        var response = DefaultJsonMapper.fromJson(resource, HentIdenterQueryResponse.class);
+        when(restClient.send(any(HttpRequest.class), any())).thenReturn(response);
+
 
         var queryRequest = new HentIdenterQueryRequest();
         queryRequest.setIdent("12345678901");
@@ -124,6 +149,20 @@ class NativeKlientTest {
                                 .gruppe());
 
         assertThrows(PdlException.class, () -> pdlKlient.hentIdenter(queryRequest, projection));
-
     }
+
+    @Test
+    @DisplayName("Test error handler")
+    void testErrorHandler() {
+        var handler = new PdlDefaultErrorHandler();
+        var error = new GraphQLError();
+        error.setExtensions(Map.of("code", FORBUDT, "details",
+            Map.of("cause", "a cause", "type", "a type", "policy", "a policy")));
+        var e = assertThrows(PdlException.class, () -> handler.handleError(List.of(error), endpoint, "KODE"));
+        assertNotNull(e.getDetails());
+        assertEquals(FORBUDT, e.getCode());
+        assertEquals("a policy", e.getDetails().policy());
+        assertEquals(SC_UNAUTHORIZED, e.getStatus());
+    }
+
 }
