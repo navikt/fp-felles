@@ -11,11 +11,6 @@ import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 @Priority(1)
 class DummyRequestBuilder implements PdpRequestBuilder {
     @Override
-    public PdpRequest lagPdpRequest(AbacAttributtSamling attributter) {
-        return new PdpRequest();
-    }
-
-    @Override
     public AppRessursData lagAppRessursData(AbacDataAttributter attributter) {
         return AppRessursData.builder().build();
     }

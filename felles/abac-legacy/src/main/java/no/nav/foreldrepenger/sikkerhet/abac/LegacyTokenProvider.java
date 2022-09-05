@@ -15,11 +15,6 @@ public class LegacyTokenProvider implements TokenProvider {
     }
 
     @Override
-    public String userToken() {
-        return SubjectHandler.getSubjectHandler().getInternSsoToken();
-    }
-
-    @Override
     public OpenIDToken openIdToken() {
         return SubjectHandler.getSubjectHandler().getOpenIDToken();
     }

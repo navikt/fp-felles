@@ -3,6 +3,7 @@ package no.nav.vedtak.sikkerhet.abac;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -14,7 +15,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.vedtak.sikkerhet.abac.AbacIdToken.TokenType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
+import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
 
 @ExtendWith(MockitoExtension.class)
 class PepImplTest {
@@ -39,12 +45,9 @@ class PepImplTest {
     @Test
     void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
         when(tokenProvider.getUid()).thenReturn("srvpdp");
-        AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
-                .setResource(RESOURCE_TYPE_INTERNAL_PIP)
-                .setAction("READ");
+        var  attributter = lagBeskyttetRessursAttributterPip();
 
-        when(pdpRequestBuilder.lagPdpRequest(attributter))
-            .thenReturn(new PdpRequest());
+        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
@@ -54,12 +57,9 @@ class PepImplTest {
     @Test
     void skal_nekte_tilgang_til_saksbehandler_for_piptjeneste() {
         when(tokenProvider.getUid()).thenReturn("z142443");
-        AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
-                .setResource(RESOURCE_TYPE_INTERNAL_PIP)
-                .setAction("READ");
+        var  attributter = lagBeskyttetRessursAttributterPip();
 
-        when(pdpRequestBuilder.lagPdpRequest(attributter))
-            .thenReturn(new PdpRequest());
+        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
@@ -68,15 +68,40 @@ class PepImplTest {
 
     @Test
     void skal_kalle_pdp_for_annet_enn_pip_tjenester() {
-        AbacAttributtSamling attributter = AbacAttributtSamling.medJwtToken("dummy", TokenType.OIDC)
-                .setResource("no.nav.abac.attributter.foreldrepenger.fagsak")
-                .setAction("READ");
+        when(tokenProvider.getUid()).thenReturn("z142443");
+        var  attributter = lagBeskyttetRessursAttributter();
 
-        when(pdpRequestBuilder.lagPdpRequest(attributter))
-            .thenReturn(new PdpRequest());
+        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
+        when(pdpRequestBuilder.abacDomene()).thenReturn("foreldrepenger");
 
         @SuppressWarnings("unused")
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
-        verify(pdpKlientMock).forespørTilgang(any(PdpRequest.class));
+        verify(pdpKlientMock).forespørTilgang(eq(attributter), any(String.class), any(AppRessursData.class));
+    }
+
+    private BeskyttetRessursAttributter lagBeskyttetRessursAttributter() {
+        return BeskyttetRessursAttributter.builder()
+            .medUserId(tokenProvider.getUid())
+            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
+            .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK)
+            .medActionType(ActionType.READ)
+            .medPepId("local-app")
+            .medServicePath("/metode")
+            .medServiceType(ServiceType.REST)
+            .medDataAttributter(AbacDataAttributter.opprett())
+            .build();
+    }
+
+    private BeskyttetRessursAttributter lagBeskyttetRessursAttributterPip() {
+        return BeskyttetRessursAttributter.builder()
+            .medUserId(tokenProvider.getUid())
+            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
+            .medResourceType(RESOURCE_TYPE_INTERNAL_PIP)
+            .medActionType(ActionType.READ)
+            .medPepId("local-app")
+            .medServicePath("/metode")
+            .medServiceType(ServiceType.REST)
+            .medDataAttributter(AbacDataAttributter.opprett())
+            .build();
     }
 }

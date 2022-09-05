@@ -6,6 +6,12 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipAktørId;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
 
 
 public class AppRessursData {
@@ -56,6 +62,11 @@ public class AppRessursData {
             return this;
         }
 
+        public Builder leggTilAbacAktørIdSet(Collection<PipAktørId> aktørId) {
+            pdpRequest.aktørIdSet.addAll(aktørId.stream().map(PipAktørId::getVerdi).collect(Collectors.toSet()));
+            return this;
+        }
+
         public Builder leggTilFødselsnummer(String fnr) {
             pdpRequest.fødselsnumre.add(fnr);
             return this;
@@ -84,16 +95,16 @@ public class AppRessursData {
             return this;
         }
 
-        public Builder medBehandlingStatus(BehandlingStatus behandlingStatus) {
+        public Builder medBehandlingStatus(PipBehandlingStatus behandlingStatus) {
             return leggTilRessurs(ForeldrepengerDataKeys.BEHANDLING_STATUS, behandlingStatus);
         }
 
-        public Builder medFagsakStatus(FagsakStatus fagsakStatus) {
+        public Builder medFagsakStatus(PipFagsakStatus fagsakStatus) {
             return leggTilRessurs(ForeldrepengerDataKeys.FAGSAK_STATUS, fagsakStatus);
         }
 
-        public Builder medOverstyring(Overstyring overstyring) {
-            if (!Overstyring.OVERSTYRING.equals(overstyring)) {
+        public Builder medOverstyring(PipOverstyring overstyring) {
+            if (!PipOverstyring.OVERSTYRING.equals(overstyring)) {
                 return this;
             }
             return leggTilRessurs(ForeldrepengerDataKeys.AKSJONSPUNKT_OVERSTYRING, overstyring);
