@@ -8,7 +8,7 @@ import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 public class OidcTokenValidatorConfig {
 
-    private static volatile OidcTokenValidatorConfig instance; // NOSONAR
+    private static OidcTokenValidatorConfig instance;
     private final Map<OpenIDProvider, OidcTokenValidator> validators;
 
     private OidcTokenValidatorConfig() {

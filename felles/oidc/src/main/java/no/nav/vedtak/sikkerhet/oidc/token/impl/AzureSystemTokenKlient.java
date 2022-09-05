@@ -23,7 +23,7 @@ public class AzureSystemTokenKlient {
     private static final Environment ENV = Environment.current();
     private static final Logger LOG = LoggerFactory.getLogger(AzureSystemTokenKlient.class);
 
-    private static volatile AzureSystemTokenKlient INSTANCE; // NOSONAR
+    private static AzureSystemTokenKlient INSTANCE;
 
     private final URI tokenEndpoint;
     private final String clientId;

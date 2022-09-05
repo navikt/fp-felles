@@ -17,7 +17,7 @@ public final class DefaultHttpKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultHttpKlient.class);
 
-    private static volatile DefaultHttpKlient CLIENT;
+    private static DefaultHttpKlient CLIENT;
 
     private final HttpClient httpClient;
 

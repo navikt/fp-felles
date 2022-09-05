@@ -11,7 +11,7 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public final class RestKlient {
 
-    private static volatile RestKlient CLIENT; // NOSONAR
+    private static RestKlient CLIENT;
 
     private final DefaultHttpKlient httpClient;
 

@@ -21,7 +21,7 @@ public class RestRequest {
 
     private static final Set<String> REST_HEADERS = Set.of(HEADER_NAV_CONSUMER_ID, HttpHeaders.AUTHORIZATION);
 
-    private static volatile RestRequest REQUEST; // NOSONAR
+    private static RestRequest REQUEST;
 
     private final RequestContextSupplier supplier;
 
