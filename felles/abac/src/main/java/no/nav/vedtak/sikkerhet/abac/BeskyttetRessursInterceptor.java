@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
-import javax.jws.WebService;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
@@ -22,7 +21,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 
-@BeskyttetRessurs(action = BeskyttetRessursActionAttributt.DUMMY, resource = "")
+@BeskyttetRessurs(actionType = ActionType.DUMMY, resource = "")
 @Interceptor
 @Priority(Interceptor.Priority.APPLICATION + 11)
 @Dependent
@@ -42,30 +41,28 @@ public class BeskyttetRessursInterceptor {
 
     @AroundInvoke
     public Object wrapTransaction(final InvocationContext invocationContext) throws Exception {
-        var attributter = hentAttributter(invocationContext);
         var dataAttributter = finnAbacDataAttributter(invocationContext);
-        attributter.leggTil(dataAttributter);
         var beskyttetRessursAttributter = hentBeskyttetRessursAttributter(invocationContext, dataAttributter);
-        var beslutning = pep.nyttAbacGrensesnitt() ? pep.vurderTilgang(beskyttetRessursAttributter) : pep.vurderTilgang(attributter);
+        var beslutning = pep.vurderTilgang(beskyttetRessursAttributter);
         if (beslutning.fikkTilgang()) {
-            return proceed(invocationContext, attributter, beslutning);
+            return proceed(invocationContext, beslutning);
         }
-        return ikkeTilgang(attributter, beslutning);
+        return ikkeTilgang(beslutning);
     }
 
-    private Object proceed(InvocationContext invocationContext, AbacAttributtSamling attributter, Tilgangsbeslutning beslutning) throws Exception {
+    private Object proceed(InvocationContext invocationContext, Tilgangsbeslutning beslutning) throws Exception {
         Method method = invocationContext.getMethod();
         boolean sporingslogges = method.getAnnotation(BeskyttetRessurs.class).sporingslogg();
         if (sporingslogges) {
             Object resultat = invocationContext.proceed();
-            abacAuditlogger.loggTilgang(tokenProvider.getUid(), beslutning, attributter);
+            abacAuditlogger.loggTilgang(tokenProvider.getUid(), beslutning);
             return resultat;
         }
         return invocationContext.proceed();
     }
 
-    private Object ikkeTilgang(AbacAttributtSamling attributter, Tilgangsbeslutning beslutning) {
-        abacAuditlogger.loggDeny(tokenProvider.getUid(), beslutning, attributter);
+    private Object ikkeTilgang(Tilgangsbeslutning beslutning) {
+        abacAuditlogger.loggDeny(tokenProvider.getUid(), beslutning);
 
         switch (beslutning.beslutningKode()) {
             case AVSLÅTT_KODE_6 -> throw new PepNektetTilgangException("F-709170", "Tilgangskontroll.Avslag.Kode6");
@@ -75,30 +72,12 @@ public class BeskyttetRessursInterceptor {
         }
     }
 
-    private AbacAttributtSamling hentAttributter(InvocationContext invocationContext) {
-        Class<?> clazz = getOpprinneligKlasse(invocationContext);
-        var method = invocationContext.getMethod();
-        var serviceType = clazz.getAnnotation(WebService.class) != null ? ServiceType.WEBSERVICE : ServiceType.REST;
-        var attributter = ServiceType.WEBSERVICE.equals(serviceType)
-                ? AbacAttributtSamling.medSamlToken(tokenProvider.samlToken())
-                : AbacAttributtSamling.medJwtToken(tokenProvider.openIdToken().token());
-        var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
-
-        attributter.setActionType(mapToBeskyttetRessursActionAttributt(beskyttetRessurs));
-
-        attributter.setResource(finnResource(beskyttetRessurs));
-
-        attributter.setAction(utledAction(clazz, method, serviceType));
-        return attributter;
-    }
-
     private BeskyttetRessursAttributter hentBeskyttetRessursAttributter(InvocationContext invocationContext,
                                                                         AbacDataAttributter dataAttributter) {
         Class<?> clazz = getOpprinneligKlasse(invocationContext);
         var method = invocationContext.getMethod();
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
-        // Todo fjerne når relevante endepunkt er annotert - da henter vi fra beskyttetressurs . serviceType
-        var serviceType = clazz.getAnnotation(WebService.class) != null ? ServiceType.WEBSERVICE : ServiceType.REST;
+        var serviceType = beskyttetRessurs.serviceType();
 
         var token = ServiceType.WEBSERVICE.equals(serviceType)
             ? Token.withSamlToken(tokenProvider.samlToken())
@@ -108,7 +87,7 @@ public class BeskyttetRessursInterceptor {
             .medUserId(tokenProvider.getUid())
             .medToken(token)
             .medServiceType(serviceType)
-            .medActionType(mapToActionType(beskyttetRessurs))
+            .medActionType(beskyttetRessurs.actionType())
             .medResourceType(finnResource(beskyttetRessurs))
             .medPepId(pep.pepId())
             .medServicePath(utledAction(clazz, method, serviceType))
@@ -168,40 +147,14 @@ public class BeskyttetRessursInterceptor {
     @SuppressWarnings("rawtypes")
     private static Class<?> getOpprinneligKlasse(InvocationContext invocationContext) {
         Object target = invocationContext.getTarget();
-        if (target instanceof TargetInstanceProxy) {
-            return ((TargetInstanceProxy) target).weld_getTargetClass();
+        if (target instanceof TargetInstanceProxy tip) {
+            return tip.weld_getTargetClass();
         }
         return target.getClass();
     }
 
     private static String utledAction(Class<?> clazz, Method method, ServiceType serviceType) {
         return ActionUthenter.action(clazz, method, serviceType);
-    }
-
-    private static ActionType mapToActionType(BeskyttetRessurs beskyttetRessurs) {
-        if (!ActionType.DUMMY.equals(beskyttetRessurs.actionType())) {
-            return beskyttetRessurs.actionType();
-        }
-        return switch (beskyttetRessurs.action()) {
-            case READ -> ActionType.READ;
-            case CREATE -> ActionType.CREATE;
-            case DELETE -> ActionType.DELETE;
-            case UPDATE -> ActionType.UPDATE;
-            case DUMMY -> ActionType.DUMMY;
-        };
-    }
-
-    private static BeskyttetRessursActionAttributt mapToBeskyttetRessursActionAttributt(BeskyttetRessurs beskyttetRessurs) {
-        if (!ActionType.DUMMY.equals(beskyttetRessurs.actionType())) {
-            return switch (beskyttetRessurs.actionType()) {
-                case READ -> BeskyttetRessursActionAttributt.READ;
-                case CREATE -> BeskyttetRessursActionAttributt.CREATE;
-                case DELETE -> BeskyttetRessursActionAttributt.DELETE;
-                case UPDATE -> BeskyttetRessursActionAttributt.UPDATE;
-                default -> BeskyttetRessursActionAttributt.DUMMY;
-            };
-        }
-        return beskyttetRessurs.action();
     }
 
     private static String finnResource(BeskyttetRessurs beskyttetRessurs) {

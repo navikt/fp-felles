@@ -21,9 +21,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 @NameBinding
 public @interface BeskyttetRessurs {
     @Nonbinding
-    BeskyttetRessursActionAttributt action() default BeskyttetRessursActionAttributt.DUMMY;
-
-    @Nonbinding
     ActionType actionType() default ActionType.DUMMY;
 
     /**

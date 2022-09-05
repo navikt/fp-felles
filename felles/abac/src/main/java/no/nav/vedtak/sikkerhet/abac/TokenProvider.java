@@ -18,14 +18,6 @@ public interface TokenProvider {
      * Sendes til PDP (Policy Decision Point) og gir informasjon til ABAC om subject og auth level.
      * @return bruker OIDC token.
      */
-    @Deprecated(forRemoval = true)
-    String userToken();
-
-    /**
-     * OIDC tokenet til brukeren. Helst fra følgende providere: Tokendings, AzureAD, STS, OpenAM.
-     * Sendes til PDP (Policy Decision Point) og gir informasjon til ABAC om subject og auth level.
-     * @return bruker OIDC token.
-     */
     OpenIDToken openIdToken();
 
     /**

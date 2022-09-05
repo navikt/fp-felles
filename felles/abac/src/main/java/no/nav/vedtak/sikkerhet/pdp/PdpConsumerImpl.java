@@ -25,7 +25,6 @@ import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
-import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
 
 @ApplicationScoped
@@ -42,7 +41,6 @@ public class PdpConsumerImpl implements PdpConsumer {
     private ObjectReader reader;
 
     private URI pdpUrl;
-    private String brukernavn;
     private String basicCredentials;
 
     PdpConsumerImpl() {
@@ -53,16 +51,10 @@ public class PdpConsumerImpl implements PdpConsumer {
                            @KonfigVerdi(SYSTEMBRUKER_USERNAME) String brukernavn,
                            @KonfigVerdi(SYSTEMBRUKER_PASSWORD) String passord) {
         this.pdpUrl = URI.create(pdpUrl);
-        this.brukernavn = brukernavn;
         this.basicCredentials = basicCredentials(brukernavn, passord);
         // TODO - vurder om bør settes static final?
         this.client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).proxy(HttpClient.Builder.NO_PROXY).build();
         this.reader = DefaultJsonMapper.getObjectMapper().readerFor(XacmlResponse.class);
-    }
-
-    @Override
-    public XacmlResponse evaluate(XacmlRequestBuilder xacmlRequest) {
-       return evaluate(xacmlRequest.build());
     }
 
     @Override
