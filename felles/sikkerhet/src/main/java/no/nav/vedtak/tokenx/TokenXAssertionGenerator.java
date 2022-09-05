@@ -23,7 +23,7 @@ import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 final class TokenXAssertionGenerator {
 
-    private static volatile TokenXAssertionGenerator INSTANCE; // NOSONAR
+    private static TokenXAssertionGenerator INSTANCE;
 
     private final Optional<OpenIDConfiguration> configuration;
     private final RSAKey privateKey;

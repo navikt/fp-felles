@@ -57,7 +57,7 @@ public final class OidcProviderConfig {
     private final Set<OpenIDConfiguration> providers;
     private final Map<String, OpenIDConfiguration> issuers;
 
-    private static volatile OidcProviderConfig instance; // NOSONAR
+    private static OidcProviderConfig instance;
 
     private OidcProviderConfig() {
         this(init());

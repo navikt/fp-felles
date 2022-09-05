@@ -10,94 +10,96 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class EregRestTest {
 
-    private static final String json = "{\n" +
-            "  \"organisasjonsnummer\": \"990983666\",\n" +
-            "  \"type\": \"Virksomhet\",\n" +
-            "  \"navn\": {\n" +
-            "    \"redigertnavn\": \"NAV IKT\",\n" +
-            "    \"navnelinje1\": \"NAV IKT\",\n" +
-            "    \"bruksperiode\": {\n" +
-            "      \"fom\": \"2015-02-23T08:04:53.2\"\n" +
-            "    },\n" +
-            "    \"gyldighetsperiode\": {\n" +
-            "      \"fom\": \"2010-04-09\"\n" +
-            "    }\n" +
-            "  },\n" +
-            "  \"organisasjonDetaljer\": {\n" +
-            "    \"registreringsdato\": \"2007-03-05T00:00:00\",\n" +
-            "    \"opphoersdato\": \"2018-11-06\",\n" +
-            "    \"enhetstyper\": [\n" +
-            "      {\n" +
-            "        \"enhetstype\": \"BEDR\",\n" +
-            "        \"bruksperiode\": {\n" +
-            "          \"fom\": \"2018-11-07T04:02:27.436\"\n" +
-            "        },\n" +
-            "        \"gyldighetsperiode\": {\n" +
-            "          \"fom\": \"2007-03-05\"\n" +
-            "        }\n" +
-            "      }\n" +
-            "    ],\n" +
-            "    \"naeringer\": [\n" +
-            "      {\n" +
-            "        \"naeringskode\": \"84.300\",\n" +
-            "        \"hjelpeenhet\": false,\n" +
-            "        \"bruksperiode\": {\n" +
-            "          \"fom\": \"2014-05-22T01:18:10.661\"\n" +
-            "        },\n" +
-            "        \"gyldighetsperiode\": {\n" +
-            "          \"fom\": \"2006-07-01\"\n" +
-            "        }\n" +
-            "      }\n" +
-            "    ],\n" +
-            "    \"navn\": [\n" +
-            "      {\n" +
-            "        \"redigertnavn\": \"NAV IKT\",\n" +
-            "        \"navnelinje1\": \"NAV IKT\",\n" +
-            "        \"bruksperiode\": {\n" +
-            "          \"fom\": \"2015-02-23T08:04:53.2\"\n" +
-            "        },\n" +
-            "        \"gyldighetsperiode\": {\n" +
-            "          \"fom\": \"2010-04-09\"\n" +
-            "        }\n" +
-            "      }\n" +
-            "    ],\n" +
-            "    \"forretningsadresser\": [\n" +
-            "      {\n" +
-            "        \"type\": \"Forretningsadresse\",\n" +
-            "        \"adresselinje1\": \"Sannergata 2\",\n" +
-            "        \"postnummer\": \"0557\",\n" +
-            "        \"landkode\": \"NO\",\n" +
-            "        \"kommunenummer\": \"0301\",\n" +
-            "        \"bruksperiode\": {\n" +
-            "          \"fom\": \"2015-02-23T10:38:34.403\"\n" +
-            "        },\n" +
-            "        \"gyldighetsperiode\": {\n" +
-            "          \"fom\": \"2007-08-23\"\n" +
-            "        }\n" +
-            "      }\n" +
-            "    ],\n" +
-            "    \"postadresser\": [\n" +
-            "      {\n" +
-            "        \"type\": \"Postadresse\",\n" +
-            "        \"adresselinje1\": \"Postboks 5 St Olavs plass\",\n" +
-            "        \"postnummer\": \"0130\",\n" +
-            "        \"landkode\": \"NO\",\n" +
-            "        \"kommunenummer\": \"0301\",\n" +
-            "        \"bruksperiode\": {\n" +
-            "          \"fom\": \"2015-02-23T10:38:34.403\"\n" +
-            "        },\n" +
-            "        \"gyldighetsperiode\": {\n" +
-            "          \"fom\": \"2010-10-08\"\n" +
-            "        }\n" +
-            "      }\n" +
-            "    ],\n" +
-            "    \"sistEndret\": \"2014-02-17\"\n" +
-            "  },\n" +
-            "  \"virksomhetDetaljer\": {\n" +
-            "    \"enhetstype\": \"BEDR\",\n" +
-            "    \"oppstartsdato\": \"2006-07-01\"\n" +
-            "  }\n" +
-            "}";
+    private static final String json = """
+        {
+          "organisasjonsnummer": "990983666",
+          "type": "Virksomhet",
+          "navn": {
+            "redigertnavn": "NAV IKT",
+            "navnelinje1": "NAV IKT",
+            "bruksperiode": {
+              "fom": "2015-02-23T08:04:53.2"
+            },
+            "gyldighetsperiode": {
+              "fom": "2010-04-09"
+            }
+          },
+          "organisasjonDetaljer": {
+            "registreringsdato": "2007-03-05T00:00:00",
+            "opphoersdato": "2018-11-06",
+            "enhetstyper": [
+              {
+                "enhetstype": "BEDR",
+                "bruksperiode": {
+                  "fom": "2018-11-07T04:02:27.436"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2007-03-05"
+                }
+              }
+            ],
+            "naeringer": [
+              {
+                "naeringskode": "84.300",
+                "hjelpeenhet": false,
+                "bruksperiode": {
+                  "fom": "2014-05-22T01:18:10.661"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2006-07-01"
+                }
+              }
+            ],
+            "navn": [
+              {
+                "redigertnavn": "NAV IKT",
+                "navnelinje1": "NAV IKT",
+                "bruksperiode": {
+                  "fom": "2015-02-23T08:04:53.2"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2010-04-09"
+                }
+              }
+            ],
+            "forretningsadresser": [
+              {
+                "type": "Forretningsadresse",
+                "adresselinje1": "Sannergata 2",
+                "postnummer": "0557",
+                "landkode": "NO",
+                "kommunenummer": "0301",
+                "bruksperiode": {
+                  "fom": "2015-02-23T10:38:34.403"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2007-08-23"
+                }
+              }
+            ],
+            "postadresser": [
+              {
+                "type": "Postadresse",
+                "adresselinje1": "Postboks 5 St Olavs plass",
+                "postnummer": "0130",
+                "landkode": "NO",
+                "kommunenummer": "0301",
+                "bruksperiode": {
+                  "fom": "2015-02-23T10:38:34.403"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2010-10-08"
+                }
+              }
+            ],
+            "sistEndret": "2014-02-17"
+          },
+          "virksomhetDetaljer": {
+            "enhetstype": "BEDR",
+            "oppstartsdato": "2006-07-01"
+          }
+        }
+        """;
 
     @Test
     void mapping_organisasjon() throws IOException {

@@ -23,7 +23,7 @@ public final class TokenXExchangeKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(TokenXExchangeKlient.class);
 
-    private static volatile TokenXExchangeKlient INSTANCE; // NOSONAR
+    private static TokenXExchangeKlient INSTANCE;
 
     private final Optional<OpenIDConfiguration> configuration;
     private final String cluster;
