@@ -13,6 +13,7 @@ public class Token {
 
     public enum TokenType {
         OIDC,
+        AZURE_JWT,
         TOKENX,
         SAML;
     }
@@ -28,8 +29,7 @@ public class Token {
     }
 
     public static Token withOidcToken(OpenIDToken token) {
-        var tokenType = OpenIDProvider.TOKENX.equals(token.provider()) ? TokenType.TOKENX : TokenType.OIDC;
-        return new Token(null, tokenType, token);
+        return new Token(null, utledTokenType(token), token);
     }
 
     public static Token withSamlToken(String token) {
@@ -40,9 +40,18 @@ public class Token {
         return tokenType;
     }
 
+    private static TokenType utledTokenType(OpenIDToken token) {
+        return switch (token.provider()) {
+            case AZUREAD -> TokenType.AZURE_JWT;
+            case ISSO, STS -> TokenType.OIDC;
+            case TOKENX -> TokenType.TOKENX;
+            case IDPORTEN -> throw new IllegalStateException("IdPorten token støttes ikke.");
+        };
+    }
+
     public String getTokenBody() {
         return switch (tokenType) {
-            case OIDC, TOKENX -> tokenPayloadBase64(openIDToken);
+            case OIDC, TOKENX, AZURE_JWT -> tokenPayloadBase64(openIDToken);
             case SAML -> Base64.getEncoder().encodeToString(token.getBytes(StandardCharsets.UTF_8));
         };
     }
