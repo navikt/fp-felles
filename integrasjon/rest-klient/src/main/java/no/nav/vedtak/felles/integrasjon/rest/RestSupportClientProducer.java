@@ -9,7 +9,7 @@ import no.nav.vedtak.klient.http.DefaultHttpClient;
 public class RestSupportClientProducer {
 
     @Produces
-    public RestCompact getRestSimpleClient() {
+    public RestCompact getRestCompact() {
         return new RestCompact();
     }
 
