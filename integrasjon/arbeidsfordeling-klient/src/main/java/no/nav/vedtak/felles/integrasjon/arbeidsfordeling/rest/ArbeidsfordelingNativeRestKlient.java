@@ -8,30 +8,30 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.felles.integrasjon.rest.NativeKlient;
-import no.nav.vedtak.felles.integrasjon.rest.RestKlient;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestCompact;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-@NativeKlient
+@NativeClient
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "arbeidsfordeling.rs.url",
+    endpointDefault = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter")
 @ApplicationScoped
 public class ArbeidsfordelingNativeRestKlient implements Arbeidsfordeling {
 
-    private static final String DEFAULT_URI = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter";
     private static final String BEST_MATCH = "/bestmatch";
 
-    private RestKlient restKlient;
+    private RestCompact restKlient;
     private URI alleEnheterUri;
     private URI besteEnhetUri;
 
     @Inject
-    public ArbeidsfordelingNativeRestKlient(RestKlient restKlient,
-                                            @KonfigVerdi(value = "arbeidsfordeling.rs.url", defaultVerdi = DEFAULT_URI) URI uri) {
+    public ArbeidsfordelingNativeRestKlient(RestCompact restKlient) {
         this.restKlient = restKlient;
-        this.alleEnheterUri = uri;
-        this.besteEnhetUri = URI.create(uri + BEST_MATCH);
+        this.alleEnheterUri = RestConfig.endpointFromAnnotation(ArbeidsfordelingNativeRestKlient.class);
+        this.besteEnhetUri = URI.create(alleEnheterUri + BEST_MATCH);
     }
 
     ArbeidsfordelingNativeRestKlient() {
@@ -50,11 +50,7 @@ public class ArbeidsfordelingNativeRestKlient implements Arbeidsfordeling {
 
     private List<ArbeidsfordelingResponse> hentEnheterFor(ArbeidsfordelingRequest request, URI uri) {
         try {
-            var httpRequest = restKlient.request().builder(SikkerhetContext.BRUKER)
-                .uri(uri)
-                .POST(RestRequest.serialiser(request))
-                .build();
-            var respons = restKlient.send(httpRequest, ArbeidsfordelingResponse[].class);
+            var respons = restKlient.postValue(ArbeidsfordelingNativeRestKlient.class, uri, request, ArbeidsfordelingResponse[].class);
             return Arrays.stream(respons)
                 .filter(response -> "AKTIV".equalsIgnoreCase(response.status()))
                 .collect(Collectors.toList());

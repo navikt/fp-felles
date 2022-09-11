@@ -6,11 +6,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,9 +40,8 @@ import no.nav.saf.Tilknytning;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.RestKlient;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.felles.integrasjon.rest.RestSender;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,21 +51,12 @@ class SafNativeKlientTest {
     private SafNativeTjeneste safTjeneste;
 
     @Mock
-    private RestKlient restKlient;
-
-    URI endpoint = URI.create("http://dummyendpoint/graphql");
-
-    private static class SafRequest extends RestRequest {
-        private SafRequest() {
-            super(new TestContextSupplier());
-        }
-    }
+    private RestSender restKlient;
 
     @BeforeEach
     void setUp() throws IOException {
         // Service setup
-        MDCOperations.putCallId();
-        safTjeneste = new SafNativeTjeneste(restKlient, new SafRequest(), endpoint);
+        safTjeneste = new SafNativeTjeneste(restKlient);
     }
 
     @SuppressWarnings("resource")
@@ -77,7 +66,7 @@ class SafNativeKlientTest {
         // fagsaksystem: "AO01"}, foerste: 5)
         var resource = getClass().getClassLoader().getResource("saf/documentResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, DokumentoversiktFagsakQueryResponse.class);
-        var captor = ArgumentCaptor.forClass(HttpRequest.class);
+        var captor = ArgumentCaptor.forClass(RestRequest.class);
         when(restKlient.send(captor.capture(), any())).thenReturn(response);
 
         var query = new DokumentoversiktFagsakQueryRequest();
@@ -89,9 +78,9 @@ class SafNativeKlientTest {
 
         assertThat(dokumentoversiktFagsak.getJournalposter()).isNotEmpty();
         var rq = captor.getValue();
-        assertThat(rq.headers().map().get("Authorization")).isNotEmpty();
-        assertThat(rq.headers().map().get("Nav-Consumer-Id")).contains("user");
+        assertThat(rq.validateDelayedHeaders(Set.of("Authorization", "Nav-Consumer-Id"))).isTrue();
     }
+
 
     @SuppressWarnings("resource")
     @Test
@@ -99,7 +88,7 @@ class SafNativeKlientTest {
         // query-eksempel: journalpost(journalpostId: "439560100")
         var resource = getClass().getClassLoader().getResource("saf/journalpostResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, JournalpostQueryResponse.class);
-        when(restKlient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(restKlient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var query = new JournalpostQueryRequest();
         query.setJournalpostId("journalpostId");
@@ -117,7 +106,7 @@ class SafNativeKlientTest {
         // tilknytning:GJENBRUK)
         var resource = getClass().getClassLoader().getResource("saf/tilknyttetResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, TilknyttedeJournalposterQueryResponse.class);
-        when(restKlient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(restKlient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var query = new TilknyttedeJournalposterQueryRequest();
         query.setDokumentInfoId("dokumentInfoId");
@@ -138,7 +127,7 @@ class SafNativeKlientTest {
         // query-eksempel: journalpost(journalpostId: "439560100")
         var resource = getClass().getClassLoader().getResource("saf/errorResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, JournalpostQueryResponse.class);
-        when(restKlient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(restKlient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var query = new JournalpostQueryRequest();
         query.setJournalpostId("journalpostId");
@@ -151,7 +140,7 @@ class SafNativeKlientTest {
     void skal_returnere_dokument() throws IOException {
         // GET-eksempel: hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}
         Optional<byte[]> respons = Optional.of("<dokument_as_bytes>".getBytes());
-        var captor = ArgumentCaptor.forClass(HttpRequest.class);
+        var captor = ArgumentCaptor.forClass(RestRequest.class);
         when(restKlient.sendHandleResponse(captor.capture())).thenReturn(respons);
         HentDokumentQuery query = new HentDokumentQuery("journalpostId", "dokumentInfoId", "ARKIVF");
 
@@ -159,7 +148,7 @@ class SafNativeKlientTest {
 
         assertThat(dokument).isEqualTo("<dokument_as_bytes>".getBytes());
         var rq = captor.getValue();
-        assertThat(rq.uri().toString()).contains("hentdokument/journalpostId/dokumentInfoId/ARKIVF");
+        rq.validateRequest(r -> assertThat(r.uri().toString()).contains("hentdokument/journalpostId/dokumentInfoId/ARKIVF"));
     }
 
     private DokumentoversiktResponseProjection byggDokumentoversiktResponseProjection() {

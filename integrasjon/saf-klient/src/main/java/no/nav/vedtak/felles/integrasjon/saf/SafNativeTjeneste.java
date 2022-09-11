@@ -16,7 +16,6 @@ import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.saf.Dokumentoversikt;
 import no.nav.saf.DokumentoversiktFagsakQueryRequest;
 import no.nav.saf.DokumentoversiktFagsakQueryResponse;
@@ -28,36 +27,32 @@ import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
-import no.nav.vedtak.felles.integrasjon.rest.NativeKlient;
-import no.nav.vedtak.felles.integrasjon.rest.RestKlient;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.RestSender;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
-import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 
-@NativeKlient
+@NativeClient
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "saf.base.url", endpointDefault = "https://saf.nais.adeo.no")
 @ApplicationScoped
 public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements Saf {
     private static final String HENTDOKUMENT = "/rest/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}";
     private static final String F_240613 = "F-240613";
-    private static final String DEFAULT_BASE = "https://saf.nais.adeo.no";
     private static final String GRAPHQL = "/graphql";
 
     private static final Logger LOG = LoggerFactory.getLogger(SafNativeTjeneste.class);
 
-    private RestKlient restKlient;
-    private RestRequest restRequest;
+    private RestSender restKlient;
     private URI base;
     private GraphQLErrorHandler errorHandler;
 
     @Inject
-    public SafNativeTjeneste(RestKlient restKlient, @KonfigVerdi(value = "saf.base.url", defaultVerdi = DEFAULT_BASE) URI base) {
-        this(restKlient, restKlient.request(), base);
-    }
-
-    SafNativeTjeneste(RestKlient restKlient, RestRequest restRequest, URI base) {
+    public SafNativeTjeneste(RestSender restKlient) {
         this.restKlient = restKlient;
-        this.restRequest = restRequest;
-        this.base = base;
+        this.base = RestConfig.endpointFromAnnotation(SafNativeTjeneste.class);
         this.errorHandler = new SafErrorHandler();
     }
 
@@ -88,10 +83,9 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
             .resolveTemplate("dokumentInfoId", q.dokumentId())
             .resolveTemplate("variantFormat", q.variantFormat())
             .build();
-        var request = restRequest.builder(SikkerhetContext.BRUKER)
-            .uri(path)
-            .GET();
-        var doc = restKlient.sendHandleResponse(request.build());
+        var builder = HttpRequest.newBuilder(path).GET();
+        var request = RestRequest.buildFor(builder, TokenFlow.CONTEXT);
+        var doc = restKlient.sendHandleResponse(request);
         LOG.info("Hentet dokument OK");
         return doc.orElse(null);
     }
@@ -103,10 +97,10 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
             LOG.trace("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
-            var request = restRequest.builder(SikkerhetContext.BRUKER)
-                .uri(UriBuilder.fromUri(base).path(GRAPHQL).build())
+            var builder = HttpRequest.newBuilder(UriBuilder.fromUri(base).path(GRAPHQL).build())
                 .POST(HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
-            var res = restKlient.send(request.build(), clazz);
+            var request = RestRequest.buildFor(builder, TokenFlow.CONTEXT);
+            var res = restKlient.send(request, clazz);
             if (res.hasErrors()) {
                 return errorHandler.handleError(res.getErrors(), base, F_240613);
             }

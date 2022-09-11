@@ -1,6 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.spokelse;
 
 import java.net.URI;
+import java.net.http.HttpRequest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,28 +12,30 @@ import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.NativeKlient;
-import no.nav.vedtak.felles.integrasjon.rest.RestKlient;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.RestSender;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-@NativeKlient
+@NativeClient
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC,
+    endpointProperty = "SPOKELSE_GRUNNLAG_URL", endpointDefault = "http://spokelse.tbd/grunnlag",
+    scopesProperty = "SPOKELSE_GRUNNLAG_SCOPES", scopesDefault = "api://prod-fss.tbd.spokelse/.default")
 @ApplicationScoped
 public class SpøkelseNativeKlient implements Spøkelse {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpøkelseNativeKlient.class);
 
-    private RestKlient restKlient;
+    private RestSender restKlient;
     private URI uri;
-    private String scope;
 
     @Inject
-    public SpøkelseNativeKlient(RestKlient restKlient,
-        @KonfigVerdi(value = "SPOKELSE_GRUNNLAG_URL", defaultVerdi = "http://spokelse.tbd/grunnlag") URI uri,
-        @KonfigVerdi(value = "SPOKELSE_GRUNNLAG_SCOPES", defaultVerdi = "api://prod-fss.tbd.spokelse/.default") String scope) {
+    public SpøkelseNativeKlient(RestSender restKlient) {
         this.restKlient = restKlient;
-        this.uri = uri;
-        this.scope = scope;
+        this.uri = RestConfig.endpointFromAnnotation(SpøkelseNativeKlient.class);
     }
 
     SpøkelseNativeKlient() {
@@ -45,10 +48,8 @@ public class SpøkelseNativeKlient implements Spøkelse {
             var path = UriBuilder.fromUri(uri)
                 .queryParam("fodselsnummer", fnr)
                 .build();
-            var request = restKlient.request().builderSystemAzure(scope)
-                .uri(path)
-                .GET()
-                .build();
+            var builder = HttpRequest.newBuilder(path).GET();
+            var request = RestRequest.buildFor(SpøkelseNativeKlient.class, builder);
             var grunnlag = restKlient.send(request, SykepengeVedtak[].class);
             return Arrays.asList(grunnlag);
         } catch (Exception e) {
