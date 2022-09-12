@@ -13,7 +13,6 @@ public class Token {
 
     public enum TokenType {
         OIDC,
-        AZURE_JWT,
         TOKENX,
         SAML;
     }
@@ -42,8 +41,7 @@ public class Token {
 
     private static TokenType utledTokenType(OpenIDToken token) {
         return switch (token.provider()) {
-            case AZUREAD -> TokenType.AZURE_JWT;
-            case ISSO, STS -> TokenType.OIDC;
+            case ISSO, STS, AZUREAD -> TokenType.OIDC;
             case TOKENX -> TokenType.TOKENX;
             case IDPORTEN -> throw new IllegalStateException("IdPorten token støttes ikke.");
         };
@@ -51,7 +49,7 @@ public class Token {
 
     public String getTokenBody() {
         return switch (tokenType) {
-            case OIDC, TOKENX, AZURE_JWT -> tokenPayloadBase64(openIDToken);
+            case OIDC, TOKENX -> tokenPayloadBase64(openIDToken);
             case SAML -> Base64.getEncoder().encodeToString(token.getBytes(StandardCharsets.UTF_8));
         };
     }
