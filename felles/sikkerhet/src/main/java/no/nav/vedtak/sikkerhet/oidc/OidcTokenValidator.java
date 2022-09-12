@@ -96,7 +96,9 @@ public class OidcTokenValidator {
                 return OidcTokenValidatorResult.invalid(error);
             }
             String subject = claims.getSubject();
-            if (OpenIDProvider.TOKENX.equals(provider)) {
+            if (OpenIDProvider.AZUREAD.equals(provider)) {
+                return validateAzure(claims, subject);
+            } else if (OpenIDProvider.TOKENX.equals(provider)) {
                 return validateTokenX(claims, subject);
             } else {
                 return OidcTokenValidatorResult.valid(subject, claims.getExpirationTime().getValue());
@@ -120,6 +122,11 @@ public class OidcTokenValidator {
             return "Either an azp-claim or a single value aud-claim is required";
         }
         return null;
+    }
+
+    private OidcTokenValidatorResult validateAzure(JwtClaims claims, String subject) throws MalformedClaimException {
+        var brukSubject = Optional.ofNullable(claims.getStringClaimValue("NAVident")).orElse(subject);
+        return OidcTokenValidatorResult.valid(brukSubject, claims.getExpirationTime().getValue());
     }
 
     private OidcTokenValidatorResult validateTokenX(JwtClaims claims, String subject) throws MalformedClaimException {
