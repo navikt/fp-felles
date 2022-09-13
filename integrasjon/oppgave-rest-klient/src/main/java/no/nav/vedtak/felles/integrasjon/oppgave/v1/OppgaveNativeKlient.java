@@ -8,23 +8,24 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.felles.integrasjon.rest.NativeKlient;
-import no.nav.vedtak.felles.integrasjon.rest.RestKlient;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.RestSender;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 
-@NativeKlient
+@NativeClient
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "oppgave.rs.uri",
+    endpointDefault = "http://oppgave.default/api/v1/oppgaver")
 @ApplicationScoped
 public class OppgaveNativeKlient implements Oppgaver {
 
-    private static final String ENDPOINT_KEY = "oppgave.rs.uri";
-    private static final String DEFAULT_URI = "http://oppgave.default/api/v1/oppgaver";
     private static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
     private static final String STATUSKATEGORI_AAPEN = "AAPEN";
 
-    private RestKlient restKlient;
+    private RestSender restKlient;
     private URI endpoint;
 
     OppgaveNativeKlient() {
@@ -32,16 +33,15 @@ public class OppgaveNativeKlient implements Oppgaver {
     }
 
     @Inject
-    public OppgaveNativeKlient(RestKlient restKlient,
-                               @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
+    public OppgaveNativeKlient(RestSender restKlient) {
         this.restKlient = restKlient;
-        this.endpoint = endpoint;
+        this.endpoint = RestConfig.endpointFromAnnotation(OppgaveNativeKlient.class);
     }
 
     @Override
     public Oppgave opprettetOppgave(OpprettOppgave oppgave) {
-        var request = lagRequest().uri(endpoint).POST(RestRequest.serialiser(oppgave));
-        return restKlient.send(request.build(), Oppgave.class);
+        var request = lagRequest(endpoint).POST(RestRequest.jsonPublisher(oppgave));
+        return restKlient.send(build(request), Oppgave.class);
     }
 
     @Override
@@ -50,8 +50,8 @@ public class OppgaveNativeKlient implements Oppgaver {
         if (tema != null)
             builder.queryParam("tema", tema);
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
-        var request = lagRequest().uri(builder.build()).GET();
-        return restKlient.send(request.build(), FinnOppgaveResponse.class).oppgaver();
+        var request = lagRequest(builder.build()).GET();
+        return restKlient.send(build(request), FinnOppgaveResponse.class).oppgaver();
     }
 
     @Override
@@ -62,41 +62,44 @@ public class OppgaveNativeKlient implements Oppgaver {
         if (tema != null)
             builder.queryParam("tema", tema);
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
-        var request = lagRequest().uri(builder.build()).GET();
-        return restKlient.send(request.build(), FinnOppgaveResponse.class).oppgaver();
+        var request = lagRequest(builder.build()).GET();
+        return restKlient.send(build(request), FinnOppgaveResponse.class).oppgaver();
     }
 
     @Override
     public void ferdigstillOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.getId(), oppgave.getVersjon(), Oppgavestatus.FERDIGSTILT);
-        var request = lagRequest().uri(getEndpointForOppgaveId(oppgaveId));
-        RestRequest.patch(request, patch);
-        restKlient.sendPermitConflict(request.build());
+        var request = lagRequest(getEndpointForOppgaveId(oppgaveId))
+            .method(RestRequest.patch(), RestRequest.jsonPublisher(patch));
+        restKlient.sendExpectConflict(build(request));
     }
 
     @Override
     public void feilregistrerOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.getId(), oppgave.getVersjon(), Oppgavestatus.FEILREGISTRERT);
-        var request = lagRequest().uri(getEndpointForOppgaveId(oppgaveId));
-        RestRequest.patch(request, patch);
-        restKlient.sendPermitConflict(request.build());
+        var request = lagRequest(getEndpointForOppgaveId(oppgaveId))
+            .method(RestRequest.patch(), RestRequest.jsonPublisher(patch));
+        restKlient.sendExpectConflict(build(request));
     }
 
     @Override
     public Oppgave hentOppgave(String oppgaveId) {
-        var request = lagRequest().uri(getEndpointForOppgaveId(oppgaveId)).GET();
-        return restKlient.send(request.build(), Oppgave.class);
+        var request = lagRequest(getEndpointForOppgaveId(oppgaveId)).GET();
+        return restKlient.send(build(request), Oppgave.class);
     }
 
     private URI getEndpointForOppgaveId(String oppgaveId) {
         return UriBuilder.fromUri(endpoint).path(oppgaveId).build();
     }
 
-    private HttpRequest.Builder lagRequest() {
-        return restKlient.request().builder(SikkerhetContext.BRUKER)
-            .header(HEADER_CORRELATION_ID, MDCOperations.getCallId());
+    private HttpRequest.Builder lagRequest(URI uri) {
+        return HttpRequest.newBuilder(uri).header(HEADER_CORRELATION_ID, MDCOperations.getCallId());
+    }
+
+    private RestRequest build(HttpRequest.Builder builder) {
+        return RestRequest.buildFor(OppgaveNativeKlient.class, builder);
     }
 
 }

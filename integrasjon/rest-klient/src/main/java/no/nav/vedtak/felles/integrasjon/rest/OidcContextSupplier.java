@@ -20,7 +20,7 @@ public final class OidcContextSupplier implements RequestContextSupplier {
 
     @Override
     public Supplier<OpenIDToken> stsSystemToken() {
-        return () -> TokenProvider.getStsSystemToken();
+        return TokenProvider::getStsSystemToken;
     }
 
     @Override

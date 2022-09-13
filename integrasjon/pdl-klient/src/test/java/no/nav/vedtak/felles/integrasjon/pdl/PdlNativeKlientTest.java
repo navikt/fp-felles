@@ -11,10 +11,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,31 +37,23 @@ import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.rest.RestKlient;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.felles.integrasjon.rest.RestSender;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 class PdlNativeKlientTest {
 
     private Pdl pdlKlient;
-    private URI endpoint = URI.create("http://dummyendpoint/graphql");
 
     @Mock
-    private RestKlient restClient;
-
-    private static class PdlRequest extends RestRequest {
-        private PdlRequest() {
-            super(new TestContextSupplier());
-        }
-    }
+    private RestSender restClient;
 
     @BeforeEach
     void setUp() throws IOException {
         // Service setup
-        MDCOperations.putCallId();
-        pdlKlient = new NativePdlKlient(restClient, new PdlRequest(), endpoint, Tema.FOR.name());
+        pdlKlient = new NativePdlKlient(restClient, Tema.FOR.name());
     }
 
     @Test
@@ -71,9 +62,9 @@ class PdlNativeKlientTest {
         // fagsaksystem: "AO01"}, foerste: 5)
         var resource = getClass().getClassLoader().getResource("pdl/personResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, HentPersonQueryResponse.class);
-        var captor = ArgumentCaptor.forClass(HttpRequest.class);
+        var captor = ArgumentCaptor.forClass(RestRequest.class);
 
-        when(restClient.send(captor.capture(), any())).thenReturn(response);
+        when(restClient.send(captor.capture(), any(Class.class))).thenReturn(response);
 
         var query = new HentPersonQueryRequest();
         query.setIdent("12345678901");
@@ -85,17 +76,15 @@ class PdlNativeKlientTest {
 
         assertThat(person.getNavn().get(0).getFornavn()).isNotEmpty();
         var rq = captor.getValue();
-        assertThat(rq.headers().map().get("Authorization")).isNotEmpty();
-        assertThat(rq.headers().map().get("Nav-Consumer-Token")).isNotEmpty();
-        assertThat(rq.headers().map().get("Nav-Consumer-Id")).contains("user");
-        assertThat(rq.headers().map().get("TEMA")).contains("FOR");
+        rq.validateRequest(r -> assertThat(r.headers().map().get("TEMA")).contains("FOR"));
+        assertThat(rq.validateDelayedHeaders(Set.of("Authorization", "Nav-Consumer-Token", "Nav-Consumer-Id"))).isTrue();
     }
 
     @Test
     void skal_returnere_ident() throws IOException {
         var resource = getClass().getClassLoader().getResource("pdl/identerResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, HentIdenterQueryResponse.class);
-        when(restClient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var queryRequest = new HentIdenterQueryRequest();
         queryRequest.setIdent("12345678901");
@@ -114,7 +103,7 @@ class PdlNativeKlientTest {
     void skal_returnere_bolk_med_identer() throws IOException {
         var resource = getClass().getClassLoader().getResource("pdl/identerBolkResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, HentIdenterBolkQueryResponse.class);
-        when(restClient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var queryRequest = new HentIdenterBolkQueryRequest();
         queryRequest.setIdenter(of("12345678901"));
@@ -137,7 +126,7 @@ class PdlNativeKlientTest {
     void skal_returnere_ikke_funnet() throws IOException {
         var resource = getClass().getClassLoader().getResource("pdl/errorResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, HentIdenterQueryResponse.class);
-        when(restClient.send(any(HttpRequest.class), any())).thenReturn(response);
+        when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
 
 
         var queryRequest = new HentIdenterQueryRequest();
@@ -158,7 +147,8 @@ class PdlNativeKlientTest {
         var error = new GraphQLError();
         error.setExtensions(Map.of("code", FORBUDT, "details",
             Map.of("cause", "a cause", "type", "a type", "policy", "a policy")));
-        var e = assertThrows(PdlException.class, () -> handler.handleError(List.of(error), endpoint, "KODE"));
+        var e = assertThrows(PdlException.class,
+            () -> handler.handleError(List.of(error), RestConfig.endpointFromAnnotation(NativePdlKlient.class), "KODE"));
         assertNotNull(e.getDetails());
         assertEquals(FORBUDT, e.getCode());
         assertEquals("a policy", e.getDetails().policy());

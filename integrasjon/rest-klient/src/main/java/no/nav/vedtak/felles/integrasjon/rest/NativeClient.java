@@ -14,6 +14,6 @@ import javax.inject.Qualifier;
 @Qualifier
 @Retention(RUNTIME)
 @Target({ METHOD, FIELD, PARAMETER, TYPE })
-public @interface NativeKlient {
+public @interface NativeClient {
     String value() default "nativeklient";
 }

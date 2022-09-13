@@ -14,12 +14,12 @@ final class ResponseHandler {
         // NOSONAR
     }
 
-    static <W> W handleResponse(final HttpResponse<W> response, URI endpoint, Set<Integer> permits) {
+    static <W> W handleResponse(final HttpResponse<W> response, URI endpoint, Set<Integer> acceptStatus) {
         int status = response.statusCode();
         if (status == HttpURLConnection.HTTP_NO_CONTENT) {
             return null;
         }
-        if ((status >= HttpURLConnection.HTTP_OK && status < HttpURLConnection.HTTP_MULT_CHOICE) || permits.contains(status)) {
+        if ((status >= HttpURLConnection.HTTP_OK && status < HttpURLConnection.HTTP_MULT_CHOICE) || acceptStatus.contains(status)) {
             return response.body();
         }
         if (status == HttpURLConnection.HTTP_FORBIDDEN) {
