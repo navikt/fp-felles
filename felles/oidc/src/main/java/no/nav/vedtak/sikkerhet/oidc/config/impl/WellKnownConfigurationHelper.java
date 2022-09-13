@@ -71,6 +71,10 @@ public class WellKnownConfigurationHelper {
         return Optional.ofNullable(wellKnownURL).map(u -> getWellKnownConfig(u, null).authorization_endpoint());
     }
 
+    static Optional<String> getAuthorizationEndpointFra(String wellKnownURL, URI proxyUrl) {
+        return Optional.ofNullable(wellKnownURL).map(u -> getWellKnownConfig(u, proxyUrl).authorization_endpoint());
+    }
+
     private static WellKnownOpenIdConfiguration hentWellKnownConfig(String wellKnownURL, URI proxy) {
         try {
             if (wellKnownURL == null) return null;
