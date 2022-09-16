@@ -28,7 +28,7 @@
         <module>spokelse-klient</module>
     </modules>
     <properties>
-        <wiremock.version>2.33.2</wiremock.version>
+        <wiremock.version>2.34.0</wiremock.version>
     </properties>
     <dependencyManagement>
         <dependencies>
