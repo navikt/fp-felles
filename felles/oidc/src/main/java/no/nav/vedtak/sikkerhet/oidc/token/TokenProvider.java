@@ -42,10 +42,7 @@ public final class TokenProvider {
         var token = BrukerTokenProvider.getToken();
         return switch (context) {
             case BRUKER -> getTokenFraContextFor(token, scopes);
-            case SYSTEM -> {
-                var provider = Optional.ofNullable(token).map(OpenIDToken::provider).orElse(OpenIDProvider.ISSO);
-                yield OpenIDProvider.AZUREAD.equals(provider) ? getAzureSystemToken(scopes) : getStsSystemToken();
-            }
+            case SYSTEM -> OpenIDProvider.AZUREAD.equals(getProvider(token)) ? getAzureSystemToken(scopes) : getStsSystemToken();
         };
     }
 
@@ -57,7 +54,11 @@ public final class TokenProvider {
     }
 
     public static boolean isAzureContext() {
-        return OpenIDProvider.AZUREAD.equals(Optional.ofNullable(BrukerTokenProvider.getToken()).map(OpenIDToken::provider).orElse(OpenIDProvider.ISSO));
+        try {
+            return OpenIDProvider.AZUREAD.equals(getProvider(BrukerTokenProvider.getToken()));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static OpenIDToken getStsSystemToken() {
@@ -107,7 +108,7 @@ public final class TokenProvider {
     }
 
     private static OpenIDToken getTokenFraContextFor(OpenIDToken incoming, String scopes) {
-        var providerIncoming = Optional.ofNullable(incoming).map(OpenIDToken::provider).orElse(OpenIDProvider.ISSO);
+        var providerIncoming = getProvider(incoming);
         if (!BrukerTokenProvider.harSattBrukerOidcToken() && BrukerTokenProvider.harSattBrukerSamlToken()) {
             return OpenIDProvider.AZUREAD.equals(providerIncoming) ? getAzureSystemToken(scopes) : getStsSystemToken();
         }
@@ -125,6 +126,10 @@ public final class TokenProvider {
     private static TekniskException ugyldigTokenCombo(OpenIDToken token, IdentType identType, OpenIDProvider provider) {
         return new TekniskException("F-483213", String.format("Ugyldig veksling, har token fra %s for %s. Trenger %s",
             token.provider(), identType, provider));
+    }
+
+    private static OpenIDProvider getProvider(OpenIDToken token) {
+        return Optional.ofNullable(token).map(OpenIDToken::provider).orElse(OpenIDProvider.ISSO);
     }
 
 }
