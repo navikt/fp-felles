@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.medl2;
 
 import java.net.URI;
-import java.net.http.HttpRequest;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -12,12 +11,12 @@ import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
 import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestCommon;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.RestSender;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
  *             Dokumentasjon https://confluence.adeo.no/display/TREG/MEDL+-+Medlemskap+Rest
@@ -29,8 +28,6 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 @ApplicationScoped
 public class MedlemsunntakNativeRestKlient implements Medlemskap {
 
-    public static final String HEADER_NAV_CALL_ID = "Nav-Call-Id";
-    public static final String HEADER_NAV_PERSONIDENT = "Nav-Personident";
     public static final String PARAM_FRA_OG_MED = "fraOgMed";
     public static final String PARAM_TIL_OG_MED = "tilOgMed";
     public static final String PARAM_STATUSER = "statuser";
@@ -40,7 +37,7 @@ public class MedlemsunntakNativeRestKlient implements Medlemskap {
     public static final String KODE_PERIODESTATUS_GYLD = "GYLD";
     public static final String KODE_PERIODESTATUS_UAVK = "UAVK";
 
-    private RestSender restKlient;
+    private RestClient restKlient;
     private URI endpoint;
 
     MedlemsunntakNativeRestKlient() {
@@ -48,7 +45,7 @@ public class MedlemsunntakNativeRestKlient implements Medlemskap {
     }
 
     @Inject
-    public MedlemsunntakNativeRestKlient(RestSender restKlient) {
+    public MedlemsunntakNativeRestKlient(RestClient restKlient) {
         this.restKlient = restKlient;
         this.endpoint = RestConfig.endpointFromAnnotation(MedlemsunntakNativeRestKlient.class);
     }
@@ -61,11 +58,10 @@ public class MedlemsunntakNativeRestKlient implements Medlemskap {
             .queryParam(PARAM_TIL_OG_MED, d2s(tom))
             .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_GYLD)
             .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK);
-        var request = HttpRequest.newBuilder(uri.build())
-            .header(HEADER_NAV_CALL_ID, MDCOperations.getCallId())
-            .header(HEADER_NAV_PERSONIDENT, aktørId)
-            .GET();
-        var match = restKlient.send(RestRequest.buildFor(MedlemsunntakNativeRestKlient.class, request), Medlemskapsunntak[].class);
+        var request = RestCommon.get(uri.build(), MedlemsunntakNativeRestKlient.class)
+            .otherCallId(NavHeaders.HEADER_NAV_CALL_ID)
+            .header(NavHeaders.HEADER_NAV_PERSONIDENT, aktørId);
+        var match = restKlient.send(request, Medlemskapsunntak[].class);
         return Arrays.asList(match);
     }
 

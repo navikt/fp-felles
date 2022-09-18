@@ -1,13 +1,19 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
+import java.net.URI;
 import java.net.http.HttpRequest;
+import java.time.Duration;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import no.nav.vedtak.klient.http.HttpClientRequest;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
@@ -18,31 +24,50 @@ import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
  * Methods for serializing objects for use with POST/PUT/PATCH
  *
  * Usage:
- * - Create an ordinary HttpRequest.Builder with URI, Method, and headers specific to the integration.
- * - Create a RestRequest using one of the build methods
+ * - Create a RestRequest using one of the newRequest methods
+ * - Add headers if needed.
  */
-public final class RestRequest extends HttpClientRequest {
+public sealed class RestRequest extends HttpClientRequest permits RestRequestExperimental {
 
-    private static final String HEADER_NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
+
+    public enum WebMethod {
+        GET, POST, PUT, PATCH
+    }
+
+    public static record Method(WebMethod restMethod, HttpRequest.BodyPublisher bodyPublisher) {
+        public static Method get() {
+            return new Method(WebMethod.GET, null);
+        }
+
+        public static Method postJson(Object body) {
+            return new Method(WebMethod.POST, RestRequest.jsonPublisher(body));
+        }
+    }
+
+    private static final Map<String, Supplier<String>> DEFAULT_CALLID =
+        Map.of(NavHeaders.HEADER_NAV_CALLID, ensureCallId(), NavHeaders.HEADER_NAV_LOWER_CALL_ID, ensureCallId());
+    private static final Set<String> VALIDATE_HEADERS = Set.of(NavHeaders.HEADER_NAV_CALLID, NavHeaders.HEADER_NAV_CONSUMER_ID, HttpHeaders.AUTHORIZATION);
+
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
-    private static final String PATCH = "PATCH";
-    private static final Set<String> REST_HEADERS = Set.of(HEADER_NAV_CONSUMER_ID, HttpHeaders.AUTHORIZATION);
+    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(15);
+
     private static final RequestContextSupplier CONTEXT_SUPPLIER = new OidcContextSupplier();
 
     private RestRequest() {
-        this(HttpRequest.newBuilder());
+        this(HttpRequest.newBuilder(), TokenFlow.CONTEXT, null, CONTEXT_SUPPLIER);
     }
 
-    private RestRequest(HttpRequest.Builder builder) {
-        super(builder);
-        this.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+    protected RestRequest(HttpRequest.Builder builder, TokenFlow tokenConfig, String scopes, RequestContextSupplier supplier) {
+        super(builder, DEFAULT_CALLID);
+        super.timeout(DEFAULT_TIMEOUT);
+        super.getBuilder().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        this.authorization(selectTokenSupplier(tokenConfig, scopes, supplier))
+            .consumerId(selectConsumerId(tokenConfig, supplier))
             .validator(RestRequest::validateRestHeaders);
-    }
-
-    // Web methond PATCH
-    public static String patch() {
-        return PATCH;
+        if (TokenFlow.CONTEXT_ADD_CONSUMER.equals(tokenConfig)) {
+            this.consumerToken(supplier);
+        }
     }
 
     // Serialize object to json
@@ -50,60 +75,108 @@ public final class RestRequest extends HttpClientRequest {
         return HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(object));
     }
 
-    public static RestRequest buildFor(Class<?> clazz, HttpRequest.Builder builder) {
+    public static RestRequest newRequest(Method method, URI target, Class<?> clazz) {
         var tokenConfig = RestConfig.tokenConfigFromAnnotation(clazz);
-        var scopes = TokenFlow.AZUREAD_CC.equals(tokenConfig) ? RestConfig.scopesFromAnnotation(clazz) : null;
-        return build(builder, tokenConfig, scopes);
+        var scopes = tokenConfig.isAzureAD() ? RestConfig.scopesFromAnnotation(clazz) : null;
+        return newRequest(method, target, tokenConfig, scopes);
     }
 
-    public static RestRequest buildFor(HttpRequest.Builder builder, TokenFlow tokenConfig) {
-        return build(builder, tokenConfig, null);
+    public static RestRequest newRequest(Method method, URI target, TokenFlow tokenConfig) {
+        return newRequest(method, target, tokenConfig, null);
     }
 
-    public static RestRequest build(HttpRequest.Builder builder, TokenFlow tokenConfig, String scopes) {
-        return switch (tokenConfig) {
-            case CONTEXT -> forContext(builder);
-            case CONTEXT_ADD_CONSUMER -> forContext(builder).consumerToken();
-            case SYSTEM -> requestFor(builder, CONTEXT_SUPPLIER.tokenFor(SikkerhetContext.SYSTEM), CONTEXT_SUPPLIER.consumerId());
-            case STS_CC -> requestFor(builder, CONTEXT_SUPPLIER.stsSystemToken(), CONTEXT_SUPPLIER.consumerId());
-            case AZUREAD_CC -> requestFor(builder, CONTEXT_SUPPLIER.azureSystemToken(scopes), CONTEXT_SUPPLIER.consumerId());
-            default -> throw new IllegalArgumentException("EndpointToken not supported " + tokenConfig.name());
-        };
+    public static RestRequest newRequest(Method method, URI target, TokenFlow tokenConfig, String scopes) {
+        var httpRequestBuilder = getHttpRequestBuilder(method, target);
+        return new RestRequest(httpRequestBuilder, tokenConfig, scopes, CONTEXT_SUPPLIER);
     }
 
-    private RestRequest consumerToken() {
-        delayedHeader(HEADER_NAV_CONSUMER_TOKEN, () -> OIDC_AUTH_HEADER_PREFIX + CONTEXT_SUPPLIER.consumerToken().get().token());
+    @Override
+    public RestRequest timeout(Duration timeout) {
+        super.timeout(timeout);
         return this;
     }
 
-    private static RestRequest requestFor(HttpRequest.Builder builder, Supplier<OpenIDToken> authToken, Supplier<String> consumerId) {
-        return new RestRequest(builder)
-            .authorization(authToken)
-            .ensureConsumerId(consumerId);
+    public RestRequest header(String header, String value) {
+        super.getBuilder().header(header, value);
+        return this;
     }
 
-    private static RestRequest forContext(HttpRequest.Builder builder) {
-        return new RestRequest(builder)
-            .authorization(CONTEXT_SUPPLIER.tokenFor(SikkerhetContext.BRUKER))
-            .ensureConsumerId(CONTEXT_SUPPLIER.consumerIdFor(SikkerhetContext.BRUKER));
+    @Override
+    public RestRequest delayedHeader(String header, Supplier<String> value) {
+        super.delayedHeader(header, value);
+        return this;
     }
 
-    private RestRequest authorization(Supplier<OpenIDToken> authToken) {
+    public RestRequest consumerId(Supplier<String> consumerId) {
+        super.delayedHeader(NavHeaders.HEADER_NAV_CONSUMER_ID, consumerId);
+        return this;
+    }
+
+    public RestRequest consumerId(String consumerId) {
+        super.getBuilder().header(NavHeaders.HEADER_NAV_CONSUMER_ID, consumerId);
+        return this;
+    }
+
+    public RestRequest otherCallId(String header) {
+        super.delayedHeader(header, ensureCallId());
+        return this;
+    }
+
+    @Override
+    public RestRequest validator(Consumer<HttpRequest> validator) {
+        super.validator(validator);
+        return this;
+    }
+
+    protected static HttpRequest.Builder getHttpRequestBuilder(Method method, URI target) {
+        var builder = HttpRequest.newBuilder(target);
+        return switch (method.restMethod()) {
+            case GET -> builder.GET();
+            case PATCH -> builder.method(method.restMethod().name(), method.bodyPublisher());
+            case POST -> builder.POST(method.bodyPublisher());
+            case PUT -> builder.PUT(method.bodyPublisher());
+        };
+    }
+
+    private RestRequest consumerToken(RequestContextSupplier contextSupplier) {
+        delayedHeader(NavHeaders.HEADER_NAV_CONSUMER_TOKEN, () -> OIDC_AUTH_HEADER_PREFIX + contextSupplier.consumerToken().get().token());
+        return this;
+    }
+
+    protected RestRequest authorization(Supplier<OpenIDToken> authToken) {
         delayedHeader(HttpHeaders.AUTHORIZATION, () -> OIDC_AUTH_HEADER_PREFIX + authToken.get().token());
         return this;
     }
 
-    private RestRequest ensureConsumerId(Supplier<String> consumerId) {
-        consumerId(consumerId);
-        return this;
+    private static Supplier<String> ensureCallId() {
+        return () -> Optional.ofNullable(MDCOperations.getCallId())
+            .orElseGet(() -> {
+                MDCOperations.putCallId();
+                return MDCOperations.getCallId();
+            });
+    }
+
+    private static Supplier<OpenIDToken> selectTokenSupplier(TokenFlow tokenConfig, String scopes, RequestContextSupplier contextSupplier) {
+        return switch (tokenConfig) {
+            case CONTEXT, CONTEXT_ADD_CONSUMER -> contextSupplier.tokenFor(SikkerhetContext.BRUKER);
+            case CONTEXT_AZURE -> contextSupplier.azureTokenFor(SikkerhetContext.BRUKER, scopes);
+            case SYSTEM, STS_CC -> contextSupplier.tokenFor(SikkerhetContext.SYSTEM);
+            case AZUREAD_CC -> contextSupplier.azureTokenFor(SikkerhetContext.SYSTEM, scopes);
+        };
+    }
+
+    private static Supplier<String> selectConsumerId(TokenFlow tokenConfig, RequestContextSupplier contextSupplier) {
+        return switch (tokenConfig) {
+            case CONTEXT, CONTEXT_ADD_CONSUMER, CONTEXT_AZURE -> contextSupplier.consumerIdFor(SikkerhetContext.BRUKER);
+            case SYSTEM, STS_CC, AZUREAD_CC -> contextSupplier.consumerIdFor(SikkerhetContext.SYSTEM);
+        };
     }
 
     private static void validateRestHeaders(HttpRequest request) {
-        if (!request.headers().map().keySet().containsAll(REST_HEADERS)) {
+        if (!request.headers().map().keySet().containsAll(VALIDATE_HEADERS)) {
             throw new IllegalArgumentException("Utviklerfeil: mangler headere, fant " + request.headers().map().keySet());
         }
-        if (request.headers().map().entrySet().stream().filter(e -> REST_HEADERS.contains(e.getKey()))
-            .anyMatch(e -> e.getValue() == null || e.getValue().stream().anyMatch(h -> h == null || h.isEmpty()))) {
+        if (VALIDATE_HEADERS.stream().anyMatch(header -> request.headers().firstValue(header).filter(h -> !h.isEmpty()).isEmpty())) {
             throw new IllegalArgumentException("Utviklerfeil: mangler headere, fant " + request.headers().map().keySet());
         }
     }

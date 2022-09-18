@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
@@ -57,10 +56,8 @@ public final class TokenXExchangeKlient {
 
     private OidcTokenResponse hentToken(OpenIDToken token, String assertion, String audience) {
         var request = HttpRequest.newBuilder()
-            .header("Nav-Consumer-Id", clientId)
-            .header("Nav-Call-Id", MDCOperations.getCallId())
             .header("Cache-Control", "no-cache")
-            .header("Content-type", "application/x-www-form-urlencoded")
+            .header(Headers.CONTENT_TYPE, Headers.APPLICATION_FORM_ENCODED)
             .timeout(Duration.ofSeconds(10))
             .uri(tokenEndpoint)
             .POST(ofFormData(token, assertion, audience))

@@ -1,5 +1,6 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public class OidcLogin {
@@ -12,7 +13,7 @@ public class OidcLogin {
     }
 
     public record Resultat(LoginResult loginResult,
-                           String subject,
+                           SluttBruker subject,
                            String errorMessage) {}
 
     public static Resultat validerToken(OpenIDToken openIDToken) {

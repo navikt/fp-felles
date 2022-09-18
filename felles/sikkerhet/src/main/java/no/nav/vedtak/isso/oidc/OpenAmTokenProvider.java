@@ -9,11 +9,11 @@ import no.nav.vedtak.sikkerhet.oidc.token.impl.OpenAmBrukerTokenKlient;
 
 public final class OpenAmTokenProvider {
 
-    private static final Environment ENV = Environment.current();
-
-    private static final String REFRESH_TIME = "no.nav.vedtak.sikkerhet.minimum_time_to_expiry_before_refresh.seconds";
     public static final int DEFAULT_REFRESH_TIME = 120;
 
+    private static final String REFRESH_TIME = "no.nav.vedtak.sikkerhet.minimum_time_to_expiry_before_refresh.seconds";
+    private static final int MIN_TIME_TO_EXP_BEFORE_REFRESH = Environment.current()
+        .getProperty(REFRESH_TIME, Integer.class, DEFAULT_REFRESH_TIME) * 1000;
 
     public OpenIDToken exhangeOpenAmAuthCode(String authorizationCode, String callback) {
         return OpenAmBrukerTokenKlient.exhangeAuthCode(authorizationCode, callback);
@@ -28,10 +28,6 @@ public final class OpenAmTokenProvider {
     }
 
     private boolean tokenIsSoonExpired(OpenIDToken token) {
-        return token.expiresAtMillis() - System.currentTimeMillis() < getMinimumTimeToExpiryBeforeRefresh();
-    }
-
-    public static int getMinimumTimeToExpiryBeforeRefresh() {
-        return ENV.getProperty(REFRESH_TIME, Integer.class, DEFAULT_REFRESH_TIME) * 1000;
+        return token.expiresAtMillis() - System.currentTimeMillis() < MIN_TIME_TO_EXP_BEFORE_REFRESH;
     }
 }

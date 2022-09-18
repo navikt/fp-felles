@@ -10,8 +10,9 @@ import javax.inject.Inject;
 
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestCompact;
+import no.nav.vedtak.felles.integrasjon.rest.RestCommon;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
@@ -23,12 +24,12 @@ public class ArbeidsfordelingNativeRestKlient implements Arbeidsfordeling {
 
     private static final String BEST_MATCH = "/bestmatch";
 
-    private RestCompact restKlient;
+    private RestClient restKlient;
     private URI alleEnheterUri;
     private URI besteEnhetUri;
 
     @Inject
-    public ArbeidsfordelingNativeRestKlient(RestCompact restKlient) {
+    public ArbeidsfordelingNativeRestKlient(RestClient restKlient) {
         this.restKlient = restKlient;
         this.alleEnheterUri = RestConfig.endpointFromAnnotation(ArbeidsfordelingNativeRestKlient.class);
         this.besteEnhetUri = URI.create(alleEnheterUri + BEST_MATCH);
@@ -50,7 +51,8 @@ public class ArbeidsfordelingNativeRestKlient implements Arbeidsfordeling {
 
     private List<ArbeidsfordelingResponse> hentEnheterFor(ArbeidsfordelingRequest request, URI uri) {
         try {
-            var respons = restKlient.postValue(ArbeidsfordelingNativeRestKlient.class, uri, request, ArbeidsfordelingResponse[].class);
+            var restrequest = RestCommon.postJson(request, uri, ArbeidsfordelingNativeRestKlient.class);
+            var respons = restKlient.send(restrequest, ArbeidsfordelingResponse[].class);
             return Arrays.stream(respons)
                 .filter(response -> "AKTIV".equalsIgnoreCase(response.status()))
                 .collect(Collectors.toList());

@@ -37,6 +37,7 @@ import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.isso.oidc.OpenAmTokenProvider;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenGenerator;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;
@@ -181,7 +182,7 @@ public class OidcAuthModuleTest {
         when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.empty());
         when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 + 121));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 121));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SUCCESS);
@@ -199,7 +200,7 @@ public class OidcAuthModuleTest {
         when(tokenValidator.validate(any()))
                 .thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validateWithoutExpirationTime(any()))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 - 10));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 - 10));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
@@ -237,7 +238,7 @@ public class OidcAuthModuleTest {
         when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(ugyldigToken)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validateWithoutExpirationTime(any()))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 - 10));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 - 10));
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
@@ -260,9 +261,9 @@ public class OidcAuthModuleTest {
         when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(utløptIdToken)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validate(utløptIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 - 10));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 - 10));
         when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
 
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
         when(idTokenProvider.refreshOpenAmIdToken(any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, gyldigIdToken)));
@@ -287,7 +288,7 @@ public class OidcAuthModuleTest {
         when(tokenValidator.validate(ugyldig)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validateWithoutExpirationTime(ugyldig)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 + 60));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 60));
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
         when(idTokenProvider.refreshOpenAmIdToken(any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, gyldigIdToken)));
 
@@ -308,9 +309,9 @@ public class OidcAuthModuleTest {
         when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(utløptIdToken)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validate(utløptIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 - 60));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 - 60));
         when(tokenValidator.validate(nyttGyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
         when(idTokenProvider.refreshOpenAmIdToken(any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
 
@@ -337,7 +338,7 @@ public class OidcAuthModuleTest {
         when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
         when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(false);
 
         authModule.validateRequest(request, subject, serviceSubject);
@@ -359,9 +360,9 @@ public class OidcAuthModuleTest {
         when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
         when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
         when(tokenValidator.validate(nyttGyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 + 3600));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 3600));
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
         when(idTokenProvider.refreshOpenAmIdToken(any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
 
@@ -390,9 +391,9 @@ public class OidcAuthModuleTest {
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigIdToken));
         when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
         when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
         when(tokenValidator.validate(nyttGyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid("demo", System.currentTimeMillis() / 1000 + 3600));
+                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 3600));
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
         when(idTokenProvider.refreshOpenAmIdToken(any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
 

@@ -1,11 +1,22 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
 public enum TokenFlow {
-    CONTEXT, // Pass on the token set for the current Subject (user or system, isso or sts)
-    CONTEXT_ADD_CONSUMER, // Pass on the token set for the current Subject and add consumerToken for system user
+    CONTEXT, // For targets expecting OpenAm/isso or STS tokens. Will pass on token in current security context
+    CONTEXT_AZURE, // For targets expecting AzureAD tokens. Will check token+subject in context and perform OBO or CC
+    CONTEXT_ADD_CONSUMER, // As CONTEXT but adds consumerToken for system user
     // TOKENX_OBO, not used Requires process of creating assertion, exchanging token, and using the exchanged token
-    // AZUREAD_OBO, Under development
     SYSTEM, // Current system user
     STS_CC,
-    AZUREAD_CC,
+    AZUREAD_CC
+    ;
+
+    // Does the endpoint require an Azure AD token?
+    public boolean isAzureAD() {
+        return CONTEXT_AZURE.equals(this) || AZUREAD_CC.equals(this);
+    }
+
+    // Does the endpoint require a system client?
+    public boolean isSystemRequired() {
+        return SYSTEM.equals(this) || STS_CC.equals(this) || AZUREAD_CC.equals(this);
+    }
 }

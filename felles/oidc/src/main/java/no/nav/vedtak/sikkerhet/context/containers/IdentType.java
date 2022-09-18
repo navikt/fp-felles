@@ -8,4 +8,9 @@ public enum IdentType {
     Samhandler,    // Annen organisasjon
     Sikkerhet,     // Ingen kjent bruk - potensielt ifm pip-requests ol.
     Prosess        // Ingen kjent bruk - foreslås brukt for prosesstasks
+    ;
+
+    public boolean erSystem() {
+        return Systemressurs.equals(this) || Prosess.equals(this);
+    }
 }

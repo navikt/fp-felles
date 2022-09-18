@@ -36,30 +36,33 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 
-@NativeClient
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "saf.base.url", endpointDefault = "https://saf.nais.adeo.no")
+@NativeClient("azure")
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT_AZURE, endpointProperty = "saf.base.url", endpointDefault = "https://saf.nais.adeo.no",
+    scopesProperty = "saf.scopes", scopesDefault = "api://prod-fss.teamdokumenthandtering.saf/.default")
 @ApplicationScoped
-public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements Saf {
+public class SafNativeAzureTjeneste extends AbstractJerseyOidcRestClient implements Saf {
     private static final String HENTDOKUMENT = "/rest/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}";
     private static final String F_240613 = "F-240613";
     private static final String GRAPHQL = "/graphql";
 
-    private static final Logger LOG = LoggerFactory.getLogger(SafNativeTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SafNativeAzureTjeneste.class);
 
     private RestClient restKlient;
     private URI base;
     private URI graphql;
+    private String scopes;
     private GraphQLErrorHandler errorHandler;
 
     @Inject
-    public SafNativeTjeneste(RestClient restKlient) {
+    public SafNativeAzureTjeneste(RestClient restKlient) {
         this.restKlient = restKlient;
-        this.base = RestConfig.endpointFromAnnotation(SafNativeTjeneste.class);
+        this.base = RestConfig.endpointFromAnnotation(SafNativeAzureTjeneste.class);
+        this.scopes = RestConfig.scopesFromAnnotation(SafNativeAzureTjeneste.class);
         this.graphql = URI.create(this.base.toString() + GRAPHQL);
         this.errorHandler = new SafErrorHandler();
     }
 
-    SafNativeTjeneste() {
+    SafNativeAzureTjeneste() {
         // CDI proxyable
     }
 
@@ -86,7 +89,7 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
             .resolveTemplate("dokumentInfoId", q.dokumentId())
             .resolveTemplate("variantFormat", q.variantFormat())
             .build();
-        var request = RestCommon.get(path, TokenFlow.CONTEXT, null);
+        var request = RestCommon.get(path, TokenFlow.CONTEXT_AZURE, scopes);
         var doc = restKlient.sendReturnByteArray(request);
         LOG.info("Hentet dokument OK");
         return doc;
@@ -100,7 +103,7 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
             LOG.trace("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
             var request = RestCommon.publish(RestRequest.WebMethod.POST,
-                HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()), graphql, TokenFlow.CONTEXT, null);
+                HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()), graphql, TokenFlow.CONTEXT_AZURE, scopes);
             var res = restKlient.send(request, clazz);
             if (res.hasErrors()) {
                 return errorHandler.handleError(res.getErrors(), base, F_240613);

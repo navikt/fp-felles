@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.rest;
 
 import java.util.function.Supplier;
 
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
@@ -19,18 +20,8 @@ public final class OidcContextSupplier implements RequestContextSupplier {
     }
 
     @Override
-    public Supplier<OpenIDToken> stsSystemToken() {
-        return TokenProvider::getStsSystemToken;
-    }
-
-    @Override
-    public Supplier<OpenIDToken> azureSystemToken(String scope) {
-        return () -> TokenProvider.getAzureSystemToken(scope);
-    }
-
-    @Override
-    public Supplier<String> consumerId() {
-        return () -> TokenProvider.getUserIdFor(SikkerhetContext.SYSTEM);
+    public Supplier<OpenIDToken> azureTokenFor(SikkerhetContext context, String scopes) {
+        return () -> TokenProvider.getTokenFor(context, OpenIDProvider.AZUREAD, scopes);
     }
 
     @Override

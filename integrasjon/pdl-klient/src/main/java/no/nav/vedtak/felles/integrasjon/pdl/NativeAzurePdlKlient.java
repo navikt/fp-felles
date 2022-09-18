@@ -43,28 +43,31 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-@NativeClient
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT_ADD_CONSUMER, endpointProperty = "pdl.base.url", endpointDefault = "http://pdl-api.pdl/graphql")
+@NativeClient("azure")
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT_AZURE, endpointProperty = "pdl.base.url", endpointDefault = "http://pdl-api.pdl/graphql",
+    scopesProperty = "pdl.scopes", scopesDefault = "api://prod-fss.pdl.pdl-api/.default")
 @ApplicationScoped
-public class NativePdlKlient implements Pdl {
+public class NativeAzurePdlKlient implements Pdl {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NativePdlKlient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NativeAzurePdlKlient.class);
     public static final String FOR = "FOR";
 
     private URI endpoint;
     private GraphQLErrorHandler errorHandler;
     private String tema;
+    private String scopes;
     private RestClient restKlient;
 
     @Inject
-    public NativePdlKlient(RestClient restKlient, @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema) {
+    public NativeAzurePdlKlient(RestClient restKlient, @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema) {
         this.restKlient = restKlient;
-        this.endpoint = RestConfig.endpointFromAnnotation(NativePdlKlient.class);
+        this.endpoint = RestConfig.endpointFromAnnotation(NativeAzurePdlKlient.class);
+        this.scopes = RestConfig.scopesFromAnnotation(NativeAzurePdlKlient.class);
         this.tema = tema;
         this.errorHandler = new PdlDefaultErrorHandler();
     }
 
-    NativePdlKlient() {
+    NativeAzurePdlKlient() {
         // CDI proxyable
     }
 
@@ -108,7 +111,7 @@ public class NativePdlKlient implements Pdl {
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         LOG.trace("Henter resultat for {} fra {}", clazz.getName(), endpoint);
         var rrequest = RestCommon.publish(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()),
-            endpoint, TokenFlow.CONTEXT_ADD_CONSUMER,null).header("TEMA", tema);
+            endpoint, TokenFlow.CONTEXT_AZURE, scopes).header("TEMA", tema);
         var res = restKlient.send(rrequest, clazz);
         if (res.hasErrors()) {
             return errorHandler.handleError(res.getErrors(), endpoint, PDL_ERROR_RESPONSE);

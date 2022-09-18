@@ -12,6 +12,7 @@ import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.NumericDate;
 import org.jose4j.lang.JoseException;
 
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public class OidcTokenGenerator {
@@ -20,7 +21,7 @@ public class OidcTokenGenerator {
     private NumericDate expiration = NumericDate.fromSeconds(NumericDate.now().getValue() + 3600);
     private String issuer = ISSUER;
     private NumericDate issuedAt = NumericDate.now();
-    private String subject = "demo";
+    private SluttBruker subject = SluttBruker.utledBruker("demo");
     private String kid;
 
     private Map<String, String> additionalClaims = new HashMap<>();
@@ -49,7 +50,7 @@ public class OidcTokenGenerator {
         return this;
     }
 
-    public OidcTokenGenerator withSubject(String subject) {
+    public OidcTokenGenerator withSubject(SluttBruker subject) {
         this.subject = subject;
         return this;
 
@@ -89,7 +90,7 @@ public class OidcTokenGenerator {
         claims.setExpirationTime(expiration);
         claims.setGeneratedJwtId();
         claims.setIssuedAt(issuedAt);
-        claims.setSubject(subject);
+        claims.setSubject(subject.getName());
         if (aud.size() == 1) {
             claims.setAudience(aud.get(0));
         } else {

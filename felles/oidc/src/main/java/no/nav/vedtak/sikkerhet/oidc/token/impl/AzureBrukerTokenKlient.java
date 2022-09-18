@@ -99,7 +99,7 @@ public class AzureBrukerTokenKlient {
     private HttpRequest lagRequest(String data) {
         return  HttpRequest.newBuilder()
             .header("Cache-Control", "no-cache")
-            .header("Content-type", "application/x-www-form-urlencoded")
+            .header(Headers.CONTENT_TYPE, Headers.APPLICATION_FORM_ENCODED)
             .timeout(Duration.ofSeconds(10))
             .uri(tokenEndpoint)
             .POST(HttpRequest.BodyPublishers.ofString(data, UTF_8))

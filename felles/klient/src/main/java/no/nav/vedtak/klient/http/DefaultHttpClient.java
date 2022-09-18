@@ -5,7 +5,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -53,12 +52,15 @@ public final class DefaultHttpClient {
         return ResponseHandler.handleResponse(doSendExpectStringRetry(httpRequest), httpRequest.uri(), acceptStatus);
     }
 
-    public Optional<byte[]> sendHandleResponse(HttpClientRequest request) {
+    public byte[] sendReturnByteArray(HttpClientRequest request) {
         var httpRequest = request.request();
-        return Optional.ofNullable(ResponseHandler.handleResponse(doSendExpectBytearrayRetry(httpRequest), httpRequest.uri(), Set.of()));
+        return ResponseHandler.handleResponse(doSendExpectBytearrayRetry(httpRequest), httpRequest.uri(), Set.of());
     }
 
-    public HttpResponse<String> sendNoResponseHandler(HttpClientRequest request) {
+    /**
+     * Raw response, not checked for status codes 4nn or 5nn - please ensure that any usage avoids "quiet errors"
+     */
+    public HttpResponse<String> sendReturnUnhandled(HttpClientRequest request) {
         return doSendExpectStringRetry(request.request());
     }
 
