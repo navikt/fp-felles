@@ -9,8 +9,8 @@ import javax.ws.rs.core.UriBuilder;
 import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestCommon;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @NativeClient
@@ -35,13 +35,15 @@ public class OrganisasjonNativeRestKlient implements OrgInfo {
     @Override
     public OrganisasjonEReg hentOrganisasjon(String orgnummer) {
         var uri = lagURI(orgnummer);
-        return restKlient.send(RestCommon.get(uri, OrganisasjonNativeRestKlient.class), OrganisasjonEReg.class);
+        var request = RestRequest.newRequest(RestRequest.Method.get(), uri, OrganisasjonNativeRestKlient.class);
+        return restKlient.send(request, OrganisasjonEReg.class);
     }
 
     @Override
     public OrganisasjonAdresse hentOrganisasjonAdresse(String orgnummer) {
         var uri = lagURI(orgnummer);
-        return restKlient.send(RestCommon.get(uri, OrganisasjonNativeRestKlient.class), OrganisasjonAdresse.class);
+        var request = RestRequest.newRequest(RestRequest.Method.get(), uri, OrganisasjonNativeRestKlient.class);
+        return restKlient.send(request, OrganisasjonAdresse.class);
     }
 
     private URI lagURI(String orgnummer) {

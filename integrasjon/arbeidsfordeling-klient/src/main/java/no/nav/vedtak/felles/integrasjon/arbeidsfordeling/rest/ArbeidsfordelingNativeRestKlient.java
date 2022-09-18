@@ -12,8 +12,8 @@ import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestCommon;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @NativeClient
@@ -51,7 +51,7 @@ public class ArbeidsfordelingNativeRestKlient implements Arbeidsfordeling {
 
     private List<ArbeidsfordelingResponse> hentEnheterFor(ArbeidsfordelingRequest request, URI uri) {
         try {
-            var restrequest = RestCommon.postJson(request, uri, ArbeidsfordelingNativeRestKlient.class);
+            var restrequest = RestRequest.newRequest(RestRequest.Method.postJson(request), uri, ArbeidsfordelingNativeRestKlient.class);
             var respons = restKlient.send(restrequest, ArbeidsfordelingResponse[].class);
             return Arrays.stream(respons)
                 .filter(response -> "AKTIV".equalsIgnoreCase(response.status()))

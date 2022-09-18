@@ -13,6 +13,10 @@ public interface RequestContextSupplier {
 
     Supplier<OpenIDToken> azureTokenFor(SikkerhetContext context, String scopes);
 
+    Supplier<OpenIDToken> adaptive(SikkerhetContext context, String scopes);
+
     Supplier<OpenIDToken> consumerToken();
+
+    boolean isAzureContext();
 
 }

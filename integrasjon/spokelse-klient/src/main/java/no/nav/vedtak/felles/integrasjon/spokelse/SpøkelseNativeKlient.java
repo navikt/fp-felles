@@ -15,8 +15,8 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestCommon;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @NativeClient
@@ -47,7 +47,7 @@ public class SpøkelseNativeKlient implements Spøkelse {
             var path = UriBuilder.fromUri(uri)
                 .queryParam("fodselsnummer", fnr)
                 .build();
-            var request = RestCommon.get(path, SpøkelseNativeKlient.class);
+            var request = RestRequest.newRequest(RestRequest.Method.get(), path, SpøkelseNativeKlient.class);
             var grunnlag = restKlient.send(request, SykepengeVedtak[].class);
             return Arrays.asList(grunnlag);
         } catch (Exception e) {

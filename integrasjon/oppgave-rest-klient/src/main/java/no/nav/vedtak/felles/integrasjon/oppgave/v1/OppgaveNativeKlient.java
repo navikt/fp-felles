@@ -11,7 +11,6 @@ import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestCommon;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
@@ -40,7 +39,7 @@ public class OppgaveNativeKlient implements Oppgaver {
 
     @Override
     public Oppgave opprettetOppgave(OpprettOppgave oppgave) {
-        var request = RestCommon.postJson(oppgave, endpoint, OppgaveNativeKlient.class);
+        var request = RestRequest.newRequest(RestRequest.Method.postJson(oppgave), endpoint, OppgaveNativeKlient.class);
         return restKlient.send(request, Oppgave.class);
     }
 
@@ -50,7 +49,7 @@ public class OppgaveNativeKlient implements Oppgaver {
         if (tema != null)
             builder.queryParam("tema", tema);
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
-        var request = RestCommon.get(builder.build(), OppgaveNativeKlient.class);
+        var request = RestRequest.newRequest(RestRequest.Method.get(), builder.build(), OppgaveNativeKlient.class);
         return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
     }
 
@@ -62,7 +61,7 @@ public class OppgaveNativeKlient implements Oppgaver {
         if (tema != null)
             builder.queryParam("tema", tema);
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
-        var request = RestCommon.get(builder.build(), OppgaveNativeKlient.class);
+        var request = RestRequest.newRequest(RestRequest.Method.get(), builder.build(), OppgaveNativeKlient.class);
         return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
     }
 
@@ -70,8 +69,8 @@ public class OppgaveNativeKlient implements Oppgaver {
     public void ferdigstillOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.getId(), oppgave.getVersjon(), Oppgavestatus.FERDIGSTILT);
-        var request = RestCommon.publishJson(RestRequest.WebMethod.PATCH, patch,
-            getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
+        var request =  RestRequest.newRequest(new RestRequest.Method(RestRequest.WebMethod.PATCH,
+                RestRequest.jsonPublisher(patch)), getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
         restKlient.sendExpectConflict(addCorrelation(request), String.class);
     }
 
@@ -79,14 +78,14 @@ public class OppgaveNativeKlient implements Oppgaver {
     public void feilregistrerOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.getId(), oppgave.getVersjon(), Oppgavestatus.FEILREGISTRERT);
-        var request = RestCommon.publishJson(RestRequest.WebMethod.PATCH, patch,
-            getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
+        var request =  RestRequest.newRequest(new RestRequest.Method(RestRequest.WebMethod.PATCH,
+            RestRequest.jsonPublisher(patch)), getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
         restKlient.sendExpectConflict(addCorrelation(request), String.class);
     }
 
     @Override
     public Oppgave hentOppgave(String oppgaveId) {
-        var request = RestCommon.get(getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
+        var request = RestRequest.newRequest(RestRequest.Method.get(), getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
         return restKlient.send(addCorrelation(request), Oppgave.class);
     }
 

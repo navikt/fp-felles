@@ -24,6 +24,7 @@ public class HttpClientRequest {
     private final HttpRequest.Builder builder;
     private Duration timeout;
     private final Map<String, Supplier<String>> headers;
+    private final Map<Supplier<String>, String> dependentHeaders;
     private final List<Consumer<HttpRequest>> validators;
 
     private HttpClientRequest() {
@@ -33,6 +34,7 @@ public class HttpClientRequest {
     protected HttpClientRequest(HttpRequest.Builder builder, Map<String, Supplier<String>> headers) {
         this.builder = builder;
         this.headers = headers != null ? new HashMap<>(headers) : new HashMap<>();
+        this.dependentHeaders = new HashMap<>();
         this.validators = new ArrayList<>(List.of(HttpClientRequest::validateTimeout));
     }
 
@@ -55,6 +57,7 @@ public class HttpClientRequest {
     HttpRequest request() {
         builder.timeout(Optional.ofNullable(timeout).orElse(DEFAULT_TIMEOUT));
         headers.forEach((key, value) -> builder.header(key, value.get()));
+        dependentHeaders.forEach((key, value) -> Optional.ofNullable(key.get()).ifPresent(v -> builder.header(value, v)));
         var request = builder.build();
         validators.forEach(v -> v.accept(request));
         return request;

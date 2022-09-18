@@ -38,11 +38,26 @@ public final class TokenProvider {
         };
     }
 
+    public static OpenIDToken getTokenFromCurrent(SikkerhetContext context, String scopes) {
+        var token = BrukerTokenProvider.getToken();
+        return switch (context) {
+            case BRUKER -> getTokenFraContextFor(token, scopes);
+            case SYSTEM -> {
+                var provider = Optional.ofNullable(token).map(OpenIDToken::provider).orElse(OpenIDProvider.ISSO);
+                yield OpenIDProvider.AZUREAD.equals(provider) ? getAzureSystemToken(scopes) : getStsSystemToken();
+            }
+        };
+    }
+
     public static String getUserIdFor(SikkerhetContext context) {
         return switch (context) {
             case BRUKER -> BrukerTokenProvider.getUserId();
             case SYSTEM -> ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS).map(OpenIDConfiguration::clientId).orElse(null);
         };
+    }
+
+    public static boolean isAzureContext() {
+        return OpenIDProvider.AZUREAD.equals(Optional.ofNullable(BrukerTokenProvider.getToken()).map(OpenIDToken::provider).orElse(OpenIDProvider.ISSO));
     }
 
     public static OpenIDToken getStsSystemToken() {
@@ -88,6 +103,22 @@ public final class TokenProvider {
             } else {
                 return token;
             }
+        }
+    }
+
+    private static OpenIDToken getTokenFraContextFor(OpenIDToken incoming, String scopes) {
+        var providerIncoming = Optional.ofNullable(incoming).map(OpenIDToken::provider).orElse(OpenIDProvider.ISSO);
+        if (!BrukerTokenProvider.harSattBrukerOidcToken() && BrukerTokenProvider.harSattBrukerSamlToken()) {
+            return OpenIDProvider.AZUREAD.equals(providerIncoming) ? getAzureSystemToken(scopes) : getStsSystemToken();
+        }
+        if (incoming == null || incoming.token() == null) {
+            return incoming;
+        }
+        var identType = Optional.ofNullable(BrukerTokenProvider.getIdentType()).orElse(IdentType.InternBruker);
+        if (OpenIDProvider.AZUREAD.equals(providerIncoming)) {
+            return identType.erSystem() ? getAzureSystemToken(scopes) : veksleAzureAccessToken(incoming, scopes);
+        } else {
+            return incoming;
         }
     }
 

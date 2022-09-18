@@ -65,8 +65,8 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         this.authorization(selectTokenSupplier(tokenConfig, scopes, supplier))
             .consumerId(selectConsumerId(tokenConfig, supplier))
             .validator(RestRequest::validateRestHeaders);
-        if (TokenFlow.CONTEXT_ADD_CONSUMER.equals(tokenConfig)) {
-            this.consumerToken(supplier);
+        if (TokenFlow.CONTEXT_ADD_CONSUMER.equals(tokenConfig) || TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig)) {
+            this.consumerToken(supplier, tokenConfig);
         }
     }
 
@@ -138,7 +138,10 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         };
     }
 
-    private RestRequest consumerToken(RequestContextSupplier contextSupplier) {
+    private RestRequest consumerToken(RequestContextSupplier contextSupplier, TokenFlow tokenConfig) {
+        if (TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig) && contextSupplier.isAzureContext()) {
+            return this;
+        }
         delayedHeader(NavHeaders.HEADER_NAV_CONSUMER_TOKEN, () -> OIDC_AUTH_HEADER_PREFIX + contextSupplier.consumerToken().get().token());
         return this;
     }
@@ -158,6 +161,7 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
 
     private static Supplier<OpenIDToken> selectTokenSupplier(TokenFlow tokenConfig, String scopes, RequestContextSupplier contextSupplier) {
         return switch (tokenConfig) {
+            case ADAPTIVE, ADAPTIVE_ADD_CONSUMER -> contextSupplier.adaptive(SikkerhetContext.BRUKER, scopes);
             case CONTEXT, CONTEXT_ADD_CONSUMER -> contextSupplier.tokenFor(SikkerhetContext.BRUKER);
             case CONTEXT_AZURE -> contextSupplier.azureTokenFor(SikkerhetContext.BRUKER, scopes);
             case SYSTEM, STS_CC -> contextSupplier.tokenFor(SikkerhetContext.SYSTEM);
@@ -167,8 +171,8 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
 
     private static Supplier<String> selectConsumerId(TokenFlow tokenConfig, RequestContextSupplier contextSupplier) {
         return switch (tokenConfig) {
-            case CONTEXT, CONTEXT_ADD_CONSUMER, CONTEXT_AZURE -> contextSupplier.consumerIdFor(SikkerhetContext.BRUKER);
             case SYSTEM, STS_CC, AZUREAD_CC -> contextSupplier.consumerIdFor(SikkerhetContext.SYSTEM);
+            default -> contextSupplier.consumerIdFor(SikkerhetContext.BRUKER);
         };
     }
 

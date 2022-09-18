@@ -20,6 +20,11 @@ public final class OidcContextSupplier implements RequestContextSupplier {
     }
 
     @Override
+    public Supplier<OpenIDToken> adaptive(SikkerhetContext context, String scopes) {
+        return () -> TokenProvider.getTokenFromCurrent(context, scopes);
+    }
+
+    @Override
     public Supplier<OpenIDToken> azureTokenFor(SikkerhetContext context, String scopes) {
         return () -> TokenProvider.getTokenFor(context, OpenIDProvider.AZUREAD, scopes);
     }
@@ -27,5 +32,10 @@ public final class OidcContextSupplier implements RequestContextSupplier {
     @Override
     public Supplier<OpenIDToken> consumerToken() {
         return () -> TokenProvider.getTokenFor(SikkerhetContext.SYSTEM);
+    }
+
+    @Override
+    public boolean isAzureContext() {
+        return TokenProvider.isAzureContext();
     }
 }

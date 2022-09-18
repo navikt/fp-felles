@@ -14,8 +14,8 @@ import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestCommon;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 /**
@@ -58,7 +58,7 @@ public class MedlemsunntakNativeRestKlient implements Medlemskap {
             .queryParam(PARAM_TIL_OG_MED, d2s(tom))
             .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_GYLD)
             .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK);
-        var request = RestCommon.get(uri.build(), MedlemsunntakNativeRestKlient.class)
+        var request = RestRequest.newRequest(RestRequest.Method.get(), uri.build(), MedlemsunntakNativeRestKlient.class)
             .otherCallId(NavHeaders.HEADER_NAV_CALL_ID)
             .header(NavHeaders.HEADER_NAV_PERSONIDENT, aktørId);
         var match = restKlient.send(request, Medlemskapsunntak[].class);
