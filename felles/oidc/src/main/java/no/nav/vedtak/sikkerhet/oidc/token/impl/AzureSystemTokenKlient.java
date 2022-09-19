@@ -72,7 +72,7 @@ public class AzureSystemTokenKlient {
     private static OidcTokenResponse hentAccessToken(String clientId, String clientSecret, URI tokenEndpoint, URI proxy, String scope) {
         var request = HttpRequest.newBuilder()
             .header("Cache-Control", "no-cache")
-            .header("Content-type", "application/x-www-form-urlencoded")
+            .header(Headers.CONTENT_TYPE, Headers.APPLICATION_FORM_ENCODED)
             .timeout(Duration.ofSeconds(10))
             .uri(tokenEndpoint)
             .POST(ofFormData(clientId, clientSecret, scope))

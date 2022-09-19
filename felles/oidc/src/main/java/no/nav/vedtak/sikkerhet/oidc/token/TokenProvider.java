@@ -1,7 +1,9 @@
 package no.nav.vedtak.sikkerhet.oidc.token;
 
 import java.net.URI;
+import java.util.Optional;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.context.containers.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
@@ -17,22 +19,30 @@ public final class TokenProvider {
 
     public static OpenIDToken getTokenFor(SikkerhetContext context) {
         return switch (context) {
-            case BRUKER -> getTokenForBrukerMedFallbackDersomSaml(true);
+            case BRUKER -> getTokenFraContextFor(OpenIDProvider.ISSO, null, true);
             case SYSTEM -> getStsSystemToken();
         };
     }
 
     public static OpenIDToken getTokenUtenSamlFallback(SikkerhetContext context) {
         return switch (context) {
-            case BRUKER -> getTokenForBrukerMedFallbackDersomSaml(false);
+            case BRUKER -> getTokenFraContextFor(OpenIDProvider.ISSO, null, false);
             case SYSTEM -> getStsSystemToken();
         };
     }
 
-    public static OpenIDToken getTokenForScope(SikkerhetContext context, String scopes) {
+    public static OpenIDToken getTokenFor(SikkerhetContext context, OpenIDProvider provider, String scopes) {
         return switch (context) {
-            case BRUKER -> getAzureTokenForBrukerMedFallbackDersomSaml(true, scopes);
-            case SYSTEM -> getAzureSystemToken(scopes);
+            case BRUKER -> getTokenFraContextFor(provider, scopes, true);
+            case SYSTEM -> OpenIDProvider.AZUREAD.equals(provider) ? getAzureSystemToken(scopes) : getStsSystemToken();
+        };
+    }
+
+    public static OpenIDToken getTokenFromCurrent(SikkerhetContext context, String scopes) {
+        var token = BrukerTokenProvider.getToken();
+        return switch (context) {
+            case BRUKER -> getTokenFraContextFor(token, scopes);
+            case SYSTEM -> OpenIDProvider.AZUREAD.equals(getProvider(token)) ? getAzureSystemToken(scopes) : getStsSystemToken();
         };
     }
 
@@ -43,12 +53,24 @@ public final class TokenProvider {
         };
     }
 
+    public static boolean isAzureContext() {
+        try {
+            return OpenIDProvider.AZUREAD.equals(getProvider(BrukerTokenProvider.getToken()));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static OpenIDToken getStsSystemToken() {
         return StsSystemTokenKlient.hentAccessToken();
     }
 
-    public static OpenIDToken getAzureSystemToken(String scope) {
-        return AzureSystemTokenKlient.instance().hentAccessToken(scope);
+    public static OpenIDToken getAzureSystemToken(String scopes) {
+        return AzureSystemTokenKlient.instance().hentAccessToken(scopes);
+    }
+
+    public static OpenIDToken veksleAzureAccessToken(OpenIDToken incoming, String scopes) {
+        return AzureBrukerTokenKlient.instance().oboExchangeToken(incoming, scopes);
     }
 
     public static OpenIDToken exchangeTokenX(OpenIDToken token, String assertion, URI targetEndpoint) {
@@ -56,23 +78,58 @@ public final class TokenProvider {
         return TokenXExchangeKlient.instance().exchangeToken(token, assertion, targetEndpoint);
     }
 
-    private static OpenIDToken getTokenForBrukerMedFallbackDersomSaml(boolean fallback) {
-        if (!BrukerTokenProvider.harSattBrukerOidcToken() && BrukerTokenProvider.harSattBrukerSamlToken() && fallback) {
-            return getStsSystemToken();
+    private static OpenIDToken getTokenFraContextFor(OpenIDProvider provider, String scopes, boolean samlFallback) {
+        if (!BrukerTokenProvider.harSattBrukerOidcToken() && BrukerTokenProvider.harSattBrukerSamlToken() && samlFallback) {
+            return OpenIDProvider.AZUREAD.equals(provider) ? getAzureSystemToken(scopes) : getStsSystemToken();
         }
-        return BrukerTokenProvider.getToken();
+        var identType = Optional.ofNullable(BrukerTokenProvider.getIdentType()).orElse(IdentType.InternBruker);
+        var token = BrukerTokenProvider.getToken();
+        if (token == null || token.token() == null) {
+            return token;
+            //throw new IllegalStateException("Har ikke token i kontekst");
+        }
+        if (OpenIDProvider.AZUREAD.equals(provider)) {
+            if (identType.erSystem()) {
+                return getAzureSystemToken(scopes);
+            } else if (OpenIDProvider.AZUREAD.equals(token.provider())) {
+                return veksleAzureAccessToken(token, scopes);
+            } else {
+                throw ugyldigTokenCombo(token, identType, provider);
+            }
+        } else {
+            if (OpenIDProvider.AZUREAD.equals(token.provider()) && identType.erSystem()) {
+                return getStsSystemToken();
+            } else if (OpenIDProvider.AZUREAD.equals(token.provider())) {
+                throw ugyldigTokenCombo(token, identType, provider);
+            } else {
+                return token;
+            }
+        }
     }
 
-    private static OpenIDToken getAzureTokenForBrukerMedFallbackDersomSaml(boolean fallback, String scopes) {
-        if (!BrukerTokenProvider.harSattBrukerOidcToken() && BrukerTokenProvider.harSattBrukerSamlToken() && fallback) {
-            return getAzureSystemToken(scopes);
+    private static OpenIDToken getTokenFraContextFor(OpenIDToken incoming, String scopes) {
+        var providerIncoming = getProvider(incoming);
+        if (!BrukerTokenProvider.harSattBrukerOidcToken() && BrukerTokenProvider.harSattBrukerSamlToken()) {
+            return OpenIDProvider.AZUREAD.equals(providerIncoming) ? getAzureSystemToken(scopes) : getStsSystemToken();
         }
-        var token = BrukerTokenProvider.getToken();
-        if (token != null && token.token() != null && OpenIDProvider.AZUREAD.equals(token.provider()) &&
-            IdentType.InternBruker.equals(BrukerTokenProvider.getIdentType())) {
-            return AzureBrukerTokenKlient.instance().oboExchangeToken(token, scopes);
+        if (incoming == null || incoming.token() == null) {
+            return incoming;
         }
-        return token;
+        var identType = Optional.ofNullable(BrukerTokenProvider.getIdentType()).orElse(IdentType.InternBruker);
+        if (OpenIDProvider.AZUREAD.equals(providerIncoming)) {
+            return identType.erSystem() ? getAzureSystemToken(scopes) : veksleAzureAccessToken(incoming, scopes);
+        } else {
+            return incoming;
+        }
+    }
+
+    private static TekniskException ugyldigTokenCombo(OpenIDToken token, IdentType identType, OpenIDProvider provider) {
+        return new TekniskException("F-483213", String.format("Ugyldig veksling, har token fra %s for %s. Trenger %s",
+            token.provider(), identType, provider));
+    }
+
+    private static OpenIDProvider getProvider(OpenIDToken token) {
+        return Optional.ofNullable(token).map(OpenIDToken::provider).orElse(OpenIDProvider.ISSO);
     }
 
 }

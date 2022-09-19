@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.spokelse;
 
 import java.net.URI;
-import java.net.http.HttpRequest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,10 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.RestSender;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @NativeClient
@@ -29,11 +28,11 @@ public class SpøkelseNativeKlient implements Spøkelse {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpøkelseNativeKlient.class);
 
-    private RestSender restKlient;
+    private RestClient restKlient;
     private URI uri;
 
     @Inject
-    public SpøkelseNativeKlient(RestSender restKlient) {
+    public SpøkelseNativeKlient(RestClient restKlient) {
         this.restKlient = restKlient;
         this.uri = RestConfig.endpointFromAnnotation(SpøkelseNativeKlient.class);
     }
@@ -48,8 +47,7 @@ public class SpøkelseNativeKlient implements Spøkelse {
             var path = UriBuilder.fromUri(uri)
                 .queryParam("fodselsnummer", fnr)
                 .build();
-            var builder = HttpRequest.newBuilder(path).GET();
-            var request = RestRequest.buildFor(SpøkelseNativeKlient.class, builder);
+            var request = RestRequest.newRequest(RestRequest.Method.get(), path, SpøkelseNativeKlient.class);
             var grunnlag = restKlient.send(request, SykepengeVedtak[].class);
             return Arrays.asList(grunnlag);
         } catch (Exception e) {

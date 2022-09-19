@@ -67,7 +67,7 @@ public class OIDCLoginModule extends LoginModuleBase {
 
         OidcLogin.Resultat resultat = OidcLogin.validerToken(ssoToken);
         if (OidcLogin.LoginResult.SUCCESS.equals(resultat.loginResult())) {
-            sluttBruker = SluttBruker.utledBruker(resultat.subject());
+            sluttBruker = resultat.subject();
             setLoginSuccess(true);
             logger.trace("Login successful for user {}", sluttBruker);
             return true;

@@ -17,8 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.RestSender;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
@@ -27,7 +27,7 @@ class SpøkelseTest {
     private Spøkelse spøkelse;
 
     @Mock
-    private RestSender restKlient;
+    private RestClient restKlient;
 
     @BeforeEach
     void setUp() throws IOException {

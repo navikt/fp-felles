@@ -36,14 +36,15 @@ import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.RestSender;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @NativeClient
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT_ADD_CONSUMER, endpointProperty = "pdl.base.url", endpointDefault = "http://pdl-api.pdl/graphql")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE_ADD_CONSUMER, endpointProperty = "pdl.base.url", endpointDefault = "http://pdl-api.pdl/graphql",
+    scopesProperty = "pdl.scopes", scopesDefault = "api://prod-fss.pdl.pdl-api/.default")
 @ApplicationScoped
 public class NativePdlKlient implements Pdl {
 
@@ -53,16 +54,14 @@ public class NativePdlKlient implements Pdl {
     private URI endpoint;
     private GraphQLErrorHandler errorHandler;
     private String tema;
-    private RestSender restKlient;
+    private String scopes;
+    private RestClient restKlient;
 
-    /**
-     * TODO: Utvide med ulike varianter ifm azure - Bruker, System, OBO, etc. Evt deleger til TokenProvider/OidcRequest
-     * Inntil videre brukes token fra kontekst (bruker eller system) + consumertoken
-     */
     @Inject
-    public NativePdlKlient(RestSender restKlient, @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema) {
+    public NativePdlKlient(RestClient restKlient, @KonfigVerdi(value = "pdl.tema", defaultVerdi = FOR) String tema) {
         this.restKlient = restKlient;
         this.endpoint = RestConfig.endpointFromAnnotation(NativePdlKlient.class);
+        this.scopes = RestConfig.scopesFromAnnotation(NativePdlKlient.class);
         this.tema = tema;
         this.errorHandler = new PdlDefaultErrorHandler();
     }
@@ -110,10 +109,9 @@ public class NativePdlKlient implements Pdl {
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         LOG.trace("Henter resultat for {} fra {}", clazz.getName(), endpoint);
-        var builder = HttpRequest.newBuilder(endpoint)
-            .header("TEMA", tema)
-            .POST(HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
-        var rrequest = RestRequest.buildFor(builder, TokenFlow.CONTEXT_ADD_CONSUMER);
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
+        var rrequest = RestRequest.newRequest(method, endpoint, TokenFlow.ADAPTIVE_ADD_CONSUMER, scopes)
+            .header("TEMA", tema);
         var res = restKlient.send(rrequest, clazz);
         if (res.hasErrors()) {
             return errorHandler.handleError(res.getErrors(), endpoint, PDL_ERROR_RESPONSE);

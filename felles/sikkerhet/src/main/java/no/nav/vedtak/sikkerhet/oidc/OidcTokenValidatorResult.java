@@ -1,12 +1,14 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-public record OidcTokenValidatorResult(boolean isValid, String errorMessage, String subject, long expSeconds)  {
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+
+public record OidcTokenValidatorResult(boolean isValid, String errorMessage, SluttBruker subject, long expSeconds)  {
 
     public static OidcTokenValidatorResult invalid(String errorMessage) {
         return new OidcTokenValidatorResult(false, errorMessage, null, 0);
     }
 
-    public static OidcTokenValidatorResult valid(String subject, long expSeconds) {
+    public static OidcTokenValidatorResult valid(SluttBruker subject, long expSeconds) {
         return new OidcTokenValidatorResult(true, null, subject, expSeconds);
     }
 
@@ -17,7 +19,7 @@ public record OidcTokenValidatorResult(boolean isValid, String errorMessage, Str
         return errorMessage;
     }
 
-    public String getSubject() {
+    public SluttBruker getSubject() {
         if (!isValid) {
             throw new IllegalArgumentException("Can't get claims from an invalid token");
         }

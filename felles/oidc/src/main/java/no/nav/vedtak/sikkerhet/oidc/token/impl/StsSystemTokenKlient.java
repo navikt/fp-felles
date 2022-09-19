@@ -5,7 +5,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.time.Duration;
-import java.util.Base64;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +44,11 @@ public class StsSystemTokenKlient {
 
     private static OidcTokenResponse hentToken() {
         var request = HttpRequest.newBuilder()
-            .header("Authorization", basicCredentials(CLIENT_ID, CLIENT_SECRET))
+            .header(Headers.AUTHORIZATION, Headers.basicCredentials(CLIENT_ID, CLIENT_SECRET))
             .header("Nav-Consumer-Id", CLIENT_ID)
             .header("Nav-Call-Id", MDCOperations.getCallId())
             .header("Cache-Control", "no-cache")
-            .header("Content-type", "application/x-www-form-urlencoded")
+            .header(Headers.CONTENT_TYPE, Headers.APPLICATION_FORM_ENCODED)
             .timeout(Duration.ofSeconds(10))
             .uri(TOKEN_ENDPOINT)
             .POST(ofFormData())
@@ -62,7 +61,4 @@ public class StsSystemTokenKlient {
         return HttpRequest.BodyPublishers.ofString(formdata, UTF_8);
     }
 
-    private static String basicCredentials(String username, String password) {
-        return "Basic " + Base64.getEncoder().encodeToString(String.format("%s:%s", username, password).getBytes(UTF_8));
-    }
 }

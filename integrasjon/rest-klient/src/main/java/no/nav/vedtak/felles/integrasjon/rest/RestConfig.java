@@ -25,12 +25,12 @@ public final class RestConfig {
             .filter(FpApplication::specified);
     }
 
-    static TokenFlow tokenConfigFromAnnotation(Class<?> clazz) {
+    public static TokenFlow tokenConfigFromAnnotation(Class<?> clazz) {
         return Optional.ofNullable(clazz.getAnnotation(RestClientConfig.class))
             .map(RestClientConfig::tokenConfig).orElse(TokenFlow.CONTEXT);
     }
 
-    static String scopesFromAnnotation(Class<?> clazz) {
+    public static String scopesFromAnnotation(Class<?> clazz) {
         return fromAnnotation(clazz, FpApplication::scopesFor, RestClientConfig::scopesProperty, RestClientConfig::scopesDefault)
             .orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: mangler endpoint for " + clazz.getSimpleName()));
     }

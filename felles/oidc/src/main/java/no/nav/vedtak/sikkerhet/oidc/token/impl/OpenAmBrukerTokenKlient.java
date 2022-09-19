@@ -60,11 +60,11 @@ public class OpenAmBrukerTokenKlient {
 
     private static HttpRequest lagRequest(String clientName, String data) {
         return  HttpRequest.newBuilder()
-            .header("Authorization", basicCredentials(clientName, CONFIGURATION.clientSecret()))
+            .header(Headers.AUTHORIZATION, Headers.basicCredentials(clientName, CONFIGURATION.clientSecret()))
             .header("Nav-Consumer-Id", CONFIGURATION.clientId())
             .header("Nav-Call-Id", MDCOperations.getCallId())
             .header("Cache-Control", "no-cache")
-            .header("Content-type", "application/x-www-form-urlencoded")
+            .header(Headers.CONTENT_TYPE, Headers.APPLICATION_FORM_ENCODED)
             .timeout(Duration.ofSeconds(10))
             .uri(CONFIGURATION.tokenEndpoint())
             .POST(HttpRequest.BodyPublishers.ofString(data, UTF_8))

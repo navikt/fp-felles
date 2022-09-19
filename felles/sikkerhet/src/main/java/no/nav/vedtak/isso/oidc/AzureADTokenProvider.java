@@ -9,12 +9,13 @@ import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureBrukerTokenKlient;
 
 public final class AzureADTokenProvider {
 
-    private static final Environment ENV = Environment.current();
+    public static final int DEFAULT_REFRESH_TIME = 120;
 
     private static final String SCOPES = AzureConfigProperties.getAzureScopes();
 
     private static final String REFRESH_TIME = "no.nav.vedtak.sikkerhet.minimum_time_to_expiry_before_refresh.seconds";
-    public static final int DEFAULT_REFRESH_TIME = 120;
+    private static final int MIN_TIME_TO_EXP_BEFORE_REFRESH = Environment.current()
+        .getProperty(REFRESH_TIME, Integer.class, DEFAULT_REFRESH_TIME) * 1000;
 
 
     public static OpenIDToken exhangeAzureAuthCode(String authorizationCode, String callback) {
@@ -30,10 +31,7 @@ public final class AzureADTokenProvider {
     }
 
     private static boolean tokenIsSoonExpired(OpenIDToken token) {
-        return token.expiresAtMillis() - System.currentTimeMillis() < getMinimumTimeToExpiryBeforeRefresh();
+        return token.expiresAtMillis() - System.currentTimeMillis() < MIN_TIME_TO_EXP_BEFORE_REFRESH;
     }
 
-    public static int getMinimumTimeToExpiryBeforeRefresh() {
-        return ENV.getProperty(REFRESH_TIME, Integer.class, DEFAULT_REFRESH_TIME) * 1000;
-    }
 }

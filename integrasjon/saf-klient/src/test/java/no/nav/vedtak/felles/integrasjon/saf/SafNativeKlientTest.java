@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -40,8 +39,8 @@ import no.nav.saf.Tilknytning;
 import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.RestSender;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,7 +50,7 @@ class SafNativeKlientTest {
     private SafNativeTjeneste safTjeneste;
 
     @Mock
-    private RestSender restKlient;
+    private RestClient restKlient;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -139,9 +138,9 @@ class SafNativeKlientTest {
     @Test
     void skal_returnere_dokument() throws IOException {
         // GET-eksempel: hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}
-        Optional<byte[]> respons = Optional.of("<dokument_as_bytes>".getBytes());
+        byte[] respons = "<dokument_as_bytes>".getBytes();
         var captor = ArgumentCaptor.forClass(RestRequest.class);
-        when(restKlient.sendHandleResponse(captor.capture())).thenReturn(respons);
+        when(restKlient.sendReturnByteArray(captor.capture())).thenReturn(respons);
         HentDokumentQuery query = new HentDokumentQuery("journalpostId", "dokumentInfoId", "ARKIVF");
 
         byte[] dokument = safTjeneste.hentDokument(query);

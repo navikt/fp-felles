@@ -28,15 +28,16 @@ import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.RestSender;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.AbstractJerseyOidcRestClient;
 
 @NativeClient
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "saf.base.url", endpointDefault = "https://saf.nais.adeo.no")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "saf.base.url", endpointDefault = "https://saf.nais.adeo.no",
+    scopesProperty = "saf.scopes", scopesDefault = "api://prod-fss.teamdokumenthandtering.saf/.default")
 @ApplicationScoped
 public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements Saf {
     private static final String HENTDOKUMENT = "/rest/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}";
@@ -45,14 +46,18 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
 
     private static final Logger LOG = LoggerFactory.getLogger(SafNativeTjeneste.class);
 
-    private RestSender restKlient;
+    private RestClient restKlient;
     private URI base;
+    private URI graphql;
+    private String scopes;
     private GraphQLErrorHandler errorHandler;
 
     @Inject
-    public SafNativeTjeneste(RestSender restKlient) {
+    public SafNativeTjeneste(RestClient restKlient) {
         this.restKlient = restKlient;
         this.base = RestConfig.endpointFromAnnotation(SafNativeTjeneste.class);
+        this.scopes = RestConfig.scopesFromAnnotation(SafNativeTjeneste.class);
+        this.graphql = URI.create(this.base.toString() + GRAPHQL);
         this.errorHandler = new SafErrorHandler();
     }
 
@@ -83,11 +88,10 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
             .resolveTemplate("dokumentInfoId", q.dokumentId())
             .resolveTemplate("variantFormat", q.variantFormat())
             .build();
-        var builder = HttpRequest.newBuilder(path).GET();
-        var request = RestRequest.buildFor(builder, TokenFlow.CONTEXT);
-        var doc = restKlient.sendHandleResponse(request);
+        var request = RestRequest.newRequest(RestRequest.Method.get(), path, TokenFlow.ADAPTIVE, scopes);
+        var doc = restKlient.sendReturnByteArray(request);
         LOG.info("Hentet dokument OK");
-        return doc.orElse(null);
+        return doc;
     }
 
     @Override
@@ -96,16 +100,15 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
-            LOG.trace("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
-            var builder = HttpRequest.newBuilder(UriBuilder.fromUri(base).path(GRAPHQL).build())
-                .POST(HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
-            var request = RestRequest.buildFor(builder, TokenFlow.CONTEXT);
-            var res = restKlient.send(request, clazz);
-            if (res.hasErrors()) {
-                return errorHandler.handleError(res.getErrors(), base, F_240613);
-            }
-            LOG.info("Eksekvert GraphQL query OK");
-            return res;
+        LOG.trace("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
+        var request = RestRequest.newRequest(method, graphql, TokenFlow.ADAPTIVE, scopes);
+        var res = restKlient.send(request, clazz);
+        if (res.hasErrors()) {
+            return errorHandler.handleError(res.getErrors(), base, F_240613);
+        }
+        LOG.info("Eksekvert GraphQL query OK");
+        return res;
     }
 
     @Override
