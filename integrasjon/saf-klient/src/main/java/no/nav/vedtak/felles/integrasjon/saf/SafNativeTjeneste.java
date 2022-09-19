@@ -88,7 +88,7 @@ public class SafNativeTjeneste extends AbstractJerseyOidcRestClient implements S
             .resolveTemplate("dokumentInfoId", q.dokumentId())
             .resolveTemplate("variantFormat", q.variantFormat())
             .build();
-        var request = RestRequest.newRequest(RestRequest.Method.get(), path, TokenFlow.ADAPTIVE, scopes);
+        var request = RestRequest.newGET(path, TokenFlow.ADAPTIVE, scopes);
         var doc = restKlient.sendReturnByteArray(request);
         LOG.info("Hentet dokument OK");
         return doc;

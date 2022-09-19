@@ -47,7 +47,7 @@ public class SpøkelseNativeKlient implements Spøkelse {
             var path = UriBuilder.fromUri(uri)
                 .queryParam("fodselsnummer", fnr)
                 .build();
-            var request = RestRequest.newRequest(RestRequest.Method.get(), path, SpøkelseNativeKlient.class);
+            var request = RestRequest.newGET(path, SpøkelseNativeKlient.class);
             var grunnlag = restKlient.send(request, SykepengeVedtak[].class);
             return Arrays.asList(grunnlag);
         } catch (Exception e) {

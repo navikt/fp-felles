@@ -51,7 +51,7 @@ public class ArbeidsfordelingNativeRestKlient implements Arbeidsfordeling {
 
     private List<ArbeidsfordelingResponse> hentEnheterFor(ArbeidsfordelingRequest request, URI uri) {
         try {
-            var restrequest = RestRequest.newRequest(RestRequest.Method.postJson(request), uri, ArbeidsfordelingNativeRestKlient.class);
+            var restrequest = RestRequest.newPOSTJson(request, uri, ArbeidsfordelingNativeRestKlient.class);
             var respons = restKlient.send(restrequest, ArbeidsfordelingResponse[].class);
             return Arrays.stream(respons)
                 .filter(response -> "AKTIV".equalsIgnoreCase(response.status()))

@@ -35,14 +35,14 @@ public class OrganisasjonNativeRestKlient implements OrgInfo {
     @Override
     public OrganisasjonEReg hentOrganisasjon(String orgnummer) {
         var uri = lagURI(orgnummer);
-        var request = RestRequest.newRequest(RestRequest.Method.get(), uri, OrganisasjonNativeRestKlient.class);
+        var request = RestRequest.newGET(uri, OrganisasjonNativeRestKlient.class);
         return restKlient.send(request, OrganisasjonEReg.class);
     }
 
     @Override
     public OrganisasjonAdresse hentOrganisasjonAdresse(String orgnummer) {
         var uri = lagURI(orgnummer);
-        var request = RestRequest.newRequest(RestRequest.Method.get(), uri, OrganisasjonNativeRestKlient.class);
+        var request = RestRequest.newGET(uri, OrganisasjonNativeRestKlient.class);
         return restKlient.send(request, OrganisasjonAdresse.class);
     }
 
