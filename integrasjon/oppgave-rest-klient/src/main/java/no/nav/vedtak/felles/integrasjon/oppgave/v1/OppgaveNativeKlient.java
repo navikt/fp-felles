@@ -39,7 +39,7 @@ public class OppgaveNativeKlient implements Oppgaver {
 
     @Override
     public Oppgave opprettetOppgave(OpprettOppgave oppgave) {
-        var request = RestRequest.newRequest(RestRequest.Method.postJson(oppgave), endpoint, OppgaveNativeKlient.class);
+        var request = RestRequest.newPOSTJson(oppgave, endpoint, OppgaveNativeKlient.class);
         return restKlient.send(request, Oppgave.class);
     }
 
@@ -49,7 +49,7 @@ public class OppgaveNativeKlient implements Oppgaver {
         if (tema != null)
             builder.queryParam("tema", tema);
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
-        var request = RestRequest.newRequest(RestRequest.Method.get(), builder.build(), OppgaveNativeKlient.class);
+        var request = RestRequest.newGET(builder.build(), OppgaveNativeKlient.class);
         return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
     }
 
@@ -61,7 +61,7 @@ public class OppgaveNativeKlient implements Oppgaver {
         if (tema != null)
             builder.queryParam("tema", tema);
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
-        var request = RestRequest.newRequest(RestRequest.Method.get(), builder.build(), OppgaveNativeKlient.class);
+        var request = RestRequest.newGET(builder.build(), OppgaveNativeKlient.class);
         return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
     }
 
@@ -85,7 +85,7 @@ public class OppgaveNativeKlient implements Oppgaver {
 
     @Override
     public Oppgave hentOppgave(String oppgaveId) {
-        var request = RestRequest.newRequest(RestRequest.Method.get(), getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
+        var request = RestRequest.newGET(getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
         return restKlient.send(addCorrelation(request), Oppgave.class);
     }
 

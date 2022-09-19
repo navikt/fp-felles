@@ -58,7 +58,7 @@ public class MedlemsunntakNativeRestKlient implements Medlemskap {
             .queryParam(PARAM_TIL_OG_MED, d2s(tom))
             .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_GYLD)
             .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK);
-        var request = RestRequest.newRequest(RestRequest.Method.get(), uri.build(), MedlemsunntakNativeRestKlient.class)
+        var request = RestRequest.newGET(uri.build(), MedlemsunntakNativeRestKlient.class)
             .otherCallId(NavHeaders.HEADER_NAV_CALL_ID)
             .header(NavHeaders.HEADER_NAV_PERSONIDENT, aktørId);
         var match = restKlient.send(request, Medlemskapsunntak[].class);

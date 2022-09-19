@@ -75,6 +75,14 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         return HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(object));
     }
 
+    public static RestRequest newGET(URI target, Class<?> clazz) {
+        return newRequest(Method.get(), target, clazz);
+    }
+
+    public static RestRequest newPOSTJson(Object body, URI target, Class<?> clazz) {
+        return newRequest(Method.postJson(body), target, clazz);
+    }
+
     public static RestRequest newRequest(Method method, URI target, Class<?> clazz) {
         var tokenConfig = RestConfig.tokenConfigFromAnnotation(clazz);
         var scopes = tokenConfig.isAzureAD() ? RestConfig.scopesFromAnnotation(clazz) : null;
@@ -83,6 +91,14 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
 
     public static RestRequest newRequest(Method method, URI target, TokenFlow tokenConfig) {
         return newRequest(method, target, tokenConfig, null);
+    }
+
+    public static RestRequest newGET(URI target, TokenFlow tokenConfig, String scopes) {
+        return newRequest(Method.get(), target, tokenConfig, scopes);
+    }
+
+    public static RestRequest newPOSTJson(Object body, URI target, TokenFlow tokenConfig, String scopes) {
+        return newRequest(Method.postJson(body), target, tokenConfig, scopes);
     }
 
     public static RestRequest newRequest(Method method, URI target, TokenFlow tokenConfig, String scopes) {
