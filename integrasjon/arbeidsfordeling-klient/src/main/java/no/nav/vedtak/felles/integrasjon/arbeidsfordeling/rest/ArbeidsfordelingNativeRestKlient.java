@@ -17,7 +17,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @NativeClient
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "arbeidsfordeling.rs.url",
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "arbeidsfordeling.rs.url",
     endpointDefault = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter")
 @ApplicationScoped
 public class ArbeidsfordelingNativeRestKlient implements Arbeidsfordeling {
