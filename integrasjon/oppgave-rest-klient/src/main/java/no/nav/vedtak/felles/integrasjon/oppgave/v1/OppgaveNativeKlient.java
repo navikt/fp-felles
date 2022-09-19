@@ -38,7 +38,7 @@ public class OppgaveNativeKlient implements Oppgaver {
 
     @Override
     public Oppgave opprettetOppgave(OpprettOppgave oppgave) {
-        var request = RestRequest.newPOSTJson(oppgave, endpoint, OppgaveNativeKlient.class)
+        var request = RestRequest.newPOSTJson(oppgave, OppgaveNativeKlient.class)
             .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(request, Oppgave.class);
     }
