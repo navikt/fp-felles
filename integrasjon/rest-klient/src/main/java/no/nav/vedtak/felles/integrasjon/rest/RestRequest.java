@@ -79,6 +79,12 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         return newRequest(Method.get(), target, clazz);
     }
 
+    // Get endpoint form annotation
+    public static RestRequest newPOSTJson(Object body, Class<?> clazz) {
+        var endpoint = RestConfig.endpointFromAnnotation(clazz);
+        return newRequest(Method.postJson(body), endpoint, clazz);
+    }
+
     public static RestRequest newPOSTJson(Object body, URI target, Class<?> clazz) {
         return newRequest(Method.postJson(body), target, clazz);
     }

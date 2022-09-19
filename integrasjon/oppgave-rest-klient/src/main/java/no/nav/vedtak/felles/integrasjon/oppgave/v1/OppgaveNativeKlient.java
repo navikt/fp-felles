@@ -21,7 +21,6 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @ApplicationScoped
 public class OppgaveNativeKlient implements Oppgaver {
 
-    private static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
     private static final String STATUSKATEGORI_AAPEN = "AAPEN";
 
     private RestClient restKlient;
@@ -39,7 +38,8 @@ public class OppgaveNativeKlient implements Oppgaver {
 
     @Override
     public Oppgave opprettetOppgave(OpprettOppgave oppgave) {
-        var request = RestRequest.newPOSTJson(oppgave, endpoint, OppgaveNativeKlient.class);
+        var request = RestRequest.newPOSTJson(oppgave, OppgaveNativeKlient.class)
+            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(request, Oppgave.class);
     }
 
@@ -49,7 +49,8 @@ public class OppgaveNativeKlient implements Oppgaver {
         if (tema != null)
             builder.queryParam("tema", tema);
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
-        var request = RestRequest.newGET(builder.build(), OppgaveNativeKlient.class);
+        var request = RestRequest.newGET(builder.build(), OppgaveNativeKlient.class)
+            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
     }
 
@@ -61,7 +62,8 @@ public class OppgaveNativeKlient implements Oppgaver {
         if (tema != null)
             builder.queryParam("tema", tema);
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
-        var request = RestRequest.newGET(builder.build(), OppgaveNativeKlient.class);
+        var request = RestRequest.newGET(builder.build(), OppgaveNativeKlient.class)
+            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
     }
 
@@ -69,8 +71,9 @@ public class OppgaveNativeKlient implements Oppgaver {
     public void ferdigstillOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.getId(), oppgave.getVersjon(), Oppgavestatus.FERDIGSTILT);
-        var request =  RestRequest.newRequest(new RestRequest.Method(RestRequest.WebMethod.PATCH,
-                RestRequest.jsonPublisher(patch)), getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
+        var method = new RestRequest.Method(RestRequest.WebMethod.PATCH, RestRequest.jsonPublisher(patch));
+        var request =  RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class)
+            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         restKlient.sendExpectConflict(addCorrelation(request), String.class);
     }
 
@@ -78,14 +81,16 @@ public class OppgaveNativeKlient implements Oppgaver {
     public void feilregistrerOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.getId(), oppgave.getVersjon(), Oppgavestatus.FEILREGISTRERT);
-        var request =  RestRequest.newRequest(new RestRequest.Method(RestRequest.WebMethod.PATCH,
-            RestRequest.jsonPublisher(patch)), getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
+        var method = new RestRequest.Method(RestRequest.WebMethod.PATCH, RestRequest.jsonPublisher(patch));
+        var request =  RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class)
+            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         restKlient.sendExpectConflict(addCorrelation(request), String.class);
     }
 
     @Override
     public Oppgave hentOppgave(String oppgaveId) {
-        var request = RestRequest.newGET(getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class);
+        var request = RestRequest.newGET(getEndpointForOppgaveId(oppgaveId), OppgaveNativeKlient.class)
+            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(addCorrelation(request), Oppgave.class);
     }
 
