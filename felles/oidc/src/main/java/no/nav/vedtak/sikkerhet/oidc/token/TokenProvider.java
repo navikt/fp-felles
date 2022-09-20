@@ -39,6 +39,9 @@ public final class TokenProvider {
     }
 
     public static OpenIDToken getTokenFromCurrent(SikkerhetContext context, String scopes) {
+        if (!BrukerTokenProvider.harSattBrukerOidcToken() && BrukerTokenProvider.harSattBrukerSamlToken()) {
+            return getStsSystemToken();
+        }
         var token = BrukerTokenProvider.getToken();
         return switch (context) {
             case BRUKER -> getTokenFraContextFor(token, scopes);
@@ -108,13 +111,10 @@ public final class TokenProvider {
     }
 
     private static OpenIDToken getTokenFraContextFor(OpenIDToken incoming, String scopes) {
-        var providerIncoming = getProvider(incoming);
-        if (!BrukerTokenProvider.harSattBrukerOidcToken() && BrukerTokenProvider.harSattBrukerSamlToken()) {
-            return OpenIDProvider.AZUREAD.equals(providerIncoming) ? getAzureSystemToken(scopes) : getStsSystemToken();
-        }
         if (incoming == null || incoming.token() == null) {
             return incoming;
         }
+        var providerIncoming = getProvider(incoming);
         var identType = Optional.ofNullable(BrukerTokenProvider.getIdentType()).orElse(IdentType.InternBruker);
         if (OpenIDProvider.AZUREAD.equals(providerIncoming)) {
             return identType.erSystem() ? getAzureSystemToken(scopes) : veksleAzureAccessToken(incoming, scopes);

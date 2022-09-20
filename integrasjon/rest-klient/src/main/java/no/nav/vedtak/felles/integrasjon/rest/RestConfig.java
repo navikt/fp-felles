@@ -7,7 +7,10 @@ import java.util.function.Function;
 import no.nav.foreldrepenger.konfig.Environment;
 
 /**
- * Methods to extract information from RestClientConfig annotations
+ * Methods to extract information from RestClientConfig annotations. Presedence
+ * - endpointProperty and scopesProperty if specified and the property contains a value
+ * - derived from FpApplication if specified. The endpoint is the contextPath, and rarely of direct use
+ * - endpointDefault end scopesDefault
  */
 public final class RestConfig {
 
@@ -17,6 +20,12 @@ public final class RestConfig {
         return fromAnnotation(clazz, FpApplication::contextPathFor, RestClientConfig::endpointProperty, RestClientConfig::endpointDefault)
             .map(URI::create)
             .orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: mangler endpoint for " + clazz.getSimpleName()));
+    }
+
+    public static URI contextPathFromAnnotation(Class<?> clazz) {
+        return fromAnnotation(clazz, FpApplication::contextPathFor, c -> "", c -> "")
+            .map(URI::create)
+            .orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: mangler application for " + clazz.getSimpleName()));
     }
 
     public static Optional<FpApplication> applicationFromAnnotation(Class<?> clazz) {
@@ -32,7 +41,7 @@ public final class RestConfig {
 
     public static String scopesFromAnnotation(Class<?> clazz) {
         return fromAnnotation(clazz, FpApplication::scopesFor, RestClientConfig::scopesProperty, RestClientConfig::scopesDefault)
-            .orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: mangler endpoint for " + clazz.getSimpleName()));
+            .orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: mangler scopes for " + clazz.getSimpleName()));
     }
 
     private static Optional<String> fromAnnotation(Class<?> clazz,
@@ -40,11 +49,9 @@ public final class RestConfig {
                                                    Function<RestClientConfig, String> selector,
                                                    Function<RestClientConfig, String> defaultValue) {
         var annotation = Optional.ofNullable(clazz.getAnnotation(RestClientConfig.class));
-        if (annotation.filter(a -> a.application().specified()).isPresent()) {
-            return annotation.map(RestClientConfig::application).map(internal);
-        }
         return annotation.flatMap(a -> nonEmpty(a, selector))
             .map(ENV::getProperty)
+            .or(() -> annotation.filter(a -> a.application().specified()).map(RestClientConfig::application).map(internal))
             .or(() -> annotation.flatMap(a -> nonEmpty(a, defaultValue)));
     }
 
