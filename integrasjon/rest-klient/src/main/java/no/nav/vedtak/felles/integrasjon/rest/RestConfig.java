@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.rest;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 import no.nav.foreldrepenger.konfig.Environment;
@@ -40,8 +41,12 @@ public final class RestConfig {
     }
 
     public static String scopesFromAnnotation(Class<?> clazz) {
-        return fromAnnotation(clazz, FpApplication::scopesFor, RestClientConfig::scopesProperty, RestClientConfig::scopesDefault)
-            .orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: mangler scopes for " + clazz.getSimpleName()));
+        var scopesFound = fromAnnotation(clazz, FpApplication::scopesFor, RestClientConfig::scopesProperty, RestClientConfig::scopesDefault);
+        // Exception if target requires scopes
+        if (scopesFound.isEmpty() && Set.of(TokenFlow.AZUREAD_CC, TokenFlow.CONTEXT_AZURE).contains(tokenConfigFromAnnotation(clazz))) {
+            throw new IllegalArgumentException("Utviklerfeil: mangler scopes for " + clazz.getSimpleName());
+        }
+        return scopesFound.orElse(null);
     }
 
     private static Optional<String> fromAnnotation(Class<?> clazz,
