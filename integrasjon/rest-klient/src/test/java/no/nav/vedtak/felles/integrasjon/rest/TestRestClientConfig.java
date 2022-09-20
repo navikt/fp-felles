@@ -12,7 +12,7 @@ public class TestRestClientConfig {
     @Test
     void testCaseA() {
         assertThat(RestConfig.applicationFromAnnotation(TestA.class)).hasValueSatisfying(v -> assertThat(FpApplication.FPABAKUS).isEqualTo(v));
-        assertThat(RestConfig.scopesFromAnnotation(TestA.class)).isEqualTo(FpApplication.scopesFor(FpApplication.FPABAKUS));
+        assertThat(RestConfig.scopesFromAnnotation(TestA.class)).isEqualTo("api://local.default.fpabakus/.default");
         assertThat(RestConfig.contextPathFromAnnotation(TestA.class)).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPABAKUS)));
         assertThat(RestConfig.endpointFromAnnotation(TestA.class)).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPABAKUS)));
     }
@@ -45,9 +45,9 @@ public class TestRestClientConfig {
 
     @Test
     void testCaseC1() {
-        System.setProperty("non.existent", "api://local.default.fpformidling/.default");
+        System.setProperty("non.existent", "api://local.default.fpformidling-local/.default");
         assertThat(RestConfig.applicationFromAnnotation(TestC.class)).hasValueSatisfying(v -> assertThat(FpApplication.FPFORMIDLING).isEqualTo(v));
-        assertThat(RestConfig.scopesFromAnnotation(TestC.class)).isEqualTo("api://local.default.fpformidling/.default");
+        assertThat(RestConfig.scopesFromAnnotation(TestC.class)).isEqualTo("api://local.default.fpformidling-local/.default");
         assertThat(RestConfig.contextPathFromAnnotation(TestC.class)).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPFORMIDLING)));
         assertThat(RestConfig.endpointFromAnnotation(TestC.class)).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPFORMIDLING)));
         System.clearProperty("non.existent");
