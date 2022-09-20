@@ -4,6 +4,7 @@ import java.util.Map;
 
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.Namespace;
 
 public enum FpApplication {
     FPSAK,
@@ -16,10 +17,12 @@ public enum FpApplication {
     FPLOS,
     FPOPPDRAG,
     FPTILBAKE,
+    FPDOKGEN,
     NONFP
     ;
 
     private static final Cluster CLUSTER = Environment.current().getCluster();
+    private static final Namespace NAMESPACE = Environment.current().getNamespace();
     /*
      * Utelatt fpabonnent:8065, fpinfo:8040
      */
@@ -31,6 +34,7 @@ public enum FpApplication {
         FpApplication.FPOPPDRAG, 8070,
         FpApplication.FPTILBAKE, 8030,
         FpApplication.FPFORDEL, 8090,
+        FpApplication.FPDOKGEN, 8291,
         FpApplication.FPLOS, 8071
     );
 
@@ -48,7 +52,7 @@ public enum FpApplication {
         };
     }
 
-    public static String scopesFor(@SuppressWarnings("unused") FpApplication application) {
-        return null; // TODO Elaborer når azure innføres
+    public static String scopesFor(FpApplication application) {
+        return "api://" + CLUSTER.clusterName() + "." + NAMESPACE.getName() + "." + application.name().toLowerCase() + "/.default";
     }
 }
