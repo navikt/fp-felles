@@ -91,12 +91,8 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
 
     public static RestRequest newRequest(Method method, URI target, Class<?> clazz) {
         var tokenConfig = RestConfig.tokenConfigFromAnnotation(clazz);
-        var scopes = tokenConfig.isAzureAD() ? RestConfig.scopesFromAnnotation(clazz) : null;
+        var scopes = RestConfig.scopesFromAnnotation(clazz);
         return newRequest(method, target, tokenConfig, scopes);
-    }
-
-    public static RestRequest newRequest(Method method, URI target, TokenFlow tokenConfig) {
-        return newRequest(method, target, tokenConfig, null);
     }
 
     public static RestRequest newGET(URI target, TokenFlow tokenConfig, String scopes) {
