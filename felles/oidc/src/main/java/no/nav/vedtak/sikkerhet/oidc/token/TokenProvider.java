@@ -73,7 +73,8 @@ public final class TokenProvider {
     }
 
     public static OpenIDToken veksleAzureAccessToken(OpenIDToken incoming, String scopes) {
-        return AzureBrukerTokenKlient.instance().oboExchangeToken(incoming, scopes);
+        var uid = BrukerTokenProvider.getUserId();
+        return AzureBrukerTokenKlient.instance().oboExchangeToken(uid, incoming, scopes);
     }
 
     public static OpenIDToken exchangeTokenX(OpenIDToken token, String assertion, URI targetEndpoint) {
