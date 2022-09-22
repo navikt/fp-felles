@@ -100,8 +100,9 @@ public class AzureBrukerTokenKlient {
             "&requested_token_use=on_behalf_of" +
             "&client_secret=" + clientSecret;
         var request = lagRequest(data);
+        LOG.trace("AzureBruker henter token for scope {}", scopes);
         var response = GeneriskTokenKlient.hentToken(request, azureProxy);
-        LOG.trace("AzureBruker hentet og fikk token for scope {} utløper {}", scopes, response.expires_in());
+        LOG.trace("AzureBruker fikk token for scope {} utløper {}", scopes, response.expires_in());
         if (response.access_token() == null) {
             LOG.warn("AzureBruker tom respons {}", response);
         }
