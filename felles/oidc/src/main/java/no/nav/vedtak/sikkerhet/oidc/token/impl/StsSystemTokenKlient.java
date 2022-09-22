@@ -32,7 +32,7 @@ public class StsSystemTokenKlient {
     private static OpenIDToken accessToken;
 
     public static synchronized OpenIDToken hentAccessToken() {
-        if (accessToken != null && !accessToken.isExpired()) {
+        if (accessToken != null && accessToken.isNotExpired()) {
             return accessToken.copy();
         }
         var response = hentToken();

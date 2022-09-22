@@ -89,7 +89,7 @@ public class AzureBrukerTokenKlient {
 
     public OpenIDToken oboExchangeToken(OpenIDToken incomingToken, String scopes) {
         var tokenFromCache = getCachedToken(incomingToken, scopes);
-        if (tokenFromCache != null && !tokenFromCache.isExpired()) {
+        if (tokenFromCache != null && tokenFromCache.isNotExpired()) {
             return tokenFromCache.copy();
         }
         var data = "client_id=" + clientId +
@@ -101,6 +101,9 @@ public class AzureBrukerTokenKlient {
         var request = lagRequest(data);
         var response = GeneriskTokenKlient.hentToken(request, azureProxy);
         LOG.info("AzureBruker hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
+        if (response.access_token() == null) {
+            LOG.warn("AzureBruker tom respons {}", response);
+        }
         var newToken = new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.access_token()),
             scopes, new TokenString(response.refresh_token()), response.expires_in());
         putTokenToCache(incomingToken, scopes, newToken);

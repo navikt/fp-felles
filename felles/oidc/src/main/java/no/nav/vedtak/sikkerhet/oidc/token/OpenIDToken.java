@@ -38,12 +38,11 @@ public record OpenIDToken(OpenIDProvider provider,
                        String scope,
                        TokenString refresh,
                        Integer expireIn) {
-        this(provider, tokenType, primary, scope, refresh,
-            System.currentTimeMillis() + (MILLIS * (expireIn > LONGLIFE ? expireIn - BUFFER : expireIn)));
+        this(provider, tokenType, primary, scope, refresh, expireAtFromExpireIn(expireIn));
     }
 
-    public boolean isExpired() {
-        return System.currentTimeMillis() > expiresAtMillis;
+    public boolean isNotExpired() {
+        return System.currentTimeMillis() < expiresAtMillis;
     }
 
     public LocalDateTime expiresAt() {
@@ -68,5 +67,9 @@ public record OpenIDToken(OpenIDProvider provider,
             "provider=" + provider +
             ", expiresAt=" + expiresAt() +
             '}';
+    }
+
+    private static long expireAtFromExpireIn(Integer expireIn) {
+        return System.currentTimeMillis() + (MILLIS * (Optional.ofNullable(expireIn).map(e -> e  > LONGLIFE ? expireIn - BUFFER : expireIn).orElse(0)));
     }
 }
