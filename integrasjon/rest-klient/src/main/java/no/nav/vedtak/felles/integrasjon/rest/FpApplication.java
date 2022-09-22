@@ -21,8 +21,10 @@ public enum FpApplication {
     NONFP
     ;
 
-    private static final Cluster CLUSTER = Environment.current().getCluster();
-    private static final Namespace NAMESPACE = Environment.current().getNamespace();
+    private static final Environment ENV = Environment.current();
+    private static final Cluster CLUSTER  = ENV.getCluster();
+    private static final Namespace NAMESPACE = ENV.getNamespace();
+
     /*
      * Utelatt fpabonnent:8065, fpinfo:8040
      */
@@ -43,6 +45,9 @@ public enum FpApplication {
     }
 
     public static String contextPathFor(FpApplication application) {
+        if (CLUSTER.isLocal() && ENV.getProperty(application.contextPathProperty()) != null) {
+            return ENV.getProperty(application.contextPathProperty());
+        }
         var prefix = "http://" + application.name().toLowerCase();
         return switch (CLUSTER) {
             case DEV_FSS, PROD_FSS -> prefix + "/" + application.name().toLowerCase();
@@ -54,5 +59,9 @@ public enum FpApplication {
 
     public static String scopesFor(FpApplication application) {
         return "api://" + CLUSTER.clusterName() + "." + NAMESPACE.getName() + "." + application.name().toLowerCase() + "/.default";
+    }
+
+    private String contextPathProperty() {
+        return this.name() + ".override.url";
     }
 }
