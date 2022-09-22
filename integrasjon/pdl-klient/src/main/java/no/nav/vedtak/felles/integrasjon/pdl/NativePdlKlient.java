@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.pdl;
 
-import static org.apache.http.HttpStatus.SC_NOT_FOUND;
-
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.util.List;
@@ -85,7 +84,7 @@ public class NativePdlKlient implements Pdl {
         try {
             return hentPerson(q, p);
         } catch (PdlException e) {
-            if (e.getStatus() == SC_NOT_FOUND && ignoreNotFound) {
+            if (e.getStatus() == HttpURLConnection.HTTP_NOT_FOUND && ignoreNotFound) {
                 return null;
             }
             throw e;

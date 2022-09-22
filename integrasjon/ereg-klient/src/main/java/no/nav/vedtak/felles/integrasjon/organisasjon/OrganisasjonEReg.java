@@ -13,15 +13,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public record OrganisasjonEReg(String organisasjonsnummer, OrganisasjonstypeEReg type, Navn navn, OrganisasjonDetaljer organisasjonDetaljer,
         VirksomhetDetaljer virksomhetDetaljer) {
 
-    @Deprecated
-    public String getOrganisasjonsnummer() {
-        return organisasjonsnummer();
-    }
-
-    @Deprecated
-    public OrganisasjonstypeEReg getType() {
-        return type();
-    }
 
     public String getNavn() {
         return Optional.ofNullable(navn())

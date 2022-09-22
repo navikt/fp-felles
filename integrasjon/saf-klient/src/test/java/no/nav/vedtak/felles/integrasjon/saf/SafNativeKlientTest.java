@@ -61,8 +61,7 @@ class SafNativeKlientTest {
     @SuppressWarnings("resource")
     @Test
     void skal_returnere_dokumentoversikt_fagsak() throws IOException {
-        // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111",
-        // fagsaksystem: "AO01"}, foerste: 5)
+        // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111", fagsaksystem: "AO01"}, foerste: 5)
         var resource = getClass().getClassLoader().getResource("saf/documentResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, DokumentoversiktFagsakQueryResponse.class);
         var captor = ArgumentCaptor.forClass(RestRequest.class);

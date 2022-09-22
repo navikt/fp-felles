@@ -2,8 +2,8 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 
 import static no.nav.pdl.IdentGruppe.AKTORID;
 import static no.nav.pdl.IdentGruppe.FOLKEREGISTERIDENT;
-import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,11 +26,6 @@ import no.nav.vedtak.felles.integrasjon.graphql.GraphQLQueryable;
 
 /*
  * PDL kan kalles i 3 ganske ulike sammenhenger: Systemressurs, EksternBruker, InternBruker,
- * Bruk henholdsvis @Jersey("system"), @Jersey("onbehalf"), eller @Jersey
-
- * @Jersey virker også når "innlogget" = Systemressurs - klassisk oppsett
- * Ettersom det dukker opp OBO-flyter i flere sammenhenger etterhvert, må man enten skille klientene eller
- * gå over til å sjekke type "innlogget" Principal for å avgjøre OBO vs CC-flyt
  */
 public interface Pdl extends GraphQLQueryable {
 
@@ -78,7 +73,7 @@ public interface Pdl extends GraphQLQueryable {
                                     .findFirst()
                                     .map(IdentInformasjon::getIdent);
         } catch (PdlException e) {
-            if (e.getStatus() == SC_NOT_FOUND && ignoreNotFound) {
+            if (e.getStatus() == HttpURLConnection.HTTP_NOT_FOUND && ignoreNotFound) {
                 return Optional.empty();
             }
             throw e;

@@ -2,7 +2,6 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 
 import static java.util.List.of;
 import static no.nav.vedtak.felles.integrasjon.pdl.PdlDefaultErrorHandler.FORBUDT;
-import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -11,6 +10,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,7 +152,7 @@ class PdlNativeKlientTest {
         assertNotNull(e.getDetails());
         assertEquals(FORBUDT, e.getCode());
         assertEquals("a policy", e.getDetails().policy());
-        assertEquals(SC_UNAUTHORIZED, e.getStatus());
+        assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getStatus());
     }
 
 }

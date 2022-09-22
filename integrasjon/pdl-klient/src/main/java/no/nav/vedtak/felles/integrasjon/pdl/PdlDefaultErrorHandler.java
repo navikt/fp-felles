@@ -3,12 +3,8 @@ package no.nav.vedtak.felles.integrasjon.pdl;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_ERROR_RESPONSE;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_INTERNAL;
 import static no.nav.vedtak.felles.integrasjon.pdl.Pdl.PDL_KLIENT_NOT_FOUND_KODE;
-import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
-import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
-import static org.apache.http.HttpStatus.SC_NOT_FOUND;
-import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +34,7 @@ public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
                 .filter(Objects::nonNull)
                 .map(PdlDefaultErrorHandler::details)
                 .map(k -> exception(errors, k, uri))
-                .orElseThrow(() -> exceptionFra(errors, SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, null, uri));
+                .orElseThrow(() -> exceptionFra(errors, HttpURLConnection.HTTP_INTERNAL_ERROR, PDL_INTERNAL, null, uri));
     }
 
     private static PDLExceptionExtension details(Map<String, Object> details) {
@@ -53,14 +49,14 @@ public class PdlDefaultErrorHandler implements GraphQLErrorHandler {
 
     private static PdlException exception(List<GraphQLError> errors, PDLExceptionExtension extension, URI uri) {
         if (extension == null) {
-            return exceptionFra(errors, SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, extension, uri);
+            return exceptionFra(errors, HttpURLConnection.HTTP_INTERNAL_ERROR, PDL_INTERNAL, extension, uri);
         }
         return switch (extension.code()) {
-            case FORBUDT -> exceptionFra(errors, SC_UNAUTHORIZED, extension, uri);
-            case UAUTENTISERT -> exceptionFra(errors, SC_FORBIDDEN, extension, uri);
-            case IKKEFUNNET -> exceptionFra(errors, SC_NOT_FOUND, PDL_KLIENT_NOT_FOUND_KODE, extension, uri);
-            case UGYLDIG -> exceptionFra(errors, SC_BAD_REQUEST, extension, uri);
-            default -> exceptionFra(errors, SC_INTERNAL_SERVER_ERROR, PDL_INTERNAL, extension, uri);
+            case FORBUDT -> exceptionFra(errors, HttpURLConnection.HTTP_UNAUTHORIZED, extension, uri);
+            case UAUTENTISERT -> exceptionFra(errors, HttpURLConnection.HTTP_FORBIDDEN, extension, uri);
+            case IKKEFUNNET -> exceptionFra(errors, HttpURLConnection.HTTP_NOT_FOUND, PDL_KLIENT_NOT_FOUND_KODE, extension, uri);
+            case UGYLDIG -> exceptionFra(errors, HttpURLConnection.HTTP_BAD_REQUEST, extension, uri);
+            default -> exceptionFra(errors, HttpURLConnection.HTTP_INTERNAL_ERROR, PDL_INTERNAL, extension, uri);
         };
     }
 
