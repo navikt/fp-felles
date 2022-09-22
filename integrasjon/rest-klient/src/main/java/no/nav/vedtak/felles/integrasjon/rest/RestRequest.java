@@ -49,7 +49,7 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
     private static final Set<String> VALIDATE_HEADERS = Set.of(NavHeaders.HEADER_NAV_CALLID, NavHeaders.HEADER_NAV_CONSUMER_ID, HttpHeaders.AUTHORIZATION);
 
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
-    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(15);
+    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(20);
 
     private static final RequestContextSupplier CONTEXT_SUPPLIER = new OidcContextSupplier();
 

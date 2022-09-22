@@ -8,6 +8,7 @@ import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import no.nav.vedtak.util.LRUCache;
 
 public class AzureBrukerTokenKlient {
 
@@ -23,18 +25,22 @@ public class AzureBrukerTokenKlient {
 
     private static volatile AzureBrukerTokenKlient INSTANCE; // NOSONAR
 
+    private LRUCache<String, OpenIDToken> obocache;
+
     private final URI tokenEndpoint;
     private final String clientId;
     private final String clientSecret;
     private final URI azureProxy;
 
 
-    public AzureBrukerTokenKlient() {
+    private AzureBrukerTokenKlient() {
         var provider = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.AZUREAD).orElseThrow();
         this.tokenEndpoint = provider.tokenEndpoint();
         this.azureProxy = provider.proxy();
         this.clientId = provider.clientId();
         this.clientSecret = provider.clientSecret();
+        // Initiell size. Ser ut som OBO-tokens i dev har varihet på 4100-4600 s.
+        this.obocache = new LRUCache<>(1500, TimeUnit.MILLISECONDS.convert(3599, TimeUnit.SECONDS));
     }
 
     public static synchronized AzureBrukerTokenKlient instance() {
@@ -82,7 +88,10 @@ public class AzureBrukerTokenKlient {
     }
 
     public OpenIDToken oboExchangeToken(OpenIDToken incomingToken, String scopes) {
-        // TODO: vurder caching av incoming+scopes -> exchanged
+        var tokenFromCache = getCachedToken(incomingToken, scopes);
+        if (tokenFromCache != null && tokenFromCache.isNotExpired()) {
+            return tokenFromCache.copy();
+        }
         var data = "client_id=" + clientId +
             "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
             "&assertion=" + incomingToken.token() +
@@ -92,8 +101,13 @@ public class AzureBrukerTokenKlient {
         var request = lagRequest(data);
         var response = GeneriskTokenKlient.hentToken(request, azureProxy);
         LOG.info("AzureBruker hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
-        return new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.access_token()),
+        if (response.access_token() == null) {
+            LOG.warn("AzureBruker tom respons {}", response);
+        }
+        var newToken = new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.access_token()),
             scopes, new TokenString(response.refresh_token()), response.expires_in());
+        putTokenToCache(incomingToken, scopes, newToken);
+        return newToken.copy();
     }
 
     private HttpRequest lagRequest(String data) {
@@ -104,6 +118,18 @@ public class AzureBrukerTokenKlient {
             .uri(tokenEndpoint)
             .POST(HttpRequest.BodyPublishers.ofString(data, UTF_8))
             .build();
+    }
+
+    private OpenIDToken getCachedToken(OpenIDToken incomingToken, String scopes) {
+        return obocache.get(cacheKey(incomingToken, scopes));
+    }
+
+    private void putTokenToCache(OpenIDToken incomingToken, String scopes, OpenIDToken exchangedToken) {
+        obocache.put(cacheKey(incomingToken, scopes), exchangedToken);
+    }
+
+    private String cacheKey(OpenIDToken incomingToken, String scopes) {
+        return scopes + ":::" + Optional.ofNullable(incomingToken.token()).orElse("");
     }
 
 }

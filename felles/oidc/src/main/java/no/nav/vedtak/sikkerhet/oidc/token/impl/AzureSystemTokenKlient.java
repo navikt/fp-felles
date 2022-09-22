@@ -53,7 +53,7 @@ public class AzureSystemTokenKlient {
     public synchronized OpenIDToken hentAccessToken(String scope) {
         // Expiry normalt 3599 ...
         var heldToken = accessToken.get(scope);
-        if (heldToken != null && !heldToken.isExpired()) {
+        if (heldToken != null && heldToken.isNotExpired()) {
             return heldToken.copy();
         }
         var response = hentAccessToken(clientId,

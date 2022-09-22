@@ -16,8 +16,8 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @NativeClient
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "oppgave.rs.uri",
-    endpointDefault = "http://oppgave.default/api/v1/oppgaver")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "oppgave.rs.uri", endpointDefault = "http://oppgave.default/api/v1/oppgaver",
+    scopesProperty = "oppgave.scopes", scopesDefault = "api://prod-fss.oppgavehandtering.oppgave/.default")
 @ApplicationScoped
 public class OppgaveNativeKlient implements Oppgaver {
 
