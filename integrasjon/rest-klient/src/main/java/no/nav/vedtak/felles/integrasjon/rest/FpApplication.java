@@ -37,7 +37,8 @@ public enum FpApplication {
         FpApplication.FPTILBAKE, 8030,
         FpApplication.FPFORDEL, 8090,
         FpApplication.FPDOKGEN, 8291,
-        FpApplication.FPLOS, 8071
+        FpApplication.FPLOS, 8071,
+        FpApplication.FPINFO, 8040
     );
 
     public boolean specified() {
