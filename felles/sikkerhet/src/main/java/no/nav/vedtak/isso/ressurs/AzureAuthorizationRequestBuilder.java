@@ -33,7 +33,7 @@ public class AzureAuthorizationRequestBuilder {
         var redirectUrl = ServerInfo.instance().getCallbackUrl();
 
         return providerConfig.authorizationEndpoint().toString() +
-            "&response_type=code" +
+            "?response_type=code" +
             "&response_mode=query" +
             "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
             "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8) +

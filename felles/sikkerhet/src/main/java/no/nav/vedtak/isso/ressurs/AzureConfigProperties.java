@@ -9,8 +9,8 @@ public final class AzureConfigProperties {
     private static final Environment ENV = Environment.current();
 
     // En mellomrom-separert liste over scopes man ønsker inkludert i token - i starten brukes openid
-    // NB: dersom denne settes - så begynn med openid offline_access api://....
-    // Fx openid offline_access api://<cluster>.<namespace>.fplos/.default api://<cluster>.<namespace>.fpsak/.default
+    // NB: dersom denne settes - så begynn med openid offline_access api://.... - men kun for den som gjør redirect
+    // Fx openid offline_access api://<cluster>.<namespace>.fplos/.default
     private static final String AZURE_SCOPES_PROPERTY_NAME = "fp.trial.azure.scopes";
 
     // Sett = true for å aktivere
