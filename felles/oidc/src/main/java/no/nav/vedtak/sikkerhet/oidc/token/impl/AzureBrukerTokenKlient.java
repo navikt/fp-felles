@@ -58,7 +58,6 @@ public class AzureBrukerTokenKlient {
             "&code=" + authorizationCode +
             "&redirect_uri=" + URLEncoder.encode(callback, UTF_8) +
             "&grant_type=authorization_code" +
-            //"&code_verifier=" + "ThisIsntRandomButItNeedsToBe43CharactersLong" +
             "&client_secret=" + clientSecret;
         var request = lagRequest(data);
         var response = GeneriskTokenKlient.hentToken(request, azureProxy);
