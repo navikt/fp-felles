@@ -8,9 +8,9 @@ public final class AzureConfigProperties {
 
     private static final Environment ENV = Environment.current();
 
-    // En *-separert liste over scopes man ønsker inkludert i token - i starten brukes openid
-    // Fx api://<cluster>:<namespace>:fplos/default*api://<cluster>:<namespace>:fpsak/default
-    // NB: dersom denne settes - så vurder å begynne med openid*offline_access*api://....
+    // En mellomrom-separert liste over scopes man ønsker inkludert i token - i starten brukes openid
+    // NB: dersom denne settes - så begynn med openid offline_access api://....
+    // Fx openid offline_access api://<cluster>.<namespace>.fplos/.default api://<cluster>.<namespace>.fpsak/.default
     private static final String AZURE_SCOPES_PROPERTY_NAME = "fp.trial.azure.scopes";
 
     // Sett = true for å aktivere
@@ -19,8 +19,7 @@ public final class AzureConfigProperties {
     private static final String OPENID_SCOPE = "openid offline_access";
 
 
-    private static final String AZURE_SCOPES = Optional.ofNullable(ENV.getProperty(AZURE_SCOPES_PROPERTY_NAME))
-        .map(s -> s.replace("\\*", " ")).orElse(OPENID_SCOPE);
+    private static final String AZURE_SCOPES = Optional.ofNullable(ENV.getProperty(AZURE_SCOPES_PROPERTY_NAME)).orElse(OPENID_SCOPE);
     private static final boolean AZURE_ENABLED  = Optional.ofNullable(ENV.getProperty(AZURE_TRIAL_ENABLED)).filter("true"::equals).isPresent();
 
     private AzureConfigProperties() {

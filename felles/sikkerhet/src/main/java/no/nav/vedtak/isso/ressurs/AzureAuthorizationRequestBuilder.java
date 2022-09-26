@@ -32,11 +32,6 @@ public class AzureAuthorizationRequestBuilder {
         var clientId = providerConfig.clientId();
         var redirectUrl = ServerInfo.instance().getCallbackUrl();
 
-        //TODO - sjekke ut PKCE
-        //&code_challenge=YTFjNj......
-        //&code_challenge_method=S256
-
-        // KCD?  "?session=winssochain&authIndexType=service&authIndexValue=winssochain";
         return providerConfig.authorizationEndpoint().toString() +
             "&response_type=code" +
             "&response_mode=query" +
