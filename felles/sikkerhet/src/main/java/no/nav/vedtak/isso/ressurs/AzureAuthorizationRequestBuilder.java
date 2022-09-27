@@ -5,7 +5,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
-import no.nav.vedtak.isso.config.ServerInfo;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
@@ -30,7 +29,7 @@ public class AzureAuthorizationRequestBuilder {
         var scopes = AzureConfigProperties.getAzureScopes();
         var providerConfig = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.AZUREAD).orElseThrow();
         var clientId = providerConfig.clientId();
-        var redirectUrl = ServerInfo.instance().getCallbackUrl();
+        var redirectUrl = AzureConfigProperties.getAzureCallback();
 
         return providerConfig.authorizationEndpoint().toString() +
             "?response_type=code" +

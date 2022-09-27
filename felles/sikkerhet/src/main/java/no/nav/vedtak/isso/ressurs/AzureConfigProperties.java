@@ -3,6 +3,7 @@ package no.nav.vedtak.isso.ressurs;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.isso.config.ServerInfo;
 
 public final class AzureConfigProperties {
 
@@ -15,6 +16,7 @@ public final class AzureConfigProperties {
 
     // Sett = true for å aktivere
     private static final String AZURE_TRIAL_ENABLED = "fp.trial.azure.enabled";
+    private static final String AZURE_TRIAL_CALLBACK = "fp.trial.azure.callback";
 
     private static final String OPENID_SCOPE = "openid offline_access";
 
@@ -33,5 +35,9 @@ public final class AzureConfigProperties {
 
     public static String getAzureScopes() {
         return AZURE_SCOPES;
+    }
+
+    public static String getAzureCallback() {
+        return  Optional.ofNullable(ENV.getProperty(AZURE_TRIAL_CALLBACK)).orElseGet(() -> ServerInfo.instance().getCallbackUrl());
     }
 }
