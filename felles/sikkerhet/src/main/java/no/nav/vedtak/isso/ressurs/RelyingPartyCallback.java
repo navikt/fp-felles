@@ -97,7 +97,7 @@ public class RelyingPartyCallback {
 
     private boolean matcherAzureDomain(HttpServletRequest httpServletRequest) {
         var domain = AzureConfigProperties.getAzureDomain();
-        return domain != null && Optional.ofNullable(httpServletRequest).map(HttpServletRequest::getRequestURI).filter(u -> u.contains(domain)).isPresent();
+        return domain != null && Optional.ofNullable(httpServletRequest).map(r -> r.getRequestURL().toString()).filter(u -> u.contains(domain)).isPresent();
     }
 
     private void cleanCookieJar(Response.ResponseBuilder builder, HttpHeaders headers) {
