@@ -62,7 +62,7 @@ public class AzureBrukerTokenKlient {
         var request = lagRequest(data);
         var response = GeneriskTokenKlient.hentToken(request, azureProxy);
         LOG.info("AzureBruker hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
-        return new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.id_token()),
+        return new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.access_token()),
             scopes, new TokenString(response.refresh_token()), response.expires_in());
 
     }
@@ -81,7 +81,7 @@ public class AzureBrukerTokenKlient {
         if (response.token_type() == null || response.expires_in() == null) {
             return Optional.empty();
         }
-        var token = new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.id_token()),
+        var token = new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.access_token()),
             scopes, new TokenString(response.refresh_token()), response.expires_in());
         return Optional.of(token);
     }
