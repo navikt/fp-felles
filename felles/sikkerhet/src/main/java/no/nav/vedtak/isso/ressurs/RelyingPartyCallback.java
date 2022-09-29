@@ -12,7 +12,9 @@ import static no.nav.vedtak.sikkerhet.Constants.REFRESH_TOKEN_COOKIE_NAME;
 
 import java.net.URI;
 import java.util.Objects;
+import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -40,7 +42,7 @@ public class RelyingPartyCallback {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getLogin(@QueryParam("code") String authorizationCode, @QueryParam("state") String state, @Context HttpHeaders headers) {
+    public Response getLogin(@QueryParam("code") String authorizationCode, @QueryParam("state") String state, @Context HttpHeaders headers, @Context HttpServletRequest httpServletRequest) {
         if (authorizationCode == null) {
             LOG.warn("Mangler parameter 'code' i URL");
             return status(BAD_REQUEST).build();
@@ -57,7 +59,7 @@ public class RelyingPartyCallback {
         }
 
         OpenIDToken token;
-        if (AzureConfigProperties.isAzureEnabled()) {
+        if (AzureConfigProperties.isAzureEnabled() && matcherAzureDomain(httpServletRequest)) {
             token = AzureADTokenProvider.exhangeAzureAuthCode(authorizationCode, AzureConfigProperties.getAzureCallback());
             if (!OidcTokenValidatorConfig.instance().getValidator(OpenIDProvider.AZUREAD).validate(token.primary()).isValid()) {
                 return status(FORBIDDEN).build();
@@ -91,6 +93,11 @@ public class RelyingPartyCallback {
 
         builder.cacheControl(noCache());
         return builder.build();
+    }
+
+    private boolean matcherAzureDomain(HttpServletRequest httpServletRequest) {
+        var domain = AzureConfigProperties.getAzureDomain();
+        return domain != null && Optional.ofNullable(httpServletRequest).map(HttpServletRequest::getRequestURI).filter(u -> u.contains(domain)).isPresent();
     }
 
     private void cleanCookieJar(Response.ResponseBuilder builder, HttpHeaders headers) {

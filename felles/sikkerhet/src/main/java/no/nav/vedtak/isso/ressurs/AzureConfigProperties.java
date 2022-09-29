@@ -17,6 +17,7 @@ public final class AzureConfigProperties {
     // Sett = true for å aktivere
     private static final String AZURE_TRIAL_ENABLED = "fp.trial.azure.enabled";
     private static final String AZURE_TRIAL_CALLBACK = "fp.trial.azure.callback";
+    private static final String AZURE_TRIAL_DOMAIN = "fp.trial.azure.domain";
 
     private static final String OPENID_SCOPE = "openid offline_access";
 
@@ -39,5 +40,9 @@ public final class AzureConfigProperties {
 
     public static String getAzureCallback() {
         return  Optional.ofNullable(ENV.getProperty(AZURE_TRIAL_CALLBACK)).orElseGet(() -> ServerInfo.instance().getCallbackUrl());
+    }
+
+    public static String getAzureDomain() {
+        return ENV.getProperty(AZURE_TRIAL_DOMAIN);
     }
 }
