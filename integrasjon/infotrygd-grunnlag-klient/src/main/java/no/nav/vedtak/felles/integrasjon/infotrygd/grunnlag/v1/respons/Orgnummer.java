@@ -30,14 +30,8 @@ public class Orgnummer {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof Orgnummer)) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
-        Orgnummer that = (Orgnummer) obj;
-        return Objects.equals(that.orgnr, this.orgnr);
+        if (this == obj) return true;
+        return obj instanceof Orgnummer that && Objects.equals(this.orgnr, that.orgnr);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.spokelse;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -18,7 +19,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
@@ -32,22 +35,28 @@ class SpøkelseTest {
     @BeforeEach
     void setUp() throws IOException {
         // Service setup
-        spøkelse = new SpøkelseNativeKlient(restKlient);
+        spøkelse = new TestSpøkelse(restKlient);
     }
 
     @SuppressWarnings("resource")
     @Test
-    void skal_returnere_dokumentoversikt_fagsak() throws IOException {
-        // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111",
-        // fagsaksystem: "AO01"}, foerste: 5)
+    void skal_returnere_dokumentoversikt_fagsak()  {
         var captor = ArgumentCaptor.forClass(RestRequest.class);
         SykepengeVedtak[] svar = {new SykepengeVedtak("abc", List.of(), LocalDateTime.now())};
-        when(restKlient.send(captor.capture(), any(Class.class))).thenReturn(svar);
+        when(restKlient.send(captor.capture(), any())).thenReturn(svar);
 
         var respons = spøkelse.hentGrunnlag("11111111111");
         var rq = captor.getValue();
         rq.validateDelayedHeaders(Set.of("Authorization"));
+        assertThat(respons.get(0).vedtaksreferanse()).isEqualTo("abc");
     }
 
+    @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "SPOKELSE_GRUNNLAG_URL", endpointDefault = "http://spokelse.tbd/grunnlag",
+        scopesProperty = "SPOKELSE_GRUNNLAG_SCOPES", scopesDefault = "api://prod-fss.tbd.spokelse/.default")
+    private static class TestSpøkelse extends AbstractSpøkelseKlient {
+        public TestSpøkelse(RestClient restKlient) {
+            super(restKlient);
+        }
+    }
 
 }

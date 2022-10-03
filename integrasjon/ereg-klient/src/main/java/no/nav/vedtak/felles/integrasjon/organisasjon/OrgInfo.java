@@ -4,6 +4,10 @@ public interface OrgInfo {
 
     OrganisasjonEReg hentOrganisasjon(String orgnummer);
 
-    OrganisasjonAdresse hentOrganisasjonAdresse(String orgnummer);
+    <T> T hentOrganisasjon(String orgnummer, Class<T> clazz);
+
+    String hentOrganisasjonNavn(String orgnummer);
+
+    JuridiskEnhetVirksomheter hentOrganisasjonHistorikk(String orgnummer);
 
 }

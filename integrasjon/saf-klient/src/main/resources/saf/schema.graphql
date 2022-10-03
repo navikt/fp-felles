@@ -159,6 +159,13 @@ type Query {
         # Typen tilknyttet Journalpost.
         tilknytning: Tilknytning!
     ): [Journalpost]!
+
+     # * Query returnerer alle saker for bruker med angitt fnr / aktoerID.
+        saker(
+        # ID til bruker man ønsker å hente saker for.
+        # * Hvis argumentet ikke er angitt så returneres en feil.
+        brukerId: BrukerIdInput!
+        ): [Sak]!
 }
 
 # Dokumentoversikt er en liste av journalposter som tilfredstiller query kriteriene.
@@ -175,8 +182,14 @@ type SideInfo {
     # Når man paginerer forover, pekeren for å fortsette.
     sluttpeker: String
 
-    # True/False verdi for om neste side eksisterer, når man paginerer forover
+    # True/False verdi for om neste side eksisterer, når man paginerer forover.
     finnesNesteSide: Boolean!
+
+    # Antall journalposter på denne siden.
+    antall: Int
+
+    # Totalt antall journalposter på alle sider.
+    totaltAntall: Int
 }
 
 # * Fagsystemene som arkiverer kan legge til egne fagspesifikke attributter per journalpost.
@@ -316,6 +329,14 @@ type Sak {
 
     # Kode som indikerer hvilket fagsystem, eventuelt nummerserie for fagsaker, som fagsaken befinner seg i.
     fagsaksystem: String
+
+    # Sier hvorvidt saken inngår i et fagsystem (FAGSAK) eller ikke (GENERELL_SAK).
+    sakstype: Sakstype
+
+    # Temaet/Fagområdet som journalposten og tilhørende sak tilhører, f.eks. "FOR".
+    # * For sakstilknyttede journalposter, er det tema på SAK- eller PSAK-saken som er gjeldende tema.
+    # * For journalposter som enda ikke har fått sakstilknytning, returneres tema på journalposten.inneholder Joark informasjon om antatt tema for journalposten.
+    tema: Tema
 }
 
 # Person eller organisasjon som har et forhold til NAV, f.eks. som mottaker av tjenester eller ytelser.
@@ -408,6 +429,7 @@ type Dokumentvariant {
 
     # Dokumentets filtype, f.eks. PDFA, XML eller JPG. Gyldige verdier finnes på siden Fagarkiv - Filtype.
     # * NB: Informasjonen er ikke garantert å samsvare med dokumentets faktiske filtype, da dette ikke valideres under arkivering.
+    # * NB: Verdien 'PDFA' mappes til 'PDF'
     # * NB: Feltet skal kun brukes etter avtale med Team Dokument.
     filtype: String @deprecated(reason: "Feltet er deprekert og er kun til internt bruk. Feltet skal kun brukes etter avtale med Team Dokument.")
 
@@ -604,6 +626,10 @@ enum Kanal {
     # Forsendelsen inneholder en komplett chatdialog (inngående og utgående meldinger) mellom en bruker og en veileder i NAV.
     NAV_NO_CHAT
 
+    # Brevet er sendt til virksomhet som taushetsbelagt digital post.
+    # * Brukes for utgående journalposter.
+    DPVT
+
     # Forsendelsen har ingen kjent kanal.
     UKJENT
 }
@@ -637,6 +663,12 @@ enum Tema {
 
     # Erstatning
     ERS
+
+    #Barnepensjon
+    EYB
+
+    #Omstillingsstønad
+    EYO
 
     # Farskap
     FAR
@@ -845,4 +877,14 @@ enum AvsenderMottakerIdType {
 
     # Ukjent IdType
     UKJENT
+}
+
+# Sier hvorvidt saken inngår i et fagsystem (FAGSAK) eller ikke (GENERELL_SAK).
+enum Sakstype {
+
+    # Benyttes normalt for dokumenter som ikke saksbehandles i et fagsystem. Generell sak har ikke saksnummer, men kan ses på som brukerens "mappe" av dokumenter på et gitt tema.
+    GENERELL_SAK
+
+    # Vil si at saken tilhører et fagsystem. Hvilket fagsystem saken tilhører, finnes i feltet fagsaksystem.
+    FAGSAK
 }

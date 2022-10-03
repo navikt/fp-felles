@@ -26,7 +26,7 @@ public enum FpApplication {
     private static final Namespace NAMESPACE = ENV.getNamespace();
 
     /*
-     * Utelatt fpabonnent:8065, fpinfo:8040
+     * Utelatt fpabonnent:8065
      */
     private static final Map<FpApplication, Integer> LOCAL_PORTS = Map.of(
         FpApplication.FPSAK, 8080,

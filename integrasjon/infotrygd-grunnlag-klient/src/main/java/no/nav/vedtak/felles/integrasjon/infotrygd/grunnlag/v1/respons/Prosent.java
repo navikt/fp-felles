@@ -20,19 +20,13 @@ public class Prosent {
 
     @Override
     public int hashCode() {
-        return Objects.hash(prosent);
+        return prosent != null ? prosent.hashCode() : 0;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof Prosent)) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
-        Prosent that = (Prosent) obj;
-        return Objects.equals(that.prosent, this.prosent);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        return o instanceof Prosent that && Objects.equals(prosent, that.prosent);
     }
 
     @JsonValue

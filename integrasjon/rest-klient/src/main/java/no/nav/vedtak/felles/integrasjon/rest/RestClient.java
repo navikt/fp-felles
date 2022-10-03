@@ -13,8 +13,12 @@ public final class RestClient {
 
     private final DefaultHttpClient httpklient;
 
-    public RestClient() {
+    private RestClient() {
         this.httpklient = DefaultHttpClient.client();
+    }
+
+    public static RestClient client() {
+        return new RestClient();
     }
 
     public <T> T send(RestRequest request, Class<T> clazz) {
