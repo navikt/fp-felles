@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import no.nav.vedtak.felles.integrasjon.dokarkiv.respons.Saker;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class SerializationTest {

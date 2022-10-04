@@ -103,9 +103,9 @@ public abstract class AbstractPersonKlient implements Persondata {
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         LOG.trace("Henter resultat for {} fra {}", clazz.getName(), restConfig.endpoint());
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
-        var rrequest = RestRequest.newRequest(method, restConfig.endpoint(), restConfig)
+        var restRequest = RestRequest.newRequest(method, restConfig.endpoint(), restConfig)
             .header("TEMA", tema.name());
-        var res = restKlient.send(rrequest, clazz);
+        var res = restKlient.send(restRequest, clazz);
         if (res.hasErrors()) {
             return errorHandler.handleError(res.getErrors(), restConfig.endpoint(), PDL_ERROR_RESPONSE);
         }

@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 public class TestRestClientConfig {
 
     @Test
-    void testCaseA() {
-        var config = RestConfig.forClient(TestA.class);
+    void testCase_app_med_endpoint_property_uten_verdi() {
+        var config = RestConfig.forClient(TestAbakusMedEndpointProperty.class);
         assertThat(config.tokenConfig()).isEqualTo(TokenFlow.CONTEXT);
         assertThat(config.scopes()).isEqualTo(FpApplication.scopesFor(FpApplication.FPABAKUS));
         assertThat(config.fpContextPath()).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPABAKUS)));
@@ -18,9 +18,9 @@ public class TestRestClientConfig {
     }
 
     @Test
-    void testCaseA1() {
+    void testCase_app_med_endpoint_property_som_har_verdi() {
         System.setProperty("non.existent", "http://fpabakus/fpabakus/ekstern/target");
-        var config = RestConfig.forClient(TestA.class);
+        var config = RestConfig.forClient(TestAbakusMedEndpointProperty.class);
         assertThat(config.scopes()).isEqualTo(FpApplication.scopesFor(FpApplication.FPABAKUS));
         assertThat(config.fpContextPath()).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPABAKUS)));
         assertThat(config.endpoint()).isEqualTo(URI.create("http://fpabakus/fpabakus/ekstern/target"));
@@ -28,8 +28,8 @@ public class TestRestClientConfig {
     }
 
     @Test
-    void testCaseB() {
-        var config = RestConfig.forClient(TestB.class);
+    void testCase_kun_application_uten_properties() {
+        var config = RestConfig.forClient(TestRiskUtenEndpoint.class);
         assertThat(config.tokenConfig()).isEqualTo(TokenFlow.STS_CC);
         assertThat(config.scopes()).isEqualTo(FpApplication.scopesFor(FpApplication.FPRISK));
         assertThat(config.fpContextPath()).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPRISK)));
@@ -37,8 +37,8 @@ public class TestRestClientConfig {
     }
 
     @Test
-    void testCaseC() {
-        var config = RestConfig.forClient(TestC.class);
+    void testCase_app_med_scope_property_uten_verdi() {
+        var config = RestConfig.forClient(TestFormidlingAdaptiveMedScopeProperty.class);
         assertThat(config.tokenConfig()).isEqualTo(TokenFlow.ADAPTIVE);
         assertThat(config.scopes()).isEqualTo(FpApplication.scopesFor(FpApplication.FPFORMIDLING));
         assertThat(config.fpContextPath()).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPFORMIDLING)));
@@ -46,9 +46,9 @@ public class TestRestClientConfig {
     }
 
     @Test
-    void testCaseC1() {
+    void testCase_app_med_scope_property_med_verdi() {
         System.setProperty("non.existent", "api://local.default.fpformidling-local/.default");
-        var config = RestConfig.forClient(TestC.class);
+        var config = RestConfig.forClient(TestFormidlingAdaptiveMedScopeProperty.class);
         assertThat(config.scopes()).isEqualTo("api://local.default.fpformidling-local/.default");
         assertThat(config.fpContextPath()).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPFORMIDLING)));
         assertThat(config.endpoint()).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPFORMIDLING)));
@@ -56,18 +56,18 @@ public class TestRestClientConfig {
     }
 
     @Test
-    void testCaseD() {
-        var config = RestConfig.forClient(TestD.class);
+    void testCase_ikke_app_med_endpoint_scope_property_uten_verdi() {
+        var config = RestConfig.forClient(TestFormidlingMedEndpointScopes.class);
         assertThat(config.scopes()).isEqualTo("api://local.teamforeldrepenger.fp-formidling/.default");
         assertThat(config.getContextPath()).isEmpty();
         assertThat(config.endpoint()).isEqualTo(URI.create("http://fpformidling/fpformidling/default"));
     }
 
     @Test
-    void testCaseD1() {
+    void testCase_ikke_app_med_endpoint_scope_property_med_verdi() {
         System.setProperty("non.existent", "http://fpformidling/fpformidling/ekstern/target");
         System.setProperty("non.existent2", "api://local.default.fpformidling/.default");
-        var config = RestConfig.forClient(TestD.class);
+        var config = RestConfig.forClient(TestFormidlingMedEndpointScopes.class);
         assertThat(config.scopes()).isEqualTo("api://local.default.fpformidling/.default");
         assertThat(config.endpoint()).isEqualTo(URI.create("http://fpformidling/fpformidling/ekstern/target"));
         System.clearProperty("non.existent");
@@ -75,23 +75,23 @@ public class TestRestClientConfig {
     }
 
     @RestClientConfig(application = FpApplication.FPABAKUS, endpointProperty = "non.existent", endpointDefault = "http://fpabakus/fpabakus/ekstern")
-    private static class TestA {
+    private static class TestAbakusMedEndpointProperty {
 
     }
 
     @RestClientConfig(tokenConfig = TokenFlow.STS_CC, application = FpApplication.FPRISK)
-    private static class TestB {
+    private static class TestRiskUtenEndpoint {
 
     }
 
     @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPFORMIDLING, scopesProperty = "non.existent", scopesDefault = "api://local.teamforeldrepenger.fp-formidling/.default")
-    private static class TestC {
+    private static class TestFormidlingAdaptiveMedScopeProperty {
 
     }
 
     @RestClientConfig(endpointProperty = "non.existent", endpointDefault = "http://fpformidling/fpformidling/default",
         scopesProperty = "non.existent2", scopesDefault = "api://local.teamforeldrepenger.fp-formidling/.default")
-    private static class TestD {
+    private static class TestFormidlingMedEndpointScopes {
 
     }
 

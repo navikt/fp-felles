@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.dokarkiv.respons;
+package no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons;
 
 import static com.fasterxml.jackson.annotation.Nulls.AS_EMPTY;
 
