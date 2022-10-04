@@ -75,32 +75,6 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         return HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(object));
     }
 
-    public static RestRequest newGET(URI target, Class<?> clazz) {
-        return newRequest(Method.get(), target, clazz);
-    }
-
-    public static RestRequest newPOSTJson(Object body, URI target, Class<?> clazz) {
-        return newRequest(Method.postJson(body), target, clazz);
-    }
-
-    public static RestRequest newRequest(Method method, URI target, Class<?> clazz) {
-        var annotationConfig = RestConfig.forClient(clazz);
-        return newRequest(method, target, annotationConfig.tokenConfig(), annotationConfig.scopes());
-    }
-
-    public static RestRequest newGET(URI target, TokenFlow tokenConfig, String scopes) {
-        return newRequest(Method.get(), target, tokenConfig, scopes);
-    }
-
-    public static RestRequest newPOSTJson(Object body, URI target, TokenFlow tokenConfig, String scopes) {
-        return newRequest(Method.postJson(body), target, tokenConfig, scopes);
-    }
-
-    public static RestRequest newRequest(Method method, URI target, TokenFlow tokenConfig, String scopes) {
-        var httpRequestBuilder = getHttpRequestBuilder(method, target);
-        return new RestRequest(httpRequestBuilder, tokenConfig, scopes, CONTEXT_SUPPLIER);
-    }
-
     public static RestRequest newGET(URI target, RestConfig config) {
         return newRequest(Method.get(), target, config);
     }
