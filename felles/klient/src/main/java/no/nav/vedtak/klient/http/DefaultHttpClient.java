@@ -24,6 +24,7 @@ import no.nav.vedtak.exception.IntegrasjonException;
 public final class DefaultHttpClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultHttpClient.class);
+    private static final int RETRIES = 2; // 1 attempt, the n retries
 
     private static DefaultHttpClient CLIENT;
 
@@ -65,19 +66,25 @@ public final class DefaultHttpClient {
     }
 
     private HttpResponse<byte[]> doSendExpectBytearrayRetry(HttpRequest httpRequest) {
-        try {
-            return doSendExpectBytearray(httpRequest);
-        } catch (IntegrasjonException e) {
-            LOG.info("F-157390 IntegrasjonException ved første kall til endepunkt {}", httpRequest.uri(), e);
+        int i = RETRIES;
+        while (i-- > 0) {
+            try {
+                return doSendExpectBytearray(httpRequest);
+            } catch (IntegrasjonException e) {
+                LOG.info("F-157390 IntegrasjonException ved kall {} til endepunkt {}", RETRIES - i, httpRequest.uri(), e);
+            }
         }
         return doSendExpectBytearray(httpRequest);
     }
 
     private HttpResponse<String> doSendExpectStringRetry(HttpRequest httpRequest) {
-        try {
-            return doSendExpectString(httpRequest);
-        } catch (IntegrasjonException e) {
-            LOG.info("F-157390 IntegrasjonException ved første kall til endepunkt {}", httpRequest.uri(), e);
+        int i = RETRIES;
+        while (i-- > 0) {
+            try {
+                return doSendExpectString(httpRequest);
+            } catch (IntegrasjonException e) {
+                LOG.info("F-157390 IntegrasjonException ved kall {} til endepunkt {}", RETRIES - i, httpRequest.uri(), e);
+            }
         }
         return doSendExpectString(httpRequest);
     }

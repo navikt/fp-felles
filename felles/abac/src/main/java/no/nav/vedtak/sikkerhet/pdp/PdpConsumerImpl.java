@@ -59,7 +59,6 @@ public class PdpConsumerImpl implements PdpConsumer {
 
     @Override
     public XacmlResponse evaluate(XacmlRequest xacmlRequest) {
-        // TODO : hvilke headere trenger abac egentlig - utenom Auth og Content-type
         var request = HttpRequest.newBuilder()
             .header("Authorization", basicCredentials)
             .header("Content-type", MEDIA_TYPE)
@@ -69,10 +68,13 @@ public class PdpConsumerImpl implements PdpConsumer {
             .build();
 
         // Enkel retry
-        try {
-            return send(request);
-        } catch (IntegrasjonException e) {
-            LOG.info("F-157387 IntegrasjonException ved første kall til PDP", e);
+        int i = 2;
+        while (i-- > 0) {
+            try {
+                return send(request);
+            } catch (IntegrasjonException e) {
+                LOG.info("F-157387 IntegrasjonException ved kall {} til PDP", 2 - i, e);
+            }
         }
         return send(request);
     }
