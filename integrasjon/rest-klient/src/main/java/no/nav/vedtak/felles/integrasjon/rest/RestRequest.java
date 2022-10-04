@@ -34,7 +34,7 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         GET, POST, PUT, PATCH
     }
 
-    public static record Method(WebMethod restMethod, HttpRequest.BodyPublisher bodyPublisher) {
+    public record Method(WebMethod restMethod, HttpRequest.BodyPublisher bodyPublisher) {
         public static Method get() {
             return new Method(WebMethod.GET, null);
         }
@@ -75,37 +75,17 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         return HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(object));
     }
 
-    public static RestRequest newGET(URI target, Class<?> clazz) {
-        return newRequest(Method.get(), target, clazz);
+    public static RestRequest newGET(URI target, RestConfig config) {
+        return newRequest(Method.get(), target, config);
     }
 
-    // Get endpoint form annotation
-    public static RestRequest newPOSTJson(Object body, Class<?> clazz) {
-        var endpoint = RestConfig.endpointFromAnnotation(clazz);
-        return newRequest(Method.postJson(body), endpoint, clazz);
+    public static RestRequest newPOSTJson(Object body, URI target, RestConfig config) {
+        return newRequest(Method.postJson(body), target, config);
     }
 
-    public static RestRequest newPOSTJson(Object body, URI target, Class<?> clazz) {
-        return newRequest(Method.postJson(body), target, clazz);
-    }
-
-    public static RestRequest newRequest(Method method, URI target, Class<?> clazz) {
-        var tokenConfig = RestConfig.tokenConfigFromAnnotation(clazz);
-        var scopes = RestConfig.scopesFromAnnotation(clazz);
-        return newRequest(method, target, tokenConfig, scopes);
-    }
-
-    public static RestRequest newGET(URI target, TokenFlow tokenConfig, String scopes) {
-        return newRequest(Method.get(), target, tokenConfig, scopes);
-    }
-
-    public static RestRequest newPOSTJson(Object body, URI target, TokenFlow tokenConfig, String scopes) {
-        return newRequest(Method.postJson(body), target, tokenConfig, scopes);
-    }
-
-    public static RestRequest newRequest(Method method, URI target, TokenFlow tokenConfig, String scopes) {
+    public static RestRequest newRequest(Method method, URI target, RestConfig config) {
         var httpRequestBuilder = getHttpRequestBuilder(method, target);
-        return new RestRequest(httpRequestBuilder, tokenConfig, scopes, CONTEXT_SUPPLIER);
+        return new RestRequest(httpRequestBuilder, config.tokenConfig(), config.scopes(), CONTEXT_SUPPLIER);
     }
 
     @Override

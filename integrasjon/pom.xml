@@ -19,49 +19,20 @@
         <module>ldap-klient</module>
         <module>arbeidsfordeling-klient</module>
         <module>infotrygd-grunnlag-klient</module>
-        <module>infotrygd-saker-klient</module>
-        <module>medl-klient</module>
+        <module>dokarkiv-klient</module>
+        <module>person-klient</module>
         <module>oppgave-rest-klient</module>
         <module>pdl-klient</module>
         <module>ereg-klient</module>
         <module>saf-klient</module>
         <module>spokelse-klient</module>
     </modules>
-    <properties>
-        <wiremock.version>2.33.2</wiremock.version>
-    </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.glassfish.jersey.inject</groupId>
-                <artifactId>jersey-hk2</artifactId>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-common</artifactId>
                 <version>${jersey.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.glassfish.hk2.external</groupId>
-                        <artifactId>jakarta.inject</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.github.tomakehurst</groupId>
-                <artifactId>wiremock-jre8</artifactId>
-                <version>${wiremock.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.antlr</groupId>
-                        <artifactId>antlr4-runtime</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-io</groupId>
-                        <artifactId>commons-io</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
@@ -106,6 +77,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>felles-integrasjon-rest-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>person-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

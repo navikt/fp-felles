@@ -106,14 +106,7 @@ class EregRestTest {
         var org = DefaultJsonMapper.fromJson(json, OrganisasjonEReg.class);
 
         assertThat(org.getNavn()).isEqualTo("NAV IKT");
-        assertThat(org.getType()).isEqualTo(OrganisasjonstypeEReg.VIRKSOMHET);
+        assertThat(org.type()).isEqualTo(OrganisasjonstypeEReg.VIRKSOMHET);
     }
 
-    @Test
-    void mapping_adresse() throws IOException {
-        var org = DefaultJsonMapper.fromJson(json, OrganisasjonAdresse.class);
-
-        assertThat(org.getNavn()).isEqualTo("NAV IKT");
-        assertThat(org.getKorrespondanseadresse().adresselinje1()).isEqualTo("Postboks 5 St Olavs plass");
-    }
 }

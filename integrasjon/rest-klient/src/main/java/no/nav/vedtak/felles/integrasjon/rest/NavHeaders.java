@@ -5,6 +5,9 @@ package no.nav.vedtak.felles.integrasjon.rest;
  */
 public final class NavHeaders {
 
+    private NavHeaders() {
+    }
+
     // Commonly used call-id not set by default
     public static final String HEADER_NAV_CALL_ID = "Nav-Call-Id";
     public static final String HEADER_NAV_CORRELATION_ID = "X-Correlation-ID";

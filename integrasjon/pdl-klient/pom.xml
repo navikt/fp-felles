@@ -19,83 +19,8 @@
             <artifactId>felles-integrasjon-rest-klient</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-jre8</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.minidev</groupId>
-                    <artifactId>json-smart</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-testutilities</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <scope>test</scope>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>person-klient</artifactId>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>io.github.kobylynskyi</groupId>
-                <artifactId>graphql-codegen-maven-plugin</artifactId>
-                <version>5.5.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <graphqlSchemaPaths>${project.basedir}/src/main/resources/saf/pdl-api-sdl.graphqls</graphqlSchemaPaths>
-                            <outputDir>${project.build.directory}/generated-sources/client-pdl</outputDir>
-                            <modelPackageName>no.nav.pdl</modelPackageName>
-                            <customTypesMapping>
-                                <DateTime>java.util.Date</DateTime>
-                                <!-- <Price.amount>java.math.BigDecimal</Price.amount> -->
-                            </customTypesMapping>
-                            <generateClient>true</generateClient>
-                            <generateApis>false</generateApis>
-                            <generateBuilder>false</generateBuilder>
-                            <generateToString>true</generateToString>
-                            <generateParameterizedFieldsResolvers>false</generateParameterizedFieldsResolvers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    <profiles>
-        <profile>
-            <id>wiremock</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-bom</artifactId>
-                        <!-- Wiremock støtter ikke jetty 10 eller 11 -->
-                        <version>9.4.37.v20210219</version>
-                        <scope>import</scope>
-                        <type>pom</type>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-        </profile>
-    </profiles>
 </project>

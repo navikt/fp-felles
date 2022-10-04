@@ -1,219 +1,156 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class OpprettOppgave {
+public record OpprettOppgave(String temagruppe,
+                             String tema,
+                             String behandlingstema,
+                             String behandlingstype,
+                             String behandlesAvApplikasjon,
+                             Oppgavetype oppgavetype,
+                             String beskrivelse,
+                             String saksreferanse,
+                             String aktoerId,
+                             String journalpostId,
+                             String opprettetAvEnhetsnr,
+                             String tildeltEnhetsnr,
+                             Prioritet prioritet,
+                             LocalDate aktivDato,
+                             LocalDate fristFerdigstillelse) {
 
-    @JsonProperty("tildeltEnhetsnr")
-    private String tildeltEnhetsnr;
-    @JsonProperty("opprettetAvEnhetsnr")
-    private String opprettetAvEnhetsnr;
-    @JsonProperty("journalpostId")
-    private String journalpostId;
-    @JsonProperty("behandlesAvApplikasjon")
-    private String behandlesAvApplikasjon;
-    @JsonProperty("saksreferanse")
-    private String saksreferanse;
-    @JsonProperty("aktoerId")
-    private String aktoerId;
-    @JsonProperty("beskrivelse")
-    private String beskrivelse;
-    @JsonProperty("temagruppe")
-    private String temagruppe;
-    @JsonProperty("tema")
-    private String tema;
-    @JsonProperty("behandlingstema")
-    private String behandlingstema;
-    @JsonProperty("oppgavetype")
-    private String oppgavetype;
-    @JsonProperty("behandlingstype")
-    private String behandlingstype;
-    @JsonProperty("aktivDato")
-    private LocalDate aktivDato;
-    @JsonProperty("prioritet")
-    private Prioritet prioritet;
-    @JsonProperty("fristFerdigstillelse")
-    private LocalDate fristFerdigstillelse;
+    public static final String TEMAGRUPPE_FAMILIEYTELSER = "FMLI";
+    public static final String TEMA_FORELDREPENGER = "FOR";
 
-    public String getTildeltEnhetsnr() {
-        return tildeltEnhetsnr;
+
+    public static Builder getBuilder(Oppgavetype type, Prioritet prioritet, int fristDager) {
+        var iDag = LocalDate.now();
+        return new Builder()
+            .medOppgavetype(type)
+            .medPrioritet(prioritet)
+            .medAktivDato(LocalDate.now())
+            .medFristFerdigstillelse(helgeJustertFrist(iDag.plusDays(fristDager)));
     }
 
-    public String getOpprettetAvEnhetsnr() {
-        return opprettetAvEnhetsnr;
+    public static Builder getBuilderTemaFOR(Oppgavetype type, Prioritet prioritet, int fristDager) {
+        return getBuilder(type, prioritet, fristDager)
+            .medTemagruppe(TEMAGRUPPE_FAMILIEYTELSER)
+            .medTema(TEMA_FORELDREPENGER);
     }
 
-    public String getJournalpostId() {
-        return journalpostId;
-    }
-
-    public String getBehandlesAvApplikasjon() {
-        return behandlesAvApplikasjon;
-    }
-
-    public String getSaksreferanse() {
-        return saksreferanse;
-    }
-
-    public String getAktoerId() {
-        return aktoerId;
-    }
-
-    public String getBeskrivelse() {
-        return beskrivelse;
-    }
-
-    public String getTemagruppe() {
-        return temagruppe;
-    }
-
-    public String getTema() {
-        return tema;
-    }
-
-    public String getBehandlingstema() {
-        return behandlingstema;
-    }
-
-    public String getOppgavetype() {
-        return oppgavetype;
-    }
-
-    public String getBehandlingstype() {
-        return behandlingstype;
-    }
-
-    public LocalDate getAktivDato() {
-        return aktivDato;
-    }
-
-    public Prioritet getPrioritet() {
-        return prioritet;
-    }
-
-    public LocalDate getFristFerdigstillelse() {
-        return fristFerdigstillelse;
-    }
-
-    public OpprettOppgave() {
-    }
-
-    public static Builder getBuilder() {
-        return new Builder();
+    private static LocalDate helgeJustertFrist(LocalDate dato) {
+        if (dato.getDayOfWeek().getValue() > DayOfWeek.FRIDAY.getValue()) {
+            return dato.plusDays((1L + DayOfWeek.SUNDAY.getValue()) - dato.getDayOfWeek().getValue());
+        }
+        return dato;
     }
 
     public static class Builder {
-        OpprettOppgave oppgave;
+        private String tildeltEnhetsnr;
+        private String opprettetAvEnhetsnr;
+        private String journalpostId;
+        private String behandlesAvApplikasjon;
+        private String saksreferanse;
+        private String aktoerId;
+        private String beskrivelse;
+        private String temagruppe;
+        private String tema;
+        private String behandlingstema;
+        private Oppgavetype oppgavetype;
+        private String behandlingstype;
+        private LocalDate aktivDato;
+        private Prioritet prioritet;
+        private LocalDate fristFerdigstillelse;
 
-        Builder() {
-            oppgave = new OpprettOppgave();
+        private Builder() {
         }
 
         public Builder medTildeltEnhetsnr(String tildeltEnhetsnr) {
-            this.oppgave.tildeltEnhetsnr = tildeltEnhetsnr;
+            this.tildeltEnhetsnr = tildeltEnhetsnr;
             return this;
         }
 
         public Builder medOpprettetAvEnhetsnr(String opprettetAvEnhetsnr) {
-            this.oppgave.opprettetAvEnhetsnr = opprettetAvEnhetsnr;
+            this.opprettetAvEnhetsnr = opprettetAvEnhetsnr;
             return this;
         }
 
         public Builder medJournalpostId(String journalpostId) {
-            this.oppgave.journalpostId = journalpostId;
+            this.journalpostId = journalpostId;
             return this;
         }
 
         public Builder medBehandlesAvApplikasjon(String behandlesAvApplikasjon) {
-            this.oppgave.behandlesAvApplikasjon = behandlesAvApplikasjon;
+            this.behandlesAvApplikasjon = behandlesAvApplikasjon;
             return this;
         }
 
         public Builder medSaksreferanse(String saksreferanse) {
-            this.oppgave.saksreferanse = saksreferanse;
+            this.saksreferanse = saksreferanse;
             return this;
         }
 
         public Builder medAktoerId(String aktoerId) {
-            this.oppgave.aktoerId = aktoerId;
+            this.aktoerId = aktoerId;
             return this;
         }
 
         public Builder medBeskrivelse(String beskrivelse) {
-            this.oppgave.beskrivelse = beskrivelse;
+            this.beskrivelse = beskrivelse;
             return this;
         }
 
         public Builder medTemagruppe(String temagruppe) {
-            this.oppgave.temagruppe = temagruppe;
+            this.temagruppe = temagruppe;
             return this;
         }
 
         public Builder medTema(String tema) {
-            this.oppgave.tema = tema;
+            this.tema = tema;
             return this;
         }
 
         public Builder medBehandlingstema(String behandlingstema) {
-            this.oppgave.behandlingstema = behandlingstema;
-            return this;
-        }
-
-        public Builder medOppgavetype(String oppgavetype) {
-            this.oppgave.oppgavetype = oppgavetype;
+            this.behandlingstema = behandlingstema;
             return this;
         }
 
         public Builder medBehandlingstype(String behandlingstype) {
-            this.oppgave.behandlingstype = behandlingstype;
+            this.behandlingstype = behandlingstype;
             return this;
         }
 
-        public Builder medAktivDato(LocalDate aktivDato) {
-            this.oppgave.aktivDato = aktivDato;
+        private Builder medOppgavetype(Oppgavetype oppgavetype) {
+            this.oppgavetype = oppgavetype;
             return this;
         }
 
-        public Builder medFristFerdigstillelse(LocalDate fristFerdigstillelse) {
-            this.oppgave.fristFerdigstillelse = fristFerdigstillelse;
+        private Builder medAktivDato(LocalDate aktivDato) {
+            this.aktivDato = aktivDato;
             return this;
         }
 
-        public Builder medPrioritet(Prioritet prioritet) {
-            this.oppgave.prioritet = prioritet;
+        private Builder medFristFerdigstillelse(LocalDate fristFerdigstillelse) {
+            this.fristFerdigstillelse = fristFerdigstillelse;
+            return this;
+        }
+
+        private Builder medPrioritet(Prioritet prioritet) {
+            this.prioritet = prioritet;
             return this;
         }
 
         public OpprettOppgave build() {
-            return this.oppgave;
+            return new OpprettOppgave(temagruppe, tema, behandlingstema, behandlingstype, behandlesAvApplikasjon,
+                oppgavetype, beskrivelse, saksreferanse, aktoerId, journalpostId,
+                opprettetAvEnhetsnr, tildeltEnhetsnr,
+                prioritet, aktivDato, fristFerdigstillelse);
         }
+
+
     }
 
-    @Override
-    public String toString() {
-        return "OpprettOppgave{" +
-                "tildeltEnhetsnr='" + tildeltEnhetsnr + '\'' +
-                ", opprettetAvEnhetsnr='" + opprettetAvEnhetsnr + '\'' +
-                ", journalpostId='" + journalpostId + '\'' +
-                ", behandlesAvApplikasjon='" + behandlesAvApplikasjon + '\'' +
-                ", saksreferanse='" + saksreferanse + '\'' +
-                ", beskrivelse='" + beskrivelse + '\'' +
-                ", temagruppe='" + temagruppe + '\'' +
-                ", tema='" + tema + '\'' +
-                ", behandlingstema='" + behandlingstema + '\'' +
-                ", oppgavetype='" + oppgavetype + '\'' +
-                ", behandlingstype='" + behandlingstype + '\'' +
-                ", aktivDato=" + aktivDato +
-                ", prioritet=" + prioritet +
-                ", fristFerdigstillelse=" + fristFerdigstillelse +
-                '}';
-    }
 }

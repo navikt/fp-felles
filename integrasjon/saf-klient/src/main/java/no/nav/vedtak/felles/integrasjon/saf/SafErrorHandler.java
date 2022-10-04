@@ -8,11 +8,9 @@ import java.util.List;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.graphql.GraphQLErrorHandler;
 
-public class SafErrorHandler implements GraphQLErrorHandler {
+public class SafErrorHandler {
 
-    @Override
     public <T> T handleError(List<GraphQLError> errors, URI uri, String kode) {
         throw new TekniskException(kode, String.format("Feil %s mot %s", errors.stream()
                 .map(GraphQLError::getMessage)

@@ -10,18 +10,12 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record OrganisasjonEReg(String organisasjonsnummer, OrganisasjonstypeEReg type, Navn navn, OrganisasjonDetaljer organisasjonDetaljer,
-        VirksomhetDetaljer virksomhetDetaljer) {
+public record OrganisasjonEReg(String organisasjonsnummer,
+                               OrganisasjonstypeEReg type,
+                               Navn navn,
+                               OrganisasjonDetaljer organisasjonDetaljer,
+                               VirksomhetDetaljer virksomhetDetaljer) {
 
-    @Deprecated
-    public String getOrganisasjonsnummer() {
-        return organisasjonsnummer();
-    }
-
-    @Deprecated
-    public OrganisasjonstypeEReg getType() {
-        return type();
-    }
 
     public String getNavn() {
         return Optional.ofNullable(navn())
@@ -32,7 +26,6 @@ public record OrganisasjonEReg(String organisasjonsnummer, OrganisasjonstypeEReg
     public LocalDate getRegistreringsdato() {
         return Optional.ofNullable(organisasjonDetaljer())
                 .map(OrganisasjonDetaljer::registreringsdato)
-                .filter(Objects::nonNull)
                 .map(LocalDateTime::toLocalDate)
                 .orElse(null);
     }
@@ -55,7 +48,7 @@ public record OrganisasjonEReg(String organisasjonsnummer, OrganisasjonstypeEReg
                 .orElse(null);
     }
 
-    private static record Navn(String navnelinje1, String navnelinje2, String navnelinje3, String navnelinje4, String navnelinje5) {
+    private record Navn(String navnelinje1, String navnelinje2, String navnelinje3, String navnelinje4, String navnelinje5) {
 
         private String getNavn() {
             return Stream.of(navnelinje1(), navnelinje2(), navnelinje3(), navnelinje4(), navnelinje5())
@@ -66,11 +59,11 @@ public record OrganisasjonEReg(String organisasjonsnummer, OrganisasjonstypeEReg
         }
     }
 
-    private static record OrganisasjonDetaljer(LocalDateTime registreringsdato, LocalDate opphoersdato) {
+    private record OrganisasjonDetaljer(LocalDateTime registreringsdato, LocalDate opphoersdato) {
 
     }
 
-    private static record VirksomhetDetaljer(LocalDate oppstartsdato, LocalDate nedleggelsesdato) {
+    private record VirksomhetDetaljer(LocalDate oppstartsdato, LocalDate nedleggelsesdato) {
     }
 
 }
