@@ -2,7 +2,7 @@ package no.nav.vedtak.sikkerhet.pdp;
 
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -20,15 +20,12 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.Decision;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseMapper;
 
-@ApplicationScoped
+@Dependent
 public class PdpKlientImpl implements PdpKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(PdpKlientImpl.class);
 
-    private PdpConsumer pdp;
-
-    public PdpKlientImpl() {
-    }
+    private final PdpConsumer pdp;
 
     @Inject
     public PdpKlientImpl(PdpConsumer pdp) {

@@ -13,19 +13,19 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 // Extend og annoter med endpoint+default og scopes/default + tokenConfig = AzureAD_CC
 //@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "skjermet.person.rs.url", endpointDefault = "https://skjermede-personer-pip.intern.nav.no/skjermet",
 //    scopesProperty = "skjermet.person.rs.azure.scope", scopesDefault = "api://prod-gcp.nom.skjermede-personer-pip/.default")
-public abstract class AbstractSkjermetPersonKlient implements Skjerming {
+public abstract class AbstractSkjermetPersonGCPKlient implements Skjerming {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractSkjermetPersonKlient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSkjermetPersonGCPKlient.class);
     private static final boolean TESTENV = Environment.current().isLocal();
 
     private final RestClient client;
     private final RestConfig restConfig;
 
-    protected AbstractSkjermetPersonKlient() {
+    protected AbstractSkjermetPersonGCPKlient() {
         this(RestClient.client());
     }
 
-    protected AbstractSkjermetPersonKlient(RestClient restClient) {
+    protected AbstractSkjermetPersonGCPKlient(RestClient restClient) {
         this.client = restClient;
         this.restConfig = RestConfig.forClient(this.getClass());
         if (!restConfig.tokenConfig().isAzureAD()) {
