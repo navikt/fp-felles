@@ -16,7 +16,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
 // @RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "dokarkiv.base.url", endpointDefault = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost")
-class AbstractDokArkivKlient implements DokArkiv {
+public class AbstractDokArkivKlient implements DokArkiv {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDokArkivKlient.class);
 
@@ -77,7 +77,7 @@ class AbstractDokArkivKlient implements DokArkiv {
             LOG.info("DOKARKIV Ferdigstilt journalpost OK");
             return true;
         } catch (Exception e) {
-            LOG.info("DOKARKIV DOKARKIV FERDIGSTILL {} feilet for {}", journalpostId, enhet, e);
+            LOG.info("DOKARKIV FERDIGSTILL {} feilet for {}", journalpostId, enhet, e);
             return false;
         }
     }

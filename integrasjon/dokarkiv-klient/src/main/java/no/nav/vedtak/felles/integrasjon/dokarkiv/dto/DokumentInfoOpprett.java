@@ -43,11 +43,6 @@ public record DokumentInfoOpprett(String tittel,
             return this;
         }
 
-        public Builder leggTilDokumentvariant(Dokumentvariant.Builder dokumentvariant) {
-            this.dokumentvarianter.add(dokumentvariant.build());
-            return this;
-        }
-
         public DokumentInfoOpprett build() {
             if (this.dokumentvarianter == null || this.dokumentvarianter.isEmpty()) {
                 throw new IllegalArgumentException("Krever minst 1 dokumentvariant");

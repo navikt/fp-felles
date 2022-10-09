@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.dokarkiv.dto;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -18,15 +19,9 @@ public record Dokumentvariant(Variantformat variantformat,
         PRODUKSJON_DLF,
         SLADDET,
         ORIGINAL;
-
-        public Builder medDokument(byte[] dokumentInnhold, Builder builder) {
-            builder.fysiskDokument = dokumentInnhold;
-            return builder;
-        }
     }
 
     public enum Filtype {
-
         PDF,
         PDFA,
         XML,
@@ -41,41 +36,24 @@ public record Dokumentvariant(Variantformat variantformat,
 
     }
 
-    public static Builder builder() {
-        return new Builder();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        return o instanceof Dokumentvariant that && variantformat == that.variantformat && filtype == that.filtype && Arrays.equals(fysiskDokument, that.fysiskDokument);
     }
 
-    public static class Builder {
-
-        private Variantformat variantformat;
-        private Filtype filtype;
-        private byte[] fysiskDokument;
-
-        private Builder() {
-        }
-
-        public Builder medFiltype(Filtype filtype) {
-            this.filtype = filtype;
-            return this;
-        }
-
-        public Builder medVariantformat(Variantformat variantformat) {
-            this.variantformat = variantformat;
-            return this;
-        }
-
-        public Builder medDokument(byte[] dokumentInnhold) {
-            this.fysiskDokument = dokumentInnhold;
-            return this;
-        }
-
-        public Dokumentvariant build() {
-            Objects.requireNonNull(fysiskDokument, "mangler dokumentinnhold");
-            Objects.requireNonNull(filtype, "mangler filtype");
-            Objects.requireNonNull(variantformat, "mangler variantformat");
-            return new Dokumentvariant(variantformat, filtype, fysiskDokument);
-        }
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(variantformat, filtype);
+        result = 31 * result + Arrays.hashCode(fysiskDokument);
+        return result;
     }
 
-
+    @Override
+    public String toString() {
+        return "Dokumentvariant{" +
+            "variantformat=" + variantformat +
+            ", filtype=" + filtype +
+            '}';
+    }
 }
