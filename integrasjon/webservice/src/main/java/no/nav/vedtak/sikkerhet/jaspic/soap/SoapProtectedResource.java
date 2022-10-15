@@ -17,7 +17,6 @@ import javax.security.auth.message.AuthStatus;
 import javax.security.auth.message.callback.CallerPrincipalCallback;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.wss4j.dom.handler.WSHandlerConstants;
 
 import no.nav.vedtak.sikkerhet.jaspic.DelegatedProtectedResource;
@@ -83,7 +82,7 @@ public class SoapProtectedResource implements DelegatedProtectedResource {
     /**
      * JAX-WS only supports SOAP over POST
      *
-     * @see org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor#isGET(SoapMessage)
+     * Hentet fra WSS4JInInterceptor#isGET(SoapMessage)
      */
     private static final boolean isGET(HttpServletRequest request) {
         return "GET".equals(request.getMethod());
