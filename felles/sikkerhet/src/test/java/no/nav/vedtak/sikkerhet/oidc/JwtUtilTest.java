@@ -36,7 +36,8 @@ public class JwtUtilTest {
          * "foo", "azp": "bar" }
          */
         String jwt = "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL2Zvby5iYXIuYWRlby5uby9vcGVuYW0vb2F1dGgyIiwiZXhwIjoxNTI3MjU2NjYxLCJqdGkiOiJJZk9tT1cxbW9oS1ZSdXRGMW4tUWhBIiwiaWF0IjoxNTI3MjUzMDYxLCJzdWIiOiJkZW1vIiwiYXVkIjoiZm9vIiwiYXpwIjoiYmFyIn0.H43gzgXzUvOQoJcsW6V5QuOSzygLWddbZXPUgzFW2bg09W6j3aVncWglNyRb6RGXIJD8YmJJePWP0xZ5FP9u7qEwvowBE_hQFOfbaM4u674sd6hvupZtk1eDLacU38owANwIoQczBcaTb5KZdwyfWGlsXAG_M3G95a6WxyCJo4WBW3HCwESOYvQep76EzTRIjaFgEKWjfaISdLXtUVWF3UJZaGnCxpiebVQaU81IOI3HYvrX3cVrTlM7QSg5wrFwI2yUl-h49qo_ibBbB-rT976gBeEu26RX2OSZxHHUzjcsqUCLfafje2EPv1Qy5wOlDpGcSoLa7AjtauBtin1Nsg";
-        String clientName = JwtUtil.getClientName(jwt);
+        var claims = JwtUtil.getClaims(jwt);
+        String clientName = JwtUtil.getClientName(claims);
 
         assertThat(clientName).isEqualTo("bar");
     }
@@ -49,7 +50,8 @@ public class JwtUtilTest {
          * "foo" }
          */
         String jwt = "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL2Zvby5iYXIuYWRlby5uby9vcGVuYW0vb2F1dGgyIiwiZXhwIjoxNTI3MjU2NjYxLCJqdGkiOiJ5enVjX1JkZF82SW1vMi00RXJmQ1R3IiwiaWF0IjoxNTI3MjUzMDYxLCJzdWIiOiJkZW1vIiwiYXVkIjoiZm9vIn0.HbrqyYdrL1JS6c3n_Tr70QCa0bVdHHD0t_vRbFs2_e6fU78dGNGi2KQPdEnmw419aM8Oh-pmdPXito_roG9KX2Nq7PcFJxXhBXhlubfGisFfqzdfwZDZFW4iJl0amLc4nPJ3Yw3O447lGVM_hpUEDRuTJrD18b_Tajp-peinydupXpiFG1vBrR47gmCLg6jhWuBWTsvUV5F20RFUmTlesy47Xw-80xknySJ7QFhEZDOs4SEXpdp5Rdo4VzGdn2ynQysLH0hhxU-yEjYCj9aKliGZteQYW_ZeogkK4rI09XrFLI5WBdOr9XWyavo6QK7Ba9MCmPNBqIguuUbWpc39xA";
-        String clientName = JwtUtil.getClientName(jwt);
+        var claims = JwtUtil.getClaims(jwt);
+        String clientName = JwtUtil.getClientName(claims);
 
         assertThat(clientName).isEqualTo("foo");
     }
@@ -63,7 +65,7 @@ public class JwtUtilTest {
          */
         String jwt = "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL2Zvby5iYXIuYWRlby5uby9vcGVuYW0vb2F1dGgyIiwiZXhwIjoxNTI3MjU2NjYxLCJqdGkiOiJkTEQtZHJoeE04eFFVZ0k1ZU1BSlRRIiwiaWF0IjoxNTI3MjUzMDYxLCJzdWIiOiJkZW1vIiwiYXVkIjpbImZvbyIsImJheiJdfQ.UkVLI7ae7o-_z7hde27q1eujCi_eLBjMS7_8NTMw2lNY4xVDBNOGp8LAKMvr41ykCMEqf8fxyI1jBSOOul3P8TODHX6ogrz9ig38qORINGynp8FJ1AbLtGFNyuN1BHJosj8wsGKqILUHGVJ7F2NWLJZ-Bu40AxS4566BC5WsPbQkHIfRr8YYqv6BBk0iirCcarNLW09vEgFN-hkEyPpIIMxuS6AjwNDIS0WbCSWGQ_5y5CzgoWAv5wgfLiOqdSqkx_RGgcIQNtUYtWkHWwvJBgIENAygpPtQAKd3DuJ7WOGR0RIp4AzkyTwlEnHBg3tgK0ieqhMfJdTgyXWWiQOYzg";
 
-        var e = assertThrows(TekniskException.class, () -> JwtUtil.getClientName(jwt));
+        var e = assertThrows(TekniskException.class, () -> JwtUtil.getClientName(JwtUtil.getClaims(jwt)));
         assertTrue(e.getMessage().contains("[foo, baz]"));
         assertTrue(e.getMessage().contains("Kan ikke utlede clientName"));
 

@@ -1,6 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 
@@ -28,33 +27,40 @@ public class JwtUtil {
     public static String getJwtBody(String jwt) {
         try {
             var jsonObjects = unvalidatingConsumer.process(jwt).getJoseObjects();
-            String jwtBody = ((JsonWebSignature) jsonObjects.get(0)).getUnverifiedPayload();
-            return Base64.encode(jwtBody.getBytes(StandardCharsets.UTF_8));
+            var jwtBody = ((JsonWebSignature) jsonObjects.get(0)).getUnverifiedPayloadBytes();
+            return Base64.encode(jwtBody);
         } catch (InvalidJwtException e) {
             throw ugyldigJwt(e);
         }
     }
 
-    public static String getIssuer(String jwt) {
+    public static JwtClaims getClaims(String jwt) {
         try {
-            return unvalidatingConsumer.processToClaims(jwt).getIssuer();
-        } catch (InvalidJwtException | MalformedClaimException e) {
+            return unvalidatingConsumer.processToClaims(jwt);
+        } catch (InvalidJwtException e) {
             throw ugyldigJwt(e);
         }
     }
 
-    public static Instant getExpirationTime(String jwt) {
+    public static String getIssuer(JwtClaims claims) {
         try {
-            long expirationTime = unvalidatingConsumer.processToClaims(jwt).getExpirationTime().getValue();
+            return claims.getIssuer();
+        } catch (MalformedClaimException e) {
+            throw ugyldigJwt(e);
+        }
+    }
+
+    public static Instant getExpirationTime(JwtClaims claims) {
+        try {
+            long expirationTime = claims.getExpirationTime().getValue();
             return Instant.ofEpochSecond(expirationTime);
-        } catch (InvalidJwtException | MalformedClaimException e) {
+        } catch (MalformedClaimException e) {
             throw ugyldigJwt(e);
         }
     }
 
-    public static String getClientName(String jwt) {
+    public static String getClientName(JwtClaims claims) {
         try {
-            JwtClaims claims = unvalidatingConsumer.processToClaims(jwt);
             String azp = claims.getStringClaimValue("azp");
             if (azp != null) {
                 return azp;
@@ -64,7 +70,7 @@ public class JwtUtil {
                 return audience.get(0);
             }
             throw new TekniskException("F-026678", String.format("Kan ikke utlede clientName siden 'azp' ikke er satt og 'aud' er %s", audience));
-        } catch (InvalidJwtException | MalformedClaimException e) {
+        } catch (MalformedClaimException e) {
             throw ugyldigJwt(e);
         }
 

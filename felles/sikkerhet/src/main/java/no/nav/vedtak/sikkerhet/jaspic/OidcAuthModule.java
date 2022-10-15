@@ -36,6 +36,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jose4j.jwt.JwtClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -180,15 +181,16 @@ public class OidcAuthModule implements ServerAuthModule {
             return FAILURE;
         }
         var refreshToken = tokenLocator.getRefreshToken(request);
-        var configuration = oidcToken.flatMap(t -> ConfigProvider.getOpenIDConfiguration(JwtUtil.getIssuer(t.token())));
+        var claims = oidcToken.map(TokenString::token).map(JwtUtil::getClaims);
+        var configuration = claims.map(JwtUtil::getIssuer).flatMap(ConfigProvider::getOpenIDConfiguration);
         if (configuration.isEmpty()) {
             return FAILURE;
         }
-        var expiresAt = oidcToken.map(t -> JwtUtil.getExpirationTime(t.token())).orElseGet(() -> Instant.now().plusSeconds(300));
+        var expiresAt = claims.map(JwtUtil::getExpirationTime).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.get().type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, oidcToken.get(), null,
             refreshToken.orElseGet(() -> new TokenString(null)), expiresAt.toEpochMilli());
 
-        var refreshed = refreshCookieTokenVedBehov(request, token);
+        var refreshed = refreshCookieTokenVedBehov(request, token, claims.orElse(null));
         refreshed.ifPresent(r -> registerUpdatedTokenAtUserAgent(messageInfo, r));
         token = refreshed.orElse(token);
 
@@ -206,10 +208,10 @@ public class OidcAuthModule implements ServerAuthModule {
         return handleValidatedToken(clientSubject, SubjectHandler.getUid(clientSubject));
     }
 
-    private Optional<OpenIDToken> refreshCookieTokenVedBehov(HttpServletRequest request, OpenIDToken token) {
+    private Optional<OpenIDToken> refreshCookieTokenVedBehov(HttpServletRequest request, OpenIDToken token, JwtClaims claims) {
         if (OpenIDProvider.ISSO.equals(token.provider()) && openAmTokenProvider.isOpenAmTokenSoonExpired(token) && tokenLocator.isTokenFromCookie(request)
             && Set.of(OidcLogin.LoginResult.SUCCESS, OidcLogin.LoginResult.ID_TOKEN_EXPIRED).contains(OidcLogin.validerToken(token).loginResult())) {
-            return openAmTokenProvider.refreshOpenAmIdToken(token);
+            return openAmTokenProvider.refreshOpenAmIdToken(token, Optional.ofNullable(claims).map(JwtUtil::getClientName).orElse(null));
         }
         if (AzureConfigProperties.isAzureEnabled() && OpenIDProvider.AZUREAD.equals(token.provider()) &&
             AzureADTokenProvider.isAzureTokenSoonExpired(token) && tokenLocator.isTokenFromCookie(request)
