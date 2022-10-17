@@ -16,7 +16,6 @@
     <modules>
         <module>webservice</module>
         <module>rest-klient</module>
-        <module>ldap-klient</module>
         <module>arbeidsfordeling-klient</module>
         <module>infotrygd-grunnlag-klient</module>
         <module>dokarkiv-klient</module>
