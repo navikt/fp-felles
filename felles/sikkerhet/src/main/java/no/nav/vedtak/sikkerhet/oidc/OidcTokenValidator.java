@@ -31,6 +31,7 @@ public class OidcTokenValidator {
     private final JwksKeyHandler jwks;
     private final int allowedClockSkewInSeconds;
     private final boolean skipAudienceValidation;
+    private final JwtConsumer headerConsumer;
 
     public OidcTokenValidator(OpenIDConfiguration config) {
         this(config.type(), config.issuer().toString(), new JwksKeyHandlerImpl(config.jwksUri(), config.useProxyForJwks(), config.proxy()),
@@ -58,6 +59,14 @@ public class OidcTokenValidator {
         this.clientName = clientName;
         this.allowedClockSkewInSeconds = allowedClockSkewInSeconds;
         this.skipAudienceValidation = skipAudienceValidation;
+        this.headerConsumer = new JwtConsumerBuilder()
+            .setSkipAllValidators()
+            .setSkipAllDefaultValidators()
+            .setRelaxVerificationKeyValidation()
+            .setRelaxDecryptionKeyValidation()
+            .setDisableRequireSignature()
+            .setSkipSignatureVerification()
+            .build();
     }
 
     public OidcTokenValidatorResult validate(TokenString tokenHolder) {
@@ -149,16 +158,7 @@ public class OidcTokenValidator {
     }
 
     private JwtHeader getHeader(String jwt) throws InvalidJwtException {
-        JwtConsumer jwtConsumer = new JwtConsumerBuilder()
-                .setSkipAllValidators()
-                .setSkipAllDefaultValidators()
-                .setRelaxVerificationKeyValidation()
-                .setRelaxDecryptionKeyValidation()
-                .setDisableRequireSignature()
-                .setSkipSignatureVerification()
-                .build();
-
-        List<JsonWebStructure> jsonObjects = jwtConsumer.process(jwt).getJoseObjects();
+        List<JsonWebStructure> jsonObjects = headerConsumer.process(jwt).getJoseObjects();
         JsonWebStructure wstruct = jsonObjects.get(0);
         String kid = wstruct.getKeyIdHeaderValue();
         if (kid == null) {

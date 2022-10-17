@@ -243,7 +243,7 @@ public class OidcAuthModuleTest {
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
-        verify(idTokenProvider).refreshOpenAmIdToken(any());
+        verify(idTokenProvider).refreshOpenAmIdToken(any(), any());
     }
 
     @Test
@@ -266,11 +266,11 @@ public class OidcAuthModuleTest {
                 .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
 
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
-        when(idTokenProvider.refreshOpenAmIdToken(any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, gyldigIdToken)));
+        when(idTokenProvider.refreshOpenAmIdToken(any(), any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, gyldigIdToken)));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SUCCESS);
-        verify(idTokenProvider).refreshOpenAmIdToken(any());
+        verify(idTokenProvider).refreshOpenAmIdToken(any(), any());
     }
 
     @Test
@@ -290,7 +290,7 @@ public class OidcAuthModuleTest {
         when(tokenValidator.validate(gyldigIdToken))
                 .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 60));
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
-        when(idTokenProvider.refreshOpenAmIdToken(any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, gyldigIdToken)));
+        when(idTokenProvider.refreshOpenAmIdToken(any(), any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, gyldigIdToken)));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
@@ -313,7 +313,7 @@ public class OidcAuthModuleTest {
         when(tokenValidator.validate(nyttGyldigIdToken))
                 .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
-        when(idTokenProvider.refreshOpenAmIdToken(any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
+        when(idTokenProvider.refreshOpenAmIdToken(any(), any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
 
         authModule.validateRequest(request, subject, serviceSubject);
 
@@ -364,11 +364,11 @@ public class OidcAuthModuleTest {
         when(tokenValidator.validate(nyttGyldigIdToken))
                 .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 3600));
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
-        when(idTokenProvider.refreshOpenAmIdToken(any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
+        when(idTokenProvider.refreshOpenAmIdToken(any(), any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
 
         authModule.validateRequest(request, subject, serviceSubject);
 
-        verify(idTokenProvider).refreshOpenAmIdToken(any());
+        verify(idTokenProvider).refreshOpenAmIdToken(any(), any());
 
         Cookie forventetCookie = new Cookie(ID_TOKEN_COOKIE_NAME, nyttGyldigIdToken.token());
         forventetCookie.setSecure(true);
@@ -395,7 +395,7 @@ public class OidcAuthModuleTest {
         when(tokenValidator.validate(nyttGyldigIdToken))
                 .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 3600));
         when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
-        when(idTokenProvider.refreshOpenAmIdToken(any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
+        when(idTokenProvider.refreshOpenAmIdToken(any(), any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
 
         authModule.validateRequest(request, subject, serviceSubject);
 

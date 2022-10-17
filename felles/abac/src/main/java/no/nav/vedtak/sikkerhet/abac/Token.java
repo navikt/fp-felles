@@ -1,15 +1,23 @@
 package no.nav.vedtak.sikkerhet.abac;
 
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.util.Base64;
 
-import com.nimbusds.jwt.SignedJWT;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public class Token {
+
+    private static final JwtConsumer unvalidatingConsumer = new JwtConsumerBuilder()
+        .setSkipAllValidators()
+        .setDisableRequireSignature()
+        .setSkipSignatureVerification()
+        .build();
 
     public enum TokenType {
         OIDC,
@@ -59,11 +67,13 @@ public class Token {
         return getClass().getSimpleName() + " [token=MASKERT, tokenType=" + tokenType + "]";
     }
 
-    private String tokenPayloadBase64(OpenIDToken token) {
+    public static String tokenPayloadBase64(OpenIDToken token) {
         try {
-            return SignedJWT.parse(token.token()).getPayload().toBase64URL().toString();
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Ukjent eller malformed token", e);
+            var jsonObjects = unvalidatingConsumer.process(token.token()).getJoseObjects();
+            var jwtBody = ((JsonWebSignature) jsonObjects.get(0)).getUnverifiedPayloadBytes();
+            return org.jose4j.base64url.Base64.encode(jwtBody);
+        } catch (InvalidJwtException e) {
+            throw new TekniskException("F-026969", "Feil ved parsing av JWT", e);
         }
     }
 }

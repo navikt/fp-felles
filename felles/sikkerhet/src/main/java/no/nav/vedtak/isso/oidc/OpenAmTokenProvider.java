@@ -3,7 +3,6 @@ package no.nav.vedtak.isso.oidc;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.OpenAmBrukerTokenKlient;
 
@@ -19,8 +18,8 @@ public final class OpenAmTokenProvider {
         return OpenAmBrukerTokenKlient.exhangeAuthCode(authorizationCode, callback);
     }
 
-    public Optional<OpenIDToken> refreshOpenAmIdToken(OpenIDToken expiredToken) {
-        return OpenAmBrukerTokenKlient.refreshIdToken(expiredToken, JwtUtil.getClientName(expiredToken.token()));
+    public Optional<OpenIDToken> refreshOpenAmIdToken(OpenIDToken expiredToken, String clientName) {
+        return OpenAmBrukerTokenKlient.refreshIdToken(expiredToken, clientName);
     }
 
     public boolean isOpenAmTokenSoonExpired(OpenIDToken token) {
