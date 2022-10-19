@@ -39,8 +39,8 @@ public class AzureBrukerTokenKlient {
         this.azureProxy = provider.proxy();
         this.clientId = provider.clientId();
         this.clientSecret = provider.clientSecret();
-        // Initiell size. Ser ut som OBO-tokens i dev har varihet på 4100-4600 s.
-        this.obocache = new LRUCache<>(1500, TimeUnit.MILLISECONDS.convert(10, TimeUnit.MINUTES));
+        // Justert size. Ser ut som OBO-tokens i dev har varihet på 4100-4600 s.
+        this.obocache = new LRUCache<>(2500, TimeUnit.MILLISECONDS.convert(60, TimeUnit.MINUTES));
     }
 
     public static synchronized AzureBrukerTokenKlient instance() {
