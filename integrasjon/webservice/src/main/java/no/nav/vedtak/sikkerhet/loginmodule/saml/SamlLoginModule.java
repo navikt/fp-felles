@@ -45,7 +45,7 @@ public class SamlLoginModule extends LoginModuleBase {
     private static final String AUTHENTICATION_LEVEL = "authenticationLevel";
     private static final String CONSUMER_ID = "consumerId";
 
-    private static Logger logger = LoggerFactory.getLogger(SamlLoginModule.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SamlLoginModule.class);
 
     private Subject subject;
     private CallbackHandler callbackHandler;
@@ -59,60 +59,60 @@ public class SamlLoginModule extends LoginModuleBase {
     private ConsumerId consumerId;
 
     public SamlLoginModule() {
-        super(logger);
+        super(LOG);
     }
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-        logger.trace("Initialize loginmodule");
+        LOG.trace("Initialize loginmodule");
         this.subject = subject;
         this.callbackHandler = callbackHandler;
-        logger.trace("Initializing with subject: {} callbackhandler: {}", subject, callbackHandler);
+        LOG.trace("Initializing with subject: {} callbackhandler: {}", subject, callbackHandler);
     }
 
     @Override
     public boolean login() throws LoginException {
         try {
-            logger.trace("enter login");
+            LOG.trace("enter login");
             PasswordCallback passwordCallback = new PasswordCallback("Return SAML-assertion as password", false);
             callbackHandler.handle(new Callback[] { passwordCallback });
 
             samlAssertion = toSamlAssertion(new String(passwordCallback.getPassword()));
             samlInfo = getSamlInfo(samlAssertion);
             setLoginSuccess(true);
-            logger.trace("Login successful for user {} with authentication level {}", samlInfo.getUid(), samlInfo.getAuthLevel());
+            LOG.trace("Login successful for user {} with authentication level {}", samlInfo.uid(), samlInfo.authLevel());
             return true;
         } catch (Exception e) {
             samlAssertion = null;
             samlInfo = null;
-            logger.trace("leave login: exception");
+            LOG.trace("leave login: exception");
             throw new LoginException(e.toString());// NOPMD
         }
     }
 
     @Override
     public void doCommit() throws LoginException {
-        sluttBruker = new SluttBruker(samlInfo.getUid(), getIdentType());
-        authenticationLevelCredential = new AuthenticationLevelCredential(samlInfo.getAuthLevel());
+        sluttBruker = new SluttBruker(samlInfo.uid(), getIdentType());
+        authenticationLevelCredential = new AuthenticationLevelCredential(samlInfo.authLevel());
         Element samlElement = samlAssertion.getDOM();
         samlAssertionCredential = new SAMLAssertionCredential(samlElement);
-        consumerId = new ConsumerId(samlInfo.getConsumerId());
+        consumerId = new ConsumerId(samlInfo.consumerId());
 
         subject.getPrincipals().add(sluttBruker);
         subject.getPrincipals().add(consumerId);
         subject.getPublicCredentials().add(authenticationLevelCredential);
         subject.getPublicCredentials().add(samlAssertionCredential);
 
-        logger.trace("Login committed for subject with uid: {} authentication level: {} and consumerId: {}",
+        LOG.trace("Login committed for subject with uid: {} authentication level: {} and consumerId: {}",
             sluttBruker.getName(), authenticationLevelCredential.getAuthenticationLevel(), consumerId);
     }
 
     private IdentType getIdentType() throws LoginException {
         IdentType identType;
         try {
-            identType = IdentType.valueOf(samlInfo.getIdentType());
+            identType = IdentType.valueOf(samlInfo.identType());
         } catch (IllegalArgumentException e) {
-            LoginException le = new LoginException("Could not commit. Unknown ident type: " + samlInfo.getIdentType() + " " + e);
+            LoginException le = new LoginException("Could not commit. Unknown ident type: " + samlInfo.identType() + " " + e);
             le.initCause(e);
             throw le;
         }
@@ -174,8 +174,8 @@ public class SamlLoginModule extends LoginModuleBase {
                 authLevel = attributeValue;
             } else if (CONSUMER_ID.equalsIgnoreCase(attributeName)) {
                 consumerId = attributeValue;
-            } else if (logger.isDebugEnabled()) {
-                logger.debug("Skipping SAML Attribute name: {} value: {}", LoggerUtils.removeLineBreaks(attribute.getName()),
+            } else if (LOG.isDebugEnabled()) {
+                LOG.debug("Skipping SAML Attribute name: {} value: {}", LoggerUtils.removeLineBreaks(attribute.getName()),
                     LoggerUtils.removeLineBreaks(attributeValue)); // NOSONAR
             }
         }

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class SAMLLogoutInterceptor implements PhaseInterceptor<SoapMessage> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SAMLLogoutInterceptor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SAMLLogoutInterceptor.class);
     private LoginContext loginContext;
 
     public SAMLLogoutInterceptor(LoginContext loginContext) {
@@ -38,7 +38,7 @@ public class SAMLLogoutInterceptor implements PhaseInterceptor<SoapMessage> {
         try {
             loginContext.logout();
         } catch (LoginException e) {
-            LOGGER.warn("Feilet utlogging", e);
+            LOG.warn("Feilet utlogging", e);
         }
     }
 

@@ -73,7 +73,7 @@ public class PdpConsumerImpl implements PdpConsumer {
             try {
                 return send(request);
             } catch (IntegrasjonException e) {
-                LOG.info("F-157387 IntegrasjonException ved kall {} til PDP", 2 - i, e);
+                LOG.trace("F-157387 IntegrasjonException ved kall {} til PDP", 2 - i, e);
             }
         }
         return send(request);

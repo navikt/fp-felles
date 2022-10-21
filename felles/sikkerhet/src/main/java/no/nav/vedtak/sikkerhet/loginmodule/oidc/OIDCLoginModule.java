@@ -35,7 +35,7 @@ import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
  */
 public class OIDCLoginModule extends LoginModuleBase {
 
-    private static final Logger logger = LoggerFactory.getLogger(OIDCLoginModule.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OIDCLoginModule.class);
 
     // Set during initialize()
     private Subject subject;
@@ -51,12 +51,11 @@ public class OIDCLoginModule extends LoginModuleBase {
     private OidcCredential oidcCredential;
 
     public OIDCLoginModule() {
-        super(logger);
+        super(LOG);
     }
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-        logger.trace("Initialize loginmodule with {} and {}", subject, callbackHandler);
         this.subject = subject;
         this.callbackHandler = callbackHandler;
     }
@@ -69,7 +68,6 @@ public class OIDCLoginModule extends LoginModuleBase {
         if (OidcLogin.LoginResult.SUCCESS.equals(resultat.loginResult())) {
             sluttBruker = resultat.subject();
             setLoginSuccess(true);
-            logger.trace("Login successful for user {}", sluttBruker);
             return true;
         }
         if (OidcLogin.LoginResult.ID_TOKEN_EXPIRED.equals(resultat.loginResult())) {
@@ -96,8 +94,6 @@ public class OIDCLoginModule extends LoginModuleBase {
         subject.getPrincipals().add(this.consumerId);
         subject.getPublicCredentials().add(authenticationLevelCredential);
         subject.getPublicCredentials().add(oidcCredential);
-
-        logger.trace("Login committed for user {}", sluttBruker);
     }
 
     @Override
@@ -141,8 +137,6 @@ public class OIDCLoginModule extends LoginModuleBase {
      * Called by login() to acquire the ID Token.
      */
     protected OpenIDToken getSSOToken() throws LoginException {
-        logger.trace("Getting the SSO-token from callback");
-
         if (callbackHandler == null) {
             throw new LoginException("No callbackhandler provided");
         }
@@ -153,7 +147,7 @@ public class OIDCLoginModule extends LoginModuleBase {
             callbackHandler.handle(new Callback[] { tokenCallback });
             return tokenCallback.getToken();
         } catch (IOException | UnsupportedCallbackException e) {
-            logger.debug("Error while handling getting token from callbackhandler: ", e);
+            LOG.debug("Error while handling getting token from callbackhandler: ", e);
             LoginException le = new LoginException();
             le.initCause(e);
             throw le;

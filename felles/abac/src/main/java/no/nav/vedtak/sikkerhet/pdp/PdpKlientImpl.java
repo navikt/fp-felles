@@ -72,8 +72,6 @@ public class PdpKlientImpl implements PdpKlient {
             return AbacResultat.AVSLÅTT_EGEN_ANSATT;
         }
         var ukjentadvice = denyAdvice.toString();
-        // TODO (JOL): fjerne etter midlertidig logging ifm overgang
-        LOG.info("Deny fra PDP uten kjent årsak, advice var: {}", ukjentadvice);
         return AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
     }
 

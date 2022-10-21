@@ -17,7 +17,7 @@ import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 public class NAVSTSClient extends STSClient {
     private static final Environment ENV = Environment.current();
 
-    private static final Logger logger = LoggerFactory.getLogger(NAVSTSClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NAVSTSClient.class);
     public static final String DISABLE_CACHE_KEY = "NAVSTSClient.DISABLE_CACHE";
     private static TokenStore tokenStore;
     private static SluttBruker systemSluttBruker = new SluttBruker(ENV.getProperty("systembruker.username"), IdentType.Systemressurs);
@@ -57,18 +57,18 @@ public class NAVSTSClient extends STSClient {
         if (samlToken != null) {
             SecurityToken token = new SecurityToken(samlToken.getSamlId(), samlToken.getTokenAsElement(), null);
             token.setPrincipal(principal);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Will use SAML-token found in subjectHandler: {}", tokenToString(token));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Will use SAML-token found in subjectHandler: {}", tokenToString(token));
             }
             return token;
         }
 
         if (Boolean.getBoolean(DISABLE_CACHE_KEY)) {
-            logger.debug("Cache is disabled, fetching from STS for user {}", userId);
+            LOG.debug("Cache is disabled, fetching from STS for user {}", userId);
             SecurityToken token = super.requestSecurityToken(appliesTo, action, requestType, binaryExchange);
             token.setPrincipal(principal);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Retrived token from STS: {}", tokenToString(token));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Retrived token from STS: {}", tokenToString(token));
             }
             return token;
         }
@@ -81,21 +81,21 @@ public class NAVSTSClient extends STSClient {
         SecurityToken token = tokenStore.getToken(key);
         String keyUtenSignatur = stripJwtSignatur(key);
         if (token == null) {
-            logger.debug("Missing token for user {}, cache key {}, fetching it from STS", userId, keyUtenSignatur); // NOSONAR
+            LOG.debug("Missing token for user {}, cache key {}, fetching it from STS", userId, keyUtenSignatur); // NOSONAR
             token = super.requestSecurityToken(appliesTo, action, requestType, binaryExchange);
             token.setPrincipal(principal);
             tokenStore.add(key, token);
         } else if (token.isExpired()) {
-            logger.debug("Token for user {}, cache key {} is expired ({}) fetching a new one from STS", userId, keyUtenSignatur, token.getExpires()); // NOSONAR
+            LOG.debug("Token for user {}, cache key {} is expired ({}) fetching a new one from STS", userId, keyUtenSignatur, token.getExpires()); // NOSONAR
             tokenStore.remove(key);
             token = super.requestSecurityToken(appliesTo, action, requestType, binaryExchange);
             token.setPrincipal(principal);
             tokenStore.add(key, token);
         } else {
-            logger.debug("Retrived token for user {}, cache key {} from tokenStore", userId, keyUtenSignatur); // NOSONAR
+            LOG.debug("Retrived token for user {}, cache key {} from tokenStore", userId, keyUtenSignatur); // NOSONAR
         }
-        if (logger.isTraceEnabled()) {
-            logger.trace("Retrived token: {}", tokenToString(token));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Retrived token: {}", tokenToString(token));
         }
         return token;
     }
@@ -138,7 +138,7 @@ public class NAVSTSClient extends STSClient {
 
     private synchronized void createTokenStore() throws Exception {
         if (tokenStore == null) {
-            logger.debug("Creating tokenStore");
+            LOG.debug("Creating tokenStore");
             tokenStore = TokenStoreFactory.newInstance().newTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, message);
         }
     }

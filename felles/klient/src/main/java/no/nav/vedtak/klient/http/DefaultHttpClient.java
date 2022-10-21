@@ -71,7 +71,7 @@ public final class DefaultHttpClient {
             try {
                 return doSendExpectBytearray(httpRequest);
             } catch (IntegrasjonException e) {
-                LOG.info("F-157390 IntegrasjonException ved kall {} til endepunkt {}", RETRIES - i, httpRequest.uri(), e);
+                LOG.trace("F-157390 IntegrasjonException ved kall {} til endepunkt {}", RETRIES - i, e);
             }
         }
         return doSendExpectBytearray(httpRequest);
@@ -83,7 +83,7 @@ public final class DefaultHttpClient {
             try {
                 return doSendExpectString(httpRequest);
             } catch (IntegrasjonException e) {
-                LOG.info("F-157390 IntegrasjonException ved kall {} til endepunkt {}", RETRIES - i, httpRequest.uri(), e);
+                LOG.trace("F-157390 IntegrasjonException ved kall {} til endepunkt {}", RETRIES - i, e);
             }
         }
         return doSendExpectString(httpRequest);

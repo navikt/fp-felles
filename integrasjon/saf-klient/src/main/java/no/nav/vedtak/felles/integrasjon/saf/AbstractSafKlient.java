@@ -70,7 +70,6 @@ public abstract class AbstractSafKlient implements Saf {
 
     @Override
     public byte[] hentDokument(HentDokumentQuery q) {
-        LOG.trace("Henter dokument");
         var path = UriBuilder.fromUri(restConfig.endpoint()).path(HENTDOKUMENT)
             .resolveTemplate("journalpostId", q.journalpostId())
             .resolveTemplate("dokumentInfoId", q.dokumentId())
@@ -78,7 +77,6 @@ public abstract class AbstractSafKlient implements Saf {
             .build();
         var request = RestRequest.newGET(path, restConfig);
         var doc = restKlient.sendReturnByteArray(request);
-        LOG.info("Hentet dokument OK");
         return doc;
     }
 
@@ -88,14 +86,12 @@ public abstract class AbstractSafKlient implements Saf {
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
-        LOG.trace("Eksekverer GraphQL query {}", req.getClass().getSimpleName());
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
         var request = RestRequest.newRequest(method, graphql, restConfig);
         var res = restKlient.send(request, clazz);
         if (res.hasErrors()) {
             return errorHandler.handleError(res.getErrors(), restConfig.endpoint(), F_240613);
         }
-        LOG.info("Eksekvert GraphQL query OK");
         return res;
     }
 

@@ -23,7 +23,7 @@ public class KeyStoreTool {
 
     private static RsaJsonWebKey jwk = null;
 
-    private static final Logger log = LoggerFactory.getLogger(KeyStoreTool.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KeyStoreTool.class);
 
     static {
 
@@ -44,7 +44,7 @@ public class KeyStoreTool {
 
             //KeyStoreTool.keystore = ks;
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | UnrecoverableEntryException e) {
-            log.error("Error during loading of keystore. Do you have your keystore in order, soldier?", e);
+            LOG.error("Error during loading of keystore. Do you have your keystore in order, soldier?", e);
             throw new RuntimeException(e);
         }
 
@@ -53,7 +53,7 @@ public class KeyStoreTool {
             jwk.setPrivateKey(myPrivateKey);
             jwk.setKeyId("1");
         } catch (JoseException e) {
-            log.error("Error during init of JWK: " + e);
+            LOG.error("Error during init of JWK: " + e);
             throw new RuntimeException(e);
         }
 
