@@ -25,18 +25,15 @@ public class ThreadLocalLoginModule extends LoginModuleBase {
 
     public ThreadLocalLoginModule() {
         super(LOG);
-        LOG.trace("Create");
     }
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-        LOG.trace("Initialize loginmodule");
         this.subject = subject;
     }
 
     @Override
     public boolean login() throws LoginException {
-        LOG.trace("Enter login method");
         setLoginSuccess(true);
         return true;
     }
@@ -44,12 +41,10 @@ public class ThreadLocalLoginModule extends LoginModuleBase {
     @Override
     public void doCommit() throws LoginException {
         getSubjectHandler().setSubject(subject);
-        LOG.trace("Login committed");
     }
 
     @Override
     protected void cleanUpSubject() {
-        LOG.trace("Cleanup subject");
         getSubjectHandler().setSubject(null);
     }
 
@@ -59,7 +54,6 @@ public class ThreadLocalLoginModule extends LoginModuleBase {
     }
 
     private ThreadLocalSubjectHandler getSubjectHandler() {
-        LOG.trace("get subject handler");
         var subjectHandler = SubjectHandler.getSubjectHandler();
         if (!(subjectHandler instanceof ThreadLocalSubjectHandler)) {
             throw new IllegalArgumentException(ThreadLocalLoginModule.class.getSimpleName() + " krever subject handler av klasse "

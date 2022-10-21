@@ -14,8 +14,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -24,8 +22,6 @@ import org.xml.sax.SAXException;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(OnBehalfOfWithOidcCallbackHandler.class);
 
     static Element getElement() throws IOException {
         return lagOnBehalfOfElement();

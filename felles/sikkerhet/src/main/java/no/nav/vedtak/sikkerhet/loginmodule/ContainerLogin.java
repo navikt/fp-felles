@@ -27,7 +27,7 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
  * (eks. prosesstask) slik at disse er autentisert.
  */
 public class ContainerLogin {
-    private static final Logger log = LoggerFactory.getLogger(ContainerLogin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ContainerLogin.class);
 
     private final LoginContext loginContext;
 
@@ -52,7 +52,7 @@ public class ContainerLogin {
         try {
             loginContext.logout();
         } catch (LoginException e) {
-            log.warn("Noe gikk galt ved utlogging", e);
+            LOG.warn("Noe gikk galt ved utlogging", e);
         }
         MDCOperations.removeUserId();
         MDCOperations.removeConsumerId();

@@ -14,7 +14,7 @@ import no.nav.vedtak.log.util.LoggerUtils;
 
 public class VLFaultListener implements FaultListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(VLFaultListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VLFaultListener.class);
 
     private final Set<Class<? extends Exception>> unntak = new HashSet<>();
 
@@ -28,9 +28,9 @@ public class VLFaultListener implements FaultListener {
         }
 
         if (rootCause instanceof VLException) {
-            logger.warn("VL exception", rootCause);
+            LOG.warn("VL exception", rootCause);
         } else {
-            logger.error("Uventet exception: {}", LoggerUtils.removeLineBreaks(description), rootCause); // NOSONAR
+            LOG.error("Uventet exception: {}", LoggerUtils.removeLineBreaks(description), rootCause); // NOSONAR
         }
         return false;
     }

@@ -89,7 +89,6 @@ public class AzureBrukerTokenKlient {
     public OpenIDToken oboExchangeToken(String uid, OpenIDToken incomingToken, String scopes) {
         var tokenFromCache = getCachedToken(uid, scopes);
         if (tokenFromCache != null && tokenFromCache.isNotExpired()) {
-            LOG.trace("Fant cached token for scope {}", scopes);
             return tokenFromCache.copy();
         }
         var data = "client_id=" + clientId +
