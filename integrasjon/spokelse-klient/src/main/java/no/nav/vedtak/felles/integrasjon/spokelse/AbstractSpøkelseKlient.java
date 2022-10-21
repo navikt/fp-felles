@@ -43,7 +43,7 @@ public abstract class AbstractSpøkelseKlient implements Spøkelse {
             var path = UriBuilder.fromUri(restConfig.endpoint())
                 .queryParam("fodselsnummer", fnr)
                 .build();
-            var request = RestRequest.newGET(path, restConfig).timeout(Duration.ofSeconds(60));
+            var request = RestRequest.newGET(path, restConfig).timeout(Duration.ofSeconds(40));
             var grunnlag = restKlient.send(request, SykepengeVedtak[].class);
             return Arrays.asList(grunnlag);
         } catch (Exception e) {
