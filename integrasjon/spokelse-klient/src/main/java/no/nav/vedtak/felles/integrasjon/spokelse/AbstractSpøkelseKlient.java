@@ -1,8 +1,11 @@
 package no.nav.vedtak.felles.integrasjon.spokelse;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -39,11 +42,20 @@ public abstract class AbstractSpøkelseKlient implements Spøkelse {
 
     @Override
     public List<SykepengeVedtak> hentGrunnlag(String fnr) {
+        return hentGrunnlag(fnr, null);
+    }
+
+    @Override
+    public List<SykepengeVedtak> hentGrunnlag(String fnr, LocalDate fom) {
+        return hentGrunnlag(fnr, fom, Duration.ofSeconds(30));
+    }
+
+    @Override
+    public List<SykepengeVedtak> hentGrunnlag(String fnr, LocalDate fom, Duration timeout) {
         try {
-            var path = UriBuilder.fromUri(restConfig.endpoint())
-                .queryParam("fodselsnummer", fnr)
-                .build();
-            var request = RestRequest.newGET(path, restConfig).timeout(Duration.ofSeconds(40));
+            var pathBuilder = UriBuilder.fromUri(restConfig.endpoint()).queryParam("fodselsnummer", fnr);
+            Optional.ofNullable(fom).ifPresent(f -> pathBuilder.queryParam("fom", f.format(DateTimeFormatter.ISO_LOCAL_DATE)));
+            var request = RestRequest.newGET(pathBuilder.build(), restConfig).timeout(timeout);
             var grunnlag = restKlient.send(request, SykepengeVedtak[].class);
             return Arrays.asList(grunnlag);
         } catch (Exception e) {
@@ -53,8 +65,13 @@ public abstract class AbstractSpøkelseKlient implements Spøkelse {
 
     @Override
     public List<SykepengeVedtak> hentGrunnlagFailSoft(String fnr) {
+        return hentGrunnlagFailSoft(fnr, null);
+    }
+
+    @Override
+    public List<SykepengeVedtak> hentGrunnlagFailSoft(String fnr, LocalDate fom) {
         try {
-            return hentGrunnlag(fnr);
+            return hentGrunnlag(fnr, fom);
         } catch (Exception e) {
             LOG.info("SPokelse felles: feil ved oppslag mot {}, returnerer ingen grunnlag", restConfig.endpoint(), e);
             return List.of();
