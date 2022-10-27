@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -64,7 +65,7 @@ public abstract class AbstractInfotrygdGrunnlag implements InfotrygdGrunnlag {
     }
 
     private static String konverter(LocalDate dato) {
-        var brukDato = dato == null ? LocalDate.now() : dato;
+        var brukDato = Optional.ofNullable(dato).orElseGet(LocalDate::now);
         return brukDato.format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
