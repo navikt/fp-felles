@@ -1,4 +1,4 @@
-name: Bygg og deploy
+name: Bygg
 
 on:
   push:
