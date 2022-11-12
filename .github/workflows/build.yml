@@ -3,48 +3,37 @@ name: Bygg og deploy
 on:
   push:
     branches:
-      - master         # Push events on master branch
+      - '**'
     paths-ignore:
       - '**.md'
       - '**.MD'
       - '.gitignore'
-      - 'LICENCE'
+      - 'LICENSE'
       - 'CODEOWNERS'
-      - 'dev/**'
+      - 'dokumentasjon/**'
+      - 'lokalutvikling/**'
+  schedule:
+    - cron: '0 4 * * 1'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
+  build-feature:
+    name: Build
+    uses: navikt/fp-gha-workflows/.github/workflows/build-feature.yml@main
+    with:
+      sonar-scan: true # default: false
+    secrets: inherit
 
-      - name: Setup maven
-        uses: whelk-io/maven-settings-xml-action@v21
-        with:
-          repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }]'
-          output_file: settings.xml
+    release-drafter:
+      name: Update
+      if: github.ref_name == 'master'
+      needs: build-app
+      uses: navikt/fp-gha-workflows/.github/workflows/release-drafter.yml@main
+      secrets: inherit
 
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          check-latest: true
-          cache: 'maven'
-      - name: Bygg og  test
-        shell: bash
-        run: |
-          echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn verify -e -B -s settings.xml -DtrimStackTrace=false
-          echo "Bygget og testet OK"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN  }}
-
-      - name: Release Drafter
-        uses: release-drafter/release-drafter@v5
-        if: success()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    snyk:
+      name: Snyk
+      needs: build-app
+      uses: navikt/fp-gha-workflows/.github/workflows/snyk.yml@main
+      with:
+        build-version: ${{ needs.build-app.outputs.build-version }}
+      secrets: inherit
