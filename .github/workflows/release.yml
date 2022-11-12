@@ -4,33 +4,9 @@ on:
     types: [published]
 
 jobs:
-  publish-release:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout latest code
-        uses: actions/checkout@v3
-        with:
-          ref: 'master'
-
-      - name: Setup maven
-        uses: whelk-io/maven-settings-xml-action@v21
-        with:
-          repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
-          output_file: settings.xml
-
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          check-latest: true
-          cache: 'maven'
-
-      - name: Publish artifact
-        env:
-          NEW_VERSION: ${{ github.event.release.tag_name }}
-        run: |
-          mvn -B -s settings.xml versions:set -DnewVersion=${NEW_VERSION}
-          mvn -B -s settings.xml clean deploy
+  release:
+    name: Feature
+    uses: navikt/fp-gha-workflows/.github/workflows/release-feature.yml@main
+    with:
+      release-version: ${{ github.event.release.tag_name }}
+    secrets: inherit

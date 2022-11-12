@@ -21,7 +21,8 @@
 	</modules>
 
 	<properties>
-		<java.version>17</java.version>
+        <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+        <sonar.projectKey>navikt_fp-felles</sonar.projectKey>
     </properties>
 
 	<build>
