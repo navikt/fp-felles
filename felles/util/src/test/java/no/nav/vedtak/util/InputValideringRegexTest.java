@@ -11,11 +11,6 @@ import org.junit.jupiter.api.Test;
 public class InputValideringRegexTest {
 
     @Test
-    public void asdasdasdas() throws Exception {
-        assertThat("26029323134").matches("^\\d{11}$");
-    }
-
-    @Test
     public void skal_matche_ulike_navn() throws Exception {
         assertThat("Gisle-Børge").matches(NAVN);
         assertThat("Kari Normann").matches(NAVN);
