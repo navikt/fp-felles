@@ -53,6 +53,7 @@ import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
@@ -183,6 +184,10 @@ public class OidcAuthModule implements ServerAuthModule {
         if (configuration.isEmpty()) {
             return FAILURE;
         }
+        if (OpenIDProvider.ISSO.equals(configuration.get().type())) {
+            LOG.info("OPENAM incoming openam");
+        }
+
         var expiresAt = claims.map(JwtUtil::getExpirationTime).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.get().type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, oidcToken.get(), null,
             refreshToken.orElseGet(() -> new TokenString(null)), expiresAt.toEpochMilli());
