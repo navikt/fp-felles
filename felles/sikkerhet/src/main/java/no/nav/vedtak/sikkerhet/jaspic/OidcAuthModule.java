@@ -43,10 +43,7 @@ import org.slf4j.MDC;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.isso.oidc.AzureADTokenProvider;
 import no.nav.vedtak.isso.oidc.OpenAmTokenProvider;
-import no.nav.vedtak.isso.ressurs.AzureAuthorizationRequestBuilder;
-import no.nav.vedtak.isso.ressurs.AzureConfigProperties;
 import no.nav.vedtak.isso.ressurs.IssoAuthorizationRequestBuilder;
 import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -211,12 +208,8 @@ public class OidcAuthModule implements ServerAuthModule {
     private Optional<OpenIDToken> refreshCookieTokenVedBehov(HttpServletRequest request, OpenIDToken token, JwtClaims claims) {
         if (OpenIDProvider.ISSO.equals(token.provider()) && openAmTokenProvider.isOpenAmTokenSoonExpired(token) && tokenLocator.isTokenFromCookie(request)
             && Set.of(OidcLogin.LoginResult.SUCCESS, OidcLogin.LoginResult.ID_TOKEN_EXPIRED).contains(OidcLogin.validerToken(token).loginResult())) {
+            LOG.info("OPENAM refresh token");
             return openAmTokenProvider.refreshOpenAmIdToken(token, Optional.ofNullable(claims).map(JwtUtil::getClientName).orElse(null));
-        }
-        if (AzureConfigProperties.isAzureEnabled() && OpenIDProvider.AZUREAD.equals(token.provider()) &&
-            AzureADTokenProvider.isAzureTokenSoonExpired(token) && tokenLocator.isTokenFromCookie(request)
-            && Set.of(OidcLogin.LoginResult.SUCCESS, OidcLogin.LoginResult.ID_TOKEN_EXPIRED).contains(OidcLogin.validerToken(token).loginResult())) {
-            return AzureADTokenProvider.refreshAzureIdToken(token);
         }
         return Optional.empty();
     }
@@ -312,13 +305,7 @@ public class OidcAuthModule implements ServerAuthModule {
                     || (authorizationHeader != null && authorizationHeader.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE))) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
             } else {
-                if (AzureConfigProperties.isAzureEnabled()) {
-                    AzureAuthorizationRequestBuilder builder = new AzureAuthorizationRequestBuilder();
-                    response.addCookie(
-                        lagCookie(builder.getStateIndex(), encode(getOriginalUrl(request)), ServerInfo.instance().getRelativeCallbackUrl(), null));
-                    response.sendRedirect(builder.buildRedirectString());
-                    return SEND_CONTINUE;
-                }
+                LOG.info("OPENAM redirect login pga tom header");
                 IssoAuthorizationRequestBuilder builder = new IssoAuthorizationRequestBuilder();
                 // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the
                 // state-cookie containing redirectURL shold be encrypted to avoid tampering)
