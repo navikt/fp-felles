@@ -18,6 +18,7 @@ public enum FpApplication {
     FPOPPDRAG,
     FPTILBAKE,
     FPDOKGEN,
+    FPWSPROXY,
     NONFP
     ;
 
@@ -28,18 +29,19 @@ public enum FpApplication {
     /*
      * Utelatt fpabonnent:8065
      */
-    private static final Map<FpApplication, Integer> LOCAL_PORTS = Map.of(
-        FpApplication.FPSAK, 8080,
-        FpApplication.FPABAKUS, 8015,
-        FpApplication.FPFORMIDLING, 8010,
-        FpApplication.FPRISK, 8075,
-        FpApplication.FPOPPDRAG, 8070,
-        FpApplication.FPTILBAKE, 8030,
-        FpApplication.FPFORDEL, 8090,
-        FpApplication.FPDOKGEN, 8291,
-        FpApplication.FPLOS, 8071,
-        FpApplication.FPINFO, 8040
-    );
+    private static final Map<FpApplication, Integer> LOCAL_PORTS = Map.ofEntries(
+        Map.entry(FpApplication.FPSAK, 8080),
+        Map.entry(FpApplication.FPABAKUS, 8015),
+        Map.entry(FpApplication.FPFORMIDLING, 8010),
+        Map.entry(FpApplication.FPRISK, 8075),
+        Map.entry(FpApplication.FPOPPDRAG, 8070),
+        Map.entry(FpApplication.FPTILBAKE, 8030),
+        Map.entry(FpApplication.FPFORDEL, 8090),
+        Map.entry(FpApplication.FPDOKGEN, 8291),
+        Map.entry(FpApplication.FPWSPROXY, 8292),
+        Map.entry(FpApplication.FPLOS, 8071),
+        Map.entry(FpApplication.FPINFO, 8040)
+        );
 
     public boolean specified() {
         return !NONFP.equals(this);
