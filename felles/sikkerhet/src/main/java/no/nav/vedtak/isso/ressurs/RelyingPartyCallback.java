@@ -12,7 +12,6 @@ import static no.nav.vedtak.sikkerhet.Constants.REFRESH_TOKEN_COOKIE_NAME;
 
 import java.net.URI;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -30,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.isso.oidc.AzureADTokenProvider;
 import no.nav.vedtak.isso.oidc.OpenAmTokenProvider;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorConfig;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
@@ -58,17 +56,10 @@ public class RelyingPartyCallback {
             return status(BAD_REQUEST).build();
         }
 
-        OpenIDToken token;
-        if (AzureConfigProperties.isAzureEnabled() && matcherAzureDomain(httpServletRequest)) {
-            token = AzureADTokenProvider.exhangeAzureAuthCode(authorizationCode, AzureConfigProperties.getAzureCallback());
-            if (!OidcTokenValidatorConfig.instance().getValidator(OpenIDProvider.AZUREAD).validate(token.primary()).isValid()) {
-                return status(FORBIDDEN).build();
-            }
-        } else {
-            token = new OpenAmTokenProvider().exhangeOpenAmAuthCode(authorizationCode, ServerInfo.instance().getCallbackUrl());
-            if (!OidcTokenValidatorConfig.instance().getValidator(OpenIDProvider.ISSO).validate(token.primary()).isValid()) {
-                return status(FORBIDDEN).build();
-            }
+        LOG.info("OPENAM rpcb exchange");
+        OpenIDToken token = new OpenAmTokenProvider().exhangeOpenAmAuthCode(authorizationCode, ServerInfo.instance().getCallbackUrl());
+        if (!OidcTokenValidatorConfig.instance().getValidator(OpenIDProvider.ISSO).validate(token.primary()).isValid()) {
+            return status(FORBIDDEN).build();
         }
 
         var builder = temporaryRedirect(URI.create(decode(redirect.getValue(), UTF_8)));
@@ -93,11 +84,6 @@ public class RelyingPartyCallback {
 
         builder.cacheControl(noCache());
         return builder.build();
-    }
-
-    private boolean matcherAzureDomain(HttpServletRequest httpServletRequest) {
-        var domain = AzureConfigProperties.getAzureDomain();
-        return domain != null && Optional.ofNullable(httpServletRequest).map(r -> r.getRequestURL().toString()).filter(u -> u.contains(domain)).isPresent();
     }
 
     private void cleanCookieJar(Response.ResponseBuilder builder, HttpHeaders headers) {
