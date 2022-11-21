@@ -36,6 +36,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.http.HttpHeader;
 import org.jose4j.jwt.JwtClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,7 +185,7 @@ public class OidcAuthModule implements ServerAuthModule {
             return FAILURE;
         }
         if (OpenIDProvider.ISSO.equals(configuration.get().type())) {
-            LOG.info("OPENAM incoming openam, target {}", request.getRequestURL().toString());
+            loggOpenAm(request, "incoming openam");
         }
 
         var expiresAt = claims.map(JwtUtil::getExpirationTime).orElseGet(() -> Instant.now().plusSeconds(300));
@@ -212,7 +213,6 @@ public class OidcAuthModule implements ServerAuthModule {
     private Optional<OpenIDToken> refreshCookieTokenVedBehov(HttpServletRequest request, OpenIDToken token, JwtClaims claims) {
         if (OpenIDProvider.ISSO.equals(token.provider()) && openAmTokenProvider.isOpenAmTokenSoonExpired(token) && tokenLocator.isTokenFromCookie(request)
             && Set.of(OidcLogin.LoginResult.SUCCESS, OidcLogin.LoginResult.ID_TOKEN_EXPIRED).contains(OidcLogin.validerToken(token).loginResult())) {
-            LOG.info("OPENAM refresh token");
             return openAmTokenProvider.refreshOpenAmIdToken(token, Optional.ofNullable(claims).map(JwtUtil::getClientName).orElse(null));
         }
         return Optional.empty();
@@ -309,7 +309,7 @@ public class OidcAuthModule implements ServerAuthModule {
                     || (authorizationHeader != null && authorizationHeader.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE))) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
             } else {
-                LOG.info("OPENAM redirect login pga tom header, target {}", request.getRequestURL().toString());
+                loggOpenAm(request, "redirect login pga tom header");
                 IssoAuthorizationRequestBuilder builder = new IssoAuthorizationRequestBuilder();
                 // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the
                 // state-cookie containing redirectURL shold be encrypted to avoid tampering)
@@ -321,6 +321,12 @@ public class OidcAuthModule implements ServerAuthModule {
             throw new TekniskException("F-396795", "Klarte ikke å sende respons", e);
         }
         return SEND_CONTINUE;
+    }
+
+    private void loggOpenAm(HttpServletRequest request, String message) {
+        var origins = Optional.ofNullable(request.getHeader(HttpHeader.ORIGIN.asString())).orElse("")
+            + "host:" + Optional.ofNullable(request.getHeader(HttpHeader.HOST.asString())).orElse("");
+        LOG.info("OPENAM {}, target {} origin {}", message, request.getRequestURL().toString(), origins);
     }
 
     private String encode(String redirectLocation) {
