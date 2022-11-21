@@ -53,7 +53,6 @@ import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
@@ -185,7 +184,7 @@ public class OidcAuthModule implements ServerAuthModule {
             return FAILURE;
         }
         if (OpenIDProvider.ISSO.equals(configuration.get().type())) {
-            LOG.info("OPENAM incoming openam");
+            LOG.info("OPENAM incoming openam, target {}", request.getRequestURL().toString());
         }
 
         var expiresAt = claims.map(JwtUtil::getExpirationTime).orElseGet(() -> Instant.now().plusSeconds(300));
@@ -310,7 +309,7 @@ public class OidcAuthModule implements ServerAuthModule {
                     || (authorizationHeader != null && authorizationHeader.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE))) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
             } else {
-                LOG.info("OPENAM redirect login pga tom header");
+                LOG.info("OPENAM redirect login pga tom header, target {}", request.getRequestURL().toString());
                 IssoAuthorizationRequestBuilder builder = new IssoAuthorizationRequestBuilder();
                 // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the
                 // state-cookie containing redirectURL shold be encrypted to avoid tampering)
