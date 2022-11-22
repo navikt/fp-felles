@@ -189,7 +189,7 @@ public final class OidcProviderConfig {
             !ENV.isLocal(), useProxy,
             ENV.getRequiredProperty(AZURE_CLIENT_ID),
             ENV.getProperty(AZURE_CLIENT_SECRET),
-            true);
+            !ENV.isDev());
     }
 
     private static OpenIDConfiguration createTokenXConfiguration(String wellKnownUrl) {
