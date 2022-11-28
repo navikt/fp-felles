@@ -58,16 +58,13 @@ public class ContainerLogin {
     }
 
     private LoginContext createLoginContext() {
-        CallbackHandler callbackHandler = new CallbackHandler() {
-            @Override
-            public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
-                for (var callback : callbacks) {
-                    if (callback instanceof TokenCallback tokenCallback) {
-                        tokenCallback.setToken(token);
-                    } else {
-                        // Should never happen
-                        throw new UnsupportedCallbackException(callback, TokenCallback.class + " is the only supported Callback");
-                    }
+        CallbackHandler callbackHandler = callbacks -> {
+            for (var callback : callbacks) {
+                if (callback instanceof TokenCallback tokenCallback) {
+                    tokenCallback.setToken(token);
+                } else {
+                    // Should never happen
+                    throw new UnsupportedCallbackException(callback, TokenCallback.class + " is the only supported Callback");
                 }
             }
         };

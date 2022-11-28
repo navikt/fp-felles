@@ -40,8 +40,7 @@ class TokenLocator {
     private Optional<TokenString> getTokenFromHeader(HttpServletRequest request) {
         String headerValue = request.getHeader("Authorization");
         return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE)
-                ? Optional.of(new TokenString(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length())))
-                : Optional.empty();
+            ? Optional.of(new TokenString(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length())))
+            : Optional.empty();
     }
-
 }
