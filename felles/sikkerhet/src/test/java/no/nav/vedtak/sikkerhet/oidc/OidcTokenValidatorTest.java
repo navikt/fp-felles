@@ -177,14 +177,12 @@ public class OidcTokenValidatorTest {
 
     @Test
     public void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_issuer() {
-        WellKnownConfigurationHelper.setWellKnownConfig("azureAD", "{}");
         var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(OpenIDProvider.AZUREAD, null, new JwksKeyHandlerFromString(KeyStoreTool.getJwks()), "OIDC"));
         assertTrue(e.getMessage().contains("Expected issuer must be configured"));
     }
 
     @Test
     public void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_audience() {
-        System.clearProperty(OidcProviderConfig.AZURE_CLIENT_ID);
         var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(OpenIDProvider.AZUREAD, OidcTokenGenerator.ISSUER, new JwksKeyHandlerFromString(KeyStoreTool.getJwks()), null));
         assertTrue(e.getMessage().contains("Expected audience must be configured"));
     }
@@ -238,7 +236,7 @@ public class OidcTokenValidatorTest {
     }
 
     private static class JwksKeyHandlerFromString extends JwksKeyHandlerImpl {
-        private JwksKeyHandlerFromString(String jwks) throws MalformedURLException {
+        private JwksKeyHandlerFromString(String jwks) {
             super(() -> jwks, URI.create("http://www.vg.no"));
         }
     }
