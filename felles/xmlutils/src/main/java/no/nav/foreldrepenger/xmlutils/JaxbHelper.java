@@ -1,19 +1,32 @@
 package no.nav.foreldrepenger.xmlutils;
 
-import org.xml.sax.SAXException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.NamespaceContext;
-import javax.xml.stream.*;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+
+import org.xml.sax.SAXException;
 
 public final class JaxbHelper {
     private static final Map<Class<?>, JAXBContext> CONTEXTS = new ConcurrentHashMap<>(); // NOSONAR

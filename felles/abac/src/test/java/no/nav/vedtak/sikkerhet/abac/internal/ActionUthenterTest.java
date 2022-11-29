@@ -1,13 +1,14 @@
 package no.nav.vedtak.sikkerhet.abac.internal;
 
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.ws.rs.Path;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
 class ActionUthenterTest {
 

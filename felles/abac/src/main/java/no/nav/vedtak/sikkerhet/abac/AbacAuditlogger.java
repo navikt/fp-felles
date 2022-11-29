@@ -1,20 +1,39 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import no.nav.vedtak.log.audit.*;
-import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
-import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import static java.util.Objects.requireNonNull;
+import static no.nav.vedtak.log.audit.CefFieldName.ABAC_ACTION;
+import static no.nav.vedtak.log.audit.CefFieldName.ABAC_RESOURCE_TYPE;
+import static no.nav.vedtak.log.audit.CefFieldName.BERORT_BRUKER_ID;
+import static no.nav.vedtak.log.audit.CefFieldName.EVENT_TIME;
+import static no.nav.vedtak.log.audit.CefFieldName.REQUEST;
+import static no.nav.vedtak.log.audit.CefFieldName.USER_ID;
+import static no.nav.vedtak.log.audit.CefFields.forBehandling;
+import static no.nav.vedtak.log.audit.CefFields.forSaksnummer;
+import static no.nav.vedtak.log.audit.EventClassId.AUDIT_ACCESS;
+import static no.nav.vedtak.log.audit.EventClassId.AUDIT_CREATE;
+import static no.nav.vedtak.log.audit.EventClassId.AUDIT_UPDATE;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.BEHANDLING_ID;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.BEHANDLING_UUID;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.FAGSAK_ID;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.SAKSNUMMER;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import java.util.*;
-import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
-import static no.nav.vedtak.log.audit.CefFieldName.*;
-import static no.nav.vedtak.log.audit.CefFields.forBehandling;
-import static no.nav.vedtak.log.audit.CefFields.forSaksnummer;
-import static no.nav.vedtak.log.audit.EventClassId.*;
-import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.*;
+import no.nav.vedtak.log.audit.Auditdata;
+import no.nav.vedtak.log.audit.AuditdataHeader;
+import no.nav.vedtak.log.audit.Auditlogger;
+import no.nav.vedtak.log.audit.CefField;
+import no.nav.vedtak.log.audit.EventClassId;
+import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 
 /**
  * Dette loggformatet er avklart med Arcsight. Eventuelle nye felter skal

@@ -1,14 +1,15 @@
 package no.nav.vedtak.tokenx;
 
-import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
-import no.nav.vedtak.sikkerhet.oidc.KeyStoreTool;
-import org.jose4j.jwt.MalformedClaimException;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.time.Instant;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.jose4j.jwt.MalformedClaimException;
+import org.junit.jupiter.api.Test;
+
+import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
+import no.nav.vedtak.sikkerhet.oidc.KeyStoreTool;
 
 public class TestAssertionGenerator {
 

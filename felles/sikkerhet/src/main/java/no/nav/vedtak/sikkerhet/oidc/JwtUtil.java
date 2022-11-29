@@ -1,6 +1,8 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import no.nav.vedtak.exception.TekniskException;
+import java.time.Instant;
+import java.util.List;
+
 import org.jose4j.base64url.Base64;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
@@ -9,8 +11,7 @@ import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
-import java.time.Instant;
-import java.util.List;
+import no.nav.vedtak.exception.TekniskException;
 
 public class JwtUtil {
 

@@ -1,9 +1,10 @@
 package no.nav.vedtak.sikkerhet.context.containers;
 
-import no.nav.foreldrepenger.konfig.Environment;
+import java.security.Principal;
 
 import javax.security.auth.Destroyable;
-import java.security.Principal;
+
+import no.nav.foreldrepenger.konfig.Environment;
 
 public final class ConsumerId implements Principal, Destroyable {
 

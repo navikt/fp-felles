@@ -1,8 +1,9 @@
 package no.nav.vedtak.sikkerhet.jaspic.soap;
 
-import javax.servlet.annotation.WebServlet;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.servlet.annotation.WebServlet;
 
 //FIXME (u139158): PK-44123 Denne bør få et fornuftig navn, men jeg er for sliten...
 public interface WSS4JProtectedServlet {

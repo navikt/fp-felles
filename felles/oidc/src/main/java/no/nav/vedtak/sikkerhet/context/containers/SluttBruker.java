@@ -1,9 +1,10 @@
 package no.nav.vedtak.sikkerhet.context.containers;
 
-import javax.security.auth.Destroyable;
 import java.security.Principal;
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import javax.security.auth.Destroyable;
 
 public final class SluttBruker implements Principal, Destroyable {
 

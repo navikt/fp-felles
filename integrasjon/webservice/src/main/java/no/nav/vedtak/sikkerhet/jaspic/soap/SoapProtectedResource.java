@@ -1,7 +1,12 @@
 package no.nav.vedtak.sikkerhet.jaspic.soap;
 
-import no.nav.vedtak.sikkerhet.jaspic.DelegatedProtectedResource;
-import org.apache.wss4j.dom.handler.WSHandlerConstants;
+import static javax.security.auth.message.AuthStatus.FAILURE;
+import static javax.security.auth.message.AuthStatus.SUCCESS;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.inject.spi.CDI;
 import javax.security.auth.Subject;
@@ -11,13 +16,10 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.message.AuthStatus;
 import javax.security.auth.message.callback.CallerPrincipalCallback;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
 
-import static javax.security.auth.message.AuthStatus.FAILURE;
-import static javax.security.auth.message.AuthStatus.SUCCESS;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
+
+import no.nav.vedtak.sikkerhet.jaspic.DelegatedProtectedResource;
 
 /**
  * Delegert protection fra OIDC Auth Module for håndtering av Soap på egen

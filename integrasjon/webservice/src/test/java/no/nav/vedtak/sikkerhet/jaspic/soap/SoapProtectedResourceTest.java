@@ -1,12 +1,14 @@
 package no.nav.vedtak.sikkerhet.jaspic.soap;
 
-import no.nav.vedtak.sikkerhet.jaspic.DelegatedProtectedResource;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.servlet.annotation.WebServlet;
 import java.util.ServiceLoader;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.servlet.annotation.WebServlet;
+
+import org.junit.jupiter.api.Test;
+
+import no.nav.vedtak.sikkerhet.jaspic.DelegatedProtectedResource;
 
 class SoapProtectedResourceTest {
 

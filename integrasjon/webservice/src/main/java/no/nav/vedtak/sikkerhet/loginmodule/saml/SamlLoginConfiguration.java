@@ -1,10 +1,11 @@
 package no.nav.vedtak.sikkerhet.loginmodule.saml;
 
-import no.nav.vedtak.sikkerhet.loginmodule.LoginConfiguration;
-import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
+import java.util.Collections;
 
 import javax.security.auth.login.AppConfigurationEntry;
-import java.util.Collections;
+
+import no.nav.vedtak.sikkerhet.loginmodule.LoginConfiguration;
+import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 
 /** Pluggbar login config for SAML. Plugges inn i {@link LoginContextConfiguration} vha. ServiceLoader. */
 public class SamlLoginConfiguration implements LoginConfiguration {

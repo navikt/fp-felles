@@ -1,9 +1,10 @@
 package no.nav.vedtak.sikkerhet.loginmodule.oidc;
 
-import no.nav.vedtak.sikkerhet.loginmodule.LoginConfiguration;
+import java.util.Map;
 
 import javax.security.auth.login.AppConfigurationEntry;
-import java.util.Map;
+
+import no.nav.vedtak.sikkerhet.loginmodule.LoginConfiguration;
 
 public class OIDCLoginConfiguration implements LoginConfiguration {
 

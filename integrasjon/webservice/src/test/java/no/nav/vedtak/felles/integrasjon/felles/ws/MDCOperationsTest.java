@@ -1,9 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
-import no.nav.vedtak.log.mdc.MDCOperations;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 class MDCOperationsTest {
 

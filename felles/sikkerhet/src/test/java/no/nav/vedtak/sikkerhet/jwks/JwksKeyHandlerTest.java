@@ -1,6 +1,6 @@
 package no.nav.vedtak.sikkerhet.jwks;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -11,7 +11,7 @@ import java.security.Key;
 import java.security.interfaces.RSAPublicKey;
 import java.util.function.Supplier;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class JwksKeyHandlerTest {
 

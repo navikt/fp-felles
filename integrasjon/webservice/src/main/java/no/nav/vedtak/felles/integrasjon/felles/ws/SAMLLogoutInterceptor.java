@@ -1,5 +1,12 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -7,12 +14,6 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 public class SAMLLogoutInterceptor implements PhaseInterceptor<SoapMessage> {
 

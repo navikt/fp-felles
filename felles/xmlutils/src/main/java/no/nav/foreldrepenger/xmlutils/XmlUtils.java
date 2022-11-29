@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.xmlutils;
 
-import no.nav.vedtak.exception.TekniskException;
-import org.xml.sax.SAXException;
+import java.io.StringReader;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
@@ -11,12 +15,10 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.StringReader;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import org.xml.sax.SAXException;
+
+import no.nav.vedtak.exception.TekniskException;
 
 public final class XmlUtils {
 

@@ -1,9 +1,15 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import static java.util.Objects.requireNonNull;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AbacDataAttributter {
 

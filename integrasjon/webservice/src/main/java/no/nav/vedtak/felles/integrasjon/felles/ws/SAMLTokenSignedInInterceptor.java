@@ -1,21 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
-import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.security.SecurityContext;
-import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
-import org.apache.wss4j.common.crypto.Crypto;
-import org.apache.wss4j.common.crypto.CryptoFactory;
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.apache.wss4j.common.principal.SAMLTokenPrincipal;
-import org.apache.wss4j.dom.handler.RequestData;
-import org.apache.wss4j.dom.handler.WSHandlerConstants;
-import org.opensaml.saml.saml2.core.Assertion;
-import org.w3c.dom.Element;
+import java.io.StringWriter;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -29,9 +16,24 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.StringWriter;
-import java.util.Map;
-import java.util.Properties;
+
+import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.security.SecurityContext;
+import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.CryptoFactory;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.principal.SAMLTokenPrincipal;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.w3c.dom.Element;
+
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 
 /**
  * CXF Soap interceptor som validerer SAML-token og logger caller inn i

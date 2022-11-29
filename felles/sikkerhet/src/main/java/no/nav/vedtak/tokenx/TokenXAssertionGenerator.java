@@ -1,9 +1,8 @@
 package no.nav.vedtak.tokenx;
 
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import java.net.URI;
+import java.util.Optional;
+
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jws.AlgorithmIdentifiers;
@@ -11,8 +10,10 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
-import java.net.URI;
-import java.util.Optional;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 final class TokenXAssertionGenerator {
 

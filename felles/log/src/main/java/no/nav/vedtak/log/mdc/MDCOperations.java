@@ -1,13 +1,14 @@
 package no.nav.vedtak.log.mdc;
 
-import org.slf4j.MDC;
+import static org.slf4j.MDC.get;
+import static org.slf4j.MDC.put;
 
-import javax.xml.namespace.QName;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.slf4j.MDC.get;
-import static org.slf4j.MDC.put;
+import javax.xml.namespace.QName;
+
+import org.slf4j.MDC;
 
 /**
  * Utility-klasse for kommunikasjon med MDC.

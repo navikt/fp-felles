@@ -1,16 +1,17 @@
 package no.nav.vedtak.felles.jpa;
 
-import org.hibernate.bytecode.enhance.spi.EnhancementContext;
-import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
-import org.hibernate.jpa.internal.enhance.EnhancingClassTransformerImpl;
+import java.net.URL;
+import java.util.List;
+import java.util.Properties;
 
 import javax.persistence.SharedCacheMode;
 import javax.persistence.ValidationMode;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
-import java.net.URL;
-import java.util.List;
-import java.util.Properties;
+
+import org.hibernate.bytecode.enhance.spi.EnhancementContext;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
+import org.hibernate.jpa.internal.enhance.EnhancingClassTransformerImpl;
 
 /** Bridging calls to PersistenceUnitDescriptor onto a PersistenceUnitInfo implementation. */
 class PersistenceUnitInfoDescriptorAdapter implements PersistenceUnitDescriptor {

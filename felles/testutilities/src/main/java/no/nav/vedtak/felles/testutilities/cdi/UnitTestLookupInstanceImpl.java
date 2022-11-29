@@ -1,10 +1,11 @@
 package no.nav.vedtak.felles.testutilities.cdi;
 
-import javax.enterprise.inject.Instance;
-import javax.enterprise.util.TypeLiteral;
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.enterprise.inject.Instance;
+import javax.enterprise.util.TypeLiteral;
 
 public class UnitTestLookupInstanceImpl<T> implements Instance<T> {
 

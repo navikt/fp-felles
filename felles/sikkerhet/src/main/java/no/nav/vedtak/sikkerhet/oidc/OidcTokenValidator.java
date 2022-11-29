@@ -1,5 +1,17 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
+import java.security.Key;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.MalformedClaimException;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.jwx.JsonWebStructure;
+
 import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.context.containers.IdentType;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
@@ -9,17 +21,6 @@ import no.nav.vedtak.sikkerhet.jwks.JwtHeader;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.jwt.MalformedClaimException;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-import org.jose4j.jwx.JsonWebStructure;
-
-import java.security.Key;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 public class OidcTokenValidator {
 

@@ -1,11 +1,11 @@
 package no.nav.vedtak.sikkerhet.oidc.token;
 
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
+
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 public record OpenIDToken(OpenIDProvider provider,
                           String tokenType,

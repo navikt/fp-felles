@@ -1,9 +1,12 @@
 package no.nav.vedtak.util;
 
-import org.junit.jupiter.api.Test;
-
-import static no.nav.vedtak.util.InputValideringRegex.*;
+import static no.nav.vedtak.util.InputValideringRegex.ADRESSE;
+import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
+import static no.nav.vedtak.util.InputValideringRegex.KODEVERK;
+import static no.nav.vedtak.util.InputValideringRegex.NAVN;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 public class InputValideringRegexTest {
 

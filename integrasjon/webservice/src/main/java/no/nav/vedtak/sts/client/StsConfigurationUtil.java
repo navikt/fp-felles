@@ -1,6 +1,9 @@
 package no.nav.vedtak.sts.client;
 
-import no.nav.foreldrepenger.konfig.Environment;
+import java.util.HashMap;
+
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.soap.Soap12;
@@ -22,8 +25,7 @@ import org.apache.cxf.ws.policy.attachment.reference.RemoteReferenceResolver;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.neethi.Policy;
 
-import javax.xml.namespace.QName;
-import java.util.HashMap;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @SuppressWarnings("deprecation")
 public class StsConfigurationUtil {

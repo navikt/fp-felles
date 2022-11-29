@@ -1,9 +1,9 @@
 package no.nav.vedtak.felles.jpa;
 
-import no.nav.vedtak.felles.jpa.savepoint.SavepointRolledbackException;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+
+import no.nav.vedtak.felles.jpa.savepoint.SavepointRolledbackException;
 
 /**
  * Transaction pattern. Implementer doWork for faktisk arbeid.

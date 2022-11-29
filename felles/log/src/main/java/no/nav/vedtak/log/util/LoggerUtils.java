@@ -1,13 +1,13 @@
 package no.nav.vedtak.log.util;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.function.Predicate.not;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.function.Predicate.not;
 
 public final class LoggerUtils {
 

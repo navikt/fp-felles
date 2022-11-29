@@ -1,13 +1,13 @@
 package no.nav.vedtak.sikkerhet.abac.internal;
 
+import java.util.Objects;
+
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
-
-import java.util.Objects;
 
 
 public class BeskyttetRessursAttributter {

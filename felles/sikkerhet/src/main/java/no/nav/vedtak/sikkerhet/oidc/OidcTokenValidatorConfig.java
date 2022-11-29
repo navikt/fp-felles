@@ -1,10 +1,10 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
-import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 public class OidcTokenValidatorConfig {
 

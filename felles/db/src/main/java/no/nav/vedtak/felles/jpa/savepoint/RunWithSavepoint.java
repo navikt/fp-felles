@@ -1,13 +1,14 @@
 package no.nav.vedtak.felles.jpa.savepoint;
 
-import org.hibernate.Session;
-import org.hibernate.jdbc.ReturningWork;
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-
-import javax.persistence.EntityManager;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
+
+import javax.persistence.EntityManager;
+
+import org.hibernate.Session;
+import org.hibernate.jdbc.ReturningWork;
+import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
 /**
  * Kjører et stykke jobb med et savepoint for rollback mot database. Gir samme
