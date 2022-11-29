@@ -1,8 +1,8 @@
 package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.util.Base64;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Standard header names for use in clients requesting / refreshing tokens

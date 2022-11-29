@@ -1,18 +1,12 @@
 package no.nav.vedtak.felles.testutilities.cdi;
 
-import java.util.function.Supplier;
-
-import javax.enterprise.inject.spi.AnnotatedType;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanAttributes;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.CDI;
-import javax.enterprise.inject.spi.InjectionTargetFactory;
-
 import org.jboss.weld.context.RequestContext;
 import org.jboss.weld.context.unbound.UnboundLiteral;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
+
+import javax.enterprise.inject.spi.*;
+import java.util.function.Supplier;
 
 /**
  * Instantierer Weld (CDI container) for enhetstesting.
@@ -39,7 +33,7 @@ public class WeldContext {
         initialize = this.weld.initialize();
 
     }
-    
+
     public BeanManager getBeanManager() {
         return initialize.getBeanManager();
     }

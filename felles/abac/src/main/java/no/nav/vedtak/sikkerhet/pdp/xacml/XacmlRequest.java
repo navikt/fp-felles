@@ -1,10 +1,10 @@
 package no.nav.vedtak.sikkerhet.pdp.xacml;
 
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
+import java.util.Map;
 
 public record XacmlRequest(@JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                            @JsonProperty("Request") Map<Category, List<Attributes>> request) {

@@ -1,21 +1,8 @@
 package no.nav.vedtak.sikkerhet.loginmodule.saml;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.login.LoginException;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import no.nav.vedtak.log.util.LoggerUtils;
+import no.nav.vedtak.sikkerhet.context.containers.*;
+import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -26,13 +13,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import no.nav.vedtak.log.util.LoggerUtils;
-import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
-import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
-import no.nav.vedtak.sikkerhet.context.containers.IdentType;
-import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
-import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
-import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.login.LoginException;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>

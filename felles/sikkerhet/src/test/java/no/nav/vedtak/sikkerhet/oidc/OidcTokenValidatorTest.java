@@ -231,6 +231,7 @@ public class OidcTokenValidatorTest {
 
     @AfterEach
     public void cleanSystemProperties() {
+        System.clearProperty(OidcProviderConfig.AZURE_CONFIG_JWKS_URI);
         System.clearProperty(OidcProviderConfig.AZURE_CONFIG_ISSUER);
         System.clearProperty(OidcProviderConfig.AZURE_CLIENT_ID);
     }

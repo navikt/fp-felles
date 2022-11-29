@@ -1,13 +1,12 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
-import static java.util.stream.Collectors.joining;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
+import no.nav.vedtak.exception.TekniskException;
 
 import java.net.URI;
 import java.util.List;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
-
-import no.nav.vedtak.exception.TekniskException;
+import static java.util.stream.Collectors.joining;
 
 public class SafErrorHandler {
 

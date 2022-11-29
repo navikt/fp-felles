@@ -1,9 +1,11 @@
 package no.nav.vedtak.sts.client;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -12,14 +14,10 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 

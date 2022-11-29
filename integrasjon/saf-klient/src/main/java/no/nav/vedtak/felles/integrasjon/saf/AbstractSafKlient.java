@@ -1,32 +1,20 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.util.List;
-
-import javax.ws.rs.core.UriBuilder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
-
-import no.nav.saf.Dokumentoversikt;
-import no.nav.saf.DokumentoversiktFagsakQueryRequest;
-import no.nav.saf.DokumentoversiktFagsakQueryResponse;
-import no.nav.saf.DokumentoversiktResponseProjection;
-import no.nav.saf.Journalpost;
-import no.nav.saf.JournalpostQueryRequest;
-import no.nav.saf.JournalpostQueryResponse;
-import no.nav.saf.JournalpostResponseProjection;
-import no.nav.saf.TilknyttedeJournalposterQueryRequest;
-import no.nav.saf.TilknyttedeJournalposterQueryResponse;
+import no.nav.saf.*;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.util.List;
 
 //@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "saf.base.url", endpointDefault = "https://saf.nais.adeo.no",
 //    scopesProperty = "saf.scopes", scopesDefault = "api://prod-fss.teamdokumenthandtering.saf/.default")

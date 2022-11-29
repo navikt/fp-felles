@@ -1,5 +1,9 @@
 package no.nav.vedtak.sts.client;
 
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.context.containers.IdentType;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -8,11 +12,6 @@ import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.context.containers.IdentType;
-import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 
 public class NAVSTSClient extends STSClient {
     private static final Environment ENV = Environment.current();

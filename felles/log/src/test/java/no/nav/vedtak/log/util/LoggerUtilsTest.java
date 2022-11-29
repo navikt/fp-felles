@@ -1,8 +1,8 @@
 package no.nav.vedtak.log.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class LoggerUtilsTest {
 

@@ -1,13 +1,12 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.VLException;
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.exception.VLException;
 
 public class JwtUtilTest {
 

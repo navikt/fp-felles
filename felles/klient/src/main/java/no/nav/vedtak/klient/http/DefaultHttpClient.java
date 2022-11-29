@@ -1,16 +1,15 @@
 package no.nav.vedtak.klient.http;
 
+import no.nav.vedtak.exception.IntegrasjonException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.vedtak.exception.IntegrasjonException;
 
 /**
  * Generic interface to using java.net.http.HttpClient using HttpKlientRequest to ensure callId and timeout

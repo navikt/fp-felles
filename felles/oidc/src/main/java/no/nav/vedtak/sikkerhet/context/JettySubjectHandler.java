@@ -1,14 +1,9 @@
 package no.nav.vedtak.sikkerhet.context;
 
-import java.util.Optional;
+import org.eclipse.jetty.server.*;
 
 import javax.security.auth.Subject;
-
-import org.eclipse.jetty.server.Authentication;
-import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.HttpConnection;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.UserIdentity;
+import java.util.Optional;
 
 public class JettySubjectHandler extends ThreadLocalSubjectHandler {
 

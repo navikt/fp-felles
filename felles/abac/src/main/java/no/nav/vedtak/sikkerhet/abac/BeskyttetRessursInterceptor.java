@@ -1,18 +1,5 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collection;
-
-import javax.annotation.Priority;
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
-
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -20,6 +7,17 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
+
+import javax.annotation.Priority;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
 
 @BeskyttetRessurs(actionType = ActionType.DUMMY, resource = "")
 @Interceptor

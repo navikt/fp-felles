@@ -1,10 +1,10 @@
 package no.nav.vedtak.util;
 
+import no.nav.vedtak.exception.VLException;
+
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import no.nav.vedtak.exception.VLException;
 
 public class StreamUtils {
 

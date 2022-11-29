@@ -1,17 +1,16 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
+import no.nav.vedtak.sikkerhet.abac.pdp.RessursData;
+import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataKey;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
-import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
-import no.nav.vedtak.sikkerhet.abac.pdp.RessursData;
-import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataKey;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class RessursAttributterTest {
 

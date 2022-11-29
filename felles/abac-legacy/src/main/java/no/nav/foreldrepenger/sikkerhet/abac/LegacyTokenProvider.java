@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.sikkerhet.abac;
 
-import javax.enterprise.context.Dependent;
-
 import no.nav.vedtak.sikkerhet.abac.TokenProvider;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+
+import javax.enterprise.context.Dependent;
 
 @Dependent
 public class LegacyTokenProvider implements TokenProvider {

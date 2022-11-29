@@ -1,13 +1,12 @@
 package no.nav.vedtak.log.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 
-import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MdcExtendedLogContextTest {
 

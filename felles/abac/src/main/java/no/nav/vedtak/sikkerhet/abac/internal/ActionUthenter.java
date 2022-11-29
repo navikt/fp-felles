@@ -1,11 +1,10 @@
 package no.nav.vedtak.sikkerhet.abac.internal;
 
-import java.lang.reflect.Method;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
 import javax.jws.WebMethod;
 import javax.ws.rs.Path;
-
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
+import java.lang.reflect.Method;
 
 public class ActionUthenter {
 

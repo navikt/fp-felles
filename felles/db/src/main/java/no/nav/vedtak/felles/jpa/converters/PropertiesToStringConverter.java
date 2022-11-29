@@ -1,12 +1,11 @@
 package no.nav.vedtak.felles.jpa.converters;
 
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
 /**
  * JPA konverterer for å skrive ned en key=value text til et databasefelt (output tilsvarer java.util.Properties

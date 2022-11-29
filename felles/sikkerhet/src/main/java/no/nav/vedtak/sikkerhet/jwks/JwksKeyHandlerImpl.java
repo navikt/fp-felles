@@ -1,6 +1,11 @@
 package no.nav.vedtak.sikkerhet.jwks;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import no.nav.vedtak.exception.TekniskException;
+import org.jose4j.jwk.JsonWebKey;
+import org.jose4j.jwk.JsonWebKeySet;
+import org.jose4j.lang.JoseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -15,13 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.jose4j.jwk.JsonWebKey;
-import org.jose4j.jwk.JsonWebKeySet;
-import org.jose4j.lang.JoseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.vedtak.exception.TekniskException;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
 

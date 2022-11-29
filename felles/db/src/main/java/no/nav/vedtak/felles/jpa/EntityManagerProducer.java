@@ -1,9 +1,10 @@
 package no.nav.vedtak.felles.jpa;
 
-import static io.micrometer.core.instrument.Metrics.globalRegistry;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.hibernate.SessionFactory;
+import org.hibernate.jpa.QueryHints;
+import org.hibernate.stat.HibernateMetrics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
@@ -14,12 +15,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
 import javax.persistence.Persistence;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.jpa.QueryHints;
-import org.hibernate.stat.HibernateMetrics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 
 /**

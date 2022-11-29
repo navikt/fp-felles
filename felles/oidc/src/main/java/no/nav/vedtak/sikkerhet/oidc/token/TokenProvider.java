@@ -1,18 +1,14 @@
 package no.nav.vedtak.sikkerhet.oidc.token;
 
-import java.net.URI;
-import java.util.Optional;
-
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.context.containers.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureBrukerTokenKlient;
-import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureSystemTokenKlient;
-import no.nav.vedtak.sikkerhet.oidc.token.impl.BrukerTokenProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.impl.StsSystemTokenKlient;
-import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
+import no.nav.vedtak.sikkerhet.oidc.token.impl.*;
+
+import java.net.URI;
+import java.util.Optional;
 
 public final class TokenProvider {
 

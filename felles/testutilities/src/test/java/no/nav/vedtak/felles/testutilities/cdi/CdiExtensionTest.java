@@ -1,22 +1,23 @@
 package no.nav.vedtak.felles.testutilities.cdi;
-import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(CdiAwareExtension.class)
 public class CdiExtensionTest {
 
     @Inject
     private AppBean appBean;
-    
+
     @Inject
     private ReqBean requestBean;
-    
+
     @Inject
     private DepBean depBean;
 
@@ -26,14 +27,14 @@ public class CdiExtensionTest {
         assertThat(appBean.getClass()).isNotEqualTo(AppBean.class);
         assertThat(appBean.hello()).isEqualTo("app");
     }
-    
+
     @Test
     void gotRequestScopedBean() throws Exception {
         assertThat(requestBean).isNotNull();
         assertThat(requestBean.getClass()).isNotEqualTo(ReqBean.class);
         assertThat(requestBean.hello()).isEqualTo("request");
     }
-    
+
     @Test
     void gotDependentScopedBean() throws Exception {
         assertThat(depBean).isNotNull();
@@ -50,7 +51,7 @@ class AppBean {
     public AppBean() {
 
     }
-    
+
     String hello() {
         return "app";
     }
@@ -64,7 +65,7 @@ class ReqBean {
     public ReqBean() {
 
     }
-    
+
     String hello() {
         return "request";
     }
@@ -78,7 +79,7 @@ class DepBean {
     public DepBean() {
 
     }
-    
+
     String hello() {
         return "dep";
     }
