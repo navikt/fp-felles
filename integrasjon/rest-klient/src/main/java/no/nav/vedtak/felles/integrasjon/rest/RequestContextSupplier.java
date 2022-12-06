@@ -9,9 +9,9 @@ public interface RequestContextSupplier {
 
     Supplier<String> consumerIdFor(SikkerhetContext context);
 
-    Supplier<OpenIDToken> tokenFor(SikkerhetContext context);
+    Supplier<OpenIDToken> tokenForSystem();
 
-    Supplier<OpenIDToken> azureTokenFor(SikkerhetContext context, String scopes);
+    Supplier<OpenIDToken> azureTokenForSystem(String scopes);
 
     Supplier<OpenIDToken> adaptive(SikkerhetContext context, String scopes);
 

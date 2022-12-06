@@ -7,7 +7,6 @@ import java.net.URLEncoder;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -50,40 +49,6 @@ public class AzureBrukerTokenKlient {
             INSTANCE = inst;
         }
         return inst;
-    }
-
-    public OpenIDToken exhangeAuthCode(String authorizationCode, String callback, String scopes) {
-        String data = "client_id=" + clientId +
-            "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
-            "&code=" + authorizationCode +
-            "&redirect_uri=" + URLEncoder.encode(callback, UTF_8) +
-            "&grant_type=authorization_code" +
-            "&client_secret=" + clientSecret;
-        var request = lagRequest(data);
-        var response = GeneriskTokenKlient.hentToken(request, azureProxy);
-        LOG.info("AzureBruker hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
-        return new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.access_token()),
-            scopes, new TokenString(response.refresh_token()), response.expires_in());
-
-    }
-
-    public Optional<OpenIDToken> refreshIdToken(OpenIDToken expiredToken, String scopes) {
-        if (expiredToken.refreshToken().isEmpty())
-            return Optional.empty();
-        var data = "client_id=" + clientId +
-            "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
-            "&refresh_token=" + expiredToken.refreshToken().get() +
-            "&grant_type=refresh_token" +
-            "&client_secret=" + clientSecret;
-        var request = lagRequest(data);
-        var response = GeneriskTokenKlient.hentToken(request, azureProxy);
-        LOG.info("AzureBruker hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
-        if (response.token_type() == null || response.expires_in() == null) {
-            return Optional.empty();
-        }
-        var token = new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.access_token()),
-            scopes, new TokenString(response.refresh_token()), response.expires_in());
-        return Optional.of(token);
     }
 
     public OpenIDToken oboExchangeToken(String uid, OpenIDToken incomingToken, String scopes) {
