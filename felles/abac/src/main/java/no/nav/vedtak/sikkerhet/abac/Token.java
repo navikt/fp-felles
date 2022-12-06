@@ -2,6 +2,7 @@ package no.nav.vedtak.sikkerhet.abac;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Optional;
 
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.consumer.InvalidJwtException;
@@ -9,6 +10,8 @@ import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.sikkerhet.context.containers.IdentType;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public class Token {
@@ -28,23 +31,37 @@ public class Token {
     private final String token;
     private final TokenType tokenType;
     private final OpenIDToken openIDToken;
+    private final IdentType identType;
 
-    private Token(String token, TokenType tokenType, OpenIDToken openIDToken) {
+    private Token(String token, TokenType tokenType, OpenIDToken openIDToken, IdentType identType) {
         this.token = token;
         this.tokenType = tokenType;
         this.openIDToken = openIDToken;
+        this.identType = identType;
     }
 
     public static Token withOidcToken(OpenIDToken token) {
-        return new Token(null, utledTokenType(token), token);
+        return new Token(null, utledTokenType(token), token, null);
+    }
+
+    public static Token withOidcToken(OpenIDToken token, IdentType identType) {
+        return new Token(null, utledTokenType(token), token, identType);
     }
 
     public static Token withSamlToken(String token) {
-        return new Token(token, TokenType.SAML, null);
+        return new Token(token, TokenType.SAML, null, null);
     }
 
     public TokenType getTokenType() {
         return tokenType;
+    }
+
+    public OpenIDProvider getOpenIDProvider() {
+        return Optional.ofNullable(openIDToken).map(OpenIDToken::provider).orElse(null);
+    }
+
+    public IdentType getIdentType() {
+        return identType;
     }
 
     private static TokenType utledTokenType(OpenIDToken token) {

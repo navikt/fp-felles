@@ -13,6 +13,8 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
+import no.nav.vedtak.sikkerhet.context.containers.IdentType;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 @Default
 @ApplicationScoped
@@ -56,7 +58,19 @@ public class PepImpl implements Pep {
         if (PIP.equals(beskyttetRessursAttributter.getResourceType())) {
             return vurderTilgangTilPipTjeneste(beskyttetRessursAttributter, appRessurser);
         }
+        if (lokalTilgangsbeslutning(beskyttetRessursAttributter)) {
+            return new Tilgangsbeslutning(GODKJENT, beskyttetRessursAttributter, appRessurser);
+        }
         return pdpKlient.forespørTilgang(beskyttetRessursAttributter, builder.abacDomene(), appRessurser);
+    }
+
+    // AzureAD CC kommer med sub som ikke ikke en bruker med vanlige AD-grupper og roller
+    // Token kan utvides med roles og groups - men oppsettet er langt fra det som er kjent fra STS mv.
+    // Kan legge inn filter på claims/roles intern og/eller ekstern.
+    private boolean lokalTilgangsbeslutning(BeskyttetRessursAttributter attributter) {
+        return builder.kanBeslutteSystemtilgangLokalt(attributter.getActionType(), attributter.getResourceType(), attributter.getServicePath()) &&
+            IdentType.Systemressurs.equals(attributter.getToken().getIdentType()) &&
+            OpenIDProvider.AZUREAD.equals(attributter.getToken().getOpenIDProvider());
     }
 
     protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
