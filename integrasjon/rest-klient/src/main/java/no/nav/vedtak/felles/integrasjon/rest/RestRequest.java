@@ -62,9 +62,11 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         super.timeout(DEFAULT_TIMEOUT);
         super.getBuilder().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
             .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-        this.authorization(selectTokenSupplier(tokenConfig, scopes, supplier))
-            .consumerId(selectConsumerId(tokenConfig, supplier))
-            .validator(RestRequest::validateRestHeaders);
+        this.consumerId(selectConsumerId(tokenConfig, supplier));
+        if (!TokenFlow.NO_AUTH_NEEDED.equals(tokenConfig)) {
+            this.authorization(selectTokenSupplier(tokenConfig, scopes, supplier))
+                .validator(RestRequest::validateRestHeaders);
+        }
         if (TokenFlow.STS_ADD_CONSUMER.equals(tokenConfig) || TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig)) {
             this.consumerToken(supplier, tokenConfig);
         }
@@ -162,6 +164,7 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
             case ADAPTIVE, ADAPTIVE_ADD_CONSUMER -> contextSupplier.adaptive(SikkerhetContext.BRUKER, scopes);
             case SYSTEM, STS_CC, STS_ADD_CONSUMER -> contextSupplier.tokenForSystem();
             case AZUREAD_CC -> contextSupplier.azureTokenForSystem(scopes);
+            case NO_AUTH_NEEDED -> throw new IllegalArgumentException("No supplier needed");
         };
     }
 

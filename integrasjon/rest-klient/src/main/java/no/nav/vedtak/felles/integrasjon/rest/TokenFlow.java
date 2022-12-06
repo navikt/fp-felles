@@ -7,7 +7,8 @@ public enum TokenFlow {
     SYSTEM, // Current system user
     STS_CC,
     STS_ADD_CONSUMER, // Midlertidig til vi har lagt om AAreg til Azure. Skyldes kontextkall i abakus
-    AZUREAD_CC
+    AZUREAD_CC,
+    NO_AUTH_NEEDED
     ;
 
     // Does the endpoint require an Azure AD token?
