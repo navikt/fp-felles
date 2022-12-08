@@ -54,7 +54,7 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
     private static final RequestContextSupplier CONTEXT_SUPPLIER = new OidcContextSupplier();
 
     private RestRequest() {
-        this(HttpRequest.newBuilder(), TokenFlow.CONTEXT, null, CONTEXT_SUPPLIER);
+        this(HttpRequest.newBuilder(), TokenFlow.ADAPTIVE, null, CONTEXT_SUPPLIER);
     }
 
     protected RestRequest(HttpRequest.Builder builder, TokenFlow tokenConfig, String scopes, RequestContextSupplier supplier) {
@@ -62,10 +62,12 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         super.timeout(DEFAULT_TIMEOUT);
         super.getBuilder().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
             .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-        this.authorization(selectTokenSupplier(tokenConfig, scopes, supplier))
-            .consumerId(selectConsumerId(tokenConfig, supplier))
-            .validator(RestRequest::validateRestHeaders);
-        if (TokenFlow.CONTEXT_ADD_CONSUMER.equals(tokenConfig) || TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig)) {
+        this.consumerId(selectConsumerId(tokenConfig, supplier));
+        if (!TokenFlow.NO_AUTH_NEEDED.equals(tokenConfig)) {
+            this.authorization(selectTokenSupplier(tokenConfig, scopes, supplier))
+                .validator(RestRequest::validateRestHeaders);
+        }
+        if (TokenFlow.STS_ADD_CONSUMER.equals(tokenConfig) || TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig)) {
             this.consumerToken(supplier, tokenConfig);
         }
     }
@@ -160,10 +162,9 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
     private static Supplier<OpenIDToken> selectTokenSupplier(TokenFlow tokenConfig, String scopes, RequestContextSupplier contextSupplier) {
         return switch (tokenConfig) {
             case ADAPTIVE, ADAPTIVE_ADD_CONSUMER -> contextSupplier.adaptive(SikkerhetContext.BRUKER, scopes);
-            case CONTEXT, CONTEXT_ADD_CONSUMER -> contextSupplier.tokenFor(SikkerhetContext.BRUKER);
-            case CONTEXT_AZURE -> contextSupplier.azureTokenFor(SikkerhetContext.BRUKER, scopes);
-            case SYSTEM, STS_CC -> contextSupplier.tokenFor(SikkerhetContext.SYSTEM);
-            case AZUREAD_CC -> contextSupplier.azureTokenFor(SikkerhetContext.SYSTEM, scopes);
+            case SYSTEM, STS_CC, STS_ADD_CONSUMER -> contextSupplier.tokenForSystem();
+            case AZUREAD_CC -> contextSupplier.azureTokenForSystem(scopes);
+            case NO_AUTH_NEEDED -> throw new IllegalArgumentException("No supplier needed");
         };
     }
 

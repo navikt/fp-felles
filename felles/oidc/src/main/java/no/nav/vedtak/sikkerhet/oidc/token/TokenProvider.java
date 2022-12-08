@@ -16,26 +16,19 @@ import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
 
 public final class TokenProvider {
 
-
-    public static OpenIDToken getTokenFor(SikkerhetContext context) {
-        return switch (context) {
-            case BRUKER -> getTokenFraContextFor(OpenIDProvider.ISSO, null, true);
-            case SYSTEM -> getStsSystemToken();
-        };
+    private TokenProvider() {
     }
 
-    public static OpenIDToken getTokenUtenSamlFallback(SikkerhetContext context) {
-        return switch (context) {
-            case BRUKER -> getTokenFraContextFor(OpenIDProvider.ISSO, null, false);
-            case SYSTEM -> getStsSystemToken();
-        };
+    public static OpenIDToken getTokenForSystem() {
+        return getTokenForSystem(OpenIDProvider.STS, null);
     }
 
-    public static OpenIDToken getTokenFor(SikkerhetContext context, OpenIDProvider provider, String scopes) {
-        return switch (context) {
-            case BRUKER -> getTokenFraContextFor(provider, scopes, true);
-            case SYSTEM -> OpenIDProvider.AZUREAD.equals(provider) ? getAzureSystemToken(scopes) : getStsSystemToken();
-        };
+    public static OpenIDToken getTokenXUtenSamlFallback() {
+        return getTokenFraContextFor(OpenIDProvider.TOKENX, null, false);
+    }
+
+    public static OpenIDToken getTokenForSystem(OpenIDProvider provider, String scopes) {
+        return OpenIDProvider.AZUREAD.equals(provider) ? getAzureSystemToken(scopes) : getStsSystemToken();
     }
 
     public static OpenIDToken getTokenFromCurrent(SikkerhetContext context, String scopes) {
@@ -64,15 +57,15 @@ public final class TokenProvider {
         }
     }
 
-    public static OpenIDToken getStsSystemToken() {
+    private static OpenIDToken getStsSystemToken() {
         return StsSystemTokenKlient.hentAccessToken();
     }
 
-    public static OpenIDToken getAzureSystemToken(String scopes) {
+    private static OpenIDToken getAzureSystemToken(String scopes) {
         return AzureSystemTokenKlient.instance().hentAccessToken(scopes);
     }
 
-    public static OpenIDToken veksleAzureAccessToken(OpenIDToken incoming, String scopes) {
+    private static OpenIDToken veksleAzureAccessToken(OpenIDToken incoming, String scopes) {
         var uid = BrukerTokenProvider.getUserId();
         return AzureBrukerTokenKlient.instance().oboExchangeToken(uid, incoming, scopes);
     }
@@ -130,7 +123,7 @@ public final class TokenProvider {
     }
 
     private static OpenIDProvider getProvider(OpenIDToken token) {
-        return Optional.ofNullable(token).map(OpenIDToken::provider).orElse(OpenIDProvider.ISSO);
+        return Optional.ofNullable(token).map(OpenIDToken::provider).orElse(null);
     }
 
 }

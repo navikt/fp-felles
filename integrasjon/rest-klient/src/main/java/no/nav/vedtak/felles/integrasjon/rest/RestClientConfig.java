@@ -19,7 +19,7 @@ public @interface RestClientConfig {
      * Type of token and flow required by the endpoint
      */
     @Nonbinding
-    TokenFlow tokenConfig() default TokenFlow.CONTEXT;
+    TokenFlow tokenConfig() default TokenFlow.ADAPTIVE;
 
     /**
      * Application running in the namespace of Team Foreldrepenger. Implies endpoint (and later on scopes)

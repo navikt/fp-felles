@@ -8,7 +8,7 @@ import java.net.http.HttpRequest;
 public final class RestRequestExperimental extends RestRequest {
 
     private RestRequestExperimental() {
-        super(HttpRequest.newBuilder(), TokenFlow.CONTEXT, null, new OidcContextSupplier());
+        super(HttpRequest.newBuilder(), TokenFlow.ADAPTIVE, null, new OidcContextSupplier());
     }
 
     public RestRequestExperimental(HttpRequest.Builder builder, TokenFlow tokenConfig, String scopes, RequestContextSupplier supplier) {

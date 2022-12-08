@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /**
@@ -28,7 +27,7 @@ public final class TokenXchange {
     }
 
     public static OpenIDToken exchange(URI targetEndpoint) {
-        var token = TokenProvider.getTokenUtenSamlFallback(SikkerhetContext.BRUKER);
+        var token = TokenProvider.getTokenXUtenSamlFallback();
         return exchange(token, targetEndpoint);
     }
 

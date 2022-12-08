@@ -36,7 +36,7 @@ public record RestConfig(TokenFlow tokenConfig, URI endpoint, String scopes, URI
     }
 
     private static final Environment ENV = Environment.current();
-    private static final Set<TokenFlow> REQUIRE_SCOPE = Set.of(TokenFlow.AZUREAD_CC, TokenFlow.CONTEXT_AZURE);
+    private static final Set<TokenFlow> REQUIRE_SCOPE = Set.of(TokenFlow.AZUREAD_CC);
 
     private static URI endpointFromAnnotation(RestClientConfig config) {
         return fromAnnotation(config, FpApplication::contextPathFor, RestClientConfig::endpointProperty, RestClientConfig::endpointDefault)

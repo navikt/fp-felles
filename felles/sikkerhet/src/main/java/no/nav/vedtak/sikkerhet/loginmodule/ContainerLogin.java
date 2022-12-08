@@ -19,7 +19,6 @@ import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /**
@@ -83,7 +82,7 @@ public class ContainerLogin {
 
     private void ensureWeHaveTokens() {
         if (token == null) {
-            token = TokenProvider.getTokenFor(SikkerhetContext.SYSTEM);
+            token = TokenProvider.getTokenForSystem();
         }
     }
 
