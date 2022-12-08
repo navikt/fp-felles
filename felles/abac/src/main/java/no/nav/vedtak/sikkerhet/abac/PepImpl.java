@@ -3,45 +3,51 @@ package no.nav.vedtak.sikkerhet.abac;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
 
+import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
 import no.nav.vedtak.sikkerhet.context.containers.IdentType;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 @Default
 @ApplicationScoped
 public class PepImpl implements Pep {
     private static final String PIP = ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
+    private static final Environment ENV = Environment.current();
 
     private PdpKlient pdpKlient;
     private PdpRequestBuilder builder;
 
     private Set<String> pipUsers;
     private TokenProvider tokenProvider;
-    private AbacAuditlogger auditlogger;
+    private String preAuthorized;
+    private String residentClusterNamespace;
 
     public PepImpl() {
     }
 
     @Inject
-    public PepImpl(PdpKlient pdpKlient,
-            TokenProvider tokenProvider,
-            PdpRequestBuilder pdpRequestBuilder,
-            AbacAuditlogger auditlogger,
-            @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
+    public PepImpl(PdpKlient pdpKlient, TokenProvider tokenProvider, PdpRequestBuilder pdpRequestBuilder,
+                   @KonfigVerdi(value = "pip.users", required = false) String pipUsers,
+                   @KonfigVerdi(value = "AZURE_APP_PRE_AUTHORIZED_APPS", required = false) String preAuthorized
+                   ) {
         this.pdpKlient = pdpKlient;
         this.builder = pdpRequestBuilder;
         this.tokenProvider = tokenProvider;
-        this.auditlogger = auditlogger;
         this.pipUsers = konfigurePipUsers(pipUsers);
+        this.preAuthorized = preAuthorized; // eg json array av objekt("name", "clientId")
+        this.residentClusterNamespace = ENV.clusterName() + ":" + ENV.namespace();
     }
 
     protected Set<String> konfigurePipUsers(String pipUsers) {
@@ -58,8 +64,8 @@ public class PepImpl implements Pep {
         if (PIP.equals(beskyttetRessursAttributter.getResourceType())) {
             return vurderTilgangTilPipTjeneste(beskyttetRessursAttributter, appRessurser);
         }
-        if (lokalTilgangsbeslutning(beskyttetRessursAttributter)) {
-            return new Tilgangsbeslutning(GODKJENT, beskyttetRessursAttributter, appRessurser);
+        if (skalForetaLokalTilgangsbeslutning(beskyttetRessursAttributter)) {
+            return new Tilgangsbeslutning(harTilgang(beskyttetRessursAttributter) ? GODKJENT : AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessurser);
         }
         return pdpKlient.forespørTilgang(beskyttetRessursAttributter, builder.abacDomene(), appRessurser);
     }
@@ -67,20 +73,31 @@ public class PepImpl implements Pep {
     // AzureAD CC kommer med sub som ikke ikke en bruker med vanlige AD-grupper og roller
     // Token kan utvides med roles og groups - men oppsettet er langt fra det som er kjent fra STS mv.
     // Kan legge inn filter på claims/roles intern og/eller ekstern.
-    private boolean lokalTilgangsbeslutning(BeskyttetRessursAttributter attributter) {
-        return builder.kanBeslutteSystemtilgangLokalt(attributter.getActionType(), attributter.getResourceType(), attributter.getServicePath()) &&
-            IdentType.Systemressurs.equals(attributter.getToken().getIdentType()) &&
-            OpenIDProvider.AZUREAD.equals(attributter.getToken().getOpenIDProvider());
+    private boolean skalForetaLokalTilgangsbeslutning(BeskyttetRessursAttributter attributter) {
+        var identType = Optional.ofNullable(attributter.getToken().getSluttBruker()).map(SluttBruker::getIdentType).orElse(null);
+        var consumer = Optional.ofNullable(attributter.getToken().getSluttBruker()).map(SluttBruker::getName).orElse(null);
+        return OpenIDProvider.AZUREAD.equals(attributter.getToken().getOpenIDProvider())
+            && IdentType.Systemressurs.equals(identType) && consumer != null && preAuthorized != null;
+    }
+
+    private boolean harTilgang(BeskyttetRessursAttributter attributter) {
+        var consumer = Optional.ofNullable(attributter.getToken().getSluttBruker()).map(SluttBruker::getName).orElse(null);
+        if (consumer == null || !preAuthorized.contains(consumer)) {
+            return false;
+        }
+        if (consumer.startsWith(residentClusterNamespace) || builder.internAzureConsumer(consumer)) {
+            return true;
+        }
+        return AvailabilityType.ALL.equals(attributter.getAvailabilityType());
     }
 
     protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
         String uid = tokenProvider.getUid();
         if (pipUsers.contains(uid.toLowerCase())) {
             return new Tilgangsbeslutning(GODKJENT, beskyttetRessursAttributter, appRessursData);
+        } else {
+            return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessursData);
         }
-        var tilgangsbeslutning = new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessursData);
-        auditlogger.loggDeny(uid, tilgangsbeslutning);
-        return tilgangsbeslutning;
     }
 
 }

@@ -4,7 +4,6 @@ import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESO
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -16,11 +15,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
+import no.nav.vedtak.sikkerhet.context.containers.IdentType;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 @ExtendWith(MockitoExtension.class)
 class PepImplTest {
@@ -38,8 +43,8 @@ class PepImplTest {
         pep = new PepImpl(pdpKlientMock,
             tokenProvider,
             pdpRequestBuilder,
-            mock(AbacAuditlogger.class),
-            "SRVFPLOS,SRVPDP");
+            "SRVFPLOS,SRVPDP",
+            "local:default:application, local:annetnamespace:eksternapplication");
     }
 
     @Test
@@ -63,6 +68,48 @@ class PepImplTest {
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
+        verifyNoInteractions(pdpKlientMock);
+    }
+
+    @Test
+    void skal_gi_tilgang_for_intern_azure_cc() {
+        var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
+        var sluttbruker = new SluttBruker("local:default:application", IdentType.Systemressurs);
+        when(tokenProvider.getUid()).thenReturn("local:default:application");
+        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, sluttbruker);
+
+        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
+
+        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        assertThat(permit.fikkTilgang()).isTrue();
+        verifyNoInteractions(pdpKlientMock);
+    }
+
+    @Test
+    void skal_gi_avslag_for_ekstern_azure_cc() {
+        var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
+        var sluttbruker = new SluttBruker("local:annetnamespace:ukjentapplication", IdentType.Systemressurs);
+        when(tokenProvider.getUid()).thenReturn("local:annetnamespace:ukjentapplication");
+        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, sluttbruker);
+
+        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
+
+        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        assertThat(permit.fikkTilgang()).isFalse();
+        verifyNoInteractions(pdpKlientMock);
+    }
+
+    @Test
+    void skal_gi_tilgang_for_godkjent_ekstern_azure_cc() {
+        var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
+        var sluttbruker = new SluttBruker("local:annetnamespace:eksternapplication", IdentType.Systemressurs);
+        when(tokenProvider.getUid()).thenReturn("local:annetnamespace:eksternapplication");
+        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, sluttbruker);
+
+        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
+
+        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(pdpKlientMock);
     }
 
@@ -98,6 +145,20 @@ class PepImplTest {
             .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
             .medResourceType(RESOURCE_TYPE_INTERNAL_PIP)
             .medActionType(ActionType.READ)
+            .medPepId("local-app")
+            .medServicePath("/metode")
+            .medServiceType(ServiceType.REST)
+            .medDataAttributter(AbacDataAttributter.opprett())
+            .build();
+    }
+
+    private BeskyttetRessursAttributter lagBeskyttetRessursAttributterAzure(AvailabilityType availabilityType, OpenIDToken token, SluttBruker sluttBruker) {
+        return BeskyttetRessursAttributter.builder()
+            .medUserId(tokenProvider.getUid())
+            .medToken(Token.withOidcToken(token, sluttBruker))
+            .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK)
+            .medActionType(ActionType.READ)
+            .medAvailabilityType(availabilityType)
             .medPepId("local-app")
             .medServicePath("/metode")
             .medServiceType(ServiceType.REST)

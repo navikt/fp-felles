@@ -10,7 +10,7 @@ import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.sikkerhet.context.containers.IdentType;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
@@ -31,21 +31,21 @@ public class Token {
     private final String token;
     private final TokenType tokenType;
     private final OpenIDToken openIDToken;
-    private final IdentType identType;
+    private final SluttBruker sluttBruker;
 
-    private Token(String token, TokenType tokenType, OpenIDToken openIDToken, IdentType identType) {
+    private Token(String token, TokenType tokenType, OpenIDToken openIDToken, SluttBruker sluttBruker) {
         this.token = token;
         this.tokenType = tokenType;
         this.openIDToken = openIDToken;
-        this.identType = identType;
+        this.sluttBruker = sluttBruker;
     }
 
     public static Token withOidcToken(OpenIDToken token) {
         return new Token(null, utledTokenType(token), token, null);
     }
 
-    public static Token withOidcToken(OpenIDToken token, IdentType identType) {
-        return new Token(null, utledTokenType(token), token, identType);
+    public static Token withOidcToken(OpenIDToken token, SluttBruker sluttBruker) {
+        return new Token(null, utledTokenType(token), token, sluttBruker);
     }
 
     public static Token withSamlToken(String token) {
@@ -60,8 +60,8 @@ public class Token {
         return Optional.ofNullable(openIDToken).map(OpenIDToken::provider).orElse(null);
     }
 
-    public IdentType getIdentType() {
-        return identType;
+    public SluttBruker getSluttBruker() {
+        return sluttBruker;
     }
 
     private static TokenType utledTokenType(OpenIDToken token) {

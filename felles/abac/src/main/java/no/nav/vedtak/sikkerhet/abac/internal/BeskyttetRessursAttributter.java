@@ -5,6 +5,7 @@ import java.util.Objects;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
@@ -15,6 +16,7 @@ public class BeskyttetRessursAttributter {
     private ServiceType serviceType;
     private ActionType actionType;
     private String resourceType;
+    private AvailabilityType availabilityType;
     private Token token;
     private String pepId;
     private String servicePath;
@@ -30,6 +32,10 @@ public class BeskyttetRessursAttributter {
 
     public ServiceType getServiceType() {
         return serviceType;
+    }
+
+    public AvailabilityType getAvailabilityType() {
+        return availabilityType;
     }
 
     public ActionType getActionType() {
@@ -89,6 +95,11 @@ public class BeskyttetRessursAttributter {
 
         public Builder medActionType(ActionType actionType) {
             pdpRequest.actionType = actionType;
+            return this;
+        }
+
+        public Builder medAvailabilityType(AvailabilityType availabilityType) {
+            pdpRequest.availabilityType = availabilityType;
             return this;
         }
 

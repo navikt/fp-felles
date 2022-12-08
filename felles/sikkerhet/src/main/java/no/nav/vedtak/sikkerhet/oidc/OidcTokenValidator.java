@@ -137,9 +137,13 @@ public class OidcTokenValidator {
     }
 
     private OidcTokenValidatorResult validateAzure(JwtClaims claims, String subject) throws MalformedClaimException {
-        var brukSubject = Optional.ofNullable(claims.getStringClaimValue("NAVident")).orElse(subject);
-        var identType = isAzureClientCredentials(claims, subject) ? IdentType.Systemressurs : IdentType.InternBruker;
-        return OidcTokenValidatorResult.valid(new SluttBruker(brukSubject, identType), claims.getExpirationTime().getValue());
+        if (isAzureClientCredentials(claims, subject)) {
+            var brukSubject = Optional.ofNullable(claims.getStringClaimValue("azp_name")).orElse(subject);
+            return OidcTokenValidatorResult.valid(new SluttBruker(brukSubject, IdentType.Systemressurs), claims.getExpirationTime().getValue());
+        } else {
+            var brukSubject = Optional.ofNullable(claims.getStringClaimValue("NAVident")).orElse(subject);
+            return OidcTokenValidatorResult.valid(new SluttBruker(brukSubject, IdentType.InternBruker), claims.getExpirationTime().getValue());
+        }
     }
 
     // Established practice: oid = sub -> CC-flow

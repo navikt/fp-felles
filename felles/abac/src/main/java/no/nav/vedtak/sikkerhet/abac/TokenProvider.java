@@ -1,6 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import no.nav.vedtak.sikkerhet.context.containers.IdentType;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 /**
@@ -17,7 +17,7 @@ public interface TokenProvider {
     /**
      * Kategori bruker utledet i tokenvalidering
      */
-    IdentType getIdentType();
+    SluttBruker getSluttBruker();
 
     /**
      * OIDC tokenet til brukeren. Helst fra følgende providere: Tokendings, AzureAD, STS, OpenAM.
