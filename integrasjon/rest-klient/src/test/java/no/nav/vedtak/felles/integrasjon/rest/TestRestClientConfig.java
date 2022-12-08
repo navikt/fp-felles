@@ -11,7 +11,7 @@ public class TestRestClientConfig {
     @Test
     void testCase_app_med_endpoint_property_uten_verdi() {
         var config = RestConfig.forClient(TestAbakusMedEndpointProperty.class);
-        assertThat(config.tokenConfig()).isEqualTo(TokenFlow.CONTEXT);
+        assertThat(config.tokenConfig()).isEqualTo(TokenFlow.ADAPTIVE);
         assertThat(config.scopes()).isEqualTo(FpApplication.scopesFor(FpApplication.FPABAKUS));
         assertThat(config.fpContextPath()).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPABAKUS)));
         assertThat(config.endpoint()).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPABAKUS)));

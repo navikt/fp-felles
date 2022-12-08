@@ -36,7 +36,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 public abstract class AbstractPersonKlient implements Persondata {
 
-    private static Set<TokenFlow> REQUIRED_TOKEN = Set.of(TokenFlow.ADAPTIVE_ADD_CONSUMER, TokenFlow.CONTEXT_ADD_CONSUMER);
+    private static Set<TokenFlow> REQUIRED_TOKEN = Set.of(TokenFlow.ADAPTIVE_ADD_CONSUMER);
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPersonKlient.class);
 
     private final PdlDefaultErrorHandler errorHandler;
