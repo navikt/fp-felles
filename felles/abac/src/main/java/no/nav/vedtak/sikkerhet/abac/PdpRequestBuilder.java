@@ -10,4 +10,8 @@ public interface PdpRequestBuilder {
 
     AppRessursData lagAppRessursData(AbacDataAttributter dataAttributter);
 
+    default boolean internAzureConsumer(String azpName) {
+        return false;
+    }
+
 }

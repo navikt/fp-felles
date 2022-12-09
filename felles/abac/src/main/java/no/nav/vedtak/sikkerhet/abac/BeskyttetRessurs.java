@@ -11,6 +11,7 @@ import javax.interceptor.InterceptorBinding;
 import javax.ws.rs.NameBinding;
 
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
@@ -47,6 +48,10 @@ public @interface BeskyttetRessurs {
     /** For å angi webservices (noen få tilfelle) */
     @Nonbinding
     ServiceType serviceType() default ServiceType.REST;
+
+    /** For å angi om tjeneste skal kunne kalles fra andre namespace */
+    @Nonbinding
+    AvailabilityType availabilityType() default AvailabilityType.INTERNAL;
 
     /**
      * Sett til false for å unngå at det logges til sporingslogg ved tilgang. Det
