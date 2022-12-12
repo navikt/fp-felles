@@ -38,6 +38,27 @@ public class MetricsUtil {
         return REGISTRY.scrape();
     }
 
+
+    public static void utvidMedMedian(String navn) {
+        utvidMedPercentiler(navn, 0.5);
+    }
+
+    public static void utvidMedPercentiler(String navn, double... percentiles) {
+        globalRegistry.config().meterFilter(new MeterFilter() {
+            @Override
+            public DistributionStatisticConfig configure(Id id, DistributionStatisticConfig config) {
+                if (id.getName().equals(navn)) {
+                    return DistributionStatisticConfig.builder()
+                        .percentilesHistogram(false)
+                        .percentiles(percentiles)
+                        .build()
+                        .merge(config);
+                }
+                return config;
+            }
+        });
+    }
+
     public static void utvidMedHistogram(String navn) {
         utvidMedHistogram(navn, 0.5, 0.95, 0.99);
     }
