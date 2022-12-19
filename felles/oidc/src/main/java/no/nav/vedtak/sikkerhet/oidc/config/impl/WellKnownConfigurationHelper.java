@@ -28,7 +28,8 @@ public class WellKnownConfigurationHelper {
     private static final Logger LOG = LoggerFactory.getLogger(WellKnownConfigurationHelper.class);
     private static final Environment ENV = Environment.current();
     private static final ObjectReader READER = DefaultJsonMapper.getObjectMapper().readerFor(WellKnownOpenIdConfiguration.class);
-    private static final String STANDARD_WELL_KNOWN_PATH = ".well-known/openid-configuration";
+
+    public static final String STANDARD_WELL_KNOWN_PATH = ".well-known/openid-configuration";
 
     private static Map<String, WellKnownOpenIdConfiguration> wellKnownConfigMap = Collections.synchronizedMap(new LinkedHashMap<>());
 
@@ -65,14 +66,6 @@ public class WellKnownConfigurationHelper {
 
     static Optional<String> getTokenEndpointFra(String wellKnownURL, URI proxyUrl) {
         return Optional.ofNullable(wellKnownURL).map(u -> getWellKnownConfig(u, proxyUrl).token_endpoint());
-    }
-
-    static Optional<String> getAuthorizationEndpointFra(String wellKnownURL) {
-        return Optional.ofNullable(wellKnownURL).map(u -> getWellKnownConfig(u, null).authorization_endpoint());
-    }
-
-    static Optional<String> getAuthorizationEndpointFra(String wellKnownURL, URI proxyUrl) {
-        return Optional.ofNullable(wellKnownURL).map(u -> getWellKnownConfig(u, proxyUrl).authorization_endpoint());
     }
 
     private static WellKnownOpenIdConfiguration hentWellKnownConfig(String wellKnownURL, URI proxy) {

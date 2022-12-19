@@ -82,7 +82,10 @@ public class AzureSystemTokenKlient {
 
     private static HttpRequest.BodyPublisher ofFormData(String clientId, String clientSecret, String scope) {
         var encodedScope = URLEncoder.encode(scope, UTF_8);
-        var formdata = "grant_type=client_credentials&client_id=" + clientId + "&client_secret=" + clientSecret + "&scope=" + encodedScope;
+        var formdata = "grant_type=client_credentials"
+            + "&client_id=" + clientId
+            + "&client_secret=" + clientSecret
+            + "&scope=" + encodedScope;
         return HttpRequest.BodyPublishers.ofString(formdata, UTF_8);
     }
 

@@ -20,7 +20,6 @@ import no.nav.vedtak.sikkerhet.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.jwks.JwtHeader;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.impl.OpenAmProperties;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public class OidcTokenValidator {
@@ -39,8 +38,8 @@ public class OidcTokenValidator {
     }
 
     // Skal bare brukes direkte fra tester, prod-kode skal kalle public constructors
-    OidcTokenValidator(OpenIDProvider provider, JwksKeyHandler keyHandler) {
-        this(provider, OpenAmProperties.getIssoIssuerUrl(), keyHandler, OpenAmProperties.getIssoUserName(), 30, true);
+    OidcTokenValidator(OpenIDProvider provider, String issuer, JwksKeyHandler keyHandler, String clientName) {
+        this(provider, issuer, keyHandler, clientName, 30, true);
 
         if (this.expectedIssuer == null) {
             throw new IllegalStateException("Expected issuer must be configured.");

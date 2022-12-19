@@ -16,7 +16,7 @@ import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public class OidcTokenGenerator {
-    public static final String ISSUER = "https://foo.bar.adeo.no/openam/oauth2";
+    public static final String ISSUER = "https://foo.bar.adeo.no/azure/oauth2";
     private List<String> aud = Collections.singletonList("OIDC");
     private NumericDate expiration = NumericDate.fromSeconds(NumericDate.now().getValue() + 3600);
     private String issuer = ISSUER;

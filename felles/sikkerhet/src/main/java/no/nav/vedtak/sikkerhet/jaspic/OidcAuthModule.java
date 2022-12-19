@@ -4,11 +4,8 @@ import static javax.security.auth.message.AuthStatus.FAILURE;
 import static javax.security.auth.message.AuthStatus.SEND_CONTINUE;
 import static javax.security.auth.message.AuthStatus.SEND_SUCCESS;
 import static javax.security.auth.message.AuthStatus.SUCCESS;
-import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,29 +29,21 @@ import javax.security.auth.message.MessagePolicy;
 import javax.security.auth.message.callback.CallerPrincipalCallback;
 import javax.security.auth.message.config.ServerAuthContext;
 import javax.security.auth.message.module.ServerAuthModule;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.http.HttpHeader;
-import org.jose4j.jwt.JwtClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.isso.oidc.OpenAmTokenProvider;
-import no.nav.vedtak.isso.ressurs.IssoAuthorizationRequestBuilder;
-import no.nav.vedtak.isso.ressurs.TokenCallback;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.sikkerhet.TokenCallback;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
-import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
@@ -79,7 +68,6 @@ public class OidcAuthModule implements ServerAuthModule {
     // it to false.
     private static final String IS_MANDATORY = "javax.security.auth.message.MessagePolicy.isMandatory";
 
-    private OpenAmTokenProvider openAmTokenProvider;
     private final TokenLocator tokenLocator;
     private final Configuration loginConfiguration;
 
@@ -88,7 +76,6 @@ public class OidcAuthModule implements ServerAuthModule {
     private final List<DelegatedProtectedResource> delegatedProtectedList;
 
     public OidcAuthModule() {
-        this.openAmTokenProvider = new OpenAmTokenProvider();
         this.tokenLocator = new TokenLocator();
         this.loginConfiguration = new LoginContextConfiguration();
 
@@ -99,9 +86,8 @@ public class OidcAuthModule implements ServerAuthModule {
     /**
      * used for unit-testing
      */
-    OidcAuthModule(OpenAmTokenProvider tokenProvider, TokenLocator tokenLocator, Configuration loginConfiguration,
+    OidcAuthModule(TokenLocator tokenLocator, Configuration loginConfiguration,
                    DelegatedProtectedResource delegatedProtectedResource) {
-        this.openAmTokenProvider = tokenProvider;
         this.tokenLocator = tokenLocator;
         this.loginConfiguration = loginConfiguration;
         this.delegatedProtectedList = delegatedProtectedResource == null ? List.of() : List.of(delegatedProtectedResource);
@@ -127,18 +113,25 @@ public class OidcAuthModule implements ServerAuthModule {
         AuthStatus authStatus;
 
         if (isProtected(messageInfo)) {
-            authStatus = handleProtectedResource(messageInfo, clientSubject, originalRequest);
+            authStatus = handleProtectedResource(clientSubject, originalRequest);
         } else {
             authStatus = handleUnprotectedResource(clientSubject);
         }
 
         if (FAILURE.equals(authStatus)) {
-            // Eventuell redirect til ekstern Login for å få id_token
-            authStatus = responseUnAuthorized(messageInfo);
+            // Vurder om trengs whitelisting av oppslag mot isAlive/isReady/metrics gitt oppførsel i prod - app må registrere unprotected
+            // Sjekk av whitelist/unprotected mot HttpServletRequest / getPathInfo må foregå før valg av protected/unprotected
+            HttpServletResponse response = (HttpServletResponse) messageInfo.getResponseMessage();
+            try {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
+            } catch (IOException e) {
+                throw new TekniskException("F-396795", "Klarte ikke å sende respons", e);
+            }
+            return SEND_CONTINUE; // TODO - skal man returnere SEND_FAILURE, FAILURE? SEND_CONTINUE virker mest relevant for redirect to login
         }
 
         if (SUCCESS.equals(authStatus)) {
-            ensureStatelessApplication(messageInfo);
+            messageInfo.setRequestMessage(new StatelessHttpServletRequest((HttpServletRequest) messageInfo.getRequestMessage()));
         }
         return authStatus;
     }
@@ -172,29 +165,20 @@ public class OidcAuthModule implements ServerAuthModule {
         }
     }
 
-    protected AuthStatus oidcLogin(MessageInfo messageInfo, Subject clientSubject, HttpServletRequest request) {
+    protected AuthStatus oidcLogin(Subject clientSubject, HttpServletRequest request) {
         // Get token
         var oidcToken = tokenLocator.getToken(request);
         if (oidcToken.isEmpty()) {
             return FAILURE;
         }
-        var refreshToken = tokenLocator.getRefreshToken(request);
         var claims = oidcToken.map(TokenString::token).map(JwtUtil::getClaims);
         var configuration = claims.map(JwtUtil::getIssuer).flatMap(ConfigProvider::getOpenIDConfiguration);
         if (configuration.isEmpty()) {
             return FAILURE;
         }
-        if (OpenIDProvider.ISSO.equals(configuration.get().type())) {
-            loggOpenAm(request, "incoming openam");
-        }
 
         var expiresAt = claims.map(JwtUtil::getExpirationTime).orElseGet(() -> Instant.now().plusSeconds(300));
-        var token = new OpenIDToken(configuration.get().type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, oidcToken.get(), null,
-            refreshToken.orElseGet(() -> new TokenString(null)), expiresAt.toEpochMilli());
-
-        var refreshed = refreshCookieTokenVedBehov(request, token, claims.orElse(null));
-        refreshed.ifPresent(r -> registerUpdatedTokenAtUserAgent(messageInfo, r));
-        token = refreshed.orElse(token);
+        var token = new OpenIDToken(configuration.get().type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, oidcToken.get(), null, expiresAt.toEpochMilli());
 
         // Setup login context
         LoginContext loginContext = createLoginContext(clientSubject, token);
@@ -208,14 +192,6 @@ public class OidcAuthModule implements ServerAuthModule {
 
         // Handle result
         return handleValidatedToken(clientSubject, SubjectHandler.getUid(clientSubject));
-    }
-
-    private Optional<OpenIDToken> refreshCookieTokenVedBehov(HttpServletRequest request, OpenIDToken token, JwtClaims claims) {
-        if (OpenIDProvider.ISSO.equals(token.provider()) && openAmTokenProvider.isOpenAmTokenSoonExpired(token) && tokenLocator.isTokenFromCookie(request)
-            && Set.of(OidcLogin.LoginResult.SUCCESS, OidcLogin.LoginResult.ID_TOKEN_EXPIRED).contains(OidcLogin.validerToken(token).loginResult())) {
-            return openAmTokenProvider.refreshOpenAmIdToken(token, Optional.ofNullable(claims).map(JwtUtil::getClientName).orElse(null));
-        }
-        return Optional.empty();
     }
 
     private LoginContext createLoginContext(Subject clientSubject, OpenIDToken token) {
@@ -241,40 +217,14 @@ public class OidcAuthModule implements ServerAuthModule {
         }
     }
 
-    /**
-     * Wrapps the request in a object that throws an
-     * {@link IllegalArgumentException} when invoking getSession og getSession(true)
-     */
-    private void ensureStatelessApplication(MessageInfo messageInfo) {
-        messageInfo.setRequestMessage(new StatelessHttpServletRequest((HttpServletRequest) messageInfo.getRequestMessage()));
-    }
-
-    private void registerUpdatedTokenAtUserAgent(MessageInfo messageInfo, OpenIDToken updatedIdToken) {
-        HttpServletResponse response = (HttpServletResponse) messageInfo.getResponseMessage();
-        response.addCookie(lagCookie(ID_TOKEN_COOKIE_NAME, updatedIdToken.token(), "/", ServerInfo.instance().getCookieDomain()));
-    }
-
-    private Cookie lagCookie(String name, String value, String path, String domain) {
-        Cookie cookie = new Cookie(name, value); // NOSONAR findsecbugs:HTTP_RESPONSE_SPLITTING, Fikset i JBoss EAP 7.0.2, ref
-                                                 // https://access.redhat.com/security/cve/CVE-2016-4993
-        cookie.setSecure(ServerInfo.instance().isUsingTLS());
-        cookie.setHttpOnly(true);
-        cookie.setPath(path);
-        if (domain != null) {
-            cookie.setDomain(domain);
-        }
-        return cookie;
-    }
-
-    protected AuthStatus handleProtectedResource(MessageInfo messageInfo, Subject clientSubject, HttpServletRequest originalRequest) {
+    protected AuthStatus handleProtectedResource(Subject clientSubject, HttpServletRequest originalRequest) {
         var delegatedAuthStatus = delegatedProtectedList.stream()
                 .map(d -> d.handleProtectedResource(originalRequest, clientSubject, containerCallbackHandler))
-                .filter(Optional::isPresent)
-                .findFirst()
-                .map(Optional::get);
+                .flatMap(Optional::stream)
+                .findFirst();
 
         if (delegatedAuthStatus.isEmpty()) {
-            return oidcLogin(messageInfo, clientSubject, originalRequest);
+            return oidcLogin(clientSubject, originalRequest);
         } else {
             // delegert autentisering
             return delegatedAuthStatus.get();
@@ -294,56 +244,6 @@ public class OidcAuthModule implements ServerAuthModule {
             MDCOperations.putConsumerId(SubjectHandler.getConsumerId(clientSubject));
         }
         return authStatus;
-    }
-
-    /*
-     * Dersom req med Bearer: 401, ellers redirect til OpenAm login
-     */
-    protected AuthStatus responseUnAuthorized(MessageInfo messageInfo) {
-        HttpServletRequest request = (HttpServletRequest) messageInfo.getRequestMessage();
-        HttpServletResponse response = (HttpServletResponse) messageInfo.getResponseMessage();
-        String acceptHeader = request.getHeader("Accept");
-        String authorizationHeader = request.getHeader("Authorization"); // NOSONAR Akseptertet headere
-        try {
-            if ((acceptHeader != null && acceptHeader.contains("application/json"))
-                    || (authorizationHeader != null && authorizationHeader.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE))) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
-            } else {
-                loggOpenAm(request, "redirect login pga tom header");
-                IssoAuthorizationRequestBuilder builder = new IssoAuthorizationRequestBuilder();
-                // TODO (u139158): CSRF attack protection. See RFC-6749 section 10.12 (the
-                // state-cookie containing redirectURL shold be encrypted to avoid tampering)
-                response.addCookie(
-                        lagCookie(builder.getStateIndex(), encode(getOriginalUrl(request)), ServerInfo.instance().getRelativeCallbackUrl(), null));
-                response.sendRedirect(builder.buildRedirectString());
-            }
-        } catch (IOException e) {
-            throw new TekniskException("F-396795", "Klarte ikke å sende respons", e);
-        }
-        return SEND_CONTINUE;
-    }
-
-    private void loggOpenAm(HttpServletRequest request, String message) {
-        var origins = Optional.ofNullable(request.getHeader(HttpHeader.ORIGIN.asString())).orElse("")
-            + "host:" + Optional.ofNullable(request.getHeader(HttpHeader.HOST.asString())).orElse("");
-        LOG.info("OPENAM {}, target {} origin {}", message, request.getRequestURL().toString(), origins);
-    }
-
-    private String encode(String redirectLocation) {
-        return URLEncoder.encode(redirectLocation, StandardCharsets.UTF_8);
-    }
-
-    protected String getOriginalUrl(HttpServletRequest req) {
-        String requestUrl = req.getRequestURL().toString();
-        // Scheme i request vi mottar er ikke det samme som det sluttbrukeren ser når
-        // TLS termineres underveis i kallkjeden
-        // https -> http -> appserver
-        if (ServerInfo.instance().isUsingTLS() && !requestUrl.toLowerCase().startsWith("https")) {
-            requestUrl = requestUrl.replaceFirst("http", "https");
-        }
-        return req.getQueryString() == null
-                ? requestUrl
-                : requestUrl + "?" + req.getQueryString();
     }
 
     /**

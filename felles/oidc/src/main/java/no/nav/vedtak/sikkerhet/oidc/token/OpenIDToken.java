@@ -11,7 +11,6 @@ public record OpenIDToken(OpenIDProvider provider,
                           String tokenType,
                           TokenString primary,
                           String scope,
-                          TokenString refresh,
                           long expiresAtMillis) {
 
     public static final String OIDC_DEFAULT_TOKEN_TYPE = "Bearer ";
@@ -21,7 +20,7 @@ public record OpenIDToken(OpenIDProvider provider,
     private static final int BUFFER = 120;
 
     public OpenIDToken(OpenIDProvider provider, TokenString token) {
-        this(provider, OIDC_DEFAULT_TOKEN_TYPE, token, null, null,System.currentTimeMillis() + (150 * MILLIS));
+        this(provider, OIDC_DEFAULT_TOKEN_TYPE, token, null, System.currentTimeMillis() + (150 * MILLIS));
     }
 
     public OpenIDToken(OpenIDProvider provider,
@@ -29,16 +28,7 @@ public record OpenIDToken(OpenIDProvider provider,
                        TokenString primary,
                        String scope,
                        Integer expireIn) {
-        this(provider, tokenType, primary, scope, null, expireIn);
-    }
-
-    public OpenIDToken(OpenIDProvider provider,
-                       String tokenType,
-                       TokenString primary,
-                       String scope,
-                       TokenString refresh,
-                       Integer expireIn) {
-        this(provider, tokenType, primary, scope, refresh, expireAtFromExpireIn(expireIn));
+        this(provider, tokenType, primary, scope, expireAtFromExpireIn(expireIn));
     }
 
     public boolean isNotExpired() {
@@ -50,15 +40,11 @@ public record OpenIDToken(OpenIDProvider provider,
     }
 
     public OpenIDToken copy() {
-        return new OpenIDToken(provider(), tokenType(), primary(), scope(), this.refresh(), expiresAtMillis());
+        return new OpenIDToken(provider(), tokenType(), primary(), scope(), expiresAtMillis());
     }
 
     public String token() {
         return primary().token();
-    }
-
-    public Optional<String> refreshToken() {
-        return Optional.ofNullable(this.refresh()).map(TokenString::token);
     }
 
     @Override
