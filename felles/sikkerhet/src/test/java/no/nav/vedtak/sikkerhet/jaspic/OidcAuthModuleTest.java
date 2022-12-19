@@ -1,41 +1,29 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.message.AuthStatus;
 import javax.security.auth.message.MessageInfo;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
-import no.nav.vedtak.isso.config.ServerInfo;
-import no.nav.vedtak.isso.oidc.OpenAmTokenProvider;
-import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
@@ -45,7 +33,6 @@ import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProviderForTest;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorResult;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
-import no.nav.vedtak.sikkerhet.oidc.config.impl.OpenAmProperties;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
@@ -53,13 +40,11 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 public class OidcAuthModuleTest {
 
     private OidcTokenValidator tokenValidator = Mockito.mock(OidcTokenValidator.class);
-    private OpenAmTokenProvider idTokenProvider = Mockito.mock(OpenAmTokenProvider.class);
     private TokenLocator tokenLocator = Mockito.mock(TokenLocator.class);
     private CallbackHandler callbackHandler = Mockito.mock(CallbackHandler.class);
     private final Configuration configuration = new LoginContextConfiguration();
 
-    private OidcAuthModule authModule = new OidcAuthModule(idTokenProvider, tokenLocator, configuration,
-            Mockito.mock(DelegatedProtectedResource.class));
+    private OidcAuthModule authModule = new OidcAuthModule(tokenLocator, configuration, Mockito.mock(DelegatedProtectedResource.class));
     private HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     private HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
@@ -67,39 +52,26 @@ public class OidcAuthModuleTest {
     private Subject serviceSubject = new Subject();
 
     public void setupAll() throws Exception {
-        when(request.getRequestURI()).thenReturn("https://foo.devillo.no/fpsak/");
-        when(request.getRequestURL()).thenReturn(new StringBuffer("https://foo.devillo.no/fpsak/"));
-        when(request.getHeader("Accept")).thenReturn("application/json");
         authModule.initialize(null, null, callbackHandler, null);
 
-        System.setProperty(OidcProviderConfig.OPEN_AM_CLIENT_ID, "OIDC");
-        System.setProperty(OpenAmProperties.OPEN_ID_CONNECT_ISSO_HOST, OidcTokenGenerator.ISSUER);
-        System.setProperty(OpenAmProperties.OPEN_ID_CONNECT_ISSO_ISSUER, OidcTokenGenerator.ISSUER);
+        System.setProperty(OidcProviderConfig.AZURE_WELL_KNOWN_URL, OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
+        System.setProperty(OidcProviderConfig.AZURE_CLIENT_ID, "OIDC");
+        System.setProperty(OidcProviderConfig.AZURE_CONFIG_ISSUER, OidcTokenGenerator.ISSUER);
+        System.setProperty(OidcProviderConfig.AZURE_CONFIG_JWKS_URI, OidcTokenGenerator.ISSUER + "/jwks_uri");
         System.setProperty(ConsumerId.SYSTEMUSER_USERNAME_PROPERTY, "JUnit Test");
 
         Map<String, String> testData = Map.of(
-            OpenAmProperties.ISSUER_KEY, OidcTokenGenerator.ISSUER,
-            OpenAmProperties.JWKS_KEY, OidcTokenGenerator.ISSUER + "/" + OpenAmProperties.JWKS_KEY
+            "issuer", OidcTokenGenerator.ISSUER,
+            OidcProviderConfig.AZURE_CONFIG_JWKS_URI, OidcTokenGenerator.ISSUER + "/jwks_uri"
         );
-        WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + OpenAmProperties.WELL_KNOWN_ENDPOINT, JsonUtil.toJson(testData));
-        OidcTokenValidatorProviderForTest.setValidators(OpenIDProvider.ISSO, tokenValidator);
+        WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH, JsonUtil.toJson(testData));
+        OidcTokenValidatorProviderForTest.setValidators(OpenIDProvider.AZUREAD, tokenValidator);
     }
 
     @BeforeEach
     public void setUp() throws Exception{
         WellKnownConfigurationHelper.unsetWellKnownConfig();
         setupAll();
-    }
-
-    @BeforeAll
-    public static void classSetup() {
-        System.setProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL, "https://foo.devillo.no");
-        ContextPathHolder.instance("/fpsak");
-    }
-
-    @AfterAll
-    public static void classTeardown() {
-        System.clearProperty(ServerInfo.PROPERTY_KEY_LOADBALANCER_URL);
     }
 
     @Test
@@ -151,25 +123,7 @@ public class OidcAuthModuleTest {
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
-
-        CookieCollector cookieCollector = new CookieCollector();
-        verify(response).addCookie(Mockito.argThat(cookieCollector));
-
-        // hvor redirect skal til slutt, legges i en cookie på browseren. Dette gjør at
-        // dersom noen
-        // legger sensitiv informajon i parametre eller lignende, vil det ikke sendes
-        // til OpenAM
-        Cookie stateCookie = cookieCollector.getCookieWhereNameMatches("state_.*");
-        assertThat(stateCookie.getValue()).isEqualTo("https%3A%2F%2Ffoo.devillo.no%2Ffpsak%2F");
-        assertThat(stateCookie.getDomain()).isNull(); // bare denne serveren
-        assertThat(stateCookie.getPath()).isEqualTo("/fpsak/cb"); // bare nødvendig å sende til callback
-        assertThat(stateCookie.isHttpOnly()).isTrue();
-        assertThat(stateCookie.getSecure()).isTrue();
-        String stateCookieName = stateCookie.getName(); // name er tilfeldig valgt, men starter med state_
-        verify(response).sendRedirect(
-            OidcTokenGenerator.ISSUER + "/authorize?session=winssochain&authIndexType=service&authIndexValue=winssochain&response_type=code&scope=openid&client_id=OIDC&state="
-                        + stateCookieName + "&redirect_uri=https%3A%2F%2Ffoo.devillo.no%2Ffpsak%2Fcb");
-        verifyNoMoreInteractions(response);
+        verify(response).sendError(401, "Resource is protected, but id token is missing or invalid.");
     }
 
     @Test
@@ -179,8 +133,6 @@ public class OidcAuthModuleTest {
 
         var gyldigIdToken = getGyldigToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigIdToken));
-        when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.empty());
-        when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(gyldigIdToken))
                 .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 121));
 
@@ -195,8 +147,6 @@ public class OidcAuthModuleTest {
 
         var ugyldigToken = getUtløptToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigToken));
-        when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.empty());
-        when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(any()))
                 .thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validateWithoutExpirationTime(any()))
@@ -214,8 +164,6 @@ public class OidcAuthModuleTest {
 
         var ugyldigToken = getUtløptToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigToken));
-        when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.empty());
-        when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(any()))
                 .thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validateWithoutExpirationTime(any()))
@@ -223,6 +171,7 @@ public class OidcAuthModuleTest {
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
+        verify(response).sendError(401, "Resource is protected, but id token is missing or invalid.");
     }
 
     @Test
@@ -231,241 +180,49 @@ public class OidcAuthModuleTest {
         MessageInfo request = createRequestForProtectedResource();
 
         var ugyldigToken = getUtløptToken();
-        var ugyldigRefreshToken = new TokenString("et ugyldig refresh token");
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigToken));
-        when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigRefreshToken));
-        when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
-        when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(ugyldigToken)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validateWithoutExpirationTime(any()))
                 .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 - 10));
-        when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
+
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
-        verify(idTokenProvider).refreshOpenAmIdToken(any(), any());
+        verify(response).sendError(401, "Resource is protected, but id token is missing or invalid.");
     }
 
+
     @Test
-    public void skal_slippe_gjennom_forespørsel_etter_beskyttet_ressurs_når_forespørselen_har_med_et_utløpt_id_token_og_klarer_å_hente_gyldig_id_token_vha_refresh_token()
+    public void skal_slippe_gjennom_token_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester()
             throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 
-        var utløptIdToken = getUtløptToken();
-        var gyldigRefreshToken = new TokenString("et gyldig refresh token");
-        var gyldigIdToken = getGyldigToken();
-        int sekunderGjenståendeGyldigTid = OpenAmTokenProvider.DEFAULT_REFRESH_TIME + 60;
+        int sekunderGjenståendeGyldigTid = 125;
 
-        when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(utløptIdToken));
-        when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
-        when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
-        when(tokenValidator.validate(utløptIdToken)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validate(utløptIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 - 10));
+        var gyldigIdToken = getGyldigToken();
+        when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigIdToken));
         when(tokenValidator.validate(gyldigIdToken))
                 .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
 
-        when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
-        when(idTokenProvider.refreshOpenAmIdToken(any(), any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, gyldigIdToken)));
+        var result = authModule.validateRequest(request, subject, serviceSubject);
 
-        AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SUCCESS);
-        verify(idTokenProvider).refreshOpenAmIdToken(any(), any());
     }
 
     @Test
-    public void skal_ikke_slippe_gjennom_forespørsel_etter_beskyttet_ressurs_når_forespørselen_har_med_et_ugyldigid_token_og_klarer_å_hente_gyldig_id_token_vha_refresh_token()
+    public void skal_slippe_gjennom_token_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester_selv_om_kortere_enn_gammel_grense()
             throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 
-        var ugyldig = getUtløptToken();
-        var gyldigRefreshToken = new TokenString("et gyldig refresh token");
-        var gyldigIdToken = getGyldigToken();
-
-        when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldig));
-        when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
-        when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
-        when(tokenValidator.validate(ugyldig)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validateWithoutExpirationTime(ugyldig)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 60));
-        when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
-        when(idTokenProvider.refreshOpenAmIdToken(any(), any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, gyldigIdToken)));
-
-        AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
-        assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
-    }
-
-    @Test
-    public void skal_sette_nytt_idtoken_i_httponly_cookie_når_det_ble_gjort_refresh_av_token() throws Exception {
-        MessageInfo request = createRequestForProtectedResource();
-
-        var utløptIdToken = getUtløptToken();
-        var nyttGyldigIdToken = getGyldigToken();
-        int sekunderGjenståendeGyldigTid = OpenAmTokenProvider.DEFAULT_REFRESH_TIME + 60;
-        var gyldigRefreshToken = new TokenString("et gyldig refresh token");
-        when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(utløptIdToken));
-        when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
-        when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
-        when(tokenValidator.validate(utløptIdToken)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validate(utløptIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 - 60));
-        when(tokenValidator.validate(nyttGyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
-        when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
-        when(idTokenProvider.refreshOpenAmIdToken(any(), any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
-
-        authModule.validateRequest(request, subject, serviceSubject);
-
-        Cookie forventetCookie = new Cookie(ID_TOKEN_COOKIE_NAME, nyttGyldigIdToken.token());
-        forventetCookie.setSecure(true);
-        forventetCookie.setHttpOnly(true);
-        forventetCookie.setPath("/");
-        forventetCookie.setDomain("devillo.no");
-        verify(response).addCookie(Mockito.argThat(new CookieMatcher(forventetCookie)));
-    }
-
-    @Test
-    public void skal_ikke_gjøre_refresh_av_token_når_det_validerer_og_har_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester()
-            throws Exception {
-        MessageInfo request = createRequestForProtectedResource();
-
-        int sekunderGjenståendeGyldigTid = OpenAmTokenProvider.DEFAULT_REFRESH_TIME + 5;
+        int sekunderGjenståendeGyldigTid = 115;
 
         var gyldigIdToken = getGyldigToken();
-        var gyldigRefreshToken = new TokenString("et gyldig refresh token");
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigIdToken));
-        when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
-        when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
         when(tokenValidator.validate(gyldigIdToken))
                 .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
-        when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(false);
 
-        authModule.validateRequest(request, subject, serviceSubject);
-
-        Mockito.verifyNoInteractions(response); // skal ikke sette cookie
-    }
-
-    @Test
-    public void skal_gjøre_refresh_av_token_fra_cookie_når_det_validerer_og_har_for_kort_levetid_til_å_sikkert_kunne_brukes_til_kall_til_andre_tjenester()
-            throws Exception {
-        MessageInfo request = createRequestForProtectedResource();
-
-        int sekunderGjenståendeGyldigTid = OpenAmTokenProvider.DEFAULT_REFRESH_TIME - 5;
-
-        var gyldigIdToken = getGyldigToken();
-        var nyttGyldigIdToken = getGyldigToken();
-        var gyldigRefreshToken = new TokenString("et gyldig refresh token");
-        when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigIdToken));
-        when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
-        when(tokenLocator.isTokenFromCookie(any(HttpServletRequest.class))).thenReturn(true);
-        when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
-        when(tokenValidator.validate(nyttGyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 3600));
-        when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
-        when(idTokenProvider.refreshOpenAmIdToken(any(), any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
-
-        authModule.validateRequest(request, subject, serviceSubject);
-
-        verify(idTokenProvider).refreshOpenAmIdToken(any(), any());
-
-        Cookie forventetCookie = new Cookie(ID_TOKEN_COOKIE_NAME, nyttGyldigIdToken.token());
-        forventetCookie.setSecure(true);
-        forventetCookie.setHttpOnly(true);
-        forventetCookie.setPath("/");
-        forventetCookie.setDomain("devillo.no");
-        verify(response).addCookie(Mockito.argThat(new CookieMatcher(forventetCookie)));
-    }
-
-    @Test
-    public void skal_ikke_gjøre_refresh_av_token_fra_header_når_det_validerer()
-            throws Exception {
-        MessageInfo request = createRequestForProtectedResource();
-
-        int sekunderGjenståendeGyldigTid = OpenAmTokenProvider.DEFAULT_REFRESH_TIME - 5;
-
-        var gyldigIdToken = getGyldigToken();
-        var nyttGyldigIdToken = getGyldigToken();
-        var gyldigRefreshToken = new TokenString("et gyldig refresh token");
-        when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigIdToken));
-        when(tokenLocator.getRefreshToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigRefreshToken));
-        when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
-        when(tokenValidator.validate(nyttGyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 3600));
-        when(idTokenProvider.isOpenAmTokenSoonExpired(any())).thenReturn(true);
-        when(idTokenProvider.refreshOpenAmIdToken(any(), any())).thenReturn(Optional.of(new OpenIDToken(OpenIDProvider.ISSO, nyttGyldigIdToken)));
-
-        authModule.validateRequest(request, subject, serviceSubject);
-
-        Mockito.verify(idTokenProvider).isOpenAmTokenSoonExpired(any()); // skal ikke hente refresh-token
-        Mockito.verifyNoMoreInteractions(idTokenProvider);
-        Mockito.verifyNoInteractions(response); // skal ikke sette cookie
-    }
-
-    @Test
-    public void skal_ha_korrekt_scheme_selv_om_TLS_termineres_underveis() throws Exception {
-        ServerInfo.clearInstance();
-
-        when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.devillo.no/fpsak/"));
-        String originalUrl = authModule.getOriginalUrl(request);
-        assertThat(originalUrl).startsWith("https");
-    }
-
-    static class CookieMatcher implements ArgumentMatcher<Cookie> {
-
-        private Cookie expected;
-
-        CookieMatcher(Cookie expected) {
-            this.expected = expected;
-        }
-
-        @Override
-        public boolean matches(Cookie item) {
-            return check(item, Cookie::getName) &
-                    check(item, Cookie::getValue) &
-                    check(item, Cookie::getDomain) &
-                    check(item, Cookie::getPath) &
-                    check(item, Cookie::getMaxAge) &
-                    check(item, Cookie::getSecure) &
-                    check(item, Cookie::isHttpOnly) &
-                    check(item, Cookie::getVersion) &
-                    check(item, Cookie::getComment);
-        }
-
-        private <T> boolean check(Cookie item, Function<Cookie, T> what) {
-            return Objects.equals(what.apply(expected), what.apply(item));
-        }
-
-    }
-
-    static class CookieCollector implements ArgumentMatcher<Cookie> {
-
-        private Map<String, Cookie> cookies = new HashMap<>();
-
-        @Override
-        public boolean matches(Cookie item) {
-            cookies.put(item.getName(), item);
-            return true;
-        }
-
-        public Cookie getCookieWhereNameMatches(String regexp) {
-            List<Cookie> matches = new ArrayList<>();
-            for (String name : cookies.keySet()) {
-                if (name.matches(regexp)) {
-                    matches.add(cookies.get(name));
-                }
-            }
-            switch (matches.size()) {
-                case 0:
-                    return null;
-                case 1:
-                    return matches.get(0);
-                default:
-                    throw new IllegalArgumentException("Multiple cookies matched " + regexp);
-            }
-        }
+        var result = authModule.validateRequest(request, subject, serviceSubject);
+        assertThat(result).isEqualTo(AuthStatus.SUCCESS);
     }
 
     private MessageInfo createRequestForProtectedResource() {

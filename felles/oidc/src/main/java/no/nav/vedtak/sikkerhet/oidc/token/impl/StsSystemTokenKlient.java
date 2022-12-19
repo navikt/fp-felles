@@ -2,7 +2,6 @@ package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.net.URI;
 import java.net.http.HttpRequest;
 import java.time.Duration;
 
@@ -24,10 +23,7 @@ public class StsSystemTokenKlient {
 
     private static final String SCOPE = "openid";
 
-    private static final String CLIENT_ID = ENV.getProperty("systembruker.username");
-    private static final String CLIENT_SECRET = ENV.getProperty("systembruker.password");
-    private static final URI TOKEN_ENDPOINT = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS)
-        .map(OpenIDConfiguration::tokenEndpoint).orElseThrow();
+    private static final OpenIDConfiguration OIDCONFIG = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS).orElseThrow();
 
     private static OpenIDToken accessToken;
 
@@ -44,13 +40,13 @@ public class StsSystemTokenKlient {
 
     private static OidcTokenResponse hentToken() {
         var request = HttpRequest.newBuilder()
-            .header(Headers.AUTHORIZATION, Headers.basicCredentials(CLIENT_ID, CLIENT_SECRET))
-            .header("Nav-Consumer-Id", CLIENT_ID)
+            .header(Headers.AUTHORIZATION, Headers.basicCredentials(OIDCONFIG.clientId(), OIDCONFIG.clientSecret()))
+            .header("Nav-Consumer-Id", OIDCONFIG.clientId())
             .header("Nav-Call-Id", MDCOperations.getCallId())
             .header("Cache-Control", "no-cache")
             .header(Headers.CONTENT_TYPE, Headers.APPLICATION_FORM_ENCODED)
             .timeout(Duration.ofSeconds(10))
-            .uri(TOKEN_ENDPOINT)
+            .uri(OIDCONFIG.tokenEndpoint())
             .POST(ofFormData())
             .build();
         return GeneriskTokenKlient.hentToken(request, null);

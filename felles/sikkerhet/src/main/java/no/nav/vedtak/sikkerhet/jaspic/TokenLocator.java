@@ -1,8 +1,5 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import static no.nav.vedtak.sikkerhet.Constants.ID_TOKEN_COOKIE_NAME;
-import static no.nav.vedtak.sikkerhet.Constants.REFRESH_TOKEN_COOKIE_NAME;
-
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -15,22 +12,15 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 class TokenLocator {
 
-    public boolean isTokenFromCookie(HttpServletRequest request) {
-        return getCookie(request, ID_TOKEN_COOKIE_NAME).isPresent();
-    }
+    static final String ID_TOKEN_COOKIE_NAME = "ID_token";
 
     public Optional<TokenString> getToken(HttpServletRequest request) {
-        var tokenFromCookie = getCookie(request, ID_TOKEN_COOKIE_NAME);
-        return tokenFromCookie
-            .or(() -> getTokenFromHeader(request));
-    }
-
-    public Optional<TokenString> getRefreshToken(HttpServletRequest request) {
-        return getCookie(request, REFRESH_TOKEN_COOKIE_NAME);
+        return getTokenFromHeader(request)
+            .or(() -> getCookie(request, ID_TOKEN_COOKIE_NAME));
     }
 
     private Optional<TokenString> getCookie(HttpServletRequest request, String cookieName) {
-        if (request.getCookies() == null) {
+        if (!ContextPathHolder.instance().harSattCookiePath() || request.getCookies() == null) {
             return Optional.empty();
         }
         var cookiePath = ContextPathHolder.instance().getCookiePath();

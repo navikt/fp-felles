@@ -1,4 +1,4 @@
-package no.nav.vedtak.isso.ressurs;
+package no.nav.vedtak.sikkerhet;
 
 import javax.security.auth.callback.Callback;
 

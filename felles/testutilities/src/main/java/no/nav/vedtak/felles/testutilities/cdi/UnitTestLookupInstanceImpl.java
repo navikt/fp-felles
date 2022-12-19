@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.testutilities.cdi;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 

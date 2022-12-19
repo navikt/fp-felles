@@ -20,7 +20,7 @@ public interface TokenProvider {
     SluttBruker getSluttBruker();
 
     /**
-     * OIDC tokenet til brukeren. Helst fra følgende providere: Tokendings, AzureAD, STS, OpenAM.
+     * OIDC tokenet til brukeren. Helst fra følgende providere: TokenX, AzureAD, STS.
      * Sendes til PDP (Policy Decision Point) og gir informasjon til ABAC om subject og auth level.
      * @return bruker OIDC token.
      */

@@ -1,7 +1,5 @@
 package no.nav.vedtak.log.audit;
 
-import java.util.Objects;
-
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 

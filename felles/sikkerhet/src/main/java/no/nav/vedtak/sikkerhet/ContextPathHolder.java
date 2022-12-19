@@ -3,45 +3,37 @@ package no.nav.vedtak.sikkerhet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Denne eksisterer nå kun pga exp/contract + fp/k9tilbake og cookiepath /k9
+ */
 public class ContextPathHolder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContextPathHolder.class);
 
     private static volatile ContextPathHolder instance;
-    private final String contextPath;
     private final String cookiePath;
+    private final boolean harSattCookiePath;
 
-    private ContextPathHolder(String contextPath) {
-        this.contextPath = contextPath;
-        this.cookiePath = validerCookiePath(null);
-    }
-
-    public ContextPathHolder(String contextPath, String cookiePath) {
-        this.contextPath = contextPath;
+    private ContextPathHolder(String cookiePath) {
+        this.harSattCookiePath = cookiePath != null;
         this.cookiePath = validerCookiePath(cookiePath);
     }
 
     public static ContextPathHolder instance() {
         var inst = instance;
         if (inst == null) {
-            throw new IllegalStateException();
-        }
-        return inst;
-    }
-
-    public static ContextPathHolder instance(String contextPath) {
-        var inst = instance;
-        if (inst == null) {
-            inst = new ContextPathHolder(contextPath);
+            inst = new ContextPathHolder(null);
             instance = inst;
         }
         return inst;
     }
 
-    public static ContextPathHolder instance(String contextPath, String cookiePath) {
+    @Deprecated // K9tilbake trenger denne
+    @SuppressWarnings("unused")
+    public static ContextPathHolder instance(@SuppressWarnings("unused") String contextPath, String cookiePath) {
         var inst = instance;
         if (inst == null) {
-            inst = new ContextPathHolder(contextPath, cookiePath);
+            inst = new ContextPathHolder(cookiePath);
             instance = inst;
         }
         return inst;
@@ -58,11 +50,11 @@ public class ContextPathHolder {
         return cookiePath;
     }
 
-    public String getContextPath() {
-        return contextPath;
-    }
-
     public String getCookiePath() {
         return cookiePath;
+    }
+
+    public boolean harSattCookiePath() {
+        return harSattCookiePath;
     }
 }

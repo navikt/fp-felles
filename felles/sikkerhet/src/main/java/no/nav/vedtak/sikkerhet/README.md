@@ -5,8 +5,6 @@ Kode relatert til Context, OIDC-config og Tokenhenting/veksling ligger i felles-
 
 Sikkerhetskontekst aksesseres via SubjectHandler og henter informasjon enten fra request sin **Authentication** eller det som er satt opp i tråden
 
-Kode relatert til ISSO/OpenAm og Auth-flow+refresh, callback mv ligger under felles-sikkerhet, pakke isso
-
 Kort om hovedkomponentene
 
 OidcAuthModule
