@@ -25,7 +25,13 @@ public final class OidcProviderConfig {
     private static final Environment ENV = Environment.current();
     private static final Logger LOG = LoggerFactory.getLogger(OidcProviderConfig.class);
 
+    @Deprecated(forRemoval = true) // Neste tre linjer
+    public static final String OPEN_AM_WELL_KNOWN_URL = "oidc.open.am.well.known.url";
+    public static final String OPEN_AM_CLIENT_ID = "oidc.open.am.client.id";
+    public static final String OPEN_AM_CLIENT_SECRET = "oidc.open.am.client.secret";
+
     private static final String STS_WELL_KNOWN_URL = "oidc.sts.well.known.url";
+    // Disse 3 er kandidater for rydding. Alle apps skal ha satt well-known
     private static final String STS_CONFIG_ISSUER = "oidc.sts.openid.config.issuer";
     private static final String STS_CONFIG_JWKS_URI = "oidc.sts.openid.config.jwks.uri";
     private static final String STS_CONFIG_TOKEN_ENDPOINT = "oidc.sts.openid.config.token.endpoint";
@@ -88,6 +94,11 @@ public final class OidcProviderConfig {
     private static Set<OpenIDConfiguration> hentConfig() {
         Set<OpenIDConfiguration> idProviderConfigs = new HashSet<>();
 
+        // OpenAm - kun vtp/test
+        if (ENV.getProperty(OPEN_AM_WELL_KNOWN_URL) != null) {
+            idProviderConfigs.add(createOpenAmConfiguration(ENV.getProperty(OPEN_AM_WELL_KNOWN_URL)));
+        }
+
         // OIDC STS
         if (ENV.getProperty(STS_WELL_KNOWN_URL) != null || ENV.getProperty(STS_CONFIG_ISSUER) != null) { // Det er kanskje noen apper som ikke bruker STS token validering??
             idProviderConfigs.add(createStsConfiguration(ENV.getProperty(STS_WELL_KNOWN_URL)));
@@ -113,6 +124,17 @@ public final class OidcProviderConfig {
             .collect(Collectors.joining(", ")));
 
         return idProviderConfigs;
+    }
+
+    private static OpenIDConfiguration createOpenAmConfiguration(String wellKnownUrl) {
+        return createConfiguration(OpenIDProvider.ISSO,
+            getIssuerFra(wellKnownUrl).orElseThrow(),
+            getJwksFra(wellKnownUrl).orElseThrow(),
+            getTokenEndpointFra(wellKnownUrl).orElseThrow(),
+            false, null,
+            ENV.getProperty(OPEN_AM_CLIENT_ID),
+            ENV.getProperty(OPEN_AM_CLIENT_SECRET),
+            true);
     }
 
     private static OpenIDConfiguration createStsConfiguration(String wellKnownUrl) {
