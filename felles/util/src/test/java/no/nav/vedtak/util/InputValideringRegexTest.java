@@ -1,9 +1,6 @@
 package no.nav.vedtak.util;
 
-import static no.nav.vedtak.util.InputValideringRegex.ADRESSE;
-import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
-import static no.nav.vedtak.util.InputValideringRegex.KODEVERK;
-import static no.nav.vedtak.util.InputValideringRegex.NAVN;
+import static no.nav.vedtak.util.InputValideringRegex.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -70,5 +67,20 @@ public class InputValideringRegexTest {
         assertThat("ab0053").matches(KODEVERK);
         assertThat("NB").matches(KODEVERK);
         assertThat("æøåÆØÅ_214").matches(KODEVERK);
+    }
+
+    @Test
+    public void arbeidsgiver_matcher_kun_13_og_9_digits() {
+        assertThat("123456789").matches(ARBEIDSGIVER);
+        assertThat("aaaaaaaaa").doesNotMatch(ARBEIDSGIVER);
+        assertThat("1234567891").doesNotMatch(ARBEIDSGIVER);
+        assertThat("a123456789").doesNotMatch(ARBEIDSGIVER);
+        assertThat("123456789a").doesNotMatch(ARBEIDSGIVER);
+
+        assertThat("1234567890123").matches(ARBEIDSGIVER);
+        assertThat("aaaaaaaaaaaaa").doesNotMatch(ARBEIDSGIVER);
+        assertThat("12345678901234").doesNotMatch(ARBEIDSGIVER);
+        assertThat("a1234567890123").doesNotMatch(ARBEIDSGIVER);
+        assertThat("1234567890123a").doesNotMatch(ARBEIDSGIVER);
     }
 }
