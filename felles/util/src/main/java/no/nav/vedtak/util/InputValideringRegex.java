@@ -63,6 +63,14 @@ public class InputValideringRegex {
      */
     public static final String BASE64_RFC4648_URLSAFE_WITH_PADDING = REGEXP_START + ALFABET_ENGELSK + TALL + "\\-_=" + REGEXP_SLUTT;
 
+
+    private static final String ORGNR = "^\\d{9}$";
+    private static final String AKTØR_ID = "^\\d{13}$";
+    /**
+     * Orgnr eller aktørId
+     */
+    public static final String ARBEIDSGIVER = ORGNR + "|" + AKTØR_ID;
+
     private InputValideringRegex() {
         throw new IllegalAccessError("Skal ikke instansieres");
     }
