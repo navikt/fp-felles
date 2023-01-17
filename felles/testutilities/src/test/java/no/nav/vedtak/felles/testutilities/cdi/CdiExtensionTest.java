@@ -13,29 +13,29 @@ public class CdiExtensionTest {
 
     @Inject
     private AppBean appBean;
-    
+
     @Inject
     private ReqBean requestBean;
-    
+
     @Inject
     private DepBean depBean;
 
     @Test
-    void gotApplicationScopedBean() throws Exception {
+    void gotApplicationScopedBean() {
         assertThat(appBean).isNotNull();
         assertThat(appBean.getClass()).isNotEqualTo(AppBean.class);
         assertThat(appBean.hello()).isEqualTo("app");
     }
-    
+
     @Test
-    void gotRequestScopedBean() throws Exception {
+    void gotRequestScopedBean() {
         assertThat(requestBean).isNotNull();
         assertThat(requestBean.getClass()).isNotEqualTo(ReqBean.class);
         assertThat(requestBean.hello()).isEqualTo("request");
     }
-    
+
     @Test
-    void gotDependentScopedBean() throws Exception {
+    void gotDependentScopedBean() {
         assertThat(depBean).isNotNull();
         assertThat(depBean.getClass()).isEqualTo(DepBean.class);
         assertThat(depBean.hello()).isEqualTo("dep");
@@ -50,7 +50,7 @@ class AppBean {
     public AppBean() {
 
     }
-    
+
     String hello() {
         return "app";
     }
@@ -64,7 +64,7 @@ class ReqBean {
     public ReqBean() {
 
     }
-    
+
     String hello() {
         return "request";
     }
@@ -78,7 +78,7 @@ class DepBean {
     public DepBean() {
 
     }
-    
+
     String hello() {
         return "dep";
     }

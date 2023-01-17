@@ -29,7 +29,7 @@ public class OidcTokenValidatorTest {
     private OidcTokenValidator tokenValidator;
 
     @BeforeEach
-    public void beforeEach() throws MalformedURLException {
+    public void beforeEach() {
 
         System.setProperty(OidcProviderConfig.AZURE_CLIENT_ID, "OIDC");
         System.setProperty(OidcProviderConfig.AZURE_CONFIG_ISSUER, OidcTokenGenerator.ISSUER);
@@ -45,14 +45,14 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_godta_token_som_har_forventede_verdier() throws Exception {
+    public void skal_godta_token_som_har_forventede_verdier() {
         var token = new OidcTokenGenerator().createHeaderTokenHolder();
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertValid(result);
     }
 
     @Test
-    public void skal_godta_token_som_har_forventede_verdier_og_i_tillegg_har_noen_ukjente_claims() throws Exception {
+    public void skal_godta_token_som_har_forventede_verdier_og_i_tillegg_har_noen_ukjente_claims() {
         var token = new OidcTokenGenerator()
                 .withClaim("email", "foo@bar.nav.no")
                 .createHeaderTokenHolder();
@@ -62,7 +62,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ikke_godta_token_som_har_feil_issuer() throws Exception {
+    public void skal_ikke_godta_token_som_har_feil_issuer() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 2 ..The Issuer Identifier for the OpenID provider .. MUST exactly match the
@@ -77,7 +77,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_godta_token_uansett_audience() throws Exception {
+    public void skal_godta_token_uansett_audience() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 3 ..The ID token MUST be rejected if the ID Token does not list the Client as
@@ -100,8 +100,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ikke_godta_at_azp_mangler_hvis_det_er_multiple_audiences_fordi_dette_trengs_for_å_senere_kunne_gjøre_refresh_av_token()
-            throws Exception {
+    public void skal_ikke_godta_at_azp_mangler_hvis_det_er_multiple_audiences_fordi_dette_trengs_for_å_senere_kunne_gjøre_refresh_av_token() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 4 If the ID Token contains multiple audiences, the Client SHOULD verify that
@@ -134,7 +133,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ikke_godta_token_som_er_signert_med_feil_sertifikat() throws Exception {
+    public void skal_ikke_godta_token_som_er_signert_med_feil_sertifikat() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 6 ... The Client MUST validate the signature of all other ID Tokens according
@@ -165,7 +164,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_godta_token_som_har_gått_ut_på_tid_i_egen_metode_som_validerer_uten_tid() throws Exception {
+    public void skal_godta_token_som_har_gått_ut_på_tid_i_egen_metode_som_validerer_uten_tid() {
         long now = NumericDate.now().getValue();
         var token = new OidcTokenGenerator()
                 .withIssuedAt(NumericDate.fromSeconds(now - 3601))
@@ -238,7 +237,7 @@ public class OidcTokenValidatorTest {
     }
 
     private static class JwksKeyHandlerFromString extends JwksKeyHandlerImpl {
-        private JwksKeyHandlerFromString(String jwks) throws MalformedURLException {
+        private JwksKeyHandlerFromString(String jwks) {
             super(() -> jwks, URI.create("http://www.vg.no"));
         }
     }
