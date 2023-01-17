@@ -15,7 +15,7 @@ class ArbeidsfordelingRestTest {
     private static final ObjectReader READER = DefaultJsonMapper.getObjectMapper().reader();
 
     @Test
-    void test_request() throws Exception {
+    void test_request() {
         var request = ArbeidsfordelingRequest.ny()
                 .medTema("FOR")
                 .medOppgavetype("BEH_SAK_VL")

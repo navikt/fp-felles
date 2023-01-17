@@ -33,7 +33,7 @@ class SpøkelseTest {
     private RestClient restKlient;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         // Service setup
         spøkelse = new TestSpøkelse(restKlient);
     }

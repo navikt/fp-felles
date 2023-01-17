@@ -58,7 +58,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void kallPdpMedSamlTokenNårIdTokenErSamlToken() throws Exception {
+    public void kallPdpMedSamlTokenNårIdTokenErSamlToken() {
         var idToken = Token.withSamlToken("SAML");
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -72,7 +72,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void kallPdpUtenFnrResourceHvisPersonlisteErTom() throws FileNotFoundException {
+    public void kallPdpUtenFnrResourceHvisPersonlisteErTom() {
         var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -87,7 +87,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void kallPdpMedJwtTokenBodyNårIdTokenErJwtToken() throws Exception {
+    public void kallPdpMedJwtTokenBodyNårIdTokenErJwtToken() {
         var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -102,7 +102,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void kallPdpMedJwtTokenBodyNårIdTokenErTokeXToken() throws Exception {
+    public void kallPdpMedJwtTokenBodyNårIdTokenErTokeXToken() {
         var idToken = Token.withOidcToken(JWT_TOKENX_TOKEN);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -194,7 +194,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void skal_base64_encode_saml_token() throws Exception {
+    public void skal_base64_encode_saml_token() {
         var idToken = Token.withSamlToken("<dummy SAML token>");
         @SuppressWarnings("unused")
         var responseWrapper = createResponse("xacmlresponse_multiple_obligation.json");
@@ -213,7 +213,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void skal_bare_ta_med_deny_advice() throws Exception {
+    public void skal_bare_ta_med_deny_advice() {
         var idToken = Token.withSamlToken("<dummy SAML token>");
         var responseWrapper = createResponse("xacmlresponse_1deny_1permit.json");
 
@@ -246,7 +246,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void skalFeileVedUkjentObligation() throws Exception {
+    public void skalFeileVedUkjentObligation() {
         var idToken = Token.withSamlToken("SAML");
         var responseWrapper = createResponse("xacmlresponse_multiple_obligation.json");
 
@@ -263,7 +263,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void skal_håndtere_blanding_av_fnr_og_aktør_id() throws FileNotFoundException {
+    public void skal_håndtere_blanding_av_fnr_og_aktør_id() {
 
         var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacml3response.json");

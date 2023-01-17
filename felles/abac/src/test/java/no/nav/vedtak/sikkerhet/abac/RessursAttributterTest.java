@@ -16,7 +16,7 @@ import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataKey;
 class RessursAttributterTest {
 
     @Test
-    void skal_lage_kryssprodukt_mellom_identer() throws Exception {
+    void skal_lage_kryssprodukt_mellom_identer() {
         var fnr = new LinkedHashSet<String>();
         fnr.add("11111111111");
         fnr.add("22222222222");
@@ -44,7 +44,7 @@ class RessursAttributterTest {
     }
 
     @Test
-    void skal_fungere_uten_fnr() throws Exception {
+    void skal_fungere_uten_fnr() {
         var req = AppRessursData.builder()
             .leggTilRessurs(ForeldrepengerDataKeys.SAKSBEHANDLER, "A000000")
             .build();
@@ -56,7 +56,7 @@ class RessursAttributterTest {
     }
 
     @Test
-    void skal_fungere_uten_fnr_og_uten_aksjonspunkt_type() throws Exception {
+    void skal_fungere_uten_fnr_og_uten_aksjonspunkt_type() {
         var req = AppRessursData.builder().build();
 
         assertThat(getFnrFromList(req, 0)).isNotPresent();

@@ -13,7 +13,7 @@ import no.nav.vedtak.sikkerhet.jaspic.DelegatedProtectedResource;
 class SoapProtectedResourceTest {
 
     @Test
-    void load_service() throws Exception {
+    void load_service() {
         ClassLoader classLoader = SoapProtectedResourceTest.class.getClassLoader();
         assertThat(ServiceLoader.load(DelegatedProtectedResource.class, classLoader)).anyMatch(p -> SoapProtectedResource.class.equals(p.getClass()));
     }

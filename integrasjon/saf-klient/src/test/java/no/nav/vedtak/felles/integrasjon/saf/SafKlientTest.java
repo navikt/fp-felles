@@ -55,14 +55,14 @@ class SafKlientTest {
     private RestClient restKlient;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         // Service setup
         safTjeneste = new TestSafTjeneste(restKlient);
     }
 
     @SuppressWarnings("resource")
     @Test
-    void skal_returnere_dokumentoversikt_fagsak() throws IOException {
+    void skal_returnere_dokumentoversikt_fagsak() {
         // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111", fagsaksystem: "AO01"}, foerste: 5)
         var resource = getClass().getClassLoader().getResource("saf/documentResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, DokumentoversiktFagsakQueryResponse.class);
@@ -84,7 +84,7 @@ class SafKlientTest {
 
     @SuppressWarnings("resource")
     @Test
-    void skal_returnere_journalpost() throws IOException {
+    void skal_returnere_journalpost() {
         // query-eksempel: journalpost(journalpostId: "439560100")
         var resource = getClass().getClassLoader().getResource("saf/journalpostResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, JournalpostQueryResponse.class);
@@ -101,7 +101,7 @@ class SafKlientTest {
 
     @SuppressWarnings("resource")
     @Test
-    void skal_returnere_tilknyttet_journalpost() throws IOException {
+    void skal_returnere_tilknyttet_journalpost() {
         // query-eksempel: tilknyttedeJournalposter(dokumentInfoId:"469211538",
         // tilknytning:GJENBRUK)
         var resource = getClass().getClassLoader().getResource("saf/tilknyttetResponse.json");
@@ -123,7 +123,7 @@ class SafKlientTest {
 
     @SuppressWarnings("resource")
     @Test
-    void skal_konvertere_feilmelding_til_feil() throws IOException {
+    void skal_konvertere_feilmelding_til_feil() {
         // query-eksempel: journalpost(journalpostId: "439560100")
         var resource = getClass().getClassLoader().getResource("saf/errorResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, JournalpostQueryResponse.class);
@@ -137,7 +137,7 @@ class SafKlientTest {
     }
 
     @Test
-    void skal_returnere_dokument() throws IOException {
+    void skal_returnere_dokument() {
         // GET-eksempel: hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}
         byte[] respons = "<dokument_as_bytes>".getBytes();
         var captor = ArgumentCaptor.forClass(RestRequest.class);
