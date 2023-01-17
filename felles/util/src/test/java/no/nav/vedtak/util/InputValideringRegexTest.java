@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class InputValideringRegexTest {
 
     @Test
-    public void skal_matche_ulike_navn() throws Exception {
+    public void skal_matche_ulike_navn() {
         assertThat("Gisle-Børge").matches(NAVN);
         assertThat("Kari Normann").matches(NAVN);
         assertThat("Mc'Donald").matches(NAVN);
@@ -31,25 +31,25 @@ public class InputValideringRegexTest {
     }
 
     @Test
-    public void skal_ikke_tillate_diverse_som_navn() throws Exception {
+    public void skal_ikke_tillate_diverse_som_navn() {
         assertThat("<script type=js").doesNotMatch(NAVN);
         assertThat("\\u0013rf").doesNotMatch(NAVN);
     }
 
     @Test
-    public void skal_matche_adreser() throws Exception {
+    public void skal_matche_adreser() {
         assertThat("Kari Normann\n\tParkveien 1\n0141 OSLO").matches(ADRESSE);
         assertThat("Mc'Donald\nc/o Kari Normann\nParkveien 1\n4124 Bærum verk\nNORGE").matches(ADRESSE);
     }
 
     @Test
-    public void skal_ikke_tillate_diverse_som_adresse() throws Exception {
+    public void skal_ikke_tillate_diverse_som_adresse() {
         assertThat("<script type=js").doesNotMatch(ADRESSE);
         assertThat("\\u0013rf").doesNotMatch(ADRESSE);
     }
 
     @Test
-    public void skal_matche_fritekst() throws Exception {
+    public void skal_matche_fritekst() {
         assertThat("Pga. §124 i Lov om foobar: \"sitat\", innvilges stønad. Se https://nav.no/abc/ for mer info.").matches(FRITEKST);
         assertThat("Du har søkt om 80% stønadsgrad, og annen forelder om 100%; hva er riktig? Omforen dere!").matches(FRITEKST);
         assertThat("Dette er (nesten) helt OK.").matches(FRITEKST);
@@ -59,12 +59,12 @@ public class InputValideringRegexTest {
     }
 
     @Test
-    public void skal_ikke_tillate_script_tag_i_fritekst() throws Exception {
+    public void skal_ikke_tillate_script_tag_i_fritekst() {
         assertThat("<script").doesNotMatch(FRITEKST);
     }
 
     @Test
-    public void skal_matche_kodeverk() throws Exception {
+    public void skal_matche_kodeverk() {
         assertThat("ABC_123").matches(KODEVERK);
         assertThat("avbrutt-annulert").matches(KODEVERK);
         assertThat("ab0053").matches(KODEVERK);

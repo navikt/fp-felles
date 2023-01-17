@@ -21,37 +21,37 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 class SerializationTest {
 
     @Test
-    void saksnummerTest() throws Exception {
+    void saksnummerTest() {
         test(saksnummer(42));
     }
 
     @Test
-    void sakTest() throws Exception {
+    void sakTest() {
         test(enSak(1));
     }
 
     @Test
-    void utbetalingTest() throws Exception {
+    void utbetalingTest() {
         test(utbetaling(0));
     }
 
     @Test
-    void åpenSakTest() throws Exception {
+    void åpenSakTest() {
         test(åpenSak(4));
     }
 
     @Test
-    void avsluttedeSakerTest() throws Exception {
+    void avsluttedeSakerTest() {
         test(avsluttedeSaker(4));
     }
 
     @Test
-    void avsluttedeSakTest() throws Exception {
+    void avsluttedeSakTest() {
         test(enAvsluttetSak(4));
     }
 
     @Test
-    void sakResponsTest() throws Exception {
+    void sakResponsTest() {
         test(sakRespons(2));
     }
 
@@ -60,11 +60,11 @@ class SerializationTest {
         testJson(jsonFra("rest/svprespons.json"), Saker.class);
     }
 
-    private static void testJson(String json, Class<?> clazz) throws Exception {
+    private static void testJson(String json, Class<?> clazz) {
         testJson(json, clazz, true);
     }
 
-    private static void testJson(String json, Class<?> clazz, boolean log) throws Exception {
+    private static void testJson(String json, Class<?> clazz, boolean log) {
         var deser = DefaultJsonMapper.fromJson(json, clazz);
         if (log) {
             System.out.println("##");
@@ -73,11 +73,11 @@ class SerializationTest {
         }
     }
 
-    private static void test(Object object) throws IOException {
+    private static void test(Object object) {
         test(object, true);
     }
 
-    private static void test(Object object, boolean log) throws IOException {
+    private static void test(Object object, boolean log) {
         String ser = write(object);
         var deser = DefaultJsonMapper.fromJson(ser, object.getClass());
         if (log) {
@@ -89,7 +89,7 @@ class SerializationTest {
         assertEquals(object, deser);
     }
 
-    private static String write(Object object) throws JsonProcessingException {
+    private static String write(Object object) {
         return DefaultJsonMapper.toJson(object);
     }
 

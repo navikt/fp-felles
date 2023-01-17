@@ -102,7 +102,7 @@ class EregRestTest {
         """;
 
     @Test
-    void mapping_organisasjon() throws IOException {
+    void mapping_organisasjon() {
         var org = DefaultJsonMapper.fromJson(json, OrganisasjonEReg.class);
 
         assertThat(org.getNavn()).isEqualTo("NAV IKT");

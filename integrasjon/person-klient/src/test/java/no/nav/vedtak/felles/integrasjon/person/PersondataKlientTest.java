@@ -53,13 +53,13 @@ class PersondataKlientTest {
     private RestClient restClient;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         // Service setup
         pdlKlient = new TestPdlKLient(restClient);
     }
 
     @Test
-    void skal_returnere_person() throws IOException {
+    void skal_returnere_person() {
         // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111",
         // fagsaksystem: "AO01"}, foerste: 5)
         var resource = getClass().getClassLoader().getResource("pdl/personResponse.json");
@@ -83,7 +83,7 @@ class PersondataKlientTest {
     }
 
     @Test
-    void skal_returnere_ident() throws IOException {
+    void skal_returnere_ident() {
         var resource = getClass().getClassLoader().getResource("pdl/identerResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, HentIdenterQueryResponse.class);
         when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
@@ -102,7 +102,7 @@ class PersondataKlientTest {
     }
 
     @Test
-    void skal_returnere_bolk_med_identer() throws IOException {
+    void skal_returnere_bolk_med_identer() {
         var resource = getClass().getClassLoader().getResource("pdl/identerBolkResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, HentIdenterBolkQueryResponse.class);
         when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
@@ -125,7 +125,7 @@ class PersondataKlientTest {
     }
 
     @Test
-    void skal_returnere_ikke_funnet() throws IOException {
+    void skal_returnere_ikke_funnet() {
         var resource = getClass().getClassLoader().getResource("pdl/errorResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, HentIdenterQueryResponse.class);
         when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
