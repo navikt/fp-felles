@@ -61,6 +61,9 @@ public enum FpApplication {
     }
 
     public static String scopesFor(FpApplication application) {
+        if (CLUSTER.isLocal()) {
+            return "api://" + Cluster.VTP.clusterName() + "." + NAMESPACE.getName() + "." + application.name().toLowerCase() + "/.default";
+        }
         return "api://" + CLUSTER.clusterName() + "." + NAMESPACE.getName() + "." + application.name().toLowerCase() + "/.default";
     }
 
