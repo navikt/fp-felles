@@ -9,9 +9,7 @@ public enum Cluster {
     LOCAL("local"),
     VTP("vtp"),
     DEV_FSS("dev-fss"),
-    DEV_SBS("dev-sbs"),
     DEV_GCP("dev-gcp"),
-    PROD_SBS("prod-sbs"),
     PROD_GCP("prod-gcp"),
     PROD_FSS("prod-fss");
 

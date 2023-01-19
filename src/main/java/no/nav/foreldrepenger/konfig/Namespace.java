@@ -7,7 +7,7 @@ import java.util.Optional;
 public class Namespace {
     public static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE";
 
-    private static final String DEFAULT_NAMESPACE = "default";
+    private static final String DEFAULT_NAMESPACE = "teamforeldrepenger";
 
     private final String name;
 
@@ -26,6 +26,10 @@ public class Namespace {
     public static Namespace current() {
         return Namespace.of(Optional.ofNullable(getenv(NAIS_NAMESPACE_NAME))
                 .orElse(DEFAULT_NAMESPACE));
+    }
+
+    public static Namespace foreldrepenger() {
+        return Namespace.of(DEFAULT_NAMESPACE);
     }
 
     @Override
