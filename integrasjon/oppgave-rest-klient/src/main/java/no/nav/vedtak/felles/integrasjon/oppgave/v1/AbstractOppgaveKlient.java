@@ -36,7 +36,7 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     }
 
     @Override
-    public List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
+    public List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) {
         var builder = UriBuilder.fromUri(restConfig.endpoint());
         if (aktørId != null) {
             builder.queryParam("aktoerId", aktørId);
@@ -51,16 +51,29 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     }
 
     @Override
-    public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
+    public List<Oppgave> finnÅpneOppgaverForEnhet(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
+        return opprettOppgaveRequestBuilder(aktørId, tema, oppgaveTyper, tildeltEnhetsnr);
+    }
+
+    @Override
+    public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) {
+        return opprettOppgaveRequestBuilder(aktørId, tema, oppgaveTyper, null);
+    }
+
+    private List<Oppgave>  opprettOppgaveRequestBuilder(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
         var builder = UriBuilder.fromUri(restConfig.endpoint());
         if (aktørId != null) {
             builder.queryParam("aktoerId", aktørId);
         }
-        builder.queryParam("statuskategori", STATUSKATEGORI_AAPEN);
         if (tema != null) {
             builder.queryParam("tema", tema);
         }
+        if (tildeltEnhetsnr != null) {
+            builder.queryParam("tildeltEnhetsnr", tildeltEnhetsnr);
+        }
+        builder.queryParam("statuskategori", STATUSKATEGORI_AAPEN);
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
+
         var request = RestRequest.newGET(builder.build(), restConfig)
             .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
