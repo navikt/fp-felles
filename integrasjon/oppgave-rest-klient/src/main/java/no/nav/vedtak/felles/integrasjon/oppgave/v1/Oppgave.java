@@ -21,7 +21,6 @@ public record Oppgave(Long id,
                       LocalDate aktivDato,
                       Prioritet prioritet,
                       Oppgavestatus status,
-                      String orgnr,
                       String beskrivelse,
                       LocalDateTime opprettetTidspunkt) {
 }

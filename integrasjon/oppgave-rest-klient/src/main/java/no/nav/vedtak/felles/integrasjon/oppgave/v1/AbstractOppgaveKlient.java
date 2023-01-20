@@ -52,15 +52,15 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
 
     @Override
     public List<Oppgave> finnÅpneOppgaverForEnhet(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
-        return opprettOppgaveRequestBuilder(aktørId, tema, oppgaveTyper, tildeltEnhetsnr);
+        return hentOppgaverFor(aktørId, tema, oppgaveTyper, tildeltEnhetsnr);
     }
 
     @Override
     public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) {
-        return opprettOppgaveRequestBuilder(aktørId, tema, oppgaveTyper, null);
+        return hentOppgaverFor(aktørId, tema, oppgaveTyper, null);
     }
 
-    private List<Oppgave>  opprettOppgaveRequestBuilder(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
+    private List<Oppgave> hentOppgaverFor(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
         var builder = UriBuilder.fromUri(restConfig.endpoint());
         if (aktørId != null) {
             builder.queryParam("aktoerId", aktørId);
