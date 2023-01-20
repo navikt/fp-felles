@@ -1,6 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -19,6 +20,7 @@ public record Oppgave(Long id,
                       LocalDate fristFerdigstillelse,
                       LocalDate aktivDato,
                       Prioritet prioritet,
-                      Oppgavestatus status) {
-
+                      Oppgavestatus status,
+                      String beskrivelse,
+                      LocalDateTime opprettetTidspunkt) {
 }

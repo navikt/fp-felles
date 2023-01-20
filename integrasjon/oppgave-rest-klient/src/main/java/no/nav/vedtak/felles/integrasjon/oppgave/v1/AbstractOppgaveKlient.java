@@ -36,10 +36,14 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     }
 
     @Override
-    public List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
-        var builder = UriBuilder.fromUri(restConfig.endpoint()).queryParam("aktoerId", aktørId);
-        if (tema != null)
+    public List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) {
+        var builder = UriBuilder.fromUri(restConfig.endpoint());
+        if (aktørId != null) {
+            builder.queryParam("aktoerId", aktørId);
+        }
+        if (tema != null) {
             builder.queryParam("tema", tema);
+        }
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
         var request = RestRequest.newGET(builder.build(), restConfig)
             .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
@@ -47,13 +51,29 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     }
 
     @Override
-    public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
-        var builder = UriBuilder.fromUri(restConfig.endpoint())
-            .queryParam("aktoerId", aktørId)
-            .queryParam("statuskategori", STATUSKATEGORI_AAPEN);
-        if (tema != null)
+    public List<Oppgave> finnÅpneOppgaverForEnhet(String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
+        return hentOppgaverFor(null, tema, oppgaveTyper, tildeltEnhetsnr);
+    }
+
+    @Override
+    public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) {
+        return hentOppgaverFor(aktørId, tema, oppgaveTyper, null);
+    }
+
+    private List<Oppgave> hentOppgaverFor(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
+        var builder = UriBuilder.fromUri(restConfig.endpoint());
+        if (aktørId != null) {
+            builder.queryParam("aktoerId", aktørId);
+        }
+        if (tema != null) {
             builder.queryParam("tema", tema);
+        }
+        if (tildeltEnhetsnr != null) {
+            builder.queryParam("tildeltEnhetsnr", tildeltEnhetsnr);
+        }
+        builder.queryParam("statuskategori", STATUSKATEGORI_AAPEN);
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
+
         var request = RestRequest.newGET(builder.build(), restConfig)
             .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
