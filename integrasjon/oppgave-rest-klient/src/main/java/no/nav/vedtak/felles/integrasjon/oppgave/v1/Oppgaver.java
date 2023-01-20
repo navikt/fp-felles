@@ -11,7 +11,7 @@ public interface Oppgaver {
     void ferdigstillOppgave(String oppgaveId);
 
     List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception;
-    List<Oppgave> finnÅpneOppgaverForEnhet(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) throws Exception;
+    List<Oppgave> finnÅpneOppgaverForEnhet(String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) throws Exception;
 
     List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception;
 

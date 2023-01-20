@@ -51,8 +51,8 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     }
 
     @Override
-    public List<Oppgave> finnÅpneOppgaverForEnhet(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
-        return hentOppgaverFor(aktørId, tema, oppgaveTyper, tildeltEnhetsnr);
+    public List<Oppgave> finnÅpneOppgaverForEnhet(String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
+        return hentOppgaverFor(null, tema, oppgaveTyper, tildeltEnhetsnr);
     }
 
     @Override
