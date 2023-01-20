@@ -19,7 +19,7 @@ class MdcExtendedLogContextTest {
     }
 
     @Test
-    void skal_legge_til_ny_verdi() throws Exception {
+    void skal_legge_til_ny_verdi() {
 
         context.add("behandling", 1L);
         assertThat(context.getFullText()).isEqualTo("prosess[behandling=1]");
@@ -32,7 +32,7 @@ class MdcExtendedLogContextTest {
     }
 
     @Test
-    void skal_hente_key_part() throws Exception {
+    void skal_hente_key_part() {
         context.add("behandling", 1L);
         context.add("fagsak", 2L);
         context.add("prosess", 3L);
@@ -40,7 +40,7 @@ class MdcExtendedLogContextTest {
     }
 
     @Test
-    void skal_fjerne_verdi() throws Exception {
+    void skal_fjerne_verdi() {
         context.add("behandling", 1L);
         context.add("fagsak", 2L);
         context.add("prosess", 3L);
@@ -59,7 +59,7 @@ class MdcExtendedLogContextTest {
     }
 
     @Test
-    void skal_fjerne_verdi_i_midten() throws Exception {
+    void skal_fjerne_verdi_i_midten() {
         context.add("behandling", 1L);
         context.add("fagsak", 2L);
         context.add("prosess", 3L);

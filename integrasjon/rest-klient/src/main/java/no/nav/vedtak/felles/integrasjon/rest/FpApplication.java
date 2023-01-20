@@ -24,7 +24,8 @@ public enum FpApplication {
 
     private static final Environment ENV = Environment.current();
     private static final Cluster CLUSTER  = ENV.getCluster();
-    private static final Namespace NAMESPACE = ENV.getNamespace();
+    // FpApplication brukes til å kalle apps i namespace foreldrepenger - ikke riktig å bruke ENV/namespace
+    private static final Namespace FORELDREPENGER = Namespace.of("teamforeldrepenger");
 
     /*
      * Utelatt fpabonnent:8065
@@ -61,10 +62,14 @@ public enum FpApplication {
     }
 
     public static String scopesFor(FpApplication application) {
-        return "api://" + CLUSTER.clusterName() + "." + NAMESPACE.getName() + "." + application.name().toLowerCase() + "/.default";
+        if (CLUSTER.isLocal()) {
+            return "api://" + Cluster.VTP.clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
+        }
+        return "api://" + CLUSTER.clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
     }
 
     private String contextPathProperty() {
         return this.name() + ".override.url";
     }
+
 }

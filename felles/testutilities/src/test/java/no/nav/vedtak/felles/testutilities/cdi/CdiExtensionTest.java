@@ -22,21 +22,21 @@ public class CdiExtensionTest {
     private DepBean depBean;
 
     @Test
-    void gotApplicationScopedBean() throws Exception {
+    void gotApplicationScopedBean() {
         assertThat(appBean).isNotNull();
         assertThat(appBean.getClass()).isNotEqualTo(AppBean.class);
         assertThat(appBean.hello()).isEqualTo("app");
     }
 
     @Test
-    void gotRequestScopedBean() throws Exception {
+    void gotRequestScopedBean() {
         assertThat(requestBean).isNotNull();
         assertThat(requestBean.getClass()).isNotEqualTo(ReqBean.class);
         assertThat(requestBean.hello()).isEqualTo("request");
     }
 
     @Test
-    void gotDependentScopedBean() throws Exception {
+    void gotDependentScopedBean() {
         assertThat(depBean).isNotNull();
         assertThat(depBean.getClass()).isEqualTo(DepBean.class);
         assertThat(depBean.hello()).isEqualTo("dep");

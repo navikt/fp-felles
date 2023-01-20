@@ -63,7 +63,7 @@ class LRUCacheTest {
     }
 
     @Test
-    void skal_legge_til_og_slette_key() throws Exception {
+    void skal_legge_til_og_slette_key() {
         cache.put(1L, "1");
         assertThat(cache.get(1L)).isNotNull();
         cache.remove(1L);
@@ -71,12 +71,12 @@ class LRUCacheTest {
     }
 
     @Test
-    void skal_slette_key_som_ikke_eksister() throws Exception {
+    void skal_slette_key_som_ikke_eksister() {
         cache.remove(1L);
     }
 
     @Test
-    void skal_oppdatere_eksisterende_key() throws Exception {
+    void skal_oppdatere_eksisterende_key() {
         cache.put(1L, "1");
         cache.put(1L, "2");
         assertThat(cache.get(1L)).isEqualTo("2");

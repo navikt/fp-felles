@@ -21,7 +21,7 @@ class CallIdInInterceptorTest {
     private CallIdInInterceptor interceptor = new CallIdInInterceptor();
 
     @Test
-    void skal_sette_callId_hvis_finnes_i_soap_melding() throws Exception {
+    void skal_sette_callId_hvis_finnes_i_soap_melding() {
         var message = new SoapMessage(Soap11.getInstance());
         String callerId = MDCOperations.generateCallId();
         when(element.getTextContent()).thenReturn(callerId);
