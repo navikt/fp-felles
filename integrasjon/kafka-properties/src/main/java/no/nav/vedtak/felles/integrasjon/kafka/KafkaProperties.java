@@ -29,7 +29,7 @@ public class KafkaProperties {
                                          String credStorePassword) {
 
         final Properties props = new Properties();
-        props.put(CommonClientConfigs.CLIENT_ID_CONFIG, generateClientId(APPLICATION_NAME));
+        props.put(CommonClientConfigs.CLIENT_ID_CONFIG, generateClientId());
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 
         putSecurity(props, trustStorePath, keyStoreLocation, credStorePassword);
@@ -63,7 +63,7 @@ public class KafkaProperties {
         final Properties props = new Properties();
 
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
-        props.put(StreamsConfig.CLIENT_ID_CONFIG, generateClientId(APPLICATION_NAME));
+        props.put(StreamsConfig.CLIENT_ID_CONFIG, generateClientId());
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 
         putSecurity(props, trustStorePath, keyStoreLocation, credStorePassword);
@@ -79,8 +79,8 @@ public class KafkaProperties {
         return props;
     }
 
-    private static String generateClientId(String source) {
-        return source + "-" + UUID.randomUUID();
+    private static String generateClientId() {
+        return APPLICATION_NAME + "-" + UUID.randomUUID();
     }
 
     private static void putSecurity(Properties props,
