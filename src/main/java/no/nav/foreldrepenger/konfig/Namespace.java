@@ -5,7 +5,6 @@ import static java.lang.System.getenv;
 import java.util.Optional;
 
 public class Namespace {
-    public static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE";
 
     private static final String DEFAULT_NAMESPACE = "teamforeldrepenger";
 
@@ -24,7 +23,7 @@ public class Namespace {
     }
 
     public static Namespace current() {
-        return Namespace.of(Optional.ofNullable(getenv(NAIS_NAMESPACE_NAME))
+        return Namespace.of(Optional.ofNullable(getenv(NaisProperty.NAMESPACE.propertyName()))
                 .orElse(DEFAULT_NAMESPACE));
     }
 

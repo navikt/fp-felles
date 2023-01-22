@@ -26,30 +26,31 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi.UrlConverter;
 
 public final class Environment {
 
-    public static final String NAIS_APP_NAME = "NAIS_APP_NAME";
-
     static final class Init {
-        // Josh Bloch's lazy load singleton (ref "Effective Java"). Siden Init ikke
-        // lastes før den referes blir feltet her initiert først når den aksesseres
-        // første gang.
-        static final Environment CURRENT = of(Cluster.current(), Namespace.current());
+        // Josh Bloch's lazy load singleton (ref "Effective Java").
+        // Siden Init ikke lastes før den referes blir feltet her initiert først når den aksesseres første gang.
+        static final Environment CURRENT = of(Cluster.current(), Namespace.current(), Application.current(), ClientId.current());
 
         private Init() {
         }
 
-        private static Environment of(Cluster cluster, Namespace namespace) {
-            return new Environment(cluster, namespace);
+        private static Environment of(Cluster cluster, Namespace namespace, Application application, ClientId clientId) {
+            return new Environment(cluster, namespace, application, clientId);
         }
 
     }
 
     private final Cluster cluster;
     private final Namespace namespace;
+    private final Application application;
+    private final ClientId clientId;
     private final List<KonfigVerdiProvider> propertySources;
 
-    private Environment(Cluster cluster, Namespace namespace) {
+    private Environment(Cluster cluster, Namespace namespace, Application application, ClientId clientId) {
         this.cluster = cluster;
         this.namespace = namespace;
+        this.application = application;
+        this.clientId = clientId;
         this.propertySources = List.of(
                 new SystemPropertiesKonfigVerdiProvider(),
                 new EnvPropertiesKonfigVerdiProvider(),
@@ -66,6 +67,14 @@ public final class Environment {
 
     public Namespace getNamespace() {
         return namespace;
+    }
+
+    public Application getApplication() {
+        return application;
+    }
+
+    public ClientId getClientId() {
+        return clientId;
     }
 
     public boolean isProd() {
@@ -88,8 +97,20 @@ public final class Environment {
         return cluster.clusterName();
     }
 
+    public String namespace() {
+        return namespace.getName();
+    }
+
+    public String application() {
+        return Optional.ofNullable(application).map(Application::getName).orElse(null);
+    }
+
+    public String clientId() {
+        return Optional.ofNullable(clientId).map(ClientId::getClientId).orElse(null);
+    }
+
     public String getNaisAppName() {
-        return getProperty(NAIS_APP_NAME, "local-app");
+        return getProperty(NaisProperty.APPLICATION.propertyName(), "local-app");
     }
 
     public Properties getPropertiesWithPrefix(String prefix) {
@@ -115,10 +136,6 @@ public final class Environment {
                 .findFirst()
                 .map(KonfigVerdiProvider::getAllProperties)
                 .orElseThrow();
-    }
-
-    public String namespace() {
-        return namespace.getName();
     }
 
     public List<KonfigVerdiProvider> getPropertySources() {

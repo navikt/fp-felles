@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.konfig;
 import static java.lang.System.getenv;
 
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.Objects;
 
 public enum Cluster {
     LOCAL("local"),
@@ -15,8 +15,6 @@ public enum Cluster {
 
     private static final String PROD = "prod";
     private static final String DEV = "dev";
-
-    public static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
 
     private final String name;
 
@@ -45,8 +43,9 @@ public enum Cluster {
     }
 
     public static Cluster current() {
+        var active = getenv(NaisProperty.CLUSTER.propertyName());
         return Arrays.stream(values())
-                .filter(Cluster::isActive)
+                .filter(c -> active != null && Objects.equals(active, c.name))
                 .findFirst()
                 .orElse(LOCAL);
     }
@@ -56,12 +55,6 @@ public enum Cluster {
                 .filter(v -> v.name.equals(name))
                 .findFirst()
                 .orElseThrow();
-    }
-
-    private boolean isActive() {
-        return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
-                .filter(name::equals)
-                .isPresent();
     }
 
 }

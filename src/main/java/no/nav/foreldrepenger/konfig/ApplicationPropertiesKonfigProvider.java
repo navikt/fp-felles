@@ -65,7 +65,7 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
         }
 
         private static String namespaceName() {
-            return getenv(NAIS_NAMESPACE_NAME);
+            return getenv(NaisProperty.NAMESPACE.propertyName());
         }
 
         private static String clusterKonfig() {
@@ -73,15 +73,13 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
         }
 
         private static String clusterName() {
-            return Optional.ofNullable(getenv(NAIS_CLUSTER_NAME))
+            return Optional.ofNullable(getenv(NaisProperty.CLUSTER.propertyName()))
                     .orElse(LOCAL);
         }
     }
 
     private static final int PRIORITET = EnvPropertiesKonfigVerdiProvider.PRIORITET + 1;
     private static final String LOCAL = "local";
-    private static final String NAIS_CLUSTER_NAME = "NAIS_CLUSTER_NAME";
-    private static final String NAIS_NAMESPACE_NAME = "NAIS_NAMESPACE";
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPropertiesKonfigProvider.class);
 
