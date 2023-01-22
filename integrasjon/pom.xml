@@ -24,6 +24,7 @@
         <module>ereg-klient</module>
         <module>saf-klient</module>
         <module>spokelse-klient</module>
+        <module>kafka-properties</module>
     </modules>
     <dependencyManagement>
         <dependencies>
