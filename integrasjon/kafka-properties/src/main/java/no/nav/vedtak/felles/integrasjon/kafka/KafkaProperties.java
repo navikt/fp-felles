@@ -23,6 +23,9 @@ public class KafkaProperties {
     private static final boolean IS_DEPLOYMENT = ENV.isProd() || ENV.isDev();
     private static final String APPLICATION_NAME = ENV.getNaisAppName();
 
+    private KafkaProperties() {
+    }
+
     // Alle som produserer Json-meldinger
     public static Properties forProducer() {
 
