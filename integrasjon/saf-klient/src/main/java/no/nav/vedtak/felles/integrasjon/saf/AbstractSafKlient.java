@@ -27,6 +27,7 @@ import no.nav.saf.TilknyttedeJournalposterQueryResponse;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 //@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "saf.base.url", endpointDefault = "https://saf.nais.adeo.no",
 //    scopesProperty = "saf.scopes", scopesDefault = "api://prod-fss.teamdokumenthandtering.saf/.default")
@@ -86,6 +87,13 @@ public abstract class AbstractSafKlient implements Saf {
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
+
+        if (KontekstHolder.harKontekst()) {
+            LOG.info("FPFELLES KONTEKST SAF har kontekst {} for {}", KontekstHolder.getKontekst().getContext(), KontekstHolder.getKontekst().getUid());
+        } else {
+            LOG.info("FPFELLES KONTEKST SAF har ikke kontekst");
+        }
+
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
         var request = RestRequest.newRequest(method, graphql, restConfig);
         var res = restKlient.send(request, clazz);
