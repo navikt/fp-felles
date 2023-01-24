@@ -32,6 +32,10 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-kontekst</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-oidc</artifactId>
         </dependency>
         <!--Path annotation-->

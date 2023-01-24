@@ -1,6 +1,8 @@
 package no.nav.vedtak.sikkerhet.oidc;
 
+import no.nav.vedtak.sikkerhet.context.RequestKontekst;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public class OidcLogin {
@@ -26,6 +28,8 @@ public class OidcLogin {
             return new Resultat(LoginResult.ID_TOKEN_EXPIRED, null, null);
         }
         if (validateResult.isValid()) {
+            var subjekt = validateResult.getSubject();
+            KontekstHolder.setKontekst(RequestKontekst.forRequest(subjekt.getName(), subjekt.getIdentType(), openIDToken));
             return new Resultat(LoginResult.SUCCESS, validateResult.getSubject(), null);
         }
         return new Resultat(LoginResult.ID_TOKEN_INVALID, null, validateResult.getErrorMessage());

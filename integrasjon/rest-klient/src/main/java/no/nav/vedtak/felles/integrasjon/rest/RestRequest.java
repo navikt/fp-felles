@@ -15,8 +15,8 @@ import javax.ws.rs.core.MediaType;
 import no.nav.vedtak.klient.http.HttpClientRequest;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 
 /**
  * Encapsulation of java.net.http.HttpRequest to supply OIDC-specific and JSON headers.
@@ -161,7 +161,7 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
 
     private static Supplier<OpenIDToken> selectTokenSupplier(TokenFlow tokenConfig, String scopes, RequestContextSupplier contextSupplier) {
         return switch (tokenConfig) {
-            case ADAPTIVE, ADAPTIVE_ADD_CONSUMER -> contextSupplier.adaptive(SikkerhetContext.BRUKER, scopes);
+            case ADAPTIVE, ADAPTIVE_ADD_CONSUMER -> contextSupplier.adaptive(SikkerhetContext.REQUEST, scopes);
             case SYSTEM, STS_CC, STS_ADD_CONSUMER -> contextSupplier.tokenForSystem();
             case AZUREAD_CC -> contextSupplier.azureTokenForSystem(scopes);
             case NO_AUTH_NEEDED -> throw new IllegalArgumentException("No supplier needed");
@@ -171,7 +171,7 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
     private static Supplier<String> selectConsumerId(TokenFlow tokenConfig, RequestContextSupplier contextSupplier) {
         return switch (tokenConfig) {
             case SYSTEM, STS_CC, AZUREAD_CC -> contextSupplier.consumerIdFor(SikkerhetContext.SYSTEM);
-            default -> contextSupplier.consumerIdFor(SikkerhetContext.BRUKER);
+            default -> contextSupplier.consumerIdFor(SikkerhetContext.REQUEST);
         };
     }
 

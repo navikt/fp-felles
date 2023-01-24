@@ -30,6 +30,11 @@
         <dependencies>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles-kontekst</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-oidc</artifactId>
                 <version>${project.version}</version>
             </dependency>

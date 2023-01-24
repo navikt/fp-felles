@@ -26,11 +26,14 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.neethi.Policy;
 
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 
 @SuppressWarnings("deprecation")
 public class StsConfigurationUtil {
 
     private static final Environment ENV = Environment.current();
+
+    private static final String STS_URL_KEY = "securityTokenService.url";
 
     private StsConfigurationUtil() {
         throw new IllegalAccessError("Skal ikke instansieres");
@@ -53,9 +56,9 @@ public class StsConfigurationUtil {
     }
 
     public static void configureStsForOnBehalfOfWithOidc(Client client) {
-        String location = requireProperty(SecurityConstants.STS_URL_KEY);
-        String username = requireProperty(SecurityConstants.SYSTEMUSER_USERNAME);
-        String password = requireProperty(SecurityConstants.SYSTEMUSER_PASSWORD);
+        String location = requireProperty(STS_URL_KEY);
+        String username = requireSystembruker(Systembruker.username());
+        String password = requireSystembruker(Systembruker.password());
         configureStsForOnBehalfOfWithOidc(client, location, username, password);
     }
 
@@ -68,9 +71,9 @@ public class StsConfigurationUtil {
     }
 
     public static void configureStsForSystemUser(Client client) {
-        String location = requireProperty(SecurityConstants.STS_URL_KEY);
-        String username = requireProperty(SecurityConstants.SYSTEMUSER_USERNAME);
-        String password = requireProperty(SecurityConstants.SYSTEMUSER_PASSWORD);
+        String location = requireProperty(STS_URL_KEY);
+        String username = requireSystembruker(Systembruker.username());
+        String password = requireSystembruker(Systembruker.password());
 
         configureStsForSystemUser(client, location, username, password);
     }
@@ -88,6 +91,13 @@ public class StsConfigurationUtil {
         String property = ENV.getProperty(key);
         if (property == null) {
             throw StsFeil.påkrevdSystemPropertyMangler(key);
+        }
+        return property;
+    }
+
+    private static String requireSystembruker(String property) {
+        if (property == null) {
+            throw StsFeil.påkrevdSystemPropertyMangler(Systembruker.class.getSimpleName());
         }
         return property;
     }

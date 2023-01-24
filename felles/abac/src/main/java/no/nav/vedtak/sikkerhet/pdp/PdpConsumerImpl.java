@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
 
@@ -32,8 +33,6 @@ public class PdpConsumerImpl implements PdpConsumer {
 
     private static final String DEFAULT_ABAC_URL = "http://abac-foreldrepenger.teamabac/application/authorize";
     private static final String PDP_ENDPOINT_URL_KEY = "abac.pdp.endpoint.url";
-    private static final String SYSTEMBRUKER_USERNAME = "systembruker.username";
-    private static final String SYSTEMBRUKER_PASSWORD = "systembruker.password"; // NOSONAR
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final Logger LOG = LoggerFactory.getLogger(PdpConsumerImpl.class);
 
@@ -47,11 +46,9 @@ public class PdpConsumerImpl implements PdpConsumer {
     } // CDI
 
     @Inject
-    public PdpConsumerImpl(@KonfigVerdi(value = PDP_ENDPOINT_URL_KEY, defaultVerdi = DEFAULT_ABAC_URL) String pdpUrl,
-                           @KonfigVerdi(SYSTEMBRUKER_USERNAME) String brukernavn,
-                           @KonfigVerdi(SYSTEMBRUKER_PASSWORD) String passord) {
+    public PdpConsumerImpl(@KonfigVerdi(value = PDP_ENDPOINT_URL_KEY, defaultVerdi = DEFAULT_ABAC_URL) String pdpUrl) {
         this.pdpUrl = URI.create(pdpUrl);
-        this.basicCredentials = basicCredentials(brukernavn, passord);
+        this.basicCredentials = basicCredentials(Systembruker.username(), Systembruker.password());
         // TODO - vurder om bør settes static final?
         this.client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).proxy(HttpClient.Builder.NO_PROXY).build();
         this.reader = DefaultJsonMapper.getObjectMapper().readerFor(XacmlResponse.class);

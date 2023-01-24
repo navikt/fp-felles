@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
@@ -146,8 +147,8 @@ public final class OidcProviderConfig {
             Optional.ofNullable(ENV.getProperty(STS_CONFIG_TOKEN_ENDPOINT))
                 .or(() -> getTokenEndpointFra(wellKnownUrl)).orElse(null),
             false, null,
-            ENV.getProperty("systembruker.username"),
-            ENV.getProperty("systembruker.password"),
+            Systembruker.username(),
+            Systembruker.password(),
             true);
     }
 

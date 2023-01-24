@@ -39,8 +39,10 @@ import org.slf4j.MDC;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.TokenCallback;
+import no.nav.vedtak.sikkerhet.context.RequestKontekst;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
@@ -232,6 +234,7 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     protected AuthStatus handleUnprotectedResource(Subject clientSubject) {
+        KontekstHolder.setKontekst(RequestKontekst.forUbeskyttet());
         return notifyContainerAboutLogin(clientSubject, null);
     }
 
@@ -278,12 +281,21 @@ public class OidcAuthModule implements ServerAuthModule {
 
     @Override
     public AuthStatus secureResponse(MessageInfo messageInfo, Subject serviceSubject) throws AuthException {
+        if (KontekstHolder.harKontekst()) {
+            KontekstHolder.setKontekst(null);
+        } else {
+            LOG.info("FPFELLES KONTEKST forventet kontekst i OAM.secureResponse");
+        }
         MDC.clear();
         return SEND_SUCCESS;
     }
 
     @Override
     public void cleanSubject(MessageInfo messageInfo, Subject subject) throws AuthException {
+        if (KontekstHolder.harKontekst()) {
+            LOG.info("FPFELLES KONTEKST forventet tom kontekst i OAM.cleanSubject");
+            KontekstHolder.setKontekst(null);
+        }
         if (subject != null) {
             subject.getPrincipals().clear();
         }

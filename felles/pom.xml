@@ -25,6 +25,7 @@
         <module>abac</module>
         <module>xmlutils</module>
         <module>abac-legacy</module>
+        <module>kontekst</module>
     </modules>
 
     <dependencyManagement>
@@ -42,6 +43,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-log</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles-kontekst</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

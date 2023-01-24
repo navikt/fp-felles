@@ -4,7 +4,8 @@ import java.net.URI;
 import java.util.Optional;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.sikkerhet.context.containers.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
@@ -37,14 +38,15 @@ public final class TokenProvider {
         }
         var token = BrukerTokenProvider.getToken();
         return switch (context) {
-            case BRUKER -> getTokenFraContextFor(token, scopes);
+            case REQUEST -> getTokenFraContextFor(token, scopes);
             case SYSTEM -> OpenIDProvider.AZUREAD.equals(getProvider(token)) ? getAzureSystemToken(scopes) : getStsSystemToken();
+            case WSREQUEST -> getStsSystemToken();
         };
     }
 
     public static String getUserIdFor(SikkerhetContext context) {
         return switch (context) {
-            case BRUKER -> BrukerTokenProvider.getUserId();
+            case REQUEST, WSREQUEST -> BrukerTokenProvider.getUserId();
             case SYSTEM -> ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS).map(OpenIDConfiguration::clientId).orElse(null);
         };
     }
