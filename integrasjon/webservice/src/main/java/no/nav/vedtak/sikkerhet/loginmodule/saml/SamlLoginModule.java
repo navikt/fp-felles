@@ -84,8 +84,6 @@ public class SamlLoginModule extends LoginModuleBase {
             setLoginSuccess(true);
             LOG.trace("Login successful for user {} with authentication level {}", samlInfo.uid(), samlInfo.authLevel());
 
-            KontekstHolder.setKontekst(WsRequestKontekst.forRequest(samlInfo.uid(), samlInfo.consumerId()));
-
             return true;
         } catch (Exception e) {
             samlAssertion = null;
@@ -107,6 +105,8 @@ public class SamlLoginModule extends LoginModuleBase {
         subject.getPrincipals().add(consumerId);
         subject.getPublicCredentials().add(authenticationLevelCredential);
         subject.getPublicCredentials().add(samlAssertionCredential);
+
+        KontekstHolder.setKontekst(WsRequestKontekst.forRequest(samlInfo.uid(), samlInfo.consumerId()));
 
         LOG.trace("Login committed for subject with uid: {} authentication level: {} and consumerId: {}",
             sluttBruker.getName(), authenticationLevelCredential.getAuthenticationLevel(), consumerId);
@@ -131,6 +131,9 @@ public class SamlLoginModule extends LoginModuleBase {
             subject.getPrincipals().remove(consumerId);
             subject.getPublicCredentials().remove(samlAssertionCredential);
             subject.getPublicCredentials().remove(authenticationLevelCredential);
+        }
+        if (KontekstHolder.harKontekst()) {
+            KontekstHolder.fjernKontekst();
         }
     }
 

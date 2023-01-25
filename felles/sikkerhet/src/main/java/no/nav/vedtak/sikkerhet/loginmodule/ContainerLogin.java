@@ -18,6 +18,8 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.TokenCallback;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+import no.nav.vedtak.sikkerhet.kontekst.SystemKontekst;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
@@ -40,6 +42,8 @@ public class ContainerLogin {
         ensureWeHaveTokens();
         try {
             loginContext.login();
+            KontekstHolder.fjernKontekst(); // Skal håndteres i prosesstask-dispatcher
+            KontekstHolder.setKontekst(SystemKontekst.forProsesstask()); // Skal ommøbleres ift prosesstask-dispatcher
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
         } catch (LoginException le) {

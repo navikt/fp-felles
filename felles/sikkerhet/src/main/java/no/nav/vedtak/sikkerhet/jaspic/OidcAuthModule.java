@@ -281,21 +281,12 @@ public class OidcAuthModule implements ServerAuthModule {
 
     @Override
     public AuthStatus secureResponse(MessageInfo messageInfo, Subject serviceSubject) throws AuthException {
-        if (KontekstHolder.harKontekst()) {
-            KontekstHolder.fjernKontekst();
-        } else {
-            LOG.info("FPFELLES KONTEKST forventet kontekst i OAM.secureResponse");
-        }
         MDC.clear();
         return SEND_SUCCESS;
     }
 
     @Override
     public void cleanSubject(MessageInfo messageInfo, Subject subject) throws AuthException {
-        if (KontekstHolder.harKontekst()) {
-            LOG.info("FPFELLES KONTEKST forventet tom kontekst i OAM.cleanSubject");
-            KontekstHolder.fjernKontekst();
-        }
         if (subject != null) {
             subject.getPrincipals().clear();
         }
