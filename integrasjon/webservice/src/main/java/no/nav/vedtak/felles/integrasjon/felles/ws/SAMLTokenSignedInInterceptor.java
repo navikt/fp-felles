@@ -33,6 +33,8 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+import no.nav.vedtak.sikkerhet.kontekst.WsRequestKontekst;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 
 /**
@@ -102,6 +104,7 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
             LoginContext loginContext = createLoginContext(loginContextConfiguration, result);
             loginContext.login();
             msg.getInterceptorChain().add(new SAMLLogoutInterceptor(loginContext));
+            KontekstHolder.setKontekst(WsRequestKontekst.forRequest(SubjectHandler.getSubjectHandler().getUid(), SubjectHandler.getSubjectHandler().getConsumerId()));
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
         } catch (LoginException | TransformerException e) {

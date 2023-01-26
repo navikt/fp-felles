@@ -15,12 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.TokenCallback;
-import no.nav.vedtak.sikkerhet.context.RequestKontekst;
 import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.context.containers.OidcCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
@@ -96,8 +94,6 @@ public class OIDCLoginModule extends LoginModuleBase {
         subject.getPrincipals().add(this.consumerId);
         subject.getPublicCredentials().add(authenticationLevelCredential);
         subject.getPublicCredentials().add(oidcCredential);
-        // Flyttes inn mot tokenvalidering etterhvert
-        KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttBruker.getName(), sluttBruker.getIdentType(), ssoToken));
     }
 
     @Override
@@ -107,9 +103,6 @@ public class OIDCLoginModule extends LoginModuleBase {
             subject.getPrincipals().remove(consumerId);
             subject.getPublicCredentials().remove(authenticationLevelCredential);
             subject.getPublicCredentials().remove(oidcCredential);
-        }
-        if (KontekstHolder.harKontekst()) {
-            KontekstHolder.fjernKontekst();
         }
     }
 

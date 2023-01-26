@@ -192,6 +192,10 @@ public class OidcAuthModule implements ServerAuthModule {
             return FAILURE;
         }
 
+        // Flytt nærmere tokenvalidering når JA-SPI + JAAS saneres
+        var sluttbruker = SubjectHandler.getSluttBruker(clientSubject);
+        KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.getName(), sluttbruker.getIdentType(), token));
+
         // Handle result
         return handleValidatedToken(clientSubject, SubjectHandler.getUid(clientSubject));
     }
@@ -281,12 +285,21 @@ public class OidcAuthModule implements ServerAuthModule {
 
     @Override
     public AuthStatus secureResponse(MessageInfo messageInfo, Subject serviceSubject) throws AuthException {
+        if (KontekstHolder.harKontekst()) {
+            KontekstHolder.fjernKontekst();
+        } else {
+            LOG.info("FPFELLES KONTEKST fant ikke kontekst som forventet i secureResponse");
+        }
         MDC.clear();
         return SEND_SUCCESS;
     }
 
     @Override
     public void cleanSubject(MessageInfo messageInfo, Subject subject) throws AuthException {
+        if (KontekstHolder.harKontekst()) {
+            LOG.info("FPFELLES KONTEKST hadde kontekst ved cleanSubject");
+            KontekstHolder.fjernKontekst();
+        }
         if (subject != null) {
             subject.getPrincipals().clear();
         }

@@ -32,8 +32,6 @@ import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-import no.nav.vedtak.sikkerhet.kontekst.WsRequestKontekst;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 
 /**
@@ -106,8 +104,6 @@ public class SamlLoginModule extends LoginModuleBase {
         subject.getPublicCredentials().add(authenticationLevelCredential);
         subject.getPublicCredentials().add(samlAssertionCredential);
 
-        KontekstHolder.setKontekst(WsRequestKontekst.forRequest(samlInfo.uid(), samlInfo.consumerId()));
-
         LOG.trace("Login committed for subject with uid: {} authentication level: {} and consumerId: {}",
             sluttBruker.getName(), authenticationLevelCredential.getAuthenticationLevel(), consumerId);
     }
@@ -131,9 +127,6 @@ public class SamlLoginModule extends LoginModuleBase {
             subject.getPrincipals().remove(consumerId);
             subject.getPublicCredentials().remove(samlAssertionCredential);
             subject.getPublicCredentials().remove(authenticationLevelCredential);
-        }
-        if (KontekstHolder.harKontekst()) {
-            KontekstHolder.fjernKontekst();
         }
     }
 

@@ -42,7 +42,6 @@ public class ContainerLogin {
         ensureWeHaveTokens();
         try {
             loginContext.login();
-            KontekstHolder.fjernKontekst(); // Skal håndteres i prosesstask-dispatcher
             KontekstHolder.setKontekst(SystemKontekst.forProsesstask()); // Skal ommøbleres ift prosesstask-dispatcher
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
@@ -53,6 +52,7 @@ public class ContainerLogin {
 
     public void logout() {
         try {
+            KontekstHolder.fjernKontekst(); // Skal ommøbleres ift prosesstask-dispatcher
             loginContext.logout();
         } catch (LoginException e) {
             LOG.warn("Noe gikk galt ved utlogging", e);
