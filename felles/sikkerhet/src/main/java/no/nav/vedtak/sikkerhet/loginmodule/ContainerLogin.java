@@ -42,7 +42,9 @@ public class ContainerLogin {
         ensureWeHaveTokens();
         try {
             loginContext.login();
-            KontekstHolder.setKontekst(SystemKontekst.forProsesstask()); // Skal ommøbleres ift prosesstask-dispatcher
+            // Skal ommøbleres ift prosesstask-dispatcher. Den under er for prosesstask-legacy-kompatibilitet
+            // TODO: sette kontekt RequestKontekst.forRequest(Systembruker.username(), IdentType.Prosess, token)
+            KontekstHolder.setKontekst(SystemKontekst.forProsesstask());
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
         } catch (LoginException le) {
