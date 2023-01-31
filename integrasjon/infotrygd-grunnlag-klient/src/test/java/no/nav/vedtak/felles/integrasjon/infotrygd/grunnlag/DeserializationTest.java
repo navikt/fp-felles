@@ -3,7 +3,6 @@ package no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -98,7 +97,7 @@ class DeserializationTest {
 
     @Test
     void test_utbetalt()  {
-        var grunnlagene = Arrays.asList(DefaultJsonMapper.fromJson(SAMPLE, Grunnlag[].class));
+        var grunnlagene = DefaultJsonMapper.listFromJson(SAMPLE, Grunnlag.class);
         var grunnlag = grunnlagene.get(0);
         assertThat(grunnlag.status().kode()).isEqualTo(StatusKode.L);
         assertThat(grunnlag.arbeidsforhold().get(0).orgnr().orgnr()).isEqualTo("888888888");

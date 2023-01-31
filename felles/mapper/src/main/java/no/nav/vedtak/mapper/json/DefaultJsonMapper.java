@@ -3,6 +3,7 @@ package no.nav.vedtak.mapper.json;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -69,6 +70,22 @@ public class DefaultJsonMapper {
     public static <T> T fromJson(URL json, Class<T> clazz) {
         try {
             return MAPPER.readValue(json, clazz);
+        } catch (IOException e) {
+            throw deserializationException(e);
+        }
+    }
+
+    public static <T> List<T> listFromJson(String json, Class<T> clazz) {
+        try {
+            return MAPPER.readerForListOf(clazz).readValue(json);
+        } catch (IOException e) {
+            throw deserializationException(e);
+        }
+    }
+
+    public static <T> Map<String, T> mapFromJson(String json, Class<T> clazz) {
+        try {
+            return MAPPER.readerForMapOf(clazz).readValue(json);
         } catch (IOException e) {
             throw deserializationException(e);
         }
