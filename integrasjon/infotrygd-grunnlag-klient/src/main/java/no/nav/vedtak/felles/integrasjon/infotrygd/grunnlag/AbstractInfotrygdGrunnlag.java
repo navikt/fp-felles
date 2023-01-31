@@ -2,7 +2,6 @@ package no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -45,10 +44,8 @@ public abstract class AbstractInfotrygdGrunnlag implements InfotrygdGrunnlag {
                     .queryParam("fnr", fnr)
                     .queryParam("fom", konverter(fom))
                     .queryParam("tom", konverter(tom)).build();
-            var grunnlag = restClient.send(RestRequest.newGET(path, restConfig), Grunnlag[].class);
-            return Arrays.asList(grunnlag);
+            return restClient.sendReturnList(RestRequest.newGET(path, restConfig), Grunnlag.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved oppslag mot {}, returnerer ingen grunnlag", restConfig.endpoint(), e);
             throw new TekniskException( "FP-180125",
                 String.format("Tjeneste %s gir feil, meld til #infotrygd_replikering hvis dette skjer gjennom lengre tidsperiode.", restConfig.endpoint()), e);
         }
