@@ -10,10 +10,10 @@ import javax.security.auth.Subject;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
-import no.nav.vedtak.sikkerhet.context.containers.IdentType;
 import no.nav.vedtak.sikkerhet.context.containers.OidcCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public abstract class SubjectHandler {

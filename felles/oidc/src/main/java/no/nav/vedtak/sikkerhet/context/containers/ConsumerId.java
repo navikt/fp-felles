@@ -4,14 +4,9 @@ import java.security.Principal;
 
 import javax.security.auth.Destroyable;
 
-import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 
 public final class ConsumerId implements Principal, Destroyable {
-
-
-    private static final Environment ENV = Environment.current();
-    public static final String SYSTEMUSER_USERNAME_PROPERTY = "systembruker.username";
-    public static final String SYSTEMUSER_USERNAME = ENV.getProperty(SYSTEMUSER_USERNAME_PROPERTY);
 
     private String id;
     private boolean destroyed;
@@ -21,7 +16,7 @@ public final class ConsumerId implements Principal, Destroyable {
     }
 
     public ConsumerId() {
-        id = SYSTEMUSER_USERNAME;
+        this(Systembruker.username());
     }
 
     @Override

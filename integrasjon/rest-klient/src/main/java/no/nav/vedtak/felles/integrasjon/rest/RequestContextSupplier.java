@@ -2,8 +2,8 @@ package no.nav.vedtak.felles.integrasjon.rest;
 
 import java.util.function.Supplier;
 
+import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.SikkerhetContext;
 
 public interface RequestContextSupplier {
 

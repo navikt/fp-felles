@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.OidcTokenGenerator;
@@ -58,7 +57,7 @@ public class OidcAuthModuleTest {
         System.setProperty(OidcProviderConfig.AZURE_CLIENT_ID, "OIDC");
         System.setProperty(OidcProviderConfig.AZURE_CONFIG_ISSUER, OidcTokenGenerator.ISSUER);
         System.setProperty(OidcProviderConfig.AZURE_CONFIG_JWKS_URI, OidcTokenGenerator.ISSUER + "/jwks_uri");
-        System.setProperty(ConsumerId.SYSTEMUSER_USERNAME_PROPERTY, "JUnit Test");
+        System.setProperty("systembruker.username", "JUnit Test");
 
         Map<String, String> testData = Map.of(
             "issuer", OidcTokenGenerator.ISSUER,

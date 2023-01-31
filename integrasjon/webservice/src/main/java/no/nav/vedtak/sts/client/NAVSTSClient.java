@@ -9,18 +9,17 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.context.containers.IdentType;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 
 public class NAVSTSClient extends STSClient {
-    private static final Environment ENV = Environment.current();
 
     private static final Logger LOG = LoggerFactory.getLogger(NAVSTSClient.class);
     public static final String DISABLE_CACHE_KEY = "NAVSTSClient.DISABLE_CACHE";
     private static TokenStore tokenStore;
-    private static SluttBruker systemSluttBruker = new SluttBruker(ENV.getProperty("systembruker.username"), IdentType.Systemressurs);
+    private static final SluttBruker systemSluttBruker = new SluttBruker(Systembruker.username(), IdentType.Systemressurs);
 
     private StsClientType type;
 

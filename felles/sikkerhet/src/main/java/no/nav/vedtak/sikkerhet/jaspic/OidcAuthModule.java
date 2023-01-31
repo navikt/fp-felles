@@ -39,8 +39,10 @@ import org.slf4j.MDC;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.TokenCallback;
+import no.nav.vedtak.sikkerhet.context.RequestKontekst;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
@@ -190,6 +192,10 @@ public class OidcAuthModule implements ServerAuthModule {
             return FAILURE;
         }
 
+        // Flytt nærmere tokenvalidering når JA-SPI + JAAS saneres
+        var sluttbruker = SubjectHandler.getSluttBruker(clientSubject);
+        KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.getName(), sluttbruker.getIdentType(), token));
+
         // Handle result
         return handleValidatedToken(clientSubject, SubjectHandler.getUid(clientSubject));
     }
@@ -232,6 +238,7 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     protected AuthStatus handleUnprotectedResource(Subject clientSubject) {
+        KontekstHolder.setKontekst(RequestKontekst.forUbeskyttet());
         return notifyContainerAboutLogin(clientSubject, null);
     }
 
@@ -278,12 +285,21 @@ public class OidcAuthModule implements ServerAuthModule {
 
     @Override
     public AuthStatus secureResponse(MessageInfo messageInfo, Subject serviceSubject) throws AuthException {
+        if (KontekstHolder.harKontekst()) {
+            KontekstHolder.fjernKontekst();
+        } else {
+            LOG.info("FPFELLES KONTEKST fant ikke kontekst som forventet i secureResponse");
+        }
         MDC.clear();
         return SEND_SUCCESS;
     }
 
     @Override
     public void cleanSubject(MessageInfo messageInfo, Subject subject) throws AuthException {
+        if (KontekstHolder.harKontekst()) {
+            LOG.info("FPFELLES KONTEKST hadde kontekst ved cleanSubject");
+            KontekstHolder.fjernKontekst();
+        }
         if (subject != null) {
             subject.getPrincipals().clear();
         }

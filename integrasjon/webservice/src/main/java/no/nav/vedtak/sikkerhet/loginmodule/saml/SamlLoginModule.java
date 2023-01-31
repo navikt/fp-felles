@@ -29,9 +29,9 @@ import org.xml.sax.SAXException;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
-import no.nav.vedtak.sikkerhet.context.containers.IdentType;
 import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 
 /**
@@ -81,6 +81,7 @@ public class SamlLoginModule extends LoginModuleBase {
             samlInfo = getSamlInfo(samlAssertion);
             setLoginSuccess(true);
             LOG.trace("Login successful for user {} with authentication level {}", samlInfo.uid(), samlInfo.authLevel());
+
             return true;
         } catch (Exception e) {
             samlAssertion = null;

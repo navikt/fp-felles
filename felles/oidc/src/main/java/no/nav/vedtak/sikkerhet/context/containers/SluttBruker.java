@@ -1,17 +1,13 @@
 package no.nav.vedtak.sikkerhet.context.containers;
 
 import java.security.Principal;
-import java.util.Objects;
-import java.util.regex.Pattern;
 
 import javax.security.auth.Destroyable;
 
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
+
 public final class SluttBruker implements Principal, Destroyable {
-
-    private static final Pattern VALID_AKTØRID = Pattern.compile("^\\d{13}$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern VALID_PERSONIDENT = Pattern.compile("^\\d{11}$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern VALID_ANSATTIDENT = Pattern.compile("^\\w\\d{6}$", Pattern.CASE_INSENSITIVE);
-
 
     private String uid;
     private IdentType identType;
@@ -23,27 +19,12 @@ public final class SluttBruker implements Principal, Destroyable {
     }
 
     public static SluttBruker utledBruker(String uid) {
-        return new SluttBruker(uid, utledIdentType(uid));
+        return new SluttBruker(uid, IdentType.utledIdentType(uid));
     }
 
     public static SluttBruker lokalSystembrukerProsess() {
-        return new SluttBruker(ConsumerId.SYSTEMUSER_USERNAME, IdentType.Prosess);
+        return new SluttBruker(Systembruker.username(), IdentType.Prosess);
     }
-
-    private static IdentType utledIdentType(String uid) {
-        if (Objects.equals(ConsumerId.SYSTEMUSER_USERNAME, uid)) {
-            return IdentType.Systemressurs;
-        } else if (uid != null && (VALID_AKTØRID.matcher(uid).matches() || VALID_PERSONIDENT.matcher(uid).matches())) {
-            return IdentType.EksternBruker;
-        } else if (uid != null && uid.startsWith("srv")) {
-            return IdentType.Systemressurs;
-        } else if (uid != null && VALID_ANSATTIDENT.matcher(uid).matches()) {
-            return IdentType.InternBruker;
-        }
-        // TODO - her skal det strengt tatt være en exception .... Skal på sikt brukes til oppførsel for tokenprovider
-        return IdentType.InternBruker;
-    }
-
 
     public IdentType getIdentType() {
         return identType;

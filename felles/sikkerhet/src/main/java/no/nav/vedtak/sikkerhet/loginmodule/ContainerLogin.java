@@ -18,6 +18,8 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.TokenCallback;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+import no.nav.vedtak.sikkerhet.kontekst.SystemKontekst;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
@@ -40,6 +42,9 @@ public class ContainerLogin {
         ensureWeHaveTokens();
         try {
             loginContext.login();
+            // Skal ommøbleres ift prosesstask-dispatcher. Den under er for prosesstask-legacy-kompatibilitet
+            // TODO: sette kontekt RequestKontekst.forRequest(Systembruker.username(), IdentType.Prosess, token)
+            KontekstHolder.setKontekst(SystemKontekst.forProsesstask());
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
         } catch (LoginException le) {
@@ -49,6 +54,7 @@ public class ContainerLogin {
 
     public void logout() {
         try {
+            KontekstHolder.fjernKontekst(); // Skal ommøbleres ift prosesstask-dispatcher
             loginContext.logout();
         } catch (LoginException e) {
             LOG.warn("Noe gikk galt ved utlogging", e);
