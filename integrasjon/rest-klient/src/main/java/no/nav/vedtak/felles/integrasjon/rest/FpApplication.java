@@ -25,7 +25,7 @@ public enum FpApplication {
     private static final Environment ENV = Environment.current();
     private static final Cluster CLUSTER  = ENV.getCluster();
     // FpApplication brukes til å kalle apps i namespace foreldrepenger - ikke riktig å bruke ENV/namespace
-    private static final Namespace FORELDREPENGER = Namespace.of("teamforeldrepenger");
+    private static final Namespace FORELDREPENGER = Namespace.foreldrepenger();
 
     /*
      * Utelatt fpabonnent:8065

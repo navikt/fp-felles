@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.konfig.Namespace;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
@@ -31,6 +32,8 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 @ExtendWith(MockitoExtension.class)
 class PepImplTest {
 
+    private static final String LOCAL_APP = "local:" + Namespace.foreldrepenger().getName() + ":application";
+
     private PepImpl pep;
     @Mock
     private TokenProvider tokenProvider;
@@ -45,7 +48,7 @@ class PepImplTest {
             tokenProvider,
             pdpRequestBuilder,
             "SRVFPLOS,SRVPDP",
-            "local:default:application, local:annetnamespace:eksternapplication");
+            LOCAL_APP + ", local:annetnamespace:eksternapplication");
     }
 
     @Test
@@ -75,8 +78,8 @@ class PepImplTest {
     @Test
     void skal_gi_tilgang_for_intern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
-        var sluttbruker = new SluttBruker("local:default:application", IdentType.Systemressurs);
-        when(tokenProvider.getUid()).thenReturn("local:default:application");
+        var sluttbruker = new SluttBruker(LOCAL_APP, IdentType.Systemressurs);
+        when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
         var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, sluttbruker);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
