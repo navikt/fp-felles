@@ -104,7 +104,13 @@ public class SAMLTokenSignedInInterceptor extends WSS4JInInterceptor {
             LoginContext loginContext = createLoginContext(loginContextConfiguration, result);
             loginContext.login();
             msg.getInterceptorChain().add(new SAMLLogoutInterceptor(loginContext));
-            KontekstHolder.setKontekst(WsRequestKontekst.forRequest(SubjectHandler.getSubjectHandler().getUid(), SubjectHandler.getSubjectHandler().getConsumerId()));
+            // Normalt settes en uautentisert/ubeskyttet kontekst i OidcAuthModule
+            if (KontekstHolder.harKontekst() && !KontekstHolder.getKontekst().erAutentisert()) {
+                KontekstHolder.fjernKontekst();
+            }
+            KontekstHolder.setKontekst(WsRequestKontekst.forWsRequest(SubjectHandler.getSubjectHandler().getUid(),
+                SubjectHandler.getSubjectHandler().getConsumerId(),
+                SubjectHandler.getSubjectHandler().getSamlToken().getTokenAsString()));
             MDCOperations.putUserId(SubjectHandler.getSubjectHandler().getUid());
             MDCOperations.putConsumerId(SubjectHandler.getSubjectHandler().getConsumerId());
         } catch (LoginException | TransformerException e) {

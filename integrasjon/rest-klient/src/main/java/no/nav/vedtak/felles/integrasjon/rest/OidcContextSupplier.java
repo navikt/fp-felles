@@ -7,34 +7,33 @@ import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
-public final class OidcContextSupplier implements RequestContextSupplier {
+public final class OidcContextSupplier {
 
-    @Override
-    public Supplier<String> consumerIdFor(SikkerhetContext context) {
-        return () -> TokenProvider.getUserIdFor(context);
+    public Supplier<String> consumerIdForCurrentKontekst() {
+        var sContext = TokenProvider.getCurrentKontekst();
+        return consumerIdFor(sContext);
     }
 
-    @Override
+    public Supplier<String> consumerIdFor(SikkerhetContext context) {
+        return () -> TokenProvider.getConsumerIdFor(context);
+    }
+
     public Supplier<OpenIDToken> tokenForSystem() {
         return TokenProvider::getTokenForSystem;
     }
 
-    @Override
-    public Supplier<OpenIDToken> adaptive(SikkerhetContext context, String scopes) {
-        return () -> TokenProvider.getTokenFromCurrent(context, scopes);
+    public Supplier<OpenIDToken> adaptive(String scopes) {
+        return () -> TokenProvider.getTokenForKontekst(scopes);
     }
 
-    @Override
     public Supplier<OpenIDToken> azureTokenForSystem(String scopes) {
         return () -> TokenProvider.getTokenForSystem(OpenIDProvider.AZUREAD, scopes);
     }
 
-    @Override
     public Supplier<OpenIDToken> consumerToken() {
         return TokenProvider::getTokenForSystem;
     }
 
-    @Override
     public boolean isAzureContext() {
         return TokenProvider.isAzureContext();
     }

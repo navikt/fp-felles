@@ -9,12 +9,13 @@ class KontekstHolderTest {
     @Test
     void testGetDefaultKontekst() {
         assertThat(KontekstHolder.harKontekst()).isFalse();
-        assertThat(KontekstHolder.getKontekst()).isNull();
+        assertThat(KontekstHolder.getKontekst()).isNotNull();
+        assertThat(KontekstHolder.getKontekst().getContext()).isNull();
     }
 
     @Test
     void testSetAndGetSystemKontekst() {
-        var eksisterende = SystemKontekst.forProsesstask();
+        var eksisterende = BasisKontekst.forProsesstask();
         KontekstHolder.setKontekst(eksisterende);
 
         assertThat(KontekstHolder.harKontekst()).isTrue();
@@ -24,7 +25,7 @@ class KontekstHolderTest {
         assertThat(roundtrip.getUid()).isEqualTo(Systembruker.username());
         assertThat(roundtrip.getIdentType()).isEqualTo(IdentType.Prosess);
 
-        KontekstHolder.setKontekst(null);
+        KontekstHolder.fjernKontekst();
         assertThat(KontekstHolder.harKontekst()).isFalse();
     }
 

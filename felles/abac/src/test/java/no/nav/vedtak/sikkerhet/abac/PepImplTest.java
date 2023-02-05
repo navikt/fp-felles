@@ -23,7 +23,6 @@ import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
-import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
@@ -78,9 +77,8 @@ class PepImplTest {
     @Test
     void skal_gi_tilgang_for_intern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
-        var sluttbruker = new SluttBruker(LOCAL_APP, IdentType.Systemressurs);
         when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
-        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, sluttbruker);
+        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, LOCAL_APP, IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
@@ -92,9 +90,8 @@ class PepImplTest {
     @Test
     void skal_gi_avslag_for_ekstern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
-        var sluttbruker = new SluttBruker("local:annetnamespace:ukjentapplication", IdentType.Systemressurs);
         when(tokenProvider.getUid()).thenReturn("local:annetnamespace:ukjentapplication");
-        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, sluttbruker);
+        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, "local:annetnamespace:ukjentapplication", IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
@@ -106,9 +103,8 @@ class PepImplTest {
     @Test
     void skal_gi_tilgang_for_godkjent_ekstern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
-        var sluttbruker = new SluttBruker("local:annetnamespace:eksternapplication", IdentType.Systemressurs);
         when(tokenProvider.getUid()).thenReturn("local:annetnamespace:eksternapplication");
-        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, sluttbruker);
+        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, "local:annetnamespace:eksternapplication", IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
@@ -120,9 +116,8 @@ class PepImplTest {
     @Test
     void skal_sjekke_mot_abac_hvis_sts_systembruker() {
         var token = new OpenIDToken(OpenIDProvider.STS, new TokenString("token"));
-        var sluttbruker = new SluttBruker("srvTestbruker", IdentType.Systemressurs);
         when(tokenProvider.getUid()).thenReturn("srvTestbruker");
-        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, sluttbruker);
+        var  attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, "srvTestbruker", IdentType.Systemressurs);
 
         when(pdpRequestBuilder.abacDomene()).thenReturn("domene");
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
@@ -170,10 +165,10 @@ class PepImplTest {
             .build();
     }
 
-    private BeskyttetRessursAttributter lagBeskyttetRessursAttributterAzure(AvailabilityType availabilityType, OpenIDToken token, SluttBruker sluttBruker) {
+    private BeskyttetRessursAttributter lagBeskyttetRessursAttributterAzure(AvailabilityType availabilityType, OpenIDToken token, String brukerId, IdentType identType) {
         return BeskyttetRessursAttributter.builder()
             .medUserId(tokenProvider.getUid())
-            .medToken(Token.withOidcToken(token, sluttBruker))
+            .medToken(Token.withOidcToken(token, brukerId,identType))
             .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK)
             .medActionType(ActionType.READ)
             .medAvailabilityType(availabilityType)

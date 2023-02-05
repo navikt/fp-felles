@@ -3,7 +3,6 @@ package no.nav.vedtak.sikkerhet.abac;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
 
-import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,7 +15,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
-import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
@@ -74,14 +72,14 @@ public class PepImpl implements Pep {
     // Token kan utvides med roles og groups - men oppsettet er langt fra det som er kjent fra STS mv.
     // Kan legge inn filter på claims/roles intern og/eller ekstern.
     private boolean skalForetaLokalTilgangsbeslutning(BeskyttetRessursAttributter attributter) {
-        var identType = Optional.ofNullable(attributter.getToken().getSluttBruker()).map(SluttBruker::getIdentType).orElse(null);
-        var consumer = Optional.ofNullable(attributter.getToken().getSluttBruker()).map(SluttBruker::getName).orElse(null);
+        var identType = attributter.getToken().getIdentType();
+        var consumer = attributter.getToken().getBrukerId();
         return OpenIDProvider.AZUREAD.equals(attributter.getToken().getOpenIDProvider())
             && IdentType.Systemressurs.equals(identType) && consumer != null && preAuthorized != null;
     }
 
     private boolean harTilgang(BeskyttetRessursAttributter attributter) {
-        var consumer = Optional.ofNullable(attributter.getToken().getSluttBruker()).map(SluttBruker::getName).orElse(null);
+        var consumer = attributter.getToken().getBrukerId();
         if (consumer == null || !preAuthorized.contains(consumer)) {
             return false;
         }
