@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.konfig;
 
+import static java.lang.System.getenv;
+
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
@@ -29,13 +31,19 @@ public final class Environment {
     static final class Init {
         // Josh Bloch's lazy load singleton (ref "Effective Java").
         // Siden Init ikke lastes før den referes blir feltet her initiert først når den aksesseres første gang.
-        static final Environment CURRENT = of(Cluster.current(), Namespace.current(), Application.current(), ClientId.current());
+        static final Environment CURRENT = of(Cluster.current(), Namespace.current(), Application.current(),
+            ClientId.current(), currentImage());
 
         private Init() {
         }
 
-        private static Environment of(Cluster cluster, Namespace namespace, Application application, ClientId clientId) {
-            return new Environment(cluster, namespace, application, clientId);
+        private static Environment of(Cluster cluster, Namespace namespace, Application application,
+                                      ClientId clientId, String image) {
+            return new Environment(cluster, namespace, application, clientId, image);
+        }
+
+        private static String currentImage() {
+            return getenv(NaisProperty.IMAGE.propertyName());
         }
 
     }
@@ -44,13 +52,15 @@ public final class Environment {
     private final Namespace namespace;
     private final Application application;
     private final ClientId clientId;
+    private final String imageName;
     private final List<KonfigVerdiProvider> propertySources;
 
-    private Environment(Cluster cluster, Namespace namespace, Application application, ClientId clientId) {
+    private Environment(Cluster cluster, Namespace namespace, Application application, ClientId clientId, String imageName) {
         this.cluster = cluster;
         this.namespace = namespace;
         this.application = application;
         this.clientId = clientId;
+        this.imageName = imageName;
         this.propertySources = List.of(
                 new SystemPropertiesKonfigVerdiProvider(),
                 new EnvPropertiesKonfigVerdiProvider(),
@@ -107,6 +117,10 @@ public final class Environment {
 
     public String clientId() {
         return Optional.ofNullable(clientId).map(ClientId::getClientId).orElse(null);
+    }
+
+    public String imageName() {
+        return imageName;
     }
 
     public String getNaisAppName() {
