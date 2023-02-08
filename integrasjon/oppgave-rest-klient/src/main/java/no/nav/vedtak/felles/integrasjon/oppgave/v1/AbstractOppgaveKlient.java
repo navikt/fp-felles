@@ -51,16 +51,16 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     }
 
     @Override
-    public List<Oppgave> finnÅpneOppgaverForEnhet(String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
-        return hentOppgaverFor(null, tema, oppgaveTyper, tildeltEnhetsnr);
+    public List<Oppgave> finnÅpneOppgaverForEnhet(String tema, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit) {
+        return hentOppgaverFor(null, tema, oppgaveTyper, tildeltEnhetsnr, limit);
     }
 
     @Override
     public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) {
-        return hentOppgaverFor(aktørId, tema, oppgaveTyper, null);
+        return hentOppgaverFor(aktørId, tema, oppgaveTyper, null, null);
     }
 
-    private List<Oppgave> hentOppgaverFor(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr) {
+    private List<Oppgave> hentOppgaverFor(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit) {
         var builder = UriBuilder.fromUri(restConfig.endpoint());
         if (aktørId != null) {
             builder.queryParam("aktoerId", aktørId);
@@ -72,6 +72,10 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
             builder.queryParam("tildeltEnhetsnr", tildeltEnhetsnr);
         }
         builder.queryParam("statuskategori", STATUSKATEGORI_AAPEN);
+        //settes dersom man ønsker flere enn default limit på 10 fra api
+        if (limit != null) {
+            builder.queryParam("limit", limit);
+        }
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
 
         var request = RestRequest.newGET(builder.build(), restConfig)
