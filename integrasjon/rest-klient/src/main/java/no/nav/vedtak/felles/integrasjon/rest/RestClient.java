@@ -59,6 +59,10 @@ public final class RestClient {
         return httpklient.sendReturnUnhandled(request);
     }
 
+    public HttpResponse<String> sendReturnUnhandledNoRetry(RestRequest request) {
+        return httpklient.sendReturnUnhandledNoRetry(request);
+    }
+
     private <T> T mapResponse(String response, Predicate<String> filterOut, Class<T> clazz) {
         if (response == null || filterOut.test(response)) {
             return null;
