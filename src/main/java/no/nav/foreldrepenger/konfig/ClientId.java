@@ -6,10 +6,10 @@ public class ClientId {
 
     private static final String DELIMIT = ":";
 
-    private final String clientId;
+    private final String id;
 
     private ClientId(String clientId) {
-        this.clientId = clientId;
+        this.id = clientId;
     }
 
     public static ClientId of(String clientId) {
@@ -29,7 +29,7 @@ public class ClientId {
     }
 
     public String getClientId() {
-        return clientId;
+        return id;
     }
 
     public static ClientId current() {
@@ -38,7 +38,7 @@ public class ClientId {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[clientId=" + clientId + "]";
+        return getClass().getSimpleName() + "[clientId=" + id + "]";
     }
 
 }

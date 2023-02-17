@@ -1,20 +1,17 @@
 package no.nav.foreldrepenger.konfig;
 
-import static no.nav.foreldrepenger.konfig.Cluster.PROD_FSS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.PrintStream;
-import java.net.URI;
-import java.time.Duration;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.PrintStream;
+import java.net.URI;
+import java.time.Duration;
+
+import static no.nav.foreldrepenger.konfig.Cluster.PROD_FSS;
+import static org.junit.jupiter.api.Assertions.*;
 
 class EnvironmentTest {
 
@@ -49,7 +46,7 @@ class EnvironmentTest {
     void testDuration() {
         assertEquals(Duration.ofDays(42), ENV.getProperty("duration.property", Duration.class));
         assertEquals(Duration.ofDays(2),
-                ENV.getProperty("ikke.funnet", Duration.class, Duration.ofDays(2)));
+            ENV.getProperty("ikke.funnet", Duration.class, Duration.ofDays(2)));
     }
 
     @Test

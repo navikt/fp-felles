@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.konfig;
 
-import static no.nav.foreldrepenger.konfig.StandardPropertySource.ENV_PROPERTIES;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
 
+import javax.enterprise.context.Dependent;
 import java.util.Optional;
 import java.util.Properties;
 
-import javax.enterprise.context.Dependent;
-
-import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
+import static no.nav.foreldrepenger.konfig.StandardPropertySource.ENV_PROPERTIES;
 
 @Dependent
 public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvider {
@@ -18,7 +17,8 @@ public class EnvPropertiesKonfigVerdiProvider extends PropertiesKonfigVerdiProvi
         // lazy init singleton
         static final Properties ENV = getEnv();
 
-        private Init() {}
+        private Init() {
+        }
 
         private static Properties getEnv() {
             var p = new Properties();

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.konfig;
 
-import static java.lang.System.getenv;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -15,16 +15,7 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi.BooleanConverter;
-import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
-import no.nav.foreldrepenger.konfig.KonfigVerdi.DurationConverter;
-import no.nav.foreldrepenger.konfig.KonfigVerdi.IntegerConverter;
-import no.nav.foreldrepenger.konfig.KonfigVerdi.LocalDateConverter;
-import no.nav.foreldrepenger.konfig.KonfigVerdi.LongConverter;
-import no.nav.foreldrepenger.konfig.KonfigVerdi.NoConverter;
-import no.nav.foreldrepenger.konfig.KonfigVerdi.PeriodConverter;
-import no.nav.foreldrepenger.konfig.KonfigVerdi.UriConverter;
-import no.nav.foreldrepenger.konfig.KonfigVerdi.UrlConverter;
+import static java.lang.System.getenv;
 
 public final class Environment {
 
@@ -62,9 +53,9 @@ public final class Environment {
         this.clientId = clientId;
         this.imageName = imageName;
         this.propertySources = List.of(
-                new SystemPropertiesKonfigVerdiProvider(),
-                new EnvPropertiesKonfigVerdiProvider(),
-                new ApplicationPropertiesKonfigProvider());
+            new SystemPropertiesKonfigVerdiProvider(),
+            new EnvPropertiesKonfigVerdiProvider(),
+            new ApplicationPropertiesKonfigProvider());
     }
 
     public static Environment current() {
@@ -135,21 +126,21 @@ public final class Environment {
 
         var filtered = new Properties();
         filtered.putAll(props.entrySet()
-                .stream()
-                .filter(k -> k.getKey().toString().startsWith(prefix))
-                .collect(
-                        Collectors.toMap(
-                                e -> (String) e.getKey(),
-                                e -> (String) e.getValue())));
+            .stream()
+            .filter(k -> k.getKey().toString().startsWith(prefix))
+            .collect(
+                Collectors.toMap(
+                    e -> (String) e.getKey(),
+                    e -> (String) e.getValue())));
         return filtered;
     }
 
     public PropertySourceMetaData getProperties(StandardPropertySource source) {
         return propertySources.stream()
-                .filter(p -> p.getSource().equals(source))
-                .findFirst()
-                .map(KonfigVerdiProvider::getAllProperties)
-                .orElseThrow();
+            .filter(p -> p.getSource().equals(source))
+            .findFirst()
+            .map(KonfigVerdiProvider::getAllProperties)
+            .orElseThrow();
     }
 
     public List<KonfigVerdiProvider> getPropertySources() {
@@ -170,12 +161,12 @@ public final class Environment {
 
     public String getRequiredProperty(String key, Supplier<? extends RuntimeException> exceptionSupplier) {
         return Optional.ofNullable(getProperty(key))
-                .orElseThrow(exceptionSupplier);
+            .orElseThrow(exceptionSupplier);
     }
 
     public <T> T getRequiredProperty(String key, Class<T> targetType) {
         return Optional.ofNullable(getProperty(key, targetType))
-                .orElseThrow(() -> new IllegalStateException(key + " ble ikke funnet"));
+            .orElseThrow(() -> new IllegalStateException(key + " ble ikke funnet"));
     }
 
     @SuppressWarnings("unchecked")
@@ -186,12 +177,12 @@ public final class Environment {
         }
 
         return propertySources.stream()
-                .filter(s -> s.harVerdi(key))
-                .map(s -> s.getVerdi(key, converter))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .map(v -> (T) v)
-                .orElse(defaultVerdi);
+            .filter(s -> s.harVerdi(key))
+            .map(s -> s.getVerdi(key, converter))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .map(v -> (T) v)
+            .orElse(defaultVerdi);
     }
 
     public String getProperty(String key) {
@@ -237,16 +228,16 @@ public final class Environment {
     }
 
     private static <T> Converter<T> construct(Class<? extends Converter<T>> clazz)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         return clazz.getDeclaredConstructor().newInstance();
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName()
-                + "[cluster=" + cluster
-                + ", namespace=" + namespace
-                + ", propertySources=" + propertySources
-                + "]";
+            + "[cluster=" + cluster
+            + ", namespace=" + namespace
+            + ", propertySources=" + propertySources
+            + "]";
     }
 }

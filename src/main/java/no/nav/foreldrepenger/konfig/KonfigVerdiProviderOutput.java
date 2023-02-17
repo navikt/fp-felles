@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.konfig;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
+
 import java.util.List;
 import java.util.Map;
-
-import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
 
 class KonfigVerdiProviderOutput {
 

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.konfig;
 
-import static java.lang.System.getenv;
-
 import java.util.Arrays;
 import java.util.Objects;
+
+import static java.lang.System.getenv;
 
 public enum Cluster {
     LOCAL("local"),
@@ -45,16 +45,16 @@ public enum Cluster {
     public static Cluster current() {
         var active = getenv(NaisProperty.CLUSTER.propertyName());
         return Arrays.stream(values())
-                .filter(c -> active != null && Objects.equals(active, c.name))
-                .findFirst()
-                .orElse(LOCAL);
+            .filter(c -> active != null && Objects.equals(active, c.name))
+            .findFirst()
+            .orElse(LOCAL);
     }
 
     public static Cluster of(String name) {
         return Arrays.stream(values())
-                .filter(v -> v.name.equals(name))
-                .findFirst()
-                .orElseThrow();
+            .filter(v -> v.name.equals(name))
+            .findFirst()
+            .orElseThrow();
     }
 
 }

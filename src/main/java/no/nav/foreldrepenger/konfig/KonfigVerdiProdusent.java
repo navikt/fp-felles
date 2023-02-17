@@ -1,21 +1,9 @@
 package no.nav.foreldrepenger.konfig;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Member;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.regex.Pattern;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
+import no.nav.foreldrepenger.konfig.KonfigVerdiProviderOutput.ProviderOutput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -25,12 +13,17 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Annotated;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
-import no.nav.foreldrepenger.konfig.KonfigVerdiProviderOutput.ProviderOutput;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.regex.Pattern;
 
 /* Producer av konfig verdier. Støtter pluggbart antall providere av konfigurasjonsverdier. */
 @ApplicationScoped
@@ -71,7 +64,7 @@ public class KonfigVerdiProdusent {
         if (verdi == null) {
             return null; //NOSONAR
         }
-        return verdi instanceof Boolean ? (Boolean) verdi : Boolean.parseBoolean((String) verdi);
+        return verdi instanceof Boolean value ? value : Boolean.parseBoolean((String) verdi);
     }
 
     @KonfigVerdi
@@ -81,7 +74,7 @@ public class KonfigVerdiProdusent {
         if (verdi == null) {
             return null;
         }
-        return verdi instanceof Integer ? (Integer) verdi : Integer.valueOf((String) verdi);
+        return verdi instanceof Integer value ? value : Integer.valueOf((String) verdi);
     }
 
     @KonfigVerdi
@@ -91,7 +84,7 @@ public class KonfigVerdiProdusent {
         if (verdi == null) {
             return null;
         }
-        return verdi instanceof Period ? (Period) verdi : Period.parse((String) verdi);
+        return verdi instanceof Period value ? value : Period.parse((String) verdi);
     }
 
     @KonfigVerdi
@@ -101,7 +94,7 @@ public class KonfigVerdiProdusent {
         if (verdi == null) {
             return null;
         }
-        return verdi instanceof Duration ? (Duration) verdi : Duration.parse((String) verdi);
+        return verdi instanceof Duration value ? value : Duration.parse((String) verdi);
     }
 
     @KonfigVerdi
@@ -111,7 +104,7 @@ public class KonfigVerdiProdusent {
         if (verdi == null) {
             return null;
         }
-        return verdi instanceof LocalDate ? (LocalDate) verdi : LocalDate.parse((String) verdi);
+        return verdi instanceof LocalDate value ? value : LocalDate.parse((String) verdi);
     }
 
     @KonfigVerdi
@@ -121,7 +114,7 @@ public class KonfigVerdiProdusent {
         if (verdi == null) {
             return null;
         }
-        return verdi instanceof Long ? (Long) verdi : Long.valueOf((String) verdi);
+        return verdi instanceof Long value ? value : Long.valueOf((String) verdi);
     }
 
     /*
@@ -136,7 +129,7 @@ public class KonfigVerdiProdusent {
             if (verdi == null) {
                 return null;
             }
-            return verdi instanceof URI ? (URI) verdi : new URI((String) verdi);
+            return verdi instanceof URI value ? value : new URI((String) verdi);
         } catch (URISyntaxException e) {
             throw new IllegalStateException("KonfigVerdi [" + verdi + "] er ikke en java.net.URI", e); //$NON-NLS-1$ //$NON-NLS-2$
         }
@@ -145,7 +138,7 @@ public class KonfigVerdiProdusent {
     /*
      * Returnerer Liste av verdier.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @KonfigVerdi
     @Produces
     public <V> List<V> getKonfigVerdiList(final InjectionPoint ip) {
@@ -158,7 +151,7 @@ public class KonfigVerdiProdusent {
     /*
      * Returnerer Liste av verdier.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @KonfigVerdi
     @Produces
     public <V> Map<String, V> getKonfigVerdiMap(final InjectionPoint ip) {
@@ -174,7 +167,7 @@ public class KonfigVerdiProdusent {
         return getVerdi(ip, annotation, KonfigVerdiProviderOutput.SIMPLE);
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     protected <T> T getVerdi(InjectionPoint ip, KonfigVerdi annotation, ProviderOutput<T> outputFunction) {
         String key = annotation.value();
         Converter converter = getConverter(annotation.converter());
@@ -184,7 +177,7 @@ public class KonfigVerdiProdusent {
 
     @SuppressWarnings("rawtypes")
     public <T> T getVerdi(InjectionPoint ip, KonfigVerdi annotation, ProviderOutput<T> outputFunction, String key,
-            Converter converter) {
+                          Converter converter) {
         for (KonfigVerdiProvider kvp : providers) {
             try {
                 if (kvp.harVerdi(key)) {
@@ -194,15 +187,15 @@ public class KonfigVerdiProdusent {
                 }
             } catch (RuntimeException e) {
                 throw new IllegalStateException(
-                        "Kunne ikke slå opp verdi for key [" + key + "] fra " + kvp.getClass().getName()
-                                + "; InjectionPoint=" + ip,
-                        e);
+                    "Kunne ikke slå opp verdi for key [" + key + "] fra " + kvp.getClass().getName()
+                        + "; InjectionPoint=" + ip,
+                    e);
             }
         }
         String defaultVerdi = annotation.defaultVerdi();
         if (annotation.required() && defaultVerdi.isEmpty()) {
             throw new IllegalStateException(
-                    "Mangler verdi for key(required): " + annotation.value() + "; InjectionPoint=" + ip); //$NON-NLS-1$ //$NON-NLS-2$
+                "Mangler verdi for key(required): " + annotation.value() + "; InjectionPoint=" + ip); //$NON-NLS-1$ //$NON-NLS-2$
         } else {
             if (!defaultVerdi.isEmpty()) {
                 T output = outputFunction.getOutput(DEFAULTVALUEPROVIDER, defaultVerdi, converter);
@@ -217,13 +210,13 @@ public class KonfigVerdiProdusent {
 
         Member member = ip.getMember();
         String name = Constructor.class.isAssignableFrom(member.getClass())
-                ? member.getName()
-                : member.getDeclaringClass().getName() + "#" + member.getName(); //$NON-NLS-1$
+            ? member.getName()
+            : member.getDeclaringClass().getName() + "#" + member.getName(); //$NON-NLS-1$
         if (!konfigVerdiReferanser.contains(name)) {
             String key = annot.value();
             Object val = SKJUL.matcher(key).matches()
-                    ? "********* (skjult)"// $NON-NLS-1$
-                    : output;
+                ? "********* (skjult)"// $NON-NLS-1$
+                : output;
             konfigVerdiReferanser.add(name);
             log.info("{}: {}=\"{}\" @{}", KonfigVerdi.class.getSimpleName(), key, val, name); //$NON-NLS-1$
         }

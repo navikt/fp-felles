@@ -1,18 +1,16 @@
 package no.nav.foreldrepenger.konfig;
 
-import static java.lang.System.getenv;
-import static no.nav.foreldrepenger.konfig.StandardPropertySource.APP_PROPERTIES;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.Dependent;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
 
-import javax.enterprise.context.Dependent;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
+import static java.lang.System.getenv;
+import static no.nav.foreldrepenger.konfig.StandardPropertySource.APP_PROPERTIES;
 
 @Dependent
 public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiProvider {
@@ -29,7 +27,7 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
         private static Properties lesFra() {
             var c = new Properties();
             lesFra(namespaceKonfig(), lesFra(clusterKonfig(), lesFra("", new Properties())))
-                    .forEach((k, v) -> c.put(k.toString().toLowerCase(), v.toString()));
+                .forEach((k, v) -> c.put(k.toString().toLowerCase(), v.toString()));
             return c;
         }
 
@@ -74,7 +72,7 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
 
         private static String clusterName() {
             return Optional.ofNullable(getenv(NaisProperty.CLUSTER.propertyName()))
-                    .orElse(LOCAL);
+                .orElse(LOCAL);
         }
     }
 
@@ -90,7 +88,7 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
     @Override
     public <V> V getVerdi(String key, Converter<V> converter) {
         return Optional.ofNullable(super.getVerdi(key.toLowerCase(), converter))
-                .orElse(null);
+            .orElse(null);
     }
 
     @Override

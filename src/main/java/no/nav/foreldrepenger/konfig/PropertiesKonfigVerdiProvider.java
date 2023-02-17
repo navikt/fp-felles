@@ -42,7 +42,7 @@ public abstract class PropertiesKonfigVerdiProvider implements KonfigVerdiProvid
     public <V> List<V> getVerdier(String key, KonfigVerdi.Converter<V> converter) {
         String verdiString = (String) metadata.getVerdier().get(key);
         List<String> asList = Arrays.asList(verdiString.split(",\\s*")); //$NON-NLS-1$
-        return asList.stream().map(converter::tilVerdi).collect(Collectors.toList());
+        return asList.stream().map(converter::tilVerdi).toList();
     }
 
     @Override

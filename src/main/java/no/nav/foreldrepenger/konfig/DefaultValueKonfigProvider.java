@@ -28,20 +28,20 @@ public class DefaultValueKonfigProvider implements KonfigVerdiProvider {
     @Override
     public <V> List<V> getVerdier(String verdier, Converter<V> converter) {
         return Arrays.stream(verdier.split(",\\s*"))
-                .map(converter::tilVerdi)
-                .collect(Collectors.toList());
+            .map(converter::tilVerdi)
+            .toList();
 
     }
 
     @Override
     public <V> Map<String, V> getVerdierAsMap(String verdier, Converter<V> converter) {
         return Arrays.stream(verdier.split(",\\s*"))
-                .map(s -> s.split(":\\s*"))
-                .collect(
-                        Collectors.toMap(
-                                e -> e[0],
-                                e -> converter.tilVerdi(e[1]) // NOSONAR
-                        ));
+            .map(s -> s.split(":\\s*"))
+            .collect(
+                Collectors.toMap(
+                    e -> e[0],
+                    e -> converter.tilVerdi(e[1]) // NOSONAR
+                ));
     }
 
     @Override
