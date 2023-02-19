@@ -106,11 +106,7 @@
                 <artifactId>felles-testutilities</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.bitbucket.b_c</groupId>
-                <artifactId>jose4j</artifactId>
-                <version>0.7.11</version>
-            </dependency>
+
         </dependencies>
     </dependencyManagement>
 </project>

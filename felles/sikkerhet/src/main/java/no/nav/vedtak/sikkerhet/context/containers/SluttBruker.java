@@ -9,11 +9,17 @@ import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 public final class SluttBruker implements Principal, Destroyable {
 
     private String uid;
+    private String shortUid;
     private IdentType identType;
     private boolean destroyed;
 
     public SluttBruker(String uid, IdentType identType) {
+        this(uid, uid, identType);
+    }
+
+    public SluttBruker(String uid, String shortUid, IdentType identType) {
         this.uid = uid;
+        this.shortUid = shortUid;
         this.identType = identType;
     }
 
@@ -28,6 +34,10 @@ public final class SluttBruker implements Principal, Destroyable {
     @Override
     public String getName() {
         return uid;
+    }
+
+    public String getShortUid() {
+        return shortUid;
     }
 
     @Override

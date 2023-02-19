@@ -6,6 +6,9 @@ public interface Kontekst {
 
     String getUid();
 
+    // Kortere brukernavn til bruk i tabeller: 20 tegn + historiske konvensjoner.
+    String getKompaktUid();
+
     IdentType getIdentType();
 
     String getKonsumentId();

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
@@ -30,17 +31,17 @@ public class OidcTokenValidatorTest {
     @BeforeEach
     public void beforeEach() {
 
-        System.setProperty(OidcProviderConfig.AZURE_CLIENT_ID, "OIDC");
-        System.setProperty(OidcProviderConfig.AZURE_CONFIG_ISSUER, OidcTokenGenerator.ISSUER);
-        System.setProperty(OidcProviderConfig.AZURE_CONFIG_JWKS_URI, OidcTokenGenerator.ISSUER + "/jwks_uri");
+        System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(), OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
+        System.setProperty(AzureProperty.AZURE_APP_CLIENT_ID.name(), "OIDC");
+        System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), OidcTokenGenerator.ISSUER);
+        System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), OidcTokenGenerator.ISSUER + "/jwks_uri");
         Map<String, String> testData = new HashMap<>() {
             {
-                put(OidcProviderConfig.AZURE_CONFIG_ISSUER, OidcTokenGenerator.ISSUER);
+                put(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), OidcTokenGenerator.ISSUER);
             }
         };
         WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH, JsonUtil.toJson(testData));
-        System.setProperty(OidcProviderConfig.AZURE_CLIENT_ID, "OIDC");
-        tokenValidator = new OidcTokenValidator(OpenIDProvider.AZUREAD, OidcTokenGenerator.ISSUER, new JwksKeyHandlerFromString(KeyStoreTool.getJwks()), "OIDC");
+        tokenValidator = new OidcTokenValidator(OidcProviderConfig.instance().getOidcConfig(OpenIDProvider.AZUREAD).orElseThrow(), new JwksKeyHandlerFromString(KeyStoreTool.getJwks()));
     }
 
     @Test
@@ -132,6 +133,26 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
+    public void skal_ekstrahere_kortnavn_fra_aad_client_credentials_med_azpname() {
+        // OpenID Connect Core 1.0 incorporating errata set 1
+        // 3.1.3.7 ID Token Validation
+        // 5 If an azp (authorized party) Claim is present, the Client SHOULD verify
+        // that its client_id is the Claim Value
+
+        var langClientId = "klusternavn:langtnamespace:applikasjon";
+
+        var token = new OidcTokenGenerator()
+            .withClaim(AzureProperty.AZP_NAME, langClientId)
+            .withClaim("oid", "demo") // samme som sub for CC
+            .createHeaderTokenHolder();
+
+        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        assertValid(result);
+        assertThat(result.getSubject()).isEqualTo(langClientId);
+        assertThat(result.getCompactSubject()).isEqualTo("srvapplikasjon");
+    }
+
+    @Test
     public void skal_ikke_godta_token_som_er_signert_med_feil_sertifikat() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
@@ -182,7 +203,7 @@ public class OidcTokenValidatorTest {
 
     @Test
     public void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_audience() {
-        System.clearProperty(OidcProviderConfig.AZURE_CLIENT_ID);
+        System.clearProperty(AzureProperty.AZURE_APP_CLIENT_ID.name());
         var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(OpenIDProvider.AZUREAD, OidcTokenGenerator.ISSUER, new JwksKeyHandlerFromString(KeyStoreTool.getJwks()), null));
         assertTrue(e.getMessage().contains("Expected audience must be configured"));
     }
@@ -231,8 +252,11 @@ public class OidcTokenValidatorTest {
 
     @AfterEach
     public void cleanSystemProperties() {
-        System.clearProperty(OidcProviderConfig.AZURE_CONFIG_ISSUER);
-        System.clearProperty(OidcProviderConfig.AZURE_CLIENT_ID);
+        System.clearProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name());
+        System.clearProperty(AzureProperty.AZURE_APP_CLIENT_ID.name());
+        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name());
+        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name());
+
     }
 
     private static class JwksKeyHandlerFromString extends JwksKeyHandlerImpl {

@@ -13,6 +13,7 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.jwx.JsonWebStructure;
 
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandler;
@@ -33,6 +34,12 @@ public class OidcTokenValidator {
     public OidcTokenValidator(OpenIDConfiguration config) {
         this(config.type(), config.issuer().toString(), new JwksKeyHandlerImpl(config.jwksUri(), config.useProxyForJwks(), config.proxy()),
             config.clientId(), 30, config.skipAudienceValidation());
+    }
+
+
+    // Skal bare brukes direkte fra tester, prod-kode skal kalle public constructors
+    OidcTokenValidator(OpenIDConfiguration config, JwksKeyHandler keyHandler) {
+        this(config.type(), config.issuer().toString(), keyHandler, config.clientId(), 30, true);
     }
 
     // Skal bare brukes direkte fra tester, prod-kode skal kalle public constructors
@@ -135,10 +142,19 @@ public class OidcTokenValidator {
 
     private OidcTokenValidatorResult validateAzure(JwtClaims claims, String subject) throws MalformedClaimException {
         if (isAzureClientCredentials(claims, subject)) {
-            var brukSubject = Optional.ofNullable(claims.getStringClaimValue("azp_name")).orElse(subject);
-            return OidcTokenValidatorResult.valid(brukSubject, IdentType.Systemressurs, claims.getExpirationTime().getValue());
+            var brukSubject = Optional.ofNullable(claims.getStringClaimValue(AzureProperty.AZP_NAME)).orElse(subject);
+            // Ta med bakoverkompatibelt navn ettersom azp_name er ganske langt (tabeller / opprettet_av)
+            if (brukSubject.lastIndexOf(':') >= 0) {
+                var appSrvName = "srv" + brukSubject.substring(brukSubject.lastIndexOf(':') + 1);
+                if (appSrvName.length() > 20) {
+                    appSrvName = appSrvName.substring(0, 19);
+                }
+                return OidcTokenValidatorResult.valid(brukSubject, IdentType.Systemressurs, appSrvName, claims.getExpirationTime().getValue());
+            } else {
+                return OidcTokenValidatorResult.valid(brukSubject, IdentType.Systemressurs, claims.getExpirationTime().getValue());
+            }
         } else {
-            var brukSubject = Optional.ofNullable(claims.getStringClaimValue("NAVident")).orElse(subject);
+            var brukSubject = Optional.ofNullable(claims.getStringClaimValue(AzureProperty.NAV_IDENT)).orElse(subject);
             return OidcTokenValidatorResult.valid(brukSubject, IdentType.InternBruker, claims.getExpirationTime().getValue());
         }
     }

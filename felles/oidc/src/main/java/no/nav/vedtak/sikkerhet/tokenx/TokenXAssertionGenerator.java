@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.TokenXProperty;
 
 final class TokenXAssertionGenerator {
 
@@ -27,7 +28,7 @@ final class TokenXAssertionGenerator {
     private TokenXAssertionGenerator() {
             this(ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX).map(OpenIDConfiguration::tokenEndpoint).orElse(null),
                 ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX).map(OpenIDConfiguration::clientId).orElse(null),
-                Optional.ofNullable(Environment.current().getProperty("token.x.private.jwk")).map(TokenXAssertionGenerator::rsaKey).orElse(null));
+                Optional.ofNullable(Environment.current().getProperty(TokenXProperty.TOKEN_X_PRIVATE_JWK.name())).map(TokenXAssertionGenerator::rsaKey).orElse(null));
     }
 
     // Kun til Testformål

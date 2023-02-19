@@ -23,6 +23,7 @@ class KontekstHolderTest {
         assertThat(roundtrip).isNotNull();
         assertThat(roundtrip.getContext()).isEqualTo(SikkerhetContext.SYSTEM);
         assertThat(roundtrip.getUid()).isEqualTo(Systembruker.username());
+        assertThat(roundtrip.getKompaktUid()).isEqualTo(Systembruker.username());
         assertThat(roundtrip.getIdentType()).isEqualTo(IdentType.Prosess);
 
         KontekstHolder.fjernKontekst();

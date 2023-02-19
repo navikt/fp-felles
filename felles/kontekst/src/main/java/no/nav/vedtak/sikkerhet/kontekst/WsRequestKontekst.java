@@ -5,7 +5,7 @@ public final class WsRequestKontekst extends BasisKontekst {
     private final String samlTokenAsString;
 
     private WsRequestKontekst(String uid, IdentType identType, String consumerId, String samlTokenAsString) {
-        super(SikkerhetContext.WSREQUEST, uid, identType, consumerId);
+        super(SikkerhetContext.WSREQUEST, uid, uid, identType, consumerId);
         this.samlTokenAsString = samlTokenAsString;
     }
 

@@ -4,13 +4,19 @@ public class BasisKontekst implements Kontekst {
 
     private final SikkerhetContext context;
     private final String uid;
+    private final String kompaktUid;
     private final IdentType identType;
     private final String konsumentId;
 
 
     protected BasisKontekst(SikkerhetContext context, String uid, IdentType identType, String consumerId) {
+        this(context, uid, uid, identType, consumerId);
+    }
+
+    protected BasisKontekst(SikkerhetContext context, String uid, String kompaktUid, IdentType identType, String consumerId) {
         this.context = context;
         this.uid = uid;
+        this.kompaktUid = kompaktUid;
         this.identType = identType;
         this.konsumentId = consumerId;
     }
@@ -23,6 +29,11 @@ public class BasisKontekst implements Kontekst {
     @Override
     public String getUid() {
         return uid;
+    }
+
+    @Override
+    public String getKompaktUid() {
+        return kompaktUid;
     }
 
     @Override

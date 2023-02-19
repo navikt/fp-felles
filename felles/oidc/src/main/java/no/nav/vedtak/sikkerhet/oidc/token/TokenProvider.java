@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.kontekst.DefaultRequestKontekstProvider;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstProvider;
@@ -21,6 +22,7 @@ public final class TokenProvider {
 
     private static final KontekstProvider KONTEKST_PROVIDER = new DefaultRequestKontekstProvider();
     private static final Set<SikkerhetContext> USE_SYSTEM = Set.of(SikkerhetContext.SYSTEM, SikkerhetContext.WSREQUEST);
+    private static final boolean SYSTEM_ADAPTIVE_AZURE = "true".equalsIgnoreCase(Environment.current().getProperty("token.adaptive.system.use.azure"));
 
     private TokenProvider() {
     }
@@ -33,7 +35,7 @@ public final class TokenProvider {
         var kontekst = KONTEKST_PROVIDER.getKontekst();
         if (USE_SYSTEM.contains(kontekst.getContext())) {
             // Bytt om til AzureCC når klar for det.
-            return getStsSystemToken();
+            return SYSTEM_ADAPTIVE_AZURE ? getAzureSystemToken(scopes) : getStsSystemToken();
         }
         if (kontekst instanceof RequestKontekst requestKontekst) {
             return getOutgoingTokenFor(requestKontekst, scopes);

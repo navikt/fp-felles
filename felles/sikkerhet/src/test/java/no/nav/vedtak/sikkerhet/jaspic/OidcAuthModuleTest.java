@@ -26,8 +26,8 @@ import org.mockito.Mockito;
 
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
@@ -51,15 +51,15 @@ public class OidcAuthModuleTest {
     public void setupAll() throws Exception {
         authModule.initialize(null, null, callbackHandler, null);
 
-        System.setProperty(OidcProviderConfig.AZURE_WELL_KNOWN_URL, OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
-        System.setProperty(OidcProviderConfig.AZURE_CLIENT_ID, "OIDC");
-        System.setProperty(OidcProviderConfig.AZURE_CONFIG_ISSUER, OidcTokenGenerator.ISSUER);
-        System.setProperty(OidcProviderConfig.AZURE_CONFIG_JWKS_URI, OidcTokenGenerator.ISSUER + "/jwks_uri");
+        System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(), OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
+        System.setProperty(AzureProperty.AZURE_APP_CLIENT_ID.name(), "OIDC");
+        System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), OidcTokenGenerator.ISSUER);
+        System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), OidcTokenGenerator.ISSUER + "/jwks_uri");
         System.setProperty("systembruker.username", "JUnit Test");
 
         Map<String, String> testData = Map.of(
             "issuer", OidcTokenGenerator.ISSUER,
-            OidcProviderConfig.AZURE_CONFIG_JWKS_URI, OidcTokenGenerator.ISSUER + "/jwks_uri"
+            AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), OidcTokenGenerator.ISSUER + "/jwks_uri"
         );
         WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH, JsonUtil.toJson(testData));
         OidcTokenValidatorProviderForTest.setValidators(OpenIDProvider.AZUREAD, tokenValidator);

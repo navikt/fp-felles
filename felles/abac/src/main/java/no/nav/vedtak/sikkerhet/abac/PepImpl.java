@@ -16,6 +16,7 @@ import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 @Default
@@ -37,14 +38,12 @@ public class PepImpl implements Pep {
 
     @Inject
     public PepImpl(PdpKlient pdpKlient, TokenProvider tokenProvider, PdpRequestBuilder pdpRequestBuilder,
-                   @KonfigVerdi(value = "pip.users", required = false) String pipUsers,
-                   @KonfigVerdi(value = "AZURE_APP_PRE_AUTHORIZED_APPS", required = false) String preAuthorized
-                   ) {
+                   @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
         this.pdpKlient = pdpKlient;
         this.builder = pdpRequestBuilder;
         this.tokenProvider = tokenProvider;
         this.pipUsers = konfigurePipUsers(pipUsers);
-        this.preAuthorized = preAuthorized; // eg json array av objekt("name", "clientId")
+        this.preAuthorized = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name()); // eg json array av objekt("name", "clientId")
         this.residentClusterNamespace = ENV.clusterName() + ":" + ENV.namespace();
     }
 

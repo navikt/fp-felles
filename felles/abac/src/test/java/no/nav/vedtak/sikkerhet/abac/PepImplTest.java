@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,7 @@ import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
@@ -41,13 +44,22 @@ class PepImplTest {
     @Mock
     private PdpRequestBuilder pdpRequestBuilder;
 
+    @BeforeAll
+    static void initEnv() {
+        System.setProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name(), LOCAL_APP + ", local:annetnamespace:eksternapplication");
+    }
+
+    @AfterAll
+    static void avsluttEnv() {
+        System.clearProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name());
+    }
+
     @BeforeEach
     void setUp() {
         pep = new PepImpl(pdpKlientMock,
             tokenProvider,
             pdpRequestBuilder,
-            "SRVFPLOS,SRVPDP",
-            LOCAL_APP + ", local:annetnamespace:eksternapplication");
+            "SRVFPLOS,SRVPDP");
     }
 
     @Test
