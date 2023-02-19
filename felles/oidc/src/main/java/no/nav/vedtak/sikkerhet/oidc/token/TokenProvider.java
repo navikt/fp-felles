@@ -7,6 +7,7 @@ import java.util.Set;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.kontekst.DefaultRequestKontekstProvider;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.Kontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstProvider;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
@@ -21,8 +22,9 @@ import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
 public final class TokenProvider {
 
     private static final KontekstProvider KONTEKST_PROVIDER = new DefaultRequestKontekstProvider();
+    private static final String ENV_CLIENT_ID = Optional.ofNullable(Environment.current().clientId()).orElseGet(() -> Environment.current().application());
     private static final Set<SikkerhetContext> USE_SYSTEM = Set.of(SikkerhetContext.SYSTEM, SikkerhetContext.WSREQUEST);
-    private static final boolean SYSTEM_ADAPTIVE_AZURE = "true".equalsIgnoreCase(Environment.current().getProperty("token.adaptive.system.use.azure"));
+    private static final boolean SYSTEM_USE_AZURE = "true".equalsIgnoreCase(Environment.current().getProperty("token.system.use.azure"));
 
     private TokenProvider() {
     }
@@ -35,7 +37,7 @@ public final class TokenProvider {
         var kontekst = KONTEKST_PROVIDER.getKontekst();
         if (USE_SYSTEM.contains(kontekst.getContext())) {
             // Bytt om til AzureCC når klar for det.
-            return SYSTEM_ADAPTIVE_AZURE ? getAzureSystemToken(scopes) : getStsSystemToken();
+            return SYSTEM_USE_AZURE ? getAzureSystemToken(scopes) : getStsSystemToken();
         }
         if (kontekst instanceof RequestKontekst requestKontekst) {
             return getOutgoingTokenFor(requestKontekst, scopes);
@@ -80,7 +82,7 @@ public final class TokenProvider {
     public static String getConsumerIdFor(SikkerhetContext context) {
         return switch (context) {
             case REQUEST, WSREQUEST -> getCurrentConsumerId();
-            case SYSTEM -> ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS).map(OpenIDConfiguration::clientId).orElse(null);
+            case SYSTEM -> SYSTEM_USE_AZURE ? ENV_CLIENT_ID : ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS).map(OpenIDConfiguration::clientId).orElse(null);
         };
     }
 
@@ -96,7 +98,7 @@ public final class TokenProvider {
             if (kontekst instanceof RequestKontekst requestKontekst) {
                 return OpenIDProvider.AZUREAD.equals(getProvider(requestKontekst.getToken()));
             } else {
-                return false;
+                return SikkerhetContext.SYSTEM.equals(kontekst.getContext()) && SYSTEM_USE_AZURE;
             }
         } catch (Exception e) {
             return false;

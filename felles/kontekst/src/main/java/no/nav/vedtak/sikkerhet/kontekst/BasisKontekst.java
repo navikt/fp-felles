@@ -1,5 +1,9 @@
 package no.nav.vedtak.sikkerhet.kontekst;
 
+import java.util.Optional;
+
+import no.nav.foreldrepenger.konfig.Environment;
+
 public class BasisKontekst implements Kontekst {
 
     private final SikkerhetContext context;
@@ -48,6 +52,11 @@ public class BasisKontekst implements Kontekst {
 
     public static BasisKontekst forProsesstask() {
         return new BasisKontekst(SikkerhetContext.SYSTEM, Systembruker.username(), IdentType.Prosess, Systembruker.username());
+    }
+
+    public static BasisKontekst forProsesstaskUtenSystembruker() {
+        var appname = "srv" + Environment.current().application();
+        return new BasisKontekst(SikkerhetContext.SYSTEM, appname, IdentType.Prosess, Optional.ofNullable(Environment.current().clientId()).orElse(appname));
     }
 
     public static BasisKontekst ikkeAutentisertRequest(String consumerId) {
