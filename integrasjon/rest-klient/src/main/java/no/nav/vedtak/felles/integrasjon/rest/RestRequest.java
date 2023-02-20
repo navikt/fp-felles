@@ -27,7 +27,7 @@ import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
  * - Create a RestRequest using one of the newRequest methods
  * - Add headers if needed.
  */
-public sealed class RestRequest extends HttpClientRequest permits RestRequestExperimental {
+public final class RestRequest extends HttpClientRequest {
 
 
     public enum WebMethod {
@@ -51,24 +51,24 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(20);
 
-    private static final RequestContextSupplier CONTEXT_SUPPLIER = new OidcContextSupplier();
+    private static final OidcContextSupplier CONTEXT_SUPPLIER = new OidcContextSupplier();
 
     private RestRequest() {
-        this(HttpRequest.newBuilder(), TokenFlow.ADAPTIVE, null, CONTEXT_SUPPLIER);
+        this(HttpRequest.newBuilder(), TokenFlow.ADAPTIVE, null);
     }
 
-    protected RestRequest(HttpRequest.Builder builder, TokenFlow tokenConfig, String scopes, RequestContextSupplier supplier) {
+    private RestRequest(HttpRequest.Builder builder, TokenFlow tokenConfig, String scopes) {
         super(builder, DEFAULT_CALLID);
         super.timeout(DEFAULT_TIMEOUT);
         super.getBuilder().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
             .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-        this.consumerId(selectConsumerId(tokenConfig, supplier));
+        this.consumerId(selectConsumerId(tokenConfig));
         if (!TokenFlow.NO_AUTH_NEEDED.equals(tokenConfig)) {
-            this.authorization(selectTokenSupplier(tokenConfig, scopes, supplier))
+            this.authorization(selectTokenSupplier(tokenConfig, scopes))
                 .validator(RestRequest::validateRestHeaders);
         }
         if (TokenFlow.STS_ADD_CONSUMER.equals(tokenConfig) || TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig)) {
-            this.consumerToken(supplier, tokenConfig);
+            this.consumerToken(tokenConfig);
         }
     }
 
@@ -87,7 +87,7 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
 
     public static RestRequest newRequest(Method method, URI target, RestConfig config) {
         var httpRequestBuilder = getHttpRequestBuilder(method, target);
-        return new RestRequest(httpRequestBuilder, config.tokenConfig(), config.scopes(), CONTEXT_SUPPLIER);
+        return new RestRequest(httpRequestBuilder, config.tokenConfig(), config.scopes());
     }
 
     @Override
@@ -128,7 +128,7 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         return this;
     }
 
-    protected static HttpRequest.Builder getHttpRequestBuilder(Method method, URI target) {
+    private static HttpRequest.Builder getHttpRequestBuilder(Method method, URI target) {
         var builder = HttpRequest.newBuilder(target);
         return switch (method.restMethod()) {
             case GET -> builder.GET();
@@ -138,15 +138,15 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
         };
     }
 
-    private RestRequest consumerToken(RequestContextSupplier contextSupplier, TokenFlow tokenConfig) {
-        if (TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig) && contextSupplier.isAzureContext()) {
+    private RestRequest consumerToken(TokenFlow tokenConfig) {
+        if (TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig) && CONTEXT_SUPPLIER.isAzureContext()) {
             return this;
         }
-        delayedHeader(NavHeaders.HEADER_NAV_CONSUMER_TOKEN, () -> OIDC_AUTH_HEADER_PREFIX + contextSupplier.consumerToken().get().token());
+        delayedHeader(NavHeaders.HEADER_NAV_CONSUMER_TOKEN, () -> OIDC_AUTH_HEADER_PREFIX + CONTEXT_SUPPLIER.consumerToken().get().token());
         return this;
     }
 
-    protected RestRequest authorization(Supplier<OpenIDToken> authToken) {
+    private RestRequest authorization(Supplier<OpenIDToken> authToken) {
         delayedHeader(HttpHeaders.AUTHORIZATION, () -> OIDC_AUTH_HEADER_PREFIX + authToken.get().token());
         return this;
     }
@@ -159,19 +159,19 @@ public sealed class RestRequest extends HttpClientRequest permits RestRequestExp
             });
     }
 
-    private static Supplier<OpenIDToken> selectTokenSupplier(TokenFlow tokenConfig, String scopes, RequestContextSupplier contextSupplier) {
+    private static Supplier<OpenIDToken> selectTokenSupplier(TokenFlow tokenConfig, String scopes) {
         return switch (tokenConfig) {
-            case ADAPTIVE, ADAPTIVE_ADD_CONSUMER -> contextSupplier.adaptive(SikkerhetContext.REQUEST, scopes);
-            case SYSTEM, STS_CC, STS_ADD_CONSUMER -> contextSupplier.tokenForSystem();
-            case AZUREAD_CC -> contextSupplier.azureTokenForSystem(scopes);
+            case ADAPTIVE, ADAPTIVE_ADD_CONSUMER -> CONTEXT_SUPPLIER.adaptive(scopes);
+            case SYSTEM, STS_CC, STS_ADD_CONSUMER -> CONTEXT_SUPPLIER.tokenForSystem();
+            case AZUREAD_CC -> CONTEXT_SUPPLIER.azureTokenForSystem(scopes);
             case NO_AUTH_NEEDED -> throw new IllegalArgumentException("No supplier needed");
         };
     }
 
-    private static Supplier<String> selectConsumerId(TokenFlow tokenConfig, RequestContextSupplier contextSupplier) {
+    private static Supplier<String> selectConsumerId(TokenFlow tokenConfig) {
         return switch (tokenConfig) {
-            case SYSTEM, STS_CC, AZUREAD_CC -> contextSupplier.consumerIdFor(SikkerhetContext.SYSTEM);
-            default -> contextSupplier.consumerIdFor(SikkerhetContext.REQUEST);
+            case SYSTEM, STS_CC, AZUREAD_CC -> CONTEXT_SUPPLIER.consumerIdFor(SikkerhetContext.SYSTEM);
+            default -> CONTEXT_SUPPLIER.consumerIdForCurrentKontekst();
         };
     }
 

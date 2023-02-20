@@ -26,6 +26,7 @@
         <module>xmlutils</module>
         <module>abac-legacy</module>
         <module>kontekst</module>
+        <module>abac-kontekst</module>
     </modules>
 
     <dependencyManagement>
@@ -58,6 +59,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-abac-legacy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles-abac-kontekst</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -100,11 +106,7 @@
                 <artifactId>felles-testutilities</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.bitbucket.b_c</groupId>
-                <artifactId>jose4j</artifactId>
-                <version>0.7.11</version>
-            </dependency>
+
         </dependencies>
     </dependencyManagement>
 </project>

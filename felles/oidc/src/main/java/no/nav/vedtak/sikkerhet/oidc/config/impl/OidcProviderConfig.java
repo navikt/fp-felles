@@ -19,8 +19,10 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
+import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.TokenXProperty;
 
 public final class OidcProviderConfig {
     private static final Environment ENV = Environment.current();
@@ -37,16 +39,7 @@ public final class OidcProviderConfig {
     private static final String STS_CONFIG_JWKS_URI = "oidc.sts.openid.config.jwks.uri";
     private static final String STS_CONFIG_TOKEN_ENDPOINT = "oidc.sts.openid.config.token.endpoint";
 
-    public  static final String AZURE_WELL_KNOWN_URL = "azure.app.well.known.url"; // naiserator
-    public  static final String AZURE_CONFIG_ISSUER = "azure.openid.config.issuer"; // naiserator
-    public  static final String AZURE_CONFIG_JWKS_URI = "azure.openid.config.jwks.uri"; // naiserator
-    private static final String AZURE_CONFIG_TOKEN_ENDPOINT = "azure.openid.config.token.endpoint"; // naiserator
-    public  static final String AZURE_CLIENT_ID = "azure.app.client.id"; // naiserator
-    private static final String AZURE_CLIENT_SECRET = "azure.app.client.secret"; // naiserator
     private static final String AZURE_HTTP_PROXY = "azure.http.proxy"; // settes ikke av naiserator
-
-    private static final String TOKEN_X_WELL_KNOWN_URL = "token.x.well.known.url"; // naiserator
-    private static final String TOKEN_X_CLIENT_ID = "token.x.client.id"; // naiserator
 
     private static final String PROXY_KEY = "proxy.url"; // FP-oppsett lite brukt
     private static final String DEFAULT_PROXY_URL = "http://webproxy.nais:8088";
@@ -106,14 +99,14 @@ public final class OidcProviderConfig {
         }
 
         // Azure - ikke alle apps trenger denne (tokenx-apps)
-        var azureKonfigUrl = ENV.getProperty(AZURE_WELL_KNOWN_URL);
+        var azureKonfigUrl = getAzureProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL);
         if (azureKonfigUrl != null) {
             LOG.debug("Oppretter AzureAD konfig fra '{}'", azureKonfigUrl);
             idProviderConfigs.add(createAzureAppConfiguration(azureKonfigUrl));
         }
 
         // TokenX
-        var tokenxKonfigUrl = ENV.getProperty(TOKEN_X_WELL_KNOWN_URL);
+        var tokenxKonfigUrl = getTokenXProperty(TokenXProperty.TOKEN_X_WELL_KNOWN_URL);
         if (tokenxKonfigUrl != null) {
             LOG.debug("Oppretter TokenX konfig fra '{}'", tokenxKonfigUrl);
             idProviderConfigs.add(createTokenXConfiguration(tokenxKonfigUrl));
@@ -156,16 +149,24 @@ public final class OidcProviderConfig {
     private static OpenIDConfiguration createAzureAppConfiguration(String wellKnownUrl) {
         var useProxy = ENV.isLocal() ? null : URI.create(ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy()));
         return createConfiguration(OpenIDProvider.AZUREAD,
-            Optional.ofNullable(ENV.getProperty(AZURE_CONFIG_ISSUER))
+            Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER))
                 .orElseGet(() -> getIssuerFra(wellKnownUrl, useProxy).orElse(null)),
-            Optional.ofNullable(ENV.getProperty(AZURE_CONFIG_JWKS_URI))
+            Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI))
                 .orElseGet(() -> getJwksFra(wellKnownUrl, useProxy).orElse(null)),
-            Optional.ofNullable(ENV.getProperty(AZURE_CONFIG_TOKEN_ENDPOINT))
+            Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT))
                 .orElseGet(() -> getTokenEndpointFra(wellKnownUrl, useProxy).orElse(null)),
             !ENV.isLocal(), useProxy,
-            ENV.getRequiredProperty(AZURE_CLIENT_ID),
-            ENV.getProperty(AZURE_CLIENT_SECRET),
+            getAzureProperty(AzureProperty.AZURE_APP_CLIENT_ID),
+            getAzureProperty(AzureProperty.AZURE_APP_CLIENT_SECRET),
             false);
+    }
+
+    private static String getAzureProperty(AzureProperty property) {
+        return ENV.getProperty(property.name());
+    }
+
+    private static String getTokenXProperty(TokenXProperty property) {
+        return ENV.getProperty(property.name());
     }
 
     private static OpenIDConfiguration createTokenXConfiguration(String wellKnownUrl) {
@@ -174,7 +175,7 @@ public final class OidcProviderConfig {
             getJwksFra(wellKnownUrl).orElseThrow(),
             getTokenEndpointFra(wellKnownUrl).orElse(null),
             false, null,
-            ENV.getRequiredProperty(TOKEN_X_CLIENT_ID),
+            getTokenXProperty(TokenXProperty.TOKEN_X_CLIENT_ID),
             null, // Signerer requests med jws
             false);
     }

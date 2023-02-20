@@ -31,8 +31,6 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
 @ApplicationScoped
 public class PdpConsumerImpl implements PdpConsumer {
 
-    private static final String DEFAULT_ABAC_URL = "http://abac-foreldrepenger.teamabac/application/authorize";
-    private static final String PDP_ENDPOINT_URL_KEY = "abac.pdp.endpoint.url";
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final Logger LOG = LoggerFactory.getLogger(PdpConsumerImpl.class);
 
@@ -46,7 +44,7 @@ public class PdpConsumerImpl implements PdpConsumer {
     } // CDI
 
     @Inject
-    public PdpConsumerImpl(@KonfigVerdi(value = PDP_ENDPOINT_URL_KEY, defaultVerdi = DEFAULT_ABAC_URL) String pdpUrl) {
+    public PdpConsumerImpl(@KonfigVerdi(value = "abac.pdp.endpoint.url", defaultVerdi = "http://abac-foreldrepenger.teamabac/application/authorize") String pdpUrl) {
         this.pdpUrl = URI.create(pdpUrl);
         this.basicCredentials = basicCredentials(Systembruker.username(), Systembruker.password());
         // TODO - vurder om bør settes static final?

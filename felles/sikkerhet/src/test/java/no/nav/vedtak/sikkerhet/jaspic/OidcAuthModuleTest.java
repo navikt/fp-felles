@@ -24,17 +24,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenGenerator;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidator;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorProviderForTest;
-import no.nav.vedtak.sikkerhet.oidc.OidcTokenValidatorResult;
+import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
+import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
 
 public class OidcAuthModuleTest {
 
@@ -53,15 +51,15 @@ public class OidcAuthModuleTest {
     public void setupAll() throws Exception {
         authModule.initialize(null, null, callbackHandler, null);
 
-        System.setProperty(OidcProviderConfig.AZURE_WELL_KNOWN_URL, OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
-        System.setProperty(OidcProviderConfig.AZURE_CLIENT_ID, "OIDC");
-        System.setProperty(OidcProviderConfig.AZURE_CONFIG_ISSUER, OidcTokenGenerator.ISSUER);
-        System.setProperty(OidcProviderConfig.AZURE_CONFIG_JWKS_URI, OidcTokenGenerator.ISSUER + "/jwks_uri");
+        System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(), OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
+        System.setProperty(AzureProperty.AZURE_APP_CLIENT_ID.name(), "OIDC");
+        System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), OidcTokenGenerator.ISSUER);
+        System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), OidcTokenGenerator.ISSUER + "/jwks_uri");
         System.setProperty("systembruker.username", "JUnit Test");
 
         Map<String, String> testData = Map.of(
             "issuer", OidcTokenGenerator.ISSUER,
-            OidcProviderConfig.AZURE_CONFIG_JWKS_URI, OidcTokenGenerator.ISSUER + "/jwks_uri"
+            AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), OidcTokenGenerator.ISSUER + "/jwks_uri"
         );
         WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH, JsonUtil.toJson(testData));
         OidcTokenValidatorProviderForTest.setValidators(OpenIDProvider.AZUREAD, tokenValidator);
@@ -133,7 +131,7 @@ public class OidcAuthModuleTest {
         var gyldigIdToken = getGyldigToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigIdToken));
         when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + 121));
+                .thenReturn(OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 + 121));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SUCCESS);
@@ -149,7 +147,7 @@ public class OidcAuthModuleTest {
         when(tokenValidator.validate(any()))
                 .thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validateWithoutExpirationTime(any()))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 - 10));
+                .thenReturn(OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 - 10));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
@@ -182,7 +180,7 @@ public class OidcAuthModuleTest {
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigToken));
         when(tokenValidator.validate(ugyldigToken)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
         when(tokenValidator.validateWithoutExpirationTime(any()))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 - 10));
+                .thenReturn(OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 - 10));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
 
@@ -201,7 +199,7 @@ public class OidcAuthModuleTest {
         var gyldigIdToken = getGyldigToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigIdToken));
         when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
+                .thenReturn(OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
 
         var result = authModule.validateRequest(request, subject, serviceSubject);
 
@@ -218,7 +216,7 @@ public class OidcAuthModuleTest {
         var gyldigIdToken = getGyldigToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(gyldigIdToken));
         when(tokenValidator.validate(gyldigIdToken))
-                .thenReturn(OidcTokenValidatorResult.valid(SluttBruker.utledBruker("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
+                .thenReturn(OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
 
         var result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SUCCESS);

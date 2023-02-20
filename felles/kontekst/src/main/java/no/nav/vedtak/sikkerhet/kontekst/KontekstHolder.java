@@ -6,44 +6,47 @@ import org.slf4j.LoggerFactory;
 public class KontekstHolder {
 
     private static final Logger LOG = LoggerFactory.getLogger(KontekstHolder.class);
+    private static final BasisKontekst INGEN = BasisKontekst.tomKontekst();
 
-    private static final ThreadLocal<AbstraktKontekst> KONTEKST = ThreadLocal.withInitial(() -> UtenKontekst.INGEN);
+    private static final ThreadLocal<Kontekst> KONTEKST = ThreadLocal.withInitial(() -> INGEN);
 
     private KontekstHolder() {
     }
 
     public static boolean harKontekst() {
-        return KONTEKST.get() != null;
+        return !utenKontekst(KONTEKST.get());
     }
 
-    public static AbstraktKontekst getKontekst() {
-        if (erUtenKontekst(KONTEKST.get())) {
+    public static Kontekst getKontekst() {
+        var eksisterende = KONTEKST.get();
+        if (utenKontekst(eksisterende)) {
             LOG.info("FPFELLES KONTEKST getKontekst gir null", new Exception("Stracktrace/getKontekst"));
         }
-        return KONTEKST.get();
+        return eksisterende;
     }
 
-    public static void setKontekst(AbstraktKontekst kontekst) {
+    public static void setKontekst(Kontekst kontekst) {
+        if (utenKontekst(kontekst)) {
+            throw new IllegalArgumentException("Bruk fjernKontekst");
+        }
         var eksisterende = KONTEKST.get();
-        if (!erUtenKontekst(eksisterende) && !erUtenKontekst(kontekst)) {
+        if (!utenKontekst(eksisterende)) {
             LOG.info("FPFELLES KONTEKST allerede satt type {} for {} ny {} for {}", eksisterende.getContext(),
                 eksisterende.getUid(), kontekst.getContext(), kontekst.getUid(), new Exception("Stracktrace/setKontekst"));
-        }
-        if (erUtenKontekst(eksisterende) && erUtenKontekst(kontekst)) {
-            LOG.info("FPFELLES KONTEKST allerede satt til null", new Exception("Stracktracegenerator/setKontekst"));
         }
         KONTEKST.set(kontekst);
     }
 
     public static void fjernKontekst() {
-        if (erUtenKontekst(KONTEKST.get())) {
+        if (utenKontekst(KONTEKST.get())) {
             LOG.info("FPFELLES KONTEKST allerede fjernet", new Exception("Stracktracegenerator/fjernKontekst"));
+        } else {
+            KONTEKST.remove();
         }
-        KONTEKST.remove();
     }
 
-    private static boolean erUtenKontekst(AbstraktKontekst kontekst) {
-        return kontekst == null || UtenKontekst.INGEN.equals(kontekst);
+    private static boolean utenKontekst(Kontekst kontekst) {
+        return kontekst == null || !kontekst.harKontekst();
     }
 
 }

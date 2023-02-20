@@ -81,7 +81,7 @@ public class BeskyttetRessursInterceptor {
 
         var token = ServiceType.WEBSERVICE.equals(serviceType)
             ? Token.withSamlToken(tokenProvider.samlToken())
-            : Token.withOidcToken(tokenProvider.openIdToken(), tokenProvider.getSluttBruker());
+            : Token.withOidcToken(tokenProvider.openIdToken(), tokenProvider.getUid(), tokenProvider.getIdentType());
 
         return BeskyttetRessursAttributter.builder()
             .medUserId(tokenProvider.getUid())

@@ -20,7 +20,6 @@ import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.context.containers.OidcCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
-import no.nav.vedtak.sikkerhet.oidc.OidcLogin;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 /**

@@ -3,7 +3,6 @@ package no.nav.vedtak.sikkerhet.abac;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
 
-import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,8 +15,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
-import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 @Default
@@ -39,14 +38,12 @@ public class PepImpl implements Pep {
 
     @Inject
     public PepImpl(PdpKlient pdpKlient, TokenProvider tokenProvider, PdpRequestBuilder pdpRequestBuilder,
-                   @KonfigVerdi(value = "pip.users", required = false) String pipUsers,
-                   @KonfigVerdi(value = "AZURE_APP_PRE_AUTHORIZED_APPS", required = false) String preAuthorized
-                   ) {
+                   @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
         this.pdpKlient = pdpKlient;
         this.builder = pdpRequestBuilder;
         this.tokenProvider = tokenProvider;
         this.pipUsers = konfigurePipUsers(pipUsers);
-        this.preAuthorized = preAuthorized; // eg json array av objekt("name", "clientId")
+        this.preAuthorized = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name()); // eg json array av objekt("name", "clientId")
         this.residentClusterNamespace = ENV.clusterName() + ":" + ENV.namespace();
     }
 
@@ -74,14 +71,14 @@ public class PepImpl implements Pep {
     // Token kan utvides med roles og groups - men oppsettet er langt fra det som er kjent fra STS mv.
     // Kan legge inn filter på claims/roles intern og/eller ekstern.
     private boolean skalForetaLokalTilgangsbeslutning(BeskyttetRessursAttributter attributter) {
-        var identType = Optional.ofNullable(attributter.getToken().getSluttBruker()).map(SluttBruker::getIdentType).orElse(null);
-        var consumer = Optional.ofNullable(attributter.getToken().getSluttBruker()).map(SluttBruker::getName).orElse(null);
+        var identType = attributter.getToken().getIdentType();
+        var consumer = attributter.getToken().getBrukerId();
         return OpenIDProvider.AZUREAD.equals(attributter.getToken().getOpenIDProvider())
             && IdentType.Systemressurs.equals(identType) && consumer != null && preAuthorized != null;
     }
 
     private boolean harTilgang(BeskyttetRessursAttributter attributter) {
-        var consumer = Optional.ofNullable(attributter.getToken().getSluttBruker()).map(SluttBruker::getName).orElse(null);
+        var consumer = attributter.getToken().getBrukerId();
         if (consumer == null || !preAuthorized.contains(consumer)) {
             return false;
         }
