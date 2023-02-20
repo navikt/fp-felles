@@ -65,6 +65,10 @@ public final class DefaultHttpClient {
         return doSendExpectStringRetry(request.request());
     }
 
+    public HttpResponse<String> sendReturnUnhandledNoRetry(HttpClientRequest request) {
+        return doSendExpectString(request.request());
+    }
+
     private HttpResponse<byte[]> doSendExpectBytearrayRetry(HttpRequest httpRequest) {
         int i = RETRIES;
         while (i-- > 0) {
@@ -111,4 +115,6 @@ public final class DefaultHttpClient {
         }
     }
 
+
 }
+
