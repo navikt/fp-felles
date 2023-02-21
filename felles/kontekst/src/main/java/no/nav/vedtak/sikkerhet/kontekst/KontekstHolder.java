@@ -14,23 +14,20 @@ public class KontekstHolder {
     }
 
     public static boolean harKontekst() {
-        return !utenKontekst(KONTEKST.get());
+        var kontekst = KONTEKST.get();
+        return kontekst != null && kontekst.harKontekst();
     }
 
     public static Kontekst getKontekst() {
-        var eksisterende = KONTEKST.get();
-        if (utenKontekst(eksisterende)) {
-            LOG.info("FPFELLES KONTEKST getKontekst gir null", new Exception("Stracktrace/getKontekst"));
-        }
-        return eksisterende;
+        return KONTEKST.get();
     }
 
     public static void setKontekst(Kontekst kontekst) {
-        if (utenKontekst(kontekst)) {
+        if (kontekst == null || !kontekst.harKontekst()) {
             throw new IllegalArgumentException("Bruk fjernKontekst");
         }
-        var eksisterende = KONTEKST.get();
-        if (!utenKontekst(eksisterende)) {
+        if (harKontekst()) {
+            var eksisterende = KONTEKST.get();
             LOG.info("FPFELLES KONTEKST allerede satt type {} for {} ny {} for {}", eksisterende.getContext(),
                 eksisterende.getUid(), kontekst.getContext(), kontekst.getUid(), new Exception("Stracktrace/setKontekst"));
         }
@@ -38,15 +35,11 @@ public class KontekstHolder {
     }
 
     public static void fjernKontekst() {
-        if (utenKontekst(KONTEKST.get())) {
-            LOG.info("FPFELLES KONTEKST allerede fjernet", new Exception("Stracktracegenerator/fjernKontekst"));
-        } else {
+        if (harKontekst()) {
             KONTEKST.remove();
+        } else {
+            LOG.info("FPFELLES KONTEKST allerede fjernet", new Exception("Stracktracegenerator/fjernKontekst"));;
         }
-    }
-
-    private static boolean utenKontekst(Kontekst kontekst) {
-        return kontekst == null || !kontekst.harKontekst();
     }
 
 }
