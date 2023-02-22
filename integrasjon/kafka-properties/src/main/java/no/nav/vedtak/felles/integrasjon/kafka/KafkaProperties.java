@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.kafka;
 
+import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -83,7 +84,8 @@ public class KafkaProperties {
 
 
     private static String getAivenConfig(AivenProperty property) {
-        return ENV.getProperty(property.name());
+        return Optional.ofNullable(ENV.getProperty(property.name()))
+            .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
     }
 
     private static String generateClientId() {

@@ -162,11 +162,13 @@ public final class OidcProviderConfig {
     }
 
     private static String getAzureProperty(AzureProperty property) {
-        return ENV.getProperty(property.name());
+        return Optional.ofNullable(ENV.getProperty(property.name()))
+            .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
     }
 
     private static String getTokenXProperty(TokenXProperty property) {
-        return ENV.getProperty(property.name());
+        return Optional.ofNullable(ENV.getProperty(property.name()))
+            .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
     }
 
     private static OpenIDConfiguration createTokenXConfiguration(String wellKnownUrl) {
