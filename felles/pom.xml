@@ -24,9 +24,9 @@
         <module>db</module>
         <module>abac</module>
         <module>xmlutils</module>
-        <module>abac-legacy</module>
         <module>kontekst</module>
         <module>abac-kontekst</module>
+        <module>auth-filter</module>
     </modules>
 
     <dependencyManagement>
@@ -58,12 +58,12 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-abac-legacy</artifactId>
+                <artifactId>felles-abac-kontekst</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-abac-kontekst</artifactId>
+                <artifactId>felles-auth-filter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

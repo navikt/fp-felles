@@ -32,6 +32,7 @@ import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
+import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorConfig;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
 
 public class OidcAuthModuleTest {
@@ -62,7 +63,7 @@ public class OidcAuthModuleTest {
             AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), OidcTokenGenerator.ISSUER + "/jwks_uri"
         );
         WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH, JsonUtil.toJson(testData));
-        OidcTokenValidatorProviderForTest.setValidators(OpenIDProvider.AZUREAD, tokenValidator);
+        OidcTokenValidatorConfig.addValidator(OpenIDProvider.AZUREAD, tokenValidator);
     }
 
     @BeforeEach
