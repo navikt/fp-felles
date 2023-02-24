@@ -1,8 +1,5 @@
 package no.nav.vedtak.sikkerhet.context;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,14 +20,8 @@ public class ContextCleaner {
             }
             var subjectHandler = SubjectHandler.getSubjectHandler();
             var subject = subjectHandler.getSubject();
-            // OBS viss fare for at JettySubjectHandler kan gi ting fra request så lenge den ikke er ferdig destroyed
+            // OBS JettySubjectHandler vil gi ting fra request så lenge den ikke er ferdig rensket i JASPI (etter Listener)
             if (subject != null ) {
-                final Set<String> credidentialClasses = subject.getPublicCredentials().stream()
-                    .map(pc -> pc.getClass().getName())
-                    .collect(Collectors.toSet());
-                if (!credidentialClasses.isEmpty() || !subject.getPrincipals().isEmpty()) {
-                    LOG.info("FPFELLES ConClean: inneholdt principals {} og PublicCredentials klasser {}",subject.getPrincipals(), credidentialClasses);
-                }
                 ((ThreadLocalSubjectHandler) subjectHandler).setSubject(null);
                 LOG.trace("FPFELLES ConClean: subject fjernet fra ThreadLocal");
             }

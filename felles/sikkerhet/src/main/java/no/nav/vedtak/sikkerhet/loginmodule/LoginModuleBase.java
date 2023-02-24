@@ -13,13 +13,13 @@ import org.slf4j.Logger;
  */
 public abstract class LoginModuleBase implements LoginModule {
 
-    private final Logger logger;
+    private final Logger log;
 
     private boolean loginSuccess = false;
     private boolean commitSuccess = false;
 
-    protected LoginModuleBase(Logger logger) {
-        this.logger = logger;
+    protected LoginModuleBase(Logger log) {
+        this.log = log;
     }
 
     protected void setLoginSuccess(Boolean success) {
@@ -32,14 +32,14 @@ public abstract class LoginModuleBase implements LoginModule {
 
     @Override
     public final boolean commit() throws LoginException {
-        logger.trace("enter commit");
+        log.trace("enter commit");
         if (!getLoginSuccess()) {
             try {
                 cleanUpLocalState();
             } catch (LoginException e) {
-                logger.info("Unable to cleanUpLocalState cleanly ", e);
+                log.info("Unable to cleanUpLocalState cleanly ", e);
             }
-            logger.trace("leave commit: false");
+            log.trace("leave commit: false");
             return false;
         }
         doCommit();
@@ -49,14 +49,14 @@ public abstract class LoginModuleBase implements LoginModule {
 
     @Override
     public final boolean abort() throws LoginException {
-        logger.trace("enter abort");
+        log.trace("enter abort");
         if (!loginSuccess) {
             try {
                 cleanUpLocalState();
             } catch (LoginException e) {
-                logger.info("Unable to abort cleanly", e);
+                log.info("Unable to abort cleanly", e);
             }
-            logger.trace("leave abort: false");
+            log.trace("leave abort: false");
             return false;
         } else if (!commitSuccess) {
             cleanUpSubject();
@@ -66,18 +66,18 @@ public abstract class LoginModuleBase implements LoginModule {
             // Login and commit was successful, but someone else failed.
             logout();
         }
-        logger.trace("leave abort: true");
+        log.trace("leave abort: true");
         return true;
     }
 
     @Override
     public final boolean logout() throws LoginException {
-        logger.trace("enter logout");
+        log.trace("enter logout");
         cleanUpSubject();
         commitSuccess = false;
         cleanUpLocalState();
         loginSuccess = false;
-        logger.trace("leave logout: true");
+        log.trace("leave logout: true");
         return true;
     }
 
