@@ -4,17 +4,18 @@ import java.util.List;
 
 public interface Oppgaver {
 
+    Oppgave opprettetOppgave(OpprettOppgave oppgave);
+
     Oppgave hentOppgave(String oppgaveId);
 
     void feilregistrerOppgave(String oppgaveId);
 
     void ferdigstillOppgave(String oppgaveId);
 
-    List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception;
-    List<Oppgave> finnÅpneOppgaverForEnhet(String tema, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit) throws Exception;
+    List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper);
 
-    List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception;
+    List<Oppgave> finnÅpneOppgaverAvTyper(String aktørId, String tema, List<Oppgavetype> oppgaveTyper);
 
-    Oppgave opprettetOppgave(OpprettOppgave oppgave);
+    List<Oppgave> finnÅpneOppgaverForEnhet(String tema, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit);
 
 }
