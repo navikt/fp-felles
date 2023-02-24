@@ -3,7 +3,7 @@ Denne modulen dekker JASPI, JAAS og Tokenvalidering
 
 Kode relatert til Context, OIDC-config og Tokenhenting/veksling ligger i felles-oidc
 
-Sikkerhetskontekst aksesseres via SubjectHandler og henter informasjon enten fra request sin **Authentication** eller det som er satt opp i tråden
+Sikkerhetskontekst skal hentes fra KontekstHolder, ikke via SubjectHandler
 
 Kort om hovedkomponentene
 
@@ -21,7 +21,6 @@ LoginModule(s)
 * Får inn subject og callback i initialize()
 * Vanlig OIDC-requests håndteres ved tokenvalidering og setter Authentication for request
 * SAML-requests håndteres ved tokenvalidering og setter en trådlokal kontekst
-* Prosesstask/Containerlogin henter et systemtoken som valideres og setter trådlokal kontekst
 
 OidcTokenValidator validerer tokens fra ulike issuers og henter jwks til keycache.
 Er for tiden en blanding av jose4j og nimbusds (og litt no nav sikkerhet)

@@ -61,7 +61,7 @@ public class PepImpl implements Pep {
         if (PIP.equals(beskyttetRessursAttributter.getResourceType())) {
             return vurderTilgangTilPipTjeneste(beskyttetRessursAttributter, appRessurser);
         }
-        if (skalForetaLokalTilgangsbeslutning(beskyttetRessursAttributter)) {
+        if (kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter)) {
             return new Tilgangsbeslutning(harTilgang(beskyttetRessursAttributter) ? GODKJENT : AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessurser);
         }
         return pdpKlient.forespørTilgang(beskyttetRessursAttributter, builder.abacDomene(), appRessurser);
@@ -70,7 +70,7 @@ public class PepImpl implements Pep {
     // AzureAD CC kommer med sub som ikke ikke en bruker med vanlige AD-grupper og roller
     // Token kan utvides med roles og groups - men oppsettet er langt fra det som er kjent fra STS mv.
     // Kan legge inn filter på claims/roles intern og/eller ekstern.
-    private boolean skalForetaLokalTilgangsbeslutning(BeskyttetRessursAttributter attributter) {
+    private boolean kanForetaLokalTilgangsbeslutning(BeskyttetRessursAttributter attributter) {
         var identType = attributter.getToken().getIdentType();
         var consumer = attributter.getToken().getBrukerId();
         return OpenIDProvider.AZUREAD.equals(attributter.getToken().getOpenIDProvider())
@@ -91,6 +91,8 @@ public class PepImpl implements Pep {
     protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
         String uid = tokenProvider.getUid();
         if (pipUsers.contains(uid.toLowerCase())) {
+            return new Tilgangsbeslutning(GODKJENT, beskyttetRessursAttributter, appRessursData);
+        } else if (kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter) && harTilgang(beskyttetRessursAttributter)) {
             return new Tilgangsbeslutning(GODKJENT, beskyttetRessursAttributter, appRessursData);
         } else {
             return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessursData);

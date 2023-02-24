@@ -26,7 +26,7 @@ Det vil mangle en implementasjon av TokenProvider og det er mulig å implementer
 ```
 <dependency>
     <groupId>no.nav.foreldrepenger.felles</groupId>
-    <artifactId>felles-abac-legacy</artifactId>
+    <artifactId>felles-abac-kontekst</artifactId>
 </dependency>
 ```
-Denne kommer med en avhengighet til felles-sikkerhet og SubjectHandler.
+Denne kommer med en avhengighet til felles-kontekst og KontekstHolder.
