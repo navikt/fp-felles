@@ -4,15 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class OppgaveRestTest {
-
-    private static final ObjectWriter WRITER = DefaultJsonMapper.getObjectMapper().writerWithDefaultPrettyPrinter();
-    private static final ObjectReader READER = DefaultJsonMapper.getObjectMapper().reader();
 
     private static final String json = """
         {
@@ -25,7 +19,7 @@ class OppgaveRestTest {
           "temagruppe":"FMLI",
           "tema":"FOR",
           "behandlingstema":"ab0326",
-          "oppgavetype":"BEH_SAK_VL",
+          "oppgavetype":"BEH_SAK",
           "versjon":1,
           "opprettetAv":"srvengangsstonad",
           "prioritet":"NORM",
@@ -42,5 +36,6 @@ class OppgaveRestTest {
         var deserialized = DefaultJsonMapper.fromJson(json, Oppgave.class);
         assertThat(deserialized).isNotNull();
         assertThat(deserialized.tildeltEnhetsnr()).isEqualTo("1234");
+        assertThat(deserialized.oppgavetype()).isEqualTo(Oppgavetype.BEHANDLE_SAK.getKode());
     }
 }

@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -10,11 +11,15 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
-//@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "oppgave.rs.uri", endpointDefault = "http://oppgave.default/api/v1/oppgaver",
-//    scopesProperty = "oppgave.scopes", scopesDefault = "api://prod-fss.oppgavehandtering.oppgave/.default")
+/**
+ * API / Swagger https://oppgave.dev.intern.nav.no
+ *
+ * Bruk TokenFlow ADAPTIVE og scope cluster:oppgavehandtering.oppgave mote /api/v1/oppgaver
+ */
 public abstract class AbstractOppgaveKlient implements Oppgaver {
 
     private static final String STATUSKATEGORI_AAPEN = "AAPEN";
+    private static final String TEMA_FORELDREPENGER = "FOR";
 
     private final RestClient restKlient;
     private final RestConfig restConfig;
@@ -36,18 +41,14 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     }
 
     @Override
-    public List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) {
-        var builder = UriBuilder.fromUri(restConfig.endpoint());
-        if (aktørId != null) {
-            builder.queryParam("aktoerId", aktørId);
-        }
-        if (tema != null) {
-            builder.queryParam("tema", tema);
-        }
-        oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
-        var request = RestRequest.newGET(builder.build(), restConfig)
-            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
-        return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
+    public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) {
+        return hentOppgaverFor(aktørId, tema, oppgaveTyper, null, null);
+    }
+
+    @Override
+    public List<Oppgave> finnÅpneOppgaverAvType(Oppgavetype oppgaveType, String aktørId, String enhetsNr, String limit) {
+        Objects.requireNonNull(oppgaveType, "Oppgvetype er påkrevd");
+        return hentOppgaverFor(aktørId, TEMA_FORELDREPENGER, List.of(oppgaveType.getKode()), null, null);
     }
 
     @Override
@@ -56,8 +57,8 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     }
 
     @Override
-    public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) {
-        return hentOppgaverFor(aktørId, tema, oppgaveTyper, null, null);
+    public List<Oppgave> finnÅpneOppgaver(List<String> oppgaveTyper, String aktørId, String enhetsNr, String limit) {
+        return hentOppgaverFor(aktørId, TEMA_FORELDREPENGER, oppgaveTyper, enhetsNr, limit);
     }
 
     private List<Oppgave> hentOppgaverFor(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit) {
