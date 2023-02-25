@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -18,6 +19,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 public abstract class AbstractOppgaveKlient implements Oppgaver {
 
     private static final String STATUSKATEGORI_AAPEN = "AAPEN";
+    private static final String TEMA_FORELDREPENGER = "FOR";
 
     private final RestClient restKlient;
     private final RestConfig restConfig;
@@ -44,13 +46,19 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     }
 
     @Override
-    public List<Oppgave> finnÅpneOppgaverAvTyper(String aktørId, String tema, List<Oppgavetype> oppgaveTyper) {
-        return hentOppgaverFor(aktørId, tema, oppgaveTyper.stream().map(Oppgavetype::getKode).toList(), null, null);
+    public List<Oppgave> finnÅpneOppgaverAvType(Oppgavetype oppgaveType, String aktørId, String enhetsNr, String limit) {
+        Objects.requireNonNull(oppgaveType, "Oppgvetype er påkrevd");
+        return hentOppgaverFor(aktørId, TEMA_FORELDREPENGER, List.of(oppgaveType.getKode()), null, null);
     }
 
     @Override
     public List<Oppgave> finnÅpneOppgaverForEnhet(String tema, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit) {
         return hentOppgaverFor(null, tema, oppgaveTyper, tildeltEnhetsnr, limit);
+    }
+
+    @Override
+    public List<Oppgave> finnÅpneOppgaver(List<String> oppgaveTyper, String aktørId, String enhetsNr, String limit) {
+        return hentOppgaverFor(aktørId, TEMA_FORELDREPENGER, oppgaveTyper, enhetsNr, limit);
     }
 
     private List<Oppgave> hentOppgaverFor(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit) {

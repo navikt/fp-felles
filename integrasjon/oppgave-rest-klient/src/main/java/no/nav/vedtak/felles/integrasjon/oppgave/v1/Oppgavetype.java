@@ -7,8 +7,6 @@ public enum Oppgavetype {
     JOURNALFØRING("JFR"),
     VURDER_KONSEKVENS_YTELSE("VUR_KONS_YTE"),
     VURDER_DOKUMENT("VUR"),
-    @Deprecated(forRemoval = true) // Til bestanden på 50 oppgaver er borte
-    VURDER_DOKUMENT_FPSAK("VUR_VL"),
     BEHANDLE_SAK("BEH_SAK"),
     FEILUTBETALING("FEILUTBET"),
     INNHENT_DOK("INNH_DOK"),
