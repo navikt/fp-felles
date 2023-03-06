@@ -41,38 +41,27 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     }
 
     @Override
-    public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) {
-        return hentOppgaverFor(aktørId, tema, oppgaveTyper, null, null);
-    }
-
-    @Override
     public List<Oppgave> finnÅpneOppgaverAvType(Oppgavetype oppgaveType, String aktørId, String enhetsNr, String limit) {
         Objects.requireNonNull(oppgaveType, "Oppgvetype er påkrevd");
-        return hentOppgaverFor(aktørId, TEMA_FORELDREPENGER, List.of(oppgaveType.getKode()), null, null);
-    }
-
-    @Override
-    public List<Oppgave> finnÅpneOppgaverForEnhet(String tema, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit) {
-        return hentOppgaverFor(null, tema, oppgaveTyper, tildeltEnhetsnr, limit);
+        return hentOppgaverFor(aktørId, List.of(oppgaveType.getKode()), enhetsNr, limit);
     }
 
     @Override
     public List<Oppgave> finnÅpneOppgaver(List<String> oppgaveTyper, String aktørId, String enhetsNr, String limit) {
-        return hentOppgaverFor(aktørId, TEMA_FORELDREPENGER, oppgaveTyper, enhetsNr, limit);
+        return hentOppgaverFor(aktørId, oppgaveTyper, enhetsNr, limit);
     }
 
-    private List<Oppgave> hentOppgaverFor(String aktørId, String tema, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit) {
-        var builder = UriBuilder.fromUri(restConfig.endpoint());
+    private List<Oppgave> hentOppgaverFor(String aktørId, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit) {
+        var builder = UriBuilder.fromUri(restConfig.endpoint())
+            .queryParam("tema", AbstractOppgaveKlient.TEMA_FORELDREPENGER)
+            .queryParam("statuskategori", STATUSKATEGORI_AAPEN);
+
         if (aktørId != null) {
             builder.queryParam("aktoerId", aktørId);
-        }
-        if (tema != null) {
-            builder.queryParam("tema", tema);
         }
         if (tildeltEnhetsnr != null) {
             builder.queryParam("tildeltEnhetsnr", tildeltEnhetsnr);
         }
-        builder.queryParam("statuskategori", STATUSKATEGORI_AAPEN);
         //settes dersom man ønsker flere enn default limit på 10 fra api
         if (limit != null) {
             builder.queryParam("limit", limit);
