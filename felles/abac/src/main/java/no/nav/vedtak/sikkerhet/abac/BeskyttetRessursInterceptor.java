@@ -3,6 +3,7 @@ package no.nav.vedtak.sikkerhet.abac;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
@@ -12,6 +13,8 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
@@ -20,6 +23,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
 @BeskyttetRessurs(actionType = ActionType.DUMMY, resource = "")
 @Interceptor
@@ -27,9 +31,11 @@ import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 @Dependent
 public class BeskyttetRessursInterceptor {
 
+    private static final Environment ENV = Environment.current();
+    private static final Logger LOG = LoggerFactory.getLogger(BeskyttetRessursInterceptor.class);
+
     private final Pep pep;
     private final AbacAuditlogger abacAuditlogger;
-    private static final Environment ENV = Environment.current();
     private final TokenProvider tokenProvider;
 
     @Inject
@@ -53,7 +59,7 @@ public class BeskyttetRessursInterceptor {
     private Object proceed(InvocationContext invocationContext, Tilgangsbeslutning beslutning) throws Exception {
         Method method = invocationContext.getMethod();
         boolean sporingslogges = method.getAnnotation(BeskyttetRessurs.class).sporingslogg();
-        if (sporingslogges) {
+        if (!erSystembrukerKall(beslutning.beskyttetRessursAttributter()) && sporingslogges) {
             Object resultat = invocationContext.proceed();
             abacAuditlogger.loggTilgang(tokenProvider.getUid(), beslutning);
             return resultat;
@@ -62,7 +68,11 @@ public class BeskyttetRessursInterceptor {
     }
 
     private Object ikkeTilgang(Tilgangsbeslutning beslutning) {
-        abacAuditlogger.loggDeny(tokenProvider.getUid(), beslutning);
+        if (!erSystembrukerKall(beslutning.beskyttetRessursAttributter())) {
+            abacAuditlogger.loggDeny(tokenProvider.getUid(), beslutning);
+        } else {
+            LOG.info("ABAC AVSLAG SYSTEMBRUKER {}", beslutning.beskyttetRessursAttributter().getUserId());
+        }
 
         switch (beslutning.beslutningKode()) {
             case AVSLÅTT_KODE_6 -> throw new PepNektetTilgangException("F-709170", "Tilgangskontroll.Avslag.Kode6");
@@ -70,6 +80,13 @@ public class BeskyttetRessursInterceptor {
             case AVSLÅTT_EGEN_ANSATT -> throw new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");
             default -> throw new PepNektetTilgangException("F-608625", "Ikke tilgang");
         }
+    }
+
+    private boolean erSystembrukerKall(BeskyttetRessursAttributter beskyttetRessursAttributter) {
+        return Optional.ofNullable(beskyttetRessursAttributter)
+            .map(BeskyttetRessursAttributter::getToken)
+            .map(Token::getIdentType).orElse(IdentType.InternBruker)
+            .erSystem();
     }
 
     private BeskyttetRessursAttributter hentBeskyttetRessursAttributter(InvocationContext invocationContext,

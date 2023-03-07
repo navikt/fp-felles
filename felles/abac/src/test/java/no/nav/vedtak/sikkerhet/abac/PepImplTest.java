@@ -154,7 +154,7 @@ class PepImplTest {
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributter() {
         return BeskyttetRessursAttributter.builder()
             .medUserId(tokenProvider.getUid())
-            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
+            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN, "TEST", IdentType.InternBruker))
             .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK)
             .medActionType(ActionType.READ)
             .medPepId("local-app")
@@ -167,7 +167,7 @@ class PepImplTest {
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributterPip() {
         return BeskyttetRessursAttributter.builder()
             .medUserId(tokenProvider.getUid())
-            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
+            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN, "TEST", IdentType.InternBruker))
             .medResourceType(RESOURCE_TYPE_INTERNAL_PIP)
             .medActionType(ActionType.READ)
             .medPepId("local-app")

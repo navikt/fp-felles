@@ -42,16 +42,12 @@ public class Token {
         this.identType = identType;
     }
 
-    public static Token withOidcToken(OpenIDToken token) {
-        return new Token(null, utledTokenType(token), token, null, null);
-    }
-
     public static Token withOidcToken(OpenIDToken token, String brukerId, IdentType identType) {
         return new Token(null, utledTokenType(token), token, brukerId, identType);
     }
 
     public static Token withSamlToken(String token) {
-        return new Token(token, TokenType.SAML, null, null, null);
+        return new Token(token, TokenType.SAML, null, null, IdentType.InternBruker);
     }
 
     public TokenType getTokenType() {
