@@ -158,7 +158,7 @@ public final class OidcProviderConfig {
             !ENV.isLocal(), useProxy,
             getAzureProperty(AzureProperty.AZURE_APP_CLIENT_ID),
             getAzureProperty(AzureProperty.AZURE_APP_CLIENT_SECRET),
-            false);
+            ENV.isLocal());
     }
 
     private static String getAzureProperty(AzureProperty property) {

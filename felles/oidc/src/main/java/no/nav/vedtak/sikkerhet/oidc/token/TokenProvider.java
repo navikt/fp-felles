@@ -24,7 +24,7 @@ public final class TokenProvider {
     private static final KontekstProvider KONTEKST_PROVIDER = new DefaultRequestKontekstProvider();
     private static final String ENV_CLIENT_ID = Optional.ofNullable(Environment.current().clientId()).orElseGet(() -> Environment.current().application());
     private static final Set<SikkerhetContext> USE_SYSTEM = Set.of(SikkerhetContext.SYSTEM, SikkerhetContext.WSREQUEST);
-    private static final boolean SYSTEM_USE_AZURE = "true".equalsIgnoreCase(Environment.current().getProperty("token.system.use.azure"));
+    private static final boolean SYSTEM_USE_AZURE = !"false".equalsIgnoreCase(Environment.current().getProperty("token.system.use.azure"));
 
     private TokenProvider() {
     }

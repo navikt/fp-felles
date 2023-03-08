@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
@@ -73,7 +73,7 @@ public class PdpKlientImplTest {
 
     @Test
     public void kallPdpUtenFnrResourceHvisPersonlisteErTom() {
-        var idToken = Token.withOidcToken(JWT_TOKEN);
+        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -88,7 +88,7 @@ public class PdpKlientImplTest {
 
     @Test
     public void kallPdpMedJwtTokenBodyNårIdTokenErJwtToken() {
-        var idToken = Token.withOidcToken(JWT_TOKEN);
+        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -103,7 +103,7 @@ public class PdpKlientImplTest {
 
     @Test
     public void kallPdpMedJwtTokenBodyNårIdTokenErTokeXToken() {
-        var idToken = Token.withOidcToken(JWT_TOKENX_TOKEN);
+        var idToken = Token.withOidcToken(JWT_TOKENX_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -118,7 +118,7 @@ public class PdpKlientImplTest {
 
     @Test
     public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn1() {
-        var idToken = Token.withOidcToken(JWT_TOKEN);
+        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacml3response.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -141,7 +141,7 @@ public class PdpKlientImplTest {
 
     @Test
     public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn2() {
-        var idToken = Token.withOidcToken(JWT_TOKEN);
+        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacmlresponse-array.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -164,7 +164,7 @@ public class PdpKlientImplTest {
 
     @Test
     public void sporingsloggListeSkalHaSammeRekkefølgePåidenterSomXacmlRequest() {
-        var idToken = Token.withOidcToken(JWT_TOKEN);
+        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacml3response.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -265,7 +265,7 @@ public class PdpKlientImplTest {
     @Test
     public void skal_håndtere_blanding_av_fnr_og_aktør_id() {
 
-        var idToken = Token.withOidcToken(JWT_TOKEN);
+        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacml3response.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -319,7 +319,7 @@ public class PdpKlientImplTest {
         File file = new File(getClass().getClassLoader().getResource("request.json").getFile());
         var target = DefaultJsonMapper.getObjectMapper().readValue(file, XacmlRequest.class);
 
-        var felles = lagBeskyttetRessursAttributter(Token.withOidcToken(JWT_TOKEN), AbacDataAttributter.opprett());
+        var felles = lagBeskyttetRessursAttributter(Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker), AbacDataAttributter.opprett());
         var ressurs = AppRessursData.builder()
             .leggTilAktørId("11111")
             .leggTilFødselsnummer("12345678900")
