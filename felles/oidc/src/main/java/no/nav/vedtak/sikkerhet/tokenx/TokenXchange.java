@@ -23,7 +23,6 @@ public final class TokenXchange {
     private static final Logger LOG = LoggerFactory.getLogger(TokenXchange.class);
 
     private TokenXchange() {
-        // NOSONAR
     }
 
     public static OpenIDToken exchange(URI targetEndpoint) {

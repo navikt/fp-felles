@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(CdiAwareExtension.class)
-public class CdiExtensionTest {
+class CdiExtensionTest {
 
     @Inject
     private AppBean appBean;

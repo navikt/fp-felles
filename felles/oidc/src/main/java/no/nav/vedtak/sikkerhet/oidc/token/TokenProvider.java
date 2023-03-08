@@ -7,7 +7,6 @@ import java.util.Set;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.kontekst.DefaultRequestKontekstProvider;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.kontekst.Kontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstProvider;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
@@ -22,7 +21,9 @@ import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
 public final class TokenProvider {
 
     private static final KontekstProvider KONTEKST_PROVIDER = new DefaultRequestKontekstProvider();
-    private static final String ENV_CLIENT_ID = Optional.ofNullable(Environment.current().clientId()).orElseGet(() -> Environment.current().application());
+    private static final String ENV_CLIENT_ID = Optional.ofNullable(Environment.current().clientId())
+        .or(() -> Optional.ofNullable(Environment.current().application()))
+        .orElse("local");
     private static final Set<SikkerhetContext> USE_SYSTEM = Set.of(SikkerhetContext.SYSTEM, SikkerhetContext.WSREQUEST);
     private static final boolean SYSTEM_USE_AZURE = !"false".equalsIgnoreCase(Environment.current().getProperty("token.system.use.azure"));
 
@@ -82,7 +83,8 @@ public final class TokenProvider {
     public static String getConsumerIdFor(SikkerhetContext context) {
         return switch (context) {
             case REQUEST, WSREQUEST -> getCurrentConsumerId();
-            case SYSTEM -> SYSTEM_USE_AZURE ? ENV_CLIENT_ID : ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS).map(OpenIDConfiguration::clientId).orElse(null);
+            case SYSTEM -> SYSTEM_USE_AZURE ? ENV_CLIENT_ID :
+                ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS).map(OpenIDConfiguration::clientId).orElse(null);
         };
     }
 

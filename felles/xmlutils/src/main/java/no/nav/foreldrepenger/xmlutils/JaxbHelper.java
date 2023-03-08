@@ -29,8 +29,8 @@ import javax.xml.validation.SchemaFactory;
 import org.xml.sax.SAXException;
 
 public final class JaxbHelper {
-    private static final Map<Class<?>, JAXBContext> CONTEXTS = new ConcurrentHashMap<>(); // NOSONAR
-    private static final Map<String, Schema> SCHEMAS = new ConcurrentHashMap<>(); // NOSONAR
+    private static final Map<Class<?>, JAXBContext> CONTEXTS = new ConcurrentHashMap<>();
+    private static final Map<String, Schema> SCHEMAS = new ConcurrentHashMap<>();
     private static final NamespaceContext NO_NAMESPACE_CONTEXT = new NamespaceContext() {
         @Override
         public String getNamespaceURI(String prefix) {

@@ -131,9 +131,9 @@ public class BeskyttetRessursInterceptor {
         if (tilpassetAnnotering != null) {
             leggTil(attributter, tilpassetAnnotering, parameterValue);
         } else {
-            if (parameterValue instanceof AbacDto abacDto) { // NOSONAR for å støtte både enkelt-DTO-er og collection av DTO-er
+            if (parameterValue instanceof AbacDto abacDto) {
                 attributter.leggTil(abacDto.abacAttributter());
-            } else if (parameterValue instanceof Collection collection) { // NOSONAR for å støtte både enkelt-DTO-er og collection av DTO-er
+            } else if (parameterValue instanceof Collection collection) {
                 leggTilAbacDtoSamling(attributter, collection);
             }
         }

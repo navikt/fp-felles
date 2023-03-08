@@ -34,7 +34,7 @@ import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorConfig;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
 
-public class AuthenticationFilterDelegateTest {
+class AuthenticationFilterDelegateTest {
 
     private OidcTokenValidator tokenValidator = Mockito.mock(OidcTokenValidator.class);
 
@@ -76,7 +76,7 @@ public class AuthenticationFilterDelegateTest {
     }
 
     @Test
-    public void skal_slippe_gjennom_forespørsel_etter_ubeskyttet_ressurs() throws Exception {
+    void skal_slippe_gjennom_forespørsel_etter_ubeskyttet_ressurs() throws Exception {
         Method method = RestClass.class.getMethod("ubeskyttet");
         ResourceInfo ri = new TestInvocationContext(method, RestClass.class);
 
@@ -87,7 +87,7 @@ public class AuthenticationFilterDelegateTest {
 
 
     @Test
-    public void skal_ikke_slippe_gjennom_forespørsel_men_svare_med_401_etter_beskyttet_ressurs_når_forespørselen_ikke_har_med_id_token() throws Exception {
+    void skal_ikke_slippe_gjennom_forespørsel_men_svare_med_401_etter_beskyttet_ressurs_når_forespørselen_ikke_har_med_id_token() throws Exception {
         Method method = RestClass.class.getMethod("beskyttet");
         ResourceInfo ri = new TestInvocationContext(method, RestClass.class);
 
@@ -98,7 +98,7 @@ public class AuthenticationFilterDelegateTest {
 
 
     @Test
-    public void skal_sende_401_for_utløpt_Authorization_header() throws Exception {
+    void skal_sende_401_for_utløpt_Authorization_header() throws Exception {
         var utløptIdToken = getUtløptToken();
         Method method = RestClass.class.getMethod("beskyttet");
         ResourceInfo ri = new TestInvocationContext(method, RestClass.class);
@@ -113,7 +113,7 @@ public class AuthenticationFilterDelegateTest {
     }
 
     @Test
-    public void skal_slippe_gjennom_forespørsel_etter_beskyttet_ressurs_når_forespørselen_har_med_id_token_som_validerer()
+    void skal_slippe_gjennom_forespørsel_etter_beskyttet_ressurs_når_forespørselen_har_med_id_token_som_validerer()
         throws Exception {
         Method method = RestClass.class.getMethod("beskyttet");
         ResourceInfo ri = new TestInvocationContext(method, RestClass.class);
@@ -133,7 +133,7 @@ public class AuthenticationFilterDelegateTest {
 
 
     @Test
-    public void skal_slippe_gjennom_token_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester()
+    void skal_slippe_gjennom_token_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester()
         throws Exception {
         Method method = RestClass.class.getMethod("beskyttet");
         ResourceInfo ri = new TestInvocationContext(method, RestClass.class);
@@ -151,7 +151,7 @@ public class AuthenticationFilterDelegateTest {
     }
 
     @Test
-    public void skal_slippe_gjennom_token_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester_selv_om_kortere_enn_gammel_grense()
+    void skal_slippe_gjennom_token_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester_selv_om_kortere_enn_gammel_grense()
         throws Exception {
         Method method = RestClass.class.getMethod("beskyttet");
         ResourceInfo ri = new TestInvocationContext(method, RestClass.class);

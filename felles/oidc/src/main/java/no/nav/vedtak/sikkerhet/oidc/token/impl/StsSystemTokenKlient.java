@@ -8,7 +8,6 @@ import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
@@ -18,7 +17,6 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public class StsSystemTokenKlient {
 
-    private static final Environment ENV = Environment.current();
     private static final Logger LOG = LoggerFactory.getLogger(StsSystemTokenKlient.class);
 
     private static final String SCOPE = "openid";
@@ -26,6 +24,9 @@ public class StsSystemTokenKlient {
     private static final OpenIDConfiguration OIDCONFIG = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS).orElseThrow();
 
     private static OpenIDToken accessToken;
+
+    private StsSystemTokenKlient() {
+    }
 
     public static synchronized OpenIDToken hentAccessToken() {
         if (accessToken != null && accessToken.isNotExpired()) {

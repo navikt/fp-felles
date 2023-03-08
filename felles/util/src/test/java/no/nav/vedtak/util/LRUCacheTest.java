@@ -72,7 +72,9 @@ class LRUCacheTest {
 
     @Test
     void skal_slette_key_som_ikke_eksister() {
+        assertThat(cache.get(1L)).isNull();
         cache.remove(1L);
+        assertThat(cache.get(1L)).isNull();
     }
 
     @Test

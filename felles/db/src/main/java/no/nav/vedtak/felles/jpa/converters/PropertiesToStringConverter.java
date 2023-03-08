@@ -36,7 +36,7 @@ public class PropertiesToStringConverter implements AttributeConverter<Propertie
             try {
                 props.load(new StringReader(dbData));
             } catch (IOException e) {
-                throw new IllegalArgumentException("Kan ikke lese properties til string:" + props, e); //$NON-NLS-1$
+                throw new IllegalArgumentException("Kan ikke lese properties til string:" + props, e);
             }
         }
         return props;

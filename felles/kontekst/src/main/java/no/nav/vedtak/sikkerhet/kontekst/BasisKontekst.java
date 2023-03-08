@@ -55,8 +55,9 @@ public class BasisKontekst implements Kontekst {
     }
 
     public static BasisKontekst forProsesstaskUtenSystembruker() {
-        var appname = "srv" + Environment.current().application();
-        return new BasisKontekst(SikkerhetContext.SYSTEM, appname, IdentType.Prosess, Optional.ofNullable(Environment.current().clientId()).orElse(appname));
+        var username = "srv" + Optional.ofNullable(Environment.current().application()).orElse("local");
+        var konsument =  Optional.ofNullable(Environment.current().clientId()).orElse(username);
+        return new BasisKontekst(SikkerhetContext.SYSTEM, username, IdentType.Prosess, konsument);
     }
 
     public static BasisKontekst ikkeAutentisertRequest(String consumerId) {

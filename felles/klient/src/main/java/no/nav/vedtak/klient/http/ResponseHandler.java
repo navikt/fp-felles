@@ -11,7 +11,6 @@ import no.nav.vedtak.exception.ManglerTilgangException;
 final class ResponseHandler {
 
     private ResponseHandler() {
-        // NOSONAR
     }
 
     static <W> W handleResponse(final HttpResponse<W> response, URI endpoint, Set<Integer> acceptStatus) {

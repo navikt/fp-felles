@@ -12,7 +12,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
@@ -21,7 +20,6 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public class AzureSystemTokenKlient {
 
-    private static final Environment ENV = Environment.current();
     private static final Logger LOG = LoggerFactory.getLogger(AzureSystemTokenKlient.class);
 
     private static AzureSystemTokenKlient INSTANCE;

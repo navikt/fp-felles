@@ -7,10 +7,10 @@ import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
 
-public class PropertiesToStringConverterTest {
+class PropertiesToStringConverterTest {
 
     @Test
-    public void test_method_convertToDatabaseColumn() {
+    void test_method_convertToDatabaseColumn() {
         final String propNavn = "propNavn";
         final String propVerdi = "propVerdi";
         Properties properties = new Properties();
@@ -20,13 +20,13 @@ public class PropertiesToStringConverterTest {
     }
 
     @Test
-    public void test_method_convertToDatabaseColumn_null_sjekk() {
+    void test_method_convertToDatabaseColumn_null_sjekk() {
         Properties properties = new Properties();
         assertNull(new PropertiesToStringConverter().convertToDatabaseColumn(properties));
     }
 
     @Test
-    public void test_method_convertToEntityAttribute() {
+    void test_method_convertToEntityAttribute() {
         final String dbData = "navn=testNavn\nby=oslo\nland=norge";
         Properties properties = new PropertiesToStringConverter().convertToEntityAttribute(dbData);
         assertThat(properties.getProperty("land")).isEqualTo("norge");

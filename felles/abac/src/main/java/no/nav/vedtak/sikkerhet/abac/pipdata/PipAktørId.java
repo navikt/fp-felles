@@ -22,7 +22,7 @@ public class PipAktørId implements Serializable, Comparable<PipAktørId>, Ressu
     @JsonValue
     @NotNull
     @javax.validation.constraints.Pattern(regexp = VALID_REGEXP, message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
-    private String aktørId;  // NOSONAR
+    private String aktørId;
 
     public PipAktørId(Long aktørId) {
         Objects.requireNonNull(aktørId, "aktørId");
