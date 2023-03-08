@@ -14,7 +14,7 @@ import no.nav.vedtak.sikkerhet.oidc.validator.KeyStoreTool;
 public class TestAssertionGenerator {
 
     @Test
-    public void lag_signer_valider_tokenx_assertion() throws MalformedClaimException {
+    void lag_signer_valider_tokenx_assertion() throws MalformedClaimException {
         var generator = new TokenXAssertionGenerator(URI.create("https://token/endpoint"), "minKlient", KeyStoreTool.getJsonWebKey());
         var token = generator.assertion();
 

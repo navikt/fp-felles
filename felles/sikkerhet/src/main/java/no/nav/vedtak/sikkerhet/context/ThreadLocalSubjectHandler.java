@@ -14,4 +14,8 @@ public class ThreadLocalSubjectHandler extends SubjectHandler {
     public void setSubject(Subject subject) {
         subjectHolder.set(subject);
     }
+
+    public void fjernSubject() {
+        subjectHolder.remove();
+    }
 }

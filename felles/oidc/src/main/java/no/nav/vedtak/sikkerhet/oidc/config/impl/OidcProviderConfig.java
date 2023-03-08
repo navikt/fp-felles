@@ -46,7 +46,7 @@ public final class OidcProviderConfig {
 
     private static Set<OpenIDConfiguration> PROVIDERS = new HashSet<>();
 
-    private final Set<OpenIDConfiguration> providers;
+    private final Set<OpenIDConfiguration> instanceProviders;
     private final Map<String, OpenIDConfiguration> issuers;
 
     private static OidcProviderConfig instance;
@@ -56,8 +56,8 @@ public final class OidcProviderConfig {
     }
 
     private OidcProviderConfig(Set<OpenIDConfiguration> providers) {
-        this.providers = new HashSet<>(providers);
-        this.issuers = this.providers.stream().collect(Collectors.toMap(c -> c.issuer().toString(), Function.identity()));
+        this.instanceProviders = new HashSet<>(providers);
+        this.issuers = this.instanceProviders.stream().collect(Collectors.toMap(c -> c.issuer().toString(), Function.identity()));
     }
 
     public static synchronized OidcProviderConfig instance() {
@@ -70,7 +70,7 @@ public final class OidcProviderConfig {
     }
 
     public Optional<OpenIDConfiguration> getOidcConfig(OpenIDProvider type) {
-        return providers.stream().filter(p -> p.type().equals(type)).findFirst();
+        return instanceProviders.stream().filter(p -> p.type().equals(type)).findFirst();
     }
 
     public Optional<OpenIDConfiguration> getOidcConfig(String issuer) {
@@ -112,10 +112,11 @@ public final class OidcProviderConfig {
             idProviderConfigs.add(createTokenXConfiguration(tokenxKonfigUrl));
         }
 
-        LOG.info("ID Providere som er tilgjengelig: {}", idProviderConfigs.stream()
+        var providere =  idProviderConfigs.stream()
             .map(OpenIDConfiguration::type)
             .map(OpenIDProvider::name)
-            .collect(Collectors.joining(", ")));
+            .collect(Collectors.joining(", "));
+        LOG.info("ID Providere som er tilgjengelig: {}", providere);
 
         return idProviderConfigs;
     }
@@ -182,7 +183,7 @@ public final class OidcProviderConfig {
             false);
     }
 
-    private static OpenIDConfiguration createConfiguration(OpenIDProvider type,
+    private static OpenIDConfiguration createConfiguration(OpenIDProvider type, // NOSONAR
                                                            String issuer,
                                                            String jwks,
                                                            String tokenEndpoint,

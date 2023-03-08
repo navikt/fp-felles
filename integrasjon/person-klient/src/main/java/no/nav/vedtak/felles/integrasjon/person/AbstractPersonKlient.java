@@ -5,9 +5,6 @@ import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
@@ -37,7 +34,6 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 public abstract class AbstractPersonKlient implements Persondata {
 
     private static Set<TokenFlow> REQUIRED_TOKEN = Set.of(TokenFlow.ADAPTIVE_ADD_CONSUMER);
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractPersonKlient.class);
 
     private final PdlDefaultErrorHandler errorHandler;
     private final Tema tema;

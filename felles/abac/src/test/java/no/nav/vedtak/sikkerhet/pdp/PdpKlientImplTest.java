@@ -41,7 +41,7 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.NavFellesAttributter;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
 
-public class PdpKlientImplTest {
+class PdpKlientImplTest {
 
     private static final String JWT_TOKENSTRING = "eyAidHlwIjogIkpXVCIsICJraWQiOiAiU0gxSWVSU2sxT1VGSDNzd1orRXVVcTE5VHZRPSIsICJhbGciOiAiUlMyNTYiIH0.eyAiYXRfaGFzaCI6ICIyb2c1RGk5ZW9LeFhOa3VPd0dvVUdBIiwgInN1YiI6ICJzMTQyNDQzIiwgImF1ZGl0VHJhY2tpbmdJZCI6ICI1NTM0ZmQ4ZS03MmE2LTRhMWQtOWU5YS1iZmEzYThhMTljMDUtNjE2NjA2NyIsICJpc3MiOiAiaHR0cHM6Ly9pc3NvLXQuYWRlby5ubzo0NDMvaXNzby9vYXV0aDIiLCAidG9rZW5OYW1lIjogImlkX3Rva2VuIiwgImF1ZCI6ICJPSURDIiwgImNfaGFzaCI6ICJiVWYzcU5CN3dTdi0wVlN0bjhXLURnIiwgIm9yZy5mb3JnZXJvY2sub3BlbmlkY29ubmVjdC5vcHMiOiAiMTdhOGZiMzYtMGI0Ny00YzRkLWE4YWYtZWM4Nzc3Y2MyZmIyIiwgImF6cCI6ICJPSURDIiwgImF1dGhfdGltZSI6IDE0OTgwMzk5MTQsICJyZWFsbSI6ICIvIiwgImV4cCI6IDE0OTgwNDM1MTUsICJ0b2tlblR5cGUiOiAiSldUVG9rZW4iLCAiaWF0IjogMTQ5ODAzOTkxNSB9.S2DKQweQWZIfjaAT2UP9_dxrK5zqpXj8IgtjDLt5PVfLYfZqpWGaX-ckXG0GlztDVBlRK4ylmIYacTmEAUV_bRa_qWKRNxF83SlQRgHDSiE82SGv5WHOGEcAxf2w_d50XsgA2KDBCyv0bFIp9bCiKzP11uWPW0v4uIkyw2xVxMVPMCuiMUtYFh80sMDf9T4FuQcFd0LxoYcSFDEDlwCdRiF3ufw73qtMYBlNIMbTGHx-DZWkZV7CgukmCee79gwQIvGwdLrgaDrHFCJUDCbB1FFEaE3p3_BZbj0T54fCvL69aHyWm1zEd9Pys15yZdSh3oSSr4yVNIxhoF-nQ7gY-g;";
     public static final OpenIDToken JWT_TOKEN = new OpenIDToken(OpenIDProvider.STS, new TokenString(JWT_TOKENSTRING));
@@ -58,7 +58,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void kallPdpMedSamlTokenNårIdTokenErSamlToken() {
+    void kallPdpMedSamlTokenNårIdTokenErSamlToken() {
         var idToken = Token.withSamlToken("SAML");
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -72,7 +72,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void kallPdpUtenFnrResourceHvisPersonlisteErTom() {
+    void kallPdpUtenFnrResourceHvisPersonlisteErTom() {
         var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -87,7 +87,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void kallPdpMedJwtTokenBodyNårIdTokenErJwtToken() {
+    void kallPdpMedJwtTokenBodyNårIdTokenErJwtToken() {
         var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -102,7 +102,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void kallPdpMedJwtTokenBodyNårIdTokenErTokeXToken() {
+    void kallPdpMedJwtTokenBodyNårIdTokenErTokeXToken() {
         var idToken = Token.withOidcToken(JWT_TOKENX_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -117,7 +117,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn1() {
+    void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn1() {
         var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacml3response.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -140,7 +140,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn2() {
+    void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn2() {
         var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacmlresponse-array.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -163,7 +163,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void sporingsloggListeSkalHaSammeRekkefølgePåidenterSomXacmlRequest() {
+    void sporingsloggListeSkalHaSammeRekkefølgePåidenterSomXacmlRequest() {
         var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacml3response.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -194,7 +194,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void skal_base64_encode_saml_token() {
+    void skal_base64_encode_saml_token() {
         var idToken = Token.withSamlToken("<dummy SAML token>");
         @SuppressWarnings("unused")
         var responseWrapper = createResponse("xacmlresponse_multiple_obligation.json");
@@ -213,7 +213,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void skal_bare_ta_med_deny_advice() {
+    void skal_bare_ta_med_deny_advice() {
         var idToken = Token.withSamlToken("<dummy SAML token>");
         var responseWrapper = createResponse("xacmlresponse_1deny_1permit.json");
 
@@ -246,7 +246,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void skalFeileVedUkjentObligation() {
+    void skalFeileVedUkjentObligation() {
         var idToken = Token.withSamlToken("SAML");
         var responseWrapper = createResponse("xacmlresponse_multiple_obligation.json");
 
@@ -263,7 +263,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void skal_håndtere_blanding_av_fnr_og_aktør_id() {
+    void skal_håndtere_blanding_av_fnr_og_aktør_id() {
 
         var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
         var responseWrapper = createResponse("xacml3response.json");
@@ -315,7 +315,7 @@ public class PdpKlientImplTest {
     }
 
     @Test
-    public void lese_sammenligne_request() throws IOException {
+    void lese_sammenligne_request() throws IOException {
         File file = new File(getClass().getClassLoader().getResource("request.json").getFile());
         var target = DefaultJsonMapper.getObjectMapper().readValue(file, XacmlRequest.class);
 

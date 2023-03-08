@@ -35,7 +35,7 @@ public class EntityManagerProducer {
     /**
      * registrerte {@link EntityManagerFactory}.
      */
-    private static final Map<String, EntityManagerFactory> CACHE_FACTORIES = new ConcurrentHashMap<>(); // NOSONAR
+    private static final Map<String, EntityManagerFactory> CACHE_FACTORIES = new ConcurrentHashMap<>();
 
     @Produces
     @RequestScoped

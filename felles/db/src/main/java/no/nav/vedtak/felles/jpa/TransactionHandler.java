@@ -37,10 +37,10 @@ public abstract class TransactionHandler<R> {
         }
     }
 
-    protected abstract R doWork(EntityManager entityManager) throws Exception;  // NOSONAR
+    protected abstract R doWork(EntityManager entityManager) throws Exception; // NOSONAR
 
     public interface Work<R> {
-        R doWork(EntityManager em) throws Exception; // NOSONAR
+        R doWork(EntityManager em) throws Exception;  // NOSONAR
     }
 
 }

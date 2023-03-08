@@ -10,7 +10,7 @@ public class ContextPathHolder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContextPathHolder.class);
 
-    private static volatile ContextPathHolder instance;
+    private static volatile ContextPathHolder instance; // NOSONAR
     private final String cookiePath;
     private final boolean harSattCookiePath;
 

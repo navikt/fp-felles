@@ -24,7 +24,7 @@ import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
 import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
-public class OidcTokenValidatorTest {
+class OidcTokenValidatorTest {
 
     private OidcTokenValidator tokenValidator;
 
@@ -45,14 +45,14 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_godta_token_som_har_forventede_verdier() {
+    void skal_godta_token_som_har_forventede_verdier() {
         var token = new OidcTokenGenerator().createHeaderTokenHolder();
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertValid(result);
     }
 
     @Test
-    public void skal_godta_token_som_har_forventede_verdier_og_i_tillegg_har_noen_ukjente_claims() {
+    void skal_godta_token_som_har_forventede_verdier_og_i_tillegg_har_noen_ukjente_claims() {
         var token = new OidcTokenGenerator()
                 .withClaim("email", "foo@bar.nav.no")
                 .createHeaderTokenHolder();
@@ -62,7 +62,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ikke_godta_token_som_har_feil_issuer() {
+    void skal_ikke_godta_token_som_har_feil_issuer() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 2 ..The Issuer Identifier for the OpenID provider .. MUST exactly match the
@@ -77,7 +77,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_godta_token_uansett_audience() {
+    void skal_godta_token_uansett_audience() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 3 ..The ID token MUST be rejected if the ID Token does not list the Client as
@@ -100,7 +100,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ikke_godta_at_azp_mangler_hvis_det_er_multiple_audiences_fordi_dette_trengs_for_å_senere_kunne_gjøre_refresh_av_token() {
+    void skal_ikke_godta_at_azp_mangler_hvis_det_er_multiple_audiences_fordi_dette_trengs_for_å_senere_kunne_gjøre_refresh_av_token() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 4 If the ID Token contains multiple audiences, the Client SHOULD verify that
@@ -115,7 +115,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ikke_godta_at_azp_inneholder_noe_annet_enn_aktuelt_klientnavn() {
+    void skal_ikke_godta_at_azp_inneholder_noe_annet_enn_aktuelt_klientnavn() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 5 If an azp (authorized party) Claim is present, the Client SHOULD verify
@@ -133,7 +133,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ekstrahere_kortnavn_fra_aad_client_credentials_med_azpname() {
+    void skal_ekstrahere_kortnavn_fra_aad_client_credentials_med_azpname() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 5 If an azp (authorized party) Claim is present, the Client SHOULD verify
@@ -153,7 +153,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ikke_godta_token_som_er_signert_med_feil_sertifikat() {
+    void skal_ikke_godta_token_som_er_signert_med_feil_sertifikat() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 6 ... The Client MUST validate the signature of all other ID Tokens according
@@ -170,7 +170,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ikke_godta_token_som_har_gått_ut_på_tid() {
+    void skal_ikke_godta_token_som_har_gått_ut_på_tid() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 9 The current time MUST be before the time represented by the exp Claim
@@ -184,7 +184,7 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_godta_token_som_har_gått_ut_på_tid_i_egen_metode_som_validerer_uten_tid() {
+    void skal_godta_token_som_har_gått_ut_på_tid_i_egen_metode_som_validerer_uten_tid() {
         long now = NumericDate.now().getValue();
         var token = new OidcTokenGenerator()
                 .withIssuedAt(NumericDate.fromSeconds(now - 3601))
@@ -195,21 +195,21 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_issuer() {
+    void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_issuer() {
         WellKnownConfigurationHelper.setWellKnownConfig("azureAD", "{}");
         var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(OpenIDProvider.AZUREAD, null, new JwksKeyHandlerFromString(KeyStoreTool.getJwks()), "OIDC"));
         assertTrue(e.getMessage().contains("Expected issuer must be configured"));
     }
 
     @Test
-    public void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_audience() {
+    void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_audience() {
         System.clearProperty(AzureProperty.AZURE_APP_CLIENT_ID.name());
         var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(OpenIDProvider.AZUREAD, OidcTokenGenerator.ISSUER, new JwksKeyHandlerFromString(KeyStoreTool.getJwks()), null));
         assertTrue(e.getMessage().contains("Expected audience must be configured"));
     }
 
     @Test
-    public void skal_ikke_godta_token_som_har_kid_som_ikke_finnes_i_jwks() {
+    void skal_ikke_godta_token_som_har_kid_som_ikke_finnes_i_jwks() {
         var token = new OidcTokenGenerator()
                 .withKid("124135g8e")
                 .createHeaderTokenHolder();
@@ -219,14 +219,14 @@ public class OidcTokenValidatorTest {
     }
 
     @Test
-    public void skal_ikke_godta_null() {
+    void skal_ikke_godta_null() {
         OidcTokenValidatorResult result = tokenValidator.validate(null);
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrorMessage()).isEqualTo("Missing token (token was null)");
     }
 
     @Test
-    public void skal_ikke_godta_noe_som_ikke_er_et_gyldig_JWT() {
+    void skal_ikke_godta_noe_som_ikke_er_et_gyldig_JWT() {
         OidcTokenValidatorResult result1 = tokenValidator.validate(new TokenString(""));
         assertInvalid(result1,
                 "Invalid OIDC JWT processing failed",

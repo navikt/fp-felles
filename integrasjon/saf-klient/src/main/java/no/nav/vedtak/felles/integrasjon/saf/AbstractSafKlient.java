@@ -30,7 +30,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 public abstract class AbstractSafKlient implements Saf {
     private static final String HENTDOKUMENT = "/rest/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}";
     private static final String F_240613 = "F-240613";
-    private static final String GRAPHQL = "/graphql";
+    private static final String GRAPHQL_PATH = "/graphql";
 
     private final RestClient restKlient;
     private final RestConfig restConfig;
@@ -44,7 +44,7 @@ public abstract class AbstractSafKlient implements Saf {
     protected AbstractSafKlient(RestClient client) {
         this.restKlient = client;
         this.restConfig = RestConfig.forClient(this.getClass());
-        this.graphql = URI.create(this.restConfig.endpoint() + GRAPHQL);
+        this.graphql = URI.create(this.restConfig.endpoint() + GRAPHQL_PATH);
         this.errorHandler = new SafErrorHandler();
     }
 

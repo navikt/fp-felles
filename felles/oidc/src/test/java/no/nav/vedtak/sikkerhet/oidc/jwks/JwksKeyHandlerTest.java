@@ -13,12 +13,12 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
-public class JwksKeyHandlerTest {
+class JwksKeyHandlerTest {
 
     private static final URI STD_URI = URI.create("http://www.vg.no");
 
     @Test
-    public void skal_parse_jwks_og_hente_ut_key() throws Exception {
+    void skal_parse_jwks_og_hente_ut_key() throws Exception {
         String jsonStreng = les("example-jwks.json");
 
         JwksKeyHandler handler = new JwksKeyHandlerImpl(new TestKeySupplier(jsonStreng), STD_URI);
@@ -36,7 +36,7 @@ public class JwksKeyHandlerTest {
     }
 
     @Test
-    public void skal_returnere_null_dersom_key_ikke_finnes_i_jwks() throws Exception {
+    void skal_returnere_null_dersom_key_ikke_finnes_i_jwks() throws Exception {
         String jsonStreng = les("example-jwks.json");
 
         JwksKeyHandler handler = new JwksKeyHandlerImpl(new TestKeySupplier(jsonStreng), STD_URI);
@@ -46,7 +46,7 @@ public class JwksKeyHandlerTest {
     }
 
     @Test
-    public void __key_rotation__skal_ikke_hente_nye_nøkler_fra_jwks_supplier_dersom_nøkkel_finnes_i_cache() throws Exception {
+    void __key_rotation__skal_ikke_hente_nye_nøkler_fra_jwks_supplier_dersom_nøkkel_finnes_i_cache() throws Exception {
         String jwks1 = les("example-jwks.json");
         String jwks2 = les("example2-jwks.json");
         TestKeySupplier keySupplier = new TestKeySupplier(jwks2, jwks1);
@@ -65,7 +65,7 @@ public class JwksKeyHandlerTest {
     }
 
     @Test
-    public void __key_rotation__skal_hente_nye_nøkler_fra_jwks_supplier_dersom_nøkkel_ikke_finnes_i_cache() throws Exception {
+    void __key_rotation__skal_hente_nye_nøkler_fra_jwks_supplier_dersom_nøkkel_ikke_finnes_i_cache() throws Exception {
         String jwks1 = les("example-jwks.json");
         String jwks2 = les("example2-jwks.json");
         TestKeySupplier keySupplier = new TestKeySupplier(jwks1, jwks2);

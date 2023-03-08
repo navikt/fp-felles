@@ -88,7 +88,7 @@ public class AuthenticationFilterDelegate {
     }
 
     private static void setCallAndConsumerId(ContainerRequestContext request) {
-        String callId = Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_CALL_ID)) // NOSONAR Akseptertet headere
+        String callId = Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_CALL_ID))
             .or(() -> Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_ALT_CALL_ID)))
             .orElseGet(MDCOperations::generateCallId);
         MDCOperations.putCallId(callId);

@@ -35,7 +35,7 @@ import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorConfig;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
 
-public class OidcAuthModuleTest {
+class OidcAuthModuleTest {
 
     private OidcTokenValidator tokenValidator = Mockito.mock(OidcTokenValidator.class);
     private TokenLocator tokenLocator = Mockito.mock(TokenLocator.class);
@@ -73,7 +73,7 @@ public class OidcAuthModuleTest {
     }
 
     @Test
-    public void skal_slippe_gjennom_forespørsel_etter_ubeskyttet_ressurs() throws Exception {
+    void skal_slippe_gjennom_forespørsel_etter_ubeskyttet_ressurs() throws Exception {
         MessageInfo request = createRequestForUnprotectedResource();
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
@@ -81,7 +81,7 @@ public class OidcAuthModuleTest {
     }
 
     @Test
-    public void skal_ikke_slippe_gjennom_forespørsel_men_svare_med_401_etter_beskyttet_ressurs_når_forespørselen_ikke_har_med_id_token()
+    void skal_ikke_slippe_gjennom_forespørsel_men_svare_med_401_etter_beskyttet_ressurs_når_forespørselen_ikke_har_med_id_token()
             throws Exception {
         when(request.getHeader("Accept")).thenReturn("application/json");
         MessageInfo request = createRequestForProtectedResource();
@@ -95,7 +95,7 @@ public class OidcAuthModuleTest {
     }
 
     @Test
-    public void skal_sende_401_for_ugyldig_Authorization_header()
+    void skal_sende_401_for_ugyldig_Authorization_header()
             throws Exception {
         var utløptIdToken = getUtløptToken();
 
@@ -112,7 +112,7 @@ public class OidcAuthModuleTest {
     }
 
     @Test
-    public void skal_ikke_slippe_gjennom_forespørsel_men_svare_med_redirect_til_openam_etter_beskyttet_ressurs_når_forespørselen_ikke_har_med_id_token()
+    void skal_ikke_slippe_gjennom_forespørsel_men_svare_med_redirect_til_openam_etter_beskyttet_ressurs_når_forespørselen_ikke_har_med_id_token()
             throws Exception {
         when(request.getHeader("Accept")).thenReturn("*/*");
         MessageInfo request = createRequestForProtectedResource();
@@ -125,7 +125,7 @@ public class OidcAuthModuleTest {
     }
 
     @Test
-    public void skal_slippe_gjennom_forespørsel_etter_beskyttet_ressurs_når_forespørselen_har_med_id_token_som_validerer()
+    void skal_slippe_gjennom_forespørsel_etter_beskyttet_ressurs_når_forespørselen_har_med_id_token_som_validerer()
             throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 
@@ -139,7 +139,7 @@ public class OidcAuthModuleTest {
     }
 
     @Test
-    public void skal_ikke_slippe_gjennom_forespørsel_etter_beskyttet_ressurs_når_forespørselen_har_med_et_utløpt_id_token_og_ikke_noe_refresh_token()
+    void skal_ikke_slippe_gjennom_forespørsel_etter_beskyttet_ressurs_når_forespørselen_har_med_et_utløpt_id_token_og_ikke_noe_refresh_token()
             throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 
@@ -157,7 +157,7 @@ public class OidcAuthModuleTest {
     }
 
     @Test
-    public void skal_ikke_slippe_gjennom_forespørsel_og_svare_med_redirect_når_det_ikke_er_satt_application_json() throws Exception {
+    void skal_ikke_slippe_gjennom_forespørsel_og_svare_med_redirect_når_det_ikke_er_satt_application_json() throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 
         var ugyldigToken = getUtløptToken();
@@ -173,7 +173,7 @@ public class OidcAuthModuleTest {
     }
 
     @Test
-    public void skal_ikke_slippe_gjennom_forespørsel_etter_beskyttet_ressurs_når_forespørselen_har_med_et_utløpt_id_token_og_ikke_klarer_å_hente_nytt_token_med_refresh_token()
+    void skal_ikke_slippe_gjennom_forespørsel_etter_beskyttet_ressurs_når_forespørselen_har_med_et_utløpt_id_token_og_ikke_klarer_å_hente_nytt_token_med_refresh_token()
             throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 
@@ -191,7 +191,7 @@ public class OidcAuthModuleTest {
 
 
     @Test
-    public void skal_slippe_gjennom_token_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester()
+    void skal_slippe_gjennom_token_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester()
             throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 
@@ -208,7 +208,7 @@ public class OidcAuthModuleTest {
     }
 
     @Test
-    public void skal_slippe_gjennom_token_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester_selv_om_kortere_enn_gammel_grense()
+    void skal_slippe_gjennom_token_tilstrekkelig_levetid_til_å_brukes_til_kall_til_andre_tjenester_selv_om_kortere_enn_gammel_grense()
             throws Exception {
         MessageInfo request = createRequestForProtectedResource();
 

@@ -80,9 +80,9 @@ public class MemoryAppender extends ListAppender<ILoggingEvent> {
 
     public static MemoryAppender sniff(org.slf4j.Logger logger) {
         var log = Logger.class.cast(logger);
-        log.setLevel(Level.INFO);
+        log.setLevel(Level.INFO); // NOSONAR test-utility
         var sniffer = new MemoryAppender(log.getName());
-        log.addAppender(sniffer);
+        log.addAppender(sniffer); // NOSONAR test-utility
         sniffer.start();
         return sniffer;
     }

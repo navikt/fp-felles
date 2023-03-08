@@ -43,7 +43,7 @@ public class AbacDataAttributter {
     }
 
     public AbacDataAttributter leggTil(AbacAttributtType type, Object verdi) {
-        requireNonNull(verdi, "Attributt av type " + type + " kan ikke være null"); //$NON-NLS-1$ //$NON-NLS-2$
+        requireNonNull(verdi, "Attributt av type " + type + " kan ikke være null");
         Set<Object> a = attributter.get(type);
         if (a == null) {
             a = new LinkedHashSet<>(4); // det er vanligvis bare 1 attributt i settet
@@ -56,7 +56,7 @@ public class AbacDataAttributter {
     @SuppressWarnings("unchecked")
     public <T> Set<T> getVerdier(AbacAttributtType type) {
         return attributter.containsKey(type)
-            ? (Set<T>) attributter.get(type) // NOSONAR cast fungerer når settere/gettere er symmetriske slik de skal være her
+            ? (Set<T>) attributter.get(type)
             : Collections.emptySet();
     }
 

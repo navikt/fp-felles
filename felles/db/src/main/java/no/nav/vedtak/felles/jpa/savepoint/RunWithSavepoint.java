@@ -54,8 +54,7 @@ public class RunWithSavepoint {
                             // allerede skjedd, ikke håndter på nytt men la 'vårt' savepoint i fred
                             throw e;
                         } catch (Throwable t) { // NOSONAR
-                            // alle andre feil intercepts medfører rollback siden vi ikke kan være sikre på
-                            // tilstand.
+                            // alle andre feil intercepts medfører rollback siden vi ikke kan være sikre på tilstand.
                             em.clear(); // rydd ugyldig state
                             if (!conn.isClosed()) {
                                 conn.rollback(savepoint);

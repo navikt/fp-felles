@@ -154,7 +154,7 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     public void setCallAndConsumerId(HttpServletRequest request) {
-        String callId = Optional.ofNullable(request.getHeader(MDCOperations.HTTP_HEADER_CALL_ID)) // NOSONAR Akseptertet headere
+        String callId = Optional.ofNullable(request.getHeader(MDCOperations.HTTP_HEADER_CALL_ID))
             .orElseGet(() -> request.getHeader(MDCOperations.HTTP_HEADER_ALT_CALL_ID));
         if (callId != null) {
             MDCOperations.putCallId(callId);
@@ -162,7 +162,7 @@ public class OidcAuthModule implements ServerAuthModule {
             MDCOperations.putCallId();
         }
 
-        String consumerId = request.getHeader(MDCOperations.HTTP_HEADER_CONSUMER_ID); // NOSONAR Akseptertet headere
+        String consumerId = request.getHeader(MDCOperations.HTTP_HEADER_CONSUMER_ID);
         if (consumerId != null) {
             MDCOperations.putConsumerId(consumerId);
         }
