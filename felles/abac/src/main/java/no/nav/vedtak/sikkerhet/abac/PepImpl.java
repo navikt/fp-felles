@@ -1,5 +1,15 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
+import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
+
+import java.util.Set;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
+import javax.inject.Inject;
+
+import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
@@ -9,14 +19,6 @@ import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import java.util.Set;
-
-import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
-import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
 
 @Default
 @ApplicationScoped
@@ -31,6 +33,7 @@ public class PepImpl implements Pep {
     private TokenProvider tokenProvider;
     private String preAuthorized;
     private String residentClusterNamespace;
+    private String alternativeClusterNamespace;
 
     public PepImpl() {
     }
@@ -43,7 +46,13 @@ public class PepImpl implements Pep {
         this.tokenProvider = tokenProvider;
         this.pipUsers = konfigurePipUsers(pipUsers);
         this.preAuthorized = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name()); // eg json array av objekt("name", "clientId")
-        this.residentClusterNamespace = ENV.clusterName() + ":" + ENV.namespace();
+        if (ENV.isLocal()) {
+            this.residentClusterNamespace = Cluster.VTP.clusterName()  + ":" + ENV.namespace();
+            this.alternativeClusterNamespace = Cluster.LOCAL.clusterName() + ":" + ENV.namespace();
+        } else {
+            this.residentClusterNamespace = ENV.clusterName() + ":" + ENV.namespace();
+            this.alternativeClusterNamespace = this.residentClusterNamespace;
+        }
     }
 
     protected Set<String> konfigurePipUsers(String pipUsers) {
@@ -81,7 +90,7 @@ public class PepImpl implements Pep {
         if (consumer == null || !preAuthorized.contains(consumer)) {
             return false;
         }
-        if (consumer.startsWith(residentClusterNamespace) || builder.internAzureConsumer(consumer)) {
+        if (consumer.startsWith(residentClusterNamespace) || consumer.startsWith(alternativeClusterNamespace) || builder.internAzureConsumer(consumer)) {
             return true;
         }
         return AvailabilityType.ALL.equals(attributter.getAvailabilityType());
