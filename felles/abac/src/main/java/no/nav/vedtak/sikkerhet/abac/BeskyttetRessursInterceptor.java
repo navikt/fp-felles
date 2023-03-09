@@ -1,21 +1,5 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Optional;
-
-import javax.annotation.Priority;
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
-
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -24,6 +8,20 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Priority;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Optional;
 
 @BeskyttetRessurs(actionType = ActionType.DUMMY, resource = "")
 @Interceptor
@@ -77,7 +75,8 @@ public class BeskyttetRessursInterceptor {
         switch (beslutning.beslutningKode()) {
             case AVSLÅTT_KODE_6 -> throw new PepNektetTilgangException("F-709170", "Tilgangskontroll.Avslag.Kode6");
             case AVSLÅTT_KODE_7 -> throw new PepNektetTilgangException("F-027901", "Tilgangskontroll.Avslag.Kode7");
-            case AVSLÅTT_EGEN_ANSATT -> throw new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");
+            case AVSLÅTT_EGEN_ANSATT ->
+                throw new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");
             default -> throw new PepNektetTilgangException("F-608625", "Ikke tilgang");
         }
     }
@@ -145,8 +144,8 @@ public class BeskyttetRessursInterceptor {
                 attributter.leggTil(abacDto.abacAttributter());
             } else {
                 throw new TekniskException("F-261962",
-                        String.format("Ugyldig input forventet at samling inneholdt bare AbacDto-er, men fant %s",
-                                value != null ? value.getClass().getName() : "null"));
+                    String.format("Ugyldig input forventet at samling inneholdt bare AbacDto-er, men fant %s",
+                        value != null ? value.getClass().getName() : "null"));
             }
         }
     }
@@ -180,7 +179,7 @@ public class BeskyttetRessursInterceptor {
             return ENV.getProperty(beskyttetRessurs.property());
         } else if (!ResourceType.DUMMY.equals(beskyttetRessurs.resourceType())) {
             return beskyttetRessurs.resourceType().getResourceTypeAttribute();
-        }else if (!beskyttetRessurs.resource().isEmpty()) {
+        } else if (!beskyttetRessurs.resource().isEmpty()) {
             return beskyttetRessurs.resource();
         }
         return null;

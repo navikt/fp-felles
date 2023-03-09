@@ -1,11 +1,10 @@
-
 /**
  * Bruk klasser fra no.nav.foreldrepenger.felles:feil:1.0.1 istedenfor.
  * Denne pakken inneholder felles Exception for å håndtere feilmeldinger og feilkoder som logges.
- *
+ * <p>
  * Feilkoder som logges er unike og stabile og kan benyttes i dokumentasjon (f.eks. i forbindelse med troubleshooting av
  * systemet).
- *
+ * <p>
  * Exceptions som applikasjonen selv kaster er subklasser av en av 3 typer:
  * <ul>
  * <li>FunksjonellException - Denne presenteres bruker, men logges normalt ikke</li>

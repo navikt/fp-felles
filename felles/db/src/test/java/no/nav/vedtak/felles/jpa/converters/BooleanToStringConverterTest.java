@@ -1,8 +1,8 @@
 package no.nav.vedtak.felles.jpa.converters;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class BooleanToStringConverterTest {
 

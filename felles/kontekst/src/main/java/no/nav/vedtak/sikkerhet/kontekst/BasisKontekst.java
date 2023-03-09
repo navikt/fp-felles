@@ -1,8 +1,8 @@
 package no.nav.vedtak.sikkerhet.kontekst;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.konfig.Environment;
+
+import java.util.Optional;
 
 public class BasisKontekst implements Kontekst {
 
@@ -56,7 +56,7 @@ public class BasisKontekst implements Kontekst {
 
     public static BasisKontekst forProsesstaskUtenSystembruker() {
         var username = "srv" + Optional.ofNullable(Environment.current().application()).orElse("local");
-        var konsument =  Optional.ofNullable(Environment.current().clientId()).orElse(username);
+        var konsument = Optional.ofNullable(Environment.current().clientId()).orElse(username);
         return new BasisKontekst(SikkerhetContext.SYSTEM, username, IdentType.Prosess, konsument);
     }
 

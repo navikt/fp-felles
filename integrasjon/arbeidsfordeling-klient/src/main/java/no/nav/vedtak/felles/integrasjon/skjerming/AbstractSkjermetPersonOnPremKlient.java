@@ -40,6 +40,7 @@ public abstract class AbstractSkjermetPersonOnPremKlient implements Skjerming {
         return "true".equalsIgnoreCase(skjermet);
     }
 
-    private record SkjermetRequestDto(String personident) {}
+    private record SkjermetRequestDto(String personident) {
+    }
 
 }

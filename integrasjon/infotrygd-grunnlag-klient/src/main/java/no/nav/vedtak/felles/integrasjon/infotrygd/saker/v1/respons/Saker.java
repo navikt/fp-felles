@@ -1,15 +1,11 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons;
 
-import static com.fasterxml.jackson.annotation.Nulls.AS_EMPTY;
+import com.fasterxml.jackson.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import static com.fasterxml.jackson.annotation.Nulls.AS_EMPTY;
 
 public record Saker(String info,
                     @JsonProperty("saker") @JsonSetter(nulls = AS_EMPTY) List<Sak> saker,
@@ -17,7 +13,8 @@ public record Saker(String info,
                     AvsluttedeSaker avsluttedeSaker,
                     @JsonProperty("ikkeStartet") @JsonSetter(nulls = AS_EMPTY) List<IkkeStartetSak> ikkeStartet) {
 
-    public record Sak(LocalDate iverksatt, SakResultat resultat, Saksnummer sakId, String status, SakType type, LocalDate vedtatt) {
+    public record Sak(LocalDate iverksatt, SakResultat resultat, Saksnummer sakId, String status, SakType type,
+                      LocalDate vedtatt) {
 
         @JsonIgnore
         public String getSaksnummer() {
@@ -27,6 +24,7 @@ public record Saker(String info,
         private static String nrFra(int nr) {
             return nr < 10 ? "0" + nr : String.valueOf(nr);
         }
+
         public enum SakResultat {
             @JsonEnumDefaultValue
             UKJENT,
@@ -79,6 +77,7 @@ public record Saker(String info,
 
     public record Utbetaling(int gradering, LocalDate utbetaltFom, LocalDate utbetaltTom) {
     }
+
     public record IkkeStartetSak(LocalDate iverksatt, LocalDate registrert) {
     }
 

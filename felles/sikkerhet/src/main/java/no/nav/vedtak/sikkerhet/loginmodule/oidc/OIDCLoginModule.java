@@ -1,18 +1,5 @@
 package no.nav.vedtak.sikkerhet.loginmodule.oidc;
 
-import java.io.IOException;
-import java.util.Map;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.CredentialExpiredException;
-import javax.security.auth.login.LoginException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.TokenCallback;
 import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
@@ -21,6 +8,17 @@ import no.nav.vedtak.sikkerhet.context.containers.OidcCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.CredentialExpiredException;
+import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * <p>
@@ -143,7 +141,7 @@ public class OIDCLoginModule extends LoginModuleBase {
         TokenCallback tokenCallback = new TokenCallback();
 
         try {
-            callbackHandler.handle(new Callback[] { tokenCallback });
+            callbackHandler.handle(new Callback[]{tokenCallback});
             return tokenCallback.getToken();
         } catch (IOException | UnsupportedCallbackException e) {
             LOG.debug("Error while handling getting token from callbackhandler: ", e);

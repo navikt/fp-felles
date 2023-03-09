@@ -1,14 +1,12 @@
 package no.nav.vedtak.sikkerhet.abac.pipdata;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataValue;
+
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
-
-import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataValue;
 
 /**
  * Id som genereres fra NAV Aktørregister.
@@ -37,7 +35,7 @@ public class PipAktørId implements Serializable, Comparable<PipAktørId>, Ressu
         Objects.requireNonNull(aktørId, "aktørId");
         if (!VALID.matcher(aktørId).matches()) {
             // skal ikke skje, funksjonelle feilmeldinger håndteres ikke her.
-            throw new IllegalArgumentException("Ugyldig aktørId '" + aktørId +"', tillatt pattern: "+ VALID_REGEXP);
+            throw new IllegalArgumentException("Ugyldig aktørId '" + aktørId + "', tillatt pattern: " + VALID_REGEXP);
         }
         return aktørId;
     }

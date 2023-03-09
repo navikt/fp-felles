@@ -1,14 +1,5 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
-import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
-
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
@@ -18,6 +9,14 @@ import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
+import javax.inject.Inject;
+import java.util.Set;
+
+import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
+import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
 
 @Default
 @ApplicationScoped

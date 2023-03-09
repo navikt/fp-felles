@@ -1,8 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons;
 
-import java.time.LocalDate;
-
 import com.fasterxml.jackson.annotation.JsonAlias;
+
+import java.time.LocalDate;
 
 
 public record Arbeidsforhold(

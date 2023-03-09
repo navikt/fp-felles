@@ -1,19 +1,18 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Objects;
-
-import javax.ws.rs.core.UriBuilder;
-
 import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * API / Swagger https://oppgave.dev.intern.nav.no
- *
+ * <p>
  * Bruk TokenFlow ADAPTIVE og scope cluster:oppgavehandtering.oppgave mote /api/v1/oppgaver
  */
 public abstract class AbstractOppgaveKlient implements Oppgaver {
@@ -78,7 +77,7 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.id(), oppgave.versjon(), Oppgavestatus.FERDIGSTILT);
         var method = new RestRequest.Method(RestRequest.WebMethod.PATCH, RestRequest.jsonPublisher(patch));
-        var request =  RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), restConfig)
+        var request = RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), restConfig)
             .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         restKlient.sendExpectConflict(addCorrelation(request), String.class);
     }
@@ -88,7 +87,7 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.id(), oppgave.versjon(), Oppgavestatus.FEILREGISTRERT);
         var method = new RestRequest.Method(RestRequest.WebMethod.PATCH, RestRequest.jsonPublisher(patch));
-        var request =  RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), restConfig)
+        var request = RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), restConfig)
             .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         restKlient.sendExpectConflict(addCorrelation(request), String.class);
     }

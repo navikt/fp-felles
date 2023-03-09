@@ -2,7 +2,7 @@ package no.nav.vedtak.log.audit;
 
 /**
  * Felter skal ikke brukes til andre verdier enn det som er avtalt med ArcSight-gjengen.
- *
+ * <p>
  * Vi ønsker å bruke de samme feltnavnene på tvers av K9- og FP-områdene. Derfor er disse
  * nøklene definert ett felles sted. Det er et mål for ArcSight at det blir likt i hele NAV.
  */

@@ -38,7 +38,8 @@ public class KontekstHolder {
         if (harKontekst()) {
             KONTEKST.remove();
         } else {
-            LOG.info("FPFELLES KONTEKST allerede fjernet", new Exception("Stracktracegenerator/fjernKontekst"));;
+            LOG.info("FPFELLES KONTEKST allerede fjernet", new Exception("Stracktracegenerator/fjernKontekst"));
+            ;
         }
     }
 

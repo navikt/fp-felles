@@ -1,16 +1,14 @@
 package no.nav.vedtak.sikkerhet.loginmodule;
 
-import java.util.Map;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
+import java.util.Map;
 
 /**
  * <p>
@@ -57,7 +55,7 @@ public class ThreadLocalLoginModule extends LoginModuleBase {
         var subjectHandler = SubjectHandler.getSubjectHandler();
         if (!(subjectHandler instanceof ThreadLocalSubjectHandler)) {
             throw new IllegalArgumentException(ThreadLocalLoginModule.class.getSimpleName() + " krever subject handler av klasse "
-                    + ThreadLocalSubjectHandler.class + ", men fikk istedet: " + subjectHandler);
+                + ThreadLocalSubjectHandler.class + ", men fikk istedet: " + subjectHandler);
         }
         return (ThreadLocalSubjectHandler) subjectHandler;
     }

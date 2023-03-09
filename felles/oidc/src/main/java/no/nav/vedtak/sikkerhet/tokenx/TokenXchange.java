@@ -1,22 +1,20 @@
 package no.nav.vedtak.sikkerhet.tokenx;
 
 
-import static no.nav.vedtak.log.util.ConfidentialMarkerFilter.CONFIDENTIAL;
-
-import java.net.URI;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+
+import static no.nav.vedtak.log.util.ConfidentialMarkerFilter.CONFIDENTIAL;
 
 /**
  * Dette filteret skal brukes når man vet man mottar et token som støtter
  * on-behalf-of, og når mottakende system krever kun dette
- *
  */
 public final class TokenXchange {
     private static final Environment ENV = Environment.current();

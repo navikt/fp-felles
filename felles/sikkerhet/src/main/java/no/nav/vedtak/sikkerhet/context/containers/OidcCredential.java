@@ -1,8 +1,8 @@
 package no.nav.vedtak.sikkerhet.context.containers;
 
-import javax.security.auth.Destroyable;
-
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+
+import javax.security.auth.Destroyable;
 
 public class OidcCredential implements Destroyable {
     private boolean destroyed;

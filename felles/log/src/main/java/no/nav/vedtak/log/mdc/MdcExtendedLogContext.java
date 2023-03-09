@@ -1,18 +1,13 @@
 package no.nav.vedtak.log.mdc;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Pattern;
-
 import org.slf4j.MDC;
+
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * {@link MDC} backet parameter som tillater en semi-colon separert liste av
  * sub-keys. Kan dermed legge til og fjerne ekstra-kontekst data dynamisk.
- *
  */
 public class MdcExtendedLogContext {
 
@@ -90,7 +85,7 @@ public class MdcExtendedLogContext {
         List<String> contentList = splitParts(orgValue);
 
         int orgSize = contentList.size();
-        for (int i = orgSize; --i >= 0;) {
+        for (int i = orgSize; --i >= 0; ) {
             if (contentList.get(i).startsWith(key + "=")) {
                 contentList.remove(i);
             }

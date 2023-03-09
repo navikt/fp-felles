@@ -1,25 +1,5 @@
 package no.nav.vedtak.sikkerhet.jaxrs;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import javax.security.auth.Subject;
-import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ResourceInfo;
-
-import org.jose4j.json.JsonUtil;
-import org.jose4j.jwt.NumericDate;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.ÅpenRessurs;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -33,6 +13,24 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorConfig;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
+import org.jose4j.json.JsonUtil;
+import org.jose4j.jwt.NumericDate;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import javax.security.auth.Subject;
+import javax.ws.rs.Path;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ResourceInfo;
+import java.lang.reflect.Method;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 class AuthenticationFilterDelegateTest {
 
@@ -60,13 +58,13 @@ class AuthenticationFilterDelegateTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception{
+    public void setUp() throws Exception {
         WellKnownConfigurationHelper.unsetWellKnownConfig();
         setupAll();
     }
 
     @AfterEach
-    public void teardown() throws Exception{
+    public void teardown() throws Exception {
         System.clearProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name());
         System.clearProperty(AzureProperty.AZURE_APP_CLIENT_ID.name());
         System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name());
@@ -129,7 +127,6 @@ class AuthenticationFilterDelegateTest {
         assertThat(KontekstHolder.getKontekst().getContext()).isEqualTo(SikkerhetContext.REQUEST);
         assertThat(KontekstHolder.getKontekst().getUid()).isNotNull();
     }
-
 
 
     @Test

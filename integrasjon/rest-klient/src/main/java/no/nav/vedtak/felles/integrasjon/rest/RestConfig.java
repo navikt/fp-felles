@@ -1,11 +1,11 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
+import no.nav.foreldrepenger.konfig.Environment;
+
 import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-
-import no.nav.foreldrepenger.konfig.Environment;
 
 /**
  * Object to hold information extracted from RestClientConfig annotations.

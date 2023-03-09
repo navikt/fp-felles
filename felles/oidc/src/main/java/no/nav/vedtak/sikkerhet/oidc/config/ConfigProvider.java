@@ -1,8 +1,8 @@
 package no.nav.vedtak.sikkerhet.oidc.config;
 
-import java.util.Optional;
-
 import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
+
+import java.util.Optional;
 
 public final class ConfigProvider {
 

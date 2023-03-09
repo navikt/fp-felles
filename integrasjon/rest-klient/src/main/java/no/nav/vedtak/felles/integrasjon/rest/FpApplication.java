@@ -1,10 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import java.util.Map;
-
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.Namespace;
+
+import java.util.Map;
 
 public enum FpApplication {
     FPSAK,
@@ -19,11 +19,10 @@ public enum FpApplication {
     FPTILBAKE,
     FPDOKGEN,
     FPWSPROXY,
-    NONFP
-    ;
+    NONFP;
 
     private static final Environment ENV = Environment.current();
-    private static final Cluster CLUSTER  = ENV.getCluster();
+    private static final Cluster CLUSTER = ENV.getCluster();
     // FpApplication brukes til å kalle apps i namespace foreldrepenger - ikke riktig å bruke ENV/namespace
     private static final Namespace FORELDREPENGER = Namespace.foreldrepenger();
 
@@ -42,7 +41,7 @@ public enum FpApplication {
         Map.entry(FpApplication.FPWSPROXY, 8292),
         Map.entry(FpApplication.FPLOS, 8071),
         Map.entry(FpApplication.FPINFO, 8040)
-        );
+    );
 
     public boolean specified() {
         return !NONFP.equals(this);

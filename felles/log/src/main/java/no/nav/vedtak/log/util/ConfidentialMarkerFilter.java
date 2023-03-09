@@ -1,16 +1,15 @@
 package no.nav.vedtak.log.util;
 
-import static ch.qos.logback.core.spi.FilterReply.DENY;
-import static ch.qos.logback.core.spi.FilterReply.NEUTRAL;
-
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.turbo.MarkerFilter;
 import ch.qos.logback.core.spi.FilterReply;
 import no.nav.foreldrepenger.konfig.Environment;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
+
+import static ch.qos.logback.core.spi.FilterReply.DENY;
+import static ch.qos.logback.core.spi.FilterReply.NEUTRAL;
 
 public class ConfidentialMarkerFilter extends MarkerFilter {
 

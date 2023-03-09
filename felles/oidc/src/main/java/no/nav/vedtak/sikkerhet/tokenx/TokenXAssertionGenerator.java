@@ -1,8 +1,10 @@
 package no.nav.vedtak.sikkerhet.tokenx;
 
-import java.net.URI;
-import java.util.Optional;
-
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.TokenXProperty;
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jws.AlgorithmIdentifiers;
@@ -10,11 +12,8 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.TokenXProperty;
+import java.net.URI;
+import java.util.Optional;
 
 final class TokenXAssertionGenerator {
 
@@ -26,11 +25,11 @@ final class TokenXAssertionGenerator {
 
 
     private TokenXAssertionGenerator() {
-            this(ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX).map(OpenIDConfiguration::tokenEndpoint).orElse(null),
-                ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX).map(OpenIDConfiguration::clientId).orElse(null),
-                Optional.ofNullable(Environment.current().getProperty(TokenXProperty.TOKEN_X_PRIVATE_JWK.name()))
-                    .or(() -> Optional.ofNullable(Environment.current().getProperty(TokenXProperty.TOKEN_X_PRIVATE_JWK.name().toLowerCase().replace('_', '.'))))
-                    .map(TokenXAssertionGenerator::rsaKey).orElse(null));
+        this(ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX).map(OpenIDConfiguration::tokenEndpoint).orElse(null),
+            ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX).map(OpenIDConfiguration::clientId).orElse(null),
+            Optional.ofNullable(Environment.current().getProperty(TokenXProperty.TOKEN_X_PRIVATE_JWK.name()))
+                .or(() -> Optional.ofNullable(Environment.current().getProperty(TokenXProperty.TOKEN_X_PRIVATE_JWK.name().toLowerCase().replace('_', '.'))))
+                .map(TokenXAssertionGenerator::rsaKey).orElse(null));
     }
 
     // Kun til Testformål
@@ -48,6 +47,7 @@ final class TokenXAssertionGenerator {
         }
         return inst;
     }
+
     public String assertion() {
         try {
             JwtClaims claims = new JwtClaims();

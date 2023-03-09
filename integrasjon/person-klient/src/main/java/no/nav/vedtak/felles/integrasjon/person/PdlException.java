@@ -1,14 +1,13 @@
 package no.nav.vedtak.felles.integrasjon.person;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
+import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
+import no.nav.vedtak.exception.IntegrasjonException;
 
 import java.net.URI;
 import java.util.List;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
-
-import no.nav.vedtak.exception.IntegrasjonException;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 public class PdlException extends IntegrasjonException {
 

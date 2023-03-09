@@ -1,10 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
-import javax.security.auth.login.LoginException;
-import javax.xml.ws.WebServiceException;
-
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
+
+import javax.security.auth.login.LoginException;
+import javax.xml.ws.WebServiceException;
 
 class SoapWebServiceFeil {
 
@@ -22,6 +22,6 @@ class SoapWebServiceFeil {
 
     static IntegrasjonException midlertidigFeil(String webservice, WebServiceException e) {
         return new IntegrasjonException("F-134134", String.format("SOAP tjenesten [ %s ] returnerte en feil som trolig er midlertidig", webservice),
-                e);
+            e);
     }
 }

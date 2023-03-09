@@ -1,9 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import java.time.LocalDate;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonAlias;
 
 public record Grunnlag(Status status,
                        Tema tema,

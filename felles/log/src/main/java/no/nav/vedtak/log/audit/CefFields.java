@@ -7,7 +7,8 @@ public final class CefFields {
     private static final String BEHANDLING_TEXT = "Behandling";
     private static final String SAKSNUMMER_TEXT = "Saksnummer";
 
-    private CefFields() {}
+    private CefFields() {
+    }
 
 
     public static Set<CefField> forSaksnummer(long saksnummer) {

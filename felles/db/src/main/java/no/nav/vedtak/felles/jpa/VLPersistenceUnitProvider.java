@@ -1,28 +1,5 @@
 package no.nav.vedtak.felles.jpa;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.regex.Pattern;
-
-import javax.persistence.PersistenceException;
-import javax.persistence.spi.PersistenceProvider;
-import javax.persistence.spi.PersistenceUnitInfo;
-
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
@@ -33,12 +10,27 @@ import org.hibernate.jpa.boot.spi.ProviderChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.PersistenceException;
+import javax.persistence.spi.PersistenceProvider;
+import javax.persistence.spi.PersistenceUnitInfo;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.regex.Pattern;
+
 /**
  * Implementation of {@link PersistenceProvider} which loads all mapping files
  * dynamically from classpath as long as they match the pattern
  * &lt;persistence-unit-name&gt;.xxx.orm.xml). They must reside directly under
  * META-INF/ but can be split across multiple jars.
- *
+ * <p>
  * This makes it possible simpler to support entities in different modules
  * without having to be on build-time dependency path of where persistence.xml
  * is. Thus making it possible to split up a larger entity model into smaller
@@ -49,7 +41,9 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(VLPersistenceUnitProvider.class);
 
-    /** Add additional mapping files based on naming convention. */
+    /**
+     * Add additional mapping files based on naming convention.
+     */
     protected PersistenceUnitDescriptor extendPersistenceUnitDescriptor(PersistenceUnitDescriptor pud) {
         class AdditionalMappingFilesPersistenceUnitDescriptor extends DelegatingPersistenceUnitDescriptor {
             private final List<String> mappingFiles = new ArrayList<>();
@@ -94,15 +88,15 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
 
     @Override
     protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilder(PersistenceUnitDescriptor persistenceUnitDescriptor, Map integration,
-            ClassLoader providedClassLoader) {
+                                                                         ClassLoader providedClassLoader) {
         return super.getEntityManagerFactoryBuilder(extendPersistenceUnitDescriptor(persistenceUnitDescriptor), integration, providedClassLoader);
     }
 
     @Override
     protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilder(PersistenceUnitDescriptor persistenceUnitDescriptor, Map integration,
-            ClassLoaderService providedClassLoaderService) {
+                                                                         ClassLoaderService providedClassLoaderService) {
         return super.getEntityManagerFactoryBuilder(extendPersistenceUnitDescriptor(persistenceUnitDescriptor), integration,
-                providedClassLoaderService);
+            providedClassLoaderService);
     }
 
     @Override
@@ -120,7 +114,7 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
 
     @Override
     protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties,
-            ClassLoader providedClassLoader) {
+                                                                               ClassLoader providedClassLoader) {
         // duplisert fra HibernatePersistenceProvider for å kunne ha egen implementasjon
         // av getEntityManagerFactoryBuilderOrNull
         return getEntityManagerFactoryBuilderOrNull0(persistenceUnitName, properties, providedClassLoader, null);
@@ -128,14 +122,14 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
 
     @Override
     protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties,
-            ClassLoaderService providedClassLoaderService) {
+                                                                               ClassLoaderService providedClassLoaderService) {
         // duplisert fra HibernatePersistenceProvider for å kunne ha egen implementasjon
         // av getEntityManagerFactoryBuilderOrNull
         return getEntityManagerFactoryBuilderOrNull0(persistenceUnitName, properties, null, providedClassLoaderService);
     }
 
     private EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull0(String persistenceUnitName, Map properties,
-            ClassLoader providedClassLoader, ClassLoaderService providedClassLoaderService) {
+                                                                              ClassLoader providedClassLoader, ClassLoaderService providedClassLoaderService) {
 
         // duplisert fra HibernatePersistenceProvider for å kunne overstyre kall til
         // ProviderChecker (siden den hardkoder
@@ -162,10 +156,10 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
 
         for (ParsedPersistenceXmlDescriptor persistenceUnit : units) {
             LOG.debug(
-                    "Checking persistence-unit [name={}, explicit-provider={}] against incoming persistence unit name [{}]",
-                    persistenceUnit.getName(),
-                    persistenceUnit.getProviderClassName(),
-                    persistenceUnitName);
+                "Checking persistence-unit [name={}, explicit-provider={}] against incoming persistence unit name [{}]",
+                persistenceUnit.getName(),
+                persistenceUnit.getProviderClassName(),
+                persistenceUnitName);
 
             final boolean matches = persistenceUnitName == null || persistenceUnit.getName().equals(persistenceUnitName);
             if (!matches) {
@@ -189,7 +183,9 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
         return null;
     }
 
-    /** overridden check from HibernatePersistenceProvider */
+    /**
+     * overridden check from HibernatePersistenceProvider
+     */
     protected boolean isMatchingProvider(ParsedPersistenceXmlDescriptor persistenceUnit, Map properties) {
         // Alternativ persistence provider
         String requestedProviderName = ProviderChecker.extractRequestedProviderName(persistenceUnit, properties);
@@ -205,14 +201,14 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
         Enumeration<URL> en = loader.getResources(folder);
 
         Set<String> relativeFilenames = new TreeSet<>();
-        for (Iterator<URL> it = en.asIterator(); it.hasNext();) {
+        for (Iterator<URL> it = en.asIterator(); it.hasNext(); ) {
             URL url = it.next();
             List<String> filenames = new ArrayList<>();
             if (url != null) {
                 if (url.getProtocol().equals("file")) {
                     try (var files = Files.walk(Paths.get(url.toURI()))) {
                         files.filter(Files::isRegularFile)
-                                .forEach(filePath -> filenames.add(filePath.toFile().getAbsolutePath()));
+                            .forEach(filePath -> filenames.add(filePath.toFile().getAbsolutePath()));
                     }
                 } else if (url.getProtocol().equals("jar")) {
                     String dirname = folder + '/';

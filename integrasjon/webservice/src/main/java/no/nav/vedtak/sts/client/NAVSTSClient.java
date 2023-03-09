@@ -1,5 +1,9 @@
 package no.nav.vedtak.sts.client;
 
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -8,11 +12,6 @@ import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 
 public class NAVSTSClient extends STSClient {
 
@@ -104,8 +103,8 @@ public class NAVSTSClient extends STSClient {
      * body&gt;.&lt;base64 encoded signature&gt;
      *
      * @return if key is JWT - &lt;base64 encoded header&gt;.&lt;base64 encoded
-     *         body&gt; <br>
-     *         else - {@code key}
+     * body&gt; <br>
+     * else - {@code key}
      */
     private static String stripJwtSignatur(String key) {
         final int lastDot = key.lastIndexOf('.');
@@ -115,13 +114,13 @@ public class NAVSTSClient extends STSClient {
 
     private static String tokenToString(SecurityToken token) {
         return token.getClass().getSimpleName() + "<" +
-                "id=" + token.getId() + ", "
-                + "wsuId=" + token.getWsuId() + ", "
-                + "principal=" + token.getPrincipal() + ", "
-                + "created=" + token.getCreated() + ", "
-                + "expires=" + token.getExpires() + ", "
-                + "isExpired=" + token.isExpired() + ", "
-                + ">";
+            "id=" + token.getId() + ", "
+            + "wsuId=" + token.getWsuId() + ", "
+            + "principal=" + token.getPrincipal() + ", "
+            + "created=" + token.getCreated() + ", "
+            + "expires=" + token.getExpires() + ", "
+            + "isExpired=" + token.isExpired() + ", "
+            + ">";
     }
 
     private void ensureTokenStoreExists() {

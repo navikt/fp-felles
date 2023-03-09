@@ -1,17 +1,16 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
+import no.nav.vedtak.sikkerhet.ContextPathHolder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.vedtak.sikkerhet.ContextPathHolder;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TokenLocatorTest {
@@ -41,14 +40,14 @@ class TokenLocatorTest {
     @Test
     void skal_finne_id_token_i_cookie() {
         ContextPathHolder.instance("/k9", "/k9");
-        when(requestContext.getCookies()).thenReturn(new Cookie[] { new Cookie(TokenLocator.ID_TOKEN_COOKIE_NAME, "eyJhbGciOiJS...") });
+        when(requestContext.getCookies()).thenReturn(new Cookie[]{new Cookie(TokenLocator.ID_TOKEN_COOKIE_NAME, "eyJhbGciOiJS...")});
         assertThat(tokenLocator.getToken(requestContext).get().token()).isEqualTo("eyJhbGciOiJS...");
     }
 
     @Test
     void skal_ikke_finne_id_token_i_cookie_som_har_feil_navn() {
         ContextPathHolder.instance("/k9", "/k9");
-        when(requestContext.getCookies()).thenReturn(new Cookie[] { new Cookie("tull", "eyJhbGciOiJS...") });
+        when(requestContext.getCookies()).thenReturn(new Cookie[]{new Cookie("tull", "eyJhbGciOiJS...")});
         assertThat(tokenLocator.getToken(requestContext)).isNotPresent();
     }
 }

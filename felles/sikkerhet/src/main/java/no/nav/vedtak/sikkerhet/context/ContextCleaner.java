@@ -1,9 +1,8 @@
 package no.nav.vedtak.sikkerhet.context;
 
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 public class ContextCleaner {
 
@@ -21,7 +20,7 @@ public class ContextCleaner {
             var subjectHandler = SubjectHandler.getSubjectHandler();
             var subject = subjectHandler.getSubject();
             // OBS JettySubjectHandler vil gi ting fra request så lenge den ikke er ferdig rensket i JASPI (etter Listener)
-            if (subject != null ) {
+            if (subject != null) {
                 ((ThreadLocalSubjectHandler) subjectHandler).setSubject(null);
                 LOG.trace("FPFELLES ConClean: subject fjernet fra ThreadLocal");
             }

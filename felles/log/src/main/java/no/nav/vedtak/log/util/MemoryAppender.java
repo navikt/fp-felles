@@ -1,15 +1,14 @@
 package no.nav.vedtak.log.util;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.slf4j.LoggerFactory;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class MemoryAppender extends ListAppender<ILoggingEvent> {
     public MemoryAppender(String name) {
@@ -22,8 +21,8 @@ public class MemoryAppender extends ListAppender<ILoggingEvent> {
 
     public boolean contains(String string, Level level) {
         return this.list.stream()
-                .anyMatch(event -> event.getMessage().toString().contains(string)
-                        && event.getLevel().equals(level));
+            .anyMatch(event -> event.getMessage().toString().contains(string)
+                && event.getLevel().equals(level));
     }
 
     public int countEventsForLogger() {
@@ -32,14 +31,14 @@ public class MemoryAppender extends ListAppender<ILoggingEvent> {
 
     public int countEventsForLogger(String loggerName) {
         return (int) this.list.stream()
-                .filter(event -> event.getLoggerName().contains(loggerName))
-                .count();
+            .filter(event -> event.getLoggerName().contains(loggerName))
+            .count();
     }
 
     public List<ILoggingEvent> search(String string) {
         return this.list.stream()
-                .filter(event -> event.getMessage().toString().contains(string))
-                .toList();
+            .filter(event -> event.getMessage().toString().contains(string))
+            .toList();
     }
 
     public List<ILoggingEvent> searchInfo(String string) {
@@ -48,9 +47,9 @@ public class MemoryAppender extends ListAppender<ILoggingEvent> {
 
     public List<ILoggingEvent> search(String string, Level level) {
         return this.list.stream()
-                .filter(event -> event.getMessage().toString().contains(string)
-                        && event.getLevel().equals(level))
-                .toList();
+            .filter(event -> event.getMessage().toString().contains(string)
+                && event.getLevel().equals(level))
+            .toList();
     }
 
     public int getSize() {
@@ -63,14 +62,14 @@ public class MemoryAppender extends ListAppender<ILoggingEvent> {
 
     public long countEntries(String substring) {
         return list.stream()
-                .map(ILoggingEvent.class::cast)
-                .filter(e -> eventMatches(e, substring)).count();
+            .map(ILoggingEvent.class::cast)
+            .filter(e -> eventMatches(e, substring)).count();
     }
 
     private static boolean eventMatches(ILoggingEvent event, String substring) {
         return Optional.ofNullable(substring)
-                .filter(s -> event.getFormattedMessage().contains(s))
-                .isPresent();
+            .filter(s -> event.getFormattedMessage().contains(s))
+            .isPresent();
 
     }
 

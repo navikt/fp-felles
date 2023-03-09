@@ -1,15 +1,15 @@
 package no.nav.vedtak.sikkerhet.loginmodule;
 
+import org.slf4j.Logger;
+
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-
-import org.slf4j.Logger;
 
 /**
  * baseclass for implementing the login module spec
  *
  * @see <a href=
- *      "http://download.java.net/jdk8/docs/technotes/guides/security/jaas/JAASLMDevGuide.html">http://download.java.net/jdk8/docs/technotes/guides/security/jaas/JAASLMDevGuide.html</a>
+ * "http://download.java.net/jdk8/docs/technotes/guides/security/jaas/JAASLMDevGuide.html">http://download.java.net/jdk8/docs/technotes/guides/security/jaas/JAASLMDevGuide.html</a>
  */
 public abstract class LoginModuleBase implements LoginModule {
 

@@ -1,9 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.kafka;
 
-import java.util.Optional;
-import java.util.Properties;
-import java.util.UUID;
-
+import no.nav.foreldrepenger.konfig.Environment;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -16,7 +13,9 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndFailExceptionHandler;
 
-import no.nav.foreldrepenger.konfig.Environment;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.UUID;
 
 public class KafkaProperties {
 
@@ -48,7 +47,7 @@ public class KafkaProperties {
 
     // Alle som konsumerer Json-meldinger
     public static Properties forStreamsStringValue(String applicationId) {
-        return forStreamsGenericValue(applicationId,  Serdes.String());
+        return forStreamsGenericValue(applicationId, Serdes.String());
     }
 
     public static <T> Properties forStreamsGenericValue(String applicationId, Serde<T> valueSerde) {
@@ -78,9 +77,8 @@ public class KafkaProperties {
 
     // Trengs kun for de som skal konsumere Avro. Ellers ikke
     public static String getAvroSchemaRegistryBasicAuth() {
-        return getAivenConfig(AivenProperty.KAFKA_SCHEMA_REGISTRY_USER)+":"+getAivenConfig(AivenProperty.KAFKA_SCHEMA_REGISTRY_PASSWORD);
+        return getAivenConfig(AivenProperty.KAFKA_SCHEMA_REGISTRY_USER) + ":" + getAivenConfig(AivenProperty.KAFKA_SCHEMA_REGISTRY_PASSWORD);
     }
-
 
 
     private static String getAivenConfig(AivenProperty property) {

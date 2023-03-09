@@ -1,8 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.saker;
 
-import java.time.LocalDate;
-
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
+
+import java.time.LocalDate;
 
 public interface InfotrygdSaker {
 

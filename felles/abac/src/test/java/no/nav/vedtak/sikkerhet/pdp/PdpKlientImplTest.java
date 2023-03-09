@@ -1,25 +1,5 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -40,6 +20,19 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.Category;
 import no.nav.vedtak.sikkerhet.pdp.xacml.NavFellesAttributter;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class PdpKlientImplTest {
 
@@ -207,7 +200,7 @@ class PdpKlientImplTest {
         var environment = request.get(Category.Environment);
 
         assertHasAttribute(environment, NavFellesAttributter.ENVIRONMENT_FELLES_SAML_TOKEN,
-                Base64.getEncoder().encodeToString("<dummy SAML token>".getBytes(StandardCharsets.UTF_8)));
+            Base64.getEncoder().encodeToString("<dummy SAML token>".getBytes(StandardCharsets.UTF_8)));
 
         environment.get(0).attribute().get(0).attributeId();
     }
@@ -236,7 +229,7 @@ class PdpKlientImplTest {
         for (int j = 0; j < jsize; j++) {
             int size = attributes.get(j).attribute().size();
             for (int i = 0; i < size; i++) {
-                var obj =  attributes.get(j).attribute().get(i);
+                var obj = attributes.get(j).attribute().get(i);
                 if (obj.attributeId().equals(attributeName) && obj.value().toString().equals(expectedValue)) {
                     return;
                 }
@@ -283,11 +276,11 @@ class PdpKlientImplTest {
         String xacmlRequestString = DefaultJsonMapper.toJson(captor.getValue());
 
         assertThat(xacmlRequestString.contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.fnr\",\"Value\":\"12345678900\"}"))
-                .isTrue();
+            .isTrue();
         assertThat(xacmlRequestString
-                .contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"11111\"}")).isTrue();
+            .contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"11111\"}")).isTrue();
         assertThat(xacmlRequestString
-                .contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"22222\"}")).isTrue();
+            .contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"22222\"}")).isTrue();
     }
 
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributter(Token token, AbacDataAttributter dataAttributter) {
