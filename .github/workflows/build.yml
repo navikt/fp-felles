@@ -1,4 +1,4 @@
-name: Bygg
+name: Build
 
 on:
   push:

@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>felles-root</artifactId>
-	<version>0.0.0-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Foreldrepenger :: Felles :: Root</name>
 
@@ -22,6 +22,7 @@
 
 	<properties>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+        <sonar.projectName>fp-felles</sonar.projectName>
         <sonar.projectKey>navikt_fp-felles</sonar.projectKey>
     </properties>
 
