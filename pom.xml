@@ -22,6 +22,7 @@
 
 	<properties>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+        <sonar.projectName>fp-felles</sonar.projectName>
         <sonar.projectKey>navikt_fp-felles</sonar.projectKey>
     </properties>
 
