@@ -50,12 +50,12 @@ public class AuditdataHeader {
     @Override
     public String toString() {
         return String.format("CEF:0|%s|%s|%s|%s|%s|%s|",
-                cefHeaderEscape(vendor),
-                cefHeaderEscape(product),
-                cefHeaderEscape(logVersion),
-                cefHeaderEscape(eventClassId.getCefKode()),
-                cefHeaderEscape(name),
-                cefHeaderEscape(severity));
+            cefHeaderEscape(vendor),
+            cefHeaderEscape(product),
+            cefHeaderEscape(logVersion),
+            cefHeaderEscape(eventClassId.getCefKode()),
+            cefHeaderEscape(name),
+            cefHeaderEscape(severity));
     }
 
     private static String cefHeaderEscape(String s) {

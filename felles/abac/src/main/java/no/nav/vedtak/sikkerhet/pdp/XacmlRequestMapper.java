@@ -1,17 +1,13 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.pdp.xacml.Category;
 import no.nav.vedtak.sikkerhet.pdp.xacml.NavFellesAttributter;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
+
+import java.util.*;
 
 public class XacmlRequestMapper {
 
@@ -76,7 +72,9 @@ public class XacmlRequestMapper {
         return List.of(assignement);
     }
 
-    private static String getPepId() { return ENV.getNaisAppName(); }
+    private static String getPepId() {
+        return ENV.getNaisAppName();
+    }
 
     private static List<Ident> hentIdenter(AppRessursData appRessursData) {
         List<Ident> identer = new ArrayList<>();

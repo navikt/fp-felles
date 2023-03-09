@@ -1,13 +1,12 @@
 package no.nav.vedtak.sikkerhet.oidc.validator;
 
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.VLException;
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.exception.VLException;
 
 class JwtUtilTest {
 
@@ -18,7 +17,7 @@ class JwtUtilTest {
         String payload = JwtUtil.getJwtBody(etJWT);
         payload = payload.replaceAll("=", ""); // ignorer '=' på slutten av strengen, da dette bare er padding
         assertThat(payload).isEqualTo(
-                "eyAiYXRfaGFzaCI6ICItcVcwcGVhdFUwWFNKa3AtY3JlT19RIiwgInN1YiI6ICJ1MTM5MTU4IiwgImF1ZGl0VHJhY2tpbmdJZCI6ICI3Y2Y5M2ZiOS00NmU1LTQ4MjUtYjU4Ni1jZjU4ZDdiOWIyNDYtMTAwMjUwNjgiLCAiaXNzIjogImh0dHBzOi8vaXNzby10LmFkZW8ubm86NDQzL2lzc28vb2F1dGgyIiwgInRva2VuTmFtZSI6ICJpZF90b2tlbiIsICJhdWQiOiAiT0lEQyIsICJjX2hhc2giOiAiUUh1Mm8xWU9aVTFGN2EwTkYydFo5ZyIsICJvcmcuZm9yZ2Vyb2NrLm9wZW5pZGNvbm5lY3Qub3BzIjogIjAxZDNhMGRlLTA3NzctNGNkMy1iNmE0LWJkN2RkNzAyMjE1ZiIsICJhenAiOiAiT0lEQyIsICJhdXRoX3RpbWUiOiAxNDk0ODQ3NzgyLCAicmVhbG0iOiAiLyIsICJleHAiOiAxNDk0ODUxMzgyLCAidG9rZW5UeXBlIjogIkpXVFRva2VuIiwgImlhdCI6IDE0OTQ4NDc3ODIgfQ");
+            "eyAiYXRfaGFzaCI6ICItcVcwcGVhdFUwWFNKa3AtY3JlT19RIiwgInN1YiI6ICJ1MTM5MTU4IiwgImF1ZGl0VHJhY2tpbmdJZCI6ICI3Y2Y5M2ZiOS00NmU1LTQ4MjUtYjU4Ni1jZjU4ZDdiOWIyNDYtMTAwMjUwNjgiLCAiaXNzIjogImh0dHBzOi8vaXNzby10LmFkZW8ubm86NDQzL2lzc28vb2F1dGgyIiwgInRva2VuTmFtZSI6ICJpZF90b2tlbiIsICJhdWQiOiAiT0lEQyIsICJjX2hhc2giOiAiUUh1Mm8xWU9aVTFGN2EwTkYydFo5ZyIsICJvcmcuZm9yZ2Vyb2NrLm9wZW5pZGNvbm5lY3Qub3BzIjogIjAxZDNhMGRlLTA3NzctNGNkMy1iNmE0LWJkN2RkNzAyMjE1ZiIsICJhenAiOiAiT0lEQyIsICJhdXRoX3RpbWUiOiAxNDk0ODQ3NzgyLCAicmVhbG0iOiAiLyIsICJleHAiOiAxNDk0ODUxMzgyLCAidG9rZW5UeXBlIjogIkpXVFRva2VuIiwgImlhdCI6IDE0OTQ4NDc3ODIgfQ");
     }
 
     @Test

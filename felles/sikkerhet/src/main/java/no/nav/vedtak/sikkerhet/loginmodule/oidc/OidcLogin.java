@@ -17,7 +17,8 @@ public class OidcLogin {
 
     public record Resultat(LoginResult loginResult,
                            SluttBruker subject,
-                           String errorMessage) {}
+                           String errorMessage) {
+    }
 
     public static Resultat validerToken(OpenIDToken openIDToken) {
         if (openIDToken == null || openIDToken.provider() == null) {

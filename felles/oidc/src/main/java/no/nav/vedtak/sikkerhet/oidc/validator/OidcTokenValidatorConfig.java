@@ -1,10 +1,10 @@
 package no.nav.vedtak.sikkerhet.oidc.validator;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class OidcTokenValidatorConfig {
 
@@ -16,7 +16,7 @@ public class OidcTokenValidatorConfig {
     }
 
     public static synchronized OidcTokenValidatorConfig instance() {
-        var inst= instance;
+        var inst = instance;
         if (inst == null) {
             inst = new OidcTokenValidatorConfig();
             instance = inst;

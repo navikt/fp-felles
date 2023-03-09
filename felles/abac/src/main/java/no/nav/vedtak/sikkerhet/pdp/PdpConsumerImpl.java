@@ -1,7 +1,19 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectReader;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
+import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
+import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -11,22 +23,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Base64;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectReader;
-
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
-import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
-import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @ApplicationScoped
 public class PdpConsumerImpl implements PdpConsumer {
@@ -89,7 +86,7 @@ public class PdpConsumerImpl implements PdpConsumer {
             throw new IntegrasjonException("F-208314", "Kunne ikke deserialisere objekt til JSON", e);
         } catch (IOException e) {
             throw new IntegrasjonException("F-091324", "Uventet IO-exception mot PDP", e);
-        }  catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IntegrasjonException("F-432938", "InterruptedException ved kall mot PDP", e);
         }

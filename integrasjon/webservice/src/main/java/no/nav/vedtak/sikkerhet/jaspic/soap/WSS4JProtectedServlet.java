@@ -22,6 +22,6 @@ public interface WSS4JProtectedServlet {
         if (clazz.isAnnotationPresent(WebServlet.class)) {
             return Arrays.asList(clazz.getAnnotation(WebServlet.class).urlPatterns());
         }
-        throw new IllegalStateException(clazz.getName() +" mangler WebServlet annoteringen");
+        throw new IllegalStateException(clazz.getName() + " mangler WebServlet annoteringen");
     }
 }

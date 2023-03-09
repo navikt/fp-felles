@@ -1,6 +1,6 @@
 package no.nav.vedtak.sikkerhet.oidc.validator;
 
-public class AuthenticationLevel  {
+public class AuthenticationLevel {
 
     private static final Integer AUTHENTICATION_LEVEL_INTERN_BRUKER = 4;
     private static final Integer AUTHENTICATION_LEVEL_EKSTERN_BRUKER = 4;

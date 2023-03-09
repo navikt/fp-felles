@@ -1,5 +1,13 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
+import no.nav.vedtak.klient.http.HttpClientRequest;
+import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.time.Duration;
@@ -9,20 +17,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-
-import no.nav.vedtak.klient.http.HttpClientRequest;
-import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-
 /**
  * Encapsulation of java.net.http.HttpRequest to supply OIDC-specific and JSON headers.
  * Supports delayed header-setting and request validation + headers for authorization / basic
  * Methods for serializing objects for use with POST/PUT/PATCH
- *
+ * <p>
  * Usage:
  * - Create a RestRequest using one of the newRequest methods
  * - Add headers if needed.

@@ -1,14 +1,13 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDate;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.StatusKode;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class DeserializationTest {
 
@@ -96,7 +95,7 @@ class DeserializationTest {
         """;
 
     @Test
-    void test_utbetalt()  {
+    void test_utbetalt() {
         var grunnlagene = DefaultJsonMapper.listFromJson(SAMPLE, Grunnlag.class);
         var grunnlag = grunnlagene.get(0);
         assertThat(grunnlag.status().kode()).isEqualTo(StatusKode.L);
@@ -107,8 +106,6 @@ class DeserializationTest {
         assertThat(grunnlag.dekningsgrad()).isNull();
         assertThat(grunnlagene.get(1).status().kode()).isEqualTo(StatusKode.I);
     }
-
-
 
 
 }

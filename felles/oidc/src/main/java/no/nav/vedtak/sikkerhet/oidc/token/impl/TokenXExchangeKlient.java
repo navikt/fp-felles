@@ -1,21 +1,20 @@
 package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.time.Duration;
-import java.util.StringJoiner;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.time.Duration;
+import java.util.StringJoiner;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class TokenXExchangeKlient {
 

@@ -1,15 +1,7 @@
 package no.nav.vedtak.sikkerhet.oidc.token;
 
-import java.net.URI;
-import java.util.Optional;
-import java.util.Set;
-
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.kontekst.DefaultRequestKontekstProvider;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstProvider;
-import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
-import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
+import no.nav.vedtak.sikkerhet.kontekst.*;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
@@ -17,6 +9,10 @@ import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureBrukerTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureSystemTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.StsSystemTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
+
+import java.net.URI;
+import java.util.Optional;
+import java.util.Set;
 
 public final class TokenProvider {
 

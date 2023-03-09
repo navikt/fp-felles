@@ -1,8 +1,8 @@
 package no.nav.vedtak.sikkerhet;
 
-import javax.security.auth.callback.Callback;
-
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+
+import javax.security.auth.callback.Callback;
 
 public class TokenCallback implements Callback, java.io.Serializable {
 

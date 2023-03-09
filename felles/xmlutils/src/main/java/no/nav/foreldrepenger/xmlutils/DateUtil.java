@@ -1,5 +1,9 @@
 package no.nav.foreldrepenger.xmlutils;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -7,14 +11,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Optional;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 public class DateUtil {
 
     private static final DatatypeFactory DATATYPE_FACTORY;
+
     static {
         try {
             DATATYPE_FACTORY = DatatypeFactory.newInstance();
@@ -37,9 +37,9 @@ public class DateUtil {
 
     public static XMLGregorianCalendar convertToXMLGregorianCalendar(LocalDate localDate) {
         return Optional.ofNullable(localDate)
-                .map(d -> GregorianCalendar.from(d.atStartOfDay(ZoneId.systemDefault())))
-                .map(DATATYPE_FACTORY::newXMLGregorianCalendar)
-                .orElse(null);
+            .map(d -> GregorianCalendar.from(d.atStartOfDay(ZoneId.systemDefault())))
+            .map(DATATYPE_FACTORY::newXMLGregorianCalendar)
+            .orElse(null);
     }
 
     public static XMLGregorianCalendar convertToXMLGregorianCalendarRemoveTimezone(LocalDate localDate) {

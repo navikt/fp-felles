@@ -1,16 +1,15 @@
 package no.nav.vedtak.felles.integrasjon.organisasjon;
 
-import java.net.URI;
-
-import javax.ws.rs.core.UriBuilder;
-
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+
 // Extend og annoter
 //@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "organisasjon.rs.url",
-  //  endpointDefault = "https://modapp.adeo.no/ereg/api/v1/organisasjon")
+//  endpointDefault = "https://modapp.adeo.no/ereg/api/v1/organisasjon")
 public abstract class AbstractOrganisasjonKlient implements OrgInfo {
 
     private final RestClient restKlient;

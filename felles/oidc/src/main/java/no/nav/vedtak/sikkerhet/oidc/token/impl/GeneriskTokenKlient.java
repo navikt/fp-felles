@@ -1,6 +1,9 @@
 package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectReader;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -12,11 +15,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectReader;
-
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GeneriskTokenKlient {
 
@@ -43,7 +42,7 @@ public class GeneriskTokenKlient {
             throw new TekniskException("F-208314", "Kunne ikke deserialisere objekt til JSON", e);
         } catch (IOException e) {
             throw new TekniskException("F-432937", "IOException ved kommunikasjon med server", e);
-        }  catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new TekniskException("F-432938", "InterruptedException ved henting av token", e);
         }

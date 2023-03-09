@@ -2,19 +2,14 @@ package no.nav.vedtak.klient.http;
 
 import java.net.http.HttpRequest;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * Encapsulation of java.net.http.HttpRequest to supply specific headers and ensure a timeout is set.
  * Supports delayed header-setting and request validation + headers for authorization / basic
- *
+ * <p>
  * Usage: Create an ordinary HttpRequest.Builder with URI, Method, and headers. Then create a HttpKlientRequest
  */
 public class HttpClientRequest {

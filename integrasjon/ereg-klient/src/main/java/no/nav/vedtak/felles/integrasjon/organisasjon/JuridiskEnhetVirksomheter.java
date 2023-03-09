@@ -1,20 +1,18 @@
 package no.nav.vedtak.felles.integrasjon.organisasjon;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import no.nav.vedtak.konfig.Tid;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import no.nav.vedtak.konfig.Tid;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record JuridiskEnhetVirksomheter(String organisasjonsnummer,
                                         OrganisasjonstypeEReg type,
                                         OrganisasjonDetaljer organisasjonDetaljer,
                                         List<DriverVirksomhet> driverVirksomheter) {
-
 
 
     public List<String> getEksaktVirksomhetForDato(LocalDate hentedato) {

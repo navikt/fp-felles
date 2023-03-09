@@ -1,11 +1,12 @@
 package no.nav.vedtak.felles.jpa.converters;
 
-import java.util.Optional;
-
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+import java.util.Optional;
 
-/** JPA konverterer for å skrive J/N for boolske verdier. */
+/**
+ * JPA konverterer for å skrive J/N for boolske verdier.
+ */
 @Converter
 public class BooleanToStringConverter implements AttributeConverter<Boolean, String> {
 
@@ -21,7 +22,7 @@ public class BooleanToStringConverter implements AttributeConverter<Boolean, Str
     @Override
     public Boolean convertToEntityAttribute(String val) {
         return Optional.ofNullable(val)
-                .map("J"::equals)
-                .orElse(null);
+            .map("J"::equals)
+            .orElse(null);
     }
 }

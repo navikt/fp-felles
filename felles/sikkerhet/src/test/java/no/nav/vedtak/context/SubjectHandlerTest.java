@@ -1,17 +1,16 @@
 package no.nav.vedtak.context;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import javax.security.auth.Subject;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import org.junit.jupiter.api.Test;
+
+import javax.security.auth.Subject;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SubjectHandlerTest {
 
@@ -29,7 +28,7 @@ class SubjectHandlerTest {
     @Test
     void testGetSubject() {
         var eksisterende = SubjectHandler.getSubjectHandler().getSubject();
-        ((ThreadLocalSubjectHandler)SubjectHandler.getSubjectHandler()).setSubject(lagInternBruker(USER_ID));
+        ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(lagInternBruker(USER_ID));
 
         SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
         assertThat(subjectHandler).isNotNull();
@@ -37,7 +36,7 @@ class SubjectHandlerTest {
         assertThat(subjectHandler.getIdentType()).isEqualTo(IDENT_TYPE);
         assertThat(subjectHandler.getConsumerId()).isEqualTo(SubjectHandlerTest.class.getSimpleName());
 
-        ((ThreadLocalSubjectHandler)SubjectHandler.getSubjectHandler()).setSubject(eksisterende);
+        ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(eksisterende);
     }
 
     private static Subject lagInternBruker(String userId) {

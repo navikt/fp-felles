@@ -46,7 +46,7 @@ public final class XacmlResponseMapper {
         if (!POLICY_IDENTIFIER.equals(attributeId)) {
             return Optional.empty();
         }
-        var attributeValue = (String)attribute.value();
+        var attributeValue = (String) attribute.value();
         return switch (attributeValue) {
             case "fp3_behandle_egen_ansatt" -> Optional.of(Advice.DENY_EGEN_ANSATT);
             case "fp2_behandle_kode7" -> Optional.of(Advice.DENY_KODE_7);

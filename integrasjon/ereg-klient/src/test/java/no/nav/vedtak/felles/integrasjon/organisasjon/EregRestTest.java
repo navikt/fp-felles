@@ -1,12 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.organisasjon;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import org.junit.jupiter.api.Test;
 
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class EregRestTest {
 

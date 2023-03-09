@@ -1,12 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac.pdp;
 
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_AKSJONSPUNKT_TYPE;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_ALENEOMSORG;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_ANNEN_PART;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_BEHANDLING_STATUS;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_SAKSBEHANDLER;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_SAKSID;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_SAK_STATUS;
+import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.*;
 
 public enum ForeldrepengerDataKeys implements RessursDataKey {
 

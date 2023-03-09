@@ -2,7 +2,6 @@ package no.nav.vedtak.sikkerhet.abac.policy;
 
 /**
  * Inneholder konstanter bruk i abac-foreldrepenger policies
- *
  */
 public class ForeldrepengerAttributter {
 

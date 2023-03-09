@@ -1,11 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.dokarkiv.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.ser.ByteArraySomBase64StringSerializer;
+
 import java.util.Arrays;
 import java.util.Objects;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import no.nav.vedtak.felles.integrasjon.dokarkiv.ser.ByteArraySomBase64StringSerializer;
 
 public record Dokumentvariant(Variantformat variantformat,
                               Filtype filtype,

@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.xmlutils;
 
-import java.io.StringReader;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import no.nav.vedtak.exception.TekniskException;
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
@@ -15,10 +11,12 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-
-import org.xml.sax.SAXException;
-
-import no.nav.vedtak.exception.TekniskException;
+import java.io.StringReader;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class XmlUtils {
 
@@ -28,7 +26,7 @@ public final class XmlUtils {
     }
 
     public static Map<String, Map.Entry<Class<?>, Schema>> createUnmodifiableMap(String jaxbClassName, List<String> namespaces,
-            List<String> xsdLocations) {
+                                                                                 List<String> xsdLocations) {
         if (namespaces.size() != xsdLocations.size()) {
             throw new IllegalArgumentException();
         }
@@ -40,7 +38,7 @@ public final class XmlUtils {
             tempMap = new HashMap<>();
             for (int i = 0; i < namespaces.size(); i++) {
                 var schema = schemaFactory
-                        .newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocations.get(i)).toExternalForm()));
+                    .newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocations.get(i)).toExternalForm()));
                 tempMap.put(namespaces.get(i), new SimpleEntry<>(jaxbClass, schema));
             }
         } catch (SAXException e) {
@@ -59,7 +57,7 @@ public final class XmlUtils {
 
             var schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             final Schema schema = schemaFactory
-                    .newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocation).toExternalForm()));
+                .newSchema(new StreamSource(XmlUtils.class.getClassLoader().getResource(xsdLocation).toExternalForm()));
             tempMap = Collections.singletonMap(namespace, new SimpleEntry<>(jaxbClass, schema));
         } catch (SAXException e) {
             throw new TekniskException("F-350888", "Feilet på instansiering av schema for xsd-validering.", e);

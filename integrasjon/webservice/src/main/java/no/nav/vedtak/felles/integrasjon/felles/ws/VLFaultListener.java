@@ -1,16 +1,15 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.log.util.LoggerUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.logging.FaultListener;
 import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.log.util.LoggerUtils;
+import java.util.HashSet;
+import java.util.Set;
 
 public class VLFaultListener implements FaultListener {
 
@@ -39,7 +38,7 @@ public class VLFaultListener implements FaultListener {
         for (Class<? extends Exception> uk : unntakKonfigurasjon.getUnntak()) {
             if (VLException.class.isAssignableFrom(uk)) {
                 throw new IllegalArgumentException(
-                        "Det gir ikke mening å unnta " + VLException.class.getName() + " fra logging. Juster heller logLevel i deklarajonen");
+                    "Det gir ikke mening å unnta " + VLException.class.getName() + " fra logging. Juster heller logLevel i deklarajonen");
             }
         }
         unntak.addAll(unntakKonfigurasjon.getUnntak());

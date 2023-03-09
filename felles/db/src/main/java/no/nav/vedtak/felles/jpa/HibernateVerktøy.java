@@ -1,13 +1,12 @@
 package no.nav.vedtak.felles.jpa;
 
+import no.nav.vedtak.exception.TekniskException;
+
+import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.persistence.TypedQuery;
-
-import no.nav.vedtak.exception.TekniskException;
 
 /**
  * Enkle hjelpemetoder for å hente ut hibernate resultater på litt andre måter
@@ -43,8 +42,8 @@ public class HibernateVerktøy {
         String queryString = hibQuery.getQueryString();
         Set<String> namedParameterNames = hibQuery.getParameterMetadata().getNamedParameterNames();
         String parameterString = namedParameterNames.stream()
-                .map(navn -> navn + "=" + hibQuery.getParameterValue(navn))
-                .collect(Collectors.joining(", "));
+            .map(navn -> navn + "=" + hibQuery.getParameterValue(navn))
+            .collect(Collectors.joining(", "));
 
         return "'" + queryString + " {" + parameterString + "}";
     }

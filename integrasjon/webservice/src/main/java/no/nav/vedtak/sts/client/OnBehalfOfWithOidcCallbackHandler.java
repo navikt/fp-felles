@@ -1,9 +1,11 @@
 package no.nav.vedtak.sts.client;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -12,14 +14,10 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
@@ -45,7 +43,7 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
     private static String getOnBehalfOfString() {
         String base64encodedJTW = Base64.getEncoder().encodeToString(getJwtAsBytes());
         return "<wsse:BinarySecurityToken EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"urn:ietf:params:oauth:token-type:jwt\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"
-                + base64encodedJTW + "</wsse:BinarySecurityToken>";
+            + base64encodedJTW + "</wsse:BinarySecurityToken>";
     }
 
     private static byte[] getJwtAsBytes() {

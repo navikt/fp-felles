@@ -1,32 +1,19 @@
 package no.nav.foreldrepenger.xmlutils;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.*;
 import javax.xml.namespace.NamespaceContext;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.*;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-
-import org.xml.sax.SAXException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class JaxbHelper {
     private static final Map<Class<?>, JAXBContext> CONTEXTS = new ConcurrentHashMap<>();
@@ -42,7 +29,7 @@ public final class JaxbHelper {
             return "";
         }
 
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @SuppressWarnings({"rawtypes", "unchecked"})
         @Override
         public Iterator getPrefixes(String namespaceURI) {
             return null;
@@ -57,7 +44,7 @@ public final class JaxbHelper {
     }
 
     public static String marshalAndValidateJaxb(Object jaxbObject, Map.Entry<Class<?>, Schema> schemaAndClass, boolean formatted)
-            throws JAXBException {
+        throws JAXBException {
         if (!CONTEXTS.containsKey(schemaAndClass.getKey())) {
             CONTEXTS.put(schemaAndClass.getKey(), JAXBContext.newInstance(schemaAndClass.getKey()));
         }
@@ -196,7 +183,7 @@ public final class JaxbHelper {
     }
 
     public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz, String xml, Schema schema)
-            throws JAXBException, XMLStreamException {
+        throws JAXBException, XMLStreamException {
         if (!CONTEXTS.containsKey(clazz)) {
             CONTEXTS.put(clazz, JAXBContext.newInstance(clazz));
         }
@@ -210,7 +197,7 @@ public final class JaxbHelper {
     }
 
     public static <T> T unmarshalAndValidateXMLWithStAXProvidingSchema(Class<T> clazz, Source source, Schema schema)
-            throws JAXBException, XMLStreamException {
+        throws JAXBException, XMLStreamException {
         if (!CONTEXTS.containsKey(clazz)) {
             CONTEXTS.put(clazz, JAXBContext.newInstance(clazz));
         }

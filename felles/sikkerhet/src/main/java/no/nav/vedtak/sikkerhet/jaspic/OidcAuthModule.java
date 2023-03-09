@@ -1,19 +1,21 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import static javax.security.auth.message.AuthStatus.FAILURE;
-import static javax.security.auth.message.AuthStatus.SEND_CONTINUE;
-import static javax.security.auth.message.AuthStatus.SEND_SUCCESS;
-import static javax.security.auth.message.AuthStatus.SUCCESS;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ServiceLoader;
-import java.util.Set;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.sikkerhet.TokenCallback;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
+import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -31,28 +33,15 @@ import javax.security.auth.message.config.ServerAuthContext;
 import javax.security.auth.message.module.ServerAuthModule;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.TokenCallback;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
-import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
-import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
-import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
+import static javax.security.auth.message.AuthStatus.*;
 
 /**
  * Stjålet mye fra https://github.com/omnifaces/omnisecurity
- *
+ * <p>
  * Klassen er og må være thread-safe da den vil brukes til å kalle på subjects
  * samtidig. Se {@link ServerAuthModule}. Skal derfor ikke inneholde felter som
  * holder Subject, token eller andre parametere som kommer med en request eller
@@ -63,7 +52,7 @@ public class OidcAuthModule implements ServerAuthModule {
     private static final String OIDC_LOGIN_CONFIG = "OIDC";
     private static final Logger LOG = LoggerFactory.getLogger(OidcAuthModule.class);
 
-    private static final Class<?>[] SUPPORTED_MESSAGE_TYPES = new Class[] { HttpServletRequest.class, HttpServletResponse.class };
+    private static final Class<?>[] SUPPORTED_MESSAGE_TYPES = new Class[]{HttpServletRequest.class, HttpServletResponse.class};
     // Key in the MessageInfo Map that when present AND set to true indicated a
     // protected resource is being accessed.
     // When the resource is not protected, GlassFish omits the key altogether.
@@ -141,7 +130,7 @@ public class OidcAuthModule implements ServerAuthModule {
 
     protected void validateCleanSubjecthandler() {
         final Subject subject = SubjectHandler.getSubjectHandler().getSubject();
-        if (subject != null  && SubjectHandler.getSubjectHandler() instanceof ThreadLocalSubjectHandler tlsh) {
+        if (subject != null && SubjectHandler.getSubjectHandler() instanceof ThreadLocalSubjectHandler tlsh) {
             final Set<String> credidentialClasses = new HashSet<>();
             for (Object publicCredential : subject.getPublicCredentials()) {
                 credidentialClasses.add(publicCredential.getClass().getName());
@@ -226,9 +215,9 @@ public class OidcAuthModule implements ServerAuthModule {
 
     protected AuthStatus handleProtectedResource(Subject clientSubject, HttpServletRequest originalRequest) {
         var delegatedAuthStatus = delegatedProtectedList.stream()
-                .map(d -> d.handleProtectedResource(originalRequest, clientSubject, containerCallbackHandler))
-                .flatMap(Optional::stream)
-                .findFirst();
+            .map(d -> d.handleProtectedResource(originalRequest, clientSubject, containerCallbackHandler))
+            .flatMap(Optional::stream)
+            .findFirst();
 
         if (delegatedAuthStatus.isEmpty()) {
             return oidcLogin(clientSubject, originalRequest);
@@ -272,7 +261,7 @@ public class OidcAuthModule implements ServerAuthModule {
      */
     private AuthStatus notifyContainerAboutLogin(Subject clientSubject, String username) {
         try {
-            containerCallbackHandler.handle(new Callback[] { new CallerPrincipalCallback(clientSubject, username) });
+            containerCallbackHandler.handle(new Callback[]{new CallerPrincipalCallback(clientSubject, username)});
         } catch (IOException | UnsupportedCallbackException e) {
             // Should not happen
             throw new IllegalStateException(e);

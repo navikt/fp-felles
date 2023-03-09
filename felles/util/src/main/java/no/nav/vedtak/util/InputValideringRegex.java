@@ -20,7 +20,7 @@ public class InputValideringRegex {
      * <p>
      * Koder i kodeverk forventers å være kombinasjon av tall, bokstaver, underscore og bindestrek.
      */
-    public static final String KODEVERK = REGEXP_START + ALFABET_NORSK +"_\\-\\–" + TALL + REGEXP_SLUTT; //TODO Bør fjerne æøåÆØÅ fra kodeverk, men det er i bruk nå
+    public static final String KODEVERK = REGEXP_START + ALFABET_NORSK + "_\\-\\–" + TALL + REGEXP_SLUTT; //TODO Bør fjerne æøåÆØÅ fra kodeverk, men det er i bruk nå
 
     /**
      * Bruk dette mønsteret for å validere navn på personer eller enheter.
@@ -49,7 +49,7 @@ public class InputValideringRegex {
      * Bruk dette mønsteret for å validere fritekst.
      * <p>
      * Godtar i tillegg til alt som er tillatt i navn og adresser også flere andre tegn som er relevante.
-     *
+     * <p>
      * Godtar ikke større-enn og mindre-enn tegn da disse kan misbrukes til å gjøre XSS-angrep
      */
     public static final String FRITEKST = REGEXP_START + TEGN_FRITEKST + REGEXP_SLUTT;

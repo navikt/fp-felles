@@ -1,24 +1,19 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import javax.enterprise.util.Nonbinding;
-import javax.interceptor.InterceptorBinding;
-import javax.ws.rs.NameBinding;
-
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
+import javax.enterprise.util.Nonbinding;
+import javax.interceptor.InterceptorBinding;
+import javax.ws.rs.NameBinding;
+import java.lang.annotation.*;
+
 @Inherited
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @NameBinding
 public @interface BeskyttetRessurs {
     @Nonbinding
@@ -45,11 +40,15 @@ public @interface BeskyttetRessurs {
     @Nonbinding
     String property() default "";
 
-    /** For å angi webservices (noen få tilfelle) */
+    /**
+     * For å angi webservices (noen få tilfelle)
+     */
     @Nonbinding
     ServiceType serviceType() default ServiceType.REST;
 
-    /** For å angi om tjeneste skal kunne kalles fra andre namespace */
+    /**
+     * For å angi om tjeneste skal kunne kalles fra andre namespace
+     */
     @Nonbinding
     AvailabilityType availabilityType() default AvailabilityType.INTERNAL;
 

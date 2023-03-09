@@ -1,7 +1,6 @@
 package no.nav.vedtak.felles.testutilities.db;
 
-import java.util.Collections;
-import java.util.List;
+import no.nav.vedtak.felles.jpa.VLPersistenceUnitProvider;
 
 import javax.enterprise.inject.spi.CDI;
 import javax.persistence.EntityManager;
@@ -10,8 +9,8 @@ import javax.persistence.Persistence;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceProviderResolver;
 import javax.persistence.spi.PersistenceProviderResolverHolder;
-
-import no.nav.vedtak.felles.jpa.VLPersistenceUnitProvider;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Denne initialiserer en persistenceunit for bruk i unit testing, basert på

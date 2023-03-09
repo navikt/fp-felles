@@ -39,8 +39,8 @@ public class AuthenticationLevelCredential implements Destroyable {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" +
-                (destroyed ? "destroyed" : authenticationLevel) +
-                "]";
+            (destroyed ? "destroyed" : authenticationLevel) +
+            "]";
     }
 
 }

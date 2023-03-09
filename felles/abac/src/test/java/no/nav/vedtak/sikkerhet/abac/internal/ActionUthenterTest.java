@@ -1,30 +1,29 @@
 package no.nav.vedtak.sikkerhet.abac.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
+import org.junit.jupiter.api.Test;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.ws.rs.Path;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ActionUthenterTest {
 
     @Test
     void skalLageActionForRestMethod() throws NoSuchMethodException {
         assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod1", String.class)))
-                .isEqualTo("/root1/resource1");
+            .isEqualTo("/root1/resource1");
         assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod2", String.class)))
-                .isEqualTo("/root1/resource2");
+            .isEqualTo("/root1/resource2");
         assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod3", String.class))).isEqualTo("/root1");
     }
 
     @Test
     void skal_ha_at_action_for_webservice_er_action_i_webmethod() throws Exception {
         assertThat(ActionUthenter.action(MyWebService.class, MyWebService.class.getDeclaredMethod("coinToss"), ServiceType.WEBSERVICE))
-                .isEqualTo("http://foobar.com/biased/coin/toss/v1");
+            .isEqualTo("http://foobar.com/biased/coin/toss/v1");
     }
 
     @Path("/root1")

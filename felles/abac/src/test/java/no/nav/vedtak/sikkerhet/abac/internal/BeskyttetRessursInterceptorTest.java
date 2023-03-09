@@ -1,20 +1,14 @@
 package no.nav.vedtak.sikkerhet.abac.internal;
 
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.interceptor.InvocationContext;
-import javax.ws.rs.Path;
-
+import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.log.audit.Auditdata;
+import no.nav.vedtak.log.audit.Auditlogger;
+import no.nav.vedtak.sikkerhet.abac.*;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import org.assertj.core.api.Fail;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,23 +17,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.log.audit.Auditdata;
-import no.nav.vedtak.log.audit.Auditlogger;
-import no.nav.vedtak.sikkerhet.abac.AbacAuditlogger;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
-import no.nav.vedtak.sikkerhet.abac.AbacResultat;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursInterceptor;
-import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
-import no.nav.vedtak.sikkerhet.abac.TokenProvider;
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
-import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import javax.interceptor.InvocationContext;
+import javax.ws.rs.Path;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BeskyttetRessursInterceptorTest {
@@ -70,11 +57,11 @@ public class BeskyttetRessursInterceptorTest {
 
         skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(abacAuditlogger);
         assertGotPattern(auditlogger,
-                "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
+            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
     }
 
     private void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(AbacAuditlogger abacAuditLogger)
-            throws Exception {
+        throws Exception {
         mockTokenProvider();
 
         BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
@@ -83,7 +70,7 @@ public class BeskyttetRessursInterceptorTest {
         }, abacAuditLogger, tokenProvider);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
-        InvocationContext ic = new TestInvocationContext(method, new Object[] { aktør1 });
+        InvocationContext ic = new TestInvocationContext(method, new Object[]{aktør1});
         interceptor.wrapTransaction(ic);
     }
 
@@ -93,7 +80,7 @@ public class BeskyttetRessursInterceptorTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
         skal_også_logge_input_parametre_til_sporingslogg_ved_permit(abacAuditlogger);
         assertGotPattern(auditlogger,
-                "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ flexString2=1234 flexString2Label=Behandling request=/foo/behandling_id_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
+            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ flexString2=1234 flexString2Label=Behandling request=/foo/behandling_id_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
     }
 
     private void skal_også_logge_input_parametre_til_sporingslogg_ved_permit(AbacAuditlogger abacAuditLogger) throws Exception {
@@ -105,13 +92,13 @@ public class BeskyttetRessursInterceptorTest {
         }, abacAuditLogger, tokenProvider);
 
         Method method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
-        InvocationContext ic = new TestInvocationContext(method, new Object[] { behandlingIdDto });
+        InvocationContext ic = new TestInvocationContext(method, new Object[]{behandlingIdDto});
         interceptor.wrapTransaction(ic);
     }
 
     @Test
     void auditlog_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering()
-            throws Exception {
+        throws Exception {
         when(tokenProvider.openIdToken()).thenReturn(DUMMY_OPENID_TOKEN);
         final Auditlogger auditlogger = mock(Auditlogger.class);
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
@@ -120,7 +107,7 @@ public class BeskyttetRessursInterceptorTest {
     }
 
     private void skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering(
-            AbacAuditlogger abacAuditLogger) throws Exception {
+        AbacAuditlogger abacAuditLogger) throws Exception {
         mockTokenProvider();
         BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
             var ressurs = AppRessursData.builder().leggTilAktørId(aktør1.getAktørId()).build();
@@ -128,7 +115,7 @@ public class BeskyttetRessursInterceptorTest {
         }, abacAuditLogger, tokenProvider);
 
         Method method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
-        InvocationContext ic = new TestInvocationContext(method, new Object[] { behandlingIdDto });
+        InvocationContext ic = new TestInvocationContext(method, new Object[]{behandlingIdDto});
         interceptor.wrapTransaction(ic);
     }
 
@@ -139,7 +126,7 @@ public class BeskyttetRessursInterceptorTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
         skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny(abacAuditlogger);
         assertGotPattern(auditlogger,
-                "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|WARN|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
+            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|WARN|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
     }
 
     private void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny(AbacAuditlogger abacAuditLogger) throws Exception {
@@ -149,7 +136,7 @@ public class BeskyttetRessursInterceptorTest {
         }, abacAuditLogger, tokenProvider);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
-        InvocationContext ic = new TestInvocationContext(method, new Object[] { aktør1 });
+        InvocationContext ic = new TestInvocationContext(method, new Object[]{aktør1});
 
         try {
             interceptor.wrapTransaction(ic);

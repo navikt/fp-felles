@@ -1,22 +1,18 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.saker;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.readAllBytes;
-import static java.util.stream.Collectors.toList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.readAllBytes;
+import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SerializationTest {
 
@@ -119,37 +115,37 @@ class SerializationTest {
 
     private static List<Saker.AvsluttedeSaker.AvsluttetSak> alleAvsluttedeSaker(int n) {
         return IntStream.range(0, n)
-                .boxed()
-                .map(SerializationTest::enAvsluttetSak)
-                .toList();
+            .boxed()
+            .map(SerializationTest::enAvsluttetSak)
+            .toList();
     }
 
     private static List<Saker.Utbetaling> utbetalinger(int n) {
         return IntStream.range(0, n)
-                .boxed()
-                .map(SerializationTest::utbetaling)
-                .toList();
+            .boxed()
+            .map(SerializationTest::utbetaling)
+            .toList();
     }
 
     private static List<Saker.LøpendeSak> åpneSaker(int n) {
         return IntStream.range(0, n)
-                .boxed()
-                .map(SerializationTest::åpenSak)
-                .toList();
+            .boxed()
+            .map(SerializationTest::åpenSak)
+            .toList();
     }
 
     private static List<Saker.Sak> saker(int n) {
         return IntStream.range(0, n)
-                .boxed()
-                .map(SerializationTest::enSak)
-                .toList();
+            .boxed()
+            .map(SerializationTest::enSak)
+            .toList();
     }
 
     private static List<Saker.IkkeStartetSak> ikkeStartedeSaker(int n) {
         return IntStream.range(0, n)
-                .boxed()
-                .map(SerializationTest::enIkkeStartetSak)
-                .collect(toList());
+            .boxed()
+            .map(SerializationTest::enIkkeStartetSak)
+            .collect(toList());
     }
 
     private static Saker.Utbetaling utbetaling(int n) {

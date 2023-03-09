@@ -1,21 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc.config.impl;
 
-import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.getIssuerFra;
-import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.getJwksFra;
-import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.getTokenEndpointFra;
-
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
@@ -23,6 +7,15 @@ import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.TokenXProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.*;
 
 public final class OidcProviderConfig {
     private static final Environment ENV = Environment.current();
@@ -61,7 +54,7 @@ public final class OidcProviderConfig {
     }
 
     public static synchronized OidcProviderConfig instance() {
-        var inst= instance;
+        var inst = instance;
         if (inst == null) {
             inst = new OidcProviderConfig();
             instance = inst;
@@ -112,7 +105,7 @@ public final class OidcProviderConfig {
             idProviderConfigs.add(createTokenXConfiguration(tokenxKonfigUrl));
         }
 
-        var providere =  idProviderConfigs.stream()
+        var providere = idProviderConfigs.stream()
             .map(OpenIDConfiguration::type)
             .map(OpenIDProvider::name)
             .collect(Collectors.joining(", "));
@@ -212,7 +205,7 @@ public final class OidcProviderConfig {
             return URI.create(url);
         } catch (IllegalArgumentException e) {
             throw new TekniskException("F-644196",
-                    String.format("Syntaksfeil i token validator konfigurasjonen av '%s' for '%s'", key, provider.name()), e);
+                String.format("Syntaksfeil i token validator konfigurasjonen av '%s' for '%s'", key, provider.name()), e);
         }
     }
 }

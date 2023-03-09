@@ -1,10 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import no.nav.vedtak.log.mdc.MDCOperations;
 import org.junit.jupiter.api.Test;
 
-import no.nav.vedtak.log.mdc.MDCOperations;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class MDCOperationsTest {
 
@@ -17,7 +16,7 @@ class MDCOperationsTest {
         assertThat(callId1).isNotNull();
         String callId2 = MDCOperations.generateCallId();
         assertThat(callId2).isNotNull()
-                .isNotEqualTo(callId1);
+            .isNotEqualTo(callId1);
     }
 
     @Test

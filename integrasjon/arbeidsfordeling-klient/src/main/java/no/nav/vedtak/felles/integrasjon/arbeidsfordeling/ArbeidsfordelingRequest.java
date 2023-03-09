@@ -9,8 +9,6 @@ public record ArbeidsfordelingRequest(String temagruppe,
                                       String oppgavetype) {
 
 
-
-
     public static Builder ny() {
         return new Builder();
     }

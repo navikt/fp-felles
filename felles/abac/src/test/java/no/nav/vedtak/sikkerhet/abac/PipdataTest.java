@@ -1,17 +1,16 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.abac.pipdata.AbacPipDto;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipAktørId;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
+import org.junit.jupiter.api.Test;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class PipdataTest {
 
@@ -49,11 +48,12 @@ class PipdataTest {
             {"aktørIder":["0000000000000","2222222222222"],"fagsakStatus":"UNDER_BEHANDLING","behandlingStatus":"UTREDES"}
             """;
         var roundtrip = DefaultJsonMapper.fromJson(json, AbacPipDto.class);
-        assertThat(roundtrip.aktørIder().stream().map(PipAktørId::getVerdi).collect(Collectors.toSet())).containsAll(Set.of("0000000000000","2222222222222"));
+        assertThat(roundtrip.aktørIder().stream().map(PipAktørId::getVerdi).collect(Collectors.toSet())).containsAll(Set.of("0000000000000", "2222222222222"));
         assertThat(roundtrip.fagsakStatus()).isEqualTo(PipFagsakStatus.UNDER_BEHANDLING);
         assertThat(roundtrip.behandlingStatus()).isEqualTo(PipBehandlingStatus.UTREDES);
     }
 
-    private static record PseudoPip(Set<String> aktørIder, String fagsakStatus, String behandlingStatus) {}
+    private static record PseudoPip(Set<String> aktørIder, String fagsakStatus, String behandlingStatus) {
+    }
 
 }
