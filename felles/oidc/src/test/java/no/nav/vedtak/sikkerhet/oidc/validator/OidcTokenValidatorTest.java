@@ -191,6 +191,50 @@ class OidcTokenValidatorTest {
     }
 
     @Test
+    void skal_ekstrahere_grupper_fra_aad_obo_med_navident_med_tom_gruppe() {
+        // OpenID Connect Core 1.0 incorporating errata set 1
+        // 3.1.3.7 ID Token Validation
+        // 5 If an azp (authorized party) Claim is present, the Client SHOULD verify
+        // that its client_id is the Claim Value
+
+        var ident = "minident";
+        List<String> grupper = List.of();
+
+        var token = new OidcTokenGenerator()
+            .withClaim(AzureProperty.NAV_IDENT, ident)
+            .withGroupsClam(AzureProperty.GRUPPER, grupper)
+            .createHeaderTokenHolder();
+
+        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        assertValid(result);
+        assertThat(result.getSubject()).isEqualTo(ident);
+        assertThat(result.grupper()).isEmpty();
+        assertThat(result.getCompactSubject()).isEqualTo(ident);
+    }
+
+    @Test
+    void skal_ekstrahere_grupper_fra_aad_obo_med_navident_med_uglydig_gruppe() {
+        // OpenID Connect Core 1.0 incorporating errata set 1
+        // 3.1.3.7 ID Token Validation
+        // 5 If an azp (authorized party) Claim is present, the Client SHOULD verify
+        // that its client_id is the Claim Value
+
+        var ident = "minident";
+        List<String> grupper = List.of("saksbehandler", "angriper");
+
+        var token = new OidcTokenGenerator()
+            .withClaim(AzureProperty.NAV_IDENT, ident)
+            .withGroupsClam(AzureProperty.GRUPPER, grupper)
+            .createHeaderTokenHolder();
+
+        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        assertValid(result);
+        assertThat(result.getSubject()).isEqualTo(ident);
+        assertThat(result.grupper()).containsExactly(Groups.SAKSBEHANDLER);
+        assertThat(result.getCompactSubject()).isEqualTo(ident);
+    }
+
+    @Test
     void skal_ikke_godta_token_som_er_signert_med_feil_sertifikat() {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
