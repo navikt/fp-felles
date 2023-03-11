@@ -1,5 +1,21 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Optional;
+
+import javax.annotation.Priority;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
+
+import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -8,20 +24,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Priority;
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Optional;
 
 @BeskyttetRessurs(actionType = ActionType.DUMMY, resource = "")
 @Interceptor
@@ -75,8 +77,7 @@ public class BeskyttetRessursInterceptor {
         switch (beslutning.beslutningKode()) {
             case AVSLÅTT_KODE_6 -> throw new PepNektetTilgangException("F-709170", "Tilgangskontroll.Avslag.Kode6");
             case AVSLÅTT_KODE_7 -> throw new PepNektetTilgangException("F-027901", "Tilgangskontroll.Avslag.Kode7");
-            case AVSLÅTT_EGEN_ANSATT ->
-                throw new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");
+            case AVSLÅTT_EGEN_ANSATT -> throw new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");
             default -> throw new PepNektetTilgangException("F-608625", "Ikke tilgang");
         }
     }
@@ -84,20 +85,19 @@ public class BeskyttetRessursInterceptor {
     private boolean erSystembrukerKall(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         return Optional.ofNullable(beskyttetRessursAttributter)
             .map(BeskyttetRessursAttributter::getToken)
-            .map(Token::getIdentType).orElse(IdentType.InternBruker)
+            .map(Token::getIdentType)
+            .orElse(IdentType.InternBruker)
             .erSystem();
     }
 
-    private BeskyttetRessursAttributter hentBeskyttetRessursAttributter(InvocationContext invocationContext,
-                                                                        AbacDataAttributter dataAttributter) {
+    private BeskyttetRessursAttributter hentBeskyttetRessursAttributter(InvocationContext invocationContext, AbacDataAttributter dataAttributter) {
         Class<?> clazz = getOpprinneligKlasse(invocationContext);
         var method = invocationContext.getMethod();
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
         var serviceType = beskyttetRessurs.serviceType();
 
-        var token = ServiceType.WEBSERVICE.equals(serviceType)
-            ? Token.withSamlToken(tokenProvider.samlToken())
-            : Token.withOidcToken(tokenProvider.openIdToken(), tokenProvider.getUid(), tokenProvider.getIdentType());
+        var token = ServiceType.WEBSERVICE.equals(serviceType) ? Token.withSamlToken(tokenProvider.samlToken()) : Token.withOidcToken(
+            tokenProvider.openIdToken(), tokenProvider.getUid(), tokenProvider.getIdentType());
 
         return BeskyttetRessursAttributter.builder()
             .medUserId(tokenProvider.getUid())
@@ -143,9 +143,8 @@ public class BeskyttetRessursInterceptor {
             if (value instanceof AbacDto abacDto) {
                 attributter.leggTil(abacDto.abacAttributter());
             } else {
-                throw new TekniskException("F-261962",
-                    String.format("Ugyldig input forventet at samling inneholdt bare AbacDto-er, men fant %s",
-                        value != null ? value.getClass().getName() : "null"));
+                throw new TekniskException("F-261962", String.format("Ugyldig input forventet at samling inneholdt bare AbacDto-er, men fant %s",
+                    value != null ? value.getClass().getName() : "null"));
             }
         }
     }

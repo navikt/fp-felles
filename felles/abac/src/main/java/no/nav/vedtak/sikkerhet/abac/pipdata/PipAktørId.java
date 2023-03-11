@@ -1,12 +1,14 @@
 package no.nav.vedtak.sikkerhet.abac.pipdata;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataValue;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataValue;
 
 /**
  * Id som genereres fra NAV Aktørregister.

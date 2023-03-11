@@ -1,16 +1,17 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
-import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
-import no.nav.vedtak.sikkerhet.abac.pdp.RessursData;
-import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataKey;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
+import no.nav.vedtak.sikkerhet.abac.pdp.RessursData;
+import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataKey;
 
 class RessursAttributterTest {
 
@@ -24,9 +25,7 @@ class RessursAttributterTest {
         var aktørId = new LinkedHashSet<String>();
         aktørId.add("1111");
         aktørId.add("2222");
-        var req = AppRessursData.builder()
-            .leggTilFødselsnumre(fnr).leggTilAktørIdSet(aktørId)
-            .build();
+        var req = AppRessursData.builder().leggTilFødselsnumre(fnr).leggTilAktørIdSet(aktørId).build();
 
         assertThat(getFnrFromList(req, 0)).hasValueSatisfying(it -> assertThat(it).isEqualTo("11111111111"));
         assertThat(getFnrFromList(req, 1)).hasValueSatisfying(it -> assertThat(it).isEqualTo("22222222222"));
@@ -44,13 +43,12 @@ class RessursAttributterTest {
 
     @Test
     void skal_fungere_uten_fnr() {
-        var req = AppRessursData.builder()
-            .leggTilRessurs(ForeldrepengerDataKeys.SAKSBEHANDLER, "A000000")
-            .build();
+        var req = AppRessursData.builder().leggTilRessurs(ForeldrepengerDataKeys.SAKSBEHANDLER, "A000000").build();
 
         assertThat(getFnrFromList(req, 0)).isNotPresent();
         assertThat(getFnrFromList(req, 1)).isNotPresent();
-        assertThat(getElementFromListByKeyAndIndex(req, ForeldrepengerDataKeys.SAKSBEHANDLER, 0)).hasValueSatisfying(it -> assertThat(it).isEqualTo("A000000"));
+        assertThat(getElementFromListByKeyAndIndex(req, ForeldrepengerDataKeys.SAKSBEHANDLER, 0)).hasValueSatisfying(
+            it -> assertThat(it).isEqualTo("A000000"));
         assertThat(getElementFromListByKeyAndIndex(req, ForeldrepengerDataKeys.SAKSBEHANDLER, 1)).isNotPresent();
     }
 

@@ -1,11 +1,6 @@
 package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
-import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -14,7 +9,13 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 
 public class AzureSystemTokenKlient {
@@ -53,14 +54,10 @@ public class AzureSystemTokenKlient {
         if (heldToken != null && heldToken.isNotExpired()) {
             return heldToken.copy();
         }
-        var response = hentAccessToken(clientId,
-            clientSecret,
-            tokenEndpoint,
-            azureProxy,
-            scope);
+        var response = hentAccessToken(clientId, clientSecret, tokenEndpoint, azureProxy, scope);
         LOG.info("AzureAD hentet token for scope {} fikk token av type {} utløper {}", scope, response.token_type(), response.expires_in());
-        var newToken = new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(),
-            new TokenString(response.access_token()), scope, response.expires_in());
+        var newToken = new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.access_token()), scope,
+            response.expires_in());
         accessToken.put(scope, newToken);
         return newToken.copy();
     }
@@ -79,10 +76,7 @@ public class AzureSystemTokenKlient {
 
     private static HttpRequest.BodyPublisher ofFormData(String clientId, String clientSecret, String scope) {
         var encodedScope = URLEncoder.encode(scope, UTF_8);
-        var formdata = "grant_type=client_credentials"
-            + "&client_id=" + clientId
-            + "&client_secret=" + clientSecret
-            + "&scope=" + encodedScope;
+        var formdata = "grant_type=client_credentials" + "&client_id=" + clientId + "&client_secret=" + clientSecret + "&scope=" + encodedScope;
         return HttpRequest.BodyPublishers.ofString(formdata, UTF_8);
     }
 

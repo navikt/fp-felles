@@ -1,16 +1,20 @@
 package no.nav.vedtak.sikkerhet.context;
 
-import org.eclipse.jetty.server.*;
+import java.util.Optional;
 
 import javax.security.auth.Subject;
-import java.util.Optional;
+
+import org.eclipse.jetty.server.Authentication;
+import org.eclipse.jetty.server.HttpChannel;
+import org.eclipse.jetty.server.HttpConnection;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.UserIdentity;
 
 public class JettySubjectHandler extends ThreadLocalSubjectHandler {
 
     @Override
     public Subject getSubject() {
-        return Optional.ofNullable(getSubjectFromRequest())
-            .orElseGet(super::getSubject);
+        return Optional.ofNullable(getSubjectFromRequest()).orElseGet(super::getSubject);
     }
 
     private static Subject getSubjectFromRequest() {

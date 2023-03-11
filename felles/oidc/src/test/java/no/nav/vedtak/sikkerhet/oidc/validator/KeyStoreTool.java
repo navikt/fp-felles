@@ -1,18 +1,23 @@
 package no.nav.vedtak.sikkerhet.oidc.validator;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.interfaces.RSAPublicKey;
+
 import org.jose4j.base64url.Base64Url;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.*;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.interfaces.RSAPublicKey;
 
 public class KeyStoreTool {
 
@@ -38,8 +43,7 @@ public class KeyStoreTool {
             myPublicKey = cert.getPublicKey();
 
             //KeyStoreTool.keystore = ks;
-        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException |
-                 UnrecoverableEntryException e) {
+        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | UnrecoverableEntryException e) {
             LOG.error("Error during loading of keystore. Do you have your keystore in order, soldier?", e);
             throw new RuntimeException(e);
         }
@@ -78,13 +82,8 @@ public class KeyStoreTool {
         byte[] bytes = publicKey.getModulus().toByteArray();
         String n = Base64Url.encode(bytes);
 
-        return String.format("{\"keys\":[{" +
-            "\"kty\":\"%s\"," +
-            "\"alg\":\"%s\"," +
-            "\"use\":\"%s\"," +
-            "\"kid\":\"%s\"," +
-            "\"n\":\"%s\"," +
-            "\"e\":\"%s\"" +
-            "}]}", kty, alg, use, kid, n, e);
+        return String.format(
+            "{\"keys\":[{" + "\"kty\":\"%s\"," + "\"alg\":\"%s\"," + "\"use\":\"%s\"," + "\"kid\":\"%s\"," + "\"n\":\"%s\"," + "\"e\":\"%s\"" + "}]}",
+            kty, alg, use, kid, n, e);
     }
 }

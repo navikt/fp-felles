@@ -6,6 +6,7 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -14,8 +15,7 @@ class TokenLocator {
     static final String ID_TOKEN_COOKIE_NAME = "ID_token";
 
     public Optional<TokenString> getToken(HttpServletRequest request) {
-        return getTokenFromHeader(request)
-            .or(() -> getCookie(request, ID_TOKEN_COOKIE_NAME));
+        return getTokenFromHeader(request).or(() -> getCookie(request, ID_TOKEN_COOKIE_NAME));
     }
 
     private Optional<TokenString> getCookie(HttpServletRequest request, String cookieName) {
@@ -38,9 +38,8 @@ class TokenLocator {
 
     private Optional<TokenString> getTokenFromHeader(HttpServletRequest request) {
         String headerValue = request.getHeader("Authorization");
-        return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE)
-            ? Optional.of(new TokenString(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length())))
-            : Optional.empty();
+        return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE) ? Optional.of(
+            new TokenString(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length()))) : Optional.empty();
     }
 
 }

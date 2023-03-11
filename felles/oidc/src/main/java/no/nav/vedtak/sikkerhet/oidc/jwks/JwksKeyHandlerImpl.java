@@ -1,11 +1,6 @@
 package no.nav.vedtak.sikkerhet.oidc.jwks;
 
-import no.nav.vedtak.exception.TekniskException;
-import org.jose4j.jwk.JsonWebKey;
-import org.jose4j.jwk.JsonWebKeySet;
-import org.jose4j.lang.JoseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -20,7 +15,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import org.jose4j.jwk.JsonWebKey;
+import org.jose4j.jwk.JsonWebKeySet;
+import org.jose4j.lang.JoseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.exception.TekniskException;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
 
@@ -61,9 +62,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         if (jwks.size() == 1) {
             return jwks.get(0).getKey();
         }
-        Optional<JsonWebKey> jsonWebKey = jwks.stream()
-            .filter(jwk -> jwk.getAlgorithm().equals(header.algorithm()))
-            .findFirst();
+        Optional<JsonWebKey> jsonWebKey = jwks.stream().filter(jwk -> jwk.getAlgorithm().equals(header.algorithm())).findFirst();
         return jsonWebKey.map(JsonWebKey::getKey).orElse(null);
     }
 
@@ -100,14 +99,10 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
             var client = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .connectTimeout(Duration.ofSeconds(20))
-                .proxy(useProxySelector).build();
-
-            var request = HttpRequest.newBuilder()
-                .header("Accept", "application/json")
-                .timeout(Duration.ofSeconds(10))
-                .uri(url)
-                .GET()
+                .proxy(useProxySelector)
                 .build();
+
+            var request = HttpRequest.newBuilder().header("Accept", "application/json").timeout(Duration.ofSeconds(10)).uri(url).GET().build();
             var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
             if (response == null || response.body() == null) {
                 throw new TekniskException("F-157385", "Kunne ikke hente token");

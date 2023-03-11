@@ -1,6 +1,7 @@
 package no.nav.vedtak.sikkerhet.context;
 
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

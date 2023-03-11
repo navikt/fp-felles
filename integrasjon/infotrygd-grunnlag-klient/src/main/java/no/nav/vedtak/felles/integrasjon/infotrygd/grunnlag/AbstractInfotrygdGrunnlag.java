@@ -1,20 +1,22 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import javax.ws.rs.core.UriBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.UriBuilder;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 // Extend og annoter med endpoint, evt default. tokenConfig kan settes til TokenFlow.STS_CC til info
 public abstract class AbstractInfotrygdGrunnlag implements InfotrygdGrunnlag {
@@ -41,11 +43,13 @@ public abstract class AbstractInfotrygdGrunnlag implements InfotrygdGrunnlag {
             var path = UriBuilder.fromUri(restConfig.endpoint())
                 .queryParam("fnr", fnr)
                 .queryParam("fom", konverter(fom))
-                .queryParam("tom", konverter(tom)).build();
+                .queryParam("tom", konverter(tom))
+                .build();
             return restClient.sendReturnList(RestRequest.newGET(path, restConfig), Grunnlag.class);
         } catch (Exception e) {
             throw new TekniskException("FP-180125",
-                String.format("Tjeneste %s gir feil, meld til #infotrygd_replikering hvis dette skjer gjennom lengre tidsperiode.", restConfig.endpoint()), e);
+                String.format("Tjeneste %s gir feil, meld til #infotrygd_replikering hvis dette skjer gjennom lengre tidsperiode.",
+                    restConfig.endpoint()), e);
         }
     }
 

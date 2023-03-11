@@ -1,12 +1,17 @@
 package no.nav.vedtak.sikkerhet.abac.pdp;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipAktørId;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class AppRessursData {
@@ -110,8 +115,7 @@ public class AppRessursData {
         }
 
         public Builder medAleneomsorg(Boolean aleneomsorg) {
-            return leggTilRessurs(ForeldrepengerDataKeys.ALENEOMSORG,
-                Optional.ofNullable(aleneomsorg).map(a -> a.toString()).orElse(null));
+            return leggTilRessurs(ForeldrepengerDataKeys.ALENEOMSORG, Optional.ofNullable(aleneomsorg).map(a -> a.toString()).orElse(null));
         }
 
         public Builder medAnnenpart(String annenpartAktørId) {

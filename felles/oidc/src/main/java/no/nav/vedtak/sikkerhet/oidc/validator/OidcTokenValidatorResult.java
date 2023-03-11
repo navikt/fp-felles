@@ -2,8 +2,8 @@ package no.nav.vedtak.sikkerhet.oidc.validator;
 
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
-public record OidcTokenValidatorResult(boolean isValid, String errorMessage, String subject, IdentType identType,
-                                       String compactSubject, long expSeconds) {
+public record OidcTokenValidatorResult(boolean isValid, String errorMessage, String subject, IdentType identType, String compactSubject,
+                                       long expSeconds) {
 
     private static final String NO_CLAIMS = "Can't get claims from an invalid token";
 

@@ -20,7 +20,8 @@ public class InputValideringRegex {
      * <p>
      * Koder i kodeverk forventers å være kombinasjon av tall, bokstaver, underscore og bindestrek.
      */
-    public static final String KODEVERK = REGEXP_START + ALFABET_NORSK + "_\\-\\–" + TALL + REGEXP_SLUTT; //TODO Bør fjerne æøåÆØÅ fra kodeverk, men det er i bruk nå
+    public static final String KODEVERK =
+        REGEXP_START + ALFABET_NORSK + "_\\-\\–" + TALL + REGEXP_SLUTT; //TODO Bør fjerne æøåÆØÅ fra kodeverk, men det er i bruk nå
 
     /**
      * Bruk dette mønsteret for å validere navn på personer eller enheter.

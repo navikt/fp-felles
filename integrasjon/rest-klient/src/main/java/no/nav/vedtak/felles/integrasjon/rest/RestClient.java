@@ -1,8 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import no.nav.vedtak.klient.http.DefaultHttpClient;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-
 import java.net.HttpURLConnection;
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -10,6 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+
+import no.nav.vedtak.klient.http.DefaultHttpClient;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public final class RestClient {
 

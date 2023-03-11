@@ -1,17 +1,22 @@
 package no.nav.vedtak.mapper.json;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import no.nav.vedtak.exception.TekniskException;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import no.nav.vedtak.exception.TekniskException;
 
 public class DefaultJsonMapper {
 
@@ -26,8 +31,7 @@ public class DefaultJsonMapper {
     }
 
     private static ObjectMapper createObjectMapper() {
-        return new ObjectMapper()
-            .registerModule(new Jdk8Module())
+        return new ObjectMapper().registerModule(new Jdk8Module())
             .registerModule(new JavaTimeModule())
             .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
             .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)

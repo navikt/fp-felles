@@ -1,5 +1,20 @@
 package no.nav.vedtak.sikkerhet.jaxrs;
 
+import java.lang.reflect.Method;
+import java.time.Instant;
+import java.util.Optional;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+
+import org.jose4j.jwt.MalformedClaimException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.ÅpenRessurs;
@@ -13,19 +28,6 @@ import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorConfig;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
-import org.jose4j.jwt.MalformedClaimException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import java.lang.reflect.Method;
-import java.time.Instant;
-import java.util.Optional;
 
 /**
  * Bruksanvisning inntil alle er over og det evt samles her:
@@ -65,9 +67,7 @@ public class AuthenticationFilterDelegate {
             } else if (beskyttetRessurs == null) {
                 throw new WebApplicationException(metodenavn + " mangler annotering", Response.Status.INTERNAL_SERVER_ERROR);
             } else {
-                var tokenString = getTokenFromHeader(ctx)
-                    .or(() -> getCookie(ctx, cookiePath))
-                    .orElseThrow(() -> new TokenFeil("Mangler token"));
+                var tokenString = getTokenFromHeader(ctx).or(() -> getCookie(ctx, cookiePath)).orElseThrow(() -> new TokenFeil("Mangler token"));
                 validerToken(tokenString);
             }
         } catch (MalformedClaimException | TokenFeil e) {
@@ -91,27 +91,29 @@ public class AuthenticationFilterDelegate {
             .orElseGet(MDCOperations::generateCallId);
         MDCOperations.putCallId(callId);
 
-        Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_CONSUMER_ID))
-            .ifPresent(MDCOperations::putConsumerId);
+        Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_CONSUMER_ID)).ifPresent(MDCOperations::putConsumerId);
     }
 
     private static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
         String headerValue = request.getHeaderString(AUTHORIZATION_HEADER);
-        return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE)
-            ? Optional.of(new TokenString(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length())))
-            : Optional.empty();
+        return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE) ? Optional.of(
+            new TokenString(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length()))) : Optional.empty();
     }
 
     private static Optional<TokenString> getCookie(ContainerRequestContext request, String cookiePath) {
         if (cookiePath == null || request.getCookies() == null) {
             return Optional.empty();
         }
-        return request.getCookies().values().stream()
+        return request.getCookies()
+            .values()
+            .stream()
             .filter(c -> c.getValue() != null)
             .filter(c -> ID_TOKEN_COOKIE_NAME.equalsIgnoreCase(c.getName()))
             .filter(c -> cookiePath.equalsIgnoreCase(c.getPath()))
             .findFirst()
-            .or(() -> request.getCookies().values().stream()
+            .or(() -> request.getCookies()
+                .values()
+                .stream()
                 .filter(c -> c.getValue() != null)
                 .filter(c -> ID_TOKEN_COOKIE_NAME.equalsIgnoreCase(c.getName()))
                 .findFirst())
@@ -122,8 +124,7 @@ public class AuthenticationFilterDelegate {
     public static void validerToken(TokenString tokenString) throws MalformedClaimException {
         // Sett opp OpenIDToken
         var claims = JwtUtil.getClaims(tokenString.token());
-        var configuration = ConfigProvider.getOpenIDConfiguration(claims.getIssuer())
-            .orElseThrow(() -> new TokenFeil("Token mangler issuer claim"));
+        var configuration = ConfigProvider.getOpenIDConfiguration(claims.getIssuer()).orElseThrow(() -> new TokenFeil("Token mangler issuer claim"));
         var expiresAt = Optional.ofNullable(JwtUtil.getExpirationTime(claims)).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, tokenString, null, expiresAt.toEpochMilli());
 
@@ -136,7 +137,8 @@ public class AuthenticationFilterDelegate {
             throw new ValideringsFeil("Token expired");
         }
         if (validateResult.isValid()) {
-            KontekstHolder.setKontekst(RequestKontekst.forRequest(validateResult.subject(), validateResult.compactSubject(), validateResult.identType(), token));
+            KontekstHolder.setKontekst(
+                RequestKontekst.forRequest(validateResult.subject(), validateResult.compactSubject(), validateResult.identType(), token));
             LOG.trace("token validert");
         } else {
             throw new ValideringsFeil("Ugyldig token");

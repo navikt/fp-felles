@@ -1,13 +1,13 @@
 package no.nav.vedtak.log.util;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.function.Predicate.not;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.function.Predicate.not;
 
 public final class LoggerUtils {
 
@@ -17,21 +17,17 @@ public final class LoggerUtils {
     }
 
     public static String removeLineBreaks(String string) {
-        return Optional.ofNullable(string)
-            .map(s -> s.replaceAll("(\\r|\\n)", ""))
-            .orElse(null);
+        return Optional.ofNullable(string).map(s -> s.replaceAll("(\\r|\\n)", "")).orElse(null);
     }
 
     public static String toStringWithoutLineBreaks(Object object) {
-        return Optional.ofNullable(object)
-            .map(Object::toString)
-            .map(LoggerUtils::removeLineBreaks)
-            .orElse(null);
+        return Optional.ofNullable(object).map(Object::toString).map(LoggerUtils::removeLineBreaks).orElse(null);
     }
 
     public static String taint(String value) {
-        if (!value.matches("[a-zA-Z0-9]++"))
+        if (!value.matches("[a-zA-Z0-9]++")) {
             throw new IllegalArgumentException(value);
+        }
         return value;
     }
 
@@ -44,10 +40,7 @@ public final class LoggerUtils {
     }
 
     public static String limit(String tekst, int max) {
-        return Optional.ofNullable(tekst)
-            .filter(t -> t.length() >= max)
-            .map(s -> s.substring(0, max - 1) + "...")
-            .orElse(tekst);
+        return Optional.ofNullable(tekst).filter(t -> t.length() >= max).map(s -> s.substring(0, max - 1) + "...").orElse(tekst);
     }
 
     public static String limit(byte[] bytes, int max) {
@@ -63,11 +56,7 @@ public final class LoggerUtils {
     }
 
     public static String mask(String value) {
-        return Optional.ofNullable(value)
-            .map(String::stripLeading)
-            .filter(not(String::isBlank))
-            .map(v -> "*".repeat(v.length()))
-            .orElse("<null>");
+        return Optional.ofNullable(value).map(String::stripLeading).filter(not(String::isBlank)).map(v -> "*".repeat(v.length())).orElse("<null>");
     }
 
     public static String encode(String string) {

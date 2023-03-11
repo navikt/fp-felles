@@ -1,12 +1,6 @@
 package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
-import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import no.nav.vedtak.util.LRUCache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -15,7 +9,14 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import no.nav.vedtak.util.LRUCache;
 
 public class AzureBrukerTokenKlient {
 
@@ -55,12 +56,8 @@ public class AzureBrukerTokenKlient {
         if (tokenFromCache != null && tokenFromCache.isNotExpired()) {
             return tokenFromCache.copy();
         }
-        var data = "client_id=" + clientId +
-            "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
-            "&assertion=" + incomingToken.token() +
-            "&grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer" +
-            "&requested_token_use=on_behalf_of" +
-            "&client_secret=" + clientSecret;
+        var data = "client_id=" + clientId + "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) + "&assertion=" + incomingToken.token()
+            + "&grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer" + "&requested_token_use=on_behalf_of" + "&client_secret=" + clientSecret;
         var request = lagRequest(data);
         LOG.trace("AzureBruker henter token for scope {}", scopes);
         var response = GeneriskTokenKlient.hentToken(request, azureProxy);
@@ -69,8 +66,8 @@ public class AzureBrukerTokenKlient {
             LOG.warn("AzureBruker tom respons {}", response);
         }
 
-        var newToken = new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(),
-            new TokenString(response.access_token()), scopes, response.expires_in());
+        var newToken = new OpenIDToken(OpenIDProvider.AZUREAD, response.token_type(), new TokenString(response.access_token()), scopes,
+            response.expires_in());
         putTokenToCache(uid, scopes, newToken);
         return newToken.copy();
     }

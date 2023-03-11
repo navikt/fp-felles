@@ -1,6 +1,9 @@
 package no.nav.vedtak.felles.integrasjon.kafka;
 
-import no.nav.foreldrepenger.konfig.Environment;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.UUID;
+
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -13,9 +16,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndFailExceptionHandler;
 
-import java.util.Optional;
-import java.util.Properties;
-import java.util.UUID;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public class KafkaProperties {
 

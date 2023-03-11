@@ -1,9 +1,13 @@
 package no.nav.vedtak.log.mdc;
 
-import org.slf4j.MDC;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
+
+import org.slf4j.MDC;
 
 /**
  * {@link MDC} backet parameter som tillater en semi-colon separert liste av

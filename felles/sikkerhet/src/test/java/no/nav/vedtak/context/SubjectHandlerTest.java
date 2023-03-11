@@ -1,16 +1,17 @@
 package no.nav.vedtak.context;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import javax.security.auth.Subject;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import org.junit.jupiter.api.Test;
-
-import javax.security.auth.Subject;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class SubjectHandlerTest {
 

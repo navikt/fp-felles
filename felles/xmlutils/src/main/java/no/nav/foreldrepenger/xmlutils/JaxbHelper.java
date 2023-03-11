@@ -10,6 +10,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.*;
@@ -43,8 +44,9 @@ public final class JaxbHelper {
         return marshalAndValidateJaxb(jaxbObject, schemaAndClass, true);
     }
 
-    public static String marshalAndValidateJaxb(Object jaxbObject, Map.Entry<Class<?>, Schema> schemaAndClass, boolean formatted)
-        throws JAXBException {
+    public static String marshalAndValidateJaxb(Object jaxbObject,
+                                                Map.Entry<Class<?>, Schema> schemaAndClass,
+                                                boolean formatted) throws JAXBException {
         if (!CONTEXTS.containsKey(schemaAndClass.getKey())) {
             CONTEXTS.put(schemaAndClass.getKey(), JAXBContext.newInstance(schemaAndClass.getKey()));
         }
@@ -108,7 +110,9 @@ public final class JaxbHelper {
      *
      * @param xsdLocation XSDLocation to validate marshal operations against or null to disable validation
      */
-    public static String marshalNoNamespaceXML(Class<?> clazz, Object jaxbObject, String xsdLocation) throws XMLStreamException, JAXBException, SAXException {
+    public static String marshalNoNamespaceXML(Class<?> clazz,
+                                               Object jaxbObject,
+                                               String xsdLocation) throws XMLStreamException, JAXBException, SAXException {
         if (!CONTEXTS.containsKey(clazz)) {
             CONTEXTS.put(clazz, JAXBContext.newInstance(clazz));
         }
@@ -138,7 +142,9 @@ public final class JaxbHelper {
         return unmarshalAndValidateXMLWithStAX(clazz, xml, (String) null);
     }
 
-    public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz, String xml, String xsdLocation) throws JAXBException, XMLStreamException, SAXException {
+    public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz,
+                                                        String xml,
+                                                        String xsdLocation) throws JAXBException, XMLStreamException, SAXException {
         if (!CONTEXTS.containsKey(clazz)) {
             CONTEXTS.put(clazz, JAXBContext.newInstance(clazz));
         }
@@ -151,7 +157,11 @@ public final class JaxbHelper {
         return unmarshalAndValidateXMLWithStAXProvidingSchema(clazz, new StreamSource(new StringReader(xml)), schema);
     }
 
-    public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz, String xml, String mainXsdLocation, String[] xsdLocations, Class<?>... classes) throws JAXBException, XMLStreamException, SAXException {
+    public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz,
+                                                        String xml,
+                                                        String mainXsdLocation,
+                                                        String[] xsdLocations,
+                                                        Class<?>... classes) throws JAXBException, XMLStreamException, SAXException {
         if (!CONTEXTS.containsKey(clazz)) {
             classes = addIdentifierToBoundClasses(clazz, classes);
             CONTEXTS.put(clazz, JAXBContext.newInstance(classes));
@@ -182,8 +192,7 @@ public final class JaxbHelper {
         return SCHEMAS.get(mainXsdLocation);
     }
 
-    public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz, String xml, Schema schema)
-        throws JAXBException, XMLStreamException {
+    public static <T> T unmarshalAndValidateXMLWithStAX(Class<T> clazz, String xml, Schema schema) throws JAXBException, XMLStreamException {
         if (!CONTEXTS.containsKey(clazz)) {
             CONTEXTS.put(clazz, JAXBContext.newInstance(clazz));
         }
@@ -191,13 +200,16 @@ public final class JaxbHelper {
         return unmarshalAndValidateXMLWithStAXProvidingSchema(clazz, new StreamSource(new StringReader(xml)), schema);
     }
 
-    public static <T> T unmarshalAndValidateXMLWithStAXProvidingSchema(Class<T> clazz, String xml, String xsdLocation) throws SAXException, JAXBException, XMLStreamException {
+    public static <T> T unmarshalAndValidateXMLWithStAXProvidingSchema(Class<T> clazz,
+                                                                       String xml,
+                                                                       String xsdLocation) throws SAXException, JAXBException, XMLStreamException {
         Schema schema = getSchema(xsdLocation);
         return unmarshalAndValidateXMLWithStAXProvidingSchema(clazz, new StreamSource(new StringReader(xml)), schema);
     }
 
-    public static <T> T unmarshalAndValidateXMLWithStAXProvidingSchema(Class<T> clazz, Source source, Schema schema)
-        throws JAXBException, XMLStreamException {
+    public static <T> T unmarshalAndValidateXMLWithStAXProvidingSchema(Class<T> clazz,
+                                                                       Source source,
+                                                                       Schema schema) throws JAXBException, XMLStreamException {
         if (!CONTEXTS.containsKey(clazz)) {
             CONTEXTS.put(clazz, JAXBContext.newInstance(clazz));
         }
@@ -232,7 +244,10 @@ public final class JaxbHelper {
         SCHEMAS.clear();
     }
 
-    public static String marshalAndValidateJaxb(Class<?> clazz, Object jaxbObject, String xsdLocation, Class<?>... classes) throws JAXBException, SAXException {
+    public static String marshalAndValidateJaxb(Class<?> clazz,
+                                                Object jaxbObject,
+                                                String xsdLocation,
+                                                Class<?>... classes) throws JAXBException, SAXException {
         if (!CONTEXTS.containsKey(clazz)) {
             classes = addIdentifierToBoundClasses(clazz, classes);
             CONTEXTS.put(clazz, JAXBContext.newInstance(classes));
@@ -246,7 +261,11 @@ public final class JaxbHelper {
         return marshalAndValidateJaxbWithSchema(clazz, jaxbObject, schema);
     }
 
-    public static String marshalAndValidateJaxb(Class<?> clazz, Object jaxbObject, String xsdLocation, String[] additionalXsds, Class<?>... classes) throws JAXBException, SAXException {
+    public static String marshalAndValidateJaxb(Class<?> clazz,
+                                                Object jaxbObject,
+                                                String xsdLocation,
+                                                String[] additionalXsds,
+                                                Class<?>... classes) throws JAXBException, SAXException {
         if (!CONTEXTS.containsKey(clazz)) {
             classes = addIdentifierToBoundClasses(clazz, classes);
             CONTEXTS.put(clazz, JAXBContext.newInstance(classes));

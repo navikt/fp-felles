@@ -1,12 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.arbeidsfordeling;
 
-public record ArbeidsfordelingRequest(String temagruppe,
-                                      String tema,
-                                      String behandlingstema,
-                                      String behandlingstype,
-                                      String diskresjonskode,
-                                      String geografiskOmraade,
-                                      String oppgavetype) {
+public record ArbeidsfordelingRequest(String temagruppe, String tema, String behandlingstema, String behandlingstype, String diskresjonskode,
+                                      String geografiskOmraade, String oppgavetype) {
 
 
     public static Builder ny() {
@@ -62,8 +57,7 @@ public record ArbeidsfordelingRequest(String temagruppe,
         }
 
         public ArbeidsfordelingRequest build() {
-            return new ArbeidsfordelingRequest(temagruppe, tema, behandlingstema, behandlingstype,
-                diskresjonskode, geografiskOmraade, oppgavetype);
+            return new ArbeidsfordelingRequest(temagruppe, tema, behandlingstema, behandlingstype, diskresjonskode, geografiskOmraade, oppgavetype);
         }
     }
 }

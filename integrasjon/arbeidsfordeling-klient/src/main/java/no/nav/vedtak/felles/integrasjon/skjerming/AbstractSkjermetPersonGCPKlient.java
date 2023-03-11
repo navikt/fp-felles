@@ -1,13 +1,14 @@
 package no.nav.vedtak.felles.integrasjon.skjerming;
 
+import java.time.Duration;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.Duration;
 
 // Extend og annoter med endpoint+default og scopes/default + tokenConfig = AzureAD_CC
 //@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "skjermet.person.rs.url", endpointDefault = "https://skjermede-personer-pip.intern.nav.no/skjermet",
@@ -35,10 +36,11 @@ public abstract class AbstractSkjermetPersonGCPKlient implements Skjerming {
 
     @Override
     public boolean erSkjermet(String fnr) {
-        if (TESTENV || fnr == null) return false;
+        if (TESTENV || fnr == null) {
+            return false;
+        }
 
-        var request = RestRequest.newPOSTJson(new SkjermetRequestDto(fnr), restConfig.endpoint(), restConfig)
-            .timeout(Duration.ofSeconds(30));
+        var request = RestRequest.newPOSTJson(new SkjermetRequestDto(fnr), restConfig.endpoint(), restConfig).timeout(Duration.ofSeconds(30));
 
         try {
             return kallMedSjekk(request);

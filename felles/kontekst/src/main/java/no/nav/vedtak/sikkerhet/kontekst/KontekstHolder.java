@@ -28,8 +28,8 @@ public class KontekstHolder {
         }
         if (harKontekst()) {
             var eksisterende = KONTEKST.get();
-            LOG.info("FPFELLES KONTEKST allerede satt type {} for {} ny {} for {}", eksisterende.getContext(),
-                eksisterende.getUid(), kontekst.getContext(), kontekst.getUid(), new Exception("Stracktrace/setKontekst"));
+            LOG.info("FPFELLES KONTEKST allerede satt type {} for {} ny {} for {}", eksisterende.getContext(), eksisterende.getUid(),
+                kontekst.getContext(), kontekst.getUid(), new Exception("Stracktrace/setKontekst"));
         }
         KONTEKST.set(kontekst);
     }

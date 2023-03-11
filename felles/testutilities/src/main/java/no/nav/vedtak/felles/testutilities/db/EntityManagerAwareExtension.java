@@ -1,18 +1,27 @@
 package no.nav.vedtak.felles.testutilities.db;
 
-import no.nav.vedtak.felles.testutilities.cdi.WeldContext;
-import org.jboss.weld.context.RequestContext;
-import org.jboss.weld.context.unbound.UnboundLiteral;
-import org.junit.jupiter.api.extension.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Optional;
 
 import javax.enterprise.inject.spi.CDI;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Optional;
+
+import org.jboss.weld.context.RequestContext;
+import org.jboss.weld.context.unbound.UnboundLiteral;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.InvocationInterceptor;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
+import org.junit.jupiter.api.extension.TestInstancePostProcessor;
+import org.junit.jupiter.api.extension.TestInstancePreDestroyCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.felles.testutilities.cdi.WeldContext;
 
 /**
  * Denne erstatter {@link RepositoryRule} i JUnit 5 tester o gir lett tilgang
@@ -36,8 +45,7 @@ import java.util.Optional;
  * }
  * </pre>
  */
-public class EntityManagerAwareExtension extends PersistenceUnitInitializer
-    implements ParameterResolver, InvocationInterceptor, TestInstancePostProcessor, TestInstancePreDestroyCallback {
+public class EntityManagerAwareExtension extends PersistenceUnitInitializer implements ParameterResolver, InvocationInterceptor, TestInstancePostProcessor, TestInstancePreDestroyCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityManagerAwareExtension.class);
 
@@ -82,7 +90,9 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer
     }
 
     @Override
-    public void interceptBeforeEachMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
+    public void interceptBeforeEachMethod(Invocation<Void> invocation,
+                                          ReflectiveInvocationContext<Method> invocationContext,
+                                          ExtensionContext extensionContext) throws Throwable {
 
         // start tx her i tilfelle BeforeEach method er definert. Avventer rollback til preDestroy..
         startTransaction(extensionContext);
@@ -91,9 +101,9 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer
     }
 
     @Override
-    public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
-                                    ExtensionContext extensionContext)
-        throws Throwable {
+    public void interceptTestMethod(Invocation<Void> invocation,
+                                    ReflectiveInvocationContext<Method> invocationContext,
+                                    ExtensionContext extensionContext) throws Throwable {
         // start tx her i tilfelle BeforeEach method ikke var definert. Avventer rollback til preDestroy..
         startTransaction(extensionContext);
         invocation.proceed();

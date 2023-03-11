@@ -33,8 +33,7 @@ public enum ArbeidskategoriKode {
     K26("26"),
     K27("27"),
     K30("30"),
-    @JsonEnumDefaultValue
-    K99("99");
+    @JsonEnumDefaultValue K99("99");
 
     private final String kode;
 

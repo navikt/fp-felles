@@ -1,21 +1,10 @@
 package no.nav.vedtak.sikkerhet.loginmodule.saml;
 
-import no.nav.vedtak.log.util.LoggerUtils;
-import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
-import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
-import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
-import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.apache.wss4j.common.saml.SamlAssertionWrapper;
-import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.core.Attribute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -26,11 +15,24 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
+
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.saml.SamlAssertionWrapper;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import no.nav.vedtak.log.util.LoggerUtils;
+import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
+import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
+import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 
 /**
  * <p>
@@ -102,8 +104,8 @@ public class SamlLoginModule extends LoginModuleBase {
         subject.getPublicCredentials().add(authenticationLevelCredential);
         subject.getPublicCredentials().add(samlAssertionCredential);
 
-        LOG.trace("Login committed for subject with uid: {} authentication level: {} and consumerId: {}",
-            sluttBruker.getName(), authenticationLevelCredential.getAuthenticationLevel(), consumerId);
+        LOG.trace("Login committed for subject with uid: {} authentication level: {} and consumerId: {}", sluttBruker.getName(),
+            authenticationLevelCredential.getAuthenticationLevel(), consumerId);
     }
 
     private IdentType getIdentType() throws LoginException {
@@ -164,8 +166,7 @@ public class SamlLoginModule extends LoginModuleBase {
         List<Attribute> attributes = samlToken.getAttributeStatements().get(0).getAttributes();
         for (Attribute attribute : attributes) {
             String attributeName = attribute.getName();
-            String attributeValue = attribute.getAttributeValues().get(0)
-                .getDOM().getFirstChild().getTextContent();
+            String attributeValue = attribute.getAttributeValues().get(0).getDOM().getFirstChild().getTextContent();
 
             if (IDENT_TYPE.equalsIgnoreCase(attributeName)) {
                 identType = attributeValue;

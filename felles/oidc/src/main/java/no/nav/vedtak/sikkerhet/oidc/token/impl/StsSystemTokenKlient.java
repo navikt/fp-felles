@@ -1,18 +1,19 @@
 package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.net.http.HttpRequest;
+import java.time.Duration;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.http.HttpRequest;
-import java.time.Duration;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class StsSystemTokenKlient {
 
@@ -33,8 +34,8 @@ public class StsSystemTokenKlient {
         }
         var response = hentToken();
         LOG.info("STS hentet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
-        accessToken = new OpenIDToken(OpenIDProvider.STS, response.token_type(),
-            new TokenString(response.access_token()), SCOPE, response.expires_in());
+        accessToken = new OpenIDToken(OpenIDProvider.STS, response.token_type(), new TokenString(response.access_token()), SCOPE,
+            response.expires_in());
         return accessToken.copy();
     }
 

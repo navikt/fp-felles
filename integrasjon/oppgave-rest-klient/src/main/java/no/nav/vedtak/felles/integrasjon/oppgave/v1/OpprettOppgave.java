@@ -1,25 +1,14 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record OpprettOppgave(String temagruppe,
-                             String tema,
-                             String behandlingstema,
-                             String behandlingstype,
-                             String behandlesAvApplikasjon,
-                             Oppgavetype oppgavetype,
-                             String beskrivelse,
-                             String saksreferanse,
-                             String aktoerId,
-                             String journalpostId,
-                             String opprettetAvEnhetsnr,
-                             String tildeltEnhetsnr,
-                             Prioritet prioritet,
-                             LocalDate aktivDato,
+public record OpprettOppgave(String temagruppe, String tema, String behandlingstema, String behandlingstype, String behandlesAvApplikasjon,
+                             Oppgavetype oppgavetype, String beskrivelse, String saksreferanse, String aktoerId, String journalpostId,
+                             String opprettetAvEnhetsnr, String tildeltEnhetsnr, Prioritet prioritet, LocalDate aktivDato,
                              LocalDate fristFerdigstillelse) {
 
     public static final String TEMAGRUPPE_FAMILIEYTELSER = "FMLI";
@@ -28,17 +17,14 @@ public record OpprettOppgave(String temagruppe,
 
     public static Builder getBuilder(Oppgavetype type, Prioritet prioritet, int fristDager) {
         var iDag = LocalDate.now();
-        return new Builder()
-            .medOppgavetype(type)
+        return new Builder().medOppgavetype(type)
             .medPrioritet(prioritet)
             .medAktivDato(LocalDate.now())
             .medFristFerdigstillelse(helgeJustertFrist(iDag.plusDays(fristDager)));
     }
 
     public static Builder getBuilderTemaFOR(Oppgavetype type, Prioritet prioritet, int fristDager) {
-        return getBuilder(type, prioritet, fristDager)
-            .medTemagruppe(TEMAGRUPPE_FAMILIEYTELSER)
-            .medTema(TEMA_FORELDREPENGER);
+        return getBuilder(type, prioritet, fristDager).medTemagruppe(TEMAGRUPPE_FAMILIEYTELSER).medTema(TEMA_FORELDREPENGER);
     }
 
     private static LocalDate helgeJustertFrist(LocalDate dato) {
@@ -144,10 +130,8 @@ public record OpprettOppgave(String temagruppe,
         }
 
         public OpprettOppgave build() {
-            return new OpprettOppgave(temagruppe, tema, behandlingstema, behandlingstype, behandlesAvApplikasjon,
-                oppgavetype, beskrivelse, saksreferanse, aktoerId, journalpostId,
-                opprettetAvEnhetsnr, tildeltEnhetsnr,
-                prioritet, aktivDato, fristFerdigstillelse);
+            return new OpprettOppgave(temagruppe, tema, behandlingstema, behandlingstype, behandlesAvApplikasjon, oppgavetype, beskrivelse,
+                saksreferanse, aktoerId, journalpostId, opprettetAvEnhetsnr, tildeltEnhetsnr, prioritet, aktivDato, fristFerdigstillelse);
         }
 
 

@@ -1,5 +1,25 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -20,19 +40,6 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.Category;
 import no.nav.vedtak.sikkerhet.pdp.xacml.NavFellesAttributter;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class PdpKlientImplTest {
 
@@ -189,8 +196,7 @@ class PdpKlientImplTest {
     @Test
     void skal_base64_encode_saml_token() {
         var idToken = Token.withSamlToken("<dummy SAML token>");
-        @SuppressWarnings("unused")
-        var responseWrapper = createResponse("xacmlresponse_multiple_obligation.json");
+        @SuppressWarnings("unused") var responseWrapper = createResponse("xacmlresponse_multiple_obligation.json");
 
         var felles = lagBeskyttetRessursAttributter(idToken, AbacDataAttributter.opprett());
         var ressurs = AppRessursData.builder().leggTilFødselsnummer("12345678900").build();
@@ -275,12 +281,12 @@ class PdpKlientImplTest {
 
         String xacmlRequestString = DefaultJsonMapper.toJson(captor.getValue());
 
-        assertThat(xacmlRequestString.contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.fnr\",\"Value\":\"12345678900\"}"))
-            .isTrue();
-        assertThat(xacmlRequestString
-            .contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"11111\"}")).isTrue();
-        assertThat(xacmlRequestString
-            .contains("{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"22222\"}")).isTrue();
+        assertThat(xacmlRequestString.contains(
+            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.fnr\",\"Value\":\"12345678900\"}")).isTrue();
+        assertThat(xacmlRequestString.contains(
+            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"11111\"}")).isTrue();
+        assertThat(xacmlRequestString.contains(
+            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"22222\"}")).isTrue();
     }
 
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributter(Token token, AbacDataAttributter dataAttributter) {
@@ -313,10 +319,7 @@ class PdpKlientImplTest {
         var target = DefaultJsonMapper.getObjectMapper().readValue(file, XacmlRequest.class);
 
         var felles = lagBeskyttetRessursAttributter(Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker), AbacDataAttributter.opprett());
-        var ressurs = AppRessursData.builder()
-            .leggTilAktørId("11111")
-            .leggTilFødselsnummer("12345678900")
-            .build();
+        var ressurs = AppRessursData.builder().leggTilAktørId("11111").leggTilFødselsnummer("12345678900").build();
         var request = XacmlRequestMapper.lagXacmlRequest(felles, DOMENE, ressurs);
 
         assertThat(request.request().get(Category.Action)).isEqualTo(target.request().get(Category.Action));

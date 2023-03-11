@@ -1,12 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc.config.impl;
 
-import com.fasterxml.jackson.databind.ObjectReader;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ProxySelector;
@@ -15,7 +8,20 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectReader;
+
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class WellKnownConfigurationHelper {
 
@@ -64,7 +70,9 @@ public class WellKnownConfigurationHelper {
 
     private static WellKnownOpenIdConfiguration hentWellKnownConfig(String wellKnownURL, URI proxy) {
         try {
-            if (wellKnownURL == null) return null;
+            if (wellKnownURL == null) {
+                return null;
+            }
             if (!wellKnownURL.toLowerCase().contains(STANDARD_WELL_KNOWN_PATH)) {
                 // TODO: øk til warn eller prøv å legge på / standard path med
                 LOG.info("WELLKNOWN OPENID-CONFIGURATION url uten standard suffix {}", wellKnownURL);
@@ -73,15 +81,8 @@ public class WellKnownConfigurationHelper {
                 .map(p -> new InetSocketAddress(p.getHost(), p.getPort()))
                 .map(ProxySelector::of)
                 .orElse(HttpClient.Builder.NO_PROXY);
-            var client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .proxy(useProxySelector)
-                .build();
-            var request = HttpRequest.newBuilder()
-                .uri(URI.create(wellKnownURL))
-                .header("accept", "application/json")
-                .GET()
-                .build();
+            var client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).proxy(useProxySelector).build();
+            var request = HttpRequest.newBuilder().uri(URI.create(wellKnownURL)).header("accept", "application/json").GET().build();
             var response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
             return response != null ? READER.readValue(response) : null;
         } catch (InterruptedException e) {

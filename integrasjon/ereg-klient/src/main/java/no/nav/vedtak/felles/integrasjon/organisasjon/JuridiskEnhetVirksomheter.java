@@ -1,17 +1,16 @@
 package no.nav.vedtak.felles.integrasjon.organisasjon;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import no.nav.vedtak.konfig.Tid;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import no.nav.vedtak.konfig.Tid;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record JuridiskEnhetVirksomheter(String organisasjonsnummer,
-                                        OrganisasjonstypeEReg type,
-                                        OrganisasjonDetaljer organisasjonDetaljer,
+public record JuridiskEnhetVirksomheter(String organisasjonsnummer, OrganisasjonstypeEReg type, OrganisasjonDetaljer organisasjonDetaljer,
                                         List<DriverVirksomhet> driverVirksomheter) {
 
 
@@ -19,29 +18,24 @@ public record JuridiskEnhetVirksomheter(String organisasjonsnummer,
         if (!OrganisasjonstypeEReg.JURIDISK_ENHET.equals(type) || getOpphørsdatoNonNull().isBefore(hentedato)) {
             return List.of();
         }
-        return Optional.ofNullable(driverVirksomheter).orElse(List.of()).stream()
+        return Optional.ofNullable(driverVirksomheter)
+            .orElse(List.of())
+            .stream()
             .filter(v -> v.gyldighetsperiode().fom().isBefore(hentedato) && v.gyldighetsperiode().getTomNonNull().isAfter(hentedato))
             .map(DriverVirksomhet::organisasjonsnummer)
             .toList();
     }
 
     public LocalDate getRegistreringsdato() {
-        return Optional.ofNullable(organisasjonDetaljer)
-            .map(OrganisasjonDetaljer::registreringsdato)
-            .map(LocalDateTime::toLocalDate)
-            .orElse(null);
+        return Optional.ofNullable(organisasjonDetaljer).map(OrganisasjonDetaljer::registreringsdato).map(LocalDateTime::toLocalDate).orElse(null);
     }
 
     public LocalDate getOpphørsdato() {
-        return Optional.ofNullable(organisasjonDetaljer)
-            .map(OrganisasjonDetaljer::opphoersdato)
-            .orElse(null);
+        return Optional.ofNullable(organisasjonDetaljer).map(OrganisasjonDetaljer::opphoersdato).orElse(null);
     }
 
     private LocalDate getOpphørsdatoNonNull() {
-        return Optional.ofNullable(organisasjonDetaljer)
-            .map(OrganisasjonDetaljer::opphoersdato)
-            .orElse(Tid.TIDENES_ENDE);
+        return Optional.ofNullable(organisasjonDetaljer).map(OrganisasjonDetaljer::opphoersdato).orElse(Tid.TIDENES_ENDE);
     }
 
     private record OrganisasjonDetaljer(LocalDateTime registreringsdato, LocalDate opphoersdato) {

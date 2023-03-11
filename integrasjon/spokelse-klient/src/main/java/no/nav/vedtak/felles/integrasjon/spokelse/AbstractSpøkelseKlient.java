@@ -1,19 +1,21 @@
 package no.nav.vedtak.felles.integrasjon.spokelse;
 
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.RestClient;
-import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.UriBuilder;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import javax.ws.rs.core.UriBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
 //Flytt ut til brukere @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC,
 //    endpointProperty = "SPOKELSE_GRUNNLAG_URL", endpointDefault = "http://spokelse.tbd/grunnlag",
@@ -57,7 +59,8 @@ public abstract class AbstractSpøkelseKlient implements Spøkelse {
             var grunnlag = restKlient.send(request, SykepengeVedtak[].class);
             return Arrays.asList(grunnlag);
         } catch (Exception e) {
-            throw new TekniskException("FP-180126", String.format("SPokelse %s gir feil, ta opp med team sykepenger.", restConfig.endpoint().toString()), e);
+            throw new TekniskException("FP-180126",
+                String.format("SPokelse %s gir feil, ta opp med team sykepenger.", restConfig.endpoint().toString()), e);
         }
     }
 

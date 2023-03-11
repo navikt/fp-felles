@@ -1,10 +1,11 @@
 package no.nav.vedtak.sts.client;
 
-import no.nav.vedtak.exception.TekniskException;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.cxf.common.i18n.Exception;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
+import no.nav.vedtak.exception.TekniskException;
 
 class StsFeil {
 

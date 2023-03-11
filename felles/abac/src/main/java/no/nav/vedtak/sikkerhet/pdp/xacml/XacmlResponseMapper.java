@@ -12,7 +12,9 @@ public final class XacmlResponseMapper {
 
     public static List<XacmlResponse.ObligationOrAdvice> getObligations(XacmlResponse response) {
         return Optional.ofNullable(response)
-            .map(XacmlResponse::response).orElse(List.of()).stream()
+            .map(XacmlResponse::response)
+            .orElse(List.of())
+            .stream()
             .map(r -> Optional.ofNullable(r.obligations()).orElse(List.of()))
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
@@ -20,7 +22,9 @@ public final class XacmlResponseMapper {
 
     public static List<Advice> getAdvice(XacmlResponse response) {
         return Optional.ofNullable(response)
-            .map(XacmlResponse::response).orElse(List.of()).stream()
+            .map(XacmlResponse::response)
+            .orElse(List.of())
+            .stream()
             .map(r -> Optional.ofNullable(r.associatedAdvice()).orElse(List.of()))
             .flatMap(Collection::stream)
             .map(XacmlResponseMapper::getAdviceFrom)
@@ -32,10 +36,7 @@ public final class XacmlResponseMapper {
         if (!DENY_ADVICE_IDENTIFIER.equals(advice.id())) {
             return List.of();
         }
-        var denials = advice.attributeAssignment().stream()
-            .map(a -> getAdvicefromObject(a))
-            .flatMap(Optional::stream)
-            .collect(Collectors.toList());
+        var denials = advice.attributeAssignment().stream().map(a -> getAdvicefromObject(a)).flatMap(Optional::stream).collect(Collectors.toList());
 
         return denials;
     }
@@ -56,8 +57,6 @@ public final class XacmlResponseMapper {
     }
 
     public static List<Decision> getDecisions(XacmlResponse response) {
-        return response.response().stream()
-            .map(XacmlResponse.Result::decision)
-            .collect(Collectors.toList());
+        return response.response().stream().map(XacmlResponse.Result::decision).collect(Collectors.toList());
     }
 }
