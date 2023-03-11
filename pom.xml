@@ -51,7 +51,7 @@
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
 		</plugins>
-    </build>
+	</build>
 
     <scm>
         <connection>scm:git:https://github.com/navikt/fp-felles.git</connection>
