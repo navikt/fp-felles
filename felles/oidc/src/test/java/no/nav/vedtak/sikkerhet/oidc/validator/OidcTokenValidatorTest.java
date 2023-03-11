@@ -176,7 +176,7 @@ class OidcTokenValidatorTest {
         // that its client_id is the Claim Value
 
         var ident = "minident";
-        var grupper = List.of("saksbehandler", "overstyrer");
+        var grupper = List.of("saksbehandler", "oppgavestyrer");
 
         var token = new OidcTokenGenerator()
             .withClaim(AzureProperty.NAV_IDENT, ident)
@@ -186,7 +186,7 @@ class OidcTokenValidatorTest {
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertValid(result);
         assertThat(result.getSubject()).isEqualTo(ident);
-        assertThat(result.grupper()).containsExactly(Groups.SAKSBEHANDLER, Groups.OVERSTYRER);
+        assertThat(result.grupper()).containsExactly(Groups.SAKSBEHANDLER, Groups.OPPGAVESTYRER);
         assertThat(result.getCompactSubject()).isEqualTo(ident);
     }
 

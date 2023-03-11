@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ public class GroupsProvider {
     }
 
     public Groups getGroupFrom(String value) {
-        return reverse.get(value);
+        return Optional.ofNullable(value).map(reverse::get).orElse(null);
     }
 
     public Set<Groups> getGroupsFrom(List<String> values) {
@@ -68,8 +69,8 @@ public class GroupsProvider {
         if (infix == null) {
             return p;
         }
-        String navn = PREFIX + infix + SUFFIX;
-        try (var is = GroupsProvider.class.getClassLoader().getResourceAsStream(navn)) {
+        String navn = GroupsProvider.class.getSimpleName().toLowerCase() + infix + SUFFIX;
+        try (var is = GroupsProvider.class.getResourceAsStream(navn)) {
             if (is != null) {
                 LOG.info("Laster groups fra {}", navn);
                 p.load(is);

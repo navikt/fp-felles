@@ -51,12 +51,6 @@
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
 		</plugins>
-        <resources>
-            <resource>
-                <directory>felles/kontekst/src/main/resources</directory>
-            </resource>
-        </resources>
-
     </build>
 
     <scm>
