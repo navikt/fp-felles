@@ -11,10 +11,10 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
-import org.jose4j.jwt.MalformedClaimException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.ÅpenRessurs;
@@ -85,7 +85,7 @@ public class AuthenticationFilterDelegate {
                     .orElseThrow(() -> new TokenFeil("Mangler token"));
                 validerToken(tokenString);
             }
-        } catch (MalformedClaimException | TokenFeil e) {
+        } catch (TekniskException | TokenFeil e) {
             throw new WebApplicationException(e, Response.Status.FORBIDDEN);
         } catch (WebApplicationException e) {
             throw e;
@@ -134,10 +134,10 @@ public class AuthenticationFilterDelegate {
             .map(TokenString::new);
     }
 
-    public static void validerToken(TokenString tokenString) throws MalformedClaimException {
+    public static void validerToken(TokenString tokenString) {
         // Sett opp OpenIDToken
         var claims = JwtUtil.getClaims(tokenString.token());
-        var configuration = ConfigProvider.getOpenIDConfiguration(claims.getIssuer())
+        var configuration = ConfigProvider.getOpenIDConfiguration(JwtUtil.getIssuer(claims))
             .orElseThrow(() -> new TokenFeil("Token mangler issuer claim"));
         var expiresAt = Optional.ofNullable(JwtUtil.getExpirationTime(claims)).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, tokenString, null, expiresAt.toEpochMilli());

@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.jose4j.jwt.JwtClaims;
-import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
@@ -22,17 +21,6 @@ import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandler;
 import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.oidc.jwks.JwtHeader;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.jwt.MalformedClaimException;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-import org.jose4j.jwx.JsonWebStructure;
-
-import java.security.Key;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 public class OidcTokenValidator {
 
@@ -124,17 +112,17 @@ public class OidcTokenValidator {
             if (error != null) {
                 return OidcTokenValidatorResult.invalid(error);
             }
-            String subject = claims.getSubject();
+            String subject = JwtUtil.getSubject(claims);
             if (OpenIDProvider.AZUREAD.equals(provider)) {
                 return validateAzure(claims, subject);
             } else if (OpenIDProvider.TOKENX.equals(provider)) {
                 return validateTokenX(claims, subject);
             } else {
-                return OidcTokenValidatorResult.valid(subject, IdentType.utledIdentType(subject), claims.getExpirationTime().getValue());
+                return OidcTokenValidatorResult.valid(subject, IdentType.utledIdentType(subject), JwtUtil.getExpirationTimeRaw(claims));
             }
         } catch (InvalidJwtException e) {
             return OidcTokenValidatorResult.invalid(e.toString());
-        } catch (MalformedClaimException e) {
+        } catch (Exception e) {
             return OidcTokenValidatorResult.invalid("Malformed claim: " + e);
         }
     }
@@ -145,50 +133,50 @@ public class OidcTokenValidator {
 
     // Validates some of the rules set in OpenID Connect Core 1.0 incorporatin errata set 1,
     // which is not already validated by using JwtConsumer
-    private String validateClaims(JwtClaims claims) throws MalformedClaimException {
-        String azp = claims.getStringClaimValue("azp");
-        if (azp == null && claims.getAudience().size() != 1) {
+    private String validateClaims(JwtClaims claims) {
+        String azp = JwtUtil.getStringClaim(claims, "azp");
+        if (azp == null && JwtUtil.getAudience(claims).size() != 1) {
             return "Either an azp-claim or a single value aud-claim is required";
         }
         return null;
     }
 
-    private OidcTokenValidatorResult validateAzure(JwtClaims claims, String subject) throws MalformedClaimException {
+    private OidcTokenValidatorResult validateAzure(JwtClaims claims, String subject) {
         if (isAzureClientCredentials(claims, subject)) {
-            var brukSubject = Optional.ofNullable(claims.getStringClaimValue(AzureProperty.AZP_NAME)).orElse(subject);
+            var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.AZP_NAME)).orElse(subject);
             // Ta med bakoverkompatibelt navn ettersom azp_name er ganske langt (tabeller / opprettet_av)
             if (brukSubject.lastIndexOf(':') >= 0) {
                 var appSrvName = "srv" + brukSubject.substring(brukSubject.lastIndexOf(':') + 1);
                 if (appSrvName.length() > 20) {
                     appSrvName = appSrvName.substring(0, 19);
                 }
-                return OidcTokenValidatorResult.valid(brukSubject, IdentType.Systemressurs, appSrvName, claims.getExpirationTime().getValue());
+                return OidcTokenValidatorResult.valid(brukSubject, IdentType.Systemressurs, appSrvName, JwtUtil.getExpirationTimeRaw(claims));
             } else {
-                return OidcTokenValidatorResult.valid(brukSubject, IdentType.Systemressurs, claims.getExpirationTime().getValue());
+                return OidcTokenValidatorResult.valid(brukSubject, IdentType.Systemressurs, JwtUtil.getExpirationTimeRaw(claims));
             }
         } else {
-            var brukSubject = Optional.ofNullable(claims.getStringClaimValue(AzureProperty.NAV_IDENT)).orElse(subject);
-            var grupper = Optional.ofNullable(claims.getStringListClaimValue(AzureProperty.GRUPPER))
+            var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.NAV_IDENT)).orElse(subject);
+            var grupper = Optional.ofNullable(JwtUtil.getStringListClaim(claims, AzureProperty.GRUPPER))
                     .map(arr -> GroupsProvider.instance().getGroupsFrom(arr))
                     .orElse(Set.of());
-            return OidcTokenValidatorResult.valid(brukSubject, IdentType.InternBruker, grupper, claims.getExpirationTime().getValue());
+            return OidcTokenValidatorResult.valid(brukSubject, IdentType.InternBruker, grupper, JwtUtil.getExpirationTimeRaw(claims));
         }
     }
 
     // Established practice: oid = sub -> CC-flow
-    private boolean isAzureClientCredentials(JwtClaims claims, String subject) throws MalformedClaimException {
-        return Objects.equals(subject, claims.getStringClaimValue("oid"));
+    private boolean isAzureClientCredentials(JwtClaims claims, String subject) {
+        return Objects.equals(subject, JwtUtil.getStringClaim(claims, "oid"));
     }
 
-    private OidcTokenValidatorResult validateTokenX(JwtClaims claims, String subject) throws MalformedClaimException {
-        var level4 = Optional.ofNullable(claims.getStringClaimValue("acr"))
+    private OidcTokenValidatorResult validateTokenX(JwtClaims claims, String subject) {
+        var level4 = Optional.ofNullable(JwtUtil.getStringClaim(claims, "acr"))
             .filter(AuthenticationLevel.AUTHENTICATION_LEVEL_ID_PORTEN::equals)
             .isPresent();
         if (!level4) {
             return OidcTokenValidatorResult.invalid("TokenX token ikke på nivå 4");
         }
-        var brukSubject = Optional.ofNullable(claims.getStringClaimValue("pid")).orElse(subject);
-        return OidcTokenValidatorResult.valid(brukSubject, IdentType.EksternBruker, claims.getExpirationTime().getValue());
+        var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, "pid")).orElse(subject);
+        return OidcTokenValidatorResult.valid(brukSubject, IdentType.EksternBruker, JwtUtil.getExpirationTimeRaw(claims));
     }
 
     private JwtHeader getHeader(String jwt) throws InvalidJwtException {
