@@ -4,6 +4,7 @@ import java.security.Key;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.MalformedClaimException;
@@ -12,6 +13,7 @@ import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.jwx.JsonWebStructure;
 
+import no.nav.vedtak.sikkerhet.kontekst.GroupsProvider;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
@@ -20,6 +22,17 @@ import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandler;
 import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.oidc.jwks.JwtHeader;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.MalformedClaimException;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.jwx.JsonWebStructure;
+
+import java.security.Key;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class OidcTokenValidator {
 
@@ -55,11 +68,7 @@ public class OidcTokenValidator {
 
     }
 
-    private OidcTokenValidator(OpenIDProvider provider,
-                               String expectedIssuer,
-                               JwksKeyHandler jwks,
-                               String clientName,
-                               int allowedClockSkewInSeconds,
+    private OidcTokenValidator(OpenIDProvider provider, String expectedIssuer, JwksKeyHandler jwks, String clientName, int allowedClockSkewInSeconds,
                                boolean skipAudienceValidation) {
         this.provider = provider;
         this.expectedIssuer = expectedIssuer;
@@ -67,7 +76,8 @@ public class OidcTokenValidator {
         this.clientName = clientName;
         this.allowedClockSkewInSeconds = allowedClockSkewInSeconds;
         this.skipAudienceValidation = skipAudienceValidation;
-        this.headerConsumer = new JwtConsumerBuilder().setSkipAllValidators()
+        this.headerConsumer = new JwtConsumerBuilder()
+            .setSkipAllValidators()
             .setSkipAllDefaultValidators()
             .setRelaxVerificationKeyValidation()
             .setRelaxDecryptionKeyValidation()
@@ -95,7 +105,8 @@ public class OidcTokenValidator {
         if (validationKey == null) {
             return OidcTokenValidatorResult.invalid(String.format("Jwt (%s) is not in jwks", header));
         }
-        JwtConsumerBuilder builder = new JwtConsumerBuilder().setRequireExpirationTime()
+        JwtConsumerBuilder builder = new JwtConsumerBuilder()
+            .setRequireExpirationTime()
             .setAllowedClockSkewInSeconds(allowedClockSkewInSeconds)
             .setRequireSubject()
             .setExpectedIssuer(expectedIssuer)
@@ -157,7 +168,10 @@ public class OidcTokenValidator {
             }
         } else {
             var brukSubject = Optional.ofNullable(claims.getStringClaimValue(AzureProperty.NAV_IDENT)).orElse(subject);
-            return OidcTokenValidatorResult.valid(brukSubject, IdentType.InternBruker, claims.getExpirationTime().getValue());
+            var grupper = Optional.ofNullable(claims.getStringListClaimValue(AzureProperty.GRUPPER))
+                    .map(arr -> GroupsProvider.instance().getGroupsFrom(arr))
+                    .orElse(Set.of());
+            return OidcTokenValidatorResult.valid(brukSubject, IdentType.InternBruker, grupper, claims.getExpirationTime().getValue());
         }
     }
 

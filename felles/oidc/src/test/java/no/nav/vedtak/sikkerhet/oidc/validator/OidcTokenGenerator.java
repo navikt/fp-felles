@@ -25,6 +25,8 @@ public class OidcTokenGenerator {
 
     private Map<String, String> additionalClaims = new HashMap<>();
 
+    private Map<String, List<String>> grupper = new HashMap<>();
+
     public OidcTokenGenerator() {
         additionalClaims.put("azp", "OIDC");
     }
@@ -60,6 +62,11 @@ public class OidcTokenGenerator {
         return this;
     }
 
+    OidcTokenGenerator withGroupsClam(String name, List<String> value) {
+        grupper.put(name, value);
+        return this;
+    }
+
     OidcTokenGenerator withAud(List<String> aud) {
         this.aud = aud;
         return this;
@@ -85,9 +92,8 @@ public class OidcTokenGenerator {
         } else {
             claims.setAudience(aud);
         }
-        for (Map.Entry<String, String> entry : additionalClaims.entrySet()) {
-            claims.setStringClaim(entry.getKey(), entry.getValue());
-        }
+        additionalClaims.forEach(claims::setStringClaim);
+        grupper.forEach(claims::setStringListClaim);
         RsaJsonWebKey senderJwk = KeyStoreTool.getJsonWebKey();
         JsonWebSignature jws = new JsonWebSignature();
         jws.setPayload(claims.toJson());

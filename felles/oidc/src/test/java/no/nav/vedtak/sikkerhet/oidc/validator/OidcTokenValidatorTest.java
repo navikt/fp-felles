@@ -2,7 +2,6 @@ package no.nav.vedtak.sikkerhet.oidc.validator;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -10,6 +9,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jose4j.json.JsonUtil;
@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.vedtak.sikkerhet.kontekst.Groups;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
@@ -57,7 +58,9 @@ class OidcTokenValidatorTest {
 
     @Test
     void skal_godta_token_som_har_forventede_verdier_og_i_tillegg_har_noen_ukjente_claims() {
-        var token = new OidcTokenGenerator().withClaim("email", "foo@bar.nav.no").createHeaderTokenHolder();
+        var token = new OidcTokenGenerator()
+            .withClaim("email", "foo@bar.nav.no")
+            .createHeaderTokenHolder();
 
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertValid(result);
@@ -69,7 +72,9 @@ class OidcTokenValidatorTest {
         // 3.1.3.7 ID Token Validation
         // 2 ..The Issuer Identifier for the OpenID provider .. MUST exactly match the
         // value of the iss (issuer) Claim.
-        var token = new OidcTokenGenerator().withIssuer("https://tull.nav.no").createHeaderTokenHolder();
+        var token = new OidcTokenGenerator()
+            .withIssuer("https://tull.nav.no")
+            .createHeaderTokenHolder();
 
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertInvalid(result,
@@ -141,6 +146,48 @@ class OidcTokenValidatorTest {
         assertValid(result);
         assertThat(result.getSubject()).isEqualTo(langClientId);
         assertThat(result.getCompactSubject()).isEqualTo("srvapplikasjon");
+    }
+
+    @Test
+    void skal_ekstrahere_ansattnavn_fra_aad_obo_med_navident_uten_grupper() {
+        // OpenID Connect Core 1.0 incorporating errata set 1
+        // 3.1.3.7 ID Token Validation
+        // 5 If an azp (authorized party) Claim is present, the Client SHOULD verify
+        // that its client_id is the Claim Value
+
+        var ident = "minident";
+
+        var token = new OidcTokenGenerator()
+            .withClaim(AzureProperty.NAV_IDENT, ident)
+            .createHeaderTokenHolder();
+
+        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        assertValid(result);
+        assertThat(result.getSubject()).isEqualTo(ident);
+        assertThat(result.grupper()).isEmpty();
+        assertThat(result.getCompactSubject()).isEqualTo(ident);
+    }
+
+    @Test
+    void skal_ekstrahere_grupper_fra_aad_obo_med_navident_med_grupper() {
+        // OpenID Connect Core 1.0 incorporating errata set 1
+        // 3.1.3.7 ID Token Validation
+        // 5 If an azp (authorized party) Claim is present, the Client SHOULD verify
+        // that its client_id is the Claim Value
+
+        var ident = "minident";
+        var grupper = List.of("saksbehandler", "overstyrer");
+
+        var token = new OidcTokenGenerator()
+            .withClaim(AzureProperty.NAV_IDENT, ident)
+            .withGroupsClam(AzureProperty.GRUPPER, grupper)
+            .createHeaderTokenHolder();
+
+        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        assertValid(result);
+        assertThat(result.getSubject()).isEqualTo(ident);
+        assertThat(result.grupper()).containsExactly(Groups.SAKSBEHANDLER, Groups.OVERSTYRER);
+        assertThat(result.getCompactSubject()).isEqualTo(ident);
     }
 
     @Test
