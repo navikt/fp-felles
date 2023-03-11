@@ -51,7 +51,13 @@
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
 		</plugins>
-	</build>
+        <resources>
+            <resource>
+                <directory>felles/kontekst/src/main/resources</directory>
+            </resource>
+        </resources>
+
+    </build>
 
     <scm>
         <connection>scm:git:https://github.com/navikt/fp-felles.git</connection>
