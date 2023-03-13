@@ -1,16 +1,18 @@
 package no.nav.foreldrepenger.konfig;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.lang.System.getenv;
+import static no.nav.foreldrepenger.konfig.StandardPropertySource.APP_PROPERTIES;
 
-import javax.enterprise.context.Dependent;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
 
-import static java.lang.System.getenv;
-import static no.nav.foreldrepenger.konfig.StandardPropertySource.APP_PROPERTIES;
+import javax.enterprise.context.Dependent;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
 
 @Dependent
 public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiProvider {
@@ -72,12 +74,11 @@ public class ApplicationPropertiesKonfigProvider extends PropertiesKonfigVerdiPr
 
         private static String clusterName() {
             return Optional.ofNullable(getenv(NaisProperty.CLUSTER.propertyName()))
-                .orElse(LOCAL);
+                .orElse(Cluster.VTP.clusterName());
         }
     }
 
     private static final int PRIORITET = EnvPropertiesKonfigVerdiProvider.PRIORITET + 1;
-    private static final String LOCAL = "local";
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPropertiesKonfigProvider.class);
 

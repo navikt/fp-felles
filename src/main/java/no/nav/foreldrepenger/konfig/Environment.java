@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.konfig;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi.*;
+import static java.lang.System.getenv;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -15,7 +15,7 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static java.lang.System.getenv;
+import no.nav.foreldrepenger.konfig.KonfigVerdi.*;
 
 public final class Environment {
 
@@ -30,7 +30,12 @@ public final class Environment {
 
         private static Environment of(Cluster cluster, Namespace namespace, Application application,
                                       ClientId clientId, String image) {
-            return new Environment(cluster, namespace, application, clientId, image);
+            var ensureClientId = Optional.ofNullable(clientId).orElseGet(() -> composeClientId(cluster, namespace, application));
+            return new Environment(cluster, namespace, application, ensureClientId, image);
+        }
+
+        private static ClientId composeClientId(Cluster cluster, Namespace namespace, Application application) {
+            return ClientId.of(cluster.clusterName() + ":" + namespace.getName() + ":" + application.getName());
         }
 
         private static String currentImage() {
@@ -82,16 +87,24 @@ public final class Environment {
         return cluster.isProd();
     }
 
-    public boolean isVTP() {
-        return cluster.isVTP();
-    }
-
     public boolean isDev() {
         return cluster.isDev();
     }
 
+    public boolean isVTP() {
+        return cluster.isVTP();
+    }
+
     public boolean isLocal() {
         return cluster.isLocal();
+    }
+
+    public boolean isFss() {
+        return cluster.isFss();
+    }
+
+    public boolean isGcp() {
+        return cluster.isGcp();
     }
 
     public String clusterName() {
@@ -103,11 +116,11 @@ public final class Environment {
     }
 
     public String application() {
-        return Optional.ofNullable(application).map(Application::getName).orElse(null);
+        return application.getName();
     }
 
     public String clientId() {
-        return Optional.ofNullable(clientId).map(ClientId::getClientId).orElse(null);
+        return clientId.getClientId();
     }
 
     public String imageName() {
@@ -115,7 +128,15 @@ public final class Environment {
     }
 
     public String getNaisAppName() {
-        return getProperty(NaisProperty.APPLICATION.propertyName(), "local-app");
+        return getProperty(NaisProperty.APPLICATION.propertyName(), "vtp");
+    }
+
+    public String getTruststorePath() {
+        return getenv(NaisProperty.TRUSTSTORE_PATH.propertyName());
+    }
+
+    public String getTruststorePassword() {
+        return getenv(NaisProperty.TRUSTSTORE_PASSWORD.propertyName());
     }
 
     public Properties getPropertiesWithPrefix(String prefix) {

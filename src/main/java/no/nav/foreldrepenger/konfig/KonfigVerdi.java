@@ -36,7 +36,7 @@ public @interface KonfigVerdi {
     String beskrivelse() default "";
 
     @Nonbinding
-    Class<? extends Converter<?>> converter() default NoConverter.class;
+    Class<? extends Converter<?>> converter() default NoConverter.class; // NOSONAR
 
     interface Converter<V> {
         V tilVerdi(String verdi);

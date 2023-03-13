@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 @ApplicationScoped
 public class KonfigVerdiProdusent {
     private static final DefaultValueKonfigProvider DEFAULTVALUEPROVIDER = new DefaultValueKonfigProvider();
-    private static final Pattern SKJUL = Pattern.compile(".*(passw?ord|[k|c]redential|secret).*"); //$NON-NLS-1$
+    private static final Pattern SKJUL = Pattern.compile(".*(passw?ord|[k|c]redential|secret).*"); // NOSONAR
     private static final Logger log = LoggerFactory.getLogger(KonfigVerdiProdusent.class);
 
     private Instance<KonfigVerdiProvider> providerBeans;
@@ -62,7 +62,7 @@ public class KonfigVerdiProdusent {
     public Boolean getKonfigVerdiBoolean(final InjectionPoint ip) {
         Object verdi = getEnkelVerdi(ip);
         if (verdi == null) {
-            return null; //NOSONAR
+            return null; // NOSONAR
         }
         return verdi instanceof Boolean value ? value : Boolean.parseBoolean((String) verdi);
     }
@@ -131,7 +131,7 @@ public class KonfigVerdiProdusent {
             }
             return verdi instanceof URI value ? value : new URI((String) verdi);
         } catch (URISyntaxException e) {
-            throw new IllegalStateException("KonfigVerdi [" + verdi + "] er ikke en java.net.URI", e); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new IllegalStateException("KonfigVerdi [" + verdi + "] er ikke en java.net.URI", e);
         }
     }
 
@@ -195,7 +195,7 @@ public class KonfigVerdiProdusent {
         String defaultVerdi = annotation.defaultVerdi();
         if (annotation.required() && defaultVerdi.isEmpty()) {
             throw new IllegalStateException(
-                "Mangler verdi for key(required): " + annotation.value() + "; InjectionPoint=" + ip); //$NON-NLS-1$ //$NON-NLS-2$
+                "Mangler verdi for key(required): " + annotation.value() + "; InjectionPoint=" + ip);
         } else {
             if (!defaultVerdi.isEmpty()) {
                 T output = outputFunction.getOutput(DEFAULTVALUEPROVIDER, defaultVerdi, converter);
@@ -211,14 +211,14 @@ public class KonfigVerdiProdusent {
         Member member = ip.getMember();
         String name = Constructor.class.isAssignableFrom(member.getClass())
             ? member.getName()
-            : member.getDeclaringClass().getName() + "#" + member.getName(); //$NON-NLS-1$
+            : member.getDeclaringClass().getName() + "#" + member.getName();
         if (!konfigVerdiReferanser.contains(name)) {
             String key = annot.value();
             Object val = SKJUL.matcher(key).matches()
-                ? "********* (skjult)"// $NON-NLS-1$
+                ? "********* (skjult)"
                 : output;
             konfigVerdiReferanser.add(name);
-            log.info("{}: {}=\"{}\" @{}", KonfigVerdi.class.getSimpleName(), key, val, name); //$NON-NLS-1$
+            log.info("{}: {}=\"{}\" @{}", KonfigVerdi.class.getSimpleName(), key, val, name);
         }
     }
 
@@ -230,7 +230,7 @@ public class KonfigVerdiProdusent {
                 converter = converterClass.getDeclaredConstructor().newInstance();
                 converters.put(converterClass, converter);
             } catch (ReflectiveOperationException e) {
-                throw new UnsupportedOperationException("Mangler no-arg constructor for klasse: " + converterClass, e); //$NON-NLS-1$
+                throw new UnsupportedOperationException("Mangler no-arg constructor for klasse: " + converterClass, e);
             }
         }
         return converter;
@@ -241,7 +241,7 @@ public class KonfigVerdiProdusent {
         Annotated annotert = ip.getAnnotated();
 
         if (annotert == null) {
-            throw new IllegalArgumentException("Mangler annotation KonfigVerdi for InjectionPoint=" + ip); //$NON-NLS-1$
+            throw new IllegalArgumentException("Mangler annotation KonfigVerdi for InjectionPoint=" + ip);
         }
         if (annotert.isAnnotationPresent(KonfigVerdi.class)) {
             KonfigVerdi annotation = annotert.getAnnotation(KonfigVerdi.class);
@@ -249,7 +249,7 @@ public class KonfigVerdiProdusent {
                 return annotation;
             }
         }
-        throw new IllegalStateException("Mangler key. Kan ikke være tom eller null: " + ip.getMember()); //$NON-NLS-1$
+        throw new IllegalStateException("Mangler key. Kan ikke være tom eller null: " + ip.getMember());
     }
 
     @PostConstruct

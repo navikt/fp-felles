@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.konfig;
 
 import static java.lang.System.getenv;
 
+import java.util.Optional;
+
 public class Application {
 
     private final String name;
@@ -19,7 +21,7 @@ public class Application {
     }
 
     public static Application current() {
-        return Application.of(getenv(NaisProperty.APPLICATION.propertyName()));
+        return Application.of(Optional.ofNullable(getenv(NaisProperty.APPLICATION.propertyName())).orElse("vtp"));
     }
 
     @Override

@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.konfig;
 
+import static java.lang.System.getenv;
+
 import java.util.Arrays;
 import java.util.Objects;
 
-import static java.lang.System.getenv;
-
 public enum Cluster {
-    LOCAL("local"),
     VTP("vtp"),
     DEV_FSS("dev-fss"),
     DEV_GCP("dev-gcp"),
@@ -15,6 +14,8 @@ public enum Cluster {
 
     private static final String PROD = "prod";
     private static final String DEV = "dev";
+    private static final String FSS = "fss";
+    private static final String GCP = "gcp";
 
     private final String name;
 
@@ -38,8 +39,24 @@ public enum Cluster {
         return name.startsWith(VTP.name);
     }
 
+    boolean isFss() {
+        return name.endsWith(FSS);
+    }
+
+    boolean isGcp() {
+        return name.endsWith(GCP);
+    }
+
     public boolean isLocal() {
         return !isProd() && !isDev();
+    }
+
+    public boolean isSameClass(Cluster other) {
+        return name.substring(0, 2).equals(other.name.substring(0, 2));
+    }
+
+    public boolean isCoLocated(Cluster other) {
+        return name.substring(name.length() - 3).equals(other.name.substring(other.name.length() - 3));
     }
 
     public static Cluster current() {
@@ -47,7 +64,7 @@ public enum Cluster {
         return Arrays.stream(values())
             .filter(c -> active != null && Objects.equals(active, c.name))
             .findFirst()
-            .orElse(LOCAL);
+            .orElse(VTP);
     }
 
     public static Cluster of(String name) {
@@ -56,5 +73,6 @@ public enum Cluster {
             .findFirst()
             .orElseThrow();
     }
+
 
 }

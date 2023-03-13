@@ -10,6 +10,9 @@ enum NaisProperty {
     APPLICATION("NAIS_APP_NAME"),
     CLIENTID("NAIS_CLIENT_ID"), // Format <cluster>:<namespace>:<application>
     IMAGE("NAIS_APP_IMAGE"),    // Format <path>/<app>:<date>-<git hash >
+
+    TRUSTSTORE_PATH("NAV_TRUSTSTORE_PATH"),
+    TRUSTSTORE_PASSWORD("NAV_TRUSTSTORE_PASSWORD"),
     ;
 
     private final String name;

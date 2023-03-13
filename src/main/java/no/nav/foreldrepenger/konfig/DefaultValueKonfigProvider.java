@@ -40,7 +40,7 @@ public class DefaultValueKonfigProvider implements KonfigVerdiProvider {
             .collect(
                 Collectors.toMap(
                     e -> e[0],
-                    e -> converter.tilVerdi(e[1]) // NOSONAR
+                    e -> converter.tilVerdi(e[1])
                 ));
     }
 

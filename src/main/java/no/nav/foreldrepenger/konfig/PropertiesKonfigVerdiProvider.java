@@ -41,7 +41,7 @@ public abstract class PropertiesKonfigVerdiProvider implements KonfigVerdiProvid
     @Override
     public <V> List<V> getVerdier(String key, KonfigVerdi.Converter<V> converter) {
         String verdiString = (String) metadata.getVerdier().get(key);
-        List<String> asList = Arrays.asList(verdiString.split(",\\s*")); //$NON-NLS-1$
+        List<String> asList = Arrays.asList(verdiString.split(",\\s*"));
         return asList.stream().map(converter::tilVerdi).toList();
     }
 
@@ -49,12 +49,12 @@ public abstract class PropertiesKonfigVerdiProvider implements KonfigVerdiProvid
     public <V> Map<String, V> getVerdierAsMap(String key, KonfigVerdi.Converter<V> converter) {
         String str = (String) metadata.getVerdier().get(key);
 
-        return Arrays.stream(str.split(",\\s*")) //$NON-NLS-1$
-            .map(s -> s.split(":\\s*")) //$NON-NLS-1$
+        return Arrays.stream(str.split(",\\s*"))
+            .map(s -> s.split(":\\s*"))
             .collect(
                 Collectors.toMap(
-                    e -> e[0], // NOSONAR
-                    e -> converter.tilVerdi(e[1]) // NOSONAR
+                    e -> e[0],
+                    e -> converter.tilVerdi(e[1])
                 ));
     }
 }

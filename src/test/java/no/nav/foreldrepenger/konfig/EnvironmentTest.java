@@ -1,17 +1,22 @@
 package no.nav.foreldrepenger.konfig;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static no.nav.foreldrepenger.konfig.Cluster.PROD_FSS;
+import static no.nav.foreldrepenger.konfig.Cluster.PROD_GCP;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.PrintStream;
 import java.net.URI;
 import java.time.Duration;
 
-import static no.nav.foreldrepenger.konfig.Cluster.PROD_FSS;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class EnvironmentTest {
 
@@ -28,13 +33,31 @@ class EnvironmentTest {
     @EnabledIfEnvironmentVariable(named = "mvn", matches = "true")
     void testEnvironment() {
         assertEquals(PROD_FSS, ENV.getCluster());
-        assertEquals("jalla", ENV.namespace());
+        assertEquals("default", ENV.namespace());
         assertTrue(ENV.isProd());
     }
 
     @Test
+    void testCoLocated() {
+        assertTrue(Cluster.VTP.isCoLocated(Cluster.VTP));
+        assertTrue(Cluster.DEV_GCP.isCoLocated(Cluster.DEV_GCP));
+        assertTrue(PROD_FSS.isCoLocated(PROD_FSS));
+        assertFalse(PROD_FSS.isCoLocated(Cluster.VTP));
+        assertFalse(PROD_FSS.isCoLocated(Cluster.PROD_GCP));
+    }
+
+    @Test
+    void testClass() {
+        assertTrue(Cluster.VTP.isSameClass(Cluster.VTP));
+        assertTrue(Cluster.DEV_GCP.isSameClass(Cluster.DEV_GCP));
+        assertTrue(PROD_FSS.isSameClass(PROD_GCP));
+        assertFalse(PROD_FSS.isSameClass(Cluster.VTP));
+        assertFalse(Cluster.DEV_FSS.isSameClass(PROD_FSS));
+    }
+
+    @Test
     void testURI() {
-        assertEquals(URI.create("http://www.vg.no"), ENV.getRequiredProperty("VG", URI.class));
+        assertEquals(URI.create("http://www.nav.no"), ENV.getRequiredProperty("NAV", URI.class));
     }
 
     @Test

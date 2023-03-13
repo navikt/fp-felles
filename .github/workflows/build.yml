@@ -7,11 +7,13 @@ on:
     paths-ignore:
       - '**.md'
       - '**.MD'
+      - '.editorconfig'
       - '.gitignore'
+      - '.java-version'
       - 'LICENSE'
       - 'CODEOWNERS'
-      - 'dokumentasjon/**'
-      - 'lokalutvikling/**'
+      - 'docs/**'
+      - '.github/*.yml'
   schedule:
     - cron: '0 4 * * 1'
 
@@ -28,12 +30,4 @@ jobs:
     if: github.ref_name == 'master'
     needs: build-feature
     uses: navikt/fp-gha-workflows/.github/workflows/release-drafter.yml@main
-    secrets: inherit
-
-  snyk:
-    name: Snyk
-    needs: build-feature
-    uses: navikt/fp-gha-workflows/.github/workflows/snyk.yml@main
-    with:
-      build-version: ${{ needs.build-feature.outputs.build-version }}
     secrets: inherit

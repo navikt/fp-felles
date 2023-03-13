@@ -75,6 +75,8 @@ Følgende typer støttes og kan bli returnert:
 - `Environment` - statisk klasse som gir informasjon om miljøet appen kjører i.
 - `Cluster` - statisk klasse med info om clusteret appen kjører i f.eks: isProd(), isDev(), isLocal(), etc.
 - `Namespace` - statisk klasse som leverer egenskaper om namespacet appen kjører i f.eks: getName()
+- `Application` - statisk klasse som leverer injisert navn på applikasjon: getName()
+- `ClienId` - statisk klasse som leverer egenskaper om clientId for appen: getClientId()
 
 ### Lisens
 
