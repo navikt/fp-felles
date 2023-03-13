@@ -1,9 +1,11 @@
-![](https://github.com/navikt/fp-konfig/workflows/Build/badge.svg)
-[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-konfig&metric=alert_status)](https://sonarcloud.io/dashboard?id=navikt_fp-konfig)
-[![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-konfig&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=navikt_fp-konfig)
-[![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-konfig&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=navikt_fp-konfig)
+[![Bygg](https://github.com/navikt/fp-konfig/actions/workflows/build.yml/badge.svg)](https://github.com/navikt/fp-konfig/actions/workflows/build.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-konfig&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=navikt_fp-konfig)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-konfig&metric=coverage)](https://sonarcloud.io/summary/new_code?id=navikt_fp-konfig)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-konfig&metric=bugs)](https://sonarcloud.io/summary/new_code?id=navikt_fp-konfig)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-konfig&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=navikt_fp-konfig)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/navikt/fp-konfig)
 ![GitHub](https://img.shields.io/github/license/navikt/fp-konfig)
+
 
 # fp-konfig
 
