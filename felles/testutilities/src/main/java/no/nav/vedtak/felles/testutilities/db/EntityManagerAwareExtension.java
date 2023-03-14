@@ -2,7 +2,6 @@ package no.nav.vedtak.felles.testutilities.db;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Optional;
 
 import javax.enterprise.inject.spi.CDI;
 import javax.persistence.EntityManager;
@@ -80,7 +79,7 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
         }
 
         // kaller på hvis finnes
-        Optional<Method> methodToFind = Arrays.stream(testInstance.getClass().getMethods())
+        var methodToFind = Arrays.stream(testInstance.getClass().getMethods())
             .filter(method -> "setEntityManager".equals(method.getName()))
             .findFirst();
         if (methodToFind.isPresent()) {
@@ -93,18 +92,19 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
     public void interceptBeforeEachMethod(Invocation<Void> invocation,
                                           ReflectiveInvocationContext<Method> invocationContext,
                                           ExtensionContext extensionContext) throws Throwable {
-
-        // start tx her i tilfelle BeforeEach method er definert. Avventer rollback til preDestroy..
-        startTransaction(extensionContext);
-        invocation.proceed();
-
+        startTransaction(invocation, extensionContext);
     }
+
 
     @Override
     public void interceptTestMethod(Invocation<Void> invocation,
                                     ReflectiveInvocationContext<Method> invocationContext,
                                     ExtensionContext extensionContext) throws Throwable {
-        // start tx her i tilfelle BeforeEach method ikke var definert. Avventer rollback til preDestroy..
+        startTransaction(invocation, extensionContext);
+    }
+
+    private void startTransaction(Invocation<Void> invocation, ExtensionContext extensionContext) throws Throwable {
+        // start tx her i tilfelle BeforeEach method er definert. Avventer rollback til preDestroy..
         startTransaction(extensionContext);
         invocation.proceed();
     }

@@ -93,8 +93,8 @@ public class AbacAuditlogger {
     }
 
     private Set<CefField> createDefaultAbacFields(String userId, BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        String abacAction = requireNonNull(beskyttetRessursAttributter.getActionType().getEksternKode());
-        String abacResourceType = requireNonNull(beskyttetRessursAttributter.getResourceType());
+        var abacAction = requireNonNull(beskyttetRessursAttributter.getActionType().getEksternKode());
+        var abacResourceType = requireNonNull(beskyttetRessursAttributter.getResourceType());
 
         Set<CefField> fields = new HashSet<>();
         fields.add(new CefField(EVENT_TIME, System.currentTimeMillis()));
@@ -106,13 +106,9 @@ public class AbacAuditlogger {
             fields.add(new CefField(USER_ID, userId));
         }
 
-        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), SAKSNUMMER, FAGSAK_ID).ifPresent(fagsak -> {
-            fields.addAll(forSaksnummer(fagsak));
-        });
+        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), SAKSNUMMER, FAGSAK_ID).ifPresent(fagsak -> fields.addAll(forSaksnummer(fagsak)));
 
-        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), BEHANDLING_UUID, BEHANDLING_ID).ifPresent(behandling -> {
-            fields.addAll(forBehandling(behandling));
-        });
+        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), BEHANDLING_UUID, BEHANDLING_ID).ifPresent(behandling -> fields.addAll(forBehandling(behandling)));
 
         return Set.copyOf(fields);
     }
@@ -123,24 +119,24 @@ public class AbacAuditlogger {
          * håndterer blanding (har sendt forespørsel, men ikke fått svar). Velger derfor
          * at AktørID prioriteres (siden alle kallene i k9-sak har denne).
          */
-        final List<String> ids = appRessursData.getAktørIdSet().stream().filter(Objects::nonNull).collect(Collectors.toList());
+        final var ids = appRessursData.getAktørIdSet().stream().filter(Objects::nonNull).toList();
         if (!ids.isEmpty()) {
             return ids;
         }
-        return appRessursData.getFødselsnumre().stream().filter(Objects::nonNull).collect(Collectors.toList());
+        return appRessursData.getFødselsnumre().stream().filter(Objects::nonNull).toList();
     }
 
-    private static final Optional<String> getOneOfNew(AbacDataAttributter attributter, AbacAttributtType... typer) {
-        for (AbacAttributtType key : typer) {
-            final Set<Object> values = attributter.getVerdier(key);
+    private static Optional<String> getOneOfNew(AbacDataAttributter attributter, AbacAttributtType... typer) {
+        for (var key : typer) {
+            final var values = attributter.getVerdier(key);
             if (!values.isEmpty()) {
-                return Optional.of(values.stream().map(v -> v.toString()).collect(Collectors.joining(",")));
+                return Optional.of(values.stream().map(Object::toString).collect(Collectors.joining(",")));
             }
         }
         return Optional.empty();
     }
 
-    private static final EventClassId finnEventClassIdFra(String abacAction) {
+    private static EventClassId finnEventClassIdFra(String abacAction) {
         return switch (abacAction) {
             case "read" -> AUDIT_ACCESS; /* Fall-through */
             case "delete", "update" -> AUDIT_UPDATE;
@@ -164,7 +160,7 @@ public class AbacAuditlogger {
 
         private final String severity;
 
-        private Access(String severity) {
+        Access(String severity) {
             this.severity = severity;
         }
 

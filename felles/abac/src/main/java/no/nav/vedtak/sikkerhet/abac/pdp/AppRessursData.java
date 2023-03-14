@@ -16,9 +16,9 @@ import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
 
 public class AppRessursData {
 
-    private Set<String> aktørIdSet = new LinkedHashSet<>();
-    private Set<String> fødselsnumre = new LinkedHashSet<>();
-    private Map<RessursDataKey, RessursData> resources = new HashMap<>();
+    private final Set<String> aktørIdSet = new LinkedHashSet<>();
+    private final Set<String> fødselsnumre = new LinkedHashSet<>();
+    private final Map<RessursDataKey, RessursData> resources = new HashMap<>();
 
     public Set<String> getAktørIdSet() {
         return aktørIdSet;
@@ -115,7 +115,7 @@ public class AppRessursData {
         }
 
         public Builder medAleneomsorg(Boolean aleneomsorg) {
-            return leggTilRessurs(ForeldrepengerDataKeys.ALENEOMSORG, Optional.ofNullable(aleneomsorg).map(a -> a.toString()).orElse(null));
+            return leggTilRessurs(ForeldrepengerDataKeys.ALENEOMSORG, Optional.ofNullable(aleneomsorg).map(Object::toString).orElse(null));
         }
 
         public Builder medAnnenpart(String annenpartAktørId) {

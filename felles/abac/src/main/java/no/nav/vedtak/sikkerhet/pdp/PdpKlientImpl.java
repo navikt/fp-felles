@@ -44,7 +44,7 @@ public class PdpKlientImpl implements PdpKlient {
         var decisions = XacmlResponseMapper.getDecisions(response);
 
         for (var decision : decisions) {
-            if (decision == Decision.Indeterminate) {
+            if (decision == Decision.INDETERMINATE) {
                 throw new TekniskException("F-080281",
                     String.format("Decision %s fra PDP, dette skal aldri skje. Full JSON response: %s", decision, response));
             }
@@ -53,7 +53,7 @@ public class PdpKlientImpl implements PdpKlient {
         var biasedDecision = createAggregatedDecision(decisions);
         handlObligation(response);
 
-        if (biasedDecision == Decision.Permit) {
+        if (biasedDecision == Decision.PERMIT) {
             return AbacResultat.GODKJENT;
         }
 
@@ -71,17 +71,16 @@ public class PdpKlientImpl implements PdpKlient {
         if (denyAdvice.contains(Advice.DENY_EGEN_ANSATT)) {
             return AbacResultat.AVSLÅTT_EGEN_ANSATT;
         }
-        var ukjentadvice = denyAdvice.toString();
         return AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
     }
 
     private static Decision createAggregatedDecision(List<Decision> decisions) {
         for (var decision : decisions) {
-            if (decision != Decision.Permit) {
-                return Decision.Deny;
+            if (decision != Decision.PERMIT) {
+                return Decision.DENY;
             }
         }
-        return Decision.Permit;
+        return Decision.PERMIT;
     }
 
     private static void handlObligation(XacmlResponse response) {

@@ -13,14 +13,14 @@ import java.util.stream.Collectors;
 
 public class AbacDataAttributter {
 
-    private Map<AbacAttributtType, Set<Object>> attributter = new LinkedHashMap<>();
+    private final Map<AbacAttributtType, Set<Object>> attributter = new LinkedHashMap<>();
 
     public static AbacDataAttributter opprett() {
         return new AbacDataAttributter();
     }
 
     public AbacDataAttributter leggTil(AbacDataAttributter annen) {
-        for (Map.Entry<AbacAttributtType, Set<Object>> entry : annen.attributter.entrySet()) {
+        for (var entry : annen.attributter.entrySet()) {
             if (entry.getValue() != null) {
                 leggTil(entry.getKey(), entry.getValue());
             }
@@ -33,7 +33,7 @@ public class AbacDataAttributter {
     }
 
     public AbacDataAttributter leggTil(AbacAttributtType type, Collection<Object> samling) {
-        Set<Object> a = attributter.get(type);
+        var a = attributter.get(type);
         if (a == null) {
             attributter.put(type, new LinkedHashSet<>(samling));
         } else {
@@ -44,12 +44,8 @@ public class AbacDataAttributter {
 
     public AbacDataAttributter leggTil(AbacAttributtType type, Object verdi) {
         requireNonNull(verdi, "Attributt av type " + type + " kan ikke være null");
-        Set<Object> a = attributter.get(type);
-        if (a == null) {
-            a = new LinkedHashSet<>(4); // det er vanligvis bare 1 attributt i settet
-            attributter.put(type, a);
-        }
-        a.add(verdi);
+        attributter.computeIfAbsent(type, k -> new LinkedHashSet<>(4))
+            .add(verdi);
         return this;
     }
 
@@ -68,10 +64,9 @@ public class AbacDataAttributter {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof AbacDataAttributter)) {
+        if (!(o instanceof AbacDataAttributter annen)) {
             return false;
         }
-        AbacDataAttributter annen = (AbacDataAttributter) o;
         return Objects.equals(attributter, annen.attributter);
     }
 

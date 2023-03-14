@@ -3,9 +3,11 @@ package no.nav.vedtak.sikkerhet.pdp.xacml;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public final class XacmlResponseMapper {
+
+    private XacmlResponseMapper() {
+    }
 
     private static final String POLICY_IDENTIFIER = "no.nav.abac.attributter.adviceorobligation.deny_policy";
     private static final String DENY_ADVICE_IDENTIFIER = "no.nav.abac.advices.reason.deny_reason";
@@ -17,7 +19,7 @@ public final class XacmlResponseMapper {
             .stream()
             .map(r -> Optional.ofNullable(r.obligations()).orElse(List.of()))
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static List<Advice> getAdvice(XacmlResponse response) {
@@ -29,16 +31,14 @@ public final class XacmlResponseMapper {
             .flatMap(Collection::stream)
             .map(XacmlResponseMapper::getAdviceFrom)
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static List<Advice> getAdviceFrom(XacmlResponse.ObligationOrAdvice advice) {
         if (!DENY_ADVICE_IDENTIFIER.equals(advice.id())) {
             return List.of();
         }
-        var denials = advice.attributeAssignment().stream().map(a -> getAdvicefromObject(a)).flatMap(Optional::stream).collect(Collectors.toList());
-
-        return denials;
+        return advice.attributeAssignment().stream().map(a -> getAdvicefromObject(a)).flatMap(Optional::stream).toList();
     }
 
     private static Optional<Advice> getAdvicefromObject(XacmlResponse.AttributeAssignment attribute) {
@@ -57,6 +57,6 @@ public final class XacmlResponseMapper {
     }
 
     public static List<Decision> getDecisions(XacmlResponse response) {
-        return response.response().stream().map(XacmlResponse.Result::decision).collect(Collectors.toList());
+        return response.response().stream().map(XacmlResponse.Result::decision).toList();
     }
 }

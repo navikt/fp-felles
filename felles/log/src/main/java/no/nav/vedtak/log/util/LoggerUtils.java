@@ -17,7 +17,7 @@ public final class LoggerUtils {
     }
 
     public static String removeLineBreaks(String string) {
-        return Optional.ofNullable(string).map(s -> s.replaceAll("(\\r|\\n)", "")).orElse(null);
+        return Optional.ofNullable(string).map(s -> s.replaceAll("\\R", "")).orElse(null);
     }
 
     public static String toStringWithoutLineBreaks(Object object) {
