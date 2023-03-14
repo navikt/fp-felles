@@ -1,14 +1,12 @@
 package no.nav.vedtak.sikkerhet.oidc.validator;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.UnrecoverableEntryException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPublicKey;
 
@@ -21,25 +19,24 @@ import org.slf4j.LoggerFactory;
 
 public class KeyStoreTool {
 
-    private static RsaJsonWebKey jwk = null;
+    private static RsaJsonWebKey jwk;
 
     private static final Logger LOG = LoggerFactory.getLogger(KeyStoreTool.class);
 
     static {
-
         PublicKey myPublicKey;
         PrivateKey myPrivateKey;
-        char[] keystorePassword = getKeyStoreAndKeyPassword();
-        String keyAndCertAlias = getKeyAndCertAlias();
+        var keystorePassword = getKeyStoreAndKeyPassword();
+        var keyAndCertAlias = getKeyAndCertAlias();
 
-        try (InputStream keystoreFile = KeyStoreTool.class.getResourceAsStream("/test-keystore.jks")) {
-            KeyStore ks = KeyStore.getInstance("JKS");
+        try (var keystoreFile = KeyStoreTool.class.getResourceAsStream("/test-keystore.jks")) {
+            var ks = KeyStore.getInstance("JKS");
             ks.load(keystoreFile, keystorePassword);
 
             KeyStore.ProtectionParameter protParam = new KeyStore.PasswordProtection(keystorePassword);
-            KeyStore.PrivateKeyEntry pk = (KeyStore.PrivateKeyEntry) ks.getEntry(keyAndCertAlias, protParam);
+            var pk = (KeyStore.PrivateKeyEntry) ks.getEntry(keyAndCertAlias, protParam);
             myPrivateKey = pk.getPrivateKey();
-            Certificate cert = ks.getCertificate(keyAndCertAlias);
+            var cert = ks.getCertificate(keyAndCertAlias);
             myPublicKey = cert.getPublicKey();
 
             //KeyStoreTool.keystore = ks;
@@ -72,15 +69,15 @@ public class KeyStoreTool {
     }
 
     public static String getJwks() {
-        String kty = "RSA";
-        String kid = "1";
-        String use = "sig";
-        String alg = "RS256";
-        String e = Base64Url.encode(jwk.getRsaPublicKey().getPublicExponent().toByteArray());
-        RSAPublicKey publicKey = (RSAPublicKey) jwk.getPublicKey();
+        var kty = "RSA";
+        var kid = "1";
+        var use = "sig";
+        var alg = "RS256";
+        var e = Base64Url.encode(jwk.getRsaPublicKey().getPublicExponent().toByteArray());
+        var publicKey = (RSAPublicKey) jwk.getPublicKey();
 
-        byte[] bytes = publicKey.getModulus().toByteArray();
-        String n = Base64Url.encode(bytes);
+        var bytes = publicKey.getModulus().toByteArray();
+        var n = Base64Url.encode(bytes);
 
         return String.format(
             "{\"keys\":[{" + "\"kty\":\"%s\"," + "\"alg\":\"%s\"," + "\"use\":\"%s\"," + "\"kid\":\"%s\"," + "\"n\":\"%s\"," + "\"e\":\"%s\"" + "}]}",

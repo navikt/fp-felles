@@ -279,14 +279,14 @@ class PdpKlientImplTest {
         var ressurs = AppRessursData.builder().leggTilFødselsnumre(personnr).leggTilAktørIdSet(aktørId).build();
         pdpKlient.forespørTilgang(felles, DOMENE, ressurs);
 
-        String xacmlRequestString = DefaultJsonMapper.toJson(captor.getValue());
+        var xacmlRequestString = DefaultJsonMapper.toJson(captor.getValue());
 
-        assertThat(xacmlRequestString.contains(
-            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.fnr\",\"Value\":\"12345678900\"}")).isTrue();
-        assertThat(xacmlRequestString.contains(
-            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"11111\"}")).isTrue();
-        assertThat(xacmlRequestString.contains(
-            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"22222\"}")).isTrue();
+        assertThat(xacmlRequestString).contains(
+            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.fnr\",\"Value\":\"12345678900\"}");
+        assertThat(xacmlRequestString).contains(
+            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"11111\"}");
+        assertThat(xacmlRequestString).contains(
+            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"22222\"}");
     }
 
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributter(Token token, AbacDataAttributter dataAttributter) {

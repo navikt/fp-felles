@@ -129,6 +129,6 @@ class AbacDataAttributterTest {
         var attributtType = StandardAbacAttributtType.FNR;
         attributter.leggTil(attributtType, "Test");
 
-        assertThat(attributter.hashCode()).isNotNull();
+        assertThat(attributter.hashCode()).isEqualTo(166914119);
     }
 }
