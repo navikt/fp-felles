@@ -38,7 +38,7 @@ public final class XacmlResponseMapper {
         if (!DENY_ADVICE_IDENTIFIER.equals(advice.id())) {
             return List.of();
         }
-        return advice.attributeAssignment().stream().map(a -> getAdvicefromObject(a)).flatMap(Optional::stream).toList();
+        return advice.attributeAssignment().stream().map(XacmlResponseMapper::getAdvicefromObject).flatMap(Optional::stream).toList();
     }
 
     private static Optional<Advice> getAdvicefromObject(XacmlResponse.AttributeAssignment attribute) {

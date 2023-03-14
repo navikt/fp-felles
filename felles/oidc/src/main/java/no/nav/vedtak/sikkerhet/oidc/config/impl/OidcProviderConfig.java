@@ -32,6 +32,7 @@ public final class OidcProviderConfig {
     public static final String OPEN_AM_WELL_KNOWN_URL = "oidc.open.am.well.known.url";
     @Deprecated(since = "01.2023", forRemoval = true)
     public static final String OPEN_AM_CLIENT_ID = "oidc.open.am.client.id";
+
     @Deprecated(since = "01.2023", forRemoval = true)
     public static final String OPEN_AM_CLIENT_SECRET = "oidc.open.am.client.secret";
 
@@ -46,7 +47,7 @@ public final class OidcProviderConfig {
     private static final String PROXY_KEY = "proxy.url"; // FP-oppsett lite brukt
     private static final String DEFAULT_PROXY_URL = "http://webproxy.nais:8088";
 
-    private static final Set<OpenIDConfiguration> PROVIDERS = new HashSet<>();
+    private static Set<OpenIDConfiguration> providers = new HashSet<>();
 
     private final Set<OpenIDConfiguration> instanceProviders;
     private final Map<String, OpenIDConfiguration> issuers;
@@ -80,11 +81,11 @@ public final class OidcProviderConfig {
     }
 
     private static synchronized Set<OpenIDConfiguration> init() {
-        if (PROVIDERS.isEmpty()) {
+        if (providers.isEmpty()) {
             var configs = hentConfig();
-            PROVIDERS = configs;
+            providers = configs;
         }
-        return PROVIDERS;
+        return providers;
     }
 
     private static Set<OpenIDConfiguration> hentConfig() {
