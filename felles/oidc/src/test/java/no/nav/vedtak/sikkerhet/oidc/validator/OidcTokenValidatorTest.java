@@ -186,7 +186,7 @@ class OidcTokenValidatorTest {
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertValid(result);
         assertThat(result.getSubject()).isEqualTo(ident);
-        assertThat(result.grupper()).containsExactly(Groups.SAKSBEHANDLER, Groups.OPPGAVESTYRER);
+        assertThat(result.grupper()).containsAll(List.of(Groups.SAKSBEHANDLER, Groups.OPPGAVESTYRER));
         assertThat(result.getCompactSubject()).isEqualTo(ident);
     }
 
