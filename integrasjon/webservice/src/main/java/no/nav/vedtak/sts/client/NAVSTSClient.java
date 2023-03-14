@@ -1,9 +1,5 @@
 package no.nav.vedtak.sts.client;
 
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -12,6 +8,11 @@ import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 
 public class NAVSTSClient extends STSClient {
 
@@ -84,7 +85,8 @@ public class NAVSTSClient extends STSClient {
             token.setPrincipal(principal);
             tokenStore.add(key, token);
         } else if (token.isExpired()) {
-            LOG.debug("Token for user {}, cache key {} is expired ({}) fetching a new one from STS", userId, keyUtenSignatur, token.getExpires()); // NOSONAR
+            LOG.debug("Token for user {}, cache key {} is expired ({}) fetching a new one from STS", userId, keyUtenSignatur,
+                token.getExpires()); // NOSONAR
             tokenStore.remove(key);
             token = super.requestSecurityToken(appliesTo, action, requestType, binaryExchange);
             token.setPrincipal(principal);
@@ -113,14 +115,9 @@ public class NAVSTSClient extends STSClient {
     }
 
     private static String tokenToString(SecurityToken token) {
-        return token.getClass().getSimpleName() + "<" +
-            "id=" + token.getId() + ", "
-            + "wsuId=" + token.getWsuId() + ", "
-            + "principal=" + token.getPrincipal() + ", "
-            + "created=" + token.getCreated() + ", "
-            + "expires=" + token.getExpires() + ", "
-            + "isExpired=" + token.isExpired() + ", "
-            + ">";
+        return token.getClass().getSimpleName() + "<" + "id=" + token.getId() + ", " + "wsuId=" + token.getWsuId() + ", " + "principal="
+            + token.getPrincipal() + ", " + "created=" + token.getCreated() + ", " + "expires=" + token.getExpires() + ", " + "isExpired="
+            + token.isExpired() + ", " + ">";
     }
 
     private void ensureTokenStoreExists() {

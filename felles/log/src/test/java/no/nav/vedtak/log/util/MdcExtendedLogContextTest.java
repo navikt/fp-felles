@@ -1,6 +1,7 @@
 package no.nav.vedtak.log.util;
 
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;

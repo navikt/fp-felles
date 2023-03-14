@@ -1,14 +1,15 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Objects;
+
+import javax.ws.rs.core.UriBuilder;
+
 import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * API / Swagger https://oppgave.dev.intern.nav.no
@@ -34,8 +35,7 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
 
     @Override
     public Oppgave opprettetOppgave(OpprettOppgave oppgave) {
-        var request = RestRequest.newPOSTJson(oppgave, restConfig.endpoint(), restConfig)
-            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
+        var request = RestRequest.newPOSTJson(oppgave, restConfig.endpoint(), restConfig).otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(request, Oppgave.class);
     }
 
@@ -67,8 +67,7 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
         }
         oppgaveTyper.forEach(ot -> builder.queryParam("oppgavetype", ot));
 
-        var request = RestRequest.newGET(builder.build(), restConfig)
-            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
+        var request = RestRequest.newGET(builder.build(), restConfig).otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
     }
 
@@ -94,8 +93,7 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
 
     @Override
     public Oppgave hentOppgave(String oppgaveId) {
-        var request = RestRequest.newGET(getEndpointForOppgaveId(oppgaveId), restConfig)
-            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
+        var request = RestRequest.newGET(getEndpointForOppgaveId(oppgaveId), restConfig).otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(addCorrelation(request), Oppgave.class);
     }
 

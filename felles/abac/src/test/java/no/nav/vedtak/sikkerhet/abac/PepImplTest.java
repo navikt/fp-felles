@@ -1,5 +1,22 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import no.nav.foreldrepenger.konfig.Namespace;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
@@ -13,20 +30,6 @@ import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @ExtendWith(MockitoExtension.class)
 class PepImplTest {
@@ -53,10 +56,7 @@ class PepImplTest {
 
     @BeforeEach
     void setUp() {
-        pep = new PepImpl(pdpKlientMock,
-            tokenProvider,
-            pdpRequestBuilder,
-            "SRVFPLOS,SRVPDP");
+        pep = new PepImpl(pdpKlientMock, tokenProvider, pdpRequestBuilder, "SRVFPLOS,SRVPDP");
     }
 
     @Test
@@ -100,7 +100,8 @@ class PepImplTest {
     void skal_gi_avslag_for_ekstern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn("local:annetnamespace:ukjentapplication");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, "local:annetnamespace:ukjentapplication", IdentType.Systemressurs);
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, "local:annetnamespace:ukjentapplication",
+            IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
@@ -113,7 +114,8 @@ class PepImplTest {
     void skal_gi_tilgang_for_godkjent_ekstern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn("local:annetnamespace:eksternapplication");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, "local:annetnamespace:eksternapplication", IdentType.Systemressurs);
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, "local:annetnamespace:eksternapplication",
+            IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
@@ -143,8 +145,7 @@ class PepImplTest {
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
         when(pdpRequestBuilder.abacDomene()).thenReturn("foreldrepenger");
 
-        @SuppressWarnings("unused")
-        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        @SuppressWarnings("unused") Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         verify(pdpKlientMock).forespørTilgang(eq(attributter), any(String.class), any(AppRessursData.class));
     }
 
@@ -174,7 +175,10 @@ class PepImplTest {
             .build();
     }
 
-    private BeskyttetRessursAttributter lagBeskyttetRessursAttributterAzure(AvailabilityType availabilityType, OpenIDToken token, String brukerId, IdentType identType) {
+    private BeskyttetRessursAttributter lagBeskyttetRessursAttributterAzure(AvailabilityType availabilityType,
+                                                                            OpenIDToken token,
+                                                                            String brukerId,
+                                                                            IdentType identType) {
         return BeskyttetRessursAttributter.builder()
             .medUserId(tokenProvider.getUid())
             .medToken(Token.withOidcToken(token, brukerId, identType))

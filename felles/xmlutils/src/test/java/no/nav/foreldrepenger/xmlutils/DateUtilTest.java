@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.xmlutils;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.xml.datatype.DatatypeConstants;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.xml.datatype.DatatypeConstants;
+
+import org.junit.jupiter.api.Test;
 
 class DateUtilTest {
 

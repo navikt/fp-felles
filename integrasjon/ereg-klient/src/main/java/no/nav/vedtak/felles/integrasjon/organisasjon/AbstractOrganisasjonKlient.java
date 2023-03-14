@@ -1,11 +1,12 @@
 package no.nav.vedtak.felles.integrasjon.organisasjon;
 
+import java.net.URI;
+
+import javax.ws.rs.core.UriBuilder;
+
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 
 // Extend og annoter
 //@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "organisasjon.rs.url",
@@ -47,7 +48,8 @@ public abstract class AbstractOrganisasjonKlient implements OrgInfo {
 
     @Override
     public JuridiskEnhetVirksomheter hentOrganisasjonHistorikk(String orgnummer) {
-        var query = UriBuilder.fromUri(restConfig.endpoint()).path(orgnummer)
+        var query = UriBuilder.fromUri(restConfig.endpoint())
+            .path(orgnummer)
             .queryParam("inkluderHierarki", "true")
             .queryParam("inkluderHistorikk", "true")
             .build();

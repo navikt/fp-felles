@@ -1,6 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
-import no.nav.vedtak.log.mdc.MDCOperations;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.headers.Header;
@@ -10,8 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.w3c.dom.Element;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ExtendWith(MockitoExtension.class)
 class CallIdInInterceptorTest {

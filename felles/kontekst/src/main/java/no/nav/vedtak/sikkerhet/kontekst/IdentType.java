@@ -1,10 +1,10 @@
 package no.nav.vedtak.sikkerhet.kontekst;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public enum IdentType {
     // Case definert av NAV "standard". Brukes i ABAC policies. Til bruk i tokenprovider/obo-logikk

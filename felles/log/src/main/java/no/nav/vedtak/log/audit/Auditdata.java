@@ -23,9 +23,6 @@ public class Auditdata {
      */
     @Override
     public String toString() {
-        return header.toString() + fields.stream()
-            .map(CefField::toString)
-            .sorted()
-            .collect(Collectors.joining(FIELD_SEPARATOR));
+        return header.toString() + fields.stream().map(CefField::toString).sorted().collect(Collectors.joining(FIELD_SEPARATOR));
     }
 }

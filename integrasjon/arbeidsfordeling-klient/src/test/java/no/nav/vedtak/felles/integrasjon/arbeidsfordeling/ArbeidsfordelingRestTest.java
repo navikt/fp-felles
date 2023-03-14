@@ -1,11 +1,13 @@
 package no.nav.vedtak.felles.integrasjon.arbeidsfordeling;
 
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class ArbeidsfordelingRestTest {
 
@@ -14,11 +16,7 @@ class ArbeidsfordelingRestTest {
 
     @Test
     void test_request() {
-        var request = ArbeidsfordelingRequest.ny()
-            .medTema("FOR")
-            .medOppgavetype("BEH_SAK_VL")
-            .medBehandlingstype("ae0028")
-            .build();
+        var request = ArbeidsfordelingRequest.ny().medTema("FOR").medOppgavetype("BEH_SAK_VL").medBehandlingstype("ae0028").build();
 
         String json = DefaultJsonMapper.toJson(request);
         ArbeidsfordelingRequest roundTripped = DefaultJsonMapper.fromJson(json, ArbeidsfordelingRequest.class);

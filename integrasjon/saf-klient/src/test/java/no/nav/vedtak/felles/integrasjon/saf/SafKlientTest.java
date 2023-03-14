@@ -1,12 +1,14 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
-import no.nav.saf.*;
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.RestClient;
-import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,14 +18,31 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import no.nav.saf.AvsenderMottakerResponseProjection;
+import no.nav.saf.BrukerResponseProjection;
+import no.nav.saf.DokumentInfoResponseProjection;
+import no.nav.saf.Dokumentoversikt;
+import no.nav.saf.DokumentoversiktFagsakQueryRequest;
+import no.nav.saf.DokumentoversiktFagsakQueryResponse;
+import no.nav.saf.DokumentoversiktResponseProjection;
+import no.nav.saf.DokumentvariantResponseProjection;
+import no.nav.saf.FagsakInput;
+import no.nav.saf.Journalpost;
+import no.nav.saf.JournalpostQueryRequest;
+import no.nav.saf.JournalpostQueryResponse;
+import no.nav.saf.JournalpostResponseProjection;
+import no.nav.saf.LogiskVedleggResponseProjection;
+import no.nav.saf.RelevantDatoResponseProjection;
+import no.nav.saf.SakResponseProjection;
+import no.nav.saf.Tilknytning;
+import no.nav.saf.TilknyttedeJournalposterQueryRequest;
+import no.nav.saf.TilknyttedeJournalposterQueryResponse;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
@@ -91,9 +110,7 @@ class SafKlientTest {
         var query = new TilknyttedeJournalposterQueryRequest();
         query.setDokumentInfoId("dokumentInfoId");
         query.setTilknytning(Tilknytning.GJENBRUK);
-        var projection = new JournalpostResponseProjection()
-            .journalpostId()
-            .eksternReferanseId();
+        var projection = new JournalpostResponseProjection().journalpostId().eksternReferanseId();
 
         List<Journalpost> journalposter = safTjeneste.hentTilknyttedeJournalposter(query, projection);
 
@@ -132,81 +149,46 @@ class SafKlientTest {
     }
 
     private DokumentoversiktResponseProjection byggDokumentoversiktResponseProjection() {
-        return new DokumentoversiktResponseProjection()
-            .journalposter(new JournalpostResponseProjection()
-                .journalpostId()
-                .tittel()
-                .journalposttype()
-                .journalstatus()
-                .kanal()
-                .tema()
-                .behandlingstema()
-                .sak(new SakResponseProjection()
-                    .arkivsaksnummer()
-                    .arkivsaksystem()
-                    .fagsaksystem()
-                    .fagsakId())
-                .bruker(new BrukerResponseProjection()
-                    .id()
-                    .type())
-                .avsenderMottaker(new AvsenderMottakerResponseProjection()
-                    .id()
-                    .type()
-                    .navn())
-                .journalfoerendeEnhet()
-                .dokumenter(new DokumentInfoResponseProjection()
-                    .dokumentInfoId()
-                    .tittel()
-                    .brevkode()
-                    .dokumentvarianter(new DokumentvariantResponseProjection()
-                        .variantformat()
-                        .filnavn()
-                        .filtype()
-                        .saksbehandlerHarTilgang())
-                    .logiskeVedlegg(new LogiskVedleggResponseProjection()
-                        .tittel()))
-                .datoOpprettet()
-                .relevanteDatoer(new RelevantDatoResponseProjection()
-                    .dato()
-                    .datotype())
-                .eksternReferanseId());
-    }
-
-    private JournalpostResponseProjection byggJournalpostResponseProjection() {
-        return new JournalpostResponseProjection()
-            .journalpostId()
+        return new DokumentoversiktResponseProjection().journalposter(new JournalpostResponseProjection().journalpostId()
             .tittel()
             .journalposttype()
             .journalstatus()
             .kanal()
             .tema()
             .behandlingstema()
-            .sak(new SakResponseProjection()
-                .arkivsaksnummer()
-                .arkivsaksystem()
-                .fagsaksystem()
-                .fagsakId())
-            .bruker(new BrukerResponseProjection()
-                .id()
-                .type())
-            .avsenderMottaker(new AvsenderMottakerResponseProjection()
-                .id()
-                .type()
-                .navn())
+            .sak(new SakResponseProjection().arkivsaksnummer().arkivsaksystem().fagsaksystem().fagsakId())
+            .bruker(new BrukerResponseProjection().id().type())
+            .avsenderMottaker(new AvsenderMottakerResponseProjection().id().type().navn())
             .journalfoerendeEnhet()
-            .dokumenter(new DokumentInfoResponseProjection()
-                .dokumentInfoId()
+            .dokumenter(new DokumentInfoResponseProjection().dokumentInfoId()
                 .tittel()
                 .brevkode()
-                .dokumentvarianter(new DokumentvariantResponseProjection()
-                    .variantformat()
-                    .filnavn())
-                .logiskeVedlegg(new LogiskVedleggResponseProjection()
-                    .tittel()))
+                .dokumentvarianter(new DokumentvariantResponseProjection().variantformat().filnavn().filtype().saksbehandlerHarTilgang())
+                .logiskeVedlegg(new LogiskVedleggResponseProjection().tittel()))
             .datoOpprettet()
-            .relevanteDatoer(new RelevantDatoResponseProjection()
-                .dato()
-                .datotype())
+            .relevanteDatoer(new RelevantDatoResponseProjection().dato().datotype())
+            .eksternReferanseId());
+    }
+
+    private JournalpostResponseProjection byggJournalpostResponseProjection() {
+        return new JournalpostResponseProjection().journalpostId()
+            .tittel()
+            .journalposttype()
+            .journalstatus()
+            .kanal()
+            .tema()
+            .behandlingstema()
+            .sak(new SakResponseProjection().arkivsaksnummer().arkivsaksystem().fagsaksystem().fagsakId())
+            .bruker(new BrukerResponseProjection().id().type())
+            .avsenderMottaker(new AvsenderMottakerResponseProjection().id().type().navn())
+            .journalfoerendeEnhet()
+            .dokumenter(new DokumentInfoResponseProjection().dokumentInfoId()
+                .tittel()
+                .brevkode()
+                .dokumentvarianter(new DokumentvariantResponseProjection().variantformat().filnavn())
+                .logiskeVedlegg(new LogiskVedleggResponseProjection().tittel()))
+            .datoOpprettet()
+            .relevanteDatoer(new RelevantDatoResponseProjection().dato().datotype())
             .eksternReferanseId();
     }
 

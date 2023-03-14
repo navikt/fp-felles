@@ -27,7 +27,9 @@ public abstract class AbstractSkjermetPersonOnPremKlient implements Skjerming {
 
     @Override
     public boolean erSkjermet(String fnr) {
-        if (TESTENV || fnr == null) return false;
+        if (TESTENV || fnr == null) {
+            return false;
+        }
 
         var request = RestRequest.newPOSTJson(new SkjermetRequestDto(fnr), restConfig.endpoint(), restConfig);
 

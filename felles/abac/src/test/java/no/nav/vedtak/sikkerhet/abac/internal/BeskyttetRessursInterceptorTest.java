@@ -9,6 +9,7 @@ import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+
 import org.assertj.core.api.Fail;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.interceptor.InvocationContext;
 import javax.ws.rs.Path;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -60,8 +62,7 @@ public class BeskyttetRessursInterceptorTest {
             "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
     }
 
-    private void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(AbacAuditlogger abacAuditLogger)
-        throws Exception {
+    private void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(AbacAuditlogger abacAuditLogger) throws Exception {
         mockTokenProvider();
 
         BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
@@ -97,8 +98,7 @@ public class BeskyttetRessursInterceptorTest {
     }
 
     @Test
-    void auditlog_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering()
-        throws Exception {
+    void auditlog_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering() throws Exception {
         when(tokenProvider.openIdToken()).thenReturn(DUMMY_OPENID_TOKEN);
         final Auditlogger auditlogger = mock(Auditlogger.class);
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
@@ -106,8 +106,7 @@ public class BeskyttetRessursInterceptorTest {
         verify(auditlogger, never()).logg(Mockito.any());
     }
 
-    private void skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering(
-        AbacAuditlogger abacAuditLogger) throws Exception {
+    private void skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering(AbacAuditlogger abacAuditLogger) throws Exception {
         mockTokenProvider();
         BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
             var ressurs = AppRessursData.builder().leggTilAktørId(aktør1.getAktørId()).build();

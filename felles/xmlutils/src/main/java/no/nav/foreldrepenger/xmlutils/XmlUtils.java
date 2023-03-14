@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.xmlutils;
 
-import java.io.StringReader;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import no.nav.vedtak.exception.TekniskException;
+
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
@@ -16,9 +12,9 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.xml.sax.SAXException;
-
-import no.nav.vedtak.exception.TekniskException;
+import java.io.StringReader;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
 
 public final class XmlUtils {
 
@@ -27,7 +23,8 @@ public final class XmlUtils {
     private XmlUtils() {
     }
 
-    public static Map<String, Map.Entry<Class<?>, Schema>> createUnmodifiableMap(String jaxbClassName, List<String> namespaces,
+    public static Map<String, Map.Entry<Class<?>, Schema>> createUnmodifiableMap(String jaxbClassName,
+                                                                                 List<String> namespaces,
                                                                                  List<String> xsdLocations) {
         if (namespaces.size() != xsdLocations.size()) {
             throw new IllegalArgumentException();
@@ -38,8 +35,8 @@ public final class XmlUtils {
             var schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             tempMap = new HashMap<>();
             for (var i = 0; i < namespaces.size(); i++) {
-                var schema = schemaFactory
-                    .newSchema(new StreamSource(Objects.requireNonNull(XmlUtils.class.getClassLoader().getResource(xsdLocations.get(i))).toExternalForm()));
+                var schema = schemaFactory.newSchema(
+                    new StreamSource(Objects.requireNonNull(XmlUtils.class.getClassLoader().getResource(xsdLocations.get(i))).toExternalForm()));
                 tempMap.put(namespaces.get(i), new SimpleEntry<>(jaxbClass, schema));
             }
         } catch (SAXException e) {
@@ -57,8 +54,8 @@ public final class XmlUtils {
             final var jaxbClass = Class.forName(jaxbClassName);
 
             var schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            final var schema = schemaFactory
-                .newSchema(new StreamSource(Objects.requireNonNull(XmlUtils.class.getClassLoader().getResource(xsdLocation)).toExternalForm()));
+            final var schema = schemaFactory.newSchema(
+                new StreamSource(Objects.requireNonNull(XmlUtils.class.getClassLoader().getResource(xsdLocation)).toExternalForm()));
             tempMap = Collections.singletonMap(namespace, new SimpleEntry<>(jaxbClass, schema));
         } catch (SAXException e) {
             throw new TekniskException("F-350888", "Feilet på instansiering av schema for xsd-validering.", e);

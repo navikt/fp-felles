@@ -1,7 +1,8 @@
 package no.nav.vedtak.sikkerhet.context.containers;
 
-import no.nav.vedtak.exception.TekniskException;
-import org.w3c.dom.Element;
+import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
+
+import java.io.StringWriter;
 
 import javax.security.auth.Destroyable;
 import javax.xml.transform.Transformer;
@@ -9,9 +10,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.StringWriter;
 
-import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
+import org.w3c.dom.Element;
+
+import no.nav.vedtak.exception.TekniskException;
 
 public class SAMLAssertionCredential implements Destroyable {
 

@@ -1,13 +1,14 @@
 package no.nav.vedtak.log.mdc;
 
-import org.slf4j.MDC;
+import static org.slf4j.MDC.get;
+import static org.slf4j.MDC.put;
 
-import javax.xml.namespace.QName;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.slf4j.MDC.get;
-import static org.slf4j.MDC.put;
+import javax.xml.namespace.QName;
+
+import org.slf4j.MDC;
 
 /**
  * Utility-klasse for kommunikasjon med MDC.
@@ -24,20 +25,17 @@ public final class MDCOperations {
     @Deprecated
     /*
      * Bruk NAV_CALL_ID isteden
-     */
-    public static final String MDC_CALL_ID = "callId";
+     */ public static final String MDC_CALL_ID = "callId";
 
     @Deprecated
     /*
      * Bruk NAV_USER_ID isteden
-     */
-    public static final String MDC_USER_ID = "userId";
+     */ public static final String MDC_USER_ID = "userId";
 
     @Deprecated
     /*
      * Bruk NAV_CONSUMER_ID isteden
-     */
-    public static final String MDC_CONSUMER_ID = "consumerId";
+     */ public static final String MDC_CONSUMER_ID = "consumerId";
 
     // QName for the callId header
     public static final QName CALLID_QNAME = new QName("uri:no.nav.applikasjonsrammeverk", MDC_CALL_ID);

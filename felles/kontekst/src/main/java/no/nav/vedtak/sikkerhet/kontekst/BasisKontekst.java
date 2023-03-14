@@ -1,8 +1,8 @@
 package no.nav.vedtak.sikkerhet.kontekst;
 
-import no.nav.foreldrepenger.konfig.Environment;
-
 import java.util.Optional;
+
+import no.nav.foreldrepenger.konfig.Environment;
 
 public class BasisKontekst implements Kontekst {
 

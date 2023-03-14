@@ -1,22 +1,22 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Optional;
+
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Optional;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public class Token {
 
-    private static final JwtConsumer unvalidatingConsumer = new JwtConsumerBuilder()
-        .setSkipAllValidators()
+    private static final JwtConsumer unvalidatingConsumer = new JwtConsumerBuilder().setSkipAllValidators()
         .setDisableRequireSignature()
         .setSkipSignatureVerification()
         .build();

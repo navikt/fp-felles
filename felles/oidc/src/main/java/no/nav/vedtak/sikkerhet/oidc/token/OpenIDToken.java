@@ -1,17 +1,13 @@
 package no.nav.vedtak.sikkerhet.oidc.token;
 
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 
-public record OpenIDToken(OpenIDProvider provider,
-                          String tokenType,
-                          TokenString primary,
-                          String scope,
-                          long expiresAtMillis) {
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+
+public record OpenIDToken(OpenIDProvider provider, String tokenType, TokenString primary, String scope, long expiresAtMillis) {
 
     public static final String OIDC_DEFAULT_TOKEN_TYPE = "Bearer ";
 
@@ -23,11 +19,7 @@ public record OpenIDToken(OpenIDProvider provider,
         this(provider, OIDC_DEFAULT_TOKEN_TYPE, token, null, System.currentTimeMillis() + (150 * MILLIS));
     }
 
-    public OpenIDToken(OpenIDProvider provider,
-                       String tokenType,
-                       TokenString primary,
-                       String scope,
-                       Integer expireIn) {
+    public OpenIDToken(OpenIDProvider provider, String tokenType, TokenString primary, String scope, Integer expireIn) {
         this(provider, tokenType, primary, scope, expireAtFromExpireIn(expireIn));
     }
 
@@ -49,13 +41,12 @@ public record OpenIDToken(OpenIDProvider provider,
 
     @Override
     public String toString() {
-        return "OpenIDToken{" +
-            "provider=" + provider +
-            ", expiresAt=" + expiresAt() +
-            '}';
+        return "OpenIDToken{" + "provider=" + provider + ", expiresAt=" + expiresAt() + '}';
     }
 
     private static long expireAtFromExpireIn(Integer expireIn) {
-        return System.currentTimeMillis() + (MILLIS * (Optional.ofNullable(expireIn).map(e -> e > LONGLIFE ? expireIn - BUFFER : expireIn).orElse(0)));
+        return System.currentTimeMillis() + (MILLIS * (Optional.ofNullable(expireIn)
+            .map(e -> e > LONGLIFE ? expireIn - BUFFER : expireIn)
+            .orElse(0)));
     }
 }

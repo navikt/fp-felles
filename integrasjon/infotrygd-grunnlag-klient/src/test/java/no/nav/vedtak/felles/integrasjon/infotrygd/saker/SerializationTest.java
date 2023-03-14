@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.infotrygd.saker;
 
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
@@ -114,38 +115,23 @@ class SerializationTest {
     }
 
     private static List<Saker.AvsluttedeSaker.AvsluttetSak> alleAvsluttedeSaker(int n) {
-        return IntStream.range(0, n)
-            .boxed()
-            .map(SerializationTest::enAvsluttetSak)
-            .toList();
+        return IntStream.range(0, n).boxed().map(SerializationTest::enAvsluttetSak).toList();
     }
 
     private static List<Saker.Utbetaling> utbetalinger(int n) {
-        return IntStream.range(0, n)
-            .boxed()
-            .map(SerializationTest::utbetaling)
-            .toList();
+        return IntStream.range(0, n).boxed().map(SerializationTest::utbetaling).toList();
     }
 
     private static List<Saker.LøpendeSak> åpneSaker(int n) {
-        return IntStream.range(0, n)
-            .boxed()
-            .map(SerializationTest::åpenSak)
-            .toList();
+        return IntStream.range(0, n).boxed().map(SerializationTest::åpenSak).toList();
     }
 
     private static List<Saker.Sak> saker(int n) {
-        return IntStream.range(0, n)
-            .boxed()
-            .map(SerializationTest::enSak)
-            .toList();
+        return IntStream.range(0, n).boxed().map(SerializationTest::enSak).toList();
     }
 
     private static List<Saker.IkkeStartetSak> ikkeStartedeSaker(int n) {
-        return IntStream.range(0, n)
-            .boxed()
-            .map(SerializationTest::enIkkeStartetSak)
-            .collect(toList());
+        return IntStream.range(0, n).boxed().map(SerializationTest::enIkkeStartetSak).collect(toList());
     }
 
     private static Saker.Utbetaling utbetaling(int n) {

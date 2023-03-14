@@ -1,11 +1,18 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
+import java.util.List;
+
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
-import no.nav.saf.*;
 
-import java.util.List;
+import no.nav.saf.Dokumentoversikt;
+import no.nav.saf.DokumentoversiktFagsakQueryRequest;
+import no.nav.saf.DokumentoversiktResponseProjection;
+import no.nav.saf.Journalpost;
+import no.nav.saf.JournalpostQueryRequest;
+import no.nav.saf.JournalpostResponseProjection;
+import no.nav.saf.TilknyttedeJournalposterQueryRequest;
 
 public interface Saf {
 

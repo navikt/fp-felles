@@ -1,5 +1,11 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
@@ -7,13 +13,13 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.Category;
 import no.nav.vedtak.sikkerhet.pdp.xacml.NavFellesAttributter;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
 
-import java.util.*;
-
 public class XacmlRequestMapper {
 
     private static final Environment ENV = Environment.current();
 
-    public static XacmlRequest lagXacmlRequest(BeskyttetRessursAttributter beskyttetRessursAttributter, String domene, AppRessursData appRessursData) {
+    public static XacmlRequest lagXacmlRequest(BeskyttetRessursAttributter beskyttetRessursAttributter,
+                                               String domene,
+                                               AppRessursData appRessursData) {
         var actionAttributes = new XacmlRequest.Attributes(List.of(actionInfo(beskyttetRessursAttributter)));
 
         List<XacmlRequest.AttributeAssignment> envList = new ArrayList<>();
@@ -37,13 +43,19 @@ public class XacmlRequestMapper {
         return new XacmlRequest(requestMap);
     }
 
-    private static XacmlRequest.Attributes resourceInfo(BeskyttetRessursAttributter beskyttetRessursAttributter, String domene, AppRessursData appRessursData, Ident ident) {
+    private static XacmlRequest.Attributes resourceInfo(BeskyttetRessursAttributter beskyttetRessursAttributter,
+                                                        String domene,
+                                                        AppRessursData appRessursData,
+                                                        Ident ident) {
         List<XacmlRequest.AttributeAssignment> attributes = new ArrayList<>();
 
         attributes.add(new XacmlRequest.AttributeAssignment(NavFellesAttributter.RESOURCE_FELLES_DOMENE, domene));
-        attributes.add(new XacmlRequest.AttributeAssignment(NavFellesAttributter.RESOURCE_FELLES_RESOURCE_TYPE, beskyttetRessursAttributter.getResourceType()));
+        attributes.add(
+            new XacmlRequest.AttributeAssignment(NavFellesAttributter.RESOURCE_FELLES_RESOURCE_TYPE, beskyttetRessursAttributter.getResourceType()));
 
-        appRessursData.getResources().values().stream()
+        appRessursData.getResources()
+            .values()
+            .stream()
             .map(ressursData -> new XacmlRequest.AttributeAssignment(ressursData.nøkkel().getKey(), ressursData.verdi()))
             .forEach(attributes::add);
 
@@ -54,7 +66,8 @@ public class XacmlRequestMapper {
     }
 
     private static XacmlRequest.AttributeAssignment actionInfo(final BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        return new XacmlRequest.AttributeAssignment(NavFellesAttributter.XACML10_ACTION_ID, beskyttetRessursAttributter.getActionType().getEksternKode());
+        return new XacmlRequest.AttributeAssignment(NavFellesAttributter.XACML10_ACTION_ID,
+            beskyttetRessursAttributter.getActionType().getEksternKode());
     }
 
     private static XacmlRequest.AttributeAssignment getPepIdInfo(final BeskyttetRessursAttributter beskyttetRessursAttributter) {
@@ -78,13 +91,12 @@ public class XacmlRequestMapper {
 
     private static List<Ident> hentIdenter(AppRessursData appRessursData) {
         List<Ident> identer = new ArrayList<>();
-        appRessursData.getAktørIdSet().stream()
+        appRessursData.getAktørIdSet()
+            .stream()
             .map(it -> new Ident(NavFellesAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, it))
             .forEach(identer::add);
 
-        appRessursData.getFødselsnumre().stream()
-            .map(it -> new Ident(NavFellesAttributter.RESOURCE_FELLES_PERSON_FNR, it))
-            .forEach(identer::add);
+        appRessursData.getFødselsnumre().stream().map(it -> new Ident(NavFellesAttributter.RESOURCE_FELLES_PERSON_FNR, it)).forEach(identer::add);
 
         return identer;
     }

@@ -1,11 +1,11 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import no.nav.foreldrepenger.konfig.Environment;
-
 import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+
+import no.nav.foreldrepenger.konfig.Environment;
 
 /**
  * Object to hold information extracted from RestClientConfig annotations.
@@ -39,13 +39,13 @@ public record RestConfig(TokenFlow tokenConfig, URI endpoint, String scopes, URI
     private static final Set<TokenFlow> REQUIRE_SCOPE = Set.of(TokenFlow.AZUREAD_CC);
 
     private static URI endpointFromAnnotation(RestClientConfig config) {
-        return fromAnnotation(config, FpApplication::contextPathFor, RestClientConfig::endpointProperty, RestClientConfig::endpointDefault)
-            .map(URI::create)
-            .orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: mangler endpoint for " + config));
+        return fromAnnotation(config, FpApplication::contextPathFor, RestClientConfig::endpointProperty, RestClientConfig::endpointDefault).map(
+            URI::create).orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: mangler endpoint for " + config));
     }
 
     private static Optional<URI> contextPathFromAnnotation(RestClientConfig config) {
-        return Optional.of(config).map(RestClientConfig::application)
+        return Optional.of(config)
+            .map(RestClientConfig::application)
             .filter(FpApplication::specified)
             .map(FpApplication::contextPathFor)
             .map(URI::create);
@@ -68,8 +68,7 @@ public record RestConfig(TokenFlow tokenConfig, URI endpoint, String scopes, URI
                                                    Function<FpApplication, String> internal,
                                                    Function<RestClientConfig, String> selector,
                                                    Function<RestClientConfig, String> defaultValue) {
-        return nonEmpty(annotation, selector)
-            .map(ENV::getProperty)
+        return nonEmpty(annotation, selector).map(ENV::getProperty)
             .or(() -> Optional.of(annotation).map(RestClientConfig::application).filter(FpApplication::specified).map(internal))
             .or(() -> nonEmpty(annotation, defaultValue));
     }

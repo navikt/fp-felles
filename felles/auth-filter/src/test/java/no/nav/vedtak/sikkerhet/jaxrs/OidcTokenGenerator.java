@@ -1,6 +1,7 @@
 package no.nav.vedtak.sikkerhet.jaxrs;
 
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;

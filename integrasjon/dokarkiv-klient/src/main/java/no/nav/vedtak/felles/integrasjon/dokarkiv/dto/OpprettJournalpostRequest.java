@@ -4,15 +4,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public record OpprettJournalpostRequest(JournalpostType journalpostType,
-                                        String tittel,
-                                        AvsenderMottaker avsenderMottaker, String kanal,
-                                        Bruker bruker, String tema,
-                                        String behandlingstema,
-                                        Sak sak, String journalfoerendeEnhet,
-                                        LocalDate datoMottatt,
-                                        String eksternReferanseId,
-                                        List<Tilleggsopplysning> tilleggsopplysninger,
+public record OpprettJournalpostRequest(JournalpostType journalpostType, String tittel, AvsenderMottaker avsenderMottaker, String kanal,
+                                        Bruker bruker, String tema, String behandlingstema, Sak sak, String journalfoerendeEnhet,
+                                        LocalDate datoMottatt, String eksternReferanseId, List<Tilleggsopplysning> tilleggsopplysninger,
                                         List<DokumentInfoOpprett> dokumenter) {
 
     public static OpprettJournalpostRequestBuilder nyInngående() {
@@ -112,9 +106,8 @@ public record OpprettJournalpostRequest(JournalpostType journalpostType,
             if (dokumenter.isEmpty()) {
                 throw new IllegalArgumentException("Mangler dokumenter tiul ny journalpost");
             }
-            return new OpprettJournalpostRequest(journalpostType, tittel, avsenderMottaker, kanal, bruker,
-                tema, behandlingstema, sak, journalfoerendeEnhet, datoMottatt, eksternReferanseId,
-                tilleggsopplysninger, dokumenter);
+            return new OpprettJournalpostRequest(journalpostType, tittel, avsenderMottaker, kanal, bruker, tema, behandlingstema, sak,
+                journalfoerendeEnhet, datoMottatt, eksternReferanseId, tilleggsopplysninger, dokumenter);
         }
     }
 }

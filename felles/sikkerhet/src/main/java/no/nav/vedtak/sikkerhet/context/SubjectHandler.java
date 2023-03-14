@@ -1,15 +1,20 @@
 package no.nav.vedtak.sikkerhet.context;
 
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.sikkerhet.context.containers.*;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-
-import javax.security.auth.Subject;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.security.auth.Subject;
+
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
+import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
+import no.nav.vedtak.sikkerhet.context.containers.OidcCredential;
+import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
+import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public abstract class SubjectHandler {
     public abstract Subject getSubject();
@@ -23,9 +28,7 @@ public abstract class SubjectHandler {
     }
 
     public static String getUid(Subject subject) {
-        return Optional.ofNullable(getSluttBruker(subject))
-            .map(SluttBruker::getName)
-            .orElse(null);
+        return Optional.ofNullable(getSluttBruker(subject)).map(SluttBruker::getName).orElse(null);
     }
 
     public SluttBruker getSluttBruker() {
@@ -33,10 +36,7 @@ public abstract class SubjectHandler {
     }
 
     public static SluttBruker getSluttBruker(Subject subject) {
-        return Optional.ofNullable(subject)
-            .map(s -> s.getPrincipals(SluttBruker.class))
-            .map(SubjectHandler::getTheOnlyOneInSet)
-            .orElse(null);
+        return Optional.ofNullable(subject).map(s -> s.getPrincipals(SluttBruker.class)).map(SubjectHandler::getTheOnlyOneInSet).orElse(null);
     }
 
     public IdentType getIdentType() {
@@ -105,10 +105,7 @@ public abstract class SubjectHandler {
 
         // logging class names to the log to help debug. Cannot log actual objects,
         // since then ID_tokens may be logged
-        Set<String> classNames = set.stream()
-            .map(Object::getClass)
-            .map(Class::getName)
-            .collect(Collectors.toSet());
+        Set<String> classNames = set.stream().map(Object::getClass).map(Class::getName).collect(Collectors.toSet());
         throw new TekniskException("F-327190",
             String.format("Forventet ingen eller ett element, men fikk %s elementer av type %s", set.size(), classNames));
     }

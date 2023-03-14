@@ -43,8 +43,9 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
     private static String getOnBehalfOfString() {
         var base64encodedJTW = Base64.getEncoder().encodeToString(getJwtAsBytes());
-        return "<wsse:BinarySecurityToken EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"urn:ietf:params:oauth:token-type:jwt\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"
-            + base64encodedJTW + "</wsse:BinarySecurityToken>";
+        return
+            "<wsse:BinarySecurityToken EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"urn:ietf:params:oauth:token-type:jwt\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"
+                + base64encodedJTW + "</wsse:BinarySecurityToken>";
     }
 
     private static byte[] getJwtAsBytes() {

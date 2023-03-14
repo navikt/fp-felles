@@ -1,16 +1,10 @@
 package no.nav.vedtak.sikkerhet.oidc.validator;
 
-import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
-import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
-import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandlerImpl;
-import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import org.jose4j.json.JsonUtil;
-import org.jose4j.jwt.NumericDate;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -18,10 +12,18 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.jose4j.json.JsonUtil;
+import org.jose4j.jwt.NumericDate;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
+import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
+import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandlerImpl;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 class OidcTokenValidatorTest {
 
@@ -30,7 +32,8 @@ class OidcTokenValidatorTest {
     @BeforeEach
     public void beforeEach() {
 
-        System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(), OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
+        System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(),
+            OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
         System.setProperty(AzureProperty.AZURE_APP_CLIENT_ID.name(), "OIDC");
         System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), OidcTokenGenerator.ISSUER);
         System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), OidcTokenGenerator.ISSUER + "/jwks_uri");
@@ -39,22 +42,22 @@ class OidcTokenValidatorTest {
                 put(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), OidcTokenGenerator.ISSUER);
             }
         };
-        WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH, JsonUtil.toJson(testData));
-        tokenValidator = new OidcTokenValidator(OidcProviderConfig.instance().getOidcConfig(OpenIDProvider.AZUREAD).orElseThrow(), new JwksKeyHandlerFromString(KeyStoreTool.getJwks()));
+        WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH,
+            JsonUtil.toJson(testData));
+        tokenValidator = new OidcTokenValidator(OidcProviderConfig.instance().getOidcConfig(OpenIDProvider.AZUREAD).orElseThrow(),
+            new JwksKeyHandlerFromString(KeyStoreTool.getJwks()));
     }
 
     @Test
     void skal_godta_token_som_har_forventede_verdier() {
         var token = new OidcTokenGenerator().createHeaderTokenHolder();
-        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        var result = tokenValidator.validate(token);
         assertValid(result);
     }
 
     @Test
     void skal_godta_token_som_har_forventede_verdier_og_i_tillegg_har_noen_ukjente_claims() {
-        var token = new OidcTokenGenerator()
-            .withClaim("email", "foo@bar.nav.no")
-            .createHeaderTokenHolder();
+        var token = new OidcTokenGenerator().withClaim("email", "foo@bar.nav.no").createHeaderTokenHolder();
 
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertValid(result);
@@ -66,9 +69,7 @@ class OidcTokenValidatorTest {
         // 3.1.3.7 ID Token Validation
         // 2 ..The Issuer Identifier for the OpenID provider .. MUST exactly match the
         // value of the iss (issuer) Claim.
-        var token = new OidcTokenGenerator()
-            .withIssuer("https://tull.nav.no")
-            .createHeaderTokenHolder();
+        var token = new OidcTokenGenerator().withIssuer("https://tull.nav.no").createHeaderTokenHolder();
 
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertInvalid(result,
@@ -90,11 +91,9 @@ class OidcTokenValidatorTest {
         // Det gjøres unntak fra regelene over for å kunne bruke token på tvers i nav.
         // dette er OK siden nav er issuer og bare utsteder tokens til seg selv
 
-        var token = new OidcTokenGenerator()
-            .withAud(asList("noe"))
-            .createHeaderTokenHolder();
+        var token = new OidcTokenGenerator().withAud(asList("noe")).createHeaderTokenHolder();
 
-        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        var result = tokenValidator.validate(token);
         assertValid(result);
     }
 
@@ -104,12 +103,9 @@ class OidcTokenValidatorTest {
         // 3.1.3.7 ID Token Validation
         // 4 If the ID Token contains multiple audiences, the Client SHOULD verify that
         // an azp Claim is present
-        var token = new OidcTokenGenerator()
-            .withoutAzp()
-            .withAud(Arrays.asList("foo", "bar"))
-            .createHeaderTokenHolder();
+        var token = new OidcTokenGenerator().withoutAzp().withAud(Arrays.asList("foo", "bar")).createHeaderTokenHolder();
 
-        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        var result = tokenValidator.validate(token);
         assertInvalid(result, "Either an azp-claim or a single value aud-claim is required");
     }
 
@@ -123,11 +119,9 @@ class OidcTokenValidatorTest {
         // Det gjøres unntak fra regelene over for å kunne bruke token på tvers i nav.
         // dette er OK siden nav er issuer og bare utsteder tokens til seg selv
 
-        var token = new OidcTokenGenerator()
-            .withClaim("azp", "noe")
-            .createHeaderTokenHolder();
+        var token = new OidcTokenGenerator().withClaim("azp", "noe").createHeaderTokenHolder();
 
-        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        var result = tokenValidator.validate(token);
         assertValid(result);
     }
 
@@ -140,12 +134,10 @@ class OidcTokenValidatorTest {
 
         var langClientId = "klusternavn:langtnamespace:applikasjon";
 
-        var token = new OidcTokenGenerator()
-            .withClaim(AzureProperty.AZP_NAME, langClientId)
-            .withClaim("oid", "demo") // samme som sub for CC
+        var token = new OidcTokenGenerator().withClaim(AzureProperty.AZP_NAME, langClientId).withClaim("oid", "demo") // samme som sub for CC
             .createHeaderTokenHolder();
 
-        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        var result = tokenValidator.validate(token);
         assertValid(result);
         assertThat(result.getSubject()).isEqualTo(langClientId);
         assertThat(result.getCompactSubject()).isEqualTo("srvapplikasjon");
@@ -161,10 +153,10 @@ class OidcTokenValidatorTest {
 
         var token = new OidcTokenGenerator().createHeaderTokenHolder();
 
-        OidcTokenValidator tokenValidator = new OidcTokenValidator(OpenIDProvider.AZUREAD, OidcTokenGenerator.ISSUER,
-            new JwksKeyHandlerFromString(
-                "{\"keys\":[{\"kty\":\"RSA\",\"kid\":\"1\",\"use\":\"sig\",\"alg\":\"RS256\",\"n\":\"AM2uHZfbHbDfkCTG8GaZO2zOBDmL4sQgNzCSFqlQ-ikAwTV5ptyAHYC3JEy_LtMcRSv3E7r0yCW_7WtzT-CgBYQilb_lz1JmED3TgiThEolN2kaciY06UGycSj8wEYik-3PxuVeKr3uw6LVEohM3rrCjdlkQ_jctuvuUrCedbsb2hVw6Q17PQbWURq8v3gtXmGMD8KcR7e0dtf0ZoMOfZQoFJZ-a5dMFzXeP8Ffz_c0uBLSddd-FqOhzVDiMbvFI9XKE22TWghYanPpPsGGZYioQbJfu5VtphR6zNjiUp9O4lA_qEkbBpRA8SaUTCz3PcirFYDg0zvV8p2hgY9jyCj0\",\"e\":\"AQAB\"}]}"), "OIDC");
-        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        var tokenValidator = new OidcTokenValidator(OpenIDProvider.AZUREAD, OidcTokenGenerator.ISSUER, new JwksKeyHandlerFromString(
+            "{\"keys\":[{\"kty\":\"RSA\",\"kid\":\"1\",\"use\":\"sig\",\"alg\":\"RS256\",\"n\":\"AM2uHZfbHbDfkCTG8GaZO2zOBDmL4sQgNzCSFqlQ-ikAwTV5ptyAHYC3JEy_LtMcRSv3E7r0yCW_7WtzT-CgBYQilb_lz1JmED3TgiThEolN2kaciY06UGycSj8wEYik-3PxuVeKr3uw6LVEohM3rrCjdlkQ_jctuvuUrCedbsb2hVw6Q17PQbWURq8v3gtXmGMD8KcR7e0dtf0ZoMOfZQoFJZ-a5dMFzXeP8Ffz_c0uBLSddd-FqOhzVDiMbvFI9XKE22TWghYanPpPsGGZYioQbJfu5VtphR6zNjiUp9O4lA_qEkbBpRA8SaUTCz3PcirFYDg0zvV8p2hgY9jyCj0\",\"e\":\"AQAB\"}]}"),
+            "OIDC");
+        var result = tokenValidator.validate(token);
         assertInvalid(result, "JWT rejected due to invalid signature");
     }
 
@@ -173,45 +165,52 @@ class OidcTokenValidatorTest {
         // OpenID Connect Core 1.0 incorporating errata set 1
         // 3.1.3.7 ID Token Validation
         // 9 The current time MUST be before the time represented by the exp Claim
-        long now = NumericDate.now().getValue();
-        var token = new OidcTokenGenerator()
-            .withIssuedAt(NumericDate.fromSeconds(now - 3601))
-            .withExpiration(NumericDate.fromSeconds(now - 31)).createHeaderTokenHolder();
+        var now = NumericDate.now().getValue();
+        var token = new OidcTokenGenerator().withIssuedAt(NumericDate.fromSeconds(now - 3601))
+            .withExpiration(NumericDate.fromSeconds(now - 31))
+            .createHeaderTokenHolder();
 
-        OidcTokenValidatorResult result = tokenValidator.validate(token);
+        var result = tokenValidator.validate(token);
         assertInvalid(result, "is on or after the Expiration Time");
     }
 
     @Test
     void skal_godta_token_som_har_gått_ut_på_tid_i_egen_metode_som_validerer_uten_tid() {
-        long now = NumericDate.now().getValue();
-        var token = new OidcTokenGenerator()
-            .withIssuedAt(NumericDate.fromSeconds(now - 3601))
-            .withExpiration(NumericDate.fromSeconds(now - 31)).createHeaderTokenHolder();
+        var now = NumericDate.now().getValue();
+        var token = new OidcTokenGenerator().withIssuedAt(NumericDate.fromSeconds(now - 3601))
+            .withExpiration(NumericDate.fromSeconds(now - 31))
+            .createHeaderTokenHolder();
 
-        OidcTokenValidatorResult result = tokenValidator.validateWithoutExpirationTime(token);
+        var result = tokenValidator.validateWithoutExpirationTime(token);
         assertValid(result);
     }
 
     @Test
     void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_issuer() {
         WellKnownConfigurationHelper.setWellKnownConfig("azureAD", "{}");
-        var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(OpenIDProvider.AZUREAD, null, new JwksKeyHandlerFromString(KeyStoreTool.getJwks()), "OIDC"));
-        assertTrue(e.getMessage().contains("Expected issuer must be configured"));
+
+        var keyHandler = new JwksKeyHandlerFromString(KeyStoreTool.getJwks());
+        var message = assertThrows(IllegalStateException.class,
+            () -> new OidcTokenValidator(OpenIDProvider.AZUREAD, null, keyHandler, "OIDC"));
+
+        assertThat(message.getMessage()).contains("Expected issuer must be configured");
     }
 
     @Test
     void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_audience() {
         System.clearProperty(AzureProperty.AZURE_APP_CLIENT_ID.name());
-        var e = assertThrows(IllegalStateException.class, () -> new OidcTokenValidator(OpenIDProvider.AZUREAD, OidcTokenGenerator.ISSUER, new JwksKeyHandlerFromString(KeyStoreTool.getJwks()), null));
-        assertTrue(e.getMessage().contains("Expected audience must be configured"));
+
+        var keyHandler = new JwksKeyHandlerFromString(KeyStoreTool.getJwks());
+        var message = assertThrows(IllegalStateException.class,
+            () -> new OidcTokenValidator(OpenIDProvider.AZUREAD, OidcTokenGenerator.ISSUER, keyHandler,
+                null));
+
+        assertThat(message.getMessage()).contains("Expected audience must be configured");
     }
 
     @Test
     void skal_ikke_godta_token_som_har_kid_som_ikke_finnes_i_jwks() {
-        var token = new OidcTokenGenerator()
-            .withKid("124135g8e")
-            .createHeaderTokenHolder();
+        var token = new OidcTokenGenerator().withKid("124135g8e").createHeaderTokenHolder();
 
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertInvalid(result, "124135g8e", "is not in jwks");
@@ -227,18 +226,15 @@ class OidcTokenValidatorTest {
     @Test
     void skal_ikke_godta_noe_som_ikke_er_et_gyldig_JWT() {
         OidcTokenValidatorResult result1 = tokenValidator.validate(new TokenString(""));
-        assertInvalid(result1,
-            "Invalid OIDC JWT processing failed",
+        assertInvalid(result1, "Invalid OIDC JWT processing failed",
             "Invalid JOSE Compact Serialization. Expecting either 3 or 5 parts for JWS or JWE respectively but was 1.)");
 
         OidcTokenValidatorResult result2 = tokenValidator.validate(new TokenString("tull"));
-        assertInvalid(result2,
-            "Invalid OIDC JWT processing failed",
+        assertInvalid(result2, "Invalid OIDC JWT processing failed",
             "Invalid JOSE Compact Serialization. Expecting either 3 or 5 parts for JWS or JWE respectively but was 1.)");
 
         OidcTokenValidatorResult result3 = tokenValidator.validate(new TokenString("a.b.c"));
-        assertInvalid(result3,
-            "Invalid OIDC JWT processing failed",
+        assertInvalid(result3, "Invalid OIDC JWT processing failed",
             "cause: org.jose4j.lang.JoseException: Parsing error: org.jose4j.json.internal.json_simple.parser.ParseException: Unexpected token END OF FILE at position 0.): a.b.c");
 
         String header = "{\"kid\":\"1\", \"alg\": \"RS256\""; // mangler } på slutten

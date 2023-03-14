@@ -1,20 +1,39 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import no.nav.vedtak.log.audit.*;
-import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
-import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import static java.util.Objects.requireNonNull;
+import static no.nav.vedtak.log.audit.CefFieldName.ABAC_ACTION;
+import static no.nav.vedtak.log.audit.CefFieldName.ABAC_RESOURCE_TYPE;
+import static no.nav.vedtak.log.audit.CefFieldName.BERORT_BRUKER_ID;
+import static no.nav.vedtak.log.audit.CefFieldName.EVENT_TIME;
+import static no.nav.vedtak.log.audit.CefFieldName.REQUEST;
+import static no.nav.vedtak.log.audit.CefFieldName.USER_ID;
+import static no.nav.vedtak.log.audit.CefFields.forBehandling;
+import static no.nav.vedtak.log.audit.CefFields.forSaksnummer;
+import static no.nav.vedtak.log.audit.EventClassId.AUDIT_ACCESS;
+import static no.nav.vedtak.log.audit.EventClassId.AUDIT_CREATE;
+import static no.nav.vedtak.log.audit.EventClassId.AUDIT_UPDATE;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.BEHANDLING_ID;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.BEHANDLING_UUID;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.FAGSAK_ID;
+import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.SAKSNUMMER;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import java.util.*;
-import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
-import static no.nav.vedtak.log.audit.CefFieldName.*;
-import static no.nav.vedtak.log.audit.CefFields.forBehandling;
-import static no.nav.vedtak.log.audit.CefFields.forSaksnummer;
-import static no.nav.vedtak.log.audit.EventClassId.*;
-import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.*;
+import no.nav.vedtak.log.audit.Auditdata;
+import no.nav.vedtak.log.audit.AuditdataHeader;
+import no.nav.vedtak.log.audit.Auditlogger;
+import no.nav.vedtak.log.audit.CefField;
+import no.nav.vedtak.log.audit.EventClassId;
+import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 
 /**
  * Dette loggformatet er avklart med Arcsight. Eventuelle nye felter skal
@@ -65,8 +84,7 @@ public class AbacAuditlogger {
     }
 
     private AuditdataHeader createHeader(String abacAction, Access access) {
-        return new AuditdataHeader.Builder()
-            .medVendor(auditlogger.getDefaultVendor())
+        return new AuditdataHeader.Builder().medVendor(auditlogger.getDefaultVendor())
             .medProduct(auditlogger.getDefaultProduct())
             .medEventClassId(finnEventClassIdFra(abacAction))
             .medName("ABAC Sporingslogg")
@@ -75,8 +93,8 @@ public class AbacAuditlogger {
     }
 
     private Set<CefField> createDefaultAbacFields(String userId, BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        String abacAction = requireNonNull(beskyttetRessursAttributter.getActionType().getEksternKode());
-        String abacResourceType = requireNonNull(beskyttetRessursAttributter.getResourceType());
+        var abacAction = requireNonNull(beskyttetRessursAttributter.getActionType().getEksternKode());
+        var abacResourceType = requireNonNull(beskyttetRessursAttributter.getResourceType());
 
         Set<CefField> fields = new HashSet<>();
         fields.add(new CefField(EVENT_TIME, System.currentTimeMillis()));
@@ -88,13 +106,9 @@ public class AbacAuditlogger {
             fields.add(new CefField(USER_ID, userId));
         }
 
-        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), SAKSNUMMER, FAGSAK_ID).ifPresent(fagsak -> {
-            fields.addAll(forSaksnummer(fagsak));
-        });
+        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), SAKSNUMMER, FAGSAK_ID).ifPresent(fagsak -> fields.addAll(forSaksnummer(fagsak)));
 
-        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), BEHANDLING_UUID, BEHANDLING_ID).ifPresent(behandling -> {
-            fields.addAll(forBehandling(behandling));
-        });
+        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), BEHANDLING_UUID, BEHANDLING_ID).ifPresent(behandling -> fields.addAll(forBehandling(behandling)));
 
         return Set.copyOf(fields);
     }
@@ -105,24 +119,24 @@ public class AbacAuditlogger {
          * håndterer blanding (har sendt forespørsel, men ikke fått svar). Velger derfor
          * at AktørID prioriteres (siden alle kallene i k9-sak har denne).
          */
-        final List<String> ids = appRessursData.getAktørIdSet().stream().filter(Objects::nonNull).collect(Collectors.toList());
+        final var ids = appRessursData.getAktørIdSet().stream().filter(Objects::nonNull).toList();
         if (!ids.isEmpty()) {
             return ids;
         }
-        return appRessursData.getFødselsnumre().stream().filter(Objects::nonNull).collect(Collectors.toList());
+        return appRessursData.getFødselsnumre().stream().filter(Objects::nonNull).toList();
     }
 
-    private static final Optional<String> getOneOfNew(AbacDataAttributter attributter, AbacAttributtType... typer) {
-        for (AbacAttributtType key : typer) {
-            final Set<Object> values = attributter.getVerdier(key);
+    private static Optional<String> getOneOfNew(AbacDataAttributter attributter, AbacAttributtType... typer) {
+        for (var key : typer) {
+            final var values = attributter.getVerdier(key);
             if (!values.isEmpty()) {
-                return Optional.of(values.stream().map(v -> v.toString()).collect(Collectors.joining(",")));
+                return Optional.of(values.stream().map(Object::toString).collect(Collectors.joining(",")));
             }
         }
         return Optional.empty();
     }
 
-    private static final EventClassId finnEventClassIdFra(String abacAction) {
+    private static EventClassId finnEventClassIdFra(String abacAction) {
         return switch (abacAction) {
             case "read" -> AUDIT_ACCESS; /* Fall-through */
             case "delete", "update" -> AUDIT_UPDATE;
@@ -146,7 +160,7 @@ public class AbacAuditlogger {
 
         private final String severity;
 
-        private Access(String severity) {
+        Access(String severity) {
             this.severity = severity;
         }
 

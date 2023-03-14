@@ -1,13 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import no.nav.vedtak.klient.http.HttpClientRequest;
-import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.time.Duration;
@@ -16,6 +8,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+
+import no.nav.vedtak.klient.http.HttpClientRequest;
+import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 /**
  * Encapsulation of java.net.http.HttpRequest to supply OIDC-specific and JSON headers.
@@ -30,7 +31,10 @@ public final class RestRequest extends HttpClientRequest {
 
 
     public enum WebMethod {
-        GET, POST, PUT, PATCH
+        GET,
+        POST,
+        PUT,
+        PATCH
     }
 
     public record Method(WebMethod restMethod, HttpRequest.BodyPublisher bodyPublisher) {
@@ -43,9 +47,10 @@ public final class RestRequest extends HttpClientRequest {
         }
     }
 
-    private static final Map<String, Supplier<String>> DEFAULT_CALLID =
-        Map.of(NavHeaders.HEADER_NAV_CALLID, ensureCallId(), NavHeaders.HEADER_NAV_LOWER_CALL_ID, ensureCallId());
-    private static final Set<String> VALIDATE_HEADERS = Set.of(NavHeaders.HEADER_NAV_CALLID, NavHeaders.HEADER_NAV_CONSUMER_ID, HttpHeaders.AUTHORIZATION);
+    private static final Map<String, Supplier<String>> DEFAULT_CALLID = Map.of(NavHeaders.HEADER_NAV_CALLID, ensureCallId(),
+        NavHeaders.HEADER_NAV_LOWER_CALL_ID, ensureCallId());
+    private static final Set<String> VALIDATE_HEADERS = Set.of(NavHeaders.HEADER_NAV_CALLID, NavHeaders.HEADER_NAV_CONSUMER_ID,
+        HttpHeaders.AUTHORIZATION);
 
     private static final String OIDC_AUTH_HEADER_PREFIX = "Bearer ";
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(20);
@@ -59,12 +64,10 @@ public final class RestRequest extends HttpClientRequest {
     private RestRequest(HttpRequest.Builder builder, TokenFlow tokenConfig, String scopes) {
         super(builder, DEFAULT_CALLID);
         super.timeout(DEFAULT_TIMEOUT);
-        super.getBuilder().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        super.getBuilder().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         this.consumerId(selectConsumerId(tokenConfig));
         if (!TokenFlow.NO_AUTH_NEEDED.equals(tokenConfig)) {
-            this.authorization(selectTokenSupplier(tokenConfig, scopes))
-                .validator(RestRequest::validateRestHeaders);
+            this.authorization(selectTokenSupplier(tokenConfig, scopes)).validator(RestRequest::validateRestHeaders);
         }
         if (TokenFlow.STS_ADD_CONSUMER.equals(tokenConfig) || TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig)) {
             this.consumerToken(tokenConfig);
@@ -151,11 +154,10 @@ public final class RestRequest extends HttpClientRequest {
     }
 
     private static Supplier<String> ensureCallId() {
-        return () -> Optional.ofNullable(MDCOperations.getCallId())
-            .orElseGet(() -> {
-                MDCOperations.putCallId();
-                return MDCOperations.getCallId();
-            });
+        return () -> Optional.ofNullable(MDCOperations.getCallId()).orElseGet(() -> {
+            MDCOperations.putCallId();
+            return MDCOperations.getCallId();
+        });
     }
 
     private static Supplier<OpenIDToken> selectTokenSupplier(TokenFlow tokenConfig, String scopes) {

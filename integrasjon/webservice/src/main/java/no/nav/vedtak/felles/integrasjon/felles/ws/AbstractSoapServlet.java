@@ -1,6 +1,13 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
-import no.nav.vedtak.sikkerhet.jaspic.soap.WSS4JProtectedServlet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.logging.FaultListener;
@@ -10,12 +17,7 @@ import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.wss4j.common.ConfigurationConstants;
 
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import no.nav.vedtak.sikkerhet.jaspic.soap.WSS4JProtectedServlet;
 
 public abstract class AbstractSoapServlet extends CXFNonSpringServlet implements WSS4JProtectedServlet {
 

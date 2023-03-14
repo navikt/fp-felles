@@ -1,14 +1,15 @@
 package no.nav.vedtak.felles.jpa;
 
-import org.hibernate.bytecode.enhance.spi.EnhancementContext;
-import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
+import java.net.URL;
+import java.util.List;
+import java.util.Properties;
 
 import javax.persistence.SharedCacheMode;
 import javax.persistence.ValidationMode;
 import javax.persistence.spi.PersistenceUnitTransactionType;
-import java.net.URL;
-import java.util.List;
-import java.util.Properties;
+
+import org.hibernate.bytecode.enhance.spi.EnhancementContext;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
 /**
  * Delegerer kall fra en {@link PersistenceUnitDescriptor} til en annen slik at det er enklere å lage en SPI implementasjon baser på Hibernate

@@ -1,6 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
+
 import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.headers.Header;
@@ -10,6 +11,7 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
 import javax.xml.bind.JAXBException;
+
 import java.util.List;
 
 public class CallIdOutInterceptor extends AbstractPhaseInterceptor<Message> {

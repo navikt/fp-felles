@@ -1,9 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class OppgaveRestTest {
 

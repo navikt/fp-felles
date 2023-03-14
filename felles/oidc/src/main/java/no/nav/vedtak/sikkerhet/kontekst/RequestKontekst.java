@@ -1,9 +1,9 @@
 package no.nav.vedtak.sikkerhet.kontekst;
 
+import java.util.Optional;
+
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-
-import java.util.Optional;
 
 public final class RequestKontekst extends BasisKontekst {
 

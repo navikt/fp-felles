@@ -1,5 +1,13 @@
 package no.nav.vedtak.sikkerhet.pdp;
 
+import java.util.List;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
@@ -11,12 +19,6 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.Advice;
 import no.nav.vedtak.sikkerhet.pdp.xacml.Decision;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import java.util.List;
 
 @Dependent
 public class PdpKlientImpl implements PdpKlient {
@@ -69,14 +71,14 @@ public class PdpKlientImpl implements PdpKlient {
         if (denyAdvice.contains(Advice.DENY_EGEN_ANSATT)) {
             return AbacResultat.AVSLÅTT_EGEN_ANSATT;
         }
-        var ukjentadvice = denyAdvice.toString();
         return AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
     }
 
     private static Decision createAggregatedDecision(List<Decision> decisions) {
         for (var decision : decisions) {
-            if (decision != Decision.Permit)
+            if (decision != Decision.Permit) {
                 return Decision.Deny;
+            }
         }
         return Decision.Permit;
     }

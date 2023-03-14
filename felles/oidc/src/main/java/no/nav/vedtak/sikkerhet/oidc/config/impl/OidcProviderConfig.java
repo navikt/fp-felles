@@ -1,5 +1,21 @@
 package no.nav.vedtak.sikkerhet.oidc.config.impl;
 
+import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.getIssuerFra;
+import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.getJwksFra;
+import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.getTokenEndpointFra;
+
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
@@ -7,23 +23,17 @@ import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.TokenXProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.*;
 
 public final class OidcProviderConfig {
     private static final Environment ENV = Environment.current();
     private static final Logger LOG = LoggerFactory.getLogger(OidcProviderConfig.class);
 
-    @Deprecated(forRemoval = true) // Neste tre linjer
+    @Deprecated(since = "01.2023", forRemoval = true)
     public static final String OPEN_AM_WELL_KNOWN_URL = "oidc.open.am.well.known.url";
+    @Deprecated(since = "01.2023", forRemoval = true)
     public static final String OPEN_AM_CLIENT_ID = "oidc.open.am.client.id";
+
+    @Deprecated(since = "01.2023", forRemoval = true)
     public static final String OPEN_AM_CLIENT_SECRET = "oidc.open.am.client.secret";
 
     private static final String STS_WELL_KNOWN_URL = "oidc.sts.well.known.url";
@@ -37,7 +47,7 @@ public final class OidcProviderConfig {
     private static final String PROXY_KEY = "proxy.url"; // FP-oppsett lite brukt
     private static final String DEFAULT_PROXY_URL = "http://webproxy.nais:8088";
 
-    private static Set<OpenIDConfiguration> PROVIDERS = new HashSet<>();
+    private static Set<OpenIDConfiguration> providers = new HashSet<>();
 
     private final Set<OpenIDConfiguration> instanceProviders;
     private final Map<String, OpenIDConfiguration> issuers;
@@ -71,11 +81,11 @@ public final class OidcProviderConfig {
     }
 
     private static synchronized Set<OpenIDConfiguration> init() {
-        if (PROVIDERS.isEmpty()) {
+        if (providers.isEmpty()) {
             var configs = hentConfig();
-            PROVIDERS = configs;
+            providers = configs;
         }
-        return PROVIDERS;
+        return providers;
     }
 
     private static Set<OpenIDConfiguration> hentConfig() {
@@ -87,7 +97,8 @@ public final class OidcProviderConfig {
         }
 
         // OIDC STS
-        if (ENV.getProperty(STS_WELL_KNOWN_URL) != null || ENV.getProperty(STS_CONFIG_ISSUER) != null) { // Det er kanskje noen apper som ikke bruker STS token validering??
+        if (ENV.getProperty(STS_WELL_KNOWN_URL) != null
+            || ENV.getProperty(STS_CONFIG_ISSUER) != null) { // Det er kanskje noen apper som ikke bruker STS token validering??
             idProviderConfigs.add(createStsConfiguration(ENV.getProperty(STS_WELL_KNOWN_URL)));
         }
 
@@ -105,54 +116,36 @@ public final class OidcProviderConfig {
             idProviderConfigs.add(createTokenXConfiguration(tokenxKonfigUrl));
         }
 
-        var providere = idProviderConfigs.stream()
-            .map(OpenIDConfiguration::type)
-            .map(OpenIDProvider::name)
-            .collect(Collectors.joining(", "));
+        var providere = idProviderConfigs.stream().map(OpenIDConfiguration::type).map(OpenIDProvider::name).collect(Collectors.joining(", "));
         LOG.info("ID Providere som er tilgjengelig: {}", providere);
 
         return idProviderConfigs;
     }
 
     private static OpenIDConfiguration createOpenAmConfiguration(String wellKnownUrl) {
-        return createConfiguration(OpenIDProvider.ISSO,
-            getIssuerFra(wellKnownUrl).orElseThrow(),
-            getJwksFra(wellKnownUrl).orElseThrow(),
-            getTokenEndpointFra(wellKnownUrl).orElseThrow(),
-            false, null,
-            ENV.getProperty(OPEN_AM_CLIENT_ID),
-            ENV.getProperty(OPEN_AM_CLIENT_SECRET),
+        return createConfiguration(OpenIDProvider.ISSO, getIssuerFra(wellKnownUrl).orElseThrow(), getJwksFra(wellKnownUrl).orElseThrow(),
+            getTokenEndpointFra(wellKnownUrl).orElseThrow(), false, null, ENV.getProperty(OPEN_AM_CLIENT_ID), ENV.getProperty(OPEN_AM_CLIENT_SECRET),
             true);
     }
 
     private static OpenIDConfiguration createStsConfiguration(String wellKnownUrl) {
         return createConfiguration(OpenIDProvider.STS,
-            Optional.ofNullable(ENV.getProperty(STS_CONFIG_ISSUER))
-                .or(() -> getIssuerFra(wellKnownUrl)).orElse(null),
-            Optional.ofNullable(ENV.getProperty(STS_CONFIG_JWKS_URI))
-                .or(() -> getJwksFra(wellKnownUrl)).orElse(null),
-            Optional.ofNullable(ENV.getProperty(STS_CONFIG_TOKEN_ENDPOINT))
-                .or(() -> getTokenEndpointFra(wellKnownUrl)).orElse(null),
-            false, null,
-            Systembruker.username(),
-            Systembruker.password(),
-            true);
+            Optional.ofNullable(ENV.getProperty(STS_CONFIG_ISSUER)).or(() -> getIssuerFra(wellKnownUrl)).orElse(null),
+            Optional.ofNullable(ENV.getProperty(STS_CONFIG_JWKS_URI)).or(() -> getJwksFra(wellKnownUrl)).orElse(null),
+            Optional.ofNullable(ENV.getProperty(STS_CONFIG_TOKEN_ENDPOINT)).or(() -> getTokenEndpointFra(wellKnownUrl)).orElse(null), false, null,
+            Systembruker.username(), Systembruker.password(), true);
     }
 
     @SuppressWarnings("unused")
     private static OpenIDConfiguration createAzureAppConfiguration(String wellKnownUrl) {
         var useProxy = ENV.isLocal() ? null : URI.create(ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy()));
-        return createConfiguration(OpenIDProvider.AZUREAD,
-            Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER))
+        return createConfiguration(OpenIDProvider.AZUREAD, Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER))
                 .orElseGet(() -> getIssuerFra(wellKnownUrl, useProxy).orElse(null)),
             Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI))
                 .orElseGet(() -> getJwksFra(wellKnownUrl, useProxy).orElse(null)),
             Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT))
-                .orElseGet(() -> getTokenEndpointFra(wellKnownUrl, useProxy).orElse(null)),
-            !ENV.isLocal(), useProxy,
-            getAzureProperty(AzureProperty.AZURE_APP_CLIENT_ID),
-            getAzureProperty(AzureProperty.AZURE_APP_CLIENT_SECRET),
-            ENV.isLocal());
+                .orElseGet(() -> getTokenEndpointFra(wellKnownUrl, useProxy).orElse(null)), !ENV.isLocal(), useProxy,
+            getAzureProperty(AzureProperty.AZURE_APP_CLIENT_ID), getAzureProperty(AzureProperty.AZURE_APP_CLIENT_SECRET), ENV.isLocal());
     }
 
     private static String getAzureProperty(AzureProperty property) {
@@ -166,17 +159,14 @@ public final class OidcProviderConfig {
     }
 
     private static OpenIDConfiguration createTokenXConfiguration(String wellKnownUrl) {
-        return createConfiguration(OpenIDProvider.TOKENX,
-            getIssuerFra(wellKnownUrl).orElseThrow(),
-            getJwksFra(wellKnownUrl).orElseThrow(),
-            getTokenEndpointFra(wellKnownUrl).orElse(null),
-            false, null,
-            getTokenXProperty(TokenXProperty.TOKEN_X_CLIENT_ID),
-            null, // Signerer requests med jws
+        return createConfiguration(OpenIDProvider.TOKENX, getIssuerFra(wellKnownUrl).orElseThrow(), getJwksFra(wellKnownUrl).orElseThrow(),
+            getTokenEndpointFra(wellKnownUrl).orElse(null), false, null, getTokenXProperty(TokenXProperty.TOKEN_X_CLIENT_ID), null,
+            // Signerer requests med jws
             false);
     }
 
-    private static OpenIDConfiguration createConfiguration(OpenIDProvider type, // NOSONAR
+    private static OpenIDConfiguration createConfiguration(OpenIDProvider type,
+                                                           // NOSONAR
                                                            String issuer,
                                                            String jwks,
                                                            String tokenEndpoint,
@@ -185,15 +175,9 @@ public final class OidcProviderConfig {
                                                            String clientName,
                                                            String clientPassword,
                                                            boolean skipAudienceValidation) {
-        return new OpenIDConfiguration(type,
-            tilURI(issuer, "issuer", type),
-            tilURI(jwks, "jwksUri", type),
-            tokenEndpoint != null ? tilURI(tokenEndpoint, "tokenEndpoint", type) : null,
-            useProxyForJwks,
-            proxy,
-            Objects.requireNonNull(clientName),
-            clientPassword,
-            skipAudienceValidation);
+        return new OpenIDConfiguration(type, tilURI(issuer, "issuer", type), tilURI(jwks, "jwksUri", type),
+            tokenEndpoint != null ? tilURI(tokenEndpoint, "tokenEndpoint", type) : null, useProxyForJwks, proxy, Objects.requireNonNull(clientName),
+            clientPassword, skipAudienceValidation);
     }
 
     private static String getDefaultProxy() {

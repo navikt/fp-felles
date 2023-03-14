@@ -1,5 +1,12 @@
 package no.nav.vedtak.felles.integrasjon.dokarkiv;
 
+import java.net.URI;
+
+import javax.ws.rs.core.UriBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.FerdigstillJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
@@ -7,11 +14,6 @@ import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostResponse;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 
 // @RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "dokarkiv.base.url", endpointDefault = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost")
 public class AbstractDokArkivKlient implements DokArkiv {
@@ -34,9 +36,9 @@ public class AbstractDokArkivKlient implements DokArkiv {
     @Override
     public OpprettJournalpostResponse opprettJournalpost(OpprettJournalpostRequest request, boolean ferdigstill) {
         try {
-            var opprett = ferdigstill ?
-                UriBuilder.fromUri(restConfig.endpoint()).queryParam("forsoekFerdigstill", "true").build() :
-                restConfig.endpoint();
+            var opprett = ferdigstill ? UriBuilder.fromUri(restConfig.endpoint())
+                .queryParam("forsoekFerdigstill", "true")
+                .build() : restConfig.endpoint();
             var restRequest = RestRequest.newPOSTJson(request, opprett, restConfig);
             var res = restKlient.sendExpectConflict(restRequest, OpprettJournalpostResponse.class);
             return res;

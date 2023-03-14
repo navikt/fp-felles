@@ -1,11 +1,12 @@
 package no.nav.vedtak.log.audit;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 /**
  * Auditlogging til Arcsight i Common Event Format (CEF). Dette er en erstatning for sporingslog.

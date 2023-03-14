@@ -3,12 +3,8 @@ package no.nav.vedtak.felles.integrasjon.dokarkiv.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public record OppdaterJournalpostRequest(String tittel,
-                                         AvsenderMottaker avsenderMottaker, Bruker bruker, String tema,
-                                         String behandlingstema,
-                                         Sak sak,
-                                         List<Tilleggsopplysning> tilleggsopplysninger,
-                                         List<DokumentInfoOppdater> dokumenter) {
+public record OppdaterJournalpostRequest(String tittel, AvsenderMottaker avsenderMottaker, Bruker bruker, String tema, String behandlingstema,
+                                         Sak sak, List<Tilleggsopplysning> tilleggsopplysninger, List<DokumentInfoOppdater> dokumenter) {
 
 
     public record DokumentInfoOppdater(String dokumentInfoId, String tittel, String brevkode) {
@@ -90,8 +86,7 @@ public record OppdaterJournalpostRequest(String tittel,
         }
 
         public OppdaterJournalpostRequest build() {
-            return new OppdaterJournalpostRequest(tittel, avsenderMottaker, bruker, tema, behandlingstema,
-                sak, tilleggsopplysninger, dokumenter);
+            return new OppdaterJournalpostRequest(tittel, avsenderMottaker, bruker, tema, behandlingstema, sak, tilleggsopplysninger, dokumenter);
         }
     }
 

@@ -1,15 +1,14 @@
 package no.nav.vedtak.felles.integrasjon.dokarkiv.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import no.nav.vedtak.felles.integrasjon.dokarkiv.ser.ByteArraySomBase64StringSerializer;
-
 import java.util.Arrays;
 import java.util.Objects;
 
-public record Dokumentvariant(Variantformat variantformat,
-                              Filtype filtype,
-                              @JsonSerialize(using = ByteArraySomBase64StringSerializer.class)
-                              byte[] fysiskDokument) {
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import no.nav.vedtak.felles.integrasjon.dokarkiv.ser.ByteArraySomBase64StringSerializer;
+
+public record Dokumentvariant(Variantformat variantformat, Filtype filtype,
+                              @JsonSerialize(using = ByteArraySomBase64StringSerializer.class) byte[] fysiskDokument) {
 
     public enum Variantformat {
         ARKIV,
@@ -37,8 +36,11 @@ public record Dokumentvariant(Variantformat variantformat,
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        return o instanceof Dokumentvariant that && variantformat == that.variantformat && filtype == that.filtype && Arrays.equals(fysiskDokument, that.fysiskDokument);
+        if (this == o) {
+            return true;
+        }
+        return o instanceof Dokumentvariant that && variantformat == that.variantformat && filtype == that.filtype && Arrays.equals(fysiskDokument,
+            that.fysiskDokument);
     }
 
     @Override
@@ -50,9 +52,6 @@ public record Dokumentvariant(Variantformat variantformat,
 
     @Override
     public String toString() {
-        return "Dokumentvariant{" +
-            "variantformat=" + variantformat +
-            ", filtype=" + filtype +
-            '}';
+        return "Dokumentvariant{" + "variantformat=" + variantformat + ", filtype=" + filtype + '}';
     }
 }

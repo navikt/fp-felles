@@ -1,20 +1,21 @@
 package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.util.StringJoiner;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public final class TokenXExchangeKlient {
 
@@ -49,8 +50,8 @@ public final class TokenXExchangeKlient {
         var audience = audience(targetEndpoint);
         var response = hentToken(token, assertion, audience);
         LOG.info("TokenX byttet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
-        return new OpenIDToken(OpenIDProvider.TOKENX, response.token_type(),
-            new TokenString(response.access_token()), audience, response.expires_in());
+        return new OpenIDToken(OpenIDProvider.TOKENX, response.token_type(), new TokenString(response.access_token()), audience,
+            response.expires_in());
     }
 
     private OidcTokenResponse hentToken(OpenIDToken token, String assertion, String audience) {
@@ -65,12 +66,9 @@ public final class TokenXExchangeKlient {
     }
 
     private static HttpRequest.BodyPublisher ofFormData(OpenIDToken token, String assertion, String audience) {
-        var formdata = "grant_type=urn:ietf:params:oauth:grant-type:token-exchange&" +
-            "client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&" +
-            "client_assertion=" + assertion + "&" +
-            "subject_token_type=urn:ietf:params:oauth:token-type:jwt&" +
-            "subject_token=" + token.token() + "&" +
-            "audience=" + audience;
+        var formdata = "grant_type=urn:ietf:params:oauth:grant-type:token-exchange&"
+            + "client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&" + "client_assertion=" + assertion + "&"
+            + "subject_token_type=urn:ietf:params:oauth:token-type:jwt&" + "subject_token=" + token.token() + "&" + "audience=" + audience;
         return HttpRequest.BodyPublishers.ofString(formdata, UTF_8);
     }
 

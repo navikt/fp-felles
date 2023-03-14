@@ -1,10 +1,14 @@
 package no.nav.foreldrepenger.sikkerhet.abac;
 
-import no.nav.vedtak.sikkerhet.abac.TokenProvider;
-import no.nav.vedtak.sikkerhet.kontekst.*;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-
 import javax.enterprise.context.Dependent;
+
+import no.nav.vedtak.sikkerhet.abac.TokenProvider;
+import no.nav.vedtak.sikkerhet.kontekst.DefaultRequestKontekstProvider;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
+import no.nav.vedtak.sikkerhet.kontekst.RequestKontekstProvider;
+import no.nav.vedtak.sikkerhet.kontekst.WsRequestKontekst;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 @Dependent
 public class KontekstTokenProvider implements TokenProvider {

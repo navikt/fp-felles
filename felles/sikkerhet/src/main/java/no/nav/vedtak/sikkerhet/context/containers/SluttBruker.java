@@ -1,9 +1,10 @@
 package no.nav.vedtak.sikkerhet.context.containers;
 
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import java.security.Principal;
 
 import javax.security.auth.Destroyable;
-import java.security.Principal;
+
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
 public final class SluttBruker implements Principal, Destroyable {
 
@@ -52,9 +53,6 @@ public final class SluttBruker implements Principal, Destroyable {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" +
-            "identType=" + identType + ", " +
-            "uid=" + (destroyed ? "destroyed" : uid) +
-            "]";
+        return getClass().getSimpleName() + "[" + "identType=" + identType + ", " + "uid=" + (destroyed ? "destroyed" : uid) + "]";
     }
 }

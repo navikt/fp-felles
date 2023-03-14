@@ -1,21 +1,19 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.TokenCallback;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
-import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
-import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
-import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
+import static javax.security.auth.message.AuthStatus.FAILURE;
+import static javax.security.auth.message.AuthStatus.SEND_CONTINUE;
+import static javax.security.auth.message.AuthStatus.SEND_SUCCESS;
+import static javax.security.auth.message.AuthStatus.SUCCESS;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -33,11 +31,24 @@ import javax.security.auth.message.config.ServerAuthContext;
 import javax.security.auth.message.module.ServerAuthModule;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.*;
 
-import static javax.security.auth.message.AuthStatus.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.sikkerhet.TokenCallback;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
+import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
+import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
 
 /**
  * Stjålet mye fra https://github.com/omnifaces/omnisecurity
@@ -78,8 +89,7 @@ public class OidcAuthModule implements ServerAuthModule {
     /**
      * used for unit-testing
      */
-    OidcAuthModule(TokenLocator tokenLocator, Configuration loginConfiguration,
-                   DelegatedProtectedResource delegatedProtectedResource) {
+    OidcAuthModule(TokenLocator tokenLocator, Configuration loginConfiguration, DelegatedProtectedResource delegatedProtectedResource) {
         this.tokenLocator = tokenLocator;
         this.loginConfiguration = loginConfiguration;
         this.delegatedProtectedList = delegatedProtectedResource == null ? List.of() : List.of(delegatedProtectedResource);

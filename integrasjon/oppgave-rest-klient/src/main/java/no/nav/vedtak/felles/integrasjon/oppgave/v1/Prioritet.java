@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 public enum Prioritet {
     HOY,
-    @JsonEnumDefaultValue
-    NORM,
+    @JsonEnumDefaultValue NORM,
     LAV
 }

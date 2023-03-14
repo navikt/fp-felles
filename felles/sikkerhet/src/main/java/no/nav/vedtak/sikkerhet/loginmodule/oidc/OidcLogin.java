@@ -15,9 +15,7 @@ public class OidcLogin {
         ID_TOKEN_INVALID
     }
 
-    public record Resultat(LoginResult loginResult,
-                           SluttBruker subject,
-                           String errorMessage) {
+    public record Resultat(LoginResult loginResult, SluttBruker subject, String errorMessage) {
     }
 
     public static Resultat validerToken(OpenIDToken openIDToken) {
@@ -30,7 +28,8 @@ public class OidcLogin {
             return new Resultat(LoginResult.ID_TOKEN_EXPIRED, null, null);
         }
         if (validateResult.isValid()) {
-            return new Resultat(LoginResult.SUCCESS, new SluttBruker(validateResult.getSubject(), validateResult.getCompactSubject(), validateResult.getIdentType()), null);
+            return new Resultat(LoginResult.SUCCESS,
+                new SluttBruker(validateResult.getSubject(), validateResult.getCompactSubject(), validateResult.getIdentType()), null);
         }
         return new Resultat(LoginResult.ID_TOKEN_INVALID, null, validateResult.getErrorMessage());
     }
