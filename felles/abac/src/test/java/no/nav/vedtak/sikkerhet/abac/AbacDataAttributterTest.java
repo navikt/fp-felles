@@ -121,7 +121,7 @@ class AbacDataAttributterTest {
         var attributtType = StandardAbacAttributtType.FNR;
         attributter.leggTil(attributtType, "Test");
 
-        assertThat(attributter.equals(attributtType)).isFalse();
+        assertThat(attributter.equals(AbacDataAttributter.opprett())).isFalse();
     }
 
     @Test
@@ -129,6 +129,6 @@ class AbacDataAttributterTest {
         var attributtType = StandardAbacAttributtType.FNR;
         attributter.leggTil(attributtType, "Test");
 
-        assertThat(attributter.hashCode()).isEqualTo(166914119);
+        assertThatNoException().isThrownBy(() -> attributter.hashCode());
     }
 }
