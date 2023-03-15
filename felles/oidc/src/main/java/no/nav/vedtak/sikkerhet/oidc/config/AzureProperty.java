@@ -17,5 +17,6 @@ public enum AzureProperty {
 
     public static final String NAV_IDENT = "NAVident";
     public static final String AZP_NAME = "azp_name";
+    public static final String GRUPPER = "groups";
 
 }

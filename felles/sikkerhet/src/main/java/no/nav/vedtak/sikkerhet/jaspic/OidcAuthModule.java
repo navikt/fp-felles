@@ -194,7 +194,7 @@ public class OidcAuthModule implements ServerAuthModule {
 
         // Flytt nærmere tokenvalidering når JA-SPI + JAAS saneres
         var sluttbruker = SubjectHandler.getSluttBruker(clientSubject);
-        KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.getName(), sluttbruker.getShortUid(), sluttbruker.getIdentType(), token));
+        KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.getName(), sluttbruker.getShortUid(), sluttbruker.getIdentType(), token, sluttbruker.getGrupper()));
 
         // Handle result
         return handleValidatedToken(clientSubject, SubjectHandler.getUid(clientSubject));
