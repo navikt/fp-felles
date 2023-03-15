@@ -34,7 +34,7 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 @ExtendWith(MockitoExtension.class)
 class PepImplTest {
 
-    private static final String LOCAL_APP = "local:" + Namespace.foreldrepenger().getName() + ":application";
+    private static final String LOCAL_APP = "vtp:" + Namespace.foreldrepenger().getName() + ":application";
 
     private PepImpl pep;
     @Mock

@@ -1,6 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -19,6 +21,7 @@ public enum FpApplication {
     FPTILBAKE,
     FPDOKGEN,
     FPWSPROXY,
+    FPOVERSIKT,
     NONFP;
 
     private static final Environment ENV = Environment.current();
@@ -29,38 +32,79 @@ public enum FpApplication {
     /*
      * Utelatt fpabonnent:8065
      */
-    private static final Map<FpApplication, Integer> LOCAL_PORTS = Map.ofEntries(Map.entry(FpApplication.FPSAK, 8080),
-        Map.entry(FpApplication.FPABAKUS, 8015), Map.entry(FpApplication.FPFORMIDLING, 8010), Map.entry(FpApplication.FPRISK, 8075),
-        Map.entry(FpApplication.FPOPPDRAG, 8070), Map.entry(FpApplication.FPTILBAKE, 8030), Map.entry(FpApplication.FPFORDEL, 8090),
-        Map.entry(FpApplication.FPDOKGEN, 8291), Map.entry(FpApplication.FPWSPROXY, 8292), Map.entry(FpApplication.FPLOS, 8071),
-        Map.entry(FpApplication.FPINFO, 8040));
+    private static final Map<FpApplication, Integer> LOCAL_PORTS = Map.ofEntries(
+        Map.entry(FpApplication.FPSAK, 8080),
+        Map.entry(FpApplication.FPABAKUS, 8015),
+        Map.entry(FpApplication.FPFORMIDLING, 8010),
+        Map.entry(FpApplication.FPRISK, 8075),
+        Map.entry(FpApplication.FPOPPDRAG, 8070),
+        Map.entry(FpApplication.FPTILBAKE, 8030),
+        Map.entry(FpApplication.FPFORDEL, 8090),
+        Map.entry(FpApplication.FPDOKGEN, 8291),
+        Map.entry(FpApplication.FPWSPROXY, 8292),
+        Map.entry(FpApplication.FPLOS, 8071),
+        Map.entry(FpApplication.FPINFO, 8040),
+        Map.entry(FpApplication.FPOVERSIKT, 8020)
+    );
+
+    private static final Set<FpApplication> GCP_APPS = Set.of(FPOVERSIKT);
 
     public boolean specified() {
         return !NONFP.equals(this);
     }
 
     public static String contextPathFor(FpApplication application) {
-        if (CLUSTER.isLocal() && ENV.getProperty(application.contextPathProperty()) != null) {
-            return ENV.getProperty(application.contextPathProperty());
+        if (application == null || NONFP.equals(application)) {
+            throw new IllegalArgumentException("Utviklerfeil: angitt app er ikke i fp-familien");
         }
-        var prefix = "http://" + application.name().toLowerCase();
+        var appname = application.name().toLowerCase();
+        // Sjekk om override for kjøring i IDE <app>.override.url=http://localhost:localport/<appname> (evt med port og annen path)
+        var override = contextPathProperty(application);
+        if (CLUSTER.isLocal() && override!= null) {
+            return override;
+        }
+        // Sjekk om kryss-lokasjon - da trengs ingress og litt ulike varianter
+        var clusterForApplication = getCluster(application);
+        if (!CLUSTER.equals(clusterForApplication)) {
+            var prefix = "https://" + appname;
+            if (ENV.isFss()) {
+                return prefix + (ENV.isProd() ? "" : ".dev") + ".intern.nav.no/" + appname;
+            } else if (ENV.isGcp()) {
+                return prefix + clusterForApplication.clusterName() + "-pub.nais.io/" + appname;
+            } else {
+                throw new IllegalStateException("Utviklerfeil: Skal ikke komme hit");
+            }
+        }
+        // Samme lokasjon og cluster - bruk service discovery
+        var prefix = "http://" + appname;
         return switch (CLUSTER) {
-            case DEV_FSS, PROD_FSS -> prefix + "/" + application.name().toLowerCase();
-            case VTP -> prefix + ":8080/" + application.name().toLowerCase();
-            case LOCAL -> "http://localhost:" + LOCAL_PORTS.get(application) + "/" + application.name().toLowerCase();
+            case DEV_FSS, PROD_FSS -> prefix + "/" + appname;
+            case VTP -> prefix + ":8080/" + appname;
             default -> throw new IllegalArgumentException("Ikke implementert for Cluster " + CLUSTER.clusterName());
         };
     }
 
     public static String scopesFor(FpApplication application) {
         if (CLUSTER.isLocal()) {
-            return "api://" + Cluster.VTP.clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
+            return "api://" + Cluster.VTP.clusterName() + "." + FORELDREPENGER.getName() + "." + Cluster.VTP.clusterName() + "/.default";
         }
         return "api://" + CLUSTER.clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
     }
 
-    private String contextPathProperty() {
-        return this.name() + ".override.url";
+    private static String contextPathProperty(FpApplication application) {
+        return Optional.ofNullable(ENV.getProperty(application.name().toLowerCase() + ".override.url"))
+            .map(s -> s.replace("localhost:localport", "localhost:" + LOCAL_PORTS.get(application)))
+            .orElse(null);
+    }
+
+    private static Cluster getCluster(FpApplication application) {
+        if (CLUSTER.isProd()) {
+            return GCP_APPS.contains(application) ? Cluster.PROD_GCP : Cluster.PROD_FSS;
+        } else if (CLUSTER.isDev()) {
+            return GCP_APPS.contains(application) ? Cluster.DEV_GCP : Cluster.DEV_FSS;
+        } else {
+            return Cluster.VTP;
+        }
     }
 
 }

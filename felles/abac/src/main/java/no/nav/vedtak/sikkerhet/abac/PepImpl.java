@@ -9,7 +9,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
@@ -33,7 +32,6 @@ public class PepImpl implements Pep {
     private TokenProvider tokenProvider;
     private String preAuthorized;
     private String residentClusterNamespace;
-    private String alternativeClusterNamespace;
 
     public PepImpl() {
     }
@@ -48,13 +46,7 @@ public class PepImpl implements Pep {
         this.tokenProvider = tokenProvider;
         this.pipUsers = konfigurePipUsers(pipUsers);
         this.preAuthorized = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name()); // eg json array av objekt("name", "clientId")
-        if (ENV.isLocal()) {
-            this.residentClusterNamespace = Cluster.VTP.clusterName() + ":" + ENV.namespace();
-            this.alternativeClusterNamespace = Cluster.LOCAL.clusterName() + ":" + ENV.namespace();
-        } else {
-            this.residentClusterNamespace = ENV.clusterName() + ":" + ENV.namespace();
-            this.alternativeClusterNamespace = this.residentClusterNamespace;
-        }
+        this.residentClusterNamespace = ENV.clusterName() + ":" + ENV.namespace();
     }
 
     protected Set<String> konfigurePipUsers(String pipUsers) {
@@ -72,8 +64,7 @@ public class PepImpl implements Pep {
             return vurderTilgangTilPipTjeneste(beskyttetRessursAttributter, appRessurser);
         }
         if (kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter)) {
-            return new Tilgangsbeslutning(harTilgang(beskyttetRessursAttributter) ? GODKJENT : AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter,
-                appRessurser);
+            return new Tilgangsbeslutning(harTilgang(beskyttetRessursAttributter) ? GODKJENT : AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessurser);
         }
         return pdpKlient.forespørTilgang(beskyttetRessursAttributter, builder.abacDomene(), appRessurser);
     }
@@ -84,8 +75,8 @@ public class PepImpl implements Pep {
     private boolean kanForetaLokalTilgangsbeslutning(BeskyttetRessursAttributter attributter) {
         var identType = attributter.getToken().getIdentType();
         var consumer = attributter.getToken().getBrukerId();
-        return OpenIDProvider.AZUREAD.equals(attributter.getToken().getOpenIDProvider()) && IdentType.Systemressurs.equals(identType)
-            && consumer != null && preAuthorized != null;
+        return OpenIDProvider.AZUREAD.equals(attributter.getToken().getOpenIDProvider())
+            && IdentType.Systemressurs.equals(identType) && consumer != null && preAuthorized != null;
     }
 
     private boolean harTilgang(BeskyttetRessursAttributter attributter) {
@@ -93,8 +84,7 @@ public class PepImpl implements Pep {
         if (consumer == null || !preAuthorized.contains(consumer)) {
             return false;
         }
-        if (consumer.startsWith(residentClusterNamespace) || consumer.startsWith(alternativeClusterNamespace) || builder.internAzureConsumer(
-            consumer)) {
+        if (consumer.startsWith(residentClusterNamespace) || builder.internAzureConsumer(consumer)) {
             return true;
         }
         return AvailabilityType.ALL.equals(attributter.getAvailabilityType());
