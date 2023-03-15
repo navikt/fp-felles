@@ -49,10 +49,34 @@ public class JwtUtil {
         }
     }
 
+    public static String getSubject(JwtClaims claims) {
+        try {
+            return claims.getSubject();
+        } catch (MalformedClaimException e) {
+            throw ugyldigJwt(e);
+        }
+    }
+
+    public static List<String> getAudience(JwtClaims claims) {
+        try {
+            return claims.getAudience();
+        } catch (MalformedClaimException e) {
+            throw ugyldigJwt(e);
+        }
+    }
+
     public static Instant getExpirationTime(JwtClaims claims) {
         try {
             long expirationTime = claims.getExpirationTime().getValue();
             return Instant.ofEpochSecond(expirationTime);
+        } catch (MalformedClaimException e) {
+            throw ugyldigJwt(e);
+        }
+    }
+
+    public static long getExpirationTimeRaw(JwtClaims claims) {
+        try {
+            return claims.getExpirationTime().getValue();
         } catch (MalformedClaimException e) {
             throw ugyldigJwt(e);
         }
@@ -73,6 +97,22 @@ public class JwtUtil {
             throw ugyldigJwt(e);
         }
 
+    }
+
+    public static String getStringClaim(JwtClaims claims, String key) {
+        try {
+            return claims.getStringClaimValue(key);
+        } catch (MalformedClaimException e) {
+            throw ugyldigJwt(e);
+        }
+    }
+
+    public static List<String> getStringListClaim(JwtClaims claims, String key) {
+        try {
+            return claims.getStringListClaimValue(key);
+        } catch (MalformedClaimException e) {
+            throw ugyldigJwt(e);
+        }
     }
 
     private static TekniskException ugyldigJwt(Exception e) {

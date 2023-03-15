@@ -35,6 +35,7 @@ class SubjectHandlerTest {
         assertThat(subjectHandler).isNotNull();
         assertThat(subjectHandler.getAuthenticationLevel()).isEqualTo(AUTH_LEVEL);
         assertThat(subjectHandler.getIdentType()).isEqualTo(IDENT_TYPE);
+        assertThat(subjectHandler.getGrupper()).isEmpty();
         assertThat(subjectHandler.getConsumerId()).isEqualTo(SubjectHandlerTest.class.getSimpleName());
 
         ((ThreadLocalSubjectHandler) SubjectHandler.getSubjectHandler()).setSubject(eksisterende);
