@@ -1,8 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
 public enum TokenFlow {
-    ADAPTIVE, // DWIM for targets accepting both azuread and isso/sts tokens
-    ADAPTIVE_ADD_CONSUMER, // DWIM for targets accepting both azuread and isso/sts tokens - adding consumer token
+    ADAPTIVE, // DWIM for targets accepting both azuread and sts tokens
+    ADAPTIVE_ADD_CONSUMER, // DWIM for targets accepting both azuread and sts tokens - adding consumer token
     // TOKENX_OBO, not used Requires process of creating assertion, exchanging token, and using the exchanged token
     SYSTEM, // Current system user
     STS_CC,
