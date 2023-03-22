@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.kafka;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
@@ -15,6 +16,11 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndFailExceptionHandler;
+import org.apache.kafka.streams.state.RocksDBConfigSetter;
+import org.apache.kafka.streams.state.internals.BlockBasedTableConfigWithAccessibleCache;
+import org.rocksdb.BloomFilter;
+import org.rocksdb.LRUCache;
+import org.rocksdb.Options;
 
 import no.nav.foreldrepenger.konfig.Environment;
 
@@ -64,6 +70,9 @@ public class KafkaProperties {
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, valueSerde.getClass());
         props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndFailExceptionHandler.class);
 
+        props.put(StreamsConfig.DEFAULT_DSL_STORE_CONFIG, StreamsConfig.IN_MEMORY);
+        props.put(StreamsConfig.ROCKSDB_CONFIG_SETTER_CLASS_CONFIG, StreamsRocksReadOnly.class);
+
         // Polling
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "200");
         props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "60000");
@@ -108,6 +117,28 @@ public class KafkaProperties {
             String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
             String jaasCfg = String.format(jaasTemplate, "vtp", "vtp");
             props.setProperty(SaslConfigs.SASL_JAAS_CONFIG, jaasCfg);
+        }
+    }
+
+    public static class StreamsRocksReadOnly implements RocksDBConfigSetter {
+
+        @Override
+        public void setConfig(final String storeName, final Options options, final Map<String, Object> configs) {
+
+            BlockBasedTableConfigWithAccessibleCache tableConfig = new BlockBasedTableConfigWithAccessibleCache();
+            tableConfig.setBlockCache(new LRUCache(1024 * 1024L));
+            tableConfig.setBlockSize(4096L);
+            tableConfig.setFilterPolicy(new BloomFilter());
+            tableConfig.setCacheIndexAndFilterBlocks(true);
+            options.setTableFormatConfig(tableConfig);
+
+            options.setWriteBufferSize(512 * 1024L);
+            options.setMaxWriteBufferNumber(2);
+        }
+
+        @Override
+        public void close(final String storeName, final Options options) {
+            // NOOP
         }
     }
 
