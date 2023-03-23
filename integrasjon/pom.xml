@@ -13,6 +13,7 @@
     <artifactId>felles-integrasjon-pom</artifactId>
     <packaging>pom</packaging>
     <name>Foreldrepenger :: Felles :: Integrasjon</name>
+
     <modules>
         <module>webservice</module>
         <module>rest-klient</module>
@@ -26,6 +27,11 @@
         <module>spokelse-klient</module>
         <module>kafka-properties</module>
     </modules>
+
+    <properties>
+        <graphql-java-codegen.version>5.7.1</graphql-java-codegen.version>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -83,6 +89,25 @@
                 <artifactId>felles-integrasjon-webservice</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.github.kobylynskyi</groupId>
+                <artifactId>graphql-java-codegen</artifactId>
+                <version>${graphql-java-codegen.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>io.github.kobylynskyi</groupId>
+                    <artifactId>graphql-codegen-maven-plugin</artifactId>
+                    <version>${graphql-java-codegen.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
 </project>
