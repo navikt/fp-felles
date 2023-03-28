@@ -1,0 +1,23 @@
+{
+  "data": {
+    "hentPersonBolk": [
+      {
+        "ident": "12345678901",
+        "person": {
+          "navn": [
+            {
+              "fornavn": "Jul",
+              "etternavn": "Nissen",
+              "mellomnavn": "E."
+            }
+          ],
+          "adressebeskyttelse": [
+            {
+              "gradering": "UGRADERT"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
