@@ -28,19 +28,6 @@ import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorConfig;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
-import org.jose4j.jwt.MalformedClaimException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import java.lang.reflect.Method;
-import java.time.Instant;
-import java.util.Optional;
 
 /**
  * Bruksanvisning inntil alle er over og det evt samles her:
