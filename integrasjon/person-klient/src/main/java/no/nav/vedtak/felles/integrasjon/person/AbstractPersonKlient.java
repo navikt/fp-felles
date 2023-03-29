@@ -1,20 +1,39 @@
 package no.nav.vedtak.felles.integrasjon.person;
 
+import java.net.HttpURLConnection;
+import java.net.http.HttpRequest;
+import java.util.List;
+import java.util.Set;
+
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
-import no.nav.pdl.*;
+import no.nav.pdl.GeografiskTilknytning;
+import no.nav.pdl.GeografiskTilknytningResponseProjection;
+import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
+import no.nav.pdl.HentGeografiskTilknytningQueryResponse;
+import no.nav.pdl.HentIdenterBolkQueryRequest;
+import no.nav.pdl.HentIdenterBolkQueryResponse;
+import no.nav.pdl.HentIdenterBolkResult;
+import no.nav.pdl.HentIdenterBolkResultResponseProjection;
+import no.nav.pdl.HentIdenterQueryRequest;
+import no.nav.pdl.HentIdenterQueryResponse;
+import no.nav.pdl.HentPersonBolkQueryRequest;
+import no.nav.pdl.HentPersonBolkQueryResponse;
+import no.nav.pdl.HentPersonBolkResult;
+import no.nav.pdl.HentPersonBolkResultResponseProjection;
+import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.HentPersonQueryResponse;
+import no.nav.pdl.Identliste;
+import no.nav.pdl.IdentlisteResponseProjection;
+import no.nav.pdl.Person;
+import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-
-import java.net.HttpURLConnection;
-import java.net.http.HttpRequest;
-import java.util.List;
-import java.util.Set;
 
 public abstract class AbstractPersonKlient implements Persondata {
 
@@ -64,6 +83,11 @@ public abstract class AbstractPersonKlient implements Persondata {
             }
             throw e;
         }
+    }
+
+    @Override
+    public List<HentPersonBolkResult> hentPersonBolk(HentPersonBolkQueryRequest q, HentPersonBolkResultResponseProjection p) {
+        return query(q, p, HentPersonBolkQueryResponse.class).hentPersonBolk();
     }
 
     @Override

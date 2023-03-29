@@ -24,11 +24,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 
+import no.nav.pdl.AdressebeskyttelseGradering;
+import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.HentIdenterBolkQueryRequest;
 import no.nav.pdl.HentIdenterBolkQueryResponse;
 import no.nav.pdl.HentIdenterBolkResultResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentIdenterQueryResponse;
+import no.nav.pdl.HentPersonBolkQueryRequest;
+import no.nav.pdl.HentPersonBolkQueryResponse;
+import no.nav.pdl.HentPersonBolkResultResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.HentPersonQueryResponse;
 import no.nav.pdl.IdentInformasjon;
@@ -77,6 +82,28 @@ class PersondataKlientTest {
         var rq = captor.getValue();
         rq.validateRequest(r -> assertThat(r.headers().map().get("TEMA")).contains("FOR"));
         assertThat(rq.validateDelayedHeaders(Set.of("Authorization", "Nav-Consumer-Token", "Nav-Consumer-Id"))).isTrue();
+    }
+
+    @Test
+    void skal_returnere_bolk_med_person() {
+        var resource = getClass().getClassLoader().getResource("pdl/personBolkResponse.json");
+        var response = DefaultJsonMapper.fromJson(resource, HentPersonBolkQueryResponse.class);
+        when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
+
+
+        var query = new HentPersonBolkQueryRequest();
+        query.setIdenter(List.of("12345678901"));
+        var projection = new HentPersonBolkResultResponseProjection()
+            .person(new PersonResponseProjection()
+                .navn(new NavnResponseProjection().fornavn())
+                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering()));
+
+        var personer = pdlKlient.hentPersonBolk(query, projection);
+
+        assertThat(personer).hasSize(1);
+        assertThat(personer.get(0).getIdent()).isEqualTo("12345678901");
+        assertThat(personer.get(0).getPerson().getAdressebeskyttelse()).hasSize(1);
+        assertThat(personer.get(0).getPerson().getAdressebeskyttelse().get(0).getGradering()).isEqualTo(AdressebeskyttelseGradering.UGRADERT);
     }
 
     @Test

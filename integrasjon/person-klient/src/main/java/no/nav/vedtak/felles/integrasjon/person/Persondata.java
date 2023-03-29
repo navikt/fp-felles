@@ -18,6 +18,9 @@ import no.nav.pdl.HentIdenterBolkQueryRequest;
 import no.nav.pdl.HentIdenterBolkResult;
 import no.nav.pdl.HentIdenterBolkResultResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
+import no.nav.pdl.HentPersonBolkQueryRequest;
+import no.nav.pdl.HentPersonBolkResult;
+import no.nav.pdl.HentPersonBolkResultResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
@@ -60,6 +63,8 @@ public interface Persondata {
     Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p);
 
     Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound);
+
+    List<HentPersonBolkResult> hentPersonBolk(HentPersonBolkQueryRequest q, HentPersonBolkResultResponseProjection p);
 
     GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p);
 
