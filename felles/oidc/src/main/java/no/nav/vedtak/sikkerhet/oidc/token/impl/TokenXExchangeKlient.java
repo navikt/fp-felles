@@ -59,13 +59,18 @@ public final class TokenXExchangeKlient {
 
     private static HttpRequest.BodyPublisher ofFormData(OpenIDToken token, String assertion, String audience) {
         var formdata = "grant_type=urn:ietf:params:oauth:grant-type:token-exchange&"
-            + "client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&" + "client_assertion=" + assertion + "&"
-            + "subject_token_type=urn:ietf:params:oauth:token-type:jwt&" + "subject_token=" + token.token() + "&" + "audience=" + audience;
+            + "client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&"
+            + "client_assertion=" + assertion + "&"
+            + "subject_token_type=urn:ietf:params:oauth:token-type:jwt&"
+            + "subject_token=" + token.token() + "&"
+            + "audience=" + audience;
         return HttpRequest.BodyPublishers.ofString(formdata, UTF_8);
     }
 
     private static String audience(String scope) {
-        //Støtter bare ett scope
-        return scope.replaceFirst("api://", "").replace("/.default", "");
+        return scope
+            .replaceFirst("api://", "")
+            .replace("/.default", "")
+            .replace(".", ":");
     }
 }
