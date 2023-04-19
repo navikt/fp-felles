@@ -1,6 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc.token;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
 
@@ -17,6 +16,7 @@ import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureBrukerTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureSystemTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.StsSystemTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
+import no.nav.vedtak.sikkerhet.tokenx.TokenXchange;
 
 public final class TokenProvider {
 
@@ -56,10 +56,10 @@ public final class TokenProvider {
         var identType = Optional.ofNullable(requestKontekst.getIdentType()).orElse(IdentType.InternBruker);
         if (OpenIDProvider.AZUREAD.equals(providerIncoming)) {
             return identType.erSystem() ? getAzureSystemToken(scopes) : veksleAzureAccessToken(requestKontekst.getUid(), incoming, scopes);
-        } else {
-            // TokenX ikke støttet pt. Trenger target endpoint URI for å veksle.
-            return incoming;
+        } else if (OpenIDProvider.TOKENX.equals(providerIncoming)){
+            return TokenXchange.exchange(incoming, scopes);
         }
+        return incoming;
     }
 
     public static OpenIDToken getTokenForSystem() {
@@ -120,9 +120,9 @@ public final class TokenProvider {
         return AzureBrukerTokenKlient.instance().oboExchangeToken(uid, incoming, scopes);
     }
 
-    public static OpenIDToken exchangeTokenX(OpenIDToken token, String assertion, URI targetEndpoint) {
+    public static OpenIDToken exchangeTokenX(OpenIDToken token, String assertion, String scopes) {
         // Assertion må være generert av den som skal bytte. Et JWT, RSA-signert, basert på injisert private jwk
-        return TokenXExchangeKlient.instance().exchangeToken(token, assertion, targetEndpoint);
+        return TokenXExchangeKlient.instance().exchangeToken(token, assertion, scopes);
     }
 
     private static OpenIDProvider getProvider(OpenIDToken token) {

@@ -3,8 +3,6 @@ package no.nav.vedtak.sikkerhet.tokenx;
 
 import static no.nav.vedtak.log.util.ConfidentialMarkerFilter.CONFIDENTIAL;
 
-import java.net.URI;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,19 +22,14 @@ public final class TokenXchange {
     private TokenXchange() {
     }
 
-    public static OpenIDToken exchange(URI targetEndpoint) {
-        var token = TokenProvider.getTokenXFraKontekst();
-        return exchange(token, targetEndpoint);
-    }
-
-    public static OpenIDToken exchange(OpenIDToken token, URI targetEndpoint) {
+    public static OpenIDToken exchange(OpenIDToken token, String scopes) {
         if (token != null && OpenIDProvider.TOKENX.equals(token.provider())) {
-            LOG.trace(CONFIDENTIAL, "Veksler tokenX token {} for {}", token, targetEndpoint);
+            LOG.trace(CONFIDENTIAL, "Veksler tokenX token {} for {}", token, scopes);
             var assertion = TokenXAssertionGenerator.instance().assertion();
-            return TokenProvider.exchangeTokenX(token, assertion, targetEndpoint);
+            return TokenProvider.exchangeTokenX(token, assertion, scopes);
         } else {
             if (token != null && ENV.isLocal()) {
-                LOG.warn("Dette er intet tokenX token, sender originalt token videre til {} siden VTP er mangelfull her", targetEndpoint);
+                LOG.warn("Dette er intet tokenX token, sender originalt token videre til {} siden VTP er mangelfull her", scopes);
                 return token;
             } else {
                 throw new IllegalStateException("Dette er intet tokenX token");
