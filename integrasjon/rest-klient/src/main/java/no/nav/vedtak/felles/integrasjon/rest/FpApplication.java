@@ -67,9 +67,9 @@ public enum FpApplication {
         var clusterForApplication = getCluster(application);
         if (!CLUSTER.equals(clusterForApplication)) {
             var prefix = "https://" + appname;
-            if (ENV.isFss()) {
-                return prefix + (ENV.isProd() ? "" : ".dev") + ".intern.nav.no/" + appname;
-            } else if (ENV.isGcp()) {
+            if (ENV.isFss()) { // Kaller fra FSS til GCP
+                return prefix + ".intern" + (ENV.isProd() ? "" : ".dev") + ".nav.no/" + appname;
+            } else if (ENV.isGcp()) { // Kaller fra GCP til FSS
                 return prefix + clusterForApplication.clusterName() + "-pub.nais.io/" + appname;
             } else {
                 throw new IllegalStateException("Utviklerfeil: Skal ikke komme hit");
