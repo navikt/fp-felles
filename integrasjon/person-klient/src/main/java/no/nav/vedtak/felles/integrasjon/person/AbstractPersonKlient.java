@@ -3,7 +3,6 @@ package no.nav.vedtak.felles.integrasjon.person;
 import java.net.HttpURLConnection;
 import java.net.http.HttpRequest;
 import java.util.List;
-import java.util.Set;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
@@ -33,17 +32,13 @@ import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 public abstract class AbstractPersonKlient implements Persondata {
-
-    private static Set<TokenFlow> REQUIRED_TOKEN = Set.of(TokenFlow.ADAPTIVE_ADD_CONSUMER);
 
     private final PdlDefaultErrorHandler errorHandler;
     private final Tema tema;
     private final RestClient restKlient;
     private final RestConfig restConfig;
-
 
     protected AbstractPersonKlient() {
         this(Tema.FOR);
@@ -56,9 +51,6 @@ public abstract class AbstractPersonKlient implements Persondata {
     protected AbstractPersonKlient(RestClient restKlient, Tema tema) {
         this.restKlient = restKlient;
         this.restConfig = RestConfig.forClient(this.getClass());
-        if (!REQUIRED_TOKEN.contains(this.restConfig.tokenConfig())) {
-            throw new IllegalArgumentException("Utviklerfeil: Personklienter må ha en av _add_consumer");
-        }
         this.tema = tema;
         this.errorHandler = new PdlDefaultErrorHandler();
     }

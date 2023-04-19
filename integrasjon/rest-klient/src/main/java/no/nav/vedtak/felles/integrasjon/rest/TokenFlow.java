@@ -1,9 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
 public enum TokenFlow {
-    ADAPTIVE, // DWIM for targets accepting both azuread and sts tokens
-    ADAPTIVE_ADD_CONSUMER, // DWIM for targets accepting both azuread and sts tokens - adding consumer token
-    // TOKENX_OBO, not used Requires process of creating assertion, exchanging token, and using the exchanged token
+    ADAPTIVE, // DWIM for targets accepting both azuread, sts tokens, and tokenx
+    ADAPTIVE_ADD_CONSUMER, // ADAPTIVE + adding consumer token
     SYSTEM, // Current system user
     STS_CC,
     STS_ADD_CONSUMER, // Midlertidig til vi har lagt om AAreg til Azure. Skyldes kontextkall i abakus
