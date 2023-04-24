@@ -14,8 +14,6 @@ on:
       - 'CODEOWNERS'
       - 'docs/**'
       - '.github/*.yml'
-  schedule:
-    - cron: '0 4 * * 1'
 
 jobs:
   build-feature:
