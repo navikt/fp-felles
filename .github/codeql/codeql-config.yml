@@ -1,0 +1,5 @@
+name: "My code scanning CodeQL config"
+
+query-filters:
+- exclude:
+     id: java/unused-container
