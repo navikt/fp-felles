@@ -70,7 +70,10 @@ public enum FpApplication {
             if (ENV.isFss()) { // Kaller fra FSS til GCP
                 return prefix + ".intern" + (ENV.isProd() ? "" : ".dev") + ".nav.no/" + appname;
             } else if (ENV.isGcp()) { // Kaller fra GCP til FSS
-                return prefix + clusterForApplication.clusterName() + "-pub.nais.io/" + appname;
+                if (FPSAK.equals(application)) {
+                    return prefix + "-api." + clusterForApplication.clusterName() + "-pub.nais.io/" + appname;
+                }
+                return prefix + "." + clusterForApplication.clusterName() + "-pub.nais.io/" + appname;
             } else {
                 throw new IllegalStateException("Utviklerfeil: Skal ikke komme hit");
             }
