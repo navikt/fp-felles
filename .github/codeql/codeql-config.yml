@@ -1,5 +1,11 @@
 name: "My code scanning CodeQL config"
 
+queries:
+  - name: Extended Security
+    uses: security-extended
+  - name: Security and Quality
+    uses: security-and-quality
+
 query-filters:
 - exclude:
      id: java/unused-container
