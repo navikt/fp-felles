@@ -111,6 +111,21 @@ class PepImplTest {
     }
 
     @Test
+    void skal_gi_avslag_for_godkjent_ekstern_azure_cc_men_i_feil_klusterklasse() {
+        var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
+        when(tokenProvider.getUid()).thenReturn("dev-fss:annetnamespace:eksternapplication");
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, "vtp:annetnamespace:eksternapplication",
+            IdentType.Systemressurs);
+
+        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
+
+        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        assertThat(permit.fikkTilgang()).isFalse();
+        verifyNoInteractions(pdpKlientMock);
+    }
+
+
+    @Test
     void skal_gi_tilgang_for_godkjent_ekstern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn("vtp:annetnamespace:eksternapplication");
