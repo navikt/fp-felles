@@ -46,7 +46,7 @@ class PepImplTest {
 
     @BeforeAll
     static void initEnv() {
-        System.setProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name(), LOCAL_APP + ", local:annetnamespace:eksternapplication");
+        System.setProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name(), LOCAL_APP + ", vtp:annetnamespace:eksternapplication");
     }
 
     @AfterAll
@@ -99,8 +99,8 @@ class PepImplTest {
     @Test
     void skal_gi_avslag_for_ekstern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
-        when(tokenProvider.getUid()).thenReturn("local:annetnamespace:ukjentapplication");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, "local:annetnamespace:ukjentapplication",
+        when(tokenProvider.getUid()).thenReturn("vtp:annetnamespace:ukjentapplication");
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, "vtp:annetnamespace:ukjentapplication",
             IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
@@ -113,8 +113,8 @@ class PepImplTest {
     @Test
     void skal_gi_tilgang_for_godkjent_ekstern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
-        when(tokenProvider.getUid()).thenReturn("local:annetnamespace:eksternapplication");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, "local:annetnamespace:eksternapplication",
+        when(tokenProvider.getUid()).thenReturn("vtp:annetnamespace:eksternapplication");
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, "vtp:annetnamespace:eksternapplication",
             IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
