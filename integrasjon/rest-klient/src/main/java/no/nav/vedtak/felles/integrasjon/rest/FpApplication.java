@@ -91,7 +91,7 @@ public enum FpApplication {
         if (CLUSTER.isLocal()) {
             return "api://" + Cluster.VTP.clusterName() + "." + FORELDREPENGER.getName() + "." + Cluster.VTP.clusterName() + "/.default";
         }
-        return "api://" + CLUSTER.clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
+        return "api://" + getCluster(application).clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
     }
 
     private static String contextPathProperty(FpApplication application) {
