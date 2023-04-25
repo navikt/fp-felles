@@ -32,6 +32,8 @@ public class PepImpl implements Pep {
     private Set<String> pipUsers;
     private TokenProvider tokenProvider;
     private String preAuthorized;
+    private Cluster residentCluster;
+    private String residentNamespace;
 
     public PepImpl() {
     }
@@ -46,6 +48,8 @@ public class PepImpl implements Pep {
         this.tokenProvider = tokenProvider;
         this.pipUsers = konfigurePipUsers(pipUsers);
         this.preAuthorized = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name()); // eg json array av objekt("name", "clientId")
+        this.residentCluster = ENV.getCluster();
+        this.residentNamespace = ENV.namespace();
     }
 
     protected Set<String> konfigurePipUsers(String pipUsers) {
@@ -91,16 +95,14 @@ public class PepImpl implements Pep {
     }
 
     private boolean erISammeKlusterKlasseOgNamespace(String consumer) {
-        try {
-            var elementer = consumer.split(":");
-            var consumerCluster = elementer[0];
-            var consumerNamespace = elementer[1];
-            return ENV.getCluster().isSameClass(Cluster.of(consumerCluster)) && ENV.namespace().equals(consumerNamespace);
-        } catch (Exception e) {
+        var elementer = consumer.split(":");
+        if (elementer.length < 2) {
             return false;
         }
 
-
+        var consumerCluster = elementer[0];
+        var consumerNamespace = elementer[1];
+        return residentCluster.isSameClass(Cluster.of(consumerCluster)) && residentNamespace.equals(consumerNamespace);
     }
 
     protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
