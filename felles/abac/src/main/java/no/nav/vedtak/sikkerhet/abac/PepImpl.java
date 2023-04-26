@@ -9,6 +9,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
@@ -31,7 +32,8 @@ public class PepImpl implements Pep {
     private Set<String> pipUsers;
     private TokenProvider tokenProvider;
     private String preAuthorized;
-    private String residentClusterNamespace;
+    private Cluster residentCluster;
+    private String residentNamespace;
 
     public PepImpl() {
     }
@@ -46,7 +48,8 @@ public class PepImpl implements Pep {
         this.tokenProvider = tokenProvider;
         this.pipUsers = konfigurePipUsers(pipUsers);
         this.preAuthorized = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name()); // eg json array av objekt("name", "clientId")
-        this.residentClusterNamespace = ENV.clusterName() + ":" + ENV.namespace();
+        this.residentCluster = ENV.getCluster();
+        this.residentNamespace = ENV.namespace();
     }
 
     protected Set<String> konfigurePipUsers(String pipUsers) {
@@ -84,10 +87,22 @@ public class PepImpl implements Pep {
         if (consumer == null || !preAuthorized.contains(consumer)) {
             return false;
         }
-        if (consumer.startsWith(residentClusterNamespace) || builder.internAzureConsumer(consumer)) {
+
+        if (erISammeKlusterKlasseOgNamespace(consumer) || builder.internAzureConsumer(consumer)) {
             return true;
         }
         return AvailabilityType.ALL.equals(attributter.getAvailabilityType());
+    }
+
+    private boolean erISammeKlusterKlasseOgNamespace(String consumer) {
+        var elementer = consumer.split(":");
+        if (elementer.length < 2) {
+            return false;
+        }
+
+        var consumerCluster = elementer[0];
+        var consumerNamespace = elementer[1];
+        return residentCluster.isSameClass(Cluster.of(consumerCluster)) && residentNamespace.equals(consumerNamespace);
     }
 
     protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
