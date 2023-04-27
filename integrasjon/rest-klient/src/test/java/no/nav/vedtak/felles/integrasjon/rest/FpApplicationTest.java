@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 
 class FpApplicationTest {
 
-    private Environment environment = Mockito.mock(Environment.class);
+    private final Environment environment = Mockito.mock(Environment.class);
 
     @Test
     void test_at_service_discovery_brukes_mellom_FPAppp_i_samme_cluster() {
@@ -49,7 +49,7 @@ class FpApplicationTest {
     @Test
     void test_at_vi_bruker_default_lokalhost_ved_lokal_kjøring_uten_override_url_satt() {
         when(environment.getCluster()).thenReturn(Cluster.VTP);
-        when(environment.isDev()).thenReturn(true);
+        when(environment.isLocal()).thenReturn(true);
         when(environment.getProperty("fpabakus.override.url")).thenReturn(null);
         var contextPath = FpApplication.contextPathFor(FpApplication.FPABAKUS, environment);
         assertThat(contextPath).isEqualTo("http://localhost:8015/fpabakus");
@@ -59,6 +59,7 @@ class FpApplicationTest {
     void bruk_override_url_hvis_oppgitt_og_cluster_er_vtp() {
         var overrideUrl = "http://override.url/";
         when(environment.getCluster()).thenReturn(Cluster.VTP);
+        when(environment.isLocal()).thenReturn(true);
         when(environment.getProperty("fpabakus.override.url")).thenReturn(overrideUrl);
         var contextPath = FpApplication.contextPathFor(FpApplication.FPABAKUS, environment);
         assertThat(contextPath).isEqualTo(overrideUrl);

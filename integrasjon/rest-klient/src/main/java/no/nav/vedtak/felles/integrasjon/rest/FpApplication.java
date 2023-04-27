@@ -67,27 +67,35 @@ public enum FpApplication {
             throw new IllegalArgumentException("Utviklerfeil: angitt app er ikke i fp-familien");
         }
         var appname = application.name().toLowerCase();
-        var cluster = currentEnvironment.getCluster();
 
-        if (cluster.isLocal()) {
-            return Optional.ofNullable(currentEnvironment.getProperty(application.name().toLowerCase() + ".override.url"))
-                .orElseGet(() -> String.format("http://localhost:%s/%s", LOCAL_PORTS.get(application), appname));
+        if (currentEnvironment.isLocal()) {
+            return urlForLocal(application, currentEnvironment, appname);
         }
 
         var clusterForApplication = getClusterTilFPApplikasjonenSomSkalKalles(application, currentEnvironment);
-        if (cluster.isCoLocated(clusterForApplication)) {
-            return String.format("http://%s/%s", appname, appname);
-        } else {
-            var prefix = "https://" + appname;
-            if (currentEnvironment.isFss()) { // Kaller fra FSS til GCP
-                return prefix + ".intern" + (cluster.isProd() ? "" : ".dev") + ".nav.no/" + appname;
-            } else { // Kaller fra GCP til FSS
-                if (FPSAK.equals(application)) {
-                    prefix += "-api";
-                }
-                return prefix + "." + clusterForApplication.clusterName() + "-pub.nais.io/" + appname;
-            }
+        if (currentEnvironment.getCluster().isCoLocated(clusterForApplication)) {
+            return String.format("http://%s/%s", appname, appname); // service discovery
         }
+
+        return urlForCommunicationBetweenDifferentClusters(application, currentEnvironment, appname, clusterForApplication);
+
+    }
+
+    private static String urlForCommunicationBetweenDifferentClusters(FpApplication application, Environment currentEnvironment, String appname, Cluster clusterForApplication) {
+        var prefix = "https://" + appname;
+        if (currentEnvironment.isFss()) { // Kaller fra FSS til GCP
+            return prefix + ".intern" + (currentEnvironment.isProd() ? "" : ".dev") + ".nav.no/" + appname;
+        } else { // Kaller fra GCP til FSS
+            if (FPSAK.equals(application)) {
+                prefix += "-api";
+            }
+            return prefix + "." + clusterForApplication.clusterName() + "-pub.nais.io/" + appname;
+        }
+    }
+
+    private static String urlForLocal(FpApplication application, Environment currentEnvironment, String appname) {
+        return Optional.ofNullable(currentEnvironment.getProperty(application.name().toLowerCase() + ".override.url"))
+            .orElseGet(() -> String.format("http://localhost:%s/%s", LOCAL_PORTS.get(application), appname));
     }
 
     static String scopesFor(FpApplication application, Environment currentEnvironment) {
