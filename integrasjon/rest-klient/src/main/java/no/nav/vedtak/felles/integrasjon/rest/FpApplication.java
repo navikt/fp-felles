@@ -55,31 +55,32 @@ public enum FpApplication {
 
 
     public static String contextPathFor(FpApplication application) {
-        return contextPathFor(application, ENV.getCluster());
+        return contextPathFor(application, ENV);
     }
 
     public static String scopesFor(FpApplication application) {
-        return scopesFor(application, ENV.getCluster());
+        return scopesFor(application, ENV);
     }
 
-    static String contextPathFor(FpApplication application, Cluster clusten) {
+    static String contextPathFor(FpApplication application, Environment currentEnvironment) {
         if (application == null || NONFP.equals(application)) {
             throw new IllegalArgumentException("Utviklerfeil: angitt app er ikke i fp-familien");
         }
         var appname = application.name().toLowerCase();
+        var cluster = currentEnvironment.getCluster();
 
-        if (clusten.isLocal()) {
-            return Optional.ofNullable(ENV.getProperty(application.name().toLowerCase() + ".override.url"))
+        if (cluster.isLocal()) {
+            return Optional.ofNullable(currentEnvironment.getProperty(application.name().toLowerCase() + ".override.url"))
                 .orElseGet(() -> String.format("http://localhost:%s/%s", LOCAL_PORTS.get(application), appname));
         }
 
-        var clusterForApplication = getClusterTilFPApplikasjonenSomSkalKalles(application, clusten);
-        if (clusten.isCoLocated(clusterForApplication)) {
+        var clusterForApplication = getClusterTilFPApplikasjonenSomSkalKalles(application, currentEnvironment);
+        if (cluster.isCoLocated(clusterForApplication)) {
             return String.format("http://%s/%s", appname, appname);
         } else {
             var prefix = "https://" + appname;
-            if (clusten.isFss()) { // Kaller fra FSS til GCP
-                return prefix + ".intern" + (clusten.isProd() ? "" : ".dev") + ".nav.no/" + appname;
+            if (currentEnvironment.isFss()) { // Kaller fra FSS til GCP
+                return prefix + ".intern" + (cluster.isProd() ? "" : ".dev") + ".nav.no/" + appname;
             } else { // Kaller fra GCP til FSS
                 if (FPSAK.equals(application)) {
                     prefix += "-api";
@@ -89,18 +90,18 @@ public enum FpApplication {
         }
     }
 
-    static String scopesFor(FpApplication application, Cluster cluster) {
-        if (cluster.isLocal()) {
+    static String scopesFor(FpApplication application, Environment currentEnvironment) {
+        if (currentEnvironment.isLocal()) {
             return "api://" + Cluster.VTP.clusterName() + "." + FORELDREPENGER.getName() + "." + Cluster.VTP.clusterName() + "/.default";
         }
-        return "api://" + getClusterTilFPApplikasjonenSomSkalKalles(application, cluster).clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
+        return "api://" + getClusterTilFPApplikasjonenSomSkalKalles(application, currentEnvironment).clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
     }
 
-    private static Cluster getClusterTilFPApplikasjonenSomSkalKalles(FpApplication application, Cluster cluster) {
-        if (cluster.isProd()) {
+    private static Cluster getClusterTilFPApplikasjonenSomSkalKalles(FpApplication application, Environment currentEnvironment) {
+        if (currentEnvironment.isProd()) {
             return GCP_APPS.contains(application) ? Cluster.PROD_GCP : Cluster.PROD_FSS;
         }
-        if (cluster.isDev()) {
+        if (currentEnvironment.isDev()) {
             return GCP_APPS.contains(application) ? Cluster.DEV_GCP : Cluster.DEV_FSS;
         }
         throw new IllegalArgumentException("Utviklerfeil: Skal ikke kunne nå her med cluster annet enn de som er definert over");
