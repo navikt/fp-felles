@@ -5,6 +5,10 @@ package no.nav.vedtak.sikkerhet.abac.policy;
  */
 public class ForeldrepengerAttributter {
 
+    private ForeldrepengerAttributter() {
+        // Hindre instans
+    }
+
     /**
      * Attributter brukt i policies
      */
@@ -33,7 +37,6 @@ public class ForeldrepengerAttributter {
      * Attributter brukt som resource_type
      */
     public static final String RESOURCE_TYPE_FP_APPLIKASJON = "no.nav.abac.attributter.foreldrepenger";
-    public static final String RESOURCE_TYPE_FP_BATCH = "no.nav.abac.attributter.foreldrepenger.batch";
     public static final String RESOURCE_TYPE_FP_DRIFT = "no.nav.abac.attributter.foreldrepenger.drift";
     public static final String RESOURCE_TYPE_FP_FAGSAK = "no.nav.abac.attributter.foreldrepenger.fagsak";
     public static final String RESOURCE_TYPE_FP_VENTEFRIST = "no.nav.abac.attributter.foreldrepenger.fagsak.ventefrist";
