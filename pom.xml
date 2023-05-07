@@ -16,7 +16,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <argLine>-Xms256m -Dlog.level.no.nav=INFO -Dfile.encoding=${project.build.sourceEncoding}</argLine>
 
-        <junit.version>5.9.2</junit.version>
+        <junit.version>5.9.3</junit.version>
 
         <!-- Sonar felles -->
         <sonar.organization>navikt</sonar.organization>
