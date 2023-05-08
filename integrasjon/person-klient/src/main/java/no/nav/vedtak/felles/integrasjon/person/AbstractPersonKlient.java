@@ -3,6 +3,7 @@ package no.nav.vedtak.felles.integrasjon.person;
 import java.net.HttpURLConnection;
 import java.net.http.HttpRequest;
 import java.util.List;
+import java.util.Optional;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
@@ -37,6 +38,7 @@ public abstract class AbstractPersonKlient implements Persondata {
 
     private final PdlDefaultErrorHandler errorHandler;
     private final Tema tema;
+    private final Ytelse defaultYtelse;
     private final RestClient restKlient;
     private final RestConfig restConfig;
 
@@ -49,9 +51,14 @@ public abstract class AbstractPersonKlient implements Persondata {
     }
 
     protected AbstractPersonKlient(RestClient restKlient, Tema tema) {
+        this(restKlient, tema, Ytelse.FORELDREPENGER);
+    }
+
+    protected AbstractPersonKlient(RestClient restKlient, Tema tema, Ytelse ytelse) {
         this.restKlient = restKlient;
         this.restConfig = RestConfig.forClient(this.getClass());
         this.tema = tema;
+        this.defaultYtelse = ytelse;
         this.errorHandler = new PdlDefaultErrorHandler();
     }
 
@@ -62,7 +69,7 @@ public abstract class AbstractPersonKlient implements Persondata {
 
     @Override
     public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p) {
-        return query(q, p, HentPersonQueryResponse.class).hentPerson();
+        return query(defaultYtelse, q, p, HentPersonQueryResponse.class).hentPerson();
     }
 
     @Override
@@ -79,7 +86,29 @@ public abstract class AbstractPersonKlient implements Persondata {
 
     @Override
     public List<HentPersonBolkResult> hentPersonBolk(HentPersonBolkQueryRequest q, HentPersonBolkResultResponseProjection p) {
-        return query(q, p, HentPersonBolkQueryResponse.class).hentPersonBolk();
+        return query(defaultYtelse, q, p, HentPersonBolkQueryResponse.class).hentPersonBolk();
+    }
+
+    @Override
+    public Person hentPerson(Ytelse ytelse, HentPersonQueryRequest q, PersonResponseProjection p) {
+        return query(ytelse, q, p, HentPersonQueryResponse.class).hentPerson();
+    }
+
+    @Override
+    public Person hentPerson(Ytelse ytelse, HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
+        try {
+            return hentPerson(ytelse, q, p);
+        } catch (PdlException e) {
+            if (e.getStatus() == HttpURLConnection.HTTP_NOT_FOUND && ignoreNotFound) {
+                return null;
+            }
+            throw e;
+        }
+    }
+
+    @Override
+    public List<HentPersonBolkResult> hentPersonBolk(Ytelse ytelse, HentPersonBolkQueryRequest q, HentPersonBolkResultResponseProjection p) {
+        return query(ytelse, q, p, HentPersonBolkQueryResponse.class).hentPersonBolk();
     }
 
     @Override
@@ -94,12 +123,18 @@ public abstract class AbstractPersonKlient implements Persondata {
 
     @Override
     public <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
-        return query(new GraphQLRequest(q, p), clazz);
+        return query(null, new GraphQLRequest(q, p), clazz);
     }
 
-    private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
+    @Override
+    public <T extends GraphQLResult<?>> T query(Ytelse ytelse, GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz) {
+        return query(ytelse, new GraphQLRequest(q, p), clazz);
+    }
+
+    private <T extends GraphQLResult<?>> T query(Ytelse ytelse, GraphQLRequest req, Class<T> clazz) {
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
         var restRequest = RestRequest.newRequest(method, restConfig.endpoint(), restConfig).header("TEMA", tema.name());
+        Optional.ofNullable(ytelse).ifPresent(bnr -> restRequest.header("behandlingsnummer", bnr.getBehandlingsnummer()));
         var res = restKlient.send(restRequest, clazz);
         if (res.hasErrors()) {
             return errorHandler.handleError(res.getErrors(), restConfig.endpoint(), PDL_ERROR_RESPONSE);
