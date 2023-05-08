@@ -25,7 +25,7 @@ public enum FpApplication {
     NONFP;
 
     private static final Environment ENV = Environment.current();
-    private static final Cluster CLUSTER = ENV.getCluster();
+
     // FpApplication brukes til å kalle apps i namespace foreldrepenger - ikke riktig å bruke ENV/namespace
     private static final Namespace FORELDREPENGER = Namespace.foreldrepenger();
 
@@ -53,61 +53,65 @@ public enum FpApplication {
         return !NONFP.equals(this);
     }
 
+
     public static String contextPathFor(FpApplication application) {
+        return contextPathFor(application, ENV);
+    }
+
+    public static String scopesFor(FpApplication application) {
+        return scopesFor(application, ENV);
+    }
+
+    static String contextPathFor(FpApplication application, Environment currentEnvironment) {
         if (application == null || NONFP.equals(application)) {
             throw new IllegalArgumentException("Utviklerfeil: angitt app er ikke i fp-familien");
         }
         var appname = application.name().toLowerCase();
-        // Sjekk om override for kjøring i IDE <app>.override.url=http://localhost:localport/<appname> (evt med port og annen path)
-        var override = contextPathProperty(application);
-        if (CLUSTER.isLocal() && override!= null) {
-            return override;
+
+        if (currentEnvironment.isLocal()) {
+            return urlForLocal(application, currentEnvironment, appname);
         }
-        // Sjekk om kryss-lokasjon - da trengs ingress og litt ulike varianter
-        var clusterForApplication = getCluster(application);
-        if (!CLUSTER.equals(clusterForApplication)) {
-            var prefix = "https://" + appname;
-            if (ENV.isFss()) { // Kaller fra FSS til GCP
-                return prefix + ".intern" + (ENV.isProd() ? "" : ".dev") + ".nav.no/" + appname;
-            } else if (ENV.isGcp()) { // Kaller fra GCP til FSS
-                if (FPSAK.equals(application)) {
-                    return prefix + "-api." + clusterForApplication.clusterName() + "-pub.nais.io/" + appname;
-                }
-                return prefix + "." + clusterForApplication.clusterName() + "-pub.nais.io/" + appname;
-            } else {
-                throw new IllegalStateException("Utviklerfeil: Skal ikke komme hit");
-            }
+
+        var clusterForApplication = getClusterTilFPApplikasjonenSomSkalKalles(application, currentEnvironment);
+        if (currentEnvironment.getCluster().isCoLocated(clusterForApplication)) {
+            return String.format("http://%s/%s", appname, appname); // service discovery
         }
-        // Samme lokasjon og cluster - bruk service discovery
-        var prefix = "http://" + appname;
-        return switch (CLUSTER) {
-            case DEV_FSS, PROD_FSS -> prefix + "/" + appname;
-            case VTP -> prefix + ":8080/" + appname;
-            default -> throw new IllegalArgumentException("Ikke implementert for Cluster " + CLUSTER.clusterName());
-        };
+
+        return urlForCommunicationBetweenDifferentClusters(application, currentEnvironment, appname, clusterForApplication);
+
     }
 
-    public static String scopesFor(FpApplication application) {
-        if (CLUSTER.isLocal()) {
+    private static String urlForCommunicationBetweenDifferentClusters(FpApplication application, Environment currentEnvironment, String appname, Cluster clusterForApplication) {
+        var prefix = "https://" + appname;
+        if (currentEnvironment.isFss()) { // Kaller fra FSS til GCP
+            return prefix + ".intern" + (currentEnvironment.isProd() ? "" : ".dev") + ".nav.no/" + appname;
+        } else { // Kaller fra GCP til FSS
+            if (FPSAK.equals(application)) {
+                prefix += "-api";
+            }
+            return prefix + "." + clusterForApplication.clusterName() + "-pub.nais.io/" + appname;
+        }
+    }
+
+    private static String urlForLocal(FpApplication application, Environment currentEnvironment, String appname) {
+        return Optional.ofNullable(currentEnvironment.getProperty(application.name().toLowerCase() + ".override.url"))
+            .orElseGet(() -> String.format("http://localhost:%s/%s", LOCAL_PORTS.get(application), appname));
+    }
+
+    static String scopesFor(FpApplication application, Environment currentEnvironment) {
+        if (currentEnvironment.isLocal()) {
             return "api://" + Cluster.VTP.clusterName() + "." + FORELDREPENGER.getName() + "." + Cluster.VTP.clusterName() + "/.default";
         }
-        return "api://" + getCluster(application).clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
+        return "api://" + getClusterTilFPApplikasjonenSomSkalKalles(application, currentEnvironment).clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
     }
 
-    private static String contextPathProperty(FpApplication application) {
-        return Optional.ofNullable(ENV.getProperty(application.name().toLowerCase() + ".override.url"))
-            .map(s -> s.replace("localhost:localport", "localhost:" + LOCAL_PORTS.get(application)))
-            .orElse(null);
-    }
-
-    private static Cluster getCluster(FpApplication application) {
-        if (CLUSTER.isProd()) {
+    private static Cluster getClusterTilFPApplikasjonenSomSkalKalles(FpApplication application, Environment currentEnvironment) {
+        if (currentEnvironment.isProd()) {
             return GCP_APPS.contains(application) ? Cluster.PROD_GCP : Cluster.PROD_FSS;
-        } else if (CLUSTER.isDev()) {
-            return GCP_APPS.contains(application) ? Cluster.DEV_GCP : Cluster.DEV_FSS;
-        } else {
-            return Cluster.VTP;
         }
+        if (currentEnvironment.isDev()) {
+            return GCP_APPS.contains(application) ? Cluster.DEV_GCP : Cluster.DEV_FSS;
+        }
+        throw new IllegalArgumentException("Utviklerfeil: Skal ikke kunne nå her med cluster annet enn de som er definert over");
     }
-
 }
