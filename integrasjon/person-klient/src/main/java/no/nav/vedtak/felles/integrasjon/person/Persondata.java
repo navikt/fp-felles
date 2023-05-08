@@ -66,9 +66,17 @@ public interface Persondata {
 
     List<HentPersonBolkResult> hentPersonBolk(HentPersonBolkQueryRequest q, HentPersonBolkResultResponseProjection p);
 
+    Person hentPerson(Ytelse ytelse, HentPersonQueryRequest q, PersonResponseProjection p);
+
+    Person hentPerson(Ytelse ytelse, HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound);
+
+    List<HentPersonBolkResult> hentPersonBolk(Ytelse ytelse, HentPersonBolkQueryRequest q, HentPersonBolkResultResponseProjection p);
+
     GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p);
 
     <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz);
+
+    <T extends GraphQLResult<?>> T query(Ytelse ytelse, GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz);
 
     private Optional<String> hentId(String id, IdentGruppe gruppe, boolean ignoreNotFound) {
         var query = new HentIdenterQueryRequest();
@@ -87,4 +95,23 @@ public interface Persondata {
             throw e;
         }
     }
+
+    enum Ytelse { // Persondata innhentes for ytelse. Default = Foreldrepenger
+        // Utelatt TILBAKEKREVING("B323") Bruk aktuell ytelse
+        ENGANGSSTØNAD("B321"),
+        FORELDREPENGER("B271"),
+        SVANGERSKAPSPENGER("B322"),
+        PLEIEPENGER("B249"); // PGA fptilbake
+
+        private final String behandlingsnummer;
+
+        Ytelse(String behandlingsnummer) {
+            this.behandlingsnummer = behandlingsnummer;
+        }
+
+        public String getBehandlingsnummer() {
+            return behandlingsnummer;
+        }
+    }
+
 }
