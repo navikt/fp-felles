@@ -98,17 +98,17 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
         reserverOppgave(oppgaveId, null);
     }
 
+    @Override
+    public Oppgave hentOppgave(String oppgaveId) {
+        var request = RestRequest.newGET(getEndpointForOppgaveId(oppgaveId), restConfig).otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
+        return restKlient.send(addCorrelation(request), Oppgave.class);
+    }
+
     private void patchOppgave(String oppgaveId, HttpRequest.BodyPublisher jsonBody) {
         var method = new RestRequest.Method(RestRequest.WebMethod.PATCH, jsonBody);
         var request = RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), restConfig)
             .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         restKlient.sendExpectConflict(addCorrelation(request), String.class);
-    }
-
-    @Override
-    public Oppgave hentOppgave(String oppgaveId) {
-        var request = RestRequest.newGET(getEndpointForOppgaveId(oppgaveId), restConfig).otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
-        return restKlient.send(addCorrelation(request), Oppgave.class);
     }
 
     private URI getEndpointForOppgaveId(String oppgaveId) {
