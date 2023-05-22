@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -61,14 +62,12 @@ class AbstractOppgaveKlientTest {
         var captor = ArgumentCaptor.forClass(RestRequest.class);
 
         when(restKlient.send(any(RestRequest.class), eq(Oppgave.class))).thenReturn(DefaultJsonMapper.fromJson(json, Oppgave.class));
-
-        when(restKlient.sendExpectConflict(captor.capture(), Oppgave.class))
+        when(restKlient.sendExpectConflict(captor.capture(), eq(String.class))).thenReturn("test");
 
         oppgaver.reserverOppgave("1", "testSbh");
 
         var rq = captor.getValue();
         rq.validateDelayedHeaders(Set.of("Authorization"));
-        //assertThat(respons.get(0).vedtaksreferanse()).isEqualTo("abc");
     }
 
     @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "OPPGAVE_GRUNNLAG_URL", endpointDefault = "http://oppgave.tbd/", scopesProperty = "OPPGAVE_GRUNNLAG_SCOPES", scopesDefault = "api://prod-fss.tbd.oppgave/.default")
