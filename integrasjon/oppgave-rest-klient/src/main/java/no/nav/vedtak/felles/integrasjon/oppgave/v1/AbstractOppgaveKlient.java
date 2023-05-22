@@ -76,21 +76,21 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     public void ferdigstillOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.id(), oppgave.versjon(), Oppgavestatus.FERDIGSTILT);
-        patchOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
+        endreOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
     }
 
     @Override
     public void feilregistrerOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.id(), oppgave.versjon(), Oppgavestatus.FEILREGISTRERT);
-        patchOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
+        endreOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
     }
 
     @Override
     public void reserverOppgave(String oppgaveId, String saksbehandlerId) {
         var oppgave = hentOppgave(oppgaveId);
-        var patch = new PatchReservasjon(oppgave.id(), oppgave.versjon(), saksbehandlerId);
-        patchOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
+        var patch = new OppdaterReservasjon(oppgave.id(), oppgave.versjon(), saksbehandlerId);
+        endreOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
     }
 
     @Override
@@ -104,7 +104,7 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
         return restKlient.send(addCorrelation(request), Oppgave.class);
     }
 
-    private void patchOppgave(String oppgaveId, HttpRequest.BodyPublisher jsonBody) {
+    private void endreOppgave(String oppgaveId, HttpRequest.BodyPublisher jsonBody) {
         var method = new RestRequest.Method(RestRequest.WebMethod.PATCH, jsonBody);
         var request = RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), restConfig)
             .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
