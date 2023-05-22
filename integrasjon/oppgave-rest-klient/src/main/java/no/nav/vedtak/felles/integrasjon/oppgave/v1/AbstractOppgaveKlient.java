@@ -1,6 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
 import java.net.URI;
+import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Objects;
 
@@ -75,26 +76,39 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     public void ferdigstillOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.id(), oppgave.versjon(), Oppgavestatus.FERDIGSTILT);
-        var method = new RestRequest.Method(RestRequest.WebMethod.PATCH, RestRequest.jsonPublisher(patch));
-        var request = RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), restConfig)
-            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
-        restKlient.sendExpectConflict(addCorrelation(request), String.class);
+        endreOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
     }
 
     @Override
     public void feilregistrerOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
         var patch = new PatchOppgave(oppgave.id(), oppgave.versjon(), Oppgavestatus.FEILREGISTRERT);
-        var method = new RestRequest.Method(RestRequest.WebMethod.PATCH, RestRequest.jsonPublisher(patch));
-        var request = RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), restConfig)
-            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
-        restKlient.sendExpectConflict(addCorrelation(request), String.class);
+        endreOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
+    }
+
+    @Override
+    public void reserverOppgave(String oppgaveId, String saksbehandlerId) {
+        var oppgave = hentOppgave(oppgaveId);
+        var patch = new OppdaterReservasjon(oppgave.id(), oppgave.versjon(), saksbehandlerId);
+        endreOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
+    }
+
+    @Override
+    public void avreserverOppgave(String oppgaveId) {
+        reserverOppgave(oppgaveId, null);
     }
 
     @Override
     public Oppgave hentOppgave(String oppgaveId) {
         var request = RestRequest.newGET(getEndpointForOppgaveId(oppgaveId), restConfig).otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         return restKlient.send(addCorrelation(request), Oppgave.class);
+    }
+
+    private void endreOppgave(String oppgaveId, HttpRequest.BodyPublisher jsonBody) {
+        var method = new RestRequest.Method(RestRequest.WebMethod.PATCH, jsonBody);
+        var request = RestRequest.newRequest(method, getEndpointForOppgaveId(oppgaveId), restConfig)
+            .otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
+        restKlient.sendExpectConflict(addCorrelation(request), String.class);
     }
 
     private URI getEndpointForOppgaveId(String oppgaveId) {
