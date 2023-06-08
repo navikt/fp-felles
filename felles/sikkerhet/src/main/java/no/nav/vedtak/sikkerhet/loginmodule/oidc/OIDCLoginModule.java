@@ -15,9 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.TokenCallback;
-import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
-import no.nav.vedtak.sikkerhet.context.containers.OidcCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
@@ -46,8 +44,6 @@ public class OIDCLoginModule extends LoginModuleBase {
 
     // Set during commit()
     private ConsumerId consumerId;
-    private AuthenticationLevelCredential authenticationLevelCredential;
-    private OidcCredential oidcCredential;
 
     public OIDCLoginModule() {
         super(LOG);
@@ -80,19 +76,15 @@ public class OIDCLoginModule extends LoginModuleBase {
 
     @Override
     public void doCommit() throws LoginException {
-        authenticationLevelCredential = AuthenticationLevelCredential.forInternBruker();
         String mdcConsumerId = MDCOperations.getConsumerId();
         if (mdcConsumerId != null) {
             this.consumerId = new ConsumerId(mdcConsumerId);
         } else {
             this.consumerId = new ConsumerId();
         }
-        oidcCredential = new OidcCredential(ssoToken);
 
         subject.getPrincipals().add(sluttBruker);
         subject.getPrincipals().add(this.consumerId);
-        subject.getPublicCredentials().add(authenticationLevelCredential);
-        subject.getPublicCredentials().add(oidcCredential);
     }
 
     @Override
@@ -100,8 +92,6 @@ public class OIDCLoginModule extends LoginModuleBase {
         if (!subject.isReadOnly()) {
             subject.getPrincipals().remove(sluttBruker);
             subject.getPrincipals().remove(consumerId);
-            subject.getPublicCredentials().remove(authenticationLevelCredential);
-            subject.getPublicCredentials().remove(oidcCredential);
         }
     }
 
@@ -120,16 +110,6 @@ public class OIDCLoginModule extends LoginModuleBase {
             consumerId.destroy();
         }
         consumerId = null;
-
-        if (authenticationLevelCredential != null) {
-            authenticationLevelCredential.destroy();
-        }
-        authenticationLevelCredential = null;
-
-        if (oidcCredential != null) {
-            oidcCredential.destroy();
-        }
-        oidcCredential = null;
     }
 
     /*
