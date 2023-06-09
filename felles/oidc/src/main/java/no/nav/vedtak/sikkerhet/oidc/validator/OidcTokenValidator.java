@@ -24,6 +24,9 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 public class OidcTokenValidator {
 
+    private static final Set<String> AUTHENTICATION_LEVEL_ID_PORTEN = Set.of("Level4", "idporten-loa-high"); // Level4 er gammel og utgår ila 2023
+
+
     private final OpenIDProvider provider;
     private final String expectedIssuer;
     private final String clientName;
@@ -170,7 +173,7 @@ public class OidcTokenValidator {
 
     private OidcTokenValidatorResult validateTokenX(JwtClaims claims, String subject) {
         var level4 = Optional.ofNullable(JwtUtil.getStringClaim(claims, "acr"))
-            .filter(AuthenticationLevel.AUTHENTICATION_LEVEL_ID_PORTEN::equals)
+            .filter(AUTHENTICATION_LEVEL_ID_PORTEN::contains)
             .isPresent();
         if (!level4) {
             return OidcTokenValidatorResult.invalid("TokenX token ikke på nivå 4");
