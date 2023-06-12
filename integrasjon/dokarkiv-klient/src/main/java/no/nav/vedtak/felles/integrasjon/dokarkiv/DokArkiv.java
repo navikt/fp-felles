@@ -4,6 +4,7 @@ package no.nav.vedtak.felles.integrasjon.dokarkiv;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostResponse;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.TilknyttVedleggRequest;
 
 public interface DokArkiv {
 
@@ -13,4 +14,5 @@ public interface DokArkiv {
 
     boolean oppdaterJournalpost(String journalpostId, OppdaterJournalpostRequest request);
 
+    void tilknyttVedlegg(TilknyttVedleggRequest request, String journalpostId);
 }
