@@ -27,7 +27,6 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import no.nav.vedtak.log.util.LoggerUtils;
-import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
@@ -54,7 +53,6 @@ public class SamlLoginModule extends LoginModuleBase {
     private Assertion samlAssertion;
 
     private SluttBruker sluttBruker;
-    private AuthenticationLevelCredential authenticationLevelCredential;
     private SAMLAssertionCredential samlAssertionCredential;
     private ConsumerId consumerId;
 
@@ -94,18 +92,15 @@ public class SamlLoginModule extends LoginModuleBase {
     @Override
     public void doCommit() throws LoginException {
         sluttBruker = new SluttBruker(samlInfo.uid(), getIdentType());
-        authenticationLevelCredential = new AuthenticationLevelCredential(samlInfo.authLevel());
         Element samlElement = samlAssertion.getDOM();
         samlAssertionCredential = new SAMLAssertionCredential(samlElement);
         consumerId = new ConsumerId(samlInfo.consumerId());
 
         subject.getPrincipals().add(sluttBruker);
         subject.getPrincipals().add(consumerId);
-        subject.getPublicCredentials().add(authenticationLevelCredential);
         subject.getPublicCredentials().add(samlAssertionCredential);
 
-        LOG.trace("Login committed for subject with uid: {} authentication level: {} and consumerId: {}", sluttBruker.getName(),
-            authenticationLevelCredential.getAuthenticationLevel(), consumerId);
+        LOG.trace("Login committed for subject with uid: {} and consumerId: {}", sluttBruker.getName(), consumerId);
     }
 
     private IdentType getIdentType() throws LoginException {
@@ -126,7 +121,6 @@ public class SamlLoginModule extends LoginModuleBase {
             subject.getPrincipals().remove(sluttBruker);
             subject.getPrincipals().remove(consumerId);
             subject.getPublicCredentials().remove(samlAssertionCredential);
-            subject.getPublicCredentials().remove(authenticationLevelCredential);
         }
     }
 
@@ -146,11 +140,6 @@ public class SamlLoginModule extends LoginModuleBase {
             consumerId.destroy();
         }
         consumerId = null;
-
-        if (authenticationLevelCredential != null) {
-            authenticationLevelCredential.destroy();
-        }
-        authenticationLevelCredential = null;
 
         if (samlAssertionCredential != null) {
             samlAssertionCredential.destroy();

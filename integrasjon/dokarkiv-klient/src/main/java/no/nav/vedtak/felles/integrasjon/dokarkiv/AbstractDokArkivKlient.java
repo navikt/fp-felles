@@ -3,6 +3,13 @@ package no.nav.vedtak.felles.integrasjon.dokarkiv;
 import java.net.URI;
 
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriBuilderException;
+
+import no.nav.vedtak.exception.TekniskException;
+
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.TilknyttVedleggRequest;
+
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.TilknyttVedleggResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +22,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
-// @RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "dokarkiv.base.url", endpointDefault = "http://dokarkiv.default/rest/journalpostapi/v1/journalpost")
+// @RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "dokarkiv.base.url", endpointDefault = "http://dokarkiv.teamdokumenthandtering/rest/journalpostapi/v1/journalpost")
 public class AbstractDokArkivKlient implements DokArkiv {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDokArkivKlient.class);
@@ -73,6 +80,28 @@ public class AbstractDokArkivKlient implements DokArkiv {
         } catch (Exception e) {
             LOG.info("DOKARKIV FERDIGSTILL {} feilet for {}", journalpostId, enhet, e);
             return false;
+        }
+    }
+
+    @Override
+    public void tilknyttVedlegg(TilknyttVedleggRequest request, String journalpostId) {
+        try {
+            var tilknyttPath = String.format("/%s/tilknyttVedlegg", journalpostId);
+            var uri = UriBuilder.fromUri(restConfig.endpoint()).path(tilknyttPath).build();
+
+            var method = new RestRequest.Method(RestRequest.WebMethod.PUT, RestRequest.jsonPublisher(request));
+            var rrequest = RestRequest.newRequest(method, uri, restConfig);
+            var tilknyttVedleggResponse = restKlient.send(rrequest, TilknyttVedleggResponse.class);
+
+            if (!tilknyttVedleggResponse.feiledeDokumenter().isEmpty()) {
+                throw new IllegalStateException(
+                    "Følgende vedlegg feilet " + tilknyttVedleggResponse + " for journalpost " + journalpostId);
+            } else {
+                LOG.info("Vedlegg tilknyttet {} OK", journalpostId);
+            }
+        } catch (UriBuilderException | IllegalArgumentException e) {
+            throw new TekniskException("FPFORMIDLING-156531",
+                String.format("Feil ved oppretting av URI for tilknytning av vedlegg til %s: %s.", journalpostId, request.toString()), e);
         }
     }
 }

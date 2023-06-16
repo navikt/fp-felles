@@ -81,6 +81,7 @@ class PersondataKlientTest {
         assertThat(person.getNavn().get(0).getFornavn()).isNotEmpty();
         var rq = captor.getValue();
         rq.validateRequest(r -> assertThat(r.headers().map().get("TEMA")).contains("FOR"));
+        rq.validateRequest(r -> assertThat(r.headers().map().get("behandlingsnummer")).contains(Persondata.Ytelse.FORELDREPENGER.getBehandlingsnummer()));
         assertThat(rq.validateDelayedHeaders(Set.of("Authorization", "Nav-Consumer-Token", "Nav-Consumer-Id"))).isTrue();
     }
 
@@ -88,7 +89,9 @@ class PersondataKlientTest {
     void skal_returnere_bolk_med_person() {
         var resource = getClass().getClassLoader().getResource("pdl/personBolkResponse.json");
         var response = DefaultJsonMapper.fromJson(resource, HentPersonBolkQueryResponse.class);
-        when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
+        var captor = ArgumentCaptor.forClass(RestRequest.class);
+
+        when(restClient.send(captor.capture(), any(Class.class))).thenReturn(response);
 
 
         var query = new HentPersonBolkQueryRequest();
@@ -98,12 +101,15 @@ class PersondataKlientTest {
                 .navn(new NavnResponseProjection().fornavn())
                 .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering()));
 
-        var personer = pdlKlient.hentPersonBolk(query, projection);
+        var personer = pdlKlient.hentPersonBolk(Persondata.Ytelse.SVANGERSKAPSPENGER, query, projection);
 
         assertThat(personer).hasSize(1);
         assertThat(personer.get(0).getIdent()).isEqualTo("12345678901");
         assertThat(personer.get(0).getPerson().getAdressebeskyttelse()).hasSize(1);
         assertThat(personer.get(0).getPerson().getAdressebeskyttelse().get(0).getGradering()).isEqualTo(AdressebeskyttelseGradering.UGRADERT);
+        var rq = captor.getValue();
+        rq.validateRequest(r -> assertThat(r.headers().map().get("TEMA")).contains("FOR"));
+        rq.validateRequest(r -> assertThat(r.headers().map().get("behandlingsnummer")).contains(Persondata.Ytelse.SVANGERSKAPSPENGER.getBehandlingsnummer()));
     }
 
     @Test

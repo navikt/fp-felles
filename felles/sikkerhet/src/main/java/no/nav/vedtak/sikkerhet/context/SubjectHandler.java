@@ -1,11 +1,5 @@
 package no.nav.vedtak.sikkerhet.context;
 
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.sikkerhet.context.containers.*;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-
-import javax.security.auth.Subject;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -14,14 +8,11 @@ import java.util.stream.Collectors;
 import javax.security.auth.Subject;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.sikkerhet.context.containers.AuthenticationLevelCredential;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
-import no.nav.vedtak.sikkerhet.context.containers.OidcCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.kontekst.Groups;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public abstract class SubjectHandler {
     public abstract Subject getSubject();
@@ -67,37 +58,10 @@ public abstract class SubjectHandler {
             .orElse(Set.of());
     }
 
-    public String getInternSsoToken() {
-        return Optional.ofNullable(getSubject())
-            .map(s -> s.getPublicCredentials(OidcCredential.class))
-            .map(SubjectHandler::getTheOnlyOneInSet)
-            .filter(Objects::nonNull)
-            .map(OidcCredential::getToken)
-            .orElse(null);
-    }
-
-    public OpenIDToken getOpenIDToken() {
-        return Optional.ofNullable(getSubject())
-            .map(s -> s.getPublicCredentials(OidcCredential.class))
-            .map(SubjectHandler::getTheOnlyOneInSet)
-            .filter(Objects::nonNull)
-            .map(OidcCredential::getOpenIDToken)
-            .orElse(null);
-    }
-
     public SAMLAssertionCredential getSamlToken() {
         return Optional.ofNullable(getSubject())
             .map(s -> s.getPublicCredentials(SAMLAssertionCredential.class))
             .map(SubjectHandler::getTheOnlyOneInSet)
-            .orElse(null);
-    }
-
-    public Integer getAuthenticationLevel() {
-        return Optional.ofNullable(getSubject())
-            .map(s -> s.getPublicCredentials(AuthenticationLevelCredential.class))
-            .map(SubjectHandler::getTheOnlyOneInSet)
-            .filter(Objects::nonNull)
-            .map(AuthenticationLevelCredential::getAuthenticationLevel)
             .orElse(null);
     }
 
