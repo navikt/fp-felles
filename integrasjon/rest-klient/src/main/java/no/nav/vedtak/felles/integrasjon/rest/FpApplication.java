@@ -15,7 +15,6 @@ public enum FpApplication {
     FPRISK,
     FPABONNENT,
     FPFORDEL,
-    FPINFO,
     FPLOS,
     FPOPPDRAG,
     FPTILBAKE,
@@ -43,8 +42,7 @@ public enum FpApplication {
         Map.entry(FpApplication.FPDOKGEN, 8291),
         Map.entry(FpApplication.FPWSPROXY, 8292),
         Map.entry(FpApplication.FPLOS, 8071),
-        Map.entry(FpApplication.FPINFO, 8040),
-        Map.entry(FpApplication.FPOVERSIKT, 8020)
+        Map.entry(FpApplication.FPOVERSIKT, 8889)
     );
 
     private static final Set<FpApplication> GCP_APPS = Set.of(FPOVERSIKT);
