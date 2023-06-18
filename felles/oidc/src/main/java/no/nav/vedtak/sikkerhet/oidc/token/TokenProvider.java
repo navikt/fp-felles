@@ -25,6 +25,8 @@ public final class TokenProvider {
         .or(() -> Optional.ofNullable(Environment.current().application()))
         .orElse("local");
     private static final Set<SikkerhetContext> USE_SYSTEM = Set.of(SikkerhetContext.SYSTEM, SikkerhetContext.WSREQUEST);
+    // Denne finnes utelukkende pga k9-verdikjede ..... sjekk om kan fjerne =false i abakus
+    private static final boolean SYSTEM_USE_AZURE = !"false".equalsIgnoreCase(Environment.current().getProperty("token.system.use.azure"));
 
     private TokenProvider() {
     }
@@ -36,7 +38,8 @@ public final class TokenProvider {
     public static OpenIDToken getTokenForKontekst(String scopes) {
         var kontekst = KONTEKST_PROVIDER.getKontekst();
         if (USE_SYSTEM.contains(kontekst.getContext())) {
-            return getAzureSystemToken(scopes);
+            // Bytt om til AzureCC når k9-verdikjede er klar for det.....
+            return SYSTEM_USE_AZURE ? getAzureSystemToken(scopes) : getStsSystemToken();
         }
         if (kontekst instanceof RequestKontekst requestKontekst) {
             return getOutgoingTokenFor(requestKontekst, scopes);
@@ -81,7 +84,9 @@ public final class TokenProvider {
     public static String getConsumerIdFor(SikkerhetContext context) {
         return switch (context) {
             case REQUEST, WSREQUEST -> getCurrentConsumerId();
-            case SYSTEM -> ENV_CLIENT_ID;
+            case SYSTEM -> SYSTEM_USE_AZURE ? ENV_CLIENT_ID : ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS)
+                .map(OpenIDConfiguration::clientId)
+                .orElse(null);
         };
     }
 
@@ -97,7 +102,7 @@ public final class TokenProvider {
             if (kontekst instanceof RequestKontekst requestKontekst) {
                 return OpenIDProvider.AZUREAD.equals(getProvider(requestKontekst.getToken()));
             } else {
-                return SikkerhetContext.SYSTEM.equals(kontekst.getContext());
+                return SikkerhetContext.SYSTEM.equals(kontekst.getContext()) && SYSTEM_USE_AZURE;
             }
         } catch (Exception e) {
             return false;
