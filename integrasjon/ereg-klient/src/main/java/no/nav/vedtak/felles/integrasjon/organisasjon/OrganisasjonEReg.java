@@ -34,7 +34,7 @@ public record OrganisasjonEReg(String organisasjonsnummer, OrganisasjonstypeEReg
         return Optional.ofNullable(virksomhetDetaljer()).map(VirksomhetDetaljer::nedleggelsesdato).orElse(null);
     }
 
-    private record Navn(String navnelinje1, String navnelinje2, String navnelinje3, String navnelinje4, String navnelinje5) {
+    private record Navn(String sammensattnavn, String navnelinje1, String navnelinje2, String navnelinje3, String navnelinje4, String navnelinje5) {
 
         private String getNavn() {
             return Stream.of(navnelinje1(), navnelinje2(), navnelinje3(), navnelinje4(), navnelinje5())
