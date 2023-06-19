@@ -25,6 +25,7 @@ public final class TokenProvider {
         .or(() -> Optional.ofNullable(Environment.current().application()))
         .orElse("local");
     private static final Set<SikkerhetContext> USE_SYSTEM = Set.of(SikkerhetContext.SYSTEM, SikkerhetContext.WSREQUEST);
+    // Denne finnes utelukkende pga k9-verdikjede ..... sjekk om kan fjerne =false i abakus
     private static final boolean SYSTEM_USE_AZURE = !"false".equalsIgnoreCase(Environment.current().getProperty("token.system.use.azure"));
 
     private TokenProvider() {
@@ -37,7 +38,7 @@ public final class TokenProvider {
     public static OpenIDToken getTokenForKontekst(String scopes) {
         var kontekst = KONTEKST_PROVIDER.getKontekst();
         if (USE_SYSTEM.contains(kontekst.getContext())) {
-            // Bytt om til AzureCC når klar for det.
+            // Bytt om til AzureCC når k9-verdikjede er klar for det.....
             return SYSTEM_USE_AZURE ? getAzureSystemToken(scopes) : getStsSystemToken();
         }
         if (kontekst instanceof RequestKontekst requestKontekst) {
