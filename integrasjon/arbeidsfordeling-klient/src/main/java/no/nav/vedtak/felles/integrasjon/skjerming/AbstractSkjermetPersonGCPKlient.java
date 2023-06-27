@@ -1,6 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.skjerming;
 
-import java.time.Duration;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +22,13 @@ public abstract class AbstractSkjermetPersonGCPKlient implements Skjerming {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSkjermetPersonGCPKlient.class);
     private static final boolean TESTENV = Environment.current().isLocal();
 
+    private static final String SKJERMET_PATH = "skjermet";
+    private static final String BULK_PATH = "skjermetBulk";
+
     private final RestClient client;
     private final RestConfig restConfig;
+    private final URI bulkEndpoint;
+    private final URI skjermetEndpoint;
 
     protected AbstractSkjermetPersonGCPKlient() {
         this(RestClient.client());
@@ -28,6 +37,8 @@ public abstract class AbstractSkjermetPersonGCPKlient implements Skjerming {
     protected AbstractSkjermetPersonGCPKlient(RestClient restClient) {
         this.client = restClient;
         this.restConfig = RestConfig.forClient(this.getClass());
+        this.skjermetEndpoint =  UriBuilder.fromUri(restConfig.endpoint()).path(SKJERMET_PATH).build();
+        this.bulkEndpoint =  UriBuilder.fromUri(restConfig.endpoint()).path(BULK_PATH).build();
         if (!restConfig.tokenConfig().isAzureAD()) {
             throw new IllegalArgumentException("Utviklerfeil: klient må annoteres med Azure CC");
         }
@@ -40,7 +51,7 @@ public abstract class AbstractSkjermetPersonGCPKlient implements Skjerming {
             return false;
         }
 
-        var request = RestRequest.newPOSTJson(new SkjermetRequestDto(fnr), restConfig.endpoint(), restConfig).timeout(Duration.ofSeconds(30));
+        var request = RestRequest.newPOSTJson(new SkjermetRequestDto(fnr), skjermetEndpoint, restConfig);
 
         try {
             return kallMedSjekk(request);
@@ -55,7 +66,31 @@ public abstract class AbstractSkjermetPersonGCPKlient implements Skjerming {
         return "true".equalsIgnoreCase(skjermet);
     }
 
-    private record SkjermetRequestDto(String personident) {
+    @Override
+    public boolean erNoenSkjermet(List<String> fnr) {
+        if (TESTENV || fnr == null || fnr.isEmpty()) {
+            return false;
+        }
+
+        var request = RestRequest.newPOSTJson(new SkjermetBulkRequestDto(fnr), bulkEndpoint, restConfig);
+
+        try {
+            return kallBulkMedSjekk(request);
+        } catch (Exception e) {
+            LOG.info("SkjermetPerson fikk feil", e);
+        }
+        return kallBulkMedSjekk(request);
     }
+
+    @SuppressWarnings("unchecked")
+    private boolean kallBulkMedSjekk(RestRequest request) {
+        // Se github / skjerming / PipController
+        Map<String, Boolean> skjermet = client.send(request, Map.class);
+        return skjermet.values().stream().anyMatch(v -> v);
+    }
+
+    private record SkjermetRequestDto(String personident) { }
+
+    private record SkjermetBulkRequestDto(List<String> personidenter) { }
 
 }

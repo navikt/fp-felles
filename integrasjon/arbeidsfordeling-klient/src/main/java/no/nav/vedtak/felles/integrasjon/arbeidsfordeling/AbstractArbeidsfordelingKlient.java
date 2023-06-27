@@ -10,7 +10,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
 // Extend og annoter med endpoint + default, evt tokenConfig for å illustrere
-//@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "arbeidsfordeling.rs.url", endpointDefault = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter")
+//@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "arbeidsfordeling.rs.url", endpointDefault = "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter")
 public abstract class AbstractArbeidsfordelingKlient implements Arbeidsfordeling {
 
     private static final String BEST_MATCH = "/bestmatch";
