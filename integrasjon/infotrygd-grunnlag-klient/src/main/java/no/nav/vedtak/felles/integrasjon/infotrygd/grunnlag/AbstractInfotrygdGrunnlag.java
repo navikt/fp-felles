@@ -16,9 +16,8 @@ import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-// Extend og annoter med endpoint, evt default. tokenConfig kan settes til TokenFlow.STS_CC til info
+// Extend og annoter med endpoint, evt default. tokenConfig kan settes til TokenFlow.STS_CC eller AZURE_CC
 public abstract class AbstractInfotrygdGrunnlag implements InfotrygdGrunnlag {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractInfotrygdGrunnlag.class);
 
@@ -32,9 +31,6 @@ public abstract class AbstractInfotrygdGrunnlag implements InfotrygdGrunnlag {
     protected AbstractInfotrygdGrunnlag(RestClient client) {
         this.restClient = client;
         this.restConfig = RestConfig.forClient(this.getClass());
-        if (!TokenFlow.STS_CC.equals(restConfig.tokenConfig())) {
-            throw new IllegalArgumentException("Utviklerfeil: trenger STS CC mot Infotrygd");
-        }
     }
 
     @Override
