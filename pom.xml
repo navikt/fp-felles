@@ -25,7 +25,7 @@
         <sonar.projectName>fp-felles</sonar.projectName>
         <sonar.projectKey>navikt_fp-felles</sonar.projectKey>
 
-        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.deploy.skip>false</maven.deploy.skip>
     </properties>
 
     <dependencyManagement>
