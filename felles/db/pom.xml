@@ -13,6 +13,8 @@
     <packaging>jar</packaging>
     <properties>
         <jakarta-persistence-api.version>2.3.3</jakarta-persistence-api.version>
+
+        <maven.deploy.skip>false</maven.deploy.skip>
     </properties>
     <dependencies>
         <dependency>

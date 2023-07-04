@@ -9,6 +9,11 @@
     <artifactId>arbeidsfordeling-klient</artifactId>
     <packaging>jar</packaging>
     <name>Felles :: Integrasjonsendepunkt - arbeidsfordeling-klient</name>
+
+    <properties>
+        <maven.deploy.skip>false</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
