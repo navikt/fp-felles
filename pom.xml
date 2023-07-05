@@ -7,7 +7,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>0.5.6</version>
+        <version>0.6.0</version>
     </parent>
 
     <artifactId>felles-root</artifactId>
@@ -33,7 +33,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>0.5.6</version>
+                <version>0.6.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -42,6 +42,12 @@
                 <groupId>org.bitbucket.b_c</groupId>
                 <artifactId>jose4j</artifactId>
                 <version>0.9.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-micrometer</artifactId>
+                <version>${hibernate.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -105,7 +111,7 @@
                     <dependency>
                         <groupId>no.nav.k9.dev</groupId>
                         <artifactId>dev-jakarta-transform</artifactId>
-                        <version>0.6.10</version>
+                        <version>0.6.11</version>
                     </dependency>
                     <dependency>
                         <groupId>ant-contrib</groupId>
