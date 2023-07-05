@@ -26,22 +26,47 @@
         <sonar.projectKey>navikt_fp-konfig</sonar.projectKey>
 
         <maven.deploy.skip>false</maven.deploy.skip>
+
+        <jakarta.jakartaee-bom.version>8.0.0</jakarta.jakartaee-bom.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Jakarta EE API BOM -->
+            <dependency>
+                <groupId>jakarta.platform</groupId>
+                <artifactId>jakarta.jakartaee-bom</artifactId>
+                <version>${jakarta.jakartaee-bom.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.7</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>jakarta.enterprise</groupId>
             <artifactId>jakarta.enterprise.cdi-api</artifactId>
-            <version>2.0.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.7</version>
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.8</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -152,9 +177,9 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.jboss.jandex</groupId>
+                    <groupId>io.smallrye</groupId>
                     <artifactId>jandex-maven-plugin</artifactId>
-                    <version>1.2.3</version>
+                    <version>3.0.5</version>
                     <executions>
                         <execution>
                             <id>make-index</id>
@@ -198,10 +223,11 @@
         </pluginManagement>
 
         <plugins>
-            <plugin>
-                <groupId>org.jboss.jandex</groupId>
-                <artifactId>jandex-maven-plugin</artifactId>
-            </plugin>
+<!--  Ikke produser jandex siden den blir ikke kompatibel med den nye interpreteren-->
+<!--            <plugin>-->
+<!--                <groupId>io.smallrye</groupId>-->
+<!--                <artifactId>jandex-maven-plugin</artifactId>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -259,7 +285,7 @@
                     <dependency>
                         <groupId>no.nav.k9.dev</groupId>
                         <artifactId>dev-jakarta-transform</artifactId>
-                        <version>0.6.10</version>
+                        <version>0.6.11</version>
                     </dependency>
                     <dependency>
                         <groupId>ant-contrib</groupId>
