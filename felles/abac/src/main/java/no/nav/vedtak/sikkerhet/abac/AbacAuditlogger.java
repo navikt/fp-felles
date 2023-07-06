@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 
 import no.nav.vedtak.log.audit.Auditdata;
 import no.nav.vedtak.log.audit.AuditdataHeader;

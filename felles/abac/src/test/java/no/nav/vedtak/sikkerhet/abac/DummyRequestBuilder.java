@@ -1,8 +1,8 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import javax.annotation.Priority;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Alternative;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Alternative;
 
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 

@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 
 import no.nav.vedtak.klient.http.HttpClientRequest;
 import no.nav.vedtak.log.mdc.MDCOperations;

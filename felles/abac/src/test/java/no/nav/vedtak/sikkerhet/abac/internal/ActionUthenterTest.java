@@ -2,9 +2,9 @@ package no.nav.vedtak.sikkerhet.abac.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.jws.WebMethod;
-import javax.jws.WebService;
-import javax.ws.rs.Path;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebService;
+import jakarta.ws.rs.Path;
 
 import org.junit.jupiter.api.Test;
 

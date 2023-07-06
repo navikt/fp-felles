@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.sikkerhet.abac;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 import no.nav.vedtak.sikkerhet.abac.TokenProvider;
 import no.nav.vedtak.sikkerhet.kontekst.DefaultRequestKontekstProvider;
