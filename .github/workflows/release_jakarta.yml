@@ -1,0 +1,16 @@
+name: Publish release Jakarta EE9
+on:
+  push:
+    tags:
+      - "*-jakarta"
+
+jobs:
+  release:
+    name: Feature
+    permissions:
+      packages: write
+    uses: navikt/fp-gha-workflows/.github/workflows/release-feature.yml@main
+    with:
+      release-version: ${{ github.ref_name }}
+      release-branch: 'jakarta_ee9'
+    secrets: inherit
