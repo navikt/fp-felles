@@ -8,10 +8,10 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import javax.security.auth.Subject;
-import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ResourceInfo;
 
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;

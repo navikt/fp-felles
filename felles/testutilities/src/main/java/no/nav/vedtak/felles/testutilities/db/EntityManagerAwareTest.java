@@ -1,6 +1,6 @@
 package no.nav.vedtak.felles.testutilities.db;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 /**
  * Tester som bruker {@link EntityManagerAwareExtension} med JUnit 5 kan bruke

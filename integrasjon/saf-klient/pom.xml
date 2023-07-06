@@ -55,6 +55,9 @@
                             <generateBuilder>false</generateBuilder>
                             <generateToString>true</generateToString>
                             <generateParameterizedFieldsResolvers>false</generateParameterizedFieldsResolvers>
+                            <addGeneratedAnnotation>true</addGeneratedAnnotation>
+                            <generatedAnnotation>jakarta.annotation.Generated</generatedAnnotation>
+                            <modelValidationAnnotation>@jakarta.validation.constraints.NotNull</modelValidationAnnotation>
                         </configuration>
                     </execution>
                 </executions>
