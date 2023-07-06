@@ -25,8 +25,6 @@
         <sonar.projectName>fp-konfig</sonar.projectName>
         <sonar.projectKey>navikt_fp-konfig</sonar.projectKey>
 
-        <maven.deploy.skip>false</maven.deploy.skip>
-
         <jakarta.jakartaee-bom.version>8.0.0</jakarta.jakartaee-bom.version>
     </properties>
 
@@ -231,74 +229,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
-            <plugin>
-                <!-- FOR Å LEGGE VED JAKARTA EE9 KOMPATIBLE ARTEFAKTER I TILLEGG -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>transform-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                <java classname="no.nav.k9.dev.jakarta.App">
-                                    <arg value="${project.build.directory}/${project.build.finalName}.jar"/>
-                                    <arg value="${project.build.directory}/${project.artifactId}-jakarta-${project.version}.jar"/>
-                                    <arg value="-q"/>
-                                    <arg value="-o"/>
-                                    <classpath>
-                                        <pathelement path="${plugin_classpath}"/>
-                                    </classpath>
-                                </java>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>transform-sources-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                <java classname="no.nav.k9.dev.jakarta.App">
-                                    <arg value="${project.build.directory}/${project.build.finalName}-sources.jar"/>
-                                    <arg value="${project.build.directory}/${project.artifactId}-jakarta-${project.version}-sources.jar"/>
-                                    <arg value="-q"/>
-                                    <arg value="-o"/>
-                                    <classpath>
-                                        <pathelement path="${plugin_classpath}"/>
-                                    </classpath>
-                                </java>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>no.nav.k9.dev</groupId>
-                        <artifactId>dev-jakarta-transform</artifactId>
-                        <version>0.6.11</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>ant-contrib</groupId>
-                        <artifactId>ant-contrib</artifactId>
-                        <version>1.0b3</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>ant</groupId>
-                                <artifactId>ant</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
-            </plugin>
         </plugins>
     </build>
 
@@ -325,106 +255,7 @@
                 </plugins>
             </build>
         </profile>
-        <!-- FOR Å LEGGE VED JAKARTA EE9 KOMPATIBLE ARTEFAKTER I TILLEGG -->
-        <!-- (bruker ikke attach-jar da den ikke støtter alterntiv artefakt navn) -->
-        <profile>
-            <id>jar-module</id>
-            <activation>
-                <file>
-                    <exists>src/main/java</exists>
-                </file>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <configuration>
-                                    <target>
-                                        <unzip src="${project.build.directory}/${project.artifactId}-jakarta-${project.version}.jar" dest="${project.build.directory}/jakarta">
-                                            <patternset>
-                                                <include name="META-INF/maven/**/pom.xml"/>
-                                            </patternset>
-                                        </unzip>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>antrun-delete-file</id>
-                                <phase>package</phase>
-                                <configuration>
-                                    <target>
-                                        <!-- ompakker jar fil uten pom.xml -->
-                                        <jar destfile="${project.build.directory}/${project.artifactId}-jakarta-${project.version}-TOBEDEPLOYED.jar">
-                                            <zipfileset src="${project.build.directory}/${project.artifactId}-jakarta-${project.version}.jar" excludes="META-INF/maven/**"/>
-                                        </jar>
-                                        <jar destfile="${project.build.directory}/${project.artifactId}-jakarta-${project.version}-sources-TOBEDEPLOYED.jar">
-                                            <zipfileset src="${project.build.directory}/${project.artifactId}-jakarta-${project.version}-sources.jar" excludes="META-INF/maven/**"/>
-                                        </jar>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-install-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>install-file</goal>
-                                </goals>
-                                <configuration>
-                                    <pomFile>${project.build.directory}/jakarta/META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml</pomFile>
-                                    <file>${project.build.directory}/${project.artifactId}-jakarta-${project.version}-TOBEDEPLOYED.jar</file>
-                                    <sources>${project.build.directory}/${project.artifactId}-jakarta-${project.version}-sources-TOBEDEPLOYED.jar</sources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>deploy-file</goal>
-                                </goals>
-                                <configuration>
-                                    <repositoryId>github</repositoryId>
-                                    <!-- må matche unpacked pom.xml fra over (disse endrer ikke path ved transform p.t.) -->
-                                    <pomFile>${project.build.directory}/jakarta/META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml</pomFile>
-                                    <url>${project.distributionManagement.repository.url}</url>
-                                    <file>${project.build.directory}/${project.artifactId}-jakarta-${project.version}-TOBEDEPLOYED.jar</file>
-                                    <sources>${project.build.directory}/${project.artifactId}-jakarta-${project.version}-sources-TOBEDEPLOYED.jar</sources>
-                                    <skip>${maven.deploy.skip}</skip>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/navikt/dev-jakarta-transform/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <scm>
         <connection>scm:git:https://github.com/navikt/fp-konfig.git</connection>
