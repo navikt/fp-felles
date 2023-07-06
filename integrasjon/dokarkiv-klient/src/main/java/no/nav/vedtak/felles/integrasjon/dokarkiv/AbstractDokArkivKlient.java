@@ -2,8 +2,8 @@ package no.nav.vedtak.felles.integrasjon.dokarkiv;
 
 import java.net.URI;
 
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriBuilderException;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriBuilderException;
 
 import no.nav.vedtak.exception.TekniskException;
 

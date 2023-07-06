@@ -1,21 +1,21 @@
 package no.nav.vedtak.sikkerhet.jaspic.soap;
 
-import static javax.security.auth.message.AuthStatus.FAILURE;
-import static javax.security.auth.message.AuthStatus.SUCCESS;
+import static jakarta.security.auth.message.AuthStatus.FAILURE;
+import static jakarta.security.auth.message.AuthStatus.SUCCESS;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.CDI;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.message.AuthStatus;
-import javax.security.auth.message.callback.CallerPrincipalCallback;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.security.auth.message.AuthStatus;
+import jakarta.security.auth.message.callback.CallerPrincipalCallback;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.wss4j.dom.handler.WSHandlerConstants;
 

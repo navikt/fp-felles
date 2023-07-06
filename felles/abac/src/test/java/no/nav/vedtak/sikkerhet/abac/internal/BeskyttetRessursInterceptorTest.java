@@ -18,8 +18,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.interceptor.InvocationContext;
-import javax.ws.rs.Path;
+import jakarta.interceptor.InvocationContext;
+import jakarta.ws.rs.Path;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;

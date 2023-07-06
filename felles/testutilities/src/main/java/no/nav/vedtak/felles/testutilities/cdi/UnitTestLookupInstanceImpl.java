@@ -4,8 +4,8 @@ import java.lang.annotation.Annotation;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.enterprise.inject.Instance;
-import javax.enterprise.util.TypeLiteral;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.util.TypeLiteral;
 
 public class UnitTestLookupInstanceImpl<T> implements Instance<T> {
 

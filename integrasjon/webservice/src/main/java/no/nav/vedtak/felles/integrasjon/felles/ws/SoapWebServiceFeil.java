@@ -1,7 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.felles.ws;
 
 import javax.security.auth.login.LoginException;
-import javax.xml.ws.WebServiceException;
+import jakarta.xml.ws.WebServiceException;
 
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;

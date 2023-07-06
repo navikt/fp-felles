@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -21,7 +21,7 @@ public class PipAktørId implements Serializable, Comparable<PipAktørId>, Ressu
 
     @JsonValue
     @NotNull
-    @javax.validation.constraints.Pattern(regexp = VALID_REGEXP, message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
+    @jakarta.validation.constraints.Pattern(regexp = VALID_REGEXP, message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
     private String aktørId;
 
     public PipAktørId(Long aktørId) {

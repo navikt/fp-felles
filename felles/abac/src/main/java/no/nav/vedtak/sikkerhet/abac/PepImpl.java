@@ -5,9 +5,9 @@ import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
 
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
