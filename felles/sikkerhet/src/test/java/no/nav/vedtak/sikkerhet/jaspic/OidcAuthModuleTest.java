@@ -13,10 +13,10 @@ import java.util.Optional;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.Configuration;
-import javax.security.auth.message.AuthStatus;
-import javax.security.auth.message.MessageInfo;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.security.auth.message.AuthStatus;
+import jakarta.security.auth.message.MessageInfo;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
@@ -223,7 +223,7 @@ class OidcAuthModuleTest {
     private MessageInfo createRequestForResource(boolean isProtected) {
         MessageInfo messageInfo = Mockito.mock(MessageInfo.class);
         Map<Object, Object> properties = new HashMap<>();
-        properties.put("javax.security.auth.message.MessagePolicy.isMandatory", Boolean.toString(isProtected));
+        properties.put("jakarta.security.auth.message.MessagePolicy.isMandatory", Boolean.toString(isProtected));
         when(messageInfo.getMap()).thenReturn(properties);
         when(messageInfo.getRequestMessage()).thenReturn(request);
         when(messageInfo.getResponseMessage()).thenReturn(response);
