@@ -10,6 +10,7 @@ import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmInfoMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.core.instrument.config.MeterFilter;
@@ -32,6 +33,7 @@ public class MetricsUtil {
         new JvmThreadMetrics().bindTo(globalRegistry);
         new JvmInfoMetrics().bindTo(globalRegistry);
         new UptimeMetrics().bindTo(globalRegistry);
+        new LogbackMetrics().bindTo(globalRegistry);
     }
 
     public static String scrape() {
