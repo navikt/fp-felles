@@ -51,6 +51,18 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
         return hentOppgaverFor(aktørId, oppgaveTyper, enhetsNr, limit);
     }
 
+    @Override
+    public List<Oppgave> finnÅpneJournalføringsoppgaverForJournalpost(String journalpostId) {
+        var builder = UriBuilder.fromUri(restConfig.endpoint())
+            .queryParam("tema", AbstractOppgaveKlient.TEMA_FORELDREPENGER)
+            .queryParam("statuskategori", STATUSKATEGORI_AAPEN)
+            .queryParam("oppgavetype", Oppgavetype.JOURNALFØRING.getKode())
+            .queryParam("journalpostId", journalpostId);
+
+        var request = RestRequest.newGET(builder.build(), restConfig).otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
+        return restKlient.send(addCorrelation(request), FinnOppgaveResponse.class).oppgaver();
+    }
+
     private List<Oppgave> hentOppgaverFor(String aktørId, List<String> oppgaveTyper, String tildeltEnhetsnr, String limit) {
         var builder = UriBuilder.fromUri(restConfig.endpoint())
             .queryParam("tema", AbstractOppgaveKlient.TEMA_FORELDREPENGER)

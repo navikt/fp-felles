@@ -20,6 +20,9 @@ public interface Oppgaver {
     // Øvrige argumenter kan være null, men hvis det ventes mange oppgaver så sett aktør, enhet eller limit
     List<Oppgave> finnÅpneOppgaver(List<String> oppgaveTyper, String aktørId, String enhetsNr, String limit);
 
+    // Henter åpne oppgaver av type Journalføring for angitt journalpostId
+    List<Oppgave> finnÅpneJournalføringsoppgaverForJournalpost(String journalpostId);
+
     void reserverOppgave(String oppgaveId, String saksbehandlerId);
 
     void avreserverOppgave(String oppgaveId);
