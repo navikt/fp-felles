@@ -38,7 +38,7 @@ public class CdiAwareExtension implements TestInstancePostProcessor {
         var bm = weld.getBeanManager();
         Class cls = testInstance.getClass();
         AnnotatedType annotatedType = bm.createAnnotatedType(cls);
-        InjectionTarget injectionTarget = bm.createInjectionTarget(annotatedType);
+        InjectionTarget injectionTarget = bm.getInjectionTargetFactory(annotatedType).createInjectionTarget(null);
         injectionTarget.inject(testInstance, new IgnorantCreationalContext<>());
         injectionTarget.postConstruct(testInstance);
     }

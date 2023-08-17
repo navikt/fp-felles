@@ -4,11 +4,11 @@ import java.util.Optional;
 
 import javax.security.auth.Subject;
 
-import org.eclipse.jetty.server.Authentication;
+import org.eclipse.jetty.security.Authentication;
 import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.HttpConnection;
+import org.eclipse.jetty.server.internal.HttpConnection;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.UserIdentity;
+import org.eclipse.jetty.security.UserIdentity;
 
 public class JettySubjectHandler extends ThreadLocalSubjectHandler {
 
