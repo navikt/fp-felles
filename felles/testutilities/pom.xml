@@ -22,6 +22,7 @@
 			<artifactId>felles-db</artifactId>
 		</dependency>
         <dependency>
+            <!-- Trenges antageligvis ikke til noe siden hibernate-validation ikke brukes her -->
             <groupId>jakarta.el</groupId>
             <artifactId>jakarta.el-api</artifactId>
         </dependency>

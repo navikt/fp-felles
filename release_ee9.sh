@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tag="$1-jakarta"
+tag="$1-ee9"
 message="$2"
 
 echo "Listing tags:"
