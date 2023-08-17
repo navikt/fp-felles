@@ -2,7 +2,7 @@ name: Publish release Jakarta EE9
 on:
   push:
     tags:
-      - "*-jakarta"
+      - "*-ee9"
 
 jobs:
   release:
