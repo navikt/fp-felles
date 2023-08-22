@@ -82,7 +82,7 @@ class PersondataKlientTest {
         var rq = captor.getValue();
         rq.validateRequest(r -> assertThat(r.headers().map().get("TEMA")).contains("FOR"));
         rq.validateRequest(r -> assertThat(r.headers().map().get("behandlingsnummer")).contains(Persondata.Ytelse.FORELDREPENGER.getBehandlingsnummer()));
-        assertThat(rq.validateDelayedHeaders(Set.of("Authorization", "Nav-Consumer-Token", "Nav-Consumer-Id"))).isTrue();
+        assertThat(rq.validateDelayedHeaders(Set.of("Authorization", "Nav-Consumer-Id"))).isTrue();
     }
 
     @Test
