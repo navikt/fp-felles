@@ -69,8 +69,8 @@ public final class RestRequest extends HttpClientRequest {
         if (!TokenFlow.NO_AUTH_NEEDED.equals(tokenConfig)) {
             this.authorization(selectTokenSupplier(tokenConfig, scopes)).validator(RestRequest::validateRestHeaders);
         }
-        if (TokenFlow.STS_ADD_CONSUMER.equals(tokenConfig) || TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig)) {
-            this.consumerToken(tokenConfig);
+        if (TokenFlow.STS_ADD_CONSUMER.equals(tokenConfig)) {
+            this.consumerToken();
         }
     }
 
@@ -140,10 +140,7 @@ public final class RestRequest extends HttpClientRequest {
         };
     }
 
-    private RestRequest consumerToken(TokenFlow tokenConfig) {
-        if (TokenFlow.ADAPTIVE_ADD_CONSUMER.equals(tokenConfig) && CONTEXT_SUPPLIER.isAzureContext()) {
-            return this;
-        }
+    private RestRequest consumerToken() {
         delayedHeader(NavHeaders.HEADER_NAV_CONSUMER_TOKEN, () -> OIDC_AUTH_HEADER_PREFIX + CONTEXT_SUPPLIER.consumerToken().get().token());
         return this;
     }
@@ -162,8 +159,8 @@ public final class RestRequest extends HttpClientRequest {
 
     private static Supplier<OpenIDToken> selectTokenSupplier(TokenFlow tokenConfig, String scopes) {
         return switch (tokenConfig) {
-            case ADAPTIVE, ADAPTIVE_ADD_CONSUMER -> CONTEXT_SUPPLIER.adaptive(scopes);
-            case SYSTEM, STS_CC, STS_ADD_CONSUMER -> CONTEXT_SUPPLIER.tokenForSystem();
+            case ADAPTIVE -> CONTEXT_SUPPLIER.adaptive(scopes);
+            case STS_CC, STS_ADD_CONSUMER -> CONTEXT_SUPPLIER.tokenForSystem();
             case AZUREAD_CC -> CONTEXT_SUPPLIER.azureTokenForSystem(scopes);
             case NO_AUTH_NEEDED -> throw new IllegalArgumentException("No supplier needed");
         };
@@ -171,7 +168,7 @@ public final class RestRequest extends HttpClientRequest {
 
     private static Supplier<String> selectConsumerId(TokenFlow tokenConfig) {
         return switch (tokenConfig) {
-            case SYSTEM, STS_CC, AZUREAD_CC -> CONTEXT_SUPPLIER.consumerIdFor(SikkerhetContext.SYSTEM);
+            case STS_CC, AZUREAD_CC -> CONTEXT_SUPPLIER.consumerIdFor(SikkerhetContext.SYSTEM);
             default -> CONTEXT_SUPPLIER.consumerIdForCurrentKontekst();
         };
     }

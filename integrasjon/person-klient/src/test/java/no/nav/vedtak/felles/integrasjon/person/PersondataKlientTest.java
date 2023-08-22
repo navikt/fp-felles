@@ -171,7 +171,7 @@ class PersondataKlientTest {
         assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getStatus());
     }
 
-    @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE_ADD_CONSUMER, endpointProperty = "pdl.base.url", endpointDefault = "http://pdl-api.pdl/graphql", scopesProperty = "pdl.scopes", scopesDefault = "api://prod-fss.pdl.pdl-api/.default")
+    @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "pdl.base.url", endpointDefault = "http://pdl-api.pdl/graphql", scopesProperty = "pdl.scopes", scopesDefault = "api://prod-fss.pdl.pdl-api/.default")
     private static class TestPdlKLient extends AbstractPersonKlient {
         public TestPdlKLient(RestClient restKlient) {
             super(restKlient, Tema.FOR);

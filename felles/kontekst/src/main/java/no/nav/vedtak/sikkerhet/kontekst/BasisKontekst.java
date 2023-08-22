@@ -50,10 +50,13 @@ public class BasisKontekst implements Kontekst {
         return konsumentId;
     }
 
+    // Brukes kun i abakus / dignostikk. Sjekk om kan endres til forProsesstaskUtenSystembruker
+    @Deprecated(forRemoval = true) // Erstatt med forProsesstaskUtenSystembruker
     public static BasisKontekst forProsesstask() {
         return new BasisKontekst(SikkerhetContext.SYSTEM, Systembruker.username(), IdentType.Prosess, Systembruker.username());
     }
 
+    // Denne brukes i prosesstask
     public static BasisKontekst forProsesstaskUtenSystembruker() {
         var username = "srv" + Optional.ofNullable(Environment.current().application()).orElse("local");
         var konsument = Optional.ofNullable(Environment.current().clientId()).orElse(username);

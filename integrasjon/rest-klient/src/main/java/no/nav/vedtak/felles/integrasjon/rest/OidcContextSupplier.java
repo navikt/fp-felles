@@ -34,7 +34,4 @@ public final class OidcContextSupplier {
         return TokenProvider::getTokenForSystem;
     }
 
-    public boolean isAzureContext() {
-        return TokenProvider.isAzureContext();
-    }
 }
