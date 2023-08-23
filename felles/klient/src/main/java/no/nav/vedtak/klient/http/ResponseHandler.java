@@ -27,4 +27,18 @@ final class ResponseHandler {
         throw new IntegrasjonException("F-468817", String.format("Uventet respons %s fra %s", status, endpoint));
     }
 
+    static <W> HttpResponse<W> handleRawResponse(final HttpResponse<W> response, URI endpoint, Set<Integer> acceptStatus) {
+        int status = response.statusCode();
+        if (status == HttpURLConnection.HTTP_NO_CONTENT) {
+            return null;
+        }
+        if ((status >= HttpURLConnection.HTTP_OK && status < HttpURLConnection.HTTP_MULT_CHOICE) || acceptStatus.contains(status)) {
+            return response;
+        }
+        if (status == HttpURLConnection.HTTP_FORBIDDEN) {
+            throw new ManglerTilgangException("F-468816", "Feilet mot " + endpoint);
+        }
+        throw new IntegrasjonException("F-468817", String.format("Uventet respons %s fra %s", status, endpoint));
+    }
+
 }

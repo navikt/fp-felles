@@ -2,6 +2,7 @@ package no.nav.vedtak.felles.integrasjon.saf;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
@@ -73,6 +74,19 @@ public abstract class AbstractSafKlient implements Saf {
             .build();
         var request = RestRequest.newGET(path, restConfig);
         var doc = restKlient.sendReturnByteArray(request);
+        return doc;
+    }
+
+    @Override
+    public HttpResponse<byte[]> hentDokumentResponse(HentDokumentQuery q) {
+        var path = UriBuilder.fromUri(restConfig.endpoint())
+            .path(HENTDOKUMENT)
+            .resolveTemplate("journalpostId", q.journalpostId())
+            .resolveTemplate("dokumentInfoId", q.dokumentId())
+            .resolveTemplate("variantFormat", q.variantFormat())
+            .build();
+        var request = RestRequest.newGET(path, restConfig);
+        var doc = restKlient.sendReturnResponseByteArray(request);
         return doc;
     }
 

@@ -57,6 +57,21 @@ public final class DefaultHttpClient {
         return ResponseHandler.handleResponse(doSendExpectBytearrayRetry(httpRequest), httpRequest.uri(), Set.of());
     }
 
+    public HttpResponse<String> sendReturnResponse(HttpClientRequest request) {
+        var httpRequest = request.request();
+        return ResponseHandler.handleRawResponse(doSendExpectStringRetry(httpRequest), httpRequest.uri(), Set.of());
+    }
+
+    public HttpResponse<String> sendReturnResponse(HttpClientRequest request, Set<Integer> acceptStatus) {
+        var httpRequest = request.request();
+        return ResponseHandler.handleRawResponse(doSendExpectStringRetry(httpRequest), httpRequest.uri(), acceptStatus);
+    }
+
+    public HttpResponse<byte[]> sendReturnResponseByteArray(HttpClientRequest request) {
+        var httpRequest = request.request();
+        return ResponseHandler.handleRawResponse(doSendExpectBytearrayRetry(httpRequest), httpRequest.uri(), Set.of());
+    }
+
     /**
      * Raw response, not checked for status codes 4nn or 5nn - please ensure that any usage avoids "quiet errors"
      */
