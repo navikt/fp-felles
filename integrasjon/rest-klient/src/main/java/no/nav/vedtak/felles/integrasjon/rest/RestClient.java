@@ -52,6 +52,14 @@ public final class RestClient {
         return httpklient.sendReturnByteArray(request);
     }
 
+    public HttpResponse<String> sendReturnResponseString(RestRequest request) {
+        return httpklient.sendReturnResponse(request);
+    }
+
+    public HttpResponse<byte[]> sendReturnResponseByteArray(RestRequest request) {
+        return httpklient.sendReturnResponseByteArray(request);
+    }
+
     /**
      * Raw response, not checked for status codes 4nn or 5nn - please ensure that any usage avoids "quiet errors"
      */

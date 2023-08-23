@@ -1,5 +1,6 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
+import java.net.http.HttpResponse;
 import java.util.List;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
@@ -23,6 +24,8 @@ public interface Saf {
     List<Journalpost> hentTilknyttedeJournalposter(TilknyttedeJournalposterQueryRequest query, JournalpostResponseProjection projection);
 
     byte[] hentDokument(HentDokumentQuery q);
+
+    HttpResponse<byte[]> hentDokumentResponse(HentDokumentQuery q);
 
     <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz);
 
