@@ -7,9 +7,12 @@ import static jakarta.security.auth.message.AuthStatus.SUCCESS;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 import javax.security.auth.Subject;
@@ -35,9 +38,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.TokenCallback;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
 import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
@@ -88,7 +88,7 @@ public class OidcAuthModule implements ServerAuthModule {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler handler, Map options) throws AuthException {
+    public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler handler, Map options) {
         this.containerCallbackHandler = handler;
     }
 
@@ -99,10 +99,10 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     @Override
-    public AuthStatus validateRequest(MessageInfo messageInfo, Subject clientSubject, Subject serviceSubject) throws AuthException {
+    public AuthStatus validateRequest(MessageInfo messageInfo, Subject clientSubject, Subject serviceSubject) {
         HttpServletRequest originalRequest = (HttpServletRequest) messageInfo.getRequestMessage();
         setCallAndConsumerId(originalRequest);
-        validateCleanSubjecthandler();
+        validateCleanKontekst();
         AuthStatus authStatus;
 
         if (isProtected(messageInfo)) {
@@ -129,17 +129,12 @@ public class OidcAuthModule implements ServerAuthModule {
         return authStatus;
     }
 
-    protected void validateCleanSubjecthandler() {
-        final Subject subject = SubjectHandler.getSubjectHandler().getSubject();
-        if (subject != null && SubjectHandler.getSubjectHandler() instanceof ThreadLocalSubjectHandler tlsh) {
-            final Set<String> credidentialClasses = new HashSet<>();
-            for (Object publicCredential : subject.getPublicCredentials()) {
-                credidentialClasses.add(publicCredential.getClass().getName());
-            }
-            LOG.error(
-                "Denne SKAL rapporteres som en bug hvis den dukker opp. Tråden inneholdt allerede et Subject med følgende principals {} og PublicCredentials klasser {}. Sletter det før autentisering fortsetter.",
-                subject.getPrincipals(), credidentialClasses);
-            tlsh.setSubject(null);
+    protected void validateCleanKontekst() {
+        if (KontekstHolder.harKontekst()) {
+            final var kontekst = KontekstHolder.getKontekst();
+            LOG.info("FPFELLES KONTEKST validateRequest: Tråden inneholdt allerede kontekst for bruker {} identType {}",
+                kontekst.getUid(), kontekst.getIdentType());
+            KontekstHolder.fjernKontekst();
         }
     }
 
@@ -173,40 +168,38 @@ public class OidcAuthModule implements ServerAuthModule {
         var expiresAt = claims.map(JwtUtil::getExpirationTime).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.get().type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, oidcToken.get(), null, expiresAt.toEpochMilli());
 
-        // Setup login context
-        LoginContext loginContext = createLoginContext(clientSubject, token);
+        var valideringsResultat = OidcValidation.validerToken(token);
+        var sluttbruker = OidcValidation.ValidationResult.SUCCESS.equals(valideringsResultat.loginResult()) ? valideringsResultat.subject() : null;
+        if (sluttbruker != null) {
+            KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.getName(), sluttbruker.getShortUid(), sluttbruker.getIdentType(), token, sluttbruker.getGrupper()));
+        } else {
+            return FAILURE;
+        }
 
-        // Do login
+        // Dummy - finnes kun pga Jakarta Authentication 3.0 kap 6 LoginModule Bridge Profile
+        LoginContext loginContext = createLoginContext(clientSubject);
         try {
             loginContext.login();
         } catch (LoginException e) {
             return FAILURE;
         }
 
-        // Flytt nærmere tokenvalidering når JA-SPI + JAAS saneres
-        var sluttbruker = SubjectHandler.getSluttBruker(clientSubject);
-        KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.getName(), sluttbruker.getShortUid(), sluttbruker.getIdentType(), token, sluttbruker.getGrupper()));
-
         // Handle result
-        return handleValidatedToken(clientSubject, SubjectHandler.getUid(clientSubject));
+        return handleValidatedToken(clientSubject, sluttbruker.getName());
     }
 
-    private LoginContext createLoginContext(Subject clientSubject, OpenIDToken token) {
-        class TokenCallbackHandler implements CallbackHandler {
+    private LoginContext createLoginContext(Subject clientSubject) {
+        class NotUsedCallbackHandler implements CallbackHandler {
             @Override
             public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
-                for (Callback callback : callbacks) {
-                    if (callback instanceof TokenCallback tc) {
-                        tc.setToken(token);
-                    } else {
-                        // Should never happen
-                        throw new UnsupportedCallbackException(callback, TokenCallback.class + " is the only supported Callback");
-                    }
+                if (callbacks.length > 0) {
+                    // Should never happen
+                    throw new UnsupportedCallbackException(callbacks[0], "OIDC LoginModule skal ikke kalle tilbake");
                 }
             }
         }
 
-        CallbackHandler callbackHandler = new TokenCallbackHandler();
+        CallbackHandler callbackHandler = new NotUsedCallbackHandler();
         try {
             return new LoginContext(OIDC_LOGIN_CONFIG, clientSubject, callbackHandler, loginConfiguration);
         } catch (LoginException le) {
@@ -225,11 +218,10 @@ public class OidcAuthModule implements ServerAuthModule {
 
     protected AuthStatus handleValidatedToken(Subject clientSubject, String username) {
         AuthStatus authStatus = notifyContainerAboutLogin(clientSubject, username);
-        // HACK (u139158): Must be taken from clientSubject @see
-        // OidcAuthModule#notifyContainerAboutLogin(Subject, String)
-        MDCOperations.putUserId(SubjectHandler.getUid(clientSubject));
+
+        MDCOperations.putUserId(username);
         if (MDCOperations.getConsumerId() == null) {
-            MDCOperations.putConsumerId(SubjectHandler.getConsumerId(clientSubject));
+            MDCOperations.putConsumerId(username);
         }
         return authStatus;
     }
@@ -265,7 +257,7 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     @Override
-    public AuthStatus secureResponse(MessageInfo messageInfo, Subject serviceSubject) throws AuthException {
+    public AuthStatus secureResponse(MessageInfo messageInfo, Subject serviceSubject) {
         if (KontekstHolder.harKontekst()) {
             KontekstHolder.fjernKontekst();
         } else {

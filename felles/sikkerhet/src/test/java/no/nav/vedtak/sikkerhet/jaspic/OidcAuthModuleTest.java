@@ -101,7 +101,11 @@ class OidcAuthModuleTest {
         when(request.getHeader("Authorization")).thenReturn(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE + utløptIdToken);
         MessageInfo request = createRequestForProtectedResource();
 
+
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(utløptIdToken));
+        when(tokenValidator.validate(any())).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
+        when(tokenValidator.validateWithoutExpirationTime(any())).thenReturn(
+            OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 - 10));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
