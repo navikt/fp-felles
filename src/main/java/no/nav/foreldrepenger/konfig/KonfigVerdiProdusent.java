@@ -1,18 +1,18 @@
 package no.nav.foreldrepenger.konfig;
 
+import jakarta.annotation.PostConstruct;
 import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
 import no.nav.foreldrepenger.konfig.KonfigVerdiProviderOutput.ProviderOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.Annotated;
-import javax.enterprise.inject.spi.InjectionPoint;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Produces;
+import jakarta.enterprise.inject.spi.Annotated;
+import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.inject.Inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.net.URI;

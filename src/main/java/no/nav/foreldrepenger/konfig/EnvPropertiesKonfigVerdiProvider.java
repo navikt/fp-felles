@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.konfig;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi.Converter;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 import java.util.Optional;
 import java.util.Properties;
 

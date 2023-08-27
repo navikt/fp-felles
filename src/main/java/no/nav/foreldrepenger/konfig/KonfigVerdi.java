@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.konfig;
 
-import javax.enterprise.util.AnnotationLiteral;
-import javax.enterprise.util.Nonbinding;
-import javax.inject.Qualifier;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.enterprise.util.Nonbinding;
+import jakarta.inject.Qualifier;
 import java.lang.annotation.*;
 import java.net.MalformedURLException;
 import java.net.URI;

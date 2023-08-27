@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

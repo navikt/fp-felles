@@ -6,7 +6,7 @@
 
     <groupId>no.nav.foreldrepenger</groupId>
     <artifactId>konfig</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>2.0-SNAPSHOT</version>
 
     <properties>
         <java.version>17</java.version>
@@ -25,7 +25,7 @@
         <sonar.projectName>fp-konfig</sonar.projectName>
         <sonar.projectKey>navikt_fp-konfig</sonar.projectKey>
 
-        <jakarta.jakartaee-bom.version>8.0.0</jakarta.jakartaee-bom.version>
+        <jakarta.jakartaee-bom.version>9.1.0</jakarta.jakartaee-bom.version>
     </properties>
 
     <dependencyManagement>

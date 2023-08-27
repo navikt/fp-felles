@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.konfig;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 import static no.nav.foreldrepenger.konfig.StandardPropertySource.SYSTEM_PROPERTIES;
 
