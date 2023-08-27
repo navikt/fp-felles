@@ -169,7 +169,7 @@ public class OidcAuthModule implements ServerAuthModule {
         var token = new OpenIDToken(configuration.get().type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, oidcToken.get(), null, expiresAt.toEpochMilli());
 
         var valideringsResultat = OidcValidation.validerToken(token);
-        var sluttbruker = OidcValidation.ValidationResult.SUCCESS.equals(valideringsResultat.loginResult()) ? valideringsResultat.subject() : null;
+        var sluttbruker = valideringsResultat.isValid() ? valideringsResultat.subject() : null;
         if (sluttbruker != null) {
             KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.getName(), sluttbruker.getShortUid(), sluttbruker.getIdentType(), token, sluttbruker.getGrupper()));
         } else {

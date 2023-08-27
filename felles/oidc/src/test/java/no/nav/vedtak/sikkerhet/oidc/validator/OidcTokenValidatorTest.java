@@ -3,7 +3,6 @@ package no.nav.vedtak.sikkerhet.oidc.validator;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -263,17 +262,6 @@ class OidcTokenValidatorTest {
 
         var result = tokenValidator.validate(token);
         assertInvalid(result, "is on or after the Expiration Time");
-    }
-
-    @Test
-    void skal_godta_token_som_har_gått_ut_på_tid_i_egen_metode_som_validerer_uten_tid() {
-        var now = NumericDate.now().getValue();
-        var token = new OidcTokenGenerator().withIssuedAt(NumericDate.fromSeconds(now - 3601))
-            .withExpiration(NumericDate.fromSeconds(now - 31))
-            .createHeaderTokenHolder();
-
-        var result = tokenValidator.validateWithoutExpirationTime(token);
-        assertValid(result);
     }
 
     @Test

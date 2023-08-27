@@ -104,8 +104,6 @@ class OidcAuthModuleTest {
 
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(utløptIdToken));
         when(tokenValidator.validate(any())).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validateWithoutExpirationTime(any())).thenReturn(
-            OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 - 10));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
@@ -145,8 +143,6 @@ class OidcAuthModuleTest {
         var ugyldigToken = getUtløptToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigToken));
         when(tokenValidator.validate(any())).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validateWithoutExpirationTime(any())).thenReturn(
-            OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 - 10));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
@@ -161,7 +157,6 @@ class OidcAuthModuleTest {
         var ugyldigToken = getUtløptToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigToken));
         when(tokenValidator.validate(any())).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validateWithoutExpirationTime(any())).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
@@ -175,8 +170,6 @@ class OidcAuthModuleTest {
         var ugyldigToken = getUtløptToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigToken));
         when(tokenValidator.validate(ugyldigToken)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validateWithoutExpirationTime(any())).thenReturn(
-            OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 - 10));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
 
