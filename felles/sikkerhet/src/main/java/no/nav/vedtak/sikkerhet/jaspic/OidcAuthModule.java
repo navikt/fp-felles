@@ -38,6 +38,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.sikkerhet.context.containers.BrukerNavnType;
 import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
@@ -102,7 +103,7 @@ public class OidcAuthModule implements ServerAuthModule {
     public AuthStatus validateRequest(MessageInfo messageInfo, Subject clientSubject, Subject serviceSubject) {
         HttpServletRequest originalRequest = (HttpServletRequest) messageInfo.getRequestMessage();
         setCallAndConsumerId(originalRequest);
-        validateCleanKontekst();
+        validateCleanSubjectAndKontekst(clientSubject);
         AuthStatus authStatus;
 
         if (isProtected(messageInfo)) {
@@ -129,11 +130,20 @@ public class OidcAuthModule implements ServerAuthModule {
         return authStatus;
     }
 
-    protected void validateCleanKontekst() {
+    protected void validateCleanSubjectAndKontekst(Subject subject) {
+        // Skal vel egentlig ikke skje men logg for ordens skyld
+        var sluttbrukere = Optional.ofNullable(subject).map(Subject::getPrincipals).orElse(Set.of()).stream()
+            .filter(BrukerNavnType.class::isInstance)
+            .toList();
+        if (!sluttbrukere.isEmpty()) {
+            LOG.trace("FPFELLES KONTEKST validateRequest: clientSubject inneholdt brukerNavnType {}", sluttbrukere);
+            sluttbrukere.forEach(s -> subject.getPrincipals().remove(s));
+        }
+
         if (KontekstHolder.harKontekst()) {
             final var kontekst = KontekstHolder.getKontekst();
-            LOG.info("FPFELLES KONTEKST validateRequest: Tråden inneholdt allerede kontekst for bruker {} identType {}",
-                kontekst.getUid(), kontekst.getIdentType());
+            LOG.trace("FPFELLES KONTEKST validateRequest: Tråden inneholdt allerede kontekst for context {} bruker {} identType {}",
+                kontekst.getContext(), kontekst.getUid(), kontekst.getIdentType());
             KontekstHolder.fjernKontekst();
         }
     }
@@ -171,12 +181,12 @@ public class OidcAuthModule implements ServerAuthModule {
         var valideringsResultat = OidcValidation.validerToken(token);
         var sluttbruker = valideringsResultat.isValid() ? valideringsResultat.subject() : null;
         if (sluttbruker != null) {
-            KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.getName(), sluttbruker.getShortUid(), sluttbruker.getIdentType(), token, sluttbruker.getGrupper()));
+            KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.uid(), sluttbruker.shortUid(), sluttbruker.identType(), token, sluttbruker.grupper()));
         } else {
             return FAILURE;
         }
 
-        // Dummy - finnes kun pga Jakarta Authentication 3.0 kap 6 LoginModule Bridge Profile
+        // Dummy - finnes kun pga Jakarta Authentication 3.0 kap 6 LoginModule Bridge Profile. Mulig kan fjernes helt - prøv i neste runde
         LoginContext loginContext = createLoginContext(clientSubject);
         try {
             loginContext.login();
@@ -184,8 +194,10 @@ public class OidcAuthModule implements ServerAuthModule {
             return FAILURE;
         }
 
+        clientSubject.getPrincipals().add(new BrukerNavnType(sluttbruker.uid(), sluttbruker.identType()));
+
         // Handle result
-        return handleValidatedToken(clientSubject, sluttbruker.getName());
+        return handleValidatedToken(clientSubject, sluttbruker.uid());
     }
 
     private LoginContext createLoginContext(Subject clientSubject) {
@@ -261,16 +273,16 @@ public class OidcAuthModule implements ServerAuthModule {
         if (KontekstHolder.harKontekst()) {
             KontekstHolder.fjernKontekst();
         } else {
-            LOG.info("FPFELLES KONTEKST fant ikke kontekst som forventet i secureResponse");
+            LOG.trace("FPFELLES KONTEKST fant ikke kontekst som forventet i secureResponse");
         }
         MDC.clear();
         return SEND_SUCCESS;
     }
 
     @Override
-    public void cleanSubject(MessageInfo messageInfo, Subject subject) throws AuthException {
+    public void cleanSubject(MessageInfo messageInfo, Subject subject) {
         if (KontekstHolder.harKontekst()) {
-            LOG.info("FPFELLES KONTEKST hadde kontekst ved cleanSubject");
+            LOG.trace("FPFELLES KONTEKST hadde kontekst ved cleanSubject");
             KontekstHolder.fjernKontekst();
         }
         if (subject != null) {

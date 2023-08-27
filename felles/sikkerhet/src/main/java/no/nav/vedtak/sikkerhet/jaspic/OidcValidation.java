@@ -1,13 +1,20 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
+import java.util.Set;
+
+import no.nav.vedtak.sikkerhet.kontekst.Groups;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorConfig;
 
-public class OidcValidation {
+public final class OidcValidation {
 
-    public record Resultat(boolean isValid, SluttBruker subject, String errorMessage) {
+    private OidcValidation() {
     }
+
+    public record SluttBruker(String uid, String shortUid, IdentType identType, Set<Groups> grupper) {}
+
+    public record Resultat(boolean isValid, SluttBruker subject, String errorMessage) {}
 
     public static Resultat validerToken(OpenIDToken openIDToken) {
         if (openIDToken == null || openIDToken.provider() == null) {
@@ -21,6 +28,7 @@ public class OidcValidation {
         }
         return new Resultat(false, null, validateResult.getErrorMessage());
     }
+
 
 
 }
