@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tag="$1-ee9"
+tag="$1-ee10"
 message="$2"
 
 echo "Listing tags:"

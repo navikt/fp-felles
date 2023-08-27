@@ -2,7 +2,7 @@ name: Publish release Jakarta EE9
 on:
   push:
     tags:
-      - "*-ee9"
+      - "*-ee10"
 
 jobs:
   release:
@@ -12,5 +12,5 @@ jobs:
     uses: navikt/fp-gha-workflows/.github/workflows/release-feature.yml@main
     with:
       release-version: ${{ github.ref_name }}
-      release-branch: 'jakarta_ee9'
+      release-branch: 'jakarta_ee10'
     secrets: inherit
