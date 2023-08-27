@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.xmlutils;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.*;
+import jakarta.xml.bind.*;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.*;
 import javax.xml.transform.Source;

@@ -1,9 +1,9 @@
 package no.nav.vedtak.sikkerhet.jaspic;
 
-import static javax.security.auth.message.AuthStatus.FAILURE;
-import static javax.security.auth.message.AuthStatus.SEND_CONTINUE;
-import static javax.security.auth.message.AuthStatus.SEND_SUCCESS;
-import static javax.security.auth.message.AuthStatus.SUCCESS;
+import static jakarta.security.auth.message.AuthStatus.FAILURE;
+import static jakarta.security.auth.message.AuthStatus.SEND_CONTINUE;
+import static jakarta.security.auth.message.AuthStatus.SEND_SUCCESS;
+import static jakarta.security.auth.message.AuthStatus.SUCCESS;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -22,15 +22,15 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.message.AuthException;
-import javax.security.auth.message.AuthStatus;
-import javax.security.auth.message.MessageInfo;
-import javax.security.auth.message.MessagePolicy;
-import javax.security.auth.message.callback.CallerPrincipalCallback;
-import javax.security.auth.message.config.ServerAuthContext;
-import javax.security.auth.message.module.ServerAuthModule;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.security.auth.message.AuthException;
+import jakarta.security.auth.message.AuthStatus;
+import jakarta.security.auth.message.MessageInfo;
+import jakarta.security.auth.message.MessagePolicy;
+import jakarta.security.auth.message.callback.CallerPrincipalCallback;
+import jakarta.security.auth.message.config.ServerAuthContext;
+import jakarta.security.auth.message.module.ServerAuthModule;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class OidcAuthModule implements ServerAuthModule {
     // When the resource is not protected, GlassFish omits the key altogether.
     // WebSphere does insert the key and sets
     // it to false.
-    private static final String IS_MANDATORY = "javax.security.auth.message.MessagePolicy.isMandatory";
+    private static final String IS_MANDATORY = "jakarta.security.auth.message.MessagePolicy.isMandatory";
 
     private final TokenLocator tokenLocator;
     private final Configuration loginConfiguration;

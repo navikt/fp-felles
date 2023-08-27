@@ -5,7 +5,7 @@ import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Objects;
 
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;

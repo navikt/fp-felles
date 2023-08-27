@@ -3,9 +3,9 @@ package no.nav.vedtak.felles.testutilities.db;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import javax.enterprise.inject.spi.CDI;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 import org.jboss.weld.context.RequestContext;
 import org.jboss.weld.context.unbound.UnboundLiteral;
