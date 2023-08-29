@@ -2,8 +2,8 @@ package no.nav.vedtak.felles.jpa.converters;
 
 import java.util.Optional;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 /**
  * JPA konverterer for å skrive J/N for boolske verdier.

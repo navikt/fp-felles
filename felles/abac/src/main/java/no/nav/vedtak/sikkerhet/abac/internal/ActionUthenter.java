@@ -2,8 +2,8 @@ package no.nav.vedtak.sikkerhet.abac.internal;
 
 import java.lang.reflect.Method;
 
-import javax.jws.WebMethod;
-import javax.ws.rs.Path;
+import jakarta.jws.WebMethod;
+import jakarta.ws.rs.Path;
 
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 

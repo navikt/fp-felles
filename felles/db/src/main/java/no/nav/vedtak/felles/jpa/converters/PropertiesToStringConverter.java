@@ -5,8 +5,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 /**
  * JPA konverterer for å skrive ned en key=value text til et databasefelt (output tilsvarer java.util.Properties
