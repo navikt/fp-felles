@@ -1,12 +1,10 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
 public enum TokenFlow {
-    ADAPTIVE, // DWIM for targets accepting both azuread, sts tokens, and tokenx
-    ADAPTIVE_ADD_CONSUMER, // ADAPTIVE + adding consumer token
-    SYSTEM, // Current system user
-    STS_CC,
-    STS_ADD_CONSUMER, // Midlertidig til vi har lagt om AAreg til Azure. Skyldes kontextkall i abakus
-    AZUREAD_CC,
+    ADAPTIVE, // DWIM for targets accepting both azuread, sts tokens, and tokenx. STS->AzureCC
+    STS_CC, // Mot endepunkt som insisterer på STS og ikke aksepterer Azure
+    STS_ADD_CONSUMER, // Trengs inntil videre pga brreg.proxy
+    AZUREAD_CC, // Mot endepunkt som bare støtter AzureCC, ikke AzureOBO-flow
     NO_AUTH_NEEDED;
 
     // Does the endpoint require an Azure AD token?
@@ -16,6 +14,6 @@ public enum TokenFlow {
 
     // Does the endpoint require a system client?
     public boolean isSystemRequired() {
-        return SYSTEM.equals(this) || STS_CC.equals(this) || AZUREAD_CC.equals(this);
+        return STS_CC.equals(this) || AZUREAD_CC.equals(this);
     }
 }

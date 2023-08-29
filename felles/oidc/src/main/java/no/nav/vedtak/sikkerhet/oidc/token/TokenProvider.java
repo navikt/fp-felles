@@ -9,8 +9,6 @@ import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstProvider;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
-import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureBrukerTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureSystemTokenKlient;
@@ -25,8 +23,6 @@ public final class TokenProvider {
         .or(() -> Optional.ofNullable(Environment.current().application()))
         .orElse("local");
     private static final Set<SikkerhetContext> USE_SYSTEM = Set.of(SikkerhetContext.SYSTEM, SikkerhetContext.WSREQUEST);
-    // Denne finnes utelukkende pga k9-verdikjede ..... sjekk om kan fjerne =false i abakus
-    private static final boolean SYSTEM_USE_AZURE = !"false".equalsIgnoreCase(Environment.current().getProperty("token.system.use.azure"));
 
     private TokenProvider() {
     }
@@ -38,8 +34,7 @@ public final class TokenProvider {
     public static OpenIDToken getTokenForKontekst(String scopes) {
         var kontekst = KONTEKST_PROVIDER.getKontekst();
         if (USE_SYSTEM.contains(kontekst.getContext())) {
-            // Bytt om til AzureCC når k9-verdikjede er klar for det.....
-            return SYSTEM_USE_AZURE ? getAzureSystemToken(scopes) : getStsSystemToken();
+            return getAzureSystemToken(scopes);
         }
         if (kontekst instanceof RequestKontekst requestKontekst) {
             return getOutgoingTokenFor(requestKontekst, scopes);
@@ -55,12 +50,11 @@ public final class TokenProvider {
         }
         var providerIncoming = getProvider(incoming);
         var identType = Optional.ofNullable(requestKontekst.getIdentType()).orElse(IdentType.InternBruker);
-        if (OpenIDProvider.AZUREAD.equals(providerIncoming)) {
-            return identType.erSystem() ? getAzureSystemToken(scopes) : veksleAzureAccessToken(requestKontekst.getUid(), incoming, scopes);
-        } else if (OpenIDProvider.TOKENX.equals(providerIncoming)){
-            return TokenXchange.exchange(incoming, scopes);
-        }
-        return incoming;
+        return switch (providerIncoming) {
+            case AZUREAD -> identType.erSystem() ? getAzureSystemToken(scopes) : veksleAzureAccessToken(requestKontekst.getUid(), incoming, scopes);
+            case TOKENX -> TokenXchange.exchange(incoming, scopes);
+            case STS -> getAzureSystemToken(scopes);
+        };
     }
 
     public static OpenIDToken getTokenForSystem() {
@@ -84,29 +78,13 @@ public final class TokenProvider {
     public static String getConsumerIdFor(SikkerhetContext context) {
         return switch (context) {
             case REQUEST, WSREQUEST -> getCurrentConsumerId();
-            case SYSTEM -> SYSTEM_USE_AZURE ? ENV_CLIENT_ID : ConfigProvider.getOpenIDConfiguration(OpenIDProvider.STS)
-                .map(OpenIDConfiguration::clientId)
-                .orElse(null);
+            case SYSTEM -> ENV_CLIENT_ID;
         };
     }
 
     public static String getCurrentConsumerId() {
         var kontekst = KONTEKST_PROVIDER.getKontekst();
         return Optional.ofNullable(kontekst.getKonsumentId()).orElseGet(kontekst::getUid);
-    }
-
-    // Ved omlegging til AzureAD for system-kontekst må denne gjennomgås (returner true hvis system)
-    public static boolean isAzureContext() {
-        try {
-            var kontekst = KONTEKST_PROVIDER.getKontekst();
-            if (kontekst instanceof RequestKontekst requestKontekst) {
-                return OpenIDProvider.AZUREAD.equals(getProvider(requestKontekst.getToken()));
-            } else {
-                return SikkerhetContext.SYSTEM.equals(kontekst.getContext()) && SYSTEM_USE_AZURE;
-            }
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     private static OpenIDToken getStsSystemToken() {
