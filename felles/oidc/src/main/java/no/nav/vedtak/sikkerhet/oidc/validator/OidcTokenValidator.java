@@ -26,6 +26,15 @@ public class OidcTokenValidator {
 
     private static final Set<String> AUTHENTICATION_LEVEL_ID_PORTEN = Set.of("Level4", "idporten-loa-high"); // Level4 er gammel og utgår ila 2023
 
+    // Misc claims and values - ikke nais-spesifikke
+    private static final String ACR = "acr";
+    private static final String AZP = "azp";
+    private static final String OID = "oid";
+    private static final String PID = "pid";
+    // Optional claims for AAD/CC
+    private static final String IDTYP = "idtyp";
+    private static final String APP = "app";
+
 
     private final OpenIDProvider provider;
     private final String expectedIssuer;
@@ -137,7 +146,7 @@ public class OidcTokenValidator {
     // Validates some of the rules set in OpenID Connect Core 1.0 incorporatin errata set 1,
     // which is not already validated by using JwtConsumer
     private String validateClaims(JwtClaims claims) {
-        String azp = JwtUtil.getStringClaim(claims, "azp");
+        String azp = JwtUtil.getStringClaim(claims, AZP);
         if (azp == null && JwtUtil.getAudience(claims).size() != 1) {
             return "Either an azp-claim or a single value aud-claim is required";
         }
@@ -166,19 +175,20 @@ public class OidcTokenValidator {
         }
     }
 
-    // Established practice: oid = sub -> CC-flow
+    // Sjekker både gammel konvensjon (oid=sub) og nyere (idtyp="app")
     private boolean isAzureClientCredentials(JwtClaims claims, String subject) {
-        return Objects.equals(subject, JwtUtil.getStringClaim(claims, "oid"));
+        return Objects.equals(subject, JwtUtil.getStringClaim(claims, OID)) ||
+            Objects.equals(APP, JwtUtil.getStringClaim(claims, IDTYP));
     }
 
     private OidcTokenValidatorResult validateTokenX(JwtClaims claims, String subject) {
-        var level4 = Optional.ofNullable(JwtUtil.getStringClaim(claims, "acr"))
+        var level4 = Optional.ofNullable(JwtUtil.getStringClaim(claims, ACR))
             .filter(AUTHENTICATION_LEVEL_ID_PORTEN::contains)
             .isPresent();
         if (!level4) {
             return OidcTokenValidatorResult.invalid("TokenX token ikke på nivå 4");
         }
-        var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, "pid")).orElse(subject);
+        var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, PID)).orElse(subject);
         return OidcTokenValidatorResult.valid(brukSubject, IdentType.EksternBruker, JwtUtil.getExpirationTimeRaw(claims));
     }
 
