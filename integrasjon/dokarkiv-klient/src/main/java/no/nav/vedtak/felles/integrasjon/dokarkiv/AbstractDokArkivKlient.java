@@ -2,22 +2,20 @@ package no.nav.vedtak.felles.integrasjon.dokarkiv;
 
 import java.net.URI;
 
-import jakarta.ws.rs.core.UriBuilder;
-import jakarta.ws.rs.core.UriBuilderException;
-
-import no.nav.vedtak.exception.TekniskException;
-
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.TilknyttVedleggRequest;
-
-import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.TilknyttVedleggResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriBuilderException;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.FerdigstillJournalpostRequest;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.KnyttTilAnnenSakRequest;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.KnyttTilAnnenSakResponse;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OppdaterJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostResponse;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.TilknyttVedleggRequest;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.TilknyttVedleggResponse;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
@@ -100,8 +98,22 @@ public class AbstractDokArkivKlient implements DokArkiv {
                 LOG.info("Vedlegg tilknyttet {} OK", journalpostId);
             }
         } catch (UriBuilderException | IllegalArgumentException e) {
-            throw new TekniskException("FPFORMIDLING-156531",
+            throw new TekniskException("F-156531",
                 String.format("Feil ved oppretting av URI for tilknytning av vedlegg til %s: %s.", journalpostId, request.toString()), e);
         }
+    }
+
+    @Override
+    public KnyttTilAnnenSakResponse knyttTilAnnenSak(String journalpostId, KnyttTilAnnenSakRequest request) {
+        try {
+            var tilknyttPath = String.format("/%s/knyttTilAnnenSak", journalpostId);
+            var uri = UriBuilder.fromUri(restConfig.endpoint()).path(tilknyttPath).build();
+
+            var method = new RestRequest.Method(RestRequest.WebMethod.PUT, RestRequest.jsonPublisher(request));
+            var rrequest = RestRequest.newRequest(method, uri, restConfig);
+            return restKlient.send(rrequest, KnyttTilAnnenSakResponse.class);
+        } catch (Exception e) {
+            throw new TekniskException("F-156532", String.format("Feil ved knytning av journalpost %s til annen sak: %s.", journalpostId, request.toString()), e);
+         }
     }
 }
