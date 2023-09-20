@@ -9,6 +9,7 @@ import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
@@ -54,7 +55,13 @@ public final class TokenXExchangeKlient {
             .uri(tokenEndpoint)
             .POST(ofFormData(token, assertion, audience))
             .build();
-        return GeneriskTokenKlient.hentToken(request, null);
+        try {
+            return GeneriskTokenKlient.hentToken(request, null);
+        } catch (TekniskException e) {
+            //Vist seg å være litt ustabil
+            LOG.info("Feiler ved henting av token. Prøver på nytt", e);
+            return GeneriskTokenKlient.hentToken(request, null);
+        }
     }
 
     private static HttpRequest.BodyPublisher ofFormData(OpenIDToken token, String assertion, String audience) {
