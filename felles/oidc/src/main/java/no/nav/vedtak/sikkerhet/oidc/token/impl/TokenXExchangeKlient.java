@@ -42,7 +42,7 @@ public final class TokenXExchangeKlient {
     public OpenIDToken exchangeToken(OpenIDToken token, String assertion, String scopes) {
         var audience = audience(scopes);
         var response = hentToken(token, assertion, audience);
-        LOG.info("TokenX byttet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
+        LOG.debug("TokenX byttet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
         return new OpenIDToken(OpenIDProvider.TOKENX, response.token_type(), new TokenString(response.access_token()), audience,
             response.expires_in());
     }
