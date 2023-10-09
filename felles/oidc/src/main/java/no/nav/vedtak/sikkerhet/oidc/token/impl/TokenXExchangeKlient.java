@@ -37,7 +37,7 @@ public final class TokenXExchangeKlient {
     private TokenXExchangeKlient() {
         var provider = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX);
         this.tokenEndpoint = provider.map(OpenIDConfiguration::tokenEndpoint).orElse(null);
-        this.obocache = new LRUCache<>(2500, TimeUnit.MILLISECONDS.convert(120, TimeUnit.SECONDS));
+        this.obocache = new LRUCache<>(2500, TimeUnit.MILLISECONDS.convert(90, TimeUnit.SECONDS));
     }
 
     public static synchronized TokenXExchangeKlient instance() {
