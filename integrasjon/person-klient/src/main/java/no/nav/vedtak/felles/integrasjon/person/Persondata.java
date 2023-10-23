@@ -74,6 +74,8 @@ public interface Persondata {
 
     GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p);
 
+    GeografiskTilknytning hentGT(Ytelse ytelse, HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p);
+
     <T extends GraphQLResult<?>> T query(GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz);
 
     <T extends GraphQLResult<?>> T query(Ytelse ytelse, GraphQLOperationRequest q, GraphQLResponseProjection p, Class<T> clazz);
