@@ -64,7 +64,12 @@ public abstract class AbstractPersonKlient implements Persondata {
 
     @Override
     public GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p) {
-        return query(q, p, HentGeografiskTilknytningQueryResponse.class).hentGeografiskTilknytning();
+        return query(defaultYtelse, q, p, HentGeografiskTilknytningQueryResponse.class).hentGeografiskTilknytning();
+    }
+
+    @Override
+    public GeografiskTilknytning hentGT(Ytelse ytelse, HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p) {
+        return query(ytelse, q, p, HentGeografiskTilknytningQueryResponse.class).hentGeografiskTilknytning();
     }
 
     @Override
