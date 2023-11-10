@@ -7,12 +7,9 @@ import static jakarta.security.auth.message.AuthStatus.SUCCESS;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.Set;
 
 import javax.security.auth.Subject;
@@ -22,6 +19,11 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
 import jakarta.security.auth.message.AuthException;
 import jakarta.security.auth.message.AuthStatus;
 import jakarta.security.auth.message.MessageInfo;
@@ -31,11 +33,6 @@ import jakarta.security.auth.message.config.ServerAuthContext;
 import jakarta.security.auth.message.module.ServerAuthModule;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.TokenCallback;
@@ -76,23 +73,17 @@ public class OidcAuthModule implements ServerAuthModule {
 
     private CallbackHandler containerCallbackHandler;
 
-    private final List<DelegatedProtectedResource> delegatedProtectedList;
-
     public OidcAuthModule() {
         this.tokenLocator = new TokenLocator();
         this.loginConfiguration = new LoginContextConfiguration();
-
-        this.delegatedProtectedList = new ArrayList<>();
-        ServiceLoader.load(DelegatedProtectedResource.class, OidcAuthModule.class.getClassLoader()).forEach(delegatedProtectedList::add);
     }
 
     /**
      * used for unit-testing
      */
-    OidcAuthModule(TokenLocator tokenLocator, Configuration loginConfiguration, DelegatedProtectedResource delegatedProtectedResource) {
+    OidcAuthModule(TokenLocator tokenLocator, Configuration loginConfiguration) {
         this.tokenLocator = tokenLocator;
         this.loginConfiguration = loginConfiguration;
-        this.delegatedProtectedList = delegatedProtectedResource == null ? List.of() : List.of(delegatedProtectedResource);
     }
 
     @SuppressWarnings("rawtypes")
@@ -224,17 +215,7 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     protected AuthStatus handleProtectedResource(Subject clientSubject, HttpServletRequest originalRequest) {
-        var delegatedAuthStatus = delegatedProtectedList.stream()
-            .map(d -> d.handleProtectedResource(originalRequest, clientSubject, containerCallbackHandler))
-            .flatMap(Optional::stream)
-            .findFirst();
-
-        if (delegatedAuthStatus.isEmpty()) {
-            return oidcLogin(clientSubject, originalRequest);
-        } else {
-            // delegert autentisering
-            return delegatedAuthStatus.get();
-        }
+        return oidcLogin(clientSubject, originalRequest);
     }
 
     protected AuthStatus handleUnprotectedResource(Subject clientSubject) {

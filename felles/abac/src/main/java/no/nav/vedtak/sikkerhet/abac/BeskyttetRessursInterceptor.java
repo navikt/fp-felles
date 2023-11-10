@@ -5,22 +5,20 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
-
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -94,20 +92,17 @@ public class BeskyttetRessursInterceptor {
         Class<?> clazz = getOpprinneligKlasse(invocationContext);
         var method = invocationContext.getMethod();
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
-        var serviceType = beskyttetRessurs.serviceType();
 
-        var token = ServiceType.WEBSERVICE.equals(serviceType) ? Token.withSamlToken(tokenProvider.samlToken()) : Token.withOidcToken(
-            tokenProvider.openIdToken(), tokenProvider.getUid(), tokenProvider.getIdentType());
+        var token = Token.withOidcToken(tokenProvider.openIdToken(), tokenProvider.getUid(), tokenProvider.getIdentType());
 
         return BeskyttetRessursAttributter.builder()
             .medUserId(tokenProvider.getUid())
             .medToken(token)
-            .medServiceType(serviceType)
             .medActionType(beskyttetRessurs.actionType())
             .medAvailabilityType(beskyttetRessurs.availabilityType())
             .medResourceType(finnResource(beskyttetRessurs))
             .medPepId(pep.pepId())
-            .medServicePath(utledAction(clazz, method, serviceType))
+            .medServicePath(utledAction(clazz, method))
             .medDataAttributter(dataAttributter)
             .build();
 
@@ -169,8 +164,8 @@ public class BeskyttetRessursInterceptor {
         return target.getClass();
     }
 
-    private static String utledAction(Class<?> clazz, Method method, ServiceType serviceType) {
-        return ActionUthenter.action(clazz, method, serviceType);
+    private static String utledAction(Class<?> clazz, Method method) {
+        return ActionUthenter.action(clazz, method);
     }
 
     private static String finnResource(BeskyttetRessurs beskyttetRessurs) {

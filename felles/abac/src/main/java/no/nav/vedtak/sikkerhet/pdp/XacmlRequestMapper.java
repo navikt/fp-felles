@@ -79,7 +79,6 @@ public class XacmlRequestMapper {
         String envTokenBodyAttributt = switch (beskyttetRessursAttributter.getToken().getTokenType()) {
             case OIDC -> NavFellesAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY;
             case TOKENX -> NavFellesAttributter.ENVIRONMENT_FELLES_TOKENX_TOKEN_BODY;
-            case SAML -> NavFellesAttributter.ENVIRONMENT_FELLES_SAML_TOKEN;
         };
         var assignement = new XacmlRequest.AttributeAssignment(envTokenBodyAttributt, beskyttetRessursAttributter.getToken().getTokenBody());
         return List.of(assignement);
@@ -101,6 +100,6 @@ public class XacmlRequestMapper {
         return identer;
     }
 
-    public static record Ident(String key, String ident) {
+    public record Ident(String key, String ident) {
     }
 }

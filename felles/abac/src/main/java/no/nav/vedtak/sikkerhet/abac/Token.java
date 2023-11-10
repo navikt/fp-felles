@@ -1,7 +1,5 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Optional;
 
 import org.jose4j.jws.JsonWebSignature;
@@ -23,8 +21,7 @@ public class Token {
 
     public enum TokenType {
         OIDC,
-        TOKENX,
-        SAML;
+        TOKENX;
     }
 
     private final String token;
@@ -43,10 +40,6 @@ public class Token {
 
     public static Token withOidcToken(OpenIDToken token, String brukerId, IdentType identType) {
         return new Token(null, utledTokenType(token), token, brukerId, identType);
-    }
-
-    public static Token withSamlToken(String token) {
-        return new Token(token, TokenType.SAML, null, null, IdentType.InternBruker);
     }
 
     public TokenType getTokenType() {
@@ -73,10 +66,7 @@ public class Token {
     }
 
     public String getTokenBody() {
-        return switch (tokenType) {
-            case OIDC, TOKENX -> tokenPayloadBase64(openIDToken);
-            case SAML -> Base64.getEncoder().encodeToString(token.getBytes(StandardCharsets.UTF_8));
-        };
+        return tokenPayloadBase64(openIDToken);
     }
 
     @Override

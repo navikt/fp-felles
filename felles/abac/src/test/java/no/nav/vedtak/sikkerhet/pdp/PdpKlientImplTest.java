@@ -7,9 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -27,7 +25,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
@@ -55,20 +52,6 @@ class PdpKlientImplTest {
     public void setUp() {
         pdpConsumerMock = mock(PdpConsumer.class);
         pdpKlient = new PdpKlientImpl(pdpConsumerMock);
-    }
-
-    @Test
-    void kallPdpMedSamlTokenNårIdTokenErSamlToken() {
-        var idToken = Token.withSamlToken("SAML");
-        var responseWrapper = createResponse("xacmlresponse.json");
-        var captor = ArgumentCaptor.forClass(XacmlRequest.class);
-
-        when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
-        var felles = lagBeskyttetRessursAttributter(idToken, AbacDataAttributter.opprett());
-        var ressurs = AppRessursData.builder().leggTilFødselsnummer("12345678900").build();
-        pdpKlient.forespørTilgang(felles, DOMENE, ressurs);
-
-        assertThat(captor.getValue().toString()).contains(NavFellesAttributter.ENVIRONMENT_FELLES_SAML_TOKEN);
     }
 
     @Test
@@ -194,26 +177,8 @@ class PdpKlientImplTest {
     }
 
     @Test
-    void skal_base64_encode_saml_token() {
-        var idToken = Token.withSamlToken("<dummy SAML token>");
-        @SuppressWarnings("unused") var responseWrapper = createResponse("xacmlresponse_multiple_obligation.json");
-
-        var felles = lagBeskyttetRessursAttributter(idToken, AbacDataAttributter.opprett());
-        var ressurs = AppRessursData.builder().leggTilFødselsnummer("12345678900").build();
-
-        var jsonRequest = XacmlRequestMapper.lagXacmlRequest(felles, DOMENE, ressurs);
-        var request = jsonRequest.request();
-        var environment = request.get(Category.Environment);
-
-        assertHasAttribute(environment, NavFellesAttributter.ENVIRONMENT_FELLES_SAML_TOKEN,
-            Base64.getEncoder().encodeToString("<dummy SAML token>".getBytes(StandardCharsets.UTF_8)));
-
-        environment.get(0).attribute().get(0).attributeId();
-    }
-
-    @Test
     void skal_bare_ta_med_deny_advice() {
-        var idToken = Token.withSamlToken("<dummy SAML token>");
+        var idToken = Token.withOidcToken(JWT_TOKENX_TOKEN, "meg", IdentType.EksternBruker);
         var responseWrapper = createResponse("xacmlresponse_1deny_1permit.json");
 
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -246,7 +211,7 @@ class PdpKlientImplTest {
 
     @Test
     void skalFeileVedUkjentObligation() {
-        var idToken = Token.withSamlToken("SAML");
+        var idToken = Token.withOidcToken(new OpenIDToken(OpenIDProvider.TOKENX, new TokenString("OIDC")), "OIDC", IdentType.InternBruker);
         var responseWrapper = createResponse("xacmlresponse_multiple_obligation.json");
 
         when(pdpConsumerMock.evaluate(any(XacmlRequest.class))).thenReturn(responseWrapper);
@@ -258,7 +223,7 @@ class PdpKlientImplTest {
         } catch (VLException e) {
             feilKode = e.getKode();
         }
-        assertThat(feilKode).isEqualTo("F-576027");
+        assertThat(feilKode).isEqualTo("F-026969");
     }
 
     @Test
@@ -282,10 +247,8 @@ class PdpKlientImplTest {
         var xacmlRequestString = DefaultJsonMapper.toJson(captor.getValue());
 
         assertThat(xacmlRequestString).contains(
-            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.fnr\",\"Value\":\"12345678900\"}");
-        assertThat(xacmlRequestString).contains(
-            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"11111\"}");
-        assertThat(xacmlRequestString).contains(
+            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.fnr\",\"Value\":\"12345678900\"}",
+            "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"11111\"}",
             "{\"AttributeId\":\"no.nav.abac.attributter.resource.felles.person.aktoerId_resource\",\"Value\":\"22222\"}");
     }
 
@@ -297,7 +260,6 @@ class PdpKlientImplTest {
             .medActionType(ActionType.READ)
             .medPepId("local-app")
             .medServicePath("/metode")
-            .medServiceType(Token.TokenType.SAML.equals(token.getTokenType()) ? ServiceType.WEBSERVICE : ServiceType.REST)
             .medDataAttributter(dataAttributter)
             .build();
     }

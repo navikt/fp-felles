@@ -9,7 +9,6 @@ import javax.security.auth.Subject;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
-import no.nav.vedtak.sikkerhet.context.containers.SAMLAssertionCredential;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
 import no.nav.vedtak.sikkerhet.kontekst.Groups;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -56,13 +55,6 @@ public abstract class SubjectHandler {
             .map(SubjectHandler::getTheOnlyOneInSet)
             .map(SluttBruker::getGrupper)
             .orElse(Set.of());
-    }
-
-    public SAMLAssertionCredential getSamlToken() {
-        return Optional.ofNullable(getSubject())
-            .map(s -> s.getPublicCredentials(SAMLAssertionCredential.class))
-            .map(SubjectHandler::getTheOnlyOneInSet)
-            .orElse(null);
     }
 
     public String getConsumerId() {
