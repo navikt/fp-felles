@@ -27,6 +27,7 @@
         <module>kontekst</module>
         <module>abac-kontekst</module>
         <module>auth-filter</module>
+        <module>tilgang</module>
     </modules>
 
     <dependencyManagement>
@@ -49,6 +50,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-kontekst</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles-tilgang</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
