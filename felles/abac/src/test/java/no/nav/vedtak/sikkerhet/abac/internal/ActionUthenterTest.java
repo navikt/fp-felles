@@ -2,13 +2,9 @@ package no.nav.vedtak.sikkerhet.abac.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import jakarta.jws.WebMethod;
-import jakarta.jws.WebService;
-import jakarta.ws.rs.Path;
-
 import org.junit.jupiter.api.Test;
 
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
+import jakarta.ws.rs.Path;
 
 class ActionUthenterTest {
 
@@ -19,12 +15,6 @@ class ActionUthenterTest {
         assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod2", String.class))).isEqualTo(
             "/root1/resource2");
         assertThat(ActionUthenter.action(MyRestSvc1.class, MyRestSvc1.class.getDeclaredMethod("myRestMethod3", String.class))).isEqualTo("/root1");
-    }
-
-    @Test
-    void skal_ha_at_action_for_webservice_er_action_i_webmethod() throws Exception {
-        assertThat(ActionUthenter.action(MyWebService.class, MyWebService.class.getDeclaredMethod("coinToss"), ServiceType.WEBSERVICE)).isEqualTo(
-            "http://foobar.com/biased/coin/toss/v1");
     }
 
     @Path("/root1")
@@ -39,20 +29,6 @@ class ActionUthenterTest {
 
         @SuppressWarnings("unused")
         public void myRestMethod3(String s) {
-        }
-    }
-
-    @WebService
-    private interface MyWebServiceInterface {
-        @WebMethod(action = "http://foobar.com/biased/coin/toss/v1")
-        boolean coinToss();
-    }
-
-    @WebService
-    private static class MyWebService implements MyWebServiceInterface {
-        @Override
-        public boolean coinToss() {
-            return false;
         }
     }
 

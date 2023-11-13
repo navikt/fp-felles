@@ -9,11 +9,9 @@ import java.lang.annotation.Target;
 import jakarta.enterprise.util.Nonbinding;
 import jakarta.interceptor.InterceptorBinding;
 import jakarta.ws.rs.NameBinding;
-
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
 @Inherited
 @InterceptorBinding
@@ -40,11 +38,6 @@ public @interface BeskyttetRessurs {
      * Dersom ikke tilgjengelig som property tolkes det som Env variabel på upper case (eks. "ABAC_ROLLE").
      */
     @Nonbinding String property() default "";
-
-    /**
-     * For å angi webservices (noen få tilfelle)
-     */
-    @Nonbinding ServiceType serviceType() default ServiceType.REST;
 
     /**
      * For å angi om tjeneste skal kunne kalles fra andre namespace

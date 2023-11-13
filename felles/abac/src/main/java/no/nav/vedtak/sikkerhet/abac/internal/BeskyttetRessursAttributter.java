@@ -7,13 +7,11 @@ import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
 
 public class BeskyttetRessursAttributter {
 
     private String userId;
-    private ServiceType serviceType;
     private ActionType actionType;
     private String resourceType;
     private AvailabilityType availabilityType;
@@ -28,10 +26,6 @@ public class BeskyttetRessursAttributter {
 
     public String getUserId() {
         return userId;
-    }
-
-    public ServiceType getServiceType() {
-        return serviceType;
     }
 
     public AvailabilityType getAvailabilityType() {
@@ -64,7 +58,7 @@ public class BeskyttetRessursAttributter {
 
     @Override
     public String toString() {
-        return "BeskyttetRessursAttributter{" + "userId=MASKERT" + ", serviceType=" + serviceType + ", actionType=" + actionType + ", resourceType="
+        return "BeskyttetRessursAttributter{" + "userId=MASKERT" + ", actionType=" + actionType + ", resourceType="
             + resourceType + ", token=" + token + ", pepId=" + pepId + ", servicePath=" + servicePath + '}';
     }
 
@@ -81,7 +75,6 @@ public class BeskyttetRessursAttributter {
         }
 
         public Builder medToken(Token token) {
-            pdpRequest.serviceType = Token.TokenType.SAML.equals(token.getTokenType()) ? ServiceType.WEBSERVICE : ServiceType.REST;
             pdpRequest.token = token;
             return this;
         }
@@ -93,11 +86,6 @@ public class BeskyttetRessursAttributter {
 
         public Builder medAvailabilityType(AvailabilityType availabilityType) {
             pdpRequest.availabilityType = availabilityType;
-            return this;
-        }
-
-        public Builder medServiceType(ServiceType serviceType) {
-            pdpRequest.serviceType = serviceType;
             return this;
         }
 
