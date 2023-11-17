@@ -37,12 +37,6 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-
-            <dependency>
-                <groupId>no.nav.foreldrepenger</groupId>
-                <artifactId>konfig</artifactId>
-                <version>2.3.0</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
