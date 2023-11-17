@@ -12,4 +12,31 @@
 
     <artifactId>felles-konfig</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <environmentVariables>
+                            <mvn>true</mvn>
+                            <NAV>http://www.nav.no</NAV>
+                            <NAIS_CLUSTER_NAME>prod-fss</NAIS_CLUSTER_NAME>
+                            <NAIS_NAMESPACE>default</NAIS_NAMESPACE>
+                        </environmentVariables>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
 </project>
