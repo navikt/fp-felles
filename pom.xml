@@ -7,7 +7,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>1.0.5</version>
+        <version>2.0.0</version>
     </parent>
 
     <artifactId>felles-root</artifactId>
@@ -18,7 +18,7 @@
 	<modules>
 		<module>felles</module>
 		<module>integrasjon</module>
-	</modules>
+    </modules>
 
 	<properties>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -33,9 +33,15 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>1.0.5</version>
+                <version>2.0.0</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>no.nav.foreldrepenger</groupId>
+                <artifactId>konfig</artifactId>
+                <version>2.3.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
