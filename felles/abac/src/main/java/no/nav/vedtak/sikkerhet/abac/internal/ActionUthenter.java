@@ -2,10 +2,7 @@ package no.nav.vedtak.sikkerhet.abac.internal;
 
 import java.lang.reflect.Method;
 
-import jakarta.jws.WebMethod;
 import jakarta.ws.rs.Path;
-
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
 public class ActionUthenter {
 
@@ -16,14 +13,6 @@ public class ActionUthenter {
     }
 
     public static String action(Class<?> clazz, Method method) {
-        return action(clazz, method, ServiceType.REST);
-    }
-
-    public static String action(Class<?> clazz, Method method, ServiceType serviceType) {
-        return ServiceType.WEBSERVICE.equals(serviceType) ? actionForWebServiceMethod(method) : actionForRestMethod(clazz, method);
-    }
-
-    private static String actionForRestMethod(Class<?> clazz, Method method) {
         Path pathOfClass = clazz.getAnnotation(Path.class);
         Path pathOfMethod = method.getAnnotation(Path.class);
 
@@ -35,30 +24,6 @@ public class ActionUthenter {
             path += ensureStartsWithSlash(pathOfMethod.value());
         }
         return path;
-    }
-
-    private static String actionForWebServiceMethod(Method method) {
-        WebMethod webMethodAnnotation = finnWebMethod(method);
-        if (webMethodAnnotation.action().isEmpty()) {
-            throw new IllegalArgumentException("Mangler action på @WebMethod-annotering for metode på Webservice " + method.getName());
-        }
-        return webMethodAnnotation.action();
-    }
-
-    private static WebMethod finnWebMethod(Method method) {
-        // annoteringen finnes i et av interfacene
-        for (Class<?> anInterface : method.getDeclaringClass().getInterfaces()) {
-            try {
-                Method deklarertMetode = anInterface.getDeclaredMethod(method.getName(), method.getParameterTypes());
-                WebMethod annotation = deklarertMetode.getAnnotation(WebMethod.class);
-                if (annotation != null) {
-                    return annotation;
-                }
-            } catch (NoSuchMethodException e) {
-                // forventet hvis webservice arver fra flere interface
-            }
-        }
-        throw new IllegalArgumentException("Mangler @WebMethod-annotering i interface for " + method.getDeclaringClass() + "." + method.getName());
     }
 
     private static String ensureStartsWithSlash(String value) {

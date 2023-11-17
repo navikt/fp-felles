@@ -22,7 +22,7 @@ public final class TokenProvider {
     private static final String ENV_CLIENT_ID = Optional.ofNullable(Environment.current().clientId())
         .or(() -> Optional.ofNullable(Environment.current().application()))
         .orElse("local");
-    private static final Set<SikkerhetContext> USE_SYSTEM = Set.of(SikkerhetContext.SYSTEM, SikkerhetContext.WSREQUEST);
+    private static final Set<SikkerhetContext> USE_SYSTEM = Set.of(SikkerhetContext.SYSTEM);
 
     private TokenProvider() {
     }
@@ -77,7 +77,7 @@ public final class TokenProvider {
     // Endre til AzureClientId ved overgang til system = azure
     public static String getConsumerIdFor(SikkerhetContext context) {
         return switch (context) {
-            case REQUEST, WSREQUEST -> getCurrentConsumerId();
+            case REQUEST -> getCurrentConsumerId();
             case SYSTEM -> ENV_CLIENT_ID;
         };
     }

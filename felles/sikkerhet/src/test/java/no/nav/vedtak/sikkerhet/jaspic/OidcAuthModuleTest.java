@@ -13,10 +13,6 @@ import java.util.Optional;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.Configuration;
-import jakarta.security.auth.message.AuthStatus;
-import jakarta.security.auth.message.MessageInfo;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
@@ -24,6 +20,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import jakarta.security.auth.message.AuthStatus;
+import jakarta.security.auth.message.MessageInfo;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
@@ -42,7 +42,7 @@ class OidcAuthModuleTest {
     private CallbackHandler callbackHandler = Mockito.mock(CallbackHandler.class);
     private final Configuration configuration = new LoginContextConfiguration();
 
-    private OidcAuthModule authModule = new OidcAuthModule(tokenLocator, configuration, Mockito.mock(DelegatedProtectedResource.class));
+    private OidcAuthModule authModule = new OidcAuthModule(tokenLocator, configuration);
     private HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     private HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 

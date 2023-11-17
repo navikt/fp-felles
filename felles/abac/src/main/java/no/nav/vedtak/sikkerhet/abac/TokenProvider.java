@@ -28,11 +28,4 @@ public interface TokenProvider {
      */
     OpenIDToken openIdToken();
 
-    /**
-     * SAML tokenet til brukeren. Trenges ved kall fra WebService grensesnitt.
-     * Sendes til PDP (Policy Decision Point) og gir informasjon til ABAC om subject og auth level.
-     *
-     * @return bruker SAML token.
-     */
-    String samlToken();
 }

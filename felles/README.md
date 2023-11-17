@@ -5,7 +5,7 @@ Felles biblioteker, som dekker
 # Feilhåndtering 
 	standard for exceptions, logfeilmeldinger, feilmelding koder
 # Sikkerhet 
-	OIDC Autentisering, SAML autentisering, STS - Security Token Service for veksling av tokens, ABAC (PEP/PDP)
+	OIDC Autentisering, Azure + STS - Security Token Service for veksling av tokens, ABAC (PEP/PDP)
 # Database oppsett/tillegg
 	* Støtter JPA ORM XML konfigurasjon i flere filer (auto-discovery). Gjør det mulig å dele opp datamodellen i ulike moduler.
 	* Støtter for tilgang til flere skjemaer gjennom samme datasource (uten å hardkode schema navn i hibernate). Gjør det mulig å dele opp database i flere skjemaer

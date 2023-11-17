@@ -9,6 +9,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.CredentialExpiredException;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,22 +18,24 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.TokenCallback;
 import no.nav.vedtak.sikkerhet.context.containers.ConsumerId;
 import no.nav.vedtak.sikkerhet.context.containers.SluttBruker;
-import no.nav.vedtak.sikkerhet.loginmodule.LoginModuleBase;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 /**
  * <p>
  * LoginModule that will use an OIDC ID Token and add NAV Principals and
- * Credentials.
+ * Credentials. See usage in resources/services
  * </p>
  * <p>
  * Depends on either the invoker or another LoginModule in the chain to actually
  * set the SecurityContext.
  * </p>
  */
-public class OIDCLoginModule extends LoginModuleBase {
+public class OIDCLoginModule implements LoginModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCLoginModule.class);
+
+    private boolean loginSuccess = false;
+    private boolean commitSuccess = false;
 
     // Set during initialize()
     private Subject subject;
@@ -44,10 +47,6 @@ public class OIDCLoginModule extends LoginModuleBase {
 
     // Set during commit()
     private ConsumerId consumerId;
-
-    public OIDCLoginModule() {
-        super(LOG);
-    }
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
@@ -75,7 +74,12 @@ public class OIDCLoginModule extends LoginModuleBase {
     }
 
     @Override
-    public void doCommit() throws LoginException {
+    public final boolean commit() {
+        LOG.trace("enter commit");
+        if (!isLoginSuccess()) {
+            cleanUpLocalState();
+            return false;
+        }
         String mdcConsumerId = MDCOperations.getConsumerId();
         if (mdcConsumerId != null) {
             this.consumerId = new ConsumerId(mdcConsumerId);
@@ -85,18 +89,47 @@ public class OIDCLoginModule extends LoginModuleBase {
 
         subject.getPrincipals().add(sluttBruker);
         subject.getPrincipals().add(this.consumerId);
+        setCommitSuccess(true);
+        return isCommitSuccess();
     }
 
     @Override
-    protected void cleanUpSubject() {
+    public final boolean abort() {
+        LOG.trace("enter abort");
+        if (!isLoginSuccess()) {
+            cleanUpLocalState();
+            return false;
+        } else if (!isCommitSuccess()) {
+            cleanUpSubject();
+            cleanUpLocalState();
+            setLoginSuccess(false);
+        } else {
+            // Login and commit was successful, but someone else failed.
+            logout();
+        }
+        LOG.trace("leave abort: true");
+        return true;
+    }
+
+    @Override
+    public final boolean logout() {
+        LOG.trace("enter logout");
+        cleanUpSubject();
+        setCommitSuccess(false);
+        cleanUpLocalState();
+        setLoginSuccess(false);
+        LOG.trace("leave logout: true");
+        return true;
+    }
+
+    private void cleanUpSubject() {
         if (!subject.isReadOnly()) {
             subject.getPrincipals().remove(sluttBruker);
             subject.getPrincipals().remove(consumerId);
         }
     }
 
-    @Override
-    protected void cleanUpLocalState() throws LoginException {
+    private void cleanUpLocalState() {
         // Set during login()
         ssoToken = null;
 
@@ -115,7 +148,7 @@ public class OIDCLoginModule extends LoginModuleBase {
     /*
      * Called by login() to acquire the ID Token.
      */
-    protected OpenIDToken getSSOToken() throws LoginException {
+    private OpenIDToken getSSOToken() throws LoginException {
         if (callbackHandler == null) {
             throw new LoginException("No callbackhandler provided");
         }
@@ -133,4 +166,19 @@ public class OIDCLoginModule extends LoginModuleBase {
         }
     }
 
+    public boolean isLoginSuccess() {
+        return loginSuccess;
+    }
+
+    public void setLoginSuccess(boolean loginSuccess) {
+        this.loginSuccess = loginSuccess;
+    }
+
+    public boolean isCommitSuccess() {
+        return commitSuccess;
+    }
+
+    public void setCommitSuccess(boolean commitSuccess) {
+        this.commitSuccess = commitSuccess;
+    }
 }
