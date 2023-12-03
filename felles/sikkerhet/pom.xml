@@ -45,6 +45,11 @@
             <artifactId>jakarta.authentication-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-jaspi</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
             <scope>provided</scope>

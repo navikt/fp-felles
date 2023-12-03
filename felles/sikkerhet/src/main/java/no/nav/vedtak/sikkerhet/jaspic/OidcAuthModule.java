@@ -7,12 +7,8 @@ import static jakarta.security.auth.message.AuthStatus.SUCCESS;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.Set;
 
 import javax.security.auth.Subject;
@@ -27,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import jakarta.security.auth.message.AuthException;
 import jakarta.security.auth.message.AuthStatus;
 import jakarta.security.auth.message.MessageInfo;
 import jakarta.security.auth.message.MessagePolicy;
@@ -39,7 +34,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.context.containers.BrukerNavnType;
-import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
@@ -62,12 +56,6 @@ public class OidcAuthModule implements ServerAuthModule {
     private static final Logger LOG = LoggerFactory.getLogger(OidcAuthModule.class);
 
     private static final Class<?>[] SUPPORTED_MESSAGE_TYPES = new Class[]{HttpServletRequest.class, HttpServletResponse.class};
-    // Key in the MessageInfo Map that when present AND set to true indicated a
-    // protected resource is being accessed.
-    // When the resource is not protected, GlassFish omits the key altogether.
-    // WebSphere does insert the key and sets
-    // it to false.
-    private static final String IS_MANDATORY = "jakarta.security.auth.message.MessagePolicy.isMandatory";
 
     private final TokenLocator tokenLocator;
     private final Configuration loginConfiguration;
@@ -104,13 +92,8 @@ public class OidcAuthModule implements ServerAuthModule {
         HttpServletRequest originalRequest = (HttpServletRequest) messageInfo.getRequestMessage();
         setCallAndConsumerId(originalRequest);
         validateCleanSubjectAndKontekst(clientSubject);
-        AuthStatus authStatus;
-
-        if (isProtected(messageInfo)) {
-            authStatus = handleProtectedResource(clientSubject, originalRequest);
-        } else {
-            authStatus = handleUnprotectedResource(clientSubject);
-        }
+        // Skipp sjekk på unprotected siden NPE i JaspiMessageInfo/getMap. Legg unprotected i web.xml
+        AuthStatus authStatus = handleProtectedResource(clientSubject, originalRequest);
 
         if (FAILURE.equals(authStatus)) {
             // Vurder om trengs whitelisting av oppslag mot isAlive/isReady/metrics gitt oppførsel i prod - app må registrere unprotected
@@ -223,11 +206,6 @@ public class OidcAuthModule implements ServerAuthModule {
         return oidcLogin(clientSubject, originalRequest);
     }
 
-    protected AuthStatus handleUnprotectedResource(Subject clientSubject) {
-        KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
-        return notifyContainerAboutLogin(clientSubject, null);
-    }
-
     protected AuthStatus handleValidatedToken(Subject clientSubject, String username) {
         AuthStatus authStatus = notifyContainerAboutLogin(clientSubject, username);
 
@@ -262,10 +240,6 @@ public class OidcAuthModule implements ServerAuthModule {
             throw new IllegalStateException(e);
         }
         return SUCCESS;
-    }
-
-    private boolean isProtected(MessageInfo messageInfo) {
-        return Boolean.parseBoolean((String) messageInfo.getMap().get(IS_MANDATORY));
     }
 
     @Override

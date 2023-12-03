@@ -1,14 +1,14 @@
 package no.nav.vedtak.felles.testutilities.cdi;
 
-import jakarta.enterprise.context.spi.CreationalContext;
-import jakarta.enterprise.inject.spi.AnnotatedType;
-import jakarta.enterprise.inject.spi.CDI;
-import jakarta.enterprise.inject.spi.InjectionTarget;
-
 import org.jboss.weld.context.RequestContext;
 import org.jboss.weld.context.unbound.UnboundLiteral;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
+
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.AnnotatedType;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.InjectionTarget;
 
 public class CdiAwareExtension implements TestInstancePostProcessor {
 
@@ -22,7 +22,7 @@ public class CdiAwareExtension implements TestInstancePostProcessor {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
 
@@ -38,7 +38,7 @@ public class CdiAwareExtension implements TestInstancePostProcessor {
         var bm = weld.getBeanManager();
         Class cls = testInstance.getClass();
         AnnotatedType annotatedType = bm.createAnnotatedType(cls);
-        InjectionTarget injectionTarget = bm.createInjectionTarget(annotatedType);
+        InjectionTarget injectionTarget = bm.getInjectionTargetFactory(annotatedType).createInjectionTarget(null);
         injectionTarget.inject(testInstance, new IgnorantCreationalContext<>());
         injectionTarget.postConstruct(testInstance);
     }
