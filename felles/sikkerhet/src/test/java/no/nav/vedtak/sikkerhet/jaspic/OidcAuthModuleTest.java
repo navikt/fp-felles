@@ -73,14 +73,6 @@ class OidcAuthModuleTest {
     }
 
     @Test
-    void skal_slippe_gjennom_forespørsel_etter_ubeskyttet_ressurs() throws Exception {
-        MessageInfo request = createRequestForUnprotectedResource();
-
-        AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
-        assertThat(result).isEqualTo(AuthStatus.SUCCESS);
-    }
-
-    @Test
     void skal_ikke_slippe_gjennom_forespørsel_men_svare_med_401_etter_beskyttet_ressurs_når_forespørselen_ikke_har_med_id_token() throws Exception {
         when(request.getHeader("Accept")).thenReturn("application/json");
         MessageInfo request = createRequestForProtectedResource();
@@ -101,7 +93,9 @@ class OidcAuthModuleTest {
         when(request.getHeader("Authorization")).thenReturn(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE + utløptIdToken);
         MessageInfo request = createRequestForProtectedResource();
 
+
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(utløptIdToken));
+        when(tokenValidator.validate(any())).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
@@ -141,8 +135,6 @@ class OidcAuthModuleTest {
         var ugyldigToken = getUtløptToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigToken));
         when(tokenValidator.validate(any())).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validateWithoutExpirationTime(any())).thenReturn(
-            OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 - 10));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
@@ -157,7 +149,6 @@ class OidcAuthModuleTest {
         var ugyldigToken = getUtløptToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigToken));
         when(tokenValidator.validate(any())).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validateWithoutExpirationTime(any())).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
@@ -171,8 +162,6 @@ class OidcAuthModuleTest {
         var ugyldigToken = getUtløptToken();
         when(tokenLocator.getToken(any(HttpServletRequest.class))).thenReturn(Optional.of(ugyldigToken));
         when(tokenValidator.validate(ugyldigToken)).thenReturn(OidcTokenValidatorResult.invalid("Tokenet er ikke gyldig"));
-        when(tokenValidator.validateWithoutExpirationTime(any())).thenReturn(
-            OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 - 10));
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
 
@@ -222,7 +211,7 @@ class OidcAuthModuleTest {
 
     private MessageInfo createRequestForResource(boolean isProtected) {
         MessageInfo messageInfo = Mockito.mock(MessageInfo.class);
-        Map<Object, Object> properties = new HashMap<>();
+        Map<String, Object> properties = new HashMap<>();
         properties.put("jakarta.security.auth.message.MessagePolicy.isMandatory", Boolean.toString(isProtected));
         when(messageInfo.getMap()).thenReturn(properties);
         when(messageInfo.getRequestMessage()).thenReturn(request);

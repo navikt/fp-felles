@@ -4,20 +4,24 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
+import org.hibernate.bytecode.enhance.spi.EnhancementContext;
+import org.hibernate.bytecode.spi.ClassTransformer;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
+import org.hibernate.jpa.internal.enhance.EnhancingClassTransformerImpl;
+
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.SharedCacheMode;
 import jakarta.persistence.ValidationMode;
 import jakarta.persistence.spi.PersistenceUnitInfo;
 import jakarta.persistence.spi.PersistenceUnitTransactionType;
-
-import org.hibernate.bytecode.enhance.spi.EnhancementContext;
-import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
-import org.hibernate.jpa.internal.enhance.EnhancingClassTransformerImpl;
 
 /**
  * Bridging calls to PersistenceUnitDescriptor onto a PersistenceUnitInfo implementation.
  */
 class PersistenceUnitInfoDescriptorAdapter implements PersistenceUnitDescriptor {
     private final PersistenceUnitInfo persistenceUnitInfo;
+
+    private ClassTransformer classTransformer;
 
     public PersistenceUnitInfoDescriptorAdapter(PersistenceUnitInfo persistenceUnitInfo) {
         this.persistenceUnitInfo = persistenceUnitInfo;
@@ -105,6 +109,19 @@ class PersistenceUnitInfoDescriptorAdapter implements PersistenceUnitDescriptor 
 
     @Override
     public void pushClassTransformer(EnhancementContext enhancementContext) {
-        persistenceUnitInfo.addTransformer(new EnhancingClassTransformerImpl(enhancementContext));
+        if (this.classTransformer != null) {
+            throw new PersistenceException("Persistence unit [" + this.persistenceUnitInfo.getPersistenceUnitName() + "] can only have a single class transformer.");
+        } else {
+            if (this.persistenceUnitInfo.getNewTempClassLoader() != null) {
+                EnhancingClassTransformerImpl classTransformer = new EnhancingClassTransformerImpl(enhancementContext);
+                this.classTransformer = classTransformer;
+                this.persistenceUnitInfo.addTransformer(classTransformer);
+            }
+        }
+    }
+
+    @Override
+    public ClassTransformer getClassTransformer() {
+        return classTransformer;
     }
 }

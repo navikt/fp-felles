@@ -25,9 +25,7 @@ import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
-import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorConfig;
-import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
 
 /**
  * Bruksanvisning inntil alle er over og det evt samles her:
@@ -134,9 +132,6 @@ public class AuthenticationFilterDelegate {
         var validateResult = tokenValidator.validate(token.primary());
 
         // Håndter valideringsresultat
-        if (needToRefreshToken(token, validateResult, tokenValidator)) {
-            throw new ValideringsFeil("Token expired");
-        }
         if (validateResult.isValid()) {
             KontekstHolder.setKontekst(RequestKontekst.forRequest(validateResult.subject(), validateResult.compactSubject(),
                 validateResult.identType(), token, validateResult.getGrupper()));
@@ -144,10 +139,6 @@ public class AuthenticationFilterDelegate {
         } else {
             throw new ValideringsFeil("Ugyldig token");
         }
-    }
-
-    private static boolean needToRefreshToken(OpenIDToken token, OidcTokenValidatorResult validateResult, OidcTokenValidator tokenValidator) {
-        return !validateResult.isValid() && tokenValidator.validateWithoutExpirationTime(token.primary()).isValid();
     }
 
     private static class TokenFeil extends RuntimeException {

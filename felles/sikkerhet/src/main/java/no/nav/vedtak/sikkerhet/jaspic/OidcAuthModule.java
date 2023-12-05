@@ -7,7 +7,6 @@ import static jakarta.security.auth.message.AuthStatus.SUCCESS;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -24,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import jakarta.security.auth.message.AuthException;
 import jakarta.security.auth.message.AuthStatus;
 import jakarta.security.auth.message.MessageInfo;
 import jakarta.security.auth.message.MessagePolicy;
@@ -35,10 +33,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.TokenCallback;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
-import no.nav.vedtak.sikkerhet.context.ThreadLocalSubjectHandler;
-import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
+import no.nav.vedtak.sikkerhet.context.containers.BrukerNavnType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 import no.nav.vedtak.sikkerhet.loginmodule.LoginContextConfiguration;
@@ -61,12 +56,6 @@ public class OidcAuthModule implements ServerAuthModule {
     private static final Logger LOG = LoggerFactory.getLogger(OidcAuthModule.class);
 
     private static final Class<?>[] SUPPORTED_MESSAGE_TYPES = new Class[]{HttpServletRequest.class, HttpServletResponse.class};
-    // Key in the MessageInfo Map that when present AND set to true indicated a
-    // protected resource is being accessed.
-    // When the resource is not protected, GlassFish omits the key altogether.
-    // WebSphere does insert the key and sets
-    // it to false.
-    private static final String IS_MANDATORY = "jakarta.security.auth.message.MessagePolicy.isMandatory";
 
     private final TokenLocator tokenLocator;
     private final Configuration loginConfiguration;
@@ -88,7 +77,7 @@ public class OidcAuthModule implements ServerAuthModule {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler handler, Map options) throws AuthException {
+    public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler handler, Map options) {
         this.containerCallbackHandler = handler;
     }
 
@@ -99,17 +88,12 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     @Override
-    public AuthStatus validateRequest(MessageInfo messageInfo, Subject clientSubject, Subject serviceSubject) throws AuthException {
+    public AuthStatus validateRequest(MessageInfo messageInfo, Subject clientSubject, Subject serviceSubject) {
         HttpServletRequest originalRequest = (HttpServletRequest) messageInfo.getRequestMessage();
         setCallAndConsumerId(originalRequest);
-        validateCleanSubjecthandler();
-        AuthStatus authStatus;
-
-        if (isProtected(messageInfo)) {
-            authStatus = handleProtectedResource(clientSubject, originalRequest);
-        } else {
-            authStatus = handleUnprotectedResource(clientSubject);
-        }
+        validateCleanSubjectAndKontekst(clientSubject);
+        // Skipp sjekk på unprotected siden NPE i JaspiMessageInfo/getMap. Legg unprotected i web.xml
+        AuthStatus authStatus = handleProtectedResource(clientSubject, originalRequest);
 
         if (FAILURE.equals(authStatus)) {
             // Vurder om trengs whitelisting av oppslag mot isAlive/isReady/metrics gitt oppførsel i prod - app må registrere unprotected
@@ -129,17 +113,21 @@ public class OidcAuthModule implements ServerAuthModule {
         return authStatus;
     }
 
-    protected void validateCleanSubjecthandler() {
-        final Subject subject = SubjectHandler.getSubjectHandler().getSubject();
-        if (subject != null && SubjectHandler.getSubjectHandler() instanceof ThreadLocalSubjectHandler tlsh) {
-            final Set<String> credidentialClasses = new HashSet<>();
-            for (Object publicCredential : subject.getPublicCredentials()) {
-                credidentialClasses.add(publicCredential.getClass().getName());
-            }
-            LOG.error(
-                "Denne SKAL rapporteres som en bug hvis den dukker opp. Tråden inneholdt allerede et Subject med følgende principals {} og PublicCredentials klasser {}. Sletter det før autentisering fortsetter.",
-                subject.getPrincipals(), credidentialClasses);
-            tlsh.setSubject(null);
+    protected void validateCleanSubjectAndKontekst(Subject subject) {
+        // Skal vel egentlig ikke skje men logg for ordens skyld
+        var sluttbrukere = Optional.ofNullable(subject).map(Subject::getPrincipals).orElse(Set.of()).stream()
+            .filter(BrukerNavnType.class::isInstance)
+            .toList();
+        if (!sluttbrukere.isEmpty()) {
+            LOG.trace("FPFELLES KONTEKST validateRequest: clientSubject inneholdt brukerNavnType {}", sluttbrukere);
+            sluttbrukere.forEach(s -> subject.getPrincipals().remove(s));
+        }
+
+        if (KontekstHolder.harKontekst()) {
+            final var kontekst = KontekstHolder.getKontekst();
+            LOG.trace("FPFELLES KONTEKST validateRequest: Tråden inneholdt allerede kontekst for context {} bruker {} identType {}",
+                kontekst.getContext(), kontekst.getUid(), kontekst.getIdentType());
+            KontekstHolder.fjernKontekst();
         }
     }
 
@@ -173,40 +161,40 @@ public class OidcAuthModule implements ServerAuthModule {
         var expiresAt = claims.map(JwtUtil::getExpirationTime).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.get().type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, oidcToken.get(), null, expiresAt.toEpochMilli());
 
-        // Setup login context
-        LoginContext loginContext = createLoginContext(clientSubject, token);
+        var valideringsResultat = OidcValidation.validerToken(token);
+        var sluttbruker = valideringsResultat.isValid() ? valideringsResultat.subject() : null;
+        if (sluttbruker != null) {
+            KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.uid(), sluttbruker.shortUid(), sluttbruker.identType(), token, sluttbruker.grupper()));
+        } else {
+            return FAILURE;
+        }
 
-        // Do login
+        // Dummy - finnes kun pga Jakarta Authentication 3.0 kap 6 LoginModule Bridge Profile. Mulig kan fjernes helt - prøv i neste runde
+        LoginContext loginContext = createLoginContext(clientSubject);
         try {
             loginContext.login();
         } catch (LoginException e) {
             return FAILURE;
         }
 
-        // Flytt nærmere tokenvalidering når JA-SPI + JAAS saneres
-        var sluttbruker = SubjectHandler.getSluttBruker(clientSubject);
-        KontekstHolder.setKontekst(RequestKontekst.forRequest(sluttbruker.getName(), sluttbruker.getShortUid(), sluttbruker.getIdentType(), token, sluttbruker.getGrupper()));
+        clientSubject.getPrincipals().add(new BrukerNavnType(sluttbruker.uid(), sluttbruker.identType()));
 
         // Handle result
-        return handleValidatedToken(clientSubject, SubjectHandler.getUid(clientSubject));
+        return handleValidatedToken(clientSubject, sluttbruker.uid());
     }
 
-    private LoginContext createLoginContext(Subject clientSubject, OpenIDToken token) {
-        class TokenCallbackHandler implements CallbackHandler {
+    private LoginContext createLoginContext(Subject clientSubject) {
+        class NotUsedCallbackHandler implements CallbackHandler {
             @Override
             public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
-                for (Callback callback : callbacks) {
-                    if (callback instanceof TokenCallback tc) {
-                        tc.setToken(token);
-                    } else {
-                        // Should never happen
-                        throw new UnsupportedCallbackException(callback, TokenCallback.class + " is the only supported Callback");
-                    }
+                if (callbacks.length > 0) {
+                    // Should never happen
+                    throw new UnsupportedCallbackException(callbacks[0], "OIDC LoginModule skal ikke kalle tilbake");
                 }
             }
         }
 
-        CallbackHandler callbackHandler = new TokenCallbackHandler();
+        CallbackHandler callbackHandler = new NotUsedCallbackHandler();
         try {
             return new LoginContext(OIDC_LOGIN_CONFIG, clientSubject, callbackHandler, loginConfiguration);
         } catch (LoginException le) {
@@ -218,18 +206,12 @@ public class OidcAuthModule implements ServerAuthModule {
         return oidcLogin(clientSubject, originalRequest);
     }
 
-    protected AuthStatus handleUnprotectedResource(Subject clientSubject) {
-        KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
-        return notifyContainerAboutLogin(clientSubject, null);
-    }
-
     protected AuthStatus handleValidatedToken(Subject clientSubject, String username) {
         AuthStatus authStatus = notifyContainerAboutLogin(clientSubject, username);
-        // HACK (u139158): Must be taken from clientSubject @see
-        // OidcAuthModule#notifyContainerAboutLogin(Subject, String)
-        MDCOperations.putUserId(SubjectHandler.getUid(clientSubject));
+
+        MDCOperations.putUserId(username);
         if (MDCOperations.getConsumerId() == null) {
-            MDCOperations.putConsumerId(SubjectHandler.getConsumerId(clientSubject));
+            MDCOperations.putConsumerId(username);
         }
         return authStatus;
     }
@@ -260,25 +242,21 @@ public class OidcAuthModule implements ServerAuthModule {
         return SUCCESS;
     }
 
-    private boolean isProtected(MessageInfo messageInfo) {
-        return Boolean.parseBoolean((String) messageInfo.getMap().get(IS_MANDATORY));
-    }
-
     @Override
-    public AuthStatus secureResponse(MessageInfo messageInfo, Subject serviceSubject) throws AuthException {
+    public AuthStatus secureResponse(MessageInfo messageInfo, Subject serviceSubject) {
         if (KontekstHolder.harKontekst()) {
             KontekstHolder.fjernKontekst();
         } else {
-            LOG.info("FPFELLES KONTEKST fant ikke kontekst som forventet i secureResponse");
+            LOG.trace("FPFELLES KONTEKST fant ikke kontekst som forventet i secureResponse");
         }
         MDC.clear();
         return SEND_SUCCESS;
     }
 
     @Override
-    public void cleanSubject(MessageInfo messageInfo, Subject subject) throws AuthException {
+    public void cleanSubject(MessageInfo messageInfo, Subject subject) {
         if (KontekstHolder.harKontekst()) {
-            LOG.info("FPFELLES KONTEKST hadde kontekst ved cleanSubject");
+            LOG.trace("FPFELLES KONTEKST hadde kontekst ved cleanSubject");
             KontekstHolder.fjernKontekst();
         }
         if (subject != null) {

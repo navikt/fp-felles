@@ -87,10 +87,6 @@ public class OidcTokenValidator {
     }
 
     public OidcTokenValidatorResult validate(TokenString tokenHolder) {
-        return validate(tokenHolder, allowedClockSkewInSeconds);
-    }
-
-    private OidcTokenValidatorResult validate(TokenString tokenHolder, int allowedClockSkewInSeconds) {
         if (tokenHolder == null || tokenHolder.token() == null) {
             return OidcTokenValidatorResult.invalid("Missing token (token was null)");
         }
@@ -137,10 +133,6 @@ public class OidcTokenValidator {
         } catch (Exception e) {
             return OidcTokenValidatorResult.invalid("Malformed claim: " + e);
         }
-    }
-
-    public OidcTokenValidatorResult validateWithoutExpirationTime(TokenString tokenHolder) {
-        return validate(tokenHolder, Integer.MAX_VALUE);
     }
 
     // Validates some of the rules set in OpenID Connect Core 1.0 incorporatin errata set 1,
