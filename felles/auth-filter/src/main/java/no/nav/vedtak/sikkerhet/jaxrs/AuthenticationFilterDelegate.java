@@ -4,16 +4,16 @@ import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -57,8 +57,13 @@ public class AuthenticationFilterDelegate {
             var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
             var åpenRessurs = method.getAnnotation(ÅpenRessurs.class);
             var metodenavn = method.getName();
-            LOG.trace("{} i klasse {}", metodenavn, method.getDeclaringClass());
+            if (KontekstHolder.harKontekst()) {
+                LOG.info("Kall til {} hadde kontekst {}", metodenavn, KontekstHolder.getKontekst().getKompaktUid());
+                KontekstHolder.fjernKontekst();
+            }
+            MDC.clear();
             setCallAndConsumerId(ctx);
+            LOG.trace("{} i klasse {}", metodenavn, method.getDeclaringClass());
             if (beskyttetRessurs == null && (åpenRessurs != null || method.getDeclaringClass().getName().startsWith("io.swagger"))) {
                 KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
                 LOG.trace("{} er whitelisted", metodenavn);
@@ -83,6 +88,7 @@ public class AuthenticationFilterDelegate {
         if (KontekstHolder.harKontekst()) {
             KontekstHolder.fjernKontekst();
         }
+        MDC.clear();
     }
 
     private static void setCallAndConsumerId(ContainerRequestContext request) {

@@ -1,12 +1,17 @@
 package no.nav.vedtak.felles.jpa;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.TypedQuery;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import no.nav.vedtak.exception.TekniskException;
 
 /**
@@ -15,6 +20,9 @@ import no.nav.vedtak.exception.TekniskException;
  * dersom intet resultat, og lignende.
  */
 public class HibernateVerktøy {
+
+    private static DatabaseDialekt EKSPLISITT_DIALEKT;
+    private static final Map<UUID, DatabaseDialekt> CACHE_DIALEKT = new ConcurrentHashMap<>();
 
     private HibernateVerktøy() {
     }
@@ -47,6 +55,48 @@ public class HibernateVerktøy {
             .collect(Collectors.joining(", "));
 
         return "'" + queryString + " {" + parameterString + "}";
+    }
+
+    /*
+     * Databasedialekt satt eksplisitt i fx oppstart av server.
+     */
+    public static synchronized void setDatabaseDialekt(DatabaseDialekt databaseDialekt) {
+        EKSPLISITT_DIALEKT = databaseDialekt;
+    }
+
+    public static DatabaseDialekt getDatabaseDialekt() {
+        return EKSPLISITT_DIALEKT;
+    }
+
+    /*
+     * Utleder Databasedialekt fra aktuell EntityManager.
+     */
+    public static DatabaseDialekt getDatabaseDialekt(EntityManager entityManager) {
+        if (entityManager.getEntityManagerFactory() instanceof SessionFactoryImplementor sfi) {
+            var key = UUID.fromString(sfi.getUuid());
+            if (!CACHE_DIALEKT.containsKey(key)) {
+                var dialekt = utledDatabaseDialekt(sfi);
+                if (dialekt != null) {
+                    CACHE_DIALEKT.put(key, dialekt);
+                }
+            }
+            return CACHE_DIALEKT.get(key);
+        }
+        return null;
+    }
+
+    private static DatabaseDialekt utledDatabaseDialekt(SessionFactoryImplementor sfi) {
+        var dialektKlasse = sfi.getJdbcServices().getDialect();
+        if (dialektKlasse == null) {
+            return null;
+        }
+        var dialekt = dialektKlasse.getClass().getSimpleName().toLowerCase();
+        if (dialekt.contains(DatabaseDialekt.ORACLE.name().toLowerCase())) {
+            return DatabaseDialekt.ORACLE;
+        } else if (dialekt.contains(DatabaseDialekt.POSTGRES.name().toLowerCase())) {
+            return DatabaseDialekt.POSTGRES;
+        }
+        return null;
     }
 
 }
