@@ -19,6 +19,8 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.eclipse.jetty.ee10.security.jaspi.JaspiMessageInfo;
+import org.eclipse.jetty.server.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -98,13 +100,16 @@ public class OidcAuthModule implements ServerAuthModule {
         if (FAILURE.equals(authStatus)) {
             // Vurder om trengs whitelisting av oppslag mot isAlive/isReady/metrics gitt oppførsel i prod - app må registrere unprotected
             // Sjekk av whitelist/unprotected mot HttpServletRequest / getPathInfo må foregå før valg av protected/unprotected
-            HttpServletResponse response = (HttpServletResponse) messageInfo.getResponseMessage();
             try {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
-            } catch (IOException e) {
+                if (messageInfo instanceof JaspiMessageInfo mi) {
+                    Response.writeError(mi.getBaseRequest(), mi.getBaseResponse(), mi.getCallback(), 401);
+                } else {
+                    return FAILURE; // Vil gi 403
+                }
+            } catch (Exception e) {
                 throw new TekniskException("F-396795", "Klarte ikke å sende respons", e);
             }
-            return SEND_CONTINUE; // TODO - skal man returnere SEND_FAILURE, FAILURE? SEND_CONTINUE virker mest relevant for redirect to login
+            return SEND_CONTINUE; // TODO - skal man returnere SEND_FAILURE? SEND_CONTINUE virker mest relevant for redirect to login
         }
 
         if (SUCCESS.equals(authStatus)) {
