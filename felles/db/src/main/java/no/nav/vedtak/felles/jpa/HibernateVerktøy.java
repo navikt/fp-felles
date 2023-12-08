@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.TypedQuery;
+
 import no.nav.vedtak.exception.TekniskException;
 
 /**
