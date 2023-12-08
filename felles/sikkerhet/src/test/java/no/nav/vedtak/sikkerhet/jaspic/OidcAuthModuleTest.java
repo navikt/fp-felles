@@ -3,7 +3,6 @@ package no.nav.vedtak.sikkerhet.jaspic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -14,6 +13,13 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.Configuration;
 
+import org.eclipse.jetty.ee10.security.jaspi.JaspiMessageInfo;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.server.ConnectionMetaData;
+import org.eclipse.jetty.server.Context;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,19 +43,26 @@ import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
 
 class OidcAuthModuleTest {
 
-    private OidcTokenValidator tokenValidator = Mockito.mock(OidcTokenValidator.class);
-    private TokenLocator tokenLocator = Mockito.mock(TokenLocator.class);
-    private CallbackHandler callbackHandler = Mockito.mock(CallbackHandler.class);
+    private final OidcTokenValidator tokenValidator = Mockito.mock(OidcTokenValidator.class);
+    private final TokenLocator tokenLocator = Mockito.mock(TokenLocator.class);
+    private final CallbackHandler callbackHandler = Mockito.mock(CallbackHandler.class);
     private final Configuration configuration = new LoginContextConfiguration();
 
-    private OidcAuthModule authModule = new OidcAuthModule(tokenLocator, configuration);
-    private HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-    private HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+    private final OidcAuthModule authModule = new OidcAuthModule(tokenLocator, configuration);
+    private final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+    private final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+
+    private final Request requestBase = Mockito.mock(Request.class);
+    private final Response responseBase = Mockito.mock(Response.class);
+    private final ConnectionMetaData connMetaData = Mockito.mock(ConnectionMetaData.class);
+    private final Context context = Mockito.mock(Context.class);
 
     private Subject subject = new Subject();
     private Subject serviceSubject = new Subject();
 
-    public void setupAll() throws Exception {
+    @BeforeEach
+    public void setUp() {
+        WellKnownConfigurationHelper.unsetWellKnownConfig();
         authModule.initialize(null, null, callbackHandler, null);
 
         System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(),
@@ -66,12 +79,6 @@ class OidcAuthModuleTest {
         OidcTokenValidatorConfig.addValidator(OpenIDProvider.AZUREAD, tokenValidator);
     }
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        WellKnownConfigurationHelper.unsetWellKnownConfig();
-        setupAll();
-    }
-
     @Test
     void skal_ikke_slippe_gjennom_forespørsel_men_svare_med_401_etter_beskyttet_ressurs_når_forespørselen_ikke_har_med_id_token() throws Exception {
         when(request.getHeader("Accept")).thenReturn("application/json");
@@ -81,8 +88,7 @@ class OidcAuthModuleTest {
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
-        verify(response).sendError(401, "Resource is protected, but id token is missing or invalid.");
-        verifyNoMoreInteractions(response);
+        verify(responseBase).setStatus(401);
     }
 
     @Test
@@ -99,8 +105,7 @@ class OidcAuthModuleTest {
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
-        verify(response).sendError(401, "Resource is protected, but id token is missing or invalid.");
-        verifyNoMoreInteractions(response);
+        verify(responseBase).setStatus(401);
     }
 
     @Test
@@ -112,7 +117,7 @@ class OidcAuthModuleTest {
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
-        verify(response).sendError(401, "Resource is protected, but id token is missing or invalid.");
+        verify(responseBase).setStatus(401);
     }
 
     @Test
@@ -138,8 +143,7 @@ class OidcAuthModuleTest {
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
-        verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
-        verifyNoMoreInteractions(response);
+        verify(responseBase).setStatus(401);
     }
 
     @Test
@@ -152,7 +156,7 @@ class OidcAuthModuleTest {
 
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
-        verify(response).sendError(401, "Resource is protected, but id token is missing or invalid.");
+        verify(responseBase).setStatus(401);
     }
 
     @Test
@@ -166,7 +170,7 @@ class OidcAuthModuleTest {
         AuthStatus result = authModule.validateRequest(request, subject, serviceSubject);
 
         assertThat(result).isEqualTo(AuthStatus.SEND_CONTINUE);
-        verify(response).sendError(401, "Resource is protected, but id token is missing or invalid.");
+        verify(responseBase).setStatus(401);
     }
 
 
@@ -202,20 +206,18 @@ class OidcAuthModuleTest {
     }
 
     private MessageInfo createRequestForProtectedResource() {
-        return createRequestForResource(true);
-    }
-
-    private MessageInfo createRequestForUnprotectedResource() {
-        return createRequestForResource(false);
-    }
-
-    private MessageInfo createRequestForResource(boolean isProtected) {
-        MessageInfo messageInfo = Mockito.mock(MessageInfo.class);
+        when(requestBase.getConnectionMetaData()).thenReturn(connMetaData);
+        when(connMetaData.getHttpVersion()).thenReturn(HttpVersion.HTTP_2);
+        when(requestBase.getContext()).thenReturn(context);
+        when(responseBase.getHeaders()).thenReturn(HttpFields.build());
+        var messageInfo = Mockito.mock(JaspiMessageInfo.class);
         Map<String, Object> properties = new HashMap<>();
-        properties.put("jakarta.security.auth.message.MessagePolicy.isMandatory", Boolean.toString(isProtected));
         when(messageInfo.getMap()).thenReturn(properties);
         when(messageInfo.getRequestMessage()).thenReturn(request);
         when(messageInfo.getResponseMessage()).thenReturn(response);
+        when(messageInfo.getBaseResponse()).thenReturn(responseBase);
+        when(messageInfo.getBaseRequest()).thenReturn(requestBase);
+        when(messageInfo.getCallback()).thenReturn(null);
         return messageInfo;
     }
 
