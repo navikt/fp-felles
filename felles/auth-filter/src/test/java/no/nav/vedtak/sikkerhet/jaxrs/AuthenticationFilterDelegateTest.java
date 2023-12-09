@@ -92,7 +92,7 @@ class AuthenticationFilterDelegateTest {
         try {
             AuthenticationFilterDelegate.validerSettKontekst(ri, request);
         } catch (WebApplicationException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(403);
+            assertThat(e.getResponse().getStatus()).isEqualTo(401);
         }
     }
 
