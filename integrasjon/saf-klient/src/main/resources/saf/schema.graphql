@@ -143,8 +143,12 @@ type Query {
     # * Fysiske dokumentet tilknyttet journalposten kan hentes i saf - REST hentdokument
     journalpost(
         # ID til Journalposten man ønsker å hente detaljer for.
-        # * Hvis argumentet ikke er angitt så returneres en feil.
-        journalpostId: String!
+        # * Hvis både journalpostId og eksternReferanseId er angitt så returneres det basert på journalpostId.
+        journalpostId: String
+
+        # Brukes for sporing og feilsøking på tvers av systemer.
+        # * Hvis eksternReferanseId eller journalpostId argumenter ikke er angitt så returneres en feil.
+        eksternReferanseId: String
     ): Journalpost
 
     # Henter metadata for en dokumentInfo (dokumentbeskrivelse) med tilknyttede journalposter.
@@ -527,6 +531,9 @@ type Dokumentvariant {
     # * NB: Feltet skal kun brukes etter avtale med Team Dokument.
     filtype: String @deprecated(reason: "Feltet er deprekert og er kun til internt bruk. Feltet skal kun brukes etter avtale med Team Dokument.")
 
+    # Dokumentets filstørrelse i bytes.
+    filstoerrelse: Int @deprecated(reason: "Feltet er deprekert og er kun til internt bruk. Feltet skal kun brukes etter avtale med Team Dokument.")
+
     # Sier hvorvidt saksbehandler som gjør oppslaget vil få tilgang til å åpne denne dokumentvarianten.
     # * Dersom verdien er false, vil tilgang bli avslått dersom saksbehandler forsøker å åpne dokumentet.
     saksbehandlerHarTilgang: Boolean!
@@ -741,13 +748,13 @@ enum Tema {
     # Aa-registeret
     AAR
 
-    # Ajourhold - Grunnopplysninger
+    # Ajourhold – grunnopplysninger
     AGR
 
-    # Arbeidsrådgivning psykologtester
+    # Arbeidsrådgivning – psykologtester
     ARP
 
-    # Arbeidsrådgivning skjermet
+    # Arbeidsrådgivning – skjermet
     ARS
 
     # Barnetrygd
@@ -762,7 +769,7 @@ enum Tema {
     # Dagpenger
     DAG
 
-    # Enslig forsørger
+    # Enslig mor eller far
     ENF
 
     # Erstatning
@@ -774,7 +781,7 @@ enum Tema {
     #Omstillingsstønad
     EYO
 
-    # Farskap
+    # Foreldreskap
     FAR
 
     # Feilutbetaling
@@ -819,10 +826,10 @@ enum Tema {
     # Kontantstøtte
     KON
 
-    # Klage lønnsgaranti
+    # Klage – lønnsgaranti
     KLL
 
-    # Kontroll anmeldelse
+    # Kontroll – anmeldelse
     KTA
 
     # Kontroll
@@ -837,7 +844,7 @@ enum Tema {
     # Omsorgspenger, pleiepenger og opplæringspenger
     OMS
 
-    # Oppfølging - Arbeidsgiver
+    # Oppfølging – arbeidsgiver
     OPA
 
     # Oppfølging
@@ -849,10 +856,10 @@ enum Tema {
     # Permittering og masseoppsigelser
     PER
 
-    # Rehabilitering
+    # Rehabiliteringspenger
     REH
 
-    # Rekruttering og stilling
+    # Rekruttering
     REK
 
     # Retting av personopplysninger
@@ -864,17 +871,14 @@ enum Tema {
     # Sanksjon - Arbeidsgiver
     SAA
 
-    # Saksomkostninger
+    # Sakskostnader
     SAK
 
-    # Sanksjon - Person
+    # Sanksjon – person
     SAP
 
     # Serviceklager
     SER
-
-    # Sikkerhetstiltak
-    SIK
 
     # Regnskap/utbetaling
     STO
@@ -900,7 +904,7 @@ enum Tema {
     # Tilleggsstønad
     TSO
 
-    # Tilleggsstønad arbeidssøkere
+    # Tilleggsstønad – arbeidssøkere
     TSR
 
     # Unntak fra medlemskap
@@ -918,7 +922,7 @@ enum Tema {
     # Yrkesrettet attføring
     YRA
 
-    # Yrkesskade / Menerstatning
+    # Yrkesskade og menerstatning
     YRK
 }
 
