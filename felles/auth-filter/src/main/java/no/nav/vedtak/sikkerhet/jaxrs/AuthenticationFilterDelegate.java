@@ -70,10 +70,10 @@ public class AuthenticationFilterDelegate {
             } else if (beskyttetRessurs == null) {
                 throw new WebApplicationException(metodenavn + " mangler annotering", Response.Status.INTERNAL_SERVER_ERROR);
             } else {
-                var tokenString = getTokenFromHeader(ctx)
-                    .or(() -> getCookie(ctx, cookiePath))
-                    .orElseThrow(() -> new TokenFeil("Mangler token"));
-                validerToken(tokenString);
+                var tokenString = getToken(ctx, cookiePath)
+                    .orElseThrow(() -> new ValideringsFeil("Mangler token"));
+                validerTokenSetKontekst(tokenString);
+                setUserAndConsumerId(KontekstHolder.getKontekst().getUid());
             }
         } catch (TekniskException | TokenFeil e) {
             throw new WebApplicationException(e, Response.Status.FORBIDDEN);
@@ -101,6 +101,17 @@ public class AuthenticationFilterDelegate {
             .ifPresent(MDCOperations::putConsumerId);
     }
 
+    private static void setUserAndConsumerId(String subject) {
+        Optional.ofNullable(subject).ifPresent(MDCOperations::putUserId);
+        if (MDCOperations.getConsumerId() == null && subject != null) {
+            MDCOperations.putConsumerId(subject);
+        }
+    }
+
+    private static Optional<TokenString> getToken(ContainerRequestContext request, String cookiePath) {
+        return getTokenFromHeader(request).or(() -> getCookieToken(request, cookiePath));
+    }
+
     private static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
         String headerValue = request.getHeaderString(AUTHORIZATION_HEADER);
         return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE)
@@ -108,24 +119,15 @@ public class AuthenticationFilterDelegate {
             : Optional.empty();
     }
 
-    private static Optional<TokenString> getCookie(ContainerRequestContext request, String cookiePath) {
-        if (cookiePath == null || request.getCookies() == null) {
-            return Optional.empty();
-        }
-        return request.getCookies().values().stream()
-            .filter(c -> c.getValue() != null)
-            .filter(c -> ID_TOKEN_COOKIE_NAME.equalsIgnoreCase(c.getName()))
-            .filter(c -> cookiePath.equalsIgnoreCase(c.getPath()))
-            .findFirst()
-            .or(() -> request.getCookies().values().stream()
-                .filter(c -> c.getValue() != null)
-                .filter(c -> ID_TOKEN_COOKIE_NAME.equalsIgnoreCase(c.getName()))
-                .findFirst())
+    private static Optional<TokenString> getCookieToken(ContainerRequestContext request, String cookiePath) {
+        var idTokenCookie = Optional.ofNullable(request.getCookies()).map(c -> c.get(ID_TOKEN_COOKIE_NAME));
+        return idTokenCookie.filter(c -> cookiePath != null && cookiePath.equalsIgnoreCase(c.getPath()))
+            .or(() -> idTokenCookie)
             .map(Cookie::getValue)
             .map(TokenString::new);
     }
 
-    public static void validerToken(TokenString tokenString) {
+    public static void validerTokenSetKontekst(TokenString tokenString) {
         // Sett opp OpenIDToken
         var claims = JwtUtil.getClaims(tokenString.token());
         var configuration = ConfigProvider.getOpenIDConfiguration(JwtUtil.getIssuer(claims))

@@ -149,8 +149,9 @@ public class OidcTokenValidator {
         if (isAzureClientCredentials(claims, subject)) {
             var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.AZP_NAME)).orElse(subject);
             // Ta med bakoverkompatibelt navn ettersom azp_name er ganske langt (tabeller / opprettet_av)
-            if (brukSubject.lastIndexOf(':') >= 0) {
-                var appSrvName = "srv" + brukSubject.substring(brukSubject.lastIndexOf(':') + 1);
+            var sisteKolon = brukSubject.lastIndexOf(':');
+            if (sisteKolon >= 0) {
+                var appSrvName = "srv" + brukSubject.substring(sisteKolon + 1);
                 if (appSrvName.length() > 20) {
                     appSrvName = appSrvName.substring(0, 19);
                 }

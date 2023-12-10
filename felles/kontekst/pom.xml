@@ -16,10 +16,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>jakarta.enterprise</groupId>
-            <artifactId>jakarta.enterprise.cdi-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-konfig</artifactId>
         </dependency>

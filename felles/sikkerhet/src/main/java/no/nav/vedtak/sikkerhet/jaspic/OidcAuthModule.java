@@ -107,9 +107,9 @@ public class OidcAuthModule implements ServerAuthModule {
                     return FAILURE; // Vil gi 403
                 }
             } catch (Exception e) {
-                throw new TekniskException("F-396795", "Klarte ikke å sende respons", e);
+                throw new TekniskException("F-396795", "Klarte ikke å sende respons", e); // Gir 500
             }
-            return SEND_CONTINUE; // TODO - skal man returnere SEND_FAILURE? SEND_CONTINUE virker mest relevant for redirect to login
+            return SEND_CONTINUE; // SEND_CONTINUE sørger for svar med 401. (SEND_)FAILURE gir 403
         }
 
         if (SUCCESS.equals(authStatus)) {
@@ -151,7 +151,7 @@ public class OidcAuthModule implements ServerAuthModule {
         }
     }
 
-    protected AuthStatus oidcLogin(Subject clientSubject, HttpServletRequest request) {
+    protected AuthStatus handleProtectedResource(Subject clientSubject, HttpServletRequest request) {
         // Get token
         var oidcToken = tokenLocator.getToken(request);
         if (oidcToken.isEmpty()) {
@@ -174,7 +174,7 @@ public class OidcAuthModule implements ServerAuthModule {
             return FAILURE;
         }
 
-        // Dummy - finnes kun pga Jakarta Authentication 3.0 kap 6 LoginModule Bridge Profile. Mulig kan fjernes helt - prøv i neste runde
+        // Dummy - finnes kun pga Jakarta Authentication 3.0 kap 6 LoginModule Bridge Profile.
         LoginContext loginContext = createLoginContext(clientSubject);
         try {
             loginContext.login();
@@ -184,8 +184,13 @@ public class OidcAuthModule implements ServerAuthModule {
 
         clientSubject.getPrincipals().add(new BrukerNavnType(sluttbruker.uid(), sluttbruker.identType()));
 
+        MDCOperations.putUserId(sluttbruker.uid());
+        if (MDCOperations.getConsumerId() == null) {
+            MDCOperations.putConsumerId(sluttbruker.uid());
+        }
+
         // Handle result
-        return handleValidatedToken(clientSubject, sluttbruker.uid());
+        return notifyContainerAboutLogin(clientSubject, sluttbruker.uid());
     }
 
     private LoginContext createLoginContext(Subject clientSubject) {
@@ -207,29 +212,13 @@ public class OidcAuthModule implements ServerAuthModule {
         }
     }
 
-    protected AuthStatus handleProtectedResource(Subject clientSubject, HttpServletRequest originalRequest) {
-        return oidcLogin(clientSubject, originalRequest);
-    }
-
-    protected AuthStatus handleValidatedToken(Subject clientSubject, String username) {
-        AuthStatus authStatus = notifyContainerAboutLogin(clientSubject, username);
-
-        MDCOperations.putUserId(username);
-        if (MDCOperations.getConsumerId() == null) {
-            MDCOperations.putConsumerId(username);
-        }
-        return authStatus;
-    }
-
     /**
      * Asks the container to register the given username.
-     * <p>
      * <p>
      * Note that after this call returned, the authenticated identity will not be
      * immediately active. This will only take place (should not errors occur) after
      * the {@link ServerAuthContext} or {@link ServerAuthModule} in which this call
      * takes place return control back to the runtime.
-     * <p>
      * <p>
      * As a convenience this method returns SUCCESS, so this method can be used in
      * one fluent return statement from an auth module.
