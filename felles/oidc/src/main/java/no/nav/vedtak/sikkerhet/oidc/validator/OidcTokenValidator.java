@@ -128,7 +128,7 @@ public class OidcTokenValidator {
                 return validateTokenX(claims, subject);
             } else {
                 var identType = IdentType.utledIdentType(subject);
-                registrer(subject, provider, identType);
+                registrer(clientName, subject, provider, identType);
                 return OidcTokenValidatorResult.valid(subject, identType, JwtUtil.getExpirationTimeRaw(claims));
             }
         } catch (InvalidJwtException e) {
@@ -151,7 +151,7 @@ public class OidcTokenValidator {
     private OidcTokenValidatorResult validateAzure(JwtClaims claims, String subject) {
         if (isAzureClientCredentials(claims, subject)) {
             var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.AZP_NAME)).orElse(subject);
-            registrer(brukSubject, OpenIDProvider.AZUREAD, IdentType.Systemressurs);
+            registrer(clientName, brukSubject, OpenIDProvider.AZUREAD, IdentType.Systemressurs);
             // Ta med bakoverkompatibelt navn ettersom azp_name er ganske langt (tabeller / opprettet_av)
             var sisteKolon = brukSubject.lastIndexOf(':');
             if (sisteKolon >= 0) {
@@ -165,7 +165,7 @@ public class OidcTokenValidator {
             }
         } else {
             var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.NAV_IDENT)).orElse(subject);
-            registrer("Saksbehandler", OpenIDProvider.AZUREAD, IdentType.InternBruker);
+            registrer(clientName, "Saksbehandler", OpenIDProvider.AZUREAD, IdentType.InternBruker);
             var grupper = Optional.ofNullable(JwtUtil.getStringListClaim(claims, AzureProperty.GRUPPER))
                     .map(arr -> GroupsProvider.instance().getGroupsFrom(arr))
                     .orElse(Set.of());
@@ -188,7 +188,7 @@ public class OidcTokenValidator {
             return OidcTokenValidatorResult.invalid("TokenX token ikke på nivå 4");
         }
         var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, PID)).orElse(subject);
-        registrer("Borger", OpenIDProvider.TOKENX, IdentType.EksternBruker, acrClaim);
+        registrer(clientName, "Borger", OpenIDProvider.TOKENX, IdentType.EksternBruker, acrClaim);
         return OidcTokenValidatorResult.valid(brukSubject, IdentType.EksternBruker, JwtUtil.getExpirationTimeRaw(claims));
     }
 

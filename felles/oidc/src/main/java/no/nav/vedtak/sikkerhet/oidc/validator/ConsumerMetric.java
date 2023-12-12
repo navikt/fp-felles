@@ -15,21 +15,24 @@ public class ConsumerMetric {
     private ConsumerMetric() {
     }
 
-    public static void registrer(String konsument, OpenIDProvider tokenType, IdentType identType, String acrLevel) {
-        counter(konsument, tokenType, identType, acrLevel).increment();
+    public static void registrer(String clientName, String konsument, OpenIDProvider tokenType, IdentType identType, String acrLevel) {
+        counter(clientName, konsument, tokenType, identType, acrLevel).increment();
     }
-    public static void registrer(String konsument, OpenIDProvider tokenType, IdentType identType) {
-            counter(konsument, tokenType, identType, "").increment();
+    public static void registrer(String clientName, String konsument, OpenIDProvider tokenType, IdentType identType) {
+        counter(clientName, konsument, tokenType, identType, null).increment();
     }
 
-    private static Counter counter(String konsument, OpenIDProvider tokenType, IdentType identType, String acrLevel) {
-        return Counter.builder(FORELDREPENGER_KONSUMENTER)
-            .tag("klient", ENV.getClientId().getClientId())
+    private static Counter counter(String clientName, String konsument, OpenIDProvider tokenType, IdentType identType, String acrLevel) {
+        var counter = Counter.builder(FORELDREPENGER_KONSUMENTER)
+            .tag("klient", clientName)
             .tag("tokenType", tokenType.name())
             .tag("identYype", identType.name())
             .tag("konsument", konsument)
-            .tag("acrLevel", acrLevel)
-            .description("Konsument og token brukt.")
-            .register(REGISTRY);
+            .description("Konsument og token brukt.");
+
+        if (acrLevel != null) {
+            counter.tag("acrLevel", acrLevel);
+        }
+        return counter.register(REGISTRY);
     }
 }
