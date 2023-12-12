@@ -22,6 +22,8 @@ import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.oidc.jwks.JwtHeader;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
+import static no.nav.vedtak.sikkerhet.oidc.validator.ConsumerMetric.registrer;
+
 public class OidcTokenValidator {
 
     private static final Set<String> AUTHENTICATION_LEVEL_ID_PORTEN = Set.of("Level4", "idporten-loa-high"); // Level4 er gammel og utgår ila 2023
@@ -34,7 +36,6 @@ public class OidcTokenValidator {
     // Optional claims for AAD/CC
     private static final String IDTYP = "idtyp";
     private static final String APP = "app";
-
 
     private final OpenIDProvider provider;
     private final String expectedIssuer;
@@ -126,7 +127,9 @@ public class OidcTokenValidator {
             } else if (OpenIDProvider.TOKENX.equals(provider)) {
                 return validateTokenX(claims, subject);
             } else {
-                return OidcTokenValidatorResult.valid(subject, IdentType.utledIdentType(subject), JwtUtil.getExpirationTimeRaw(claims));
+                var identType = IdentType.utledIdentType(subject);
+                registrer(subject, provider, identType);
+                return OidcTokenValidatorResult.valid(subject, identType, JwtUtil.getExpirationTimeRaw(claims));
             }
         } catch (InvalidJwtException e) {
             return OidcTokenValidatorResult.invalid(e.toString());
@@ -148,6 +151,7 @@ public class OidcTokenValidator {
     private OidcTokenValidatorResult validateAzure(JwtClaims claims, String subject) {
         if (isAzureClientCredentials(claims, subject)) {
             var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.AZP_NAME)).orElse(subject);
+            registrer(brukSubject, OpenIDProvider.AZUREAD, IdentType.Systemressurs);
             // Ta med bakoverkompatibelt navn ettersom azp_name er ganske langt (tabeller / opprettet_av)
             var sisteKolon = brukSubject.lastIndexOf(':');
             if (sisteKolon >= 0) {
@@ -161,6 +165,7 @@ public class OidcTokenValidator {
             }
         } else {
             var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.NAV_IDENT)).orElse(subject);
+            registrer("Saksbehandler", OpenIDProvider.AZUREAD, IdentType.InternBruker);
             var grupper = Optional.ofNullable(JwtUtil.getStringListClaim(claims, AzureProperty.GRUPPER))
                     .map(arr -> GroupsProvider.instance().getGroupsFrom(arr))
                     .orElse(Set.of());
@@ -175,13 +180,15 @@ public class OidcTokenValidator {
     }
 
     private OidcTokenValidatorResult validateTokenX(JwtClaims claims, String subject) {
-        var level4 = Optional.ofNullable(JwtUtil.getStringClaim(claims, ACR))
+        var acrClaim = JwtUtil.getStringClaim(claims, ACR);
+        var level4 = Optional.ofNullable(acrClaim)
             .filter(AUTHENTICATION_LEVEL_ID_PORTEN::contains)
             .isPresent();
         if (!level4) {
             return OidcTokenValidatorResult.invalid("TokenX token ikke på nivå 4");
         }
         var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, PID)).orElse(subject);
+        registrer("Borger", OpenIDProvider.TOKENX, IdentType.EksternBruker, acrClaim);
         return OidcTokenValidatorResult.valid(brukSubject, IdentType.EksternBruker, JwtUtil.getExpirationTimeRaw(claims));
     }
 
