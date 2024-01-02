@@ -735,6 +735,14 @@ enum Kanal {
     # * Brukes for utgående journalposter.
     DPVT
 
+    # Forsendelsen er mottatt på e-post.
+    # * Brukes for inngående journalposter.
+    E_POST
+
+    # Forsendelsen er mottatt i en av NAVs meldingsbokser i Altinn.
+    # * Brukes for inngående journalposter.
+    ALTINN_INNBOKS
+
     # Forsendelsen har ingen kjent kanal.
     UKJENT
 }
