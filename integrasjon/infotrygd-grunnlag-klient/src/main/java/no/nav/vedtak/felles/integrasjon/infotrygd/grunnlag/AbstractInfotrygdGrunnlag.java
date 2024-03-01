@@ -2,15 +2,15 @@ package no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.ws.rs.core.UriBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.ws.rs.core.UriBuilder;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -53,6 +53,29 @@ public abstract class AbstractInfotrygdGrunnlag implements InfotrygdGrunnlag {
     public List<Grunnlag> hentGrunnlagFailSoft(String fnr, LocalDate fom, LocalDate tom) {
         try {
             return hentGrunnlag(fnr, fom, tom);
+        } catch (Exception e) {
+            LOG.warn("Feil ved oppslag mot {}, returnerer ingen grunnlag", restConfig.endpoint(), e);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<Grunnlag> hentGrunnlag(GrunnlagRequest request) {
+        try {
+            var rrequest = RestRequest.newPOSTJson(request, restConfig.endpoint(), restConfig);
+            var resultat = restClient.send(rrequest, Grunnlag[].class);
+            return Arrays.asList(resultat);
+        } catch (Exception e) {
+            throw new TekniskException("FP-180125",
+                String.format("Tjeneste %s gir feil, meld til #infotrygd_replikering hvis dette skjer gjennom lengre tidsperiode.",
+                    restConfig.endpoint()), e);
+        }
+    }
+
+    @Override
+    public List<Grunnlag> hentGrunnlagFailSoft(GrunnlagRequest request) {
+        try {
+            return hentGrunnlag(request);
         } catch (Exception e) {
             LOG.warn("Feil ved oppslag mot {}, returnerer ingen grunnlag", restConfig.endpoint(), e);
             return Collections.emptyList();
