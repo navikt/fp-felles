@@ -1,11 +1,14 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.saker;
 
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
+import java.util.List;
 
-import java.time.LocalDate;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.GrunnlagRequest;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.InfotrygdSak;
 
 public interface InfotrygdSaker {
 
-    Saker getSaker(String fnr, LocalDate fom);
+    List<InfotrygdSak> hentSaker(GrunnlagRequest request);
+
+    List<InfotrygdSak> hentSakerFailSoft(GrunnlagRequest request);
 
 }
