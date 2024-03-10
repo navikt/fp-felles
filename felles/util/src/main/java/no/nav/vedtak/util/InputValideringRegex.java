@@ -62,7 +62,7 @@ public class InputValideringRegex {
      * <p>
      * Godtar ikke større-enn og mindre-enn tegn da disse kan misbrukes til å gjøre XSS-angrep
      */
-    public static final String FRITEKST_BREV = REGEXP_START + TEGN_FRITEKST + "\\p{Graph}\\p{M}\\p{N}" + REGEXP_SLUTT;
+    public static final String FRITEKST_BREV = REGEXP_START + TEGN_FRITEKST + "\\p{Graph}\\p{M}\\p{N}\\p{P}\\p{Zl}\\p{Zp}" + REGEXP_SLUTT;
 
     /**
      * Bruk dette mønsteret for å validere BASE64 "URL and Filename safe".
