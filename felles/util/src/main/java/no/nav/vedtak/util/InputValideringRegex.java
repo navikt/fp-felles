@@ -56,6 +56,15 @@ public class InputValideringRegex {
     public static final String FRITEKST = REGEXP_START + TEGN_FRITEKST + REGEXP_SLUTT;
 
     /**
+     * Bruk dette mønsteret for å validere fritekst til brev.
+     * <p>
+     * Godtar i tillegg til alt som er tillatt i navn og adresser også flere andre tegn som er relevante.
+     * <p>
+     * Godtar ikke større-enn og mindre-enn tegn da disse kan misbrukes til å gjøre XSS-angrep
+     */
+    public static final String FRITEKST_BREV = REGEXP_START + TEGN_FRITEKST + "\\p{Graph}\\p{M}\\p{N}\\p{P}\\p{Zl}\\p{Zp}" + REGEXP_SLUTT;
+
+    /**
      * Bruk dette mønsteret for å validere BASE64 "URL and Filename safe".
      *
      * @see java.util.Base64
