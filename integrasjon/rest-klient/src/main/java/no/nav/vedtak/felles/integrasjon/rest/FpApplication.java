@@ -35,7 +35,7 @@ public enum FpApplication {
             case FPKALKULUS -> 8016;
             case FPFORMIDLING -> 8010;
             case FPRISK -> 8075;
-            case FPABONNENT -> 8065; //
+            case FPABONNENT -> 8065;
             case FPFORDEL -> 8090;
             case FPLOS -> 8071;
             case FPOPPDRAG -> 8070;
