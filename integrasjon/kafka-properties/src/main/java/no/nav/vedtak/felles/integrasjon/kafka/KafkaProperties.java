@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.kafka;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
@@ -13,17 +12,7 @@ import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.serialization.Deserializer;
-import org.apache.kafka.common.serialization.Serde;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.errors.LogAndFailExceptionHandler;
-import org.apache.kafka.streams.state.RocksDBConfigSetter;
-import org.apache.kafka.streams.state.internals.BlockBasedTableConfigWithAccessibleCache;
-import org.rocksdb.BloomFilter;
-import org.rocksdb.LRUCache;
-import org.rocksdb.Options;
 
 import no.nav.foreldrepenger.konfig.Environment;
 
@@ -55,23 +44,18 @@ public class KafkaProperties {
         return props;
     }
 
-    // Alle som konsumerer Json-meldinger
-    public static Properties forConsumerStringValue(String groupId) {
-        return forConsumerGenericValue(groupId, new StringDeserializer(), new StringDeserializer(), Optional.empty());
-    }
-
-    public static <K,V> Properties forConsumerGenericValue(String groupId, Deserializer<K> valueKey, Deserializer<V> valueSerde, Optional<OffsetResetStrategy> offsetReset) {
+    public static <K,V> Properties forConsumerGenericValue(String groupId, Deserializer<K> keyDeserializer, Deserializer<V> valueDeserializer, OffsetResetStrategy offsetReset) {
         final Properties props = new Properties();
 
         props.put(CommonClientConfigs.GROUP_ID_CONFIG, groupId);
         props.put(CommonClientConfigs.CLIENT_ID_CONFIG, generateClientId());
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getAivenConfig(AivenProperty.KAFKA_BROKERS));
-        offsetReset.ifPresent(or -> props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, or.toString()));
+        Optional.ofNullable(offsetReset).ifPresent(or -> props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, or.toString()));
 
         putSecurity(props);
 
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, valueKey.getClass());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueSerde.getClass());
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer.getClass());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer.getClass());
 
         // Polling
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100"); // Unngå store Tx dersom alle prosesseres innen samme Tx. Default 500
@@ -80,33 +64,13 @@ public class KafkaProperties {
         return props;
     }
 
-    // Alle som konsumerer Json-meldinger
-    public static Properties forStreamsStringValue(String applicationId) {
-        return forStreamsGenericValue(applicationId, Serdes.String());
-    }
+    /*
+     * Streams-config er fjernet. Ved evt re-innføring husk at det trends read+write til topic for å unngå log-spamming.
+     * - APPLICATION_ID_CONFIG = tisvarende verdi som brukes for GROUP_ID_CONFIG (men kan ikke ha både streams og consumer)
+     * - KEY+VALUE SERDE - typisk Serdes.String() + derserialization_exception = LogAndFailExceptionHandler
+     * - Bør se på rocksdb-setting (se i historikk)
+     */
 
-    public static <T> Properties forStreamsGenericValue(String applicationId, Serde<T> valueSerde) {
-        final Properties props = new Properties();
-
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
-        props.put(StreamsConfig.CLIENT_ID_CONFIG, generateClientId());
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, getAivenConfig(AivenProperty.KAFKA_BROKERS));
-
-        putSecurity(props);
-
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, valueSerde.getClass());
-        props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndFailExceptionHandler.class);
-
-        props.put(StreamsConfig.DEFAULT_DSL_STORE_CONFIG, StreamsConfig.IN_MEMORY);
-        props.put(StreamsConfig.ROCKSDB_CONFIG_SETTER_CLASS_CONFIG, StreamsRocksReadOnly.class);
-
-        // Polling
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "200");
-        props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "60000");
-
-        return props;
-    }
 
     // Trengs kun for de som skal konsumere Avro. Ellers ikke
     public static String getAvroSchemaRegistryURL() {
@@ -145,28 +109,6 @@ public class KafkaProperties {
             String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
             String jaasCfg = String.format(jaasTemplate, "vtp", "vtp");
             props.setProperty(SaslConfigs.SASL_JAAS_CONFIG, jaasCfg);
-        }
-    }
-
-    public static class StreamsRocksReadOnly implements RocksDBConfigSetter {
-
-        @Override
-        public void setConfig(final String storeName, final Options options, final Map<String, Object> configs) {
-
-            BlockBasedTableConfigWithAccessibleCache tableConfig = new BlockBasedTableConfigWithAccessibleCache();
-            tableConfig.setBlockCache(new LRUCache(1024 * 1024L));
-            tableConfig.setBlockSize(4096L);
-            tableConfig.setFilterPolicy(new BloomFilter());
-            tableConfig.setCacheIndexAndFilterBlocks(true);
-            options.setTableFormatConfig(tableConfig);
-
-            options.setWriteBufferSize(512 * 1024L);
-            options.setMaxWriteBufferNumber(2);
-        }
-
-        @Override
-        public void close(final String storeName, final Options options) {
-            // NOOP
         }
     }
 
