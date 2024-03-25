@@ -10,18 +10,22 @@ import no.nav.vedtak.exception.IntegrasjonException;
 public class KafkaSender {
 
     private final Producer<String, String> producer;
-    private final String topic;
+    private final String topicName;
 
-    public KafkaSender(String topic) {
+    public KafkaSender(String topicName) {
         this.producer = new KafkaProducer<>(KafkaProperties.forProducer());
-        this.topic = topic;
+        this.topicName = topicName;
+    }
+
+    public String getTopicName() {
+        return topicName;
     }
 
     public RecordMetadata send(String key, String message) {
-        if (topic == null) {
+        if (topicName == null) {
             throw kafkaPubliseringException("null", new IllegalArgumentException());
         }
-        return send(key, message, this.topic);
+        return send(key, message, this.topicName);
     }
 
     public RecordMetadata send(String key, String message, String topic) {
