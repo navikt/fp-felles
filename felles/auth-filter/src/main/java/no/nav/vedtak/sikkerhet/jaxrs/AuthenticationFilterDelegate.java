@@ -16,8 +16,6 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.ÅpenRessurs;
 import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
@@ -54,8 +52,7 @@ public class AuthenticationFilterDelegate {
     public static void validerSettKontekst(ResourceInfo resourceInfo, ContainerRequestContext ctx, String cookiePath) {
         try {
             Method method = resourceInfo.getResourceMethod();
-            var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
-            var åpenRessurs = method.getAnnotation(ÅpenRessurs.class);
+            var utenAutentiseringRessurs = method.getAnnotation(UtenAutentisering.class);
             var metodenavn = method.getName();
             if (KontekstHolder.harKontekst()) {
                 LOG.info("Kall til {} hadde kontekst {}", metodenavn, KontekstHolder.getKontekst().getKompaktUid());
@@ -64,11 +61,10 @@ public class AuthenticationFilterDelegate {
             MDC.clear();
             setCallAndConsumerId(ctx);
             LOG.trace("{} i klasse {}", metodenavn, method.getDeclaringClass());
-            if (beskyttetRessurs == null && (åpenRessurs != null || method.getDeclaringClass().getName().startsWith("io.swagger"))) {
+            // Kan vurdere å unnta metodenavn = getOpenApi og getDeclaringClass startsWith io.swagger + endsWith OpenApiResource
+            if (utenAutentiseringRessurs != null ) {
                 KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
                 LOG.trace("{} er whitelisted", metodenavn);
-            } else if (beskyttetRessurs == null) {
-                throw new WebApplicationException(metodenavn + " mangler annotering", Response.Status.INTERNAL_SERVER_ERROR);
             } else {
                 var tokenString = getToken(ctx, cookiePath)
                     .orElseThrow(() -> new ValideringsFeil("Mangler token"));
