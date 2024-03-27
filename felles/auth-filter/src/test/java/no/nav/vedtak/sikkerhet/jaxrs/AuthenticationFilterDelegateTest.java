@@ -18,8 +18,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ResourceInfo;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.ÅpenRessurs;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
@@ -180,22 +178,21 @@ class AuthenticationFilterDelegateTest {
     @Path("foo")
     static class RestClass {
 
-        @ÅpenRessurs
+        @UtenAutentisering
         @Path("ubeskyttet")
         public void ubeskyttet() {
         }
 
-        @BeskyttetRessurs()
         @Path("beskyttet")
         public void beskyttet() {
         }
 
     }
 
-    private class TestInvocationContext implements ResourceInfo {
+    private static class TestInvocationContext implements ResourceInfo {
 
-        private Method method;
-        private Class<?> resourceClass;
+        private final Method method;
+        private final Class<?> resourceClass;
 
         TestInvocationContext(Method method, Class<?> resourceClass) {
             this.method = method;
