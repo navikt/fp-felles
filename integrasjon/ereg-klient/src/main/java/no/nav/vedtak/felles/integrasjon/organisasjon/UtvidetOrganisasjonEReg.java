@@ -10,9 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import no.nav.vedtak.konfig.Tid;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Deprecated /* Bruk OrganisasjonUtvidetEReg */
-public record JuridiskEnhetVirksomheter(String organisasjonsnummer, OrganisasjonstypeEReg type, OrganisasjonDetaljer organisasjonDetaljer,
-                                        List<DriverVirksomhet> driverVirksomheter) {
+public record UtvidetOrganisasjonEReg(String organisasjonsnummer, OrganisasjonstypeEReg type, OrganisasjonDetaljer organisasjonDetaljer,
+                                      List<DriverVirksomhet> driverVirksomheter) {
 
 
     public List<String> getEksaktVirksomhetForDato(LocalDate hentedato) {
