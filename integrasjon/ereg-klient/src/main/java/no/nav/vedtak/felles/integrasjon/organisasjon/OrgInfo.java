@@ -10,4 +10,8 @@ public interface OrgInfo {
 
     JuridiskEnhetVirksomheter hentOrganisasjonHistorikk(String orgnummer);
 
+    UtvidetOrganisasjonEReg hentUtvidetOrganisasjon(String orgnummer);
+
+    <T> T hentUtvidetOrganisasjon(String orgnummer, Class<T> clazz);
+
 }

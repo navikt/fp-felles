@@ -27,9 +27,7 @@ public abstract class AbstractOrganisasjonKlient implements OrgInfo {
 
     @Override
     public OrganisasjonEReg hentOrganisasjon(String orgnummer) {
-        var uri = lagURI(orgnummer);
-        var request = RestRequest.newGET(uri, restConfig);
-        return restKlient.send(request, OrganisasjonEReg.class);
+        return hentOrganisasjon(orgnummer, OrganisasjonEReg.class);
     }
 
     @Override
@@ -41,20 +39,29 @@ public abstract class AbstractOrganisasjonKlient implements OrgInfo {
 
     @Override
     public String hentOrganisasjonNavn(String orgnummer) {
-        var uri = lagURI(orgnummer);
-        var request = RestRequest.newGET(uri, restConfig);
-        return restKlient.send(request, OrganisasjonEReg.class).getNavn();
+        return hentOrganisasjon(orgnummer, OrganisasjonEReg.class).getNavn();
     }
 
     @Override
+    @Deprecated /* Bruk hentUtvidetOrganisasjon */
     public JuridiskEnhetVirksomheter hentOrganisasjonHistorikk(String orgnummer) {
+        return hentUtvidetOrganisasjon(orgnummer, JuridiskEnhetVirksomheter.class);
+    }
+
+    @Override
+    public UtvidetOrganisasjonEReg hentUtvidetOrganisasjon(String orgnummer) {
+        return hentUtvidetOrganisasjon(orgnummer, UtvidetOrganisasjonEReg.class);
+    }
+
+    @Override
+    public <T> T hentUtvidetOrganisasjon(String orgnummer, Class<T> clazz) {
         var query = UriBuilder.fromUri(restConfig.endpoint())
             .path(orgnummer)
-            .queryParam("inkluderHierarki", "true")
-            .queryParam("inkluderHistorikk", "true")
+            .queryParam("inkluderHierarki", true)
+            .queryParam("inkluderHistorikk", true)
             .build();
         var request = RestRequest.newGET(query, restConfig);
-        return restKlient.send(request, JuridiskEnhetVirksomheter.class);
+        return restKlient.send(request, clazz);
     }
 
     private URI lagURI(String orgnummer) {
