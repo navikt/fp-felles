@@ -21,6 +21,7 @@ public enum FpApplication {
     FPDOKGEN,
     FPWSPROXY,
     FPOVERSIKT,
+    FPTILGANG,
     NONFP;
 
     private static final Environment ENV = Environment.current();
@@ -30,16 +31,17 @@ public enum FpApplication {
 
     private static Integer lokalPort(FpApplication application) {
         return switch (application) {
-            case FPSAK -> 8080;
+            case FPFORMIDLING -> 8010;
             case FPABAKUS -> 8015;
             case FPKALKULUS -> 8016;
-            case FPFORMIDLING -> 8010;
-            case FPRISK -> 8075;
-            case FPABONNENT -> 8065;
-            case FPFORDEL -> 8090;
-            case FPLOS -> 8071;
-            case FPOPPDRAG -> 8070;
             case FPTILBAKE -> 8030;
+            case FPTILGANG -> 8040;
+            case FPABONNENT -> 8065;
+            case FPOPPDRAG -> 8070;
+            case FPLOS -> 8071;
+            case FPRISK -> 8075;
+            case FPSAK -> 8080;
+            case FPFORDEL -> 8090;
             case FPDOKGEN -> 8291;
             case FPWSPROXY -> 8292;
             case FPOVERSIKT -> 8889;
