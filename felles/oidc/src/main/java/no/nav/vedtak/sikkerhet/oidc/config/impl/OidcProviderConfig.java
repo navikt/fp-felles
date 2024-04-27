@@ -122,13 +122,18 @@ public final class OidcProviderConfig {
     @SuppressWarnings("unused")
     private static OpenIDConfiguration createAzureAppConfiguration(String wellKnownUrl) {
         var proxyUrl = ENV.isFss() ? URI.create(ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy())) : null;
-        return createConfiguration(OpenIDProvider.AZUREAD, Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER))
+        return createConfiguration(OpenIDProvider.AZUREAD,
+            Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER))
                 .orElseGet(() -> getIssuerFra(wellKnownUrl, proxyUrl).orElse(null)),
             Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI))
                 .orElseGet(() -> getJwksFra(wellKnownUrl, proxyUrl).orElse(null)),
             Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT))
-                .orElseGet(() -> getTokenEndpointFra(wellKnownUrl, proxyUrl).orElse(null)), ENV.isFss(), proxyUrl,
-            getAzureProperty(AzureProperty.AZURE_APP_CLIENT_ID), getAzureProperty(AzureProperty.AZURE_APP_CLIENT_SECRET), ENV.isLocal());
+                .orElseGet(() -> getTokenEndpointFra(wellKnownUrl, proxyUrl).orElse(null)),
+            ENV.isFss(),
+            proxyUrl,
+            getAzureProperty(AzureProperty.AZURE_APP_CLIENT_ID),
+            getAzureProperty(AzureProperty.AZURE_APP_CLIENT_SECRET),
+            ENV.isLocal());
     }
 
     private static String getAzureProperty(AzureProperty property) {
