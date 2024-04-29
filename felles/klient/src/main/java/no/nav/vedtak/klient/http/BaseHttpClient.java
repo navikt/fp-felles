@@ -18,7 +18,7 @@ public class BaseHttpClient {
 
     private final HttpClient httpClient;
 
-    public BaseHttpClient(HttpClient httpClient) {
+    protected BaseHttpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
