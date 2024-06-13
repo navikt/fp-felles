@@ -22,7 +22,7 @@ public enum FpApplication {
     FPWSPROXY,
     FPOVERSIKT,
     FPTILGANG,
-    FTINNTEKTSMELDING,
+    FPINNTEKTSMELDING,
     NONFP;
 
     private static final Environment ENV = Environment.current();
@@ -46,12 +46,12 @@ public enum FpApplication {
             case FPDOKGEN -> 8291;
             case FPWSPROXY -> 8292;
             case FPOVERSIKT -> 8889;
-            case FTINNTEKTSMELDING -> 8293;
+            case FPINNTEKTSMELDING -> 8293;
             case NONFP -> throw new IllegalArgumentException("Utviklerfeil: angitt app er ikke i fp-familien");
         };
     }
 
-    private static final Set<FpApplication> GCP_APPS = Set.of(FPOVERSIKT, FTINNTEKTSMELDING);
+    private static final Set<FpApplication> GCP_APPS = Set.of(FPOVERSIKT, FPINNTEKTSMELDING);
 
     public boolean specified() {
         return !NONFP.equals(this);
