@@ -1,3 +1,4 @@
+# SOURCE repo:pdl:apps/api/src/main/resources/schemas/pdl.graphqls
 # ISO-8601 representasjon for en kalenderdato. YYYY-MM-DD. Eksempel: 2018-01-01.
 scalar Date
 
@@ -137,7 +138,7 @@ type Person {
     doedfoedtBarn: [DoedfoedtBarn!]!
     doedsfall: [Doedsfall!]!
     falskIdentitet: FalskIdentitet
-    foedsel: [Foedsel!]!
+    foedsel: [Foedsel!]! @deprecated(reason: "Erstattet av foedselsdato & foedested")
     foedselsdato: [Foedselsdato!]!
     foedested: [Foedested!]!
     folkeregisteridentifikator(historikk: Boolean = false): [Folkeregisteridentifikator!]!
