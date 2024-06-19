@@ -1,3 +1,4 @@
+# SOURCE repo:saf:app/src/main/resources/schemas/saf.graphqls
 # ISO-8601 representasjon for en kalenderdato. YYYY-MM-DD. Eksempel: 2018-01-01.
 scalar Date
 
@@ -296,6 +297,12 @@ type Journalpost {
     # * Eller hvilken epost/telefonnummer og varseltekst, varsel fra nav.no er sendt til
     # * Returneres kun for utgående journalposter
     utsendingsinfo: Utsendingsinfo
+
+    # Regel for innsyn for denne journalposten. Verdi er "BRUK_STANDARDREGLER" om innsyn ikke er overstyrt.
+    innsynsregel: String!
+
+    # Menneskevennlig beskrivelse av aktuell innsynsregel.
+    innsynsregelBeskrivelse: String!
 
     # Liste over fagspesifikke metadata som er tilknyttet journalpost.
     tilleggsopplysninger: [Tilleggsopplysning]
@@ -731,7 +738,7 @@ enum Kanal {
     # Forsendelsen inneholder en komplett chatdialog (inngående og utgående meldinger) mellom en bruker og en veileder i NAV.
     NAV_NO_CHAT
 
-    # Brevet er sendt til virksomhet som taushetsbelagt digital post.
+    # Brevet er sendt til virksomhet som Taushetsbelagt Post via Altinn.
     # * Brukes for utgående journalposter.
     DPVT
 
@@ -888,7 +895,7 @@ enum Tema {
     # Serviceklager
     SER
 
-    # Regnskap/utbetaling
+    # Regnskap/utbetaling/årsoppgave
     STO
 
     # Supplerende stønad
