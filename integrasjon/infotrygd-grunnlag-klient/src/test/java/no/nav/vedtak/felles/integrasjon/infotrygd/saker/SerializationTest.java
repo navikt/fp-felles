@@ -1,68 +1,38 @@
 package no.nav.vedtak.felles.integrasjon.infotrygd.saker;
 
-import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.Saker;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-
-import org.junit.jupiter.api.Test;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.readAllBytes;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.readAllBytes;
-import static java.util.stream.Collectors.toList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.InfotrygdSak;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class SerializationTest {
-
-    @Test
-    void saksnummerTest() {
-        test(saksnummer(42));
-    }
 
     @Test
     void sakTest() {
         test(enSak(1));
     }
-
-    @Test
-    void utbetalingTest() {
-        test(utbetaling(0));
-    }
-
-    @Test
-    void åpenSakTest() {
-        test(åpenSak(4));
-    }
-
-    @Test
-    void avsluttedeSakerTest() {
-        test(avsluttedeSaker(4));
-    }
-
-    @Test
-    void avsluttedeSakTest() {
-        test(enAvsluttetSak(4));
-    }
-
     @Test
     void sakResponsTest() {
-        test(sakRespons(2));
+        test(sakRespons(2), true);
     }
 
     @Test
     void faktiskResponsTest() throws Exception {
-        testJson(jsonFra("rest/svprespons.json"), Saker.class);
+        testJson(jsonFra("rest/svprespons.json"), true);
     }
 
-    private static void testJson(String json, Class<?> clazz) {
-        testJson(json, clazz, true);
-    }
-
-    private static void testJson(String json, Class<?> clazz, boolean log) {
-        var deser = DefaultJsonMapper.fromJson(json, clazz);
+    private static void testJson(String json, boolean log) {
+        var deser = Arrays.stream(DefaultJsonMapper.fromJson(json, InfotrygdSak[].class)).toList();
         if (log) {
             System.out.println("##");
             System.out.println(json);
@@ -70,13 +40,13 @@ class SerializationTest {
         }
     }
 
-    private static void test(Object object) {
-        test(object, true);
+    private static void test(InfotrygdSak object) {
+        test(List.of(object), true);
     }
 
-    private static void test(Object object, boolean log) {
+    private static void test(List<InfotrygdSak> object, boolean log) {
         String ser = write(object);
-        var deser = DefaultJsonMapper.fromJson(ser, object.getClass());
+        var deser = Arrays.stream(DefaultJsonMapper.fromJson(ser, InfotrygdSak[].class)).toList();
         if (log) {
             System.out.println("##");
             System.out.println("Før serialisering: " + object);
@@ -90,60 +60,26 @@ class SerializationTest {
         return DefaultJsonMapper.toJson(object);
     }
 
-    private static Saker.Sak.Saksnummer saksnummer(int n) {
-        return new Saker.Sak.Saksnummer("B", n);
+    private static InfotrygdSak.Saksnummer saksnummer(int n) {
+        return new InfotrygdSak.Saksnummer("B", n);
+    }
+    private static InfotrygdSak enSak(int n) {
+        return new InfotrygdSak(plusDays(n), new InfotrygdSak.SakResultat("FB", "ferdig") , plusDays(-10),
+            saksnummer(n), null, new InfotrygdSak.SakType("S", "søknad"), plusDays(1),
+            new InfotrygdSak.SakValg("FØ", "fødsel"), new InfotrygdSak.SakUndervalg("  ", "annet"),
+            new InfotrygdSak.SakNivå("TK", "Trygdekontor"));
     }
 
-    private static Saker.Sak enSak(int n) {
-        return new Saker.Sak(plusDays(n), Saker.Sak.SakResultat.FB, saksnummer(n), "FI", Saker.Sak.SakType.S, plusDays(1));
-    }
-
-    private static Saker.LøpendeSak åpenSak(int n) {
-        return new Saker.LøpendeSak(plusDays(n), utbetalinger(n));
-    }
-
-    private static Saker.AvsluttedeSaker avsluttedeSaker(int n) {
-        return new Saker.AvsluttedeSaker(plusDays(n), alleAvsluttedeSaker(n));
-    }
-
-    private static Saker.AvsluttedeSaker.AvsluttetSak enAvsluttetSak(int n) {
-        return new Saker.AvsluttedeSaker.AvsluttetSak(plusDays(n), plusDays(n + 1), utbetalinger(n));
-    }
-
-    private static Saker.IkkeStartetSak enIkkeStartetSak(int n) {
-        return new Saker.IkkeStartetSak(plusDays(n), plusDays(n + 1));
-    }
-
-    private static List<Saker.AvsluttedeSaker.AvsluttetSak> alleAvsluttedeSaker(int n) {
-        return IntStream.range(0, n).boxed().map(SerializationTest::enAvsluttetSak).toList();
-    }
-
-    private static List<Saker.Utbetaling> utbetalinger(int n) {
-        return IntStream.range(0, n).boxed().map(SerializationTest::utbetaling).toList();
-    }
-
-    private static List<Saker.LøpendeSak> åpneSaker(int n) {
-        return IntStream.range(0, n).boxed().map(SerializationTest::åpenSak).toList();
-    }
-
-    private static List<Saker.Sak> saker(int n) {
+    private static List<InfotrygdSak> saker(int n) {
         return IntStream.range(0, n).boxed().map(SerializationTest::enSak).toList();
-    }
-
-    private static List<Saker.IkkeStartetSak> ikkeStartedeSaker(int n) {
-        return IntStream.range(0, n).boxed().map(SerializationTest::enIkkeStartetSak).collect(toList());
-    }
-
-    private static Saker.Utbetaling utbetaling(int n) {
-        return new Saker.Utbetaling(80, plusDays(n), plusDays(n + 1));
     }
 
     private static LocalDate plusDays(int n) {
         return LocalDate.now().plusDays(n);
     }
 
-    private static Saker sakRespons(int n) {
-        return new Saker("hello", saker(n), åpneSaker(n), avsluttedeSaker(n), ikkeStartedeSaker(n));
+    private static List<InfotrygdSak> sakRespons(int n) {
+        return saker(n);
     }
 
     String jsonFra(String fil) throws Exception {

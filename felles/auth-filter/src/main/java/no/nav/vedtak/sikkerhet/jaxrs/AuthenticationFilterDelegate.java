@@ -4,20 +4,18 @@ import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.ÅpenRessurs;
 import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
@@ -25,9 +23,7 @@ import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
-import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorConfig;
-import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
 
 /**
  * Bruksanvisning inntil alle er over og det evt samles her:
@@ -56,21 +52,24 @@ public class AuthenticationFilterDelegate {
     public static void validerSettKontekst(ResourceInfo resourceInfo, ContainerRequestContext ctx, String cookiePath) {
         try {
             Method method = resourceInfo.getResourceMethod();
-            var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
-            var åpenRessurs = method.getAnnotation(ÅpenRessurs.class);
+            var utenAutentiseringRessurs = method.getAnnotation(UtenAutentisering.class);
             var metodenavn = method.getName();
-            LOG.trace("{} i klasse {}", metodenavn, method.getDeclaringClass());
+            if (KontekstHolder.harKontekst()) {
+                LOG.info("Kall til {} hadde kontekst {}", metodenavn, KontekstHolder.getKontekst().getKompaktUid());
+                KontekstHolder.fjernKontekst();
+            }
+            MDC.clear();
             setCallAndConsumerId(ctx);
-            if (beskyttetRessurs == null && (åpenRessurs != null || method.getDeclaringClass().getName().startsWith("io.swagger"))) {
+            LOG.trace("{} i klasse {}", metodenavn, method.getDeclaringClass());
+            // Kan vurdere å unnta metodenavn = getOpenApi og getDeclaringClass startsWith io.swagger + endsWith OpenApiResource
+            if (utenAutentiseringRessurs != null ) {
                 KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
                 LOG.trace("{} er whitelisted", metodenavn);
-            } else if (beskyttetRessurs == null) {
-                throw new WebApplicationException(metodenavn + " mangler annotering", Response.Status.INTERNAL_SERVER_ERROR);
             } else {
-                var tokenString = getTokenFromHeader(ctx)
-                    .or(() -> getCookie(ctx, cookiePath))
-                    .orElseThrow(() -> new TokenFeil("Mangler token"));
-                validerToken(tokenString);
+                var tokenString = getToken(ctx, cookiePath)
+                    .orElseThrow(() -> new ValideringsFeil("Mangler token"));
+                validerTokenSetKontekst(tokenString);
+                setUserAndConsumerId(KontekstHolder.getKontekst().getUid());
             }
         } catch (TekniskException | TokenFeil e) {
             throw new WebApplicationException(e, Response.Status.FORBIDDEN);
@@ -85,6 +84,7 @@ public class AuthenticationFilterDelegate {
         if (KontekstHolder.harKontekst()) {
             KontekstHolder.fjernKontekst();
         }
+        MDC.clear();
     }
 
     private static void setCallAndConsumerId(ContainerRequestContext request) {
@@ -97,6 +97,17 @@ public class AuthenticationFilterDelegate {
             .ifPresent(MDCOperations::putConsumerId);
     }
 
+    private static void setUserAndConsumerId(String subject) {
+        Optional.ofNullable(subject).ifPresent(MDCOperations::putUserId);
+        if (MDCOperations.getConsumerId() == null && subject != null) {
+            MDCOperations.putConsumerId(subject);
+        }
+    }
+
+    private static Optional<TokenString> getToken(ContainerRequestContext request, String cookiePath) {
+        return getTokenFromHeader(request).or(() -> getCookieToken(request, cookiePath));
+    }
+
     private static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
         String headerValue = request.getHeaderString(AUTHORIZATION_HEADER);
         return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE)
@@ -104,24 +115,15 @@ public class AuthenticationFilterDelegate {
             : Optional.empty();
     }
 
-    private static Optional<TokenString> getCookie(ContainerRequestContext request, String cookiePath) {
-        if (cookiePath == null || request.getCookies() == null) {
-            return Optional.empty();
-        }
-        return request.getCookies().values().stream()
-            .filter(c -> c.getValue() != null)
-            .filter(c -> ID_TOKEN_COOKIE_NAME.equalsIgnoreCase(c.getName()))
-            .filter(c -> cookiePath.equalsIgnoreCase(c.getPath()))
-            .findFirst()
-            .or(() -> request.getCookies().values().stream()
-                .filter(c -> c.getValue() != null)
-                .filter(c -> ID_TOKEN_COOKIE_NAME.equalsIgnoreCase(c.getName()))
-                .findFirst())
+    private static Optional<TokenString> getCookieToken(ContainerRequestContext request, String cookiePath) {
+        var idTokenCookie = Optional.ofNullable(request.getCookies()).map(c -> c.get(ID_TOKEN_COOKIE_NAME));
+        return idTokenCookie.filter(c -> cookiePath != null && cookiePath.equalsIgnoreCase(c.getPath()))
+            .or(() -> idTokenCookie)
             .map(Cookie::getValue)
             .map(TokenString::new);
     }
 
-    public static void validerToken(TokenString tokenString) {
+    public static void validerTokenSetKontekst(TokenString tokenString) {
         // Sett opp OpenIDToken
         var claims = JwtUtil.getClaims(tokenString.token());
         var configuration = ConfigProvider.getOpenIDConfiguration(JwtUtil.getIssuer(claims))
@@ -134,9 +136,6 @@ public class AuthenticationFilterDelegate {
         var validateResult = tokenValidator.validate(token.primary());
 
         // Håndter valideringsresultat
-        if (needToRefreshToken(token, validateResult, tokenValidator)) {
-            throw new ValideringsFeil("Token expired");
-        }
         if (validateResult.isValid()) {
             KontekstHolder.setKontekst(RequestKontekst.forRequest(validateResult.subject(), validateResult.compactSubject(),
                 validateResult.identType(), token, validateResult.getGrupper()));
@@ -144,10 +143,6 @@ public class AuthenticationFilterDelegate {
         } else {
             throw new ValideringsFeil("Ugyldig token");
         }
-    }
-
-    private static boolean needToRefreshToken(OpenIDToken token, OidcTokenValidatorResult validateResult, OidcTokenValidator tokenValidator) {
-        return !validateResult.isValid() && tokenValidator.validateWithoutExpirationTime(token.primary()).isValid();
     }
 
     private static class TokenFeil extends RuntimeException {

@@ -43,7 +43,8 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <graphqlSchemaPaths>${project.basedir}/src/main/resources/saf/schema.graphql</graphqlSchemaPaths>
+                            <!-- source repo:saf:app/src/main/resources/schemas/saf.graphqls -->
+                            <graphqlSchemaPaths>${project.basedir}/src/main/resources/saf/saf.graphqls</graphqlSchemaPaths>
                             <outputDir>${project.build.directory}/generated-sources/client-saf</outputDir>
                             <modelPackageName>no.nav.saf</modelPackageName>
                             <customTypesMapping>

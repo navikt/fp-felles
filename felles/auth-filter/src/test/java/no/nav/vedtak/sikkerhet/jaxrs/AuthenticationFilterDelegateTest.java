@@ -7,12 +7,6 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import javax.security.auth.Subject;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.container.ResourceInfo;
-
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
 import org.junit.jupiter.api.AfterEach;
@@ -20,8 +14,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.ÅpenRessurs;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ResourceInfo;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
@@ -36,14 +32,11 @@ import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
 
 class AuthenticationFilterDelegateTest {
 
-    private OidcTokenValidator tokenValidator = Mockito.mock(OidcTokenValidator.class);
+    private final OidcTokenValidator tokenValidator = Mockito.mock(OidcTokenValidator.class);
 
-    private ContainerRequestContext request = Mockito.mock(ContainerRequestContext.class);
+    private final ContainerRequestContext request = Mockito.mock(ContainerRequestContext.class);
 
-    private Subject subject = new Subject();
-    private Subject serviceSubject = new Subject();
-
-    public void setupAll() throws Exception {
+    public void setupAll() {
 
         System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(),
             OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
@@ -60,13 +53,13 @@ class AuthenticationFilterDelegateTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         WellKnownConfigurationHelper.unsetWellKnownConfig();
         setupAll();
     }
 
     @AfterEach
-    public void teardown() throws Exception {
+    public void teardown() {
         System.clearProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name());
         System.clearProperty(AzureProperty.AZURE_APP_CLIENT_ID.name());
         System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name());
@@ -94,6 +87,11 @@ class AuthenticationFilterDelegateTest {
         when(request.getHeaderString("Authorization")).thenReturn(null);
 
         assertThrows(WebApplicationException.class, () -> AuthenticationFilterDelegate.validerSettKontekst(ri, request));
+        try {
+            AuthenticationFilterDelegate.validerSettKontekst(ri, request);
+        } catch (WebApplicationException e) {
+            assertThat(e.getResponse().getStatus()).isEqualTo(401);
+        }
     }
 
 
@@ -103,11 +101,16 @@ class AuthenticationFilterDelegateTest {
         Method method = RestClass.class.getMethod("beskyttet");
         ResourceInfo ri = new TestInvocationContext(method, RestClass.class);
 
-        when(request.getHeaderString("Authorization")).thenReturn(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE + utløptIdToken);
+        when(request.getHeaderString("Authorization")).thenReturn(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE + utløptIdToken.token());
 
         when(tokenValidator.validate(utløptIdToken)).thenReturn(OidcTokenValidatorResult.invalid("expired"));
 
         assertThrows(WebApplicationException.class, () -> AuthenticationFilterDelegate.validerSettKontekst(ri, request));
+        try {
+            AuthenticationFilterDelegate.validerSettKontekst(ri, request);
+        } catch (WebApplicationException e) {
+            assertThat(e.getResponse().getStatus()).isEqualTo(401);
+        }
 
     }
 
@@ -175,22 +178,21 @@ class AuthenticationFilterDelegateTest {
     @Path("foo")
     static class RestClass {
 
-        @ÅpenRessurs
+        @UtenAutentisering
         @Path("ubeskyttet")
         public void ubeskyttet() {
         }
 
-        @BeskyttetRessurs()
         @Path("beskyttet")
         public void beskyttet() {
         }
 
     }
 
-    private class TestInvocationContext implements ResourceInfo {
+    private static class TestInvocationContext implements ResourceInfo {
 
-        private Method method;
-        private Class<?> resourceClass;
+        private final Method method;
+        private final Class<?> resourceClass;
 
         TestInvocationContext(Method method, Class<?> resourceClass) {
             this.method = method;

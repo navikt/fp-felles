@@ -2,12 +2,8 @@ package no.nav.vedtak.felles.integrasjon.spokelse;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-
-import jakarta.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +48,14 @@ public abstract class AbstractSpøkelseKlient implements Spøkelse {
 
     @Override
     public List<SykepengeVedtak> hentGrunnlag(String fnr, LocalDate fom, Duration timeout) {
+        if (fnr == null || fnr.isEmpty()) {
+            throw new IllegalArgumentException("Ikke angitt fnr");
+        }
         try {
-            var pathBuilder = UriBuilder.fromUri(restConfig.endpoint()).queryParam("fodselsnummer", fnr);
-            Optional.ofNullable(fom).ifPresent(f -> pathBuilder.queryParam("fom", f.format(DateTimeFormatter.ISO_LOCAL_DATE)));
-            var request = RestRequest.newGET(pathBuilder.build(), restConfig).timeout(timeout);
-            var grunnlag = restKlient.send(request, SykepengeVedtak[].class);
-            return Arrays.asList(grunnlag);
+            var request = new GrunnlagRequest(fnr, fom);
+            var rrequest = RestRequest.newPOSTJson(request, restConfig.endpoint(), restConfig);
+            var resultat = restKlient.send(rrequest, SykepengeVedtak[].class);
+            return Arrays.asList(resultat);
         } catch (Exception e) {
             throw new TekniskException("FP-180126",
                 String.format("SPokelse %s gir feil, ta opp med team sykepenger.", restConfig.endpoint().toString()), e);
@@ -78,4 +76,6 @@ public abstract class AbstractSpøkelseKlient implements Spøkelse {
             return List.of();
         }
     }
+
+    public record GrunnlagRequest(String fodselsnummer, LocalDate fom) { }
 }

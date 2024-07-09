@@ -11,4 +11,12 @@ public class Tid {
     private Tid() {
         // hidden
     }
+
+    public static LocalDate fomEllerMin(LocalDate fom) {
+        return fom != null ? fom : TIDENES_BEGYNNELSE;
+    }
+
+    public static LocalDate tomEllerMax(LocalDate tom) {
+        return tom != null ? tom : TIDENES_ENDE;
+    }
 }

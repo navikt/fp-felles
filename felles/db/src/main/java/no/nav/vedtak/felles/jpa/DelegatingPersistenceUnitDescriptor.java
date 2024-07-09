@@ -4,18 +4,19 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
+import org.hibernate.bytecode.enhance.spi.EnhancementContext;
+import org.hibernate.bytecode.spi.ClassTransformer;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
+
 import jakarta.persistence.SharedCacheMode;
 import jakarta.persistence.ValidationMode;
 import jakarta.persistence.spi.PersistenceUnitTransactionType;
-
-import org.hibernate.bytecode.enhance.spi.EnhancementContext;
-import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
 /**
  * Delegerer kall fra en {@link PersistenceUnitDescriptor} til en annen slik at det er enklere å lage en SPI implementasjon baser på Hibernate
  */
 public class DelegatingPersistenceUnitDescriptor implements PersistenceUnitDescriptor {
-    private PersistenceUnitDescriptor persistenceUnitDescriptor;
+    private final PersistenceUnitDescriptor persistenceUnitDescriptor;
 
     public DelegatingPersistenceUnitDescriptor(PersistenceUnitDescriptor persistenceUnitDescriptor) {
         this.persistenceUnitDescriptor = persistenceUnitDescriptor;
@@ -104,6 +105,11 @@ public class DelegatingPersistenceUnitDescriptor implements PersistenceUnitDescr
     @Override
     public void pushClassTransformer(EnhancementContext enhancementContext) {
         persistenceUnitDescriptor.pushClassTransformer(enhancementContext);
+    }
+
+    @Override
+    public ClassTransformer getClassTransformer() {
+        return persistenceUnitDescriptor.getClassTransformer();
     }
 
 }

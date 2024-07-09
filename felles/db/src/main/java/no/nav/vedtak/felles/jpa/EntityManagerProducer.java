@@ -5,6 +5,12 @@ import static io.micrometer.core.instrument.Metrics.globalRegistry;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.jpa.HibernateHints;
+import org.hibernate.stat.HibernateMetrics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Disposes;
@@ -14,12 +20,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.FlushModeType;
 import jakarta.persistence.Persistence;
-
-import org.hibernate.SessionFactory;
-import org.hibernate.jpa.QueryHints;
-import org.hibernate.stat.HibernateMetrics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -55,13 +55,13 @@ public class EntityManagerProducer {
 
     /**
      * @see org.hibernate.cfg.AvailableSettings
-     * @see org.hibernate.jpa.QueryHints
+     * @see org.hibernate.jpa.HibernateHints
      */
     private void initConfig(EntityManager em, Map<String, Object> props) {
         // regresson hibernate 4.5.6 - org.hibernate.flushMode er redefinert som
         // QueryHint (ikke AvailableSettings) - blir ikke automatisk satt på
         // EM.
-        em.setFlushMode(FlushModeType.valueOf((String) props.getOrDefault(QueryHints.HINT_FLUSH_MODE, "COMMIT")));
+        em.setFlushMode(FlushModeType.valueOf((String) props.getOrDefault(HibernateHints.HINT_FLUSH_MODE, "COMMIT")));
     }
 
     public EntityManagerFactory createEntityManager(String key) {

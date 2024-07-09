@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -11,6 +10,7 @@ import no.nav.foreldrepenger.konfig.Namespace;
 public enum FpApplication {
     FPSAK,
     FPABAKUS,
+    FPKALKULUS,
     FPFORMIDLING,
     FPRISK,
     FPABONNENT,
@@ -21,6 +21,8 @@ public enum FpApplication {
     FPDOKGEN,
     FPWSPROXY,
     FPOVERSIKT,
+    FPTILGANG,
+    FPINNTEKTSMELDING,
     NONFP;
 
     private static final Environment ENV = Environment.current();
@@ -28,24 +30,28 @@ public enum FpApplication {
     // FpApplication brukes til å kalle apps i namespace foreldrepenger - ikke riktig å bruke ENV/namespace
     private static final Namespace FORELDREPENGER = Namespace.foreldrepenger();
 
-    /*
-     * Utelatt fpabonnent:8065
-     */
-    private static final Map<FpApplication, Integer> LOCAL_PORTS = Map.ofEntries(
-        Map.entry(FpApplication.FPSAK, 8080),
-        Map.entry(FpApplication.FPABAKUS, 8015),
-        Map.entry(FpApplication.FPFORMIDLING, 8010),
-        Map.entry(FpApplication.FPRISK, 8075),
-        Map.entry(FpApplication.FPOPPDRAG, 8070),
-        Map.entry(FpApplication.FPTILBAKE, 8030),
-        Map.entry(FpApplication.FPFORDEL, 8090),
-        Map.entry(FpApplication.FPDOKGEN, 8291),
-        Map.entry(FpApplication.FPWSPROXY, 8292),
-        Map.entry(FpApplication.FPLOS, 8071),
-        Map.entry(FpApplication.FPOVERSIKT, 8889)
-    );
+    private static Integer lokalPort(FpApplication application) {
+        return switch (application) {
+            case FPFORMIDLING -> 8010;
+            case FPABAKUS -> 8015;
+            case FPKALKULUS -> 8016;
+            case FPTILBAKE -> 8030;
+            case FPTILGANG -> 8050;
+            case FPABONNENT -> 8065;
+            case FPOPPDRAG -> 8070;
+            case FPLOS -> 8071;
+            case FPRISK -> 8075;
+            case FPSAK -> 8080;
+            case FPFORDEL -> 8090;
+            case FPDOKGEN -> 8291;
+            case FPWSPROXY -> 8292;
+            case FPOVERSIKT -> 8889;
+            case FPINNTEKTSMELDING -> 8293;
+            case NONFP -> throw new IllegalArgumentException("Utviklerfeil: angitt app er ikke i fp-familien");
+        };
+    }
 
-    private static final Set<FpApplication> GCP_APPS = Set.of(FPOVERSIKT);
+    private static final Set<FpApplication> GCP_APPS = Set.of(FPOVERSIKT, FPINNTEKTSMELDING);
 
     public boolean specified() {
         return !NONFP.equals(this);
@@ -93,7 +99,7 @@ public enum FpApplication {
 
     private static String urlForLocal(FpApplication application, Environment currentEnvironment, String appname) {
         return Optional.ofNullable(currentEnvironment.getProperty(application.name().toLowerCase() + ".override.url"))
-            .orElseGet(() -> String.format("http://localhost:%s/%s", LOCAL_PORTS.get(application), appname));
+            .orElseGet(() -> String.format("http://localhost:%s/%s", lokalPort(application), appname));
     }
 
     static String scopesFor(FpApplication application, Environment currentEnvironment) {
