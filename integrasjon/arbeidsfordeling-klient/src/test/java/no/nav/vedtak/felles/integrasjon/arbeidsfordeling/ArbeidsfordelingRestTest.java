@@ -18,7 +18,7 @@ class ArbeidsfordelingRestTest {
     void test_request() {
         var request = ArbeidsfordelingRequest.ny().medTema("FOR").medOppgavetype("BEH_SAK_VL").medBehandlingstype("ae0028").build();
 
-        String json = DefaultJsonMapper.toJson(request);
+        var json = DefaultJsonMapper.toJson(request);
         ArbeidsfordelingRequest roundTripped = DefaultJsonMapper.fromJson(json, ArbeidsfordelingRequest.class);
         assertThat(roundTripped).isNotNull();
         assertThat(roundTripped.tema()).isEqualTo("FOR");
@@ -28,7 +28,7 @@ class ArbeidsfordelingRestTest {
     @Test
     void test_response() throws Exception {
         var respons = new ArbeidsfordelingResponse("4806", "Drammen", "Aktiv", "FPY");
-        String json = WRITER.writeValueAsString(respons);
+        var json = WRITER.writeValueAsString(respons);
         ArbeidsfordelingResponse roundTripped = DefaultJsonMapper.fromJson(json, ArbeidsfordelingResponse.class);
         assertThat(roundTripped).isNotNull();
         assertThat(roundTripped.enhetNr()).isEqualTo("4806");
