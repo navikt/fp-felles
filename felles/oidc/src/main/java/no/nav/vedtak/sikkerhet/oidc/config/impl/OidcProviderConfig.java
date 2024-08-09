@@ -29,12 +29,7 @@ public final class OidcProviderConfig {
     private static final Logger LOG = LoggerFactory.getLogger(OidcProviderConfig.class);
 
     private static final String STS_WELL_KNOWN_URL = "oidc.sts.well.known.url";
-    private static final String STS_CONFIG_ISSUER = "oidc.sts.openid.config.issuer";
-    private static final String STS_CONFIG_JWKS_URI = "oidc.sts.openid.config.jwks.uri";
-    private static final String STS_CONFIG_TOKEN_ENDPOINT = "oidc.sts.openid.config.token.endpoint";
-
     private static final String AZURE_HTTP_PROXY = "azure.http.proxy"; // settes ikke av naiserator
-
     private static final String PROXY_KEY = "proxy.url"; // FP-oppsett lite brukt
     private static final String DEFAULT_PROXY_URL = "http://webproxy.nais:8088";
 
@@ -83,8 +78,7 @@ public final class OidcProviderConfig {
         Set<OpenIDConfiguration> idProviderConfigs = new HashSet<>();
 
         // OIDC STS
-        if (ENV.getProperty(STS_WELL_KNOWN_URL) != null
-            || ENV.getProperty(STS_CONFIG_ISSUER) != null) { // Det er kanskje noen apper som ikke bruker STS token validering??
+        if (ENV.getProperty(STS_WELL_KNOWN_URL) != null) { // Det er kanskje noen apper som ikke bruker STS token validering??
             idProviderConfigs.add(createStsConfiguration(ENV.getProperty(STS_WELL_KNOWN_URL)));
         }
 
@@ -110,10 +104,11 @@ public final class OidcProviderConfig {
 
     private static OpenIDConfiguration createStsConfiguration(String wellKnownUrl) {
         return createConfiguration(OpenIDProvider.STS,
-            Optional.ofNullable(ENV.getProperty(STS_CONFIG_ISSUER)).or(() -> getIssuerFra(wellKnownUrl)).orElse(null),
-            Optional.ofNullable(ENV.getProperty(STS_CONFIG_JWKS_URI)).or(() -> getJwksFra(wellKnownUrl)).orElse(null),
-            Optional.ofNullable(ENV.getProperty(STS_CONFIG_TOKEN_ENDPOINT)).or(() -> getTokenEndpointFra(wellKnownUrl)).orElse(null),
-            false, null,
+            getIssuerFra(wellKnownUrl).orElse(null),
+            getJwksFra(wellKnownUrl).orElse(null),
+            getTokenEndpointFra(wellKnownUrl).orElse(null),
+            false,
+            null,
             Systembruker.username(),
             Systembruker.password(),
             true);
@@ -123,17 +118,27 @@ public final class OidcProviderConfig {
     private static OpenIDConfiguration createAzureAppConfiguration(String wellKnownUrl) {
         var proxyUrl = ENV.isFss() ? URI.create(ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy())) : null;
         return createConfiguration(OpenIDProvider.AZUREAD,
-            Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER))
-                .orElseGet(() -> getIssuerFra(wellKnownUrl, proxyUrl).orElse(null)),
-            Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI))
-                .orElseGet(() -> getJwksFra(wellKnownUrl, proxyUrl).orElse(null)),
-            Optional.ofNullable(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT))
-                .orElseGet(() -> getTokenEndpointFra(wellKnownUrl, proxyUrl).orElse(null)),
+            getIssuerFra(wellKnownUrl, proxyUrl).orElseThrow(),
+            getJwksFra(wellKnownUrl, proxyUrl).orElseThrow(),
+            getTokenEndpointFra(wellKnownUrl, proxyUrl).orElseThrow(),
             ENV.isFss(),
             proxyUrl,
             getAzureProperty(AzureProperty.AZURE_APP_CLIENT_ID),
             getAzureProperty(AzureProperty.AZURE_APP_CLIENT_SECRET),
             ENV.isLocal());
+    }
+
+    private static OpenIDConfiguration createTokenXConfiguration(String wellKnownUrl) {
+        return createConfiguration(OpenIDProvider.TOKENX,
+            getIssuerFra(wellKnownUrl).orElseThrow(),
+            getJwksFra(wellKnownUrl).orElseThrow(),
+            getTokenEndpointFra(wellKnownUrl).orElseThrow(),
+            false,
+            null,
+            getTokenXProperty(TokenXProperty.TOKEN_X_CLIENT_ID),
+            null,
+            // Signerer requests med jws
+            false);
     }
 
     private static String getAzureProperty(AzureProperty property) {
@@ -146,13 +151,6 @@ public final class OidcProviderConfig {
             .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
     }
 
-    private static OpenIDConfiguration createTokenXConfiguration(String wellKnownUrl) {
-        return createConfiguration(OpenIDProvider.TOKENX, getIssuerFra(wellKnownUrl).orElseThrow(), getJwksFra(wellKnownUrl).orElseThrow(),
-            getTokenEndpointFra(wellKnownUrl).orElse(null), false, null, getTokenXProperty(TokenXProperty.TOKEN_X_CLIENT_ID), null,
-            // Signerer requests med jws
-            false);
-    }
-
     private static OpenIDConfiguration createConfiguration(OpenIDProvider type,
                                                            // NOSONAR
                                                            String issuer,
@@ -163,9 +161,15 @@ public final class OidcProviderConfig {
                                                            String clientName,
                                                            String clientPassword,
                                                            boolean skipAudienceValidation) {
-        return new OpenIDConfiguration(type, tilURI(issuer, "issuer", type), tilURI(jwks, "jwksUri", type),
-            tokenEndpoint != null ? tilURI(tokenEndpoint, "tokenEndpoint", type) : null, useProxyForJwks, proxy, Objects.requireNonNull(clientName),
-            clientPassword, skipAudienceValidation);
+        return new OpenIDConfiguration(type,
+            tilURI(issuer, "issuer", type),
+            tilURI(jwks, "jwksUri", type),
+            tokenEndpoint != null ? tilURI(tokenEndpoint, "tokenEndpoint", type) : null,
+            useProxyForJwks,
+            proxy,
+            Objects.requireNonNull(clientName),
+            clientPassword,
+            skipAudienceValidation);
     }
 
     private static String getDefaultProxy() {
@@ -177,7 +181,8 @@ public final class OidcProviderConfig {
             return URI.create(url);
         } catch (IllegalArgumentException e) {
             throw new TekniskException("F-644196",
-                String.format("Syntaksfeil i token validator konfigurasjonen av '%s' for '%s'", key, provider.name()), e);
+                String.format("Syntaksfeil i token validator konfigurasjonen av '%s' for '%s'", key, provider.name()),
+                e);
         }
     }
 }
