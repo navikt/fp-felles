@@ -11,7 +11,6 @@ import org.slf4j.MDC;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ResourceInfo;
-import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import no.nav.vedtak.exception.TekniskException;
@@ -38,18 +37,12 @@ public class AuthenticationFilterDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticationFilterDelegate.class);
 
-    private static final String ID_TOKEN_COOKIE_NAME = "ID_token";
     private static final String AUTHORIZATION_HEADER = HttpHeaders.AUTHORIZATION;
 
     private AuthenticationFilterDelegate() {
     }
 
-
     public static void validerSettKontekst(ResourceInfo resourceInfo, ContainerRequestContext ctx) {
-        validerSettKontekst(resourceInfo, ctx, null);
-    }
-
-    public static void validerSettKontekst(ResourceInfo resourceInfo, ContainerRequestContext ctx, String cookiePath) {
         try {
             Method method = resourceInfo.getResourceMethod();
             var utenAutentiseringRessurs = method.getAnnotation(UtenAutentisering.class);
@@ -66,7 +59,7 @@ public class AuthenticationFilterDelegate {
                 KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
                 LOG.trace("{} er whitelisted", metodenavn);
             } else {
-                var tokenString = getToken(ctx, cookiePath)
+                var tokenString = getTokenFromHeader(ctx)
                     .orElseThrow(() -> new ValideringsFeil("Mangler token"));
                 validerTokenSetKontekst(tokenString);
                 setUserAndConsumerId(KontekstHolder.getKontekst().getUid());
@@ -104,23 +97,11 @@ public class AuthenticationFilterDelegate {
         }
     }
 
-    private static Optional<TokenString> getToken(ContainerRequestContext request, String cookiePath) {
-        return getTokenFromHeader(request).or(() -> getCookieToken(request, cookiePath));
-    }
-
     private static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
         String headerValue = request.getHeaderString(AUTHORIZATION_HEADER);
         return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE)
             ? Optional.of(new TokenString(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length())))
             : Optional.empty();
-    }
-
-    private static Optional<TokenString> getCookieToken(ContainerRequestContext request, String cookiePath) {
-        var idTokenCookie = Optional.ofNullable(request.getCookies()).map(c -> c.get(ID_TOKEN_COOKIE_NAME));
-        return idTokenCookie.filter(c -> cookiePath != null && cookiePath.equalsIgnoreCase(c.getPath()))
-            .or(() -> idTokenCookie)
-            .map(Cookie::getValue)
-            .map(TokenString::new);
     }
 
     public static void validerTokenSetKontekst(TokenString tokenString) {
