@@ -93,25 +93,4 @@ public class WellKnownConfigurationHelper {
         }
     }
 
-    public static void setWellKnownConfig(String wellKnownUrl, String jsonAsString) {
-        guardForTestOnly();
-        wellKnownConfigMap.computeIfAbsent(wellKnownUrl, key -> {
-            try {
-                return READER.readValue(jsonAsString);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Ugyldig json: ", e);
-            }
-        });
-    }
-
-    public static void unsetWellKnownConfig() {
-        guardForTestOnly();
-        wellKnownConfigMap = new HashMap<>();
-    }
-
-    private static void guardForTestOnly() {
-        if (!ENV.isLocal()) {
-            throw new IllegalStateException("Skal aldri kjøres i miljø!");
-        }
-    }
 }

@@ -83,17 +83,17 @@ public final class OidcProviderConfig {
         }
 
         // Azure - ikke alle apps trenger denne (tokenx-apps)
-        var azureKonfigUrl = getAzureProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL);
+        var azureKonfigUrl = ENV.getProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name());
         if (azureKonfigUrl != null) {
             LOG.debug("Oppretter AzureAD konfig fra '{}'", azureKonfigUrl);
-            idProviderConfigs.add(createAzureAppConfiguration(azureKonfigUrl));
+            idProviderConfigs.add(createAzureAppConfiguration());
         }
 
         // TokenX
-        var tokenxKonfigUrl = getTokenXProperty(TokenXProperty.TOKEN_X_WELL_KNOWN_URL);
+        var tokenxKonfigUrl =  ENV.getProperty(TokenXProperty.TOKEN_X_WELL_KNOWN_URL.name());
         if (tokenxKonfigUrl != null) {
             LOG.debug("Oppretter TokenX konfig fra '{}'", tokenxKonfigUrl);
-            idProviderConfigs.add(createTokenXConfiguration(tokenxKonfigUrl));
+            idProviderConfigs.add(createTokenXConfiguration());
         }
 
         var providere = idProviderConfigs.stream().map(OpenIDConfiguration::type).map(OpenIDProvider::name).collect(Collectors.joining(", "));
@@ -115,24 +115,24 @@ public final class OidcProviderConfig {
     }
 
     @SuppressWarnings("unused")
-    private static OpenIDConfiguration createAzureAppConfiguration(String wellKnownUrl) {
-        var proxyUrl = ENV.isFss() ? URI.create(ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy())) : null;
+    private static OpenIDConfiguration createAzureAppConfiguration() {
+        var proxyUrl = (ENV.isFss() && ENV.isProd()) ? URI.create(ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy())) : null;
         return createConfiguration(OpenIDProvider.AZUREAD,
-            getIssuerFra(wellKnownUrl, proxyUrl).orElseThrow(),
-            getJwksFra(wellKnownUrl, proxyUrl).orElseThrow(),
-            getTokenEndpointFra(wellKnownUrl, proxyUrl).orElseThrow(),
-            ENV.isFss(),
+            getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER),
+            getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI),
+            getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT),
+            (ENV.isFss() && ENV.isProd()),
             proxyUrl,
             getAzureProperty(AzureProperty.AZURE_APP_CLIENT_ID),
             getAzureProperty(AzureProperty.AZURE_APP_CLIENT_SECRET),
             ENV.isLocal());
     }
 
-    private static OpenIDConfiguration createTokenXConfiguration(String wellKnownUrl) {
+    private static OpenIDConfiguration createTokenXConfiguration() {
         return createConfiguration(OpenIDProvider.TOKENX,
-            getIssuerFra(wellKnownUrl).orElseThrow(),
-            getJwksFra(wellKnownUrl).orElseThrow(),
-            getTokenEndpointFra(wellKnownUrl).orElseThrow(),
+            getTokenXProperty(TokenXProperty.TOKEN_X_ISSUER),
+            getTokenXProperty(TokenXProperty.TOKEN_X_JWKS_URI),
+            getTokenXProperty(TokenXProperty.TOKEN_X_TOKEN_ENDPOINT),
             false,
             null,
             getTokenXProperty(TokenXProperty.TOKEN_X_CLIENT_ID),
