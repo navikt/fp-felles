@@ -16,7 +16,9 @@ Inneholder følgende hovedmoduler
 ## Felles
 * JPA / Database utilities: For å kunne dynamisk oppdage og sette sammen orm-mapping fra flere moduler.  For å sette opp lokale transaksjoner uten eksternt JTA bibliotek
 * Logging / Logback utilities : For å definere log meldinger på en strukturert måte, med feilmeldingskoder (avhenger av SLF4J + Logback)
-* Sikkerhet : OIDC Login moduler.  PEP/PDP biblioteker for ABAC tilgangskontroll.
+* Auentisering og tokens : Tokenvalidering for innkommende kall + tokenproviders/veksling for utgående kall.  
+* Tilgangskontroll: PEP/PDP biblioteker for ABAC tilgangskontroll.
+* Byggesteiner: En rekke mindre moduler - Json, Xml, etc.
 
 ## Integrasjoner
 
