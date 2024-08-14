@@ -40,12 +40,7 @@ class OidcTokenValidatorTest {
 
     @AfterEach
     public void cleanSystemProperties() {
-        System.clearProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name());
-        System.clearProperty(AzureProperty.AZURE_APP_CLIENT_ID.name());
-        System.clearProperty(AzureProperty.AZURE_APP_CLIENT_SECRET.name());
-        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name());
-        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name());
-        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT.name());
+        Arrays.stream(AzureProperty.values()).forEach(p -> System.clearProperty(p.name()));
     }
 
     @Test

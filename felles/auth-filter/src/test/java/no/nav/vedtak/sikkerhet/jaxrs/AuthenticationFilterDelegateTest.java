@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.WebApplicationException;
@@ -30,12 +31,14 @@ import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
 
 class AuthenticationFilterDelegateTest {
 
+    private static final String SYSTEMBRUKER_PROP = "systembruker.username";
+
     private final OidcTokenValidator tokenValidator = Mockito.mock(OidcTokenValidator.class);
 
     private final ContainerRequestContext request = Mockito.mock(ContainerRequestContext.class);
 
     public void setupAll() {
-        var wellKnownUrl = OidcTokenGenerator.ISSUER + "/" + "dummy";
+        var wellKnownUrl = OidcTokenGenerator.ISSUER + "/dummy";
         System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(), wellKnownUrl);
         System.setProperty(AzureProperty.AZURE_APP_CLIENT_ID.name(), "OIDC");
         System.setProperty(AzureProperty.AZURE_APP_CLIENT_SECRET.name(), "dummy");
@@ -43,7 +46,7 @@ class AuthenticationFilterDelegateTest {
         System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), OidcTokenGenerator.ISSUER + "/jwks_uri");
         System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT.name(), "dummy");
 
-        System.setProperty("systembruker.username", "JUnit Test");
+        System.setProperty(SYSTEMBRUKER_PROP, "JUnit Test");
 
         OidcTokenValidatorConfig.addValidator(OpenIDProvider.AZUREAD, tokenValidator);
     }
@@ -55,13 +58,8 @@ class AuthenticationFilterDelegateTest {
 
     @AfterEach
     public void teardown() {
-        System.clearProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name());
-        System.clearProperty(AzureProperty.AZURE_APP_CLIENT_ID.name());
-        System.clearProperty(AzureProperty.AZURE_APP_CLIENT_SECRET.name());
-        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name());
-        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name());
-        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT.name());
-        System.clearProperty("systembruker.username");
+        Arrays.asList(AzureProperty.values()).forEach(p -> System.clearProperty(p.name()));
+        System.clearProperty(SYSTEMBRUKER_PROP);
     }
 
     @Test

@@ -83,14 +83,14 @@ public final class OidcProviderConfig {
         }
 
         // Azure - ikke alle apps trenger denne (tokenx-apps)
-        var azureKonfigUrl = ENV.getProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name());
+        var azureKonfigUrl = getAzureProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL);
         if (azureKonfigUrl != null) {
             LOG.debug("Oppretter AzureAD konfig fra '{}'", azureKonfigUrl);
             idProviderConfigs.add(createAzureAppConfiguration());
         }
 
         // TokenX
-        var tokenxKonfigUrl =  ENV.getProperty(TokenXProperty.TOKEN_X_WELL_KNOWN_URL.name());
+        var tokenxKonfigUrl = getTokenXProperty(TokenXProperty.TOKEN_X_WELL_KNOWN_URL);
         if (tokenxKonfigUrl != null) {
             LOG.debug("Oppretter TokenX konfig fra '{}'", tokenxKonfigUrl);
             idProviderConfigs.add(createTokenXConfiguration());
