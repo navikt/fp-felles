@@ -1,24 +1,27 @@
 package no.nav.vedtak.sikkerhet.jaxrs;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
@@ -45,7 +48,7 @@ public class AuthenticationFilterDelegate {
     public static void validerSettKontekst(ResourceInfo resourceInfo, ContainerRequestContext ctx) {
         try {
             Method method = resourceInfo.getResourceMethod();
-            var utenAutentiseringRessurs = method.getAnnotation(UtenAutentisering.class);
+            var utenAutentiseringRessurs = getAnnotation(resourceInfo, UtenAutentisering.class);
             var metodenavn = method.getName();
             if (KontekstHolder.harKontekst()) {
                 LOG.info("Kall til {} hadde kontekst {}", metodenavn, KontekstHolder.getKontekst().getKompaktUid());
@@ -55,13 +58,11 @@ public class AuthenticationFilterDelegate {
             setCallAndConsumerId(ctx);
             LOG.trace("{} i klasse {}", metodenavn, method.getDeclaringClass());
             // Kan vurdere å unnta metodenavn = getOpenApi og getDeclaringClass startsWith io.swagger + endsWith OpenApiResource
-            if (utenAutentiseringRessurs != null ) {
+            if (utenAutentiseringRessurs.isPresent()) {
                 KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
                 LOG.trace("{} er whitelisted", metodenavn);
             } else {
-                var tokenString = getTokenFromHeader(ctx)
-                    .orElseThrow(() -> new ValideringsFeil("Mangler token"));
-                validerTokenSetKontekst(tokenString);
+                validerTokenSetKontekst(resourceInfo, ctx);
                 setUserAndConsumerId(KontekstHolder.getKontekst().getUid());
             }
         } catch (TekniskException | TokenFeil e) {
@@ -97,6 +98,11 @@ public class AuthenticationFilterDelegate {
         }
     }
 
+    private static <T extends Annotation> Optional<T> getAnnotation(ResourceInfo resourceInfo, Class<T> tClass) {
+        return Optional.ofNullable(resourceInfo.getResourceMethod().getAnnotation(tClass))
+            .or(() -> Optional.ofNullable(resourceInfo.getResourceClass().getAnnotation(tClass)));
+    }
+
     private static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
         String headerValue = request.getHeaderString(AUTHORIZATION_HEADER);
         return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE)
@@ -104,8 +110,9 @@ public class AuthenticationFilterDelegate {
             : Optional.empty();
     }
 
-    public static void validerTokenSetKontekst(TokenString tokenString) {
+    public static void validerTokenSetKontekst(ResourceInfo resourceInfo, ContainerRequestContext ctx) {
         // Sett opp OpenIDToken
+        var tokenString = getTokenFromHeader(ctx).orElseThrow(() -> new ValideringsFeil("Mangler token"));
         var claims = JwtUtil.getClaims(tokenString.token());
         var configuration = ConfigProvider.getOpenIDConfiguration(JwtUtil.getIssuer(claims))
             .orElseThrow(() -> new TokenFeil("Token mangler issuer claim"));
@@ -124,7 +131,21 @@ public class AuthenticationFilterDelegate {
         } else {
             throw new ValideringsFeil("Ugyldig token");
         }
+        logStsUsage(configuration.type(), resourceInfo, resourceInfo.getResourceMethod().getName());
     }
+
+    private static void logStsUsage(OpenIDProvider type, ResourceInfo resourceInfo, String metodenavn) {
+        if (OpenIDProvider.STS.equals(type)) {
+            var annotertTillatSts = getAnnotation(resourceInfo, TillatSTS.class).isPresent();
+            if (annotertTillatSts) {
+                LOG.info("Innkommende STS - metode {} har annotering TillatSTS", metodenavn);
+            } else {
+                LOG.info("Innkommende STS - metode {} mangler annotering TillatSTS", metodenavn);
+            }
+        }
+    }
+
+
 
     private static class TokenFeil extends RuntimeException {
         TokenFeil(String message) {
