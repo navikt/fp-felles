@@ -7,11 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.jose4j.json.JsonUtil;
 import org.jose4j.jwt.NumericDate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +18,6 @@ import no.nav.vedtak.sikkerhet.kontekst.Groups;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
-import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
 import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
@@ -31,21 +27,20 @@ class OidcTokenValidatorTest {
 
     @BeforeEach
     public void beforeEach() {
-
-        System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(),
-            OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
+        var wellKnownUrl = OidcTokenGenerator.ISSUER + "/dummy_url";
+        System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(), wellKnownUrl);
         System.setProperty(AzureProperty.AZURE_APP_CLIENT_ID.name(), "OIDC");
+        System.setProperty(AzureProperty.AZURE_APP_CLIENT_SECRET.name(), "dummy");
         System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), OidcTokenGenerator.ISSUER);
-        System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), OidcTokenGenerator.ISSUER + "/jwks_uri");
-        Map<String, String> testData = new HashMap<>() {
-            {
-                put(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), OidcTokenGenerator.ISSUER);
-            }
-        };
-        WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH,
-            JsonUtil.toJson(testData));
+        System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), "dummy");
+        System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT.name(), "dummy");
         tokenValidator = new OidcTokenValidator(OidcProviderConfig.instance().getOidcConfig(OpenIDProvider.AZUREAD).orElseThrow(),
             new JwksKeyHandlerFromString(KeyStoreTool.getJwks()));
+    }
+
+    @AfterEach
+    public void cleanSystemProperties() {
+        Arrays.stream(AzureProperty.values()).forEach(p -> System.clearProperty(p.name()));
     }
 
     @Test
@@ -266,8 +261,6 @@ class OidcTokenValidatorTest {
 
     @Test
     void skal_ikke_godta_å_validere_token_når_det_mangler_konfigurasjon_for_issuer() {
-        WellKnownConfigurationHelper.setWellKnownConfig("azureAD", "{}");
-
         var keyHandler = new JwksKeyHandlerFromString(KeyStoreTool.getJwks());
         var message = assertThrows(IllegalStateException.class,
             () -> new OidcTokenValidator(OpenIDProvider.AZUREAD, null, keyHandler, "OIDC"));
@@ -322,15 +315,6 @@ class OidcTokenValidatorTest {
         String p = Base64.getEncoder().encodeToString(claims.getBytes()).replaceAll("=", "");
         OidcTokenValidatorResult result4 = tokenValidator.validate(new TokenString(h + "." + p + ".123"));
         assertInvalid(result4, "Invalid OIDC JWT processing failed");
-    }
-
-    @AfterEach
-    public void cleanSystemProperties() {
-        System.clearProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name());
-        System.clearProperty(AzureProperty.AZURE_APP_CLIENT_ID.name());
-        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name());
-        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name());
-
     }
 
     private static class JwksKeyHandlerFromString extends JwksKeyHandlerImpl {

@@ -5,25 +5,24 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
-import java.util.Map;
+import java.util.Arrays;
 
-import org.jose4j.json.JsonUtil;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ResourceInfo;
+
 import org.jose4j.jwt.NumericDate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.container.ResourceInfo;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
@@ -32,40 +31,35 @@ import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidatorResult;
 
 class AuthenticationFilterDelegateTest {
 
+    private static final String SYSTEMBRUKER_PROP = "systembruker.username";
+
     private final OidcTokenValidator tokenValidator = Mockito.mock(OidcTokenValidator.class);
 
     private final ContainerRequestContext request = Mockito.mock(ContainerRequestContext.class);
 
     public void setupAll() {
-
-        System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(),
-            OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH);
+        var wellKnownUrl = OidcTokenGenerator.ISSUER + "/dummy";
+        System.setProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name(), wellKnownUrl);
         System.setProperty(AzureProperty.AZURE_APP_CLIENT_ID.name(), "OIDC");
+        System.setProperty(AzureProperty.AZURE_APP_CLIENT_SECRET.name(), "dummy");
         System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), OidcTokenGenerator.ISSUER);
         System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), OidcTokenGenerator.ISSUER + "/jwks_uri");
-        System.setProperty("systembruker.username", "JUnit Test");
+        System.setProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT.name(), "dummy");
 
-        Map<String, String> testData = Map.of("issuer", OidcTokenGenerator.ISSUER, AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(),
-            OidcTokenGenerator.ISSUER + "/jwks_uri");
-        WellKnownConfigurationHelper.setWellKnownConfig(OidcTokenGenerator.ISSUER + "/" + WellKnownConfigurationHelper.STANDARD_WELL_KNOWN_PATH,
-            JsonUtil.toJson(testData));
+        System.setProperty(SYSTEMBRUKER_PROP, "JUnit Test");
+
         OidcTokenValidatorConfig.addValidator(OpenIDProvider.AZUREAD, tokenValidator);
     }
 
     @BeforeEach
     public void setUp() {
-        WellKnownConfigurationHelper.unsetWellKnownConfig();
         setupAll();
     }
 
     @AfterEach
     public void teardown() {
-        System.clearProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL.name());
-        System.clearProperty(AzureProperty.AZURE_APP_CLIENT_ID.name());
-        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name());
-        System.clearProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name());
-        System.clearProperty("systembruker.username");
-
+        Arrays.asList(AzureProperty.values()).forEach(p -> System.clearProperty(p.name()));
+        System.clearProperty(SYSTEMBRUKER_PROP);
     }
 
     @Test

@@ -18,20 +18,11 @@ public final class OidcContextSupplier {
         return () -> TokenProvider.getConsumerIdFor(context);
     }
 
-    public Supplier<OpenIDToken> tokenForSystem() {
-        return TokenProvider::getTokenForSystem;
+    public Supplier<OpenIDToken> tokenForSystem(OpenIDProvider provider, String scopes) {
+        return () -> TokenProvider.getTokenForSystem(provider, scopes);
     }
 
     public Supplier<OpenIDToken> adaptive(String scopes) {
         return () -> TokenProvider.getTokenForKontekst(scopes);
     }
-
-    public Supplier<OpenIDToken> azureTokenForSystem(String scopes) {
-        return () -> TokenProvider.getTokenForSystem(OpenIDProvider.AZUREAD, scopes);
-    }
-
-    public Supplier<OpenIDToken> consumerToken() {
-        return TokenProvider::getTokenForSystem;
-    }
-
 }

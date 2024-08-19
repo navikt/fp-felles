@@ -71,7 +71,11 @@ public final class TokenProvider {
     }
 
     public static OpenIDToken getTokenForSystem(OpenIDProvider provider, String scopes) {
-        return OpenIDProvider.AZUREAD.equals(provider) ? getAzureSystemToken(scopes) : getStsSystemToken();
+        return switch (provider) {
+            case AZUREAD -> getAzureSystemToken(scopes);
+            case STS -> getStsSystemToken();
+            case TOKENX -> throw new IllegalStateException("Ikke bruk TokenX til kall i systemkontekst");
+        };
     }
 
     // Endre til AzureClientId ved overgang til system = azure

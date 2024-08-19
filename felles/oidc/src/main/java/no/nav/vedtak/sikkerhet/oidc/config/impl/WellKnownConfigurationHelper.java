@@ -9,7 +9,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -19,14 +18,12 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class WellKnownConfigurationHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(WellKnownConfigurationHelper.class);
-    private static final Environment ENV = Environment.current();
     private static final ObjectReader READER = DefaultJsonMapper.getObjectMapper().readerFor(WellKnownOpenIdConfiguration.class);
 
     public static final String STANDARD_WELL_KNOWN_PATH = ".well-known/openid-configuration";
@@ -93,25 +90,4 @@ public class WellKnownConfigurationHelper {
         }
     }
 
-    public static void setWellKnownConfig(String wellKnownUrl, String jsonAsString) {
-        guardForTestOnly();
-        wellKnownConfigMap.computeIfAbsent(wellKnownUrl, key -> {
-            try {
-                return READER.readValue(jsonAsString);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Ugyldig json: ", e);
-            }
-        });
-    }
-
-    public static void unsetWellKnownConfig() {
-        guardForTestOnly();
-        wellKnownConfigMap = new HashMap<>();
-    }
-
-    private static void guardForTestOnly() {
-        if (!ENV.isLocal()) {
-            throw new IllegalStateException("Skal aldri kjøres i miljø!");
-        }
-    }
 }
