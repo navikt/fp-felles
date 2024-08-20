@@ -1,4 +1,4 @@
-package no.nav.vedtak.sikkerhet.tokenx;
+package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
 import java.net.URI;
 import java.util.Optional;
@@ -8,29 +8,26 @@ import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.NumericDate;
 import org.jose4j.lang.JoseException;
 
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.TokenXProperty;
 
 final class TokenXAssertionGenerator {
 
-    private static TokenXAssertionGenerator INSTANCE;
+    private static final Environment ENV = Environment.current();
 
     private final String clientId;
     private final URI tokenEndpoint;
     private final RsaJsonWebKey privateKey;
 
 
-    private TokenXAssertionGenerator() {
-        this(ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX).map(OpenIDConfiguration::tokenEndpoint).orElse(null),
-            ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX).map(OpenIDConfiguration::clientId).orElse(null),
-            Optional.ofNullable(Environment.current().getProperty(TokenXProperty.TOKEN_X_PRIVATE_JWK.name()))
-                .or(() -> Optional.ofNullable(
-                    Environment.current().getProperty(TokenXProperty.TOKEN_X_PRIVATE_JWK.name().toLowerCase().replace('_', '.'))))
+    TokenXAssertionGenerator(OpenIDConfiguration config) {
+        this(Optional.ofNullable(config).map(OpenIDConfiguration::tokenEndpoint).orElse(null),
+            Optional.ofNullable(config).map(OpenIDConfiguration::clientId).orElse(null),
+            Optional.ofNullable(getTokenXProperty(TokenXProperty.TOKEN_X_PRIVATE_JWK))
                 .map(TokenXAssertionGenerator::rsaKey)
                 .orElse(null));
     }
@@ -42,24 +39,18 @@ final class TokenXAssertionGenerator {
         this.privateKey = privateKey;
     }
 
-    public static synchronized TokenXAssertionGenerator instance() {
-        var inst = INSTANCE;
-        if (inst == null) {
-            inst = new TokenXAssertionGenerator();
-            INSTANCE = inst;
-        }
-        return inst;
-    }
-
-    public String assertion() {
+    String assertion() {
         try {
+            var expirationTime = NumericDate.now();
+            expirationTime.addSeconds(90);
+
             JwtClaims claims = new JwtClaims();
             claims.setSubject(clientId);
             claims.setIssuer(clientId);
             claims.setAudience(tokenEndpoint.toString());
             claims.setIssuedAtToNow();
             claims.setNotBeforeMinutesInThePast(2);
-            claims.setExpirationTimeMinutesInTheFuture(1);
+            claims.setExpirationTime(expirationTime); // Max 120s - men skal bare leve til man har fått token
             claims.setGeneratedJwtId();
 
             JsonWebSignature jws = new JsonWebSignature();
@@ -80,5 +71,10 @@ final class TokenXAssertionGenerator {
         } catch (JoseException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    private static String getTokenXProperty(TokenXProperty property) {
+        return Optional.ofNullable(ENV.getProperty(property.name()))
+            .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
     }
 }

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.klient.http.ProxyProperty;
 import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
@@ -29,10 +30,6 @@ public final class OidcProviderConfig {
     private static final Logger LOG = LoggerFactory.getLogger(OidcProviderConfig.class);
 
     private static final String STS_WELL_KNOWN_URL = "oidc.sts.well.known.url";
-    private static final String AZURE_HTTP_PROXY = "azure.http.proxy"; // settes ikke av naiserator
-    private static final String PROXY_KEY = "proxy.url"; // FP-oppsett lite brukt
-    private static final String DEFAULT_PROXY_URL = "http://webproxy.nais:8088";
-
     private static Set<OpenIDConfiguration> providers = new HashSet<>();
 
     private final Set<OpenIDConfiguration> instanceProviders;
@@ -116,7 +113,7 @@ public final class OidcProviderConfig {
 
     @SuppressWarnings("unused")
     private static OpenIDConfiguration createAzureAppConfiguration() {
-        var proxyUrl = (ENV.isFss() && ENV.isProd()) ? URI.create(ENV.getProperty(AZURE_HTTP_PROXY, getDefaultProxy())) : null;
+        var proxyUrl = (ENV.isFss() && ENV.isProd()) ? ProxyProperty.getProxy() : null;
         return createConfiguration(OpenIDProvider.AZUREAD,
             getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER),
             getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI),
@@ -170,10 +167,6 @@ public final class OidcProviderConfig {
             Objects.requireNonNull(clientName),
             clientPassword,
             skipAudienceValidation);
-    }
-
-    private static String getDefaultProxy() {
-        return ENV.getProperty(PROXY_KEY, DEFAULT_PROXY_URL);
     }
 
     private static URI tilURI(String url, String key, OpenIDProvider provider) {

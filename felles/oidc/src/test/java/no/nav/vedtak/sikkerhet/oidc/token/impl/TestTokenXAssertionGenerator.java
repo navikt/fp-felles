@@ -1,4 +1,4 @@
-package no.nav.vedtak.sikkerhet.tokenx;
+package no.nav.vedtak.sikkerhet.oidc.token.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.validator.KeyStoreTool;
 
-public class TestAssertionGenerator {
+public class TestTokenXAssertionGenerator {
 
     @Test
     void lag_signer_valider_tokenx_assertion() throws MalformedClaimException {
@@ -21,7 +21,7 @@ public class TestAssertionGenerator {
         var claims = JwtUtil.getClaims(token);
         assertThat(claims.getClaimValueAsString("iss")).isEqualTo("minKlient");
         assertThat(claims.getClaimValueAsString("sub")).isEqualTo("minKlient");
-        assertThat(claims.getClaimValueAsString("aud").toString()).contains("https://token/endpoint");
+        assertThat(claims.getClaimValueAsString("aud")).contains("https://token/endpoint");
         assertThat(Instant.ofEpochSecond(claims.getClaimValue("nbf", Long.class))).isBefore(Instant.now());
         assertThat(Instant.ofEpochSecond(claims.getClaimValue("iat", Long.class))).isBefore(Instant.now());
         assertThat(Instant.ofEpochSecond(claims.getClaimValue("exp", Long.class))).isAfter(Instant.now());

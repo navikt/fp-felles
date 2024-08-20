@@ -3,8 +3,6 @@ package no.nav.vedtak.sikkerhet.oidc.jwks;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -22,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.klient.http.ProxyProperty;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
 
@@ -88,19 +87,14 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         if (url == null) {
             throw new TekniskException("F-836283", "Mangler konfigurasjon av jwks url");
         }
-        try {
-            if (useProxyForJwks && proxy == null) {
-                throw kunneIkkeOppdatereJwksCache(url, new IllegalArgumentException("Skal bruke proxy, men ingen verdi angitt"));
-            }
-            var useProxySelector = Optional.ofNullable(proxy)
-                .map(p -> new InetSocketAddress(p.getHost(), p.getPort()))
-                .map(ProxySelector::of)
-                .orElse(HttpClient.Builder.NO_PROXY);
-            var client = HttpClient.newBuilder()
-                .followRedirects(HttpClient.Redirect.NEVER)
-                .connectTimeout(Duration.ofSeconds(20))
-                .proxy(useProxySelector)
-                .build();
+        if (useProxyForJwks && proxy == null) {
+            throw kunneIkkeOppdatereJwksCache(url, new IllegalArgumentException("Skal bruke proxy, men ingen verdi angitt"));
+        }
+        try (var client = HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.NEVER)
+            .connectTimeout(Duration.ofSeconds(20))
+            .proxy(ProxyProperty.getProxySelector(proxy))
+            .build()) {
 
             var request = HttpRequest.newBuilder().header("Accept", "application/json").timeout(Duration.ofSeconds(10)).uri(url).GET().build();
             var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));

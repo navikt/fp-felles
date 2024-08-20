@@ -7,19 +7,17 @@ import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import no.nav.vedtak.sikkerhet.kontekst.DefaultRequestKontekstProvider;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstProvider;
-import no.nav.vedtak.util.LRUCache;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.sikkerhet.kontekst.DefaultRequestKontekstProvider;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import no.nav.vedtak.util.LRUCache;
 
 public final class TokenXExchangeKlient {
 
@@ -29,15 +27,18 @@ public final class TokenXExchangeKlient {
 
     private static TokenXExchangeKlient INSTANCE;
 
-    private LRUCache<String, OpenIDToken> obocache;
+    private final LRUCache<String, OpenIDToken> obocache;
 
     private final URI tokenEndpoint;
+
+    private final TokenXAssertionGenerator assertionGenerator;
 
 
     private TokenXExchangeKlient() {
         var provider = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX);
+        this.assertionGenerator = new TokenXAssertionGenerator(provider.orElse(null));
         this.tokenEndpoint = provider.map(OpenIDConfiguration::tokenEndpoint).orElse(null);
-        this.obocache = new LRUCache<>(2500, TimeUnit.MILLISECONDS.convert(90, TimeUnit.SECONDS));
+        this.obocache = new LRUCache<>(2500, TimeUnit.MILLISECONDS.convert(110, TimeUnit.SECONDS));
     }
 
     public static synchronized TokenXExchangeKlient instance() {
@@ -49,13 +50,16 @@ public final class TokenXExchangeKlient {
         return inst;
     }
 
-    public OpenIDToken exchangeToken(OpenIDToken token, String assertion, String scopes) {
+    public OpenIDToken exchangeToken(OpenIDToken token, String scopes) {
         var audience = audience(scopes);
         var uid = KONTEKST_PROVIDER.getKontekst().getUid();
         var tokenFromCache = getCachedToken(uid, audience);
         if (tokenFromCache != null && tokenFromCache.isNotExpired()) {
             return tokenFromCache.copy();
         }
+
+        // Assertion må være generert av den som skal bytte. Et JWT, RSA-signert, basert på injisert private jwk
+        var assertion = assertionGenerator.assertion();
 
         var response = hentToken(token, assertion, audience);
         LOG.debug("TokenX byttet og fikk token av type {} utløper {}", response.token_type(), response.expires_in());
@@ -74,21 +78,8 @@ public final class TokenXExchangeKlient {
             .uri(tokenEndpoint)
             .POST(ofFormData(token, assertion, audience))
             .build();
-        return hentTokenRetryable(request);
+        return GeneriskTokenKlient.hentTokenRetryable(request, null, RETRIES);
     }
-
-    public static OidcTokenResponse hentTokenRetryable(HttpRequest request) {
-        int i = RETRIES;
-        while (i-- > 0) {
-            try {
-                return GeneriskTokenKlient.hentToken(request, null);
-            } catch (TekniskException e) {
-                LOG.info("Feilet {}. gang ved henting av token. Prøver på nytt", RETRIES - i, e);
-            }
-        }
-        return GeneriskTokenKlient.hentToken(request, null);
-    }
-
 
     private static HttpRequest.BodyPublisher ofFormData(OpenIDToken token, String assertion, String audience) {
         var formdata = "grant_type=urn:ietf:params:oauth:grant-type:token-exchange&"
@@ -118,4 +109,5 @@ public final class TokenXExchangeKlient {
     private String cacheKey(String uid, String audience) {
         return uid + ":::" + audience;
     }
+
 }

@@ -11,11 +11,11 @@ import java.util.function.Supplier;
 
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+
 import no.nav.vedtak.klient.http.HttpClientRequest;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 /**
@@ -68,9 +68,6 @@ public final class RestRequest extends HttpClientRequest {
         this.consumerId(selectConsumerId(tokenConfig));
         if (!TokenFlow.NO_AUTH_NEEDED.equals(tokenConfig)) {
             this.authorization(selectTokenSupplier(tokenConfig, scopes)).validator(RestRequest::validateRestHeaders);
-        }
-        if (TokenFlow.STS_ADD_CONSUMER.equals(tokenConfig)) {
-            this.consumerToken();
         }
     }
 
@@ -147,11 +144,6 @@ public final class RestRequest extends HttpClientRequest {
         };
     }
 
-    private RestRequest consumerToken() {
-        delayedHeader(NavHeaders.HEADER_NAV_CONSUMER_TOKEN, () -> OIDC_AUTH_HEADER_PREFIX + CONTEXT_SUPPLIER.tokenForSystem(OpenIDProvider.STS, null).get().token());
-        return this;
-    }
-
     private RestRequest authorization(Supplier<OpenIDToken> authToken) {
         delayedHeader(HttpHeaders.AUTHORIZATION, () -> OIDC_AUTH_HEADER_PREFIX + authToken.get().token());
         return this;
@@ -167,17 +159,17 @@ public final class RestRequest extends HttpClientRequest {
     private static Supplier<OpenIDToken> selectTokenSupplier(TokenFlow tokenConfig, String scopes) {
         return switch (tokenConfig) {
             case ADAPTIVE -> CONTEXT_SUPPLIER.adaptive(scopes);
-            case STS_CC, STS_ADD_CONSUMER -> CONTEXT_SUPPLIER.tokenForSystem(OpenIDProvider.STS, null);
-            case AZUREAD_CC -> CONTEXT_SUPPLIER.tokenForSystem(OpenIDProvider.AZUREAD, scopes);
+            case AZUREAD_CC -> CONTEXT_SUPPLIER.tokenForSystem(scopes);
             case NO_AUTH_NEEDED -> throw new IllegalArgumentException("No supplier needed");
         };
     }
 
     private static Supplier<String> selectConsumerId(TokenFlow tokenConfig) {
-        return switch (tokenConfig) {
-            case STS_CC, STS_ADD_CONSUMER, AZUREAD_CC -> CONTEXT_SUPPLIER.consumerIdFor(SikkerhetContext.SYSTEM);
-            default -> CONTEXT_SUPPLIER.consumerIdForCurrentKontekst();
-        };
+        if (TokenFlow.AZUREAD_CC.equals(tokenConfig)) {
+            return CONTEXT_SUPPLIER.consumerIdFor(SikkerhetContext.SYSTEM);
+        } else {
+            return CONTEXT_SUPPLIER.consumerIdForCurrentKontekst();
+        }
     }
 
     private static void validateRestHeaders(HttpRequest request) {
