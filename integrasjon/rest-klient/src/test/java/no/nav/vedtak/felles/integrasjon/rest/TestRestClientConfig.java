@@ -30,7 +30,7 @@ public class TestRestClientConfig {
     @Test
     void testCase_kun_application_uten_properties() {
         var config = RestConfig.forClient(TestRiskUtenEndpoint.class);
-        assertThat(config.tokenConfig()).isEqualTo(TokenFlow.STS_CC);
+        assertThat(config.tokenConfig()).isEqualTo(TokenFlow.AZUREAD_CC);
         assertThat(config.scopes()).isEqualTo(FpApplication.scopesFor(FpApplication.FPRISK));
         assertThat(config.fpContextPath()).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPRISK)));
         assertThat(config.endpoint()).isEqualTo(URI.create(FpApplication.contextPathFor(FpApplication.FPRISK)));
@@ -79,7 +79,7 @@ public class TestRestClientConfig {
 
     }
 
-    @RestClientConfig(tokenConfig = TokenFlow.STS_CC, application = FpApplication.FPRISK)
+    @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, application = FpApplication.FPRISK)
     private static class TestRiskUtenEndpoint {
 
     }
