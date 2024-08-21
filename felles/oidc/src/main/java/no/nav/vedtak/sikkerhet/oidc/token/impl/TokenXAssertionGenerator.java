@@ -42,7 +42,7 @@ final class TokenXAssertionGenerator {
     String assertion() {
         try {
             var expirationTime = NumericDate.now();
-            expirationTime.addSeconds(90);
+            expirationTime.addSeconds(60);
 
             JwtClaims claims = new JwtClaims();
             claims.setSubject(clientId);

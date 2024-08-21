@@ -47,7 +47,7 @@ public final class MaskinportenTokenKlient {
         this.tokenEndpoint = URI.create(getMaskinportenProperty(MaskinportenProperty.MASKINPORTEN_TOKEN_ENDPOINT));
         this.scopes = Arrays.stream(getMaskinportenProperty(MaskinportenProperty.MASKINPORTEN_SCOPES)
             .split("\\s+")).toList();
-        this.obocache = new LRUCache<>(200, TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS));
+        this.obocache = new LRUCache<>(200, TimeUnit.MILLISECONDS.convert(60, TimeUnit.MINUTES));
         this.proxyUrl = ProxyProperty.getProxyIfFSS();
     }
 

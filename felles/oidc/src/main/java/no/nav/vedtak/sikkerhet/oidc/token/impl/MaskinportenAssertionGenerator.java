@@ -30,7 +30,7 @@ final class MaskinportenAssertionGenerator {
     String assertion(String scope, String resource) {
         try {
             var expirationTime = NumericDate.now();
-            expirationTime.addSeconds(90);
+            expirationTime.addSeconds(60);
             JwtClaims claims = new JwtClaims();
             claims.setIssuer(clientId);
             claims.setAudience(issuer);

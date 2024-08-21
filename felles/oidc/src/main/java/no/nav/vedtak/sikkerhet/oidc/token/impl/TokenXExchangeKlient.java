@@ -38,7 +38,7 @@ public final class TokenXExchangeKlient {
         var provider = ConfigProvider.getOpenIDConfiguration(OpenIDProvider.TOKENX);
         this.assertionGenerator = new TokenXAssertionGenerator(provider.orElse(null));
         this.tokenEndpoint = provider.map(OpenIDConfiguration::tokenEndpoint).orElse(null);
-        this.obocache = new LRUCache<>(2500, TimeUnit.MILLISECONDS.convert(110, TimeUnit.SECONDS));
+        this.obocache = new LRUCache<>(2500, TimeUnit.MILLISECONDS.convert(60, TimeUnit.MINUTES));
     }
 
     public static synchronized TokenXExchangeKlient instance() {
