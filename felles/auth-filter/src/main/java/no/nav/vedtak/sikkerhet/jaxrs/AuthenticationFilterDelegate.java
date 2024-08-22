@@ -119,6 +119,10 @@ public class AuthenticationFilterDelegate {
         var expiresAt = Optional.ofNullable(JwtUtil.getExpirationTime(claims)).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, tokenString, null, expiresAt.toEpochMilli());
 
+        if (OpenIDProvider.STS.equals(configuration.type()) && getAnnotation(resourceInfo, TillatSTS.class).isEmpty()) {
+            throw new ValideringsFeil("Kall med STS til endepunkt som ikke eksplisitt tillater STS");
+        }
+
         // Valider
         var tokenValidator = OidcTokenValidatorConfig.instance().getValidator(token.provider());
         var validateResult = tokenValidator.validate(token.primary());
@@ -131,21 +135,7 @@ public class AuthenticationFilterDelegate {
         } else {
             throw new ValideringsFeil("Ugyldig token");
         }
-        logStsUsage(configuration.type(), resourceInfo, resourceInfo.getResourceMethod().getName());
     }
-
-    private static void logStsUsage(OpenIDProvider type, ResourceInfo resourceInfo, String metodenavn) {
-        if (OpenIDProvider.STS.equals(type)) {
-            var annotertTillatSts = getAnnotation(resourceInfo, TillatSTS.class).isPresent();
-            if (annotertTillatSts) {
-                LOG.info("Innkommende STS - metode {} har annotering TillatSTS", metodenavn);
-            } else {
-                LOG.info("Innkommende STS - metode {} mangler annotering TillatSTS", metodenavn);
-            }
-        }
-    }
-
-
 
     private static class TokenFeil extends RuntimeException {
         TokenFeil(String message) {
