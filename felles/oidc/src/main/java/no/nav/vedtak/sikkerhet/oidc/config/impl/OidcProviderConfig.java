@@ -116,9 +116,9 @@ public final class OidcProviderConfig {
     private static OpenIDConfiguration createAzureAppConfiguration(String azureKonfigUrl) {
         var proxyUrl = (ENV.isFss() && ENV.isProd()) ? ProxyProperty.getProxy() : null;
         return createConfiguration(OpenIDProvider.AZUREAD,
-            getPropertyOrWellKnown(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), () -> getIssuerFra(azureKonfigUrl, proxyUrl)),
-            getPropertyOrWellKnown(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), () -> getJwksFra(azureKonfigUrl, proxyUrl)),
-            getPropertyOrWellKnown(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT.name(), () -> getTokenEndpointFra(azureKonfigUrl, proxyUrl)),
+            getPropertyOrWellKnown(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER), () -> getIssuerFra(azureKonfigUrl, proxyUrl)),
+            getPropertyOrWellKnown(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI), () -> getJwksFra(azureKonfigUrl, proxyUrl)),
+            getPropertyOrWellKnown(getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT), () -> getTokenEndpointFra(azureKonfigUrl, proxyUrl)),
             (ENV.isFss() && ENV.isProd()),
             proxyUrl,
             getAzureProperty(AzureProperty.AZURE_APP_CLIENT_ID),
@@ -128,9 +128,9 @@ public final class OidcProviderConfig {
 
     private static OpenIDConfiguration createTokenXConfiguration(String tokenxKonfigUrl) {
         return createConfiguration(OpenIDProvider.TOKENX,
-            getPropertyOrWellKnown(TokenXProperty.TOKEN_X_ISSUER.name(), () -> getIssuerFra(tokenxKonfigUrl)),
-            getPropertyOrWellKnown(TokenXProperty.TOKEN_X_JWKS_URI.name(), () -> getJwksFra(tokenxKonfigUrl)),
-            getPropertyOrWellKnown(TokenXProperty.TOKEN_X_TOKEN_ENDPOINT.name(), () -> getTokenEndpointFra(tokenxKonfigUrl)),
+            getPropertyOrWellKnown(getTokenXProperty(TokenXProperty.TOKEN_X_ISSUER), () -> getIssuerFra(tokenxKonfigUrl)),
+            getPropertyOrWellKnown(getTokenXProperty(TokenXProperty.TOKEN_X_JWKS_URI), () -> getJwksFra(tokenxKonfigUrl)),
+            getPropertyOrWellKnown(getTokenXProperty(TokenXProperty.TOKEN_X_TOKEN_ENDPOINT), () -> getTokenEndpointFra(tokenxKonfigUrl)),
             false,
             null,
             getTokenXProperty(TokenXProperty.TOKEN_X_CLIENT_ID),
@@ -139,8 +139,8 @@ public final class OidcProviderConfig {
             false);
     }
 
-    private static String getPropertyOrWellKnown(String propertyname, Supplier<Optional<String>> wellknownSupplier) {
-        return getProperty(propertyname)
+    private static String getPropertyOrWellKnown(String property, Supplier<Optional<String>> wellknownSupplier) {
+        return Optional.ofNullable(property)
             .or(wellknownSupplier)
             .orElse(null);
     }
