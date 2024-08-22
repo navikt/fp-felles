@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -83,14 +84,14 @@ public final class OidcProviderConfig {
         var azureKonfigUrl = getAzureProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL);
         if (azureKonfigUrl != null) {
             LOG.debug("Oppretter AzureAD konfig fra '{}'", azureKonfigUrl);
-            idProviderConfigs.add(createAzureAppConfiguration());
+            idProviderConfigs.add(createAzureAppConfiguration(azureKonfigUrl));
         }
 
         // TokenX
         var tokenxKonfigUrl = getTokenXProperty(TokenXProperty.TOKEN_X_WELL_KNOWN_URL);
         if (tokenxKonfigUrl != null) {
             LOG.debug("Oppretter TokenX konfig fra '{}'", tokenxKonfigUrl);
-            idProviderConfigs.add(createTokenXConfiguration());
+            idProviderConfigs.add(createTokenXConfiguration(tokenxKonfigUrl));
         }
 
         var providere = idProviderConfigs.stream().map(OpenIDConfiguration::type).map(OpenIDProvider::name).collect(Collectors.joining(", "));
@@ -112,12 +113,12 @@ public final class OidcProviderConfig {
     }
 
     @SuppressWarnings("unused")
-    private static OpenIDConfiguration createAzureAppConfiguration() {
+    private static OpenIDConfiguration createAzureAppConfiguration(String azureKonfigUrl) {
         var proxyUrl = (ENV.isFss() && ENV.isProd()) ? ProxyProperty.getProxy() : null;
         return createConfiguration(OpenIDProvider.AZUREAD,
-            getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER),
-            getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI),
-            getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT),
+            getPropertyOrWellKnown(AzureProperty.AZURE_OPENID_CONFIG_ISSUER.name(), () -> getIssuerFra(azureKonfigUrl, proxyUrl)),
+            getPropertyOrWellKnown(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI.name(), () -> getJwksFra(azureKonfigUrl, proxyUrl)),
+            getPropertyOrWellKnown(AzureProperty.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT.name(), () -> getTokenEndpointFra(azureKonfigUrl, proxyUrl)),
             (ENV.isFss() && ENV.isProd()),
             proxyUrl,
             getAzureProperty(AzureProperty.AZURE_APP_CLIENT_ID),
@@ -125,11 +126,11 @@ public final class OidcProviderConfig {
             ENV.isLocal());
     }
 
-    private static OpenIDConfiguration createTokenXConfiguration() {
+    private static OpenIDConfiguration createTokenXConfiguration(String tokenxKonfigUrl) {
         return createConfiguration(OpenIDProvider.TOKENX,
-            getTokenXProperty(TokenXProperty.TOKEN_X_ISSUER),
-            getTokenXProperty(TokenXProperty.TOKEN_X_JWKS_URI),
-            getTokenXProperty(TokenXProperty.TOKEN_X_TOKEN_ENDPOINT),
+            getPropertyOrWellKnown(TokenXProperty.TOKEN_X_ISSUER.name(), () -> getIssuerFra(tokenxKonfigUrl)),
+            getPropertyOrWellKnown(TokenXProperty.TOKEN_X_JWKS_URI.name(), () -> getJwksFra(tokenxKonfigUrl)),
+            getPropertyOrWellKnown(TokenXProperty.TOKEN_X_TOKEN_ENDPOINT.name(), () -> getTokenEndpointFra(tokenxKonfigUrl)),
             false,
             null,
             getTokenXProperty(TokenXProperty.TOKEN_X_CLIENT_ID),
@@ -138,14 +139,23 @@ public final class OidcProviderConfig {
             false);
     }
 
+    private static String getPropertyOrWellKnown(String propertyname, Supplier<Optional<String>> wellknownSupplier) {
+        return getProperty(propertyname)
+            .or(wellknownSupplier)
+            .orElse(null);
+    }
+
+    private static Optional<String> getProperty(String propertyname) {
+        return Optional.ofNullable(ENV.getProperty(propertyname))
+            .or(() -> Optional.ofNullable(ENV.getProperty(propertyname.toLowerCase().replace('_', '.'))));
+    }
+
     private static String getAzureProperty(AzureProperty property) {
-        return Optional.ofNullable(ENV.getProperty(property.name()))
-            .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
+        return getProperty(property.name()).orElse(null);
     }
 
     private static String getTokenXProperty(TokenXProperty property) {
-        return Optional.ofNullable(ENV.getProperty(property.name()))
-            .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
+        return getProperty(property.name()).orElse(null);
     }
 
     private static OpenIDConfiguration createConfiguration(OpenIDProvider type,
