@@ -51,6 +51,7 @@ public class AuthenticationFilterDelegate {
         validerSettKontekst(resourceInfo, ctx, () -> getTokenFromHeader(ctx));
     }
 
+    // Denne Supplier-varianten finnes kun for at k9tilbake skal kunne lete etter tokens i cookies (i tillegg til header)
     public static void validerSettKontekst(ResourceInfo resourceInfo, ContainerRequestContext ctx,
                                            Supplier<Optional<TokenString>> tokenfinder) {
         try {
