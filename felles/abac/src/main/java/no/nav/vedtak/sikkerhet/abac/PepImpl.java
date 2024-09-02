@@ -47,15 +47,22 @@ public class PepImpl implements Pep {
     public Tilgangsbeslutning vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         var appRessurser = builder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
 
-        if (PIP.equals(beskyttetRessursAttributter.getResourceType())) {
-            return vurderLokalTilgang(beskyttetRessursAttributter, appRessurser);
-        }
-
-        if (kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter.getToken())) {
+        if (skalVurdereLokalTilgang(beskyttetRessursAttributter)) {
             return vurderLokalTilgang(beskyttetRessursAttributter, appRessurser);
         }
 
         return pdpKlient.forespørTilgang(beskyttetRessursAttributter, builder.abacDomene(), appRessurser);
+    }
+
+    private boolean skalVurdereLokalTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
+        return PIP.equals(beskyttetRessursAttributter.getResourceType())
+            || kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter.getToken());
+    }
+
+    protected Tilgangsbeslutning vurderLokalTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+        var token = beskyttetRessursAttributter.getToken();
+        var harTilgang = harTilgang(token.getBrukerId(), beskyttetRessursAttributter.getAvailabilityType());
+        return new Tilgangsbeslutning(harTilgang ? GODKJENT : AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessursData);
     }
 
     // AzureAD CC kommer med sub som ikke ikke en bruker med vanlige AD-grupper og roller
@@ -92,15 +99,6 @@ public class PepImpl implements Pep {
         var consumerCluster = elementer[0];
         var consumerNamespace = elementer[1];
         return residentCluster.isSameClass(Cluster.of(consumerCluster)) && residentNamespace.equals(consumerNamespace);
-    }
-
-    protected Tilgangsbeslutning vurderLokalTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        var token = beskyttetRessursAttributter.getToken();
-        if (kanForetaLokalTilgangsbeslutning(token) && harTilgang(token.getBrukerId(), beskyttetRessursAttributter.getAvailabilityType())) {
-            return new Tilgangsbeslutning(GODKJENT, beskyttetRessursAttributter, appRessursData);
-        } else {
-            return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessursData);
-        }
     }
 
 }
