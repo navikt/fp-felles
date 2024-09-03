@@ -47,16 +47,13 @@ public class PepImpl implements Pep {
     public Tilgangsbeslutning vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         var appRessurser = builder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
 
-        if (skalVurdereLokalTilgang(beskyttetRessursAttributter)) {
+        if (kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter.getToken())) {
             return vurderLokalTilgang(beskyttetRessursAttributter, appRessurser);
+        } else if (PIP.equals(beskyttetRessursAttributter.getResourceType())) { // pip tilgang bør vurderes kun lokalt
+            return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessurser);
         }
 
         return pdpKlient.forespørTilgang(beskyttetRessursAttributter, builder.abacDomene(), appRessurser);
-    }
-
-    private boolean skalVurdereLokalTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        return PIP.equals(beskyttetRessursAttributter.getResourceType())
-            || kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter.getToken());
     }
 
     protected Tilgangsbeslutning vurderLokalTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
