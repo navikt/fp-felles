@@ -41,7 +41,7 @@ public class GeneriskTokenKlient {
     public static OidcTokenResponse hentToken(HttpRequest request, URI proxy) {
         try (var client = hentEllerByggHttpClient(proxy)) { // På sikt vurder å bruke en generell klient eller å cache. De er blitt autocloseable
             var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
-            if (response == null || response.body() == null) {
+            if (response == null || response.body() == null || !responskode2xx(response)) {
                 throw new TekniskException("F-157385", "Kunne ikke hente token");
             }
             return READER.readValue(response.body());
@@ -53,6 +53,11 @@ public class GeneriskTokenKlient {
             Thread.currentThread().interrupt();
             throw new TekniskException("F-432938", "InterruptedException ved henting av token", e);
         }
+    }
+
+    private static boolean responskode2xx(HttpResponse<String> response) {
+        var status = response.statusCode();
+        return status >= 200 && status < 300;
     }
 
     private static HttpClient hentEllerByggHttpClient(URI proxy) {
