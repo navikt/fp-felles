@@ -12,9 +12,7 @@ import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureBrukerTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.AzureSystemTokenKlient;
-import no.nav.vedtak.sikkerhet.oidc.token.impl.StsSystemTokenKlient;
 import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
-import no.nav.vedtak.sikkerhet.tokenx.TokenXchange;
 
 public final class TokenProvider {
 
@@ -52,30 +50,13 @@ public final class TokenProvider {
         var identType = Optional.ofNullable(requestKontekst.getIdentType()).orElse(IdentType.InternBruker);
         return switch (providerIncoming) {
             case AZUREAD -> identType.erSystem() ? getAzureSystemToken(scopes) : veksleAzureAccessToken(requestKontekst.getUid(), incoming, scopes);
-            case TOKENX -> TokenXchange.exchange(incoming, scopes);
+            case TOKENX -> tokenXchange(incoming, scopes);
             case STS -> getAzureSystemToken(scopes);
         };
     }
 
-    public static OpenIDToken getTokenForSystem() {
-        return getTokenForSystem(OpenIDProvider.STS, null);
-    }
-
-    public static OpenIDToken getTokenXFraKontekst() {
-        var kontekst = KONTEKST_PROVIDER.getKontekst();
-        if (kontekst instanceof RequestKontekst requestKontekst) {
-            return OpenIDProvider.TOKENX.equals(getProvider(requestKontekst.getToken())) ? requestKontekst.getToken() : null;
-        } else {
-            throw new IllegalStateException("Mangler SikkerhetContext - skal ikke provide token");
-        }
-    }
-
-    public static OpenIDToken getTokenForSystem(OpenIDProvider provider, String scopes) {
-        return switch (provider) {
-            case AZUREAD -> getAzureSystemToken(scopes);
-            case STS -> getStsSystemToken();
-            case TOKENX -> throw new IllegalStateException("Ikke bruk TokenX til kall i systemkontekst");
-        };
+    public static OpenIDToken getTokenForSystem(String scopes) {
+        return getAzureSystemToken(scopes);
     }
 
     // Endre til AzureClientId ved overgang til system = azure
@@ -91,10 +72,6 @@ public final class TokenProvider {
         return Optional.ofNullable(kontekst.getKonsumentId()).orElseGet(kontekst::getUid);
     }
 
-    private static OpenIDToken getStsSystemToken() {
-        return StsSystemTokenKlient.hentAccessToken();
-    }
-
     private static OpenIDToken getAzureSystemToken(String scopes) {
         return AzureSystemTokenKlient.instance().hentAccessToken(scopes);
     }
@@ -103,9 +80,8 @@ public final class TokenProvider {
         return AzureBrukerTokenKlient.instance().oboExchangeToken(uid, incoming, scopes);
     }
 
-    public static OpenIDToken exchangeTokenX(OpenIDToken token, String assertion, String scopes) {
-        // Assertion må være generert av den som skal bytte. Et JWT, RSA-signert, basert på injisert private jwk
-        return TokenXExchangeKlient.instance().exchangeToken(token, assertion, scopes);
+    public static OpenIDToken tokenXchange(OpenIDToken token, String scopes) {
+        return TokenXExchangeKlient.instance().exchangeToken(token, scopes);
     }
 
     private static OpenIDProvider getProvider(OpenIDToken token) {

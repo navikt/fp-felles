@@ -4,6 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -46,6 +48,12 @@ public class AuthenticationFilterDelegate {
     }
 
     public static void validerSettKontekst(ResourceInfo resourceInfo, ContainerRequestContext ctx) {
+        validerSettKontekst(resourceInfo, ctx, () -> getTokenFromHeader(ctx));
+    }
+
+    // Denne Supplier-varianten finnes kun for at k9tilbake skal kunne lete etter tokens i cookies (i tillegg til header)
+    public static void validerSettKontekst(ResourceInfo resourceInfo, ContainerRequestContext ctx,
+                                           Supplier<Optional<TokenString>> tokenfinder) {
         try {
             Method method = resourceInfo.getResourceMethod();
             var utenAutentiseringRessurs = getAnnotation(resourceInfo, UtenAutentisering.class);
@@ -62,7 +70,8 @@ public class AuthenticationFilterDelegate {
                 KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
                 LOG.trace("{} er whitelisted", metodenavn);
             } else {
-                validerTokenSetKontekst(resourceInfo, ctx);
+                var tokenString = tokenfinder.get().orElseThrow(() -> new ValideringsFeil("Mangler token"));
+                validerTokenSetKontekst(resourceInfo, tokenString);
                 setUserAndConsumerId(KontekstHolder.getKontekst().getUid());
             }
         } catch (TekniskException | TokenFeil e) {
@@ -103,21 +112,24 @@ public class AuthenticationFilterDelegate {
             .or(() -> Optional.ofNullable(resourceInfo.getResourceClass().getAnnotation(tClass)));
     }
 
-    private static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
-        String headerValue = request.getHeaderString(AUTHORIZATION_HEADER);
-        return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE)
-            ? Optional.of(new TokenString(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length())))
-            : Optional.empty();
+    public static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
+        return Optional.ofNullable(request.getHeaderString(AUTHORIZATION_HEADER))
+            .filter(headerValue -> headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE))
+            .map(headerValue -> headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length()))
+            .map(TokenString::new);
     }
 
-    public static void validerTokenSetKontekst(ResourceInfo resourceInfo, ContainerRequestContext ctx) {
+    public static void validerTokenSetKontekst(ResourceInfo resourceInfo, TokenString tokenString) {
         // Sett opp OpenIDToken
-        var tokenString = getTokenFromHeader(ctx).orElseThrow(() -> new ValideringsFeil("Mangler token"));
         var claims = JwtUtil.getClaims(tokenString.token());
         var configuration = ConfigProvider.getOpenIDConfiguration(JwtUtil.getIssuer(claims))
             .orElseThrow(() -> new TokenFeil("Token mangler issuer claim"));
         var expiresAt = Optional.ofNullable(JwtUtil.getExpirationTime(claims)).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, tokenString, null, expiresAt.toEpochMilli());
+
+        if (OpenIDProvider.STS.equals(configuration.type()) && getAnnotation(resourceInfo, TillatSTS.class).isEmpty()) {
+            throw new ValideringsFeil("Kall med STS til endepunkt som ikke eksplisitt tillater STS");
+        }
 
         // Valider
         var tokenValidator = OidcTokenValidatorConfig.instance().getValidator(token.provider());
@@ -131,21 +143,7 @@ public class AuthenticationFilterDelegate {
         } else {
             throw new ValideringsFeil("Ugyldig token");
         }
-        logStsUsage(configuration.type(), resourceInfo, resourceInfo.getResourceMethod().getName());
     }
-
-    private static void logStsUsage(OpenIDProvider type, ResourceInfo resourceInfo, String metodenavn) {
-        if (OpenIDProvider.STS.equals(type)) {
-            var annotertTillatSts = getAnnotation(resourceInfo, TillatSTS.class).isPresent();
-            if (annotertTillatSts) {
-                LOG.info("Innkommende STS - metode {} har annotering TillatSTS", metodenavn);
-            } else {
-                LOG.info("Innkommende STS - metode {} mangler annotering TillatSTS", metodenavn);
-            }
-        }
-    }
-
-
 
     private static class TokenFeil extends RuntimeException {
         TokenFeil(String message) {

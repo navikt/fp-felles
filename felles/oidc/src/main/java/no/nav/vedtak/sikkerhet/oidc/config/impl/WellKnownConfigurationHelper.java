@@ -1,8 +1,6 @@
 package no.nav.vedtak.sikkerhet.oidc.config.impl;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -19,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.klient.http.ProxyProperty;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class WellKnownConfigurationHelper {
@@ -28,7 +27,7 @@ public class WellKnownConfigurationHelper {
 
     public static final String STANDARD_WELL_KNOWN_PATH = ".well-known/openid-configuration";
 
-    private static Map<String, WellKnownOpenIdConfiguration> wellKnownConfigMap = Collections.synchronizedMap(new LinkedHashMap<>());
+    private static final Map<String, WellKnownOpenIdConfiguration> wellKnownConfigMap = Collections.synchronizedMap(new LinkedHashMap<>());
 
     public static WellKnownOpenIdConfiguration getWellKnownConfig(URI wellKnownUrl) {
         return getWellKnownConfig(wellKnownUrl.toString(), null);
@@ -66,19 +65,17 @@ public class WellKnownConfigurationHelper {
     }
 
     private static WellKnownOpenIdConfiguration hentWellKnownConfig(String wellKnownURL, URI proxy) {
-        try {
-            if (wellKnownURL == null) {
-                return null;
-            }
-            if (!wellKnownURL.toLowerCase().contains(STANDARD_WELL_KNOWN_PATH)) {
-                // TODO: øk til warn eller prøv å legge på / standard path med
-                LOG.info("WELLKNOWN OPENID-CONFIGURATION url uten standard suffix {}", wellKnownURL);
-            }
-            var useProxySelector = Optional.ofNullable(proxy)
-                .map(p -> new InetSocketAddress(p.getHost(), p.getPort()))
-                .map(ProxySelector::of)
-                .orElse(HttpClient.Builder.NO_PROXY);
-            var client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).proxy(useProxySelector).build();
+        if (wellKnownURL == null) {
+            return null;
+        }
+        if (!wellKnownURL.toLowerCase().contains(STANDARD_WELL_KNOWN_PATH)) {
+            // TODO: øk til warn eller prøv å legge på / standard path med
+            LOG.info("WELLKNOWN OPENID-CONFIGURATION url uten standard suffix {}", wellKnownURL);
+        }
+        try (var client = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .proxy(ProxyProperty.getProxySelector(proxy))
+            .build()) {
             var request = HttpRequest.newBuilder().uri(URI.create(wellKnownURL)).header("accept", "application/json").GET().build();
             var response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
             return response != null ? READER.readValue(response) : null;
