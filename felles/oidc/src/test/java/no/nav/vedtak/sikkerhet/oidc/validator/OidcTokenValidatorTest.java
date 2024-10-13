@@ -8,6 +8,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 import org.jose4j.jwt.NumericDate;
 import org.junit.jupiter.api.AfterEach;
@@ -133,7 +134,9 @@ class OidcTokenValidatorTest {
 
         var langClientId = "klusternavn:langtnamespace:applikasjon";
 
-        var token = new OidcTokenGenerator().withClaim(AzureProperty.AZP_NAME, langClientId).withClaim("oid", "demo") // samme som sub for CC
+        var token = new OidcTokenGenerator().withClaim(AzureProperty.AZP_NAME, langClientId)
+            .withClaim("idtyp", "app")
+            .withClaim("oid", UUID.randomUUID().toString()) // samme som sub for CC
             .createHeaderTokenHolder();
 
         var result = tokenValidator.validate(token);
@@ -150,14 +153,17 @@ class OidcTokenValidatorTest {
         // that its client_id is the Claim Value
 
         var ident = "minident";
+        var oid = UUID.randomUUID();
 
         var token = new OidcTokenGenerator()
             .withClaim(AzureProperty.NAV_IDENT, ident)
+            .withClaim("oid", oid.toString())
             .createHeaderTokenHolder();
 
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertValid(result);
         assertThat(result.getSubject()).isEqualTo(ident);
+        assertThat(result.oid()).isEqualTo(oid);
         assertThat(result.grupper()).isEmpty();
         assertThat(result.getCompactSubject()).isEqualTo(ident);
     }
@@ -171,15 +177,18 @@ class OidcTokenValidatorTest {
 
         var ident = "minident";
         var grupper = List.of("saksbehandler", "oppgavestyrer");
+        var oid = UUID.randomUUID();
 
         var token = new OidcTokenGenerator()
             .withClaim(AzureProperty.NAV_IDENT, ident)
             .withGroupsClam(AzureProperty.GRUPPER, grupper)
+            .withClaim("oid", oid.toString())
             .createHeaderTokenHolder();
 
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertValid(result);
         assertThat(result.getSubject()).isEqualTo(ident);
+        assertThat(result.oid()).isEqualTo(oid);
         assertThat(result.grupper()).containsAll(List.of(Groups.SAKSBEHANDLER, Groups.OPPGAVESTYRER));
         assertThat(result.getCompactSubject()).isEqualTo(ident);
     }

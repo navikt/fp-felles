@@ -19,7 +19,6 @@ public class GroupsProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(GroupsProvider.class);
     private static final String SUFFIX = ".properties";
-    private static final String PREFIX = "groups";
 
     private static GroupsProvider INSTANCE;
 
@@ -88,7 +87,7 @@ public class GroupsProvider {
         if (cluster.isLocal()) {
             return "-vtp";
         }
-        return "-" + (cluster.isProd() ? "prod" : "dev");
+        return cluster.isProd() ? "-prod" : "-dev";
     }
 
 }
