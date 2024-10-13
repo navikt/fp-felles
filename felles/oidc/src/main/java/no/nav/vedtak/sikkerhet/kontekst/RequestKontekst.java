@@ -30,6 +30,10 @@ public final class RequestKontekst extends BasisKontekst {
         return token;
     }
 
+    public UUID getOid() {
+        return oid;
+    }
+
     public Set<Groups> getGrupper() {
         return grupper;
     }
