@@ -1,16 +1,21 @@
 package no.nav.vedtak.sikkerhet.oidc.validator;
 
+import static no.nav.vedtak.sikkerhet.oidc.validator.ConsumerMetric.registrer;
+
 import java.security.Key;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.jwx.JsonWebStructure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.sikkerhet.kontekst.GroupsProvider;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -22,9 +27,9 @@ import no.nav.vedtak.sikkerhet.oidc.jwks.JwksKeyHandlerImpl;
 import no.nav.vedtak.sikkerhet.oidc.jwks.JwtHeader;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
-import static no.nav.vedtak.sikkerhet.oidc.validator.ConsumerMetric.registrer;
-
 public class OidcTokenValidator {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OidcTokenValidator.class);
 
     private static final Set<String> AUTHENTICATION_LEVEL_ID_PORTEN = Set.of("Level4", "idporten-loa-high"); // Level4 er gammel og utgår ila 2023
 
@@ -149,7 +154,8 @@ public class OidcTokenValidator {
     }
 
     private OidcTokenValidatorResult validateAzure(JwtClaims claims, String subject) {
-        if (isAzureClientCredentials(claims, subject)) {
+        var oid = getAzureOid(claims);
+        if (isAzureClientCredentials(claims, subject, oid)) {
             var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.AZP_NAME)).orElse(subject);
             registrer(clientName, brukSubject, OpenIDProvider.AZUREAD, IdentType.Systemressurs);
             // Ta med bakoverkompatibelt navn ettersom azp_name er ganske langt (tabeller / opprettet_av)
@@ -169,14 +175,28 @@ public class OidcTokenValidator {
             var grupper = Optional.ofNullable(JwtUtil.getStringListClaim(claims, AzureProperty.GRUPPER))
                     .map(arr -> GroupsProvider.instance().getGroupsFrom(arr))
                     .orElse(Set.of());
-            return OidcTokenValidatorResult.valid(brukSubject, IdentType.InternBruker, grupper, JwtUtil.getExpirationTimeRaw(claims));
+            return OidcTokenValidatorResult.valid(brukSubject, IdentType.InternBruker, oid, grupper, JwtUtil.getExpirationTimeRaw(claims));
         }
     }
 
     // Sjekker både gammel konvensjon (oid=sub) og nyere (idtyp="app")
-    private boolean isAzureClientCredentials(JwtClaims claims, String subject) {
-        return Objects.equals(subject, JwtUtil.getStringClaim(claims, OID)) ||
+    private boolean isAzureClientCredentials(JwtClaims claims, String subject, UUID oid) {
+        return Objects.equals(subject, Optional.ofNullable(oid).map(UUID::toString).orElse(null)) ||
             Objects.equals(APP, JwtUtil.getStringClaim(claims, IDTYP));
+    }
+
+    private UUID getAzureOid(JwtClaims claims) {
+        var oid = JwtUtil.getStringClaim(claims, OID);
+        if (oid == null) {
+            LOG.info("AZURE VALIDATE oid er null");
+            return null;
+        }
+        try {
+            return UUID.fromString(oid);
+        } catch (Exception e) {
+            LOG.info("AZURE VALIDATE kunne ikke konvertere oid til UUID {}", oid);
+            return null;
+        }
     }
 
     private OidcTokenValidatorResult validateTokenX(JwtClaims claims, String subject) {

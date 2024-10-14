@@ -1,29 +1,30 @@
 package no.nav.vedtak.sikkerhet.oidc.validator;
 
 import java.util.Set;
+import java.util.UUID;
 
 import no.nav.vedtak.sikkerhet.kontekst.Groups;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
 public record OidcTokenValidatorResult(boolean isValid, String errorMessage, String subject, IdentType identType,
-                                       String compactSubject, Set<Groups> grupper, long expSeconds) {
+                                       String compactSubject, UUID oid, Set<Groups> grupper, long expSeconds) {
 
     private static final String NO_CLAIMS = "Can't get claims from an invalid token";
 
     public static OidcTokenValidatorResult invalid(String errorMessage) {
-        return new OidcTokenValidatorResult(false, errorMessage, null, null, null, Set.of(), 0);
+        return new OidcTokenValidatorResult(false, errorMessage, null, null, null, null, Set.of(), 0);
     }
 
     public static OidcTokenValidatorResult valid(String subject, IdentType identType, long expSeconds) {
-        return new OidcTokenValidatorResult(true, null, subject, identType, subject, Set.of(), expSeconds);
+        return new OidcTokenValidatorResult(true, null, subject, identType, subject, null, Set.of(), expSeconds);
     }
 
-    public static OidcTokenValidatorResult valid(String subject, IdentType identType, Set<Groups> grupper, long expSeconds) {
-        return new OidcTokenValidatorResult(true, null, subject, identType, subject, grupper, expSeconds);
+    public static OidcTokenValidatorResult valid(String subject, IdentType identType, UUID oid, Set<Groups> grupper, long expSeconds) {
+        return new OidcTokenValidatorResult(true, null, subject, identType, subject, oid, grupper, expSeconds);
     }
 
     public static OidcTokenValidatorResult valid(String subject, IdentType identType, String compactSubject, long expSeconds) {
-        return new OidcTokenValidatorResult(true, null, subject, identType, compactSubject, Set.of(), expSeconds);
+        return new OidcTokenValidatorResult(true, null, subject, identType, compactSubject, null, Set.of(), expSeconds);
     }
 
 

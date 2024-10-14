@@ -25,7 +25,6 @@ public class KontekstTokenProvider implements TokenProvider {
 
     @Override
     public OpenIDToken openIdToken() {
-        var kontekst = PROVIDER.getKontekst();
-        return kontekst instanceof RequestKontekst rk ? rk.getToken() : null;
+        return PROVIDER.getToken();
     }
 }

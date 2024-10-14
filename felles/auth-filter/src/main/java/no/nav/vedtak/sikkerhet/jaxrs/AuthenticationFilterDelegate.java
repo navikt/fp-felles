@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import jakarta.ws.rs.WebApplicationException;
@@ -127,8 +126,12 @@ public class AuthenticationFilterDelegate {
         var expiresAt = Optional.ofNullable(JwtUtil.getExpirationTime(claims)).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, tokenString, null, expiresAt.toEpochMilli());
 
-        if (OpenIDProvider.STS.equals(configuration.type()) && getAnnotation(resourceInfo, TillatSTS.class).isEmpty()) {
-            throw new ValideringsFeil("Kall med STS til endepunkt som ikke eksplisitt tillater STS");
+        if (OpenIDProvider.STS.equals(configuration.type())) {
+            if (getAnnotation(resourceInfo, TillatSTS.class).isEmpty()) {
+                throw new ValideringsFeil("Kall med STS til endepunkt som ikke eksplisitt tillater STS");
+            } else {
+                LOG.info("Innkommende STS - metode {} har annotering TillatSTS", resourceInfo.getResourceMethod().getName());
+            }
         }
 
         // Valider
@@ -138,7 +141,7 @@ public class AuthenticationFilterDelegate {
         // Håndter valideringsresultat
         if (validateResult.isValid()) {
             KontekstHolder.setKontekst(RequestKontekst.forRequest(validateResult.subject(), validateResult.compactSubject(),
-                validateResult.identType(), token, validateResult.getGrupper()));
+                validateResult.identType(), token, validateResult.oid(), validateResult.getGrupper()));
             LOG.trace("token validert");
         } else {
             throw new ValideringsFeil("Ugyldig token");
