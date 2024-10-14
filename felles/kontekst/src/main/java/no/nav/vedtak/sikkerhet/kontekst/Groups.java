@@ -6,5 +6,8 @@ public enum Groups {
     OVERSTYRER,
     OPPGAVESTYRER,
     VEILEDER,
-    DRIFT
+    DRIFT,
+    FORTROLIG,
+    STRENGTFORTROLIG,
+    SKJERMET
 }
