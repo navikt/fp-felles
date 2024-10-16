@@ -113,7 +113,7 @@ public final class OidcProviderConfig {
 
     @SuppressWarnings("unused")
     private static OpenIDConfiguration createAzureAppConfiguration() {
-        var proxyUrl = (ENV.isFss() && ENV.isProd()) ? ProxyProperty.getProxy() : null;
+        var proxyUrl = (ENV.isFss()) ? ProxyProperty.getProxy() : null;
         return createConfiguration(OpenIDProvider.AZUREAD,
             getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_ISSUER),
             getAzureProperty(AzureProperty.AZURE_OPENID_CONFIG_JWKS_URI),
