@@ -69,7 +69,7 @@ public class AuthenticationFilterDelegate {
                 LOG.trace("{} er whitelisted", metodenavn);
             } else {
                 var tokenString = tokenfinder.get().orElseThrow(() -> new ValideringsFeil("Mangler token"));
-                validerTokenSetKontekst(resourceInfo, tokenString);
+                validerTokenSetKontekst(tokenString);
                 setUserAndConsumerId(KontekstHolder.getKontekst().getUid());
             }
         } catch (TekniskException | TokenFeil e) {
@@ -117,7 +117,7 @@ public class AuthenticationFilterDelegate {
             .map(TokenString::new);
     }
 
-    public static void validerTokenSetKontekst(ResourceInfo resourceInfo, TokenString tokenString) {
+    private static void validerTokenSetKontekst(TokenString tokenString) {
         // Sett opp OpenIDToken
         var claims = JwtUtil.getClaims(tokenString.token());
         var configuration = ConfigProvider.getOpenIDConfiguration(JwtUtil.getIssuer(claims))
