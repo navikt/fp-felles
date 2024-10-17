@@ -3,15 +3,12 @@ package no.nav.vedtak.sikkerhet.abac;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
 
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
@@ -29,69 +26,65 @@ public class PepImpl implements Pep {
     private PdpKlient pdpKlient;
     private PdpRequestBuilder builder;
 
-    private Set<String> pipUsers;
-    private TokenProvider tokenProvider;
     private String preAuthorized;
     private Cluster residentCluster;
     private String residentNamespace;
 
-    public PepImpl() {
+    PepImpl() {
+        // CDI proxy
     }
 
     @Inject
-    public PepImpl(PdpKlient pdpKlient,
-                   TokenProvider tokenProvider,
-                   PdpRequestBuilder pdpRequestBuilder,
-                   @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
+    public PepImpl(PdpKlient pdpKlient, PdpRequestBuilder pdpRequestBuilder) {
         this.pdpKlient = pdpKlient;
         this.builder = pdpRequestBuilder;
-        this.tokenProvider = tokenProvider;
-        this.pipUsers = konfigurePipUsers(pipUsers);
         this.preAuthorized = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name()); // eg json array av objekt("name", "clientId")
         this.residentCluster = ENV.getCluster();
         this.residentNamespace = ENV.namespace();
-    }
-
-    protected Set<String> konfigurePipUsers(String pipUsers) {
-        if (pipUsers != null) {
-            return Set.of(pipUsers.toLowerCase().split(","));
-        }
-        return Set.of();
     }
 
     @Override
     public Tilgangsbeslutning vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         var appRessurser = builder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
 
-        if (PIP.equals(beskyttetRessursAttributter.getResourceType())) {
-            return vurderTilgangTilPipTjeneste(beskyttetRessursAttributter, appRessurser);
+        if (kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter.getToken())) {
+            return vurderLokalTilgang(beskyttetRessursAttributter, appRessurser);
+        } else if (PIP.equals(beskyttetRessursAttributter.getResourceType())) { // pip tilgang bør vurderes kun lokalt
+            return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessurser);
         }
-        if (kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter)) {
-            return new Tilgangsbeslutning(harTilgang(beskyttetRessursAttributter) ? GODKJENT : AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessurser);
-        }
+
         return pdpKlient.forespørTilgang(beskyttetRessursAttributter, builder.abacDomene(), appRessurser);
+    }
+
+    protected Tilgangsbeslutning vurderLokalTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+        var token = beskyttetRessursAttributter.getToken();
+        var harTilgang = harTilgang(token.getBrukerId(), beskyttetRessursAttributter.getAvailabilityType());
+        return new Tilgangsbeslutning(harTilgang ? GODKJENT : AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessursData);
     }
 
     // AzureAD CC kommer med sub som ikke ikke en bruker med vanlige AD-grupper og roller
     // Token kan utvides med roles og groups - men oppsettet er langt fra det som er kjent fra STS mv.
     // Kan legge inn filter på claims/roles intern og/eller ekstern.
-    private boolean kanForetaLokalTilgangsbeslutning(BeskyttetRessursAttributter attributter) {
-        var identType = attributter.getToken().getIdentType();
-        var consumer = attributter.getToken().getBrukerId();
-        return OpenIDProvider.AZUREAD.equals(attributter.getToken().getOpenIDProvider())
-            && IdentType.Systemressurs.equals(identType) && consumer != null && preAuthorized != null;
+    private boolean kanForetaLokalTilgangsbeslutning(Token token) {
+        var identType = token.getIdentType();
+        var consumer = token.getBrukerId();
+
+        return OpenIDProvider.AZUREAD.equals(token.getOpenIDProvider()) &&
+            IdentType.Systemressurs.equals(identType) &&
+            consumer != null &&
+            preAuthorized != null;
     }
 
-    private boolean harTilgang(BeskyttetRessursAttributter attributter) {
-        var consumer = attributter.getToken().getBrukerId();
-        if (consumer == null || !preAuthorized.contains(consumer)) {
+    private boolean harTilgang(String consumerId, AvailabilityType availabilityType) {
+        if (consumerId == null || !preAuthorized.contains(consumerId)) {
             return false;
         }
 
-        if (erISammeKlusterKlasseOgNamespace(consumer) || builder.internAzureConsumer(consumer)) {
+        if (erISammeKlusterKlasseOgNamespace(consumerId)) {
             return true;
         }
-        return AvailabilityType.ALL.equals(attributter.getAvailabilityType());
+
+        return AvailabilityType.ALL.equals(availabilityType);
     }
 
     private boolean erISammeKlusterKlasseOgNamespace(String consumer) {
@@ -103,17 +96,6 @@ public class PepImpl implements Pep {
         var consumerCluster = elementer[0];
         var consumerNamespace = elementer[1];
         return residentCluster.isSameClass(Cluster.of(consumerCluster)) && residentNamespace.equals(consumerNamespace);
-    }
-
-    protected Tilgangsbeslutning vurderTilgangTilPipTjeneste(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        String uid = tokenProvider.getUid();
-        if (pipUsers.contains(uid.toLowerCase())) {
-            return new Tilgangsbeslutning(GODKJENT, beskyttetRessursAttributter, appRessursData);
-        } else if (kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter) && harTilgang(beskyttetRessursAttributter)) {
-            return new Tilgangsbeslutning(GODKJENT, beskyttetRessursAttributter, appRessursData);
-        } else {
-            return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessursData);
-        }
     }
 
 }
