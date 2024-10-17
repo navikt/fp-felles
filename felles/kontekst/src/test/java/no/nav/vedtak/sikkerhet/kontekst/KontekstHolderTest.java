@@ -15,15 +15,15 @@ class KontekstHolderTest {
 
     @Test
     void testSetAndGetSystemKontekst() {
-        var eksisterende = BasisKontekst.forProsesstask();
+        var eksisterende = BasisKontekst.forProsesstaskUtenSystembruker();
         KontekstHolder.setKontekst(eksisterende);
 
         assertThat(KontekstHolder.harKontekst()).isTrue();
         var roundtrip = KontekstHolder.getKontekst();
         assertThat(roundtrip).isNotNull();
         assertThat(roundtrip.getContext()).isEqualTo(SikkerhetContext.SYSTEM);
-        assertThat(roundtrip.getUid()).isEqualTo(Systembruker.username());
-        assertThat(roundtrip.getKompaktUid()).isEqualTo(Systembruker.username());
+        assertThat(roundtrip.getUid()).isEqualTo("srvvtp");
+        assertThat(roundtrip.getKompaktUid()).isEqualTo("srvvtp");
         assertThat(roundtrip.getIdentType()).isEqualTo(IdentType.Prosess);
 
         KontekstHolder.fjernKontekst();
