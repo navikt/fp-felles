@@ -60,7 +60,7 @@ public class Token {
 
     private static TokenType utledTokenType(OpenIDToken token) {
         return switch (token.provider()) {
-            case STS, AZUREAD -> TokenType.OIDC;
+            case AZUREAD -> TokenType.OIDC;
             case TOKENX -> TokenType.TOKENX;
         };
     }

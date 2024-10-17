@@ -51,7 +51,6 @@ public final class TokenProvider {
         return switch (providerIncoming) {
             case AZUREAD -> identType.erSystem() ? getAzureSystemToken(scopes) : veksleAzureAccessToken(requestKontekst.getUid(), incoming, scopes);
             case TOKENX -> tokenXchange(incoming, scopes);
-            case STS -> getAzureSystemToken(scopes);
         };
     }
 

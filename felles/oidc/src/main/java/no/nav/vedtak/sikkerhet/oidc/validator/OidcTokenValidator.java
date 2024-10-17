@@ -127,15 +127,11 @@ public class OidcTokenValidator {
                 return OidcTokenValidatorResult.invalid(error);
             }
             String subject = JwtUtil.getSubject(claims);
-            if (OpenIDProvider.AZUREAD.equals(provider)) {
-                return validateAzure(claims, subject);
-            } else if (OpenIDProvider.TOKENX.equals(provider)) {
-                return validateTokenX(claims, subject);
-            } else {
-                var identType = IdentType.utledIdentType(subject);
-                registrer(clientName, subject, provider, identType);
-                return OidcTokenValidatorResult.valid(subject, identType, JwtUtil.getExpirationTimeRaw(claims));
-            }
+            return switch (provider) {
+                case AZUREAD -> validateAzure(claims, subject);
+                case TOKENX -> validateTokenX(claims, subject);
+                case null -> OidcTokenValidatorResult.invalid("mangler issuer");
+            };
         } catch (InvalidJwtException e) {
             return OidcTokenValidatorResult.invalid(e.toString());
         } catch (Exception e) {

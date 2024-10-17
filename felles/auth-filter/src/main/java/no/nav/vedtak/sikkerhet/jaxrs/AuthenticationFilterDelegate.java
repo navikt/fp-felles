@@ -22,7 +22,6 @@ import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
@@ -125,14 +124,6 @@ public class AuthenticationFilterDelegate {
             .orElseThrow(() -> new TokenFeil("Token mangler issuer claim"));
         var expiresAt = Optional.ofNullable(JwtUtil.getExpirationTime(claims)).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, tokenString, null, expiresAt.toEpochMilli());
-
-        if (OpenIDProvider.STS.equals(configuration.type())) {
-            if (getAnnotation(resourceInfo, TillatSTS.class).isEmpty()) {
-                throw new ValideringsFeil("Kall med STS til endepunkt som ikke eksplisitt tillater STS");
-            } else {
-                LOG.info("Innkommende STS - metode {} har annotering TillatSTS", resourceInfo.getResourceMethod().getName());
-            }
-        }
 
         // Valider
         var tokenValidator = OidcTokenValidatorConfig.instance().getValidator(token.provider());
