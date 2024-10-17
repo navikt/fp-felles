@@ -21,7 +21,7 @@ public interface TokenProvider {
     IdentType getIdentType();
 
     /**
-     * OIDC tokenet til brukeren. Helst fra følgende providere: TokenX, AzureAD, STS.
+     * OIDC tokenet til brukeren. Helst fra følgende providere: TokenX, AzureAD.
      * Sendes til PDP (Policy Decision Point) og gir informasjon til ABAC om subject og auth level.
      *
      * @return bruker OIDC token.

@@ -118,7 +118,7 @@ class AuthenticationFilterDelegateTest {
         when(request.getHeaderString("Authorization")).thenReturn(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE + gyldigToken.token());
 
         when(tokenValidator.validate(gyldigToken)).thenReturn(
-            OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"), System.currentTimeMillis() / 1000 + 121));
+            OidcTokenValidatorResult.valid("demo", IdentType.InternBruker, System.currentTimeMillis() / 1000 + 121));
 
         AuthenticationFilterDelegate.validerSettKontekst(ri, request);
         assertThat(KontekstHolder.getKontekst().getContext()).isEqualTo(SikkerhetContext.REQUEST);
@@ -135,7 +135,7 @@ class AuthenticationFilterDelegateTest {
 
         var gyldigToken = getGyldigToken();
         when(request.getHeaderString("Authorization")).thenReturn(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE + gyldigToken.token());
-        when(tokenValidator.validate(gyldigToken)).thenReturn(OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"),
+        when(tokenValidator.validate(gyldigToken)).thenReturn(OidcTokenValidatorResult.valid("demo", IdentType.InternBruker,
             System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
 
         AuthenticationFilterDelegate.validerSettKontekst(ri, request);
@@ -152,7 +152,7 @@ class AuthenticationFilterDelegateTest {
 
         var gyldigToken = getGyldigToken();
         when(request.getHeaderString("Authorization")).thenReturn(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE + gyldigToken.token());
-        when(tokenValidator.validate(gyldigToken)).thenReturn(OidcTokenValidatorResult.valid("demo", IdentType.utledIdentType("demo"),
+        when(tokenValidator.validate(gyldigToken)).thenReturn(OidcTokenValidatorResult.valid("demo", IdentType.InternBruker,
             System.currentTimeMillis() / 1000 + sekunderGjenståendeGyldigTid));
 
         AuthenticationFilterDelegate.validerSettKontekst(ri, request);

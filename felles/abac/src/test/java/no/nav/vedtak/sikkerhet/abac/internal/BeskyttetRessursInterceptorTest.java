@@ -1,14 +1,19 @@
 package no.nav.vedtak.sikkerhet.abac.internal;
 
-import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.log.audit.Auditdata;
-import no.nav.vedtak.log.audit.Auditlogger;
-import no.nav.vedtak.sikkerhet.abac.*;
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
-import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import jakarta.interceptor.InvocationContext;
+import jakarta.ws.rs.Path;
 
 import org.assertj.core.api.Fail;
 import org.junit.jupiter.api.Test;
@@ -18,17 +23,23 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.interceptor.InvocationContext;
-import jakarta.ws.rs.Path;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.log.audit.Auditdata;
+import no.nav.vedtak.log.audit.Auditlogger;
+import no.nav.vedtak.sikkerhet.abac.AbacAuditlogger;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.AbacDto;
+import no.nav.vedtak.sikkerhet.abac.AbacResultat;
+import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursInterceptor;
+import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
+import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
+import no.nav.vedtak.sikkerhet.abac.TokenProvider;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 @ExtendWith(MockitoExtension.class)
 public class BeskyttetRessursInterceptorTest {
@@ -41,7 +52,7 @@ public class BeskyttetRessursInterceptorTest {
 
     private final ArgumentCaptor<Auditdata> auditdataCaptor = ArgumentCaptor.forClass(Auditdata.class);
 
-    public static final OpenIDToken DUMMY_OPENID_TOKEN = new OpenIDToken(OpenIDProvider.STS, new TokenString(DUMMY_ID_TOKEN));
+    public static final OpenIDToken DUMMY_OPENID_TOKEN = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString(DUMMY_ID_TOKEN));
 
     @Mock
     private static TokenProvider tokenProvider;

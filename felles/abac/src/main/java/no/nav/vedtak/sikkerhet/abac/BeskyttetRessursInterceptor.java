@@ -5,16 +5,17 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Optional;
 
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
+
+import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -84,8 +85,8 @@ public class BeskyttetRessursInterceptor {
         return Optional.ofNullable(beskyttetRessursAttributter)
             .map(BeskyttetRessursAttributter::getToken)
             .map(Token::getIdentType)
-            .orElse(IdentType.InternBruker)
-            .erSystem();
+            .filter(IdentType::erSystem)
+            .isPresent();
     }
 
     private BeskyttetRessursAttributter hentBeskyttetRessursAttributter(InvocationContext invocationContext, AbacDataAttributter dataAttributter) {
