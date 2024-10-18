@@ -54,18 +54,18 @@ class PepImplTest {
 
     @BeforeEach
     void setUp() {
-        pep = new PepImpl(pdpKlientMock, tokenProvider, pdpRequestBuilder, "SRVFPLOS,SRVPDP");
+        pep = new PepImpl(pdpKlientMock, pdpRequestBuilder);
     }
 
     @Test
-    void skal_gi_tilgang_til_srvpdp_for_piptjeneste() {
+    void skal_ikke_gi_tilgang_til_srvpdp_for_piptjeneste_siden_sts_brukere_ikke_stottes_lenger() {
         when(tokenProvider.getUid()).thenReturn("srvpdp");
         var attributter = lagBeskyttetRessursAttributterPip();
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
-        assertThat(permit.fikkTilgang()).isTrue();
+        assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(pdpKlientMock);
     }
 
