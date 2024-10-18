@@ -1,9 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc.config.impl;
 
-import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.getIssuerFra;
-import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.getJwksFra;
-import static no.nav.vedtak.sikkerhet.oidc.config.impl.WellKnownConfigurationHelper.getTokenEndpointFra;
-
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.klient.http.ProxyProperty;
-import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
@@ -29,7 +24,6 @@ public final class OidcProviderConfig {
     private static final Environment ENV = Environment.current();
     private static final Logger LOG = LoggerFactory.getLogger(OidcProviderConfig.class);
 
-    private static final String STS_WELL_KNOWN_URL = "oidc.sts.well.known.url";
     private static Set<OpenIDConfiguration> providers = new HashSet<>();
 
     private final Set<OpenIDConfiguration> instanceProviders;
@@ -74,11 +68,6 @@ public final class OidcProviderConfig {
     private static Set<OpenIDConfiguration> hentConfig() {
         Set<OpenIDConfiguration> idProviderConfigs = new HashSet<>();
 
-        // OIDC STS
-        if (ENV.getProperty(STS_WELL_KNOWN_URL) != null) { // Det er kanskje noen apper som ikke bruker STS token validering??
-            idProviderConfigs.add(createStsConfiguration(ENV.getProperty(STS_WELL_KNOWN_URL)));
-        }
-
         // Azure - ikke alle apps trenger denne (tokenx-apps)
         var azureKonfigUrl = getAzureProperty(AzureProperty.AZURE_APP_WELL_KNOWN_URL);
         if (azureKonfigUrl != null) {
@@ -97,18 +86,6 @@ public final class OidcProviderConfig {
         LOG.info("ID Providere som er tilgjengelig: {}", providere);
 
         return idProviderConfigs;
-    }
-
-    private static OpenIDConfiguration createStsConfiguration(String wellKnownUrl) {
-        return createConfiguration(OpenIDProvider.STS,
-            getIssuerFra(wellKnownUrl).orElse(null),
-            getJwksFra(wellKnownUrl).orElse(null),
-            getTokenEndpointFra(wellKnownUrl).orElse(null),
-            false,
-            null,
-            Systembruker.username(),
-            Systembruker.password(),
-            true);
     }
 
     @SuppressWarnings("unused")

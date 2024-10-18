@@ -22,7 +22,6 @@ import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 import no.nav.vedtak.sikkerhet.oidc.config.ConfigProvider;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
@@ -70,7 +69,7 @@ public class AuthenticationFilterDelegate {
                 LOG.trace("{} er whitelisted", metodenavn);
             } else {
                 var tokenString = tokenfinder.get().orElseThrow(() -> new ValideringsFeil("Mangler token"));
-                validerTokenSetKontekst(resourceInfo, tokenString);
+                validerTokenSetKontekst(tokenString);
                 setUserAndConsumerId(KontekstHolder.getKontekst().getUid());
             }
         } catch (TekniskException | TokenFeil e) {
@@ -118,21 +117,13 @@ public class AuthenticationFilterDelegate {
             .map(TokenString::new);
     }
 
-    public static void validerTokenSetKontekst(ResourceInfo resourceInfo, TokenString tokenString) {
+    private static void validerTokenSetKontekst(TokenString tokenString) {
         // Sett opp OpenIDToken
         var claims = JwtUtil.getClaims(tokenString.token());
         var configuration = ConfigProvider.getOpenIDConfiguration(JwtUtil.getIssuer(claims))
             .orElseThrow(() -> new TokenFeil("Token mangler issuer claim"));
         var expiresAt = Optional.ofNullable(JwtUtil.getExpirationTime(claims)).orElseGet(() -> Instant.now().plusSeconds(300));
         var token = new OpenIDToken(configuration.type(), OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, tokenString, null, expiresAt.toEpochMilli());
-
-        if (OpenIDProvider.STS.equals(configuration.type())) {
-            if (getAnnotation(resourceInfo, TillatSTS.class).isEmpty()) {
-                throw new ValideringsFeil("Kall med STS til endepunkt som ikke eksplisitt tillater STS");
-            } else {
-                LOG.info("Innkommende STS - metode {} har annotering TillatSTS", resourceInfo.getResourceMethod().getName());
-            }
-        }
 
         // Valider
         var tokenValidator = OidcTokenValidatorConfig.instance().getValidator(token.provider());

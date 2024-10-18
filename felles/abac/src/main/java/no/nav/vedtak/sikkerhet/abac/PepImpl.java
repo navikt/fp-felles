@@ -63,7 +63,7 @@ public class PepImpl implements Pep {
     }
 
     // AzureAD CC kommer med sub som ikke ikke en bruker med vanlige AD-grupper og roller
-    // Token kan utvides med roles og groups - men oppsettet er langt fra det som er kjent fra STS mv.
+    // Token kan utvides med roles og groups
     // Kan legge inn filter på claims/roles intern og/eller ekstern.
     private boolean kanForetaLokalTilgangsbeslutning(Token token) {
         var identType = token.getIdentType();

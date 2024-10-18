@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -136,19 +135,6 @@ class PepImplTest {
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(pdpKlientMock);
-    }
-
-    @Test
-    void skal_sjekke_mot_abac_hvis_sts_systembruker() {
-        var token = new OpenIDToken(OpenIDProvider.STS, new TokenString("token"));
-        when(tokenProvider.getUid()).thenReturn("srvTestbruker");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, "srvTestbruker", IdentType.Systemressurs);
-
-        when(pdpRequestBuilder.abacDomene()).thenReturn("domene");
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
-
-        pep.vurderTilgang(attributter);
-        verify(pdpKlientMock, times(1)).forespørTilgang(eq(attributter), eq("domene"), any());
     }
 
     @Test
