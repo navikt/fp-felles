@@ -46,7 +46,7 @@ public enum FpApplication {
             case FPDOKGEN -> 8291;
             case FPWSPROXY -> 8292;
             case FPOVERSIKT -> 8889;
-            case FPINNTEKTSMELDING -> 8293;
+            case FPINNTEKTSMELDING -> 8040;
             case NONFP -> throw new IllegalArgumentException("Utviklerfeil: angitt app er ikke i fp-familien");
         };
     }
