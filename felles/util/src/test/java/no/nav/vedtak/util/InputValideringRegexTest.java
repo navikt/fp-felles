@@ -44,9 +44,11 @@ public class InputValideringRegexTest {
     }
 
     @Test
-    void skal_ikke_tillate_diverse_som_adresse() {
-        assertThat("<script type=js").doesNotMatch(ADRESSE);
-        assertThat("\\u0013rf").doesNotMatch(ADRESSE);
+    void skal_ikke_tillate_script_tegn_i_noen_av_regexene() {
+        assertThat("<script type=js>").doesNotMatch(KODEVERK);
+        assertThat("<script type=js>").doesNotMatch(NAVN);
+        assertThat("<script type=js>").doesNotMatch(ADRESSE);
+        assertThat("<script type=js>").doesNotMatch(FRITEKST);
     }
 
     @Test
@@ -57,6 +59,7 @@ public class InputValideringRegexTest {
         assertThat("Send svar til meg@nav.no").matches(FRITEKST);
         assertThat("Husk at 1+1=2").matches(FRITEKST);
         assertThat("&").matches(FRITEKST);
+        assertThat("%§\\!?@_()+:;,=\"&\\p{Sc}").matches(FRITEKST);
     }
 
     @Test

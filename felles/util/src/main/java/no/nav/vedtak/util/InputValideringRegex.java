@@ -6,14 +6,11 @@ public class InputValideringRegex {
 
     private static final String ALFABET_ENGELSK = "a-zA-Z";
     private static final String ALFABET_NORSK = ALFABET_ENGELSK + "æøåÆØÅ";
-    private static final String ALFABET_ALLE = "\\p{L}";
     private static final String TALL = "0-9";
-    private static final String ANDRE_TEGN_NAVN = "\\p{Blank}.'\\-\\–"; // eksempler: Jan-Ole O'Brian Jr.
-    private static final String ANDRE_TEGN_ADRESSE = "/\\p{Space}"; // eksempler: c/o
 
-    private static final String TEGN_NAVN = ALFABET_ALLE + ANDRE_TEGN_NAVN;
-    private static final String TEGN_ADRESSE = TEGN_NAVN + TALL + ANDRE_TEGN_ADRESSE;
-    private static final String TEGN_FRITEKST = TEGN_ADRESSE + "%§\\!?@_()+:;,=\"&\\p{Sc}";
+    private static final String TEGN_NAVN = "\\p{L}\\p{M}\\p{Z}\\p{P}"; // eksempler: Jan-Ole O'Brian Jr.
+    private static final String TEGN_ADRESSE = "\\p{N}\\p{L}\\p{M}\\p{Z}\\p{P}\n\t"; // eksempler: c/o
+    private static final String TEGN_FRITEKST = "\\p{N}\\p{L}\\p{M}\\p{Z}\\p{Cf}\\p{P}\\p{Sc}\\p{Sk}\n\t+=";
 
     /**
      * Bruk dette mønsteret for å validere koder i kodeverk.
@@ -54,15 +51,6 @@ public class InputValideringRegex {
      * Godtar ikke større-enn og mindre-enn tegn da disse kan misbrukes til å gjøre XSS-angrep
      */
     public static final String FRITEKST = REGEXP_START + TEGN_FRITEKST + REGEXP_SLUTT;
-
-    /**
-     * Bruk dette mønsteret for å validere fritekst til brev.
-     * <p>
-     * Godtar i tillegg til alt som er tillatt i navn og adresser også flere andre tegn som er relevante.
-     * <p>
-     * Godtar ikke større-enn og mindre-enn tegn da disse kan misbrukes til å gjøre XSS-angrep
-     */
-    public static final String FRITEKST_BREV = REGEXP_START + TEGN_FRITEKST + "\\p{Graph}\\p{M}\\p{N}\\p{P}\\p{Zl}\\p{Zp}" + REGEXP_SLUTT;
 
     /**
      * Bruk dette mønsteret for å validere BASE64 "URL and Filename safe".
