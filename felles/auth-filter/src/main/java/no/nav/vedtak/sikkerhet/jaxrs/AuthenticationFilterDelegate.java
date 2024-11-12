@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.log.mdc.FnrUtils;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
@@ -101,7 +102,7 @@ public class AuthenticationFilterDelegate {
     private static void setUserAndConsumerId(String subject) {
         Optional.ofNullable(subject).ifPresent(MDCOperations::putUserId);
         if (MDCOperations.getConsumerId() == null && subject != null) {
-            MDCOperations.putConsumerId(subject);
+            MDCOperations.putConsumerId(FnrUtils.maskFnr(subject));
         }
     }
 
