@@ -1,5 +1,6 @@
 package no.nav.vedtak.log.mdc;
 
+import static no.nav.vedtak.log.mdc.FnrUtils.maskFnr;
 import static org.slf4j.MDC.get;
 import static org.slf4j.MDC.put;
 
@@ -37,9 +38,6 @@ public final class MDCOperations {
      * Bruk NAV_CONSUMER_ID isteden
      */ public static final String MDC_CONSUMER_ID = "consumerId";
 
-    // QName for the callId header
-    public static final QName CALLID_QNAME = new QName("uri:no.nav.applikasjonsrammeverk", MDC_CALL_ID);
-
     private MDCOperations() {
     }
 
@@ -76,13 +74,6 @@ public final class MDCOperations {
     public static void putUserId(String userId) {
         Objects.requireNonNull(userId, "userId can't be null");
         put(NAV_USER_ID, maskFnr(userId));
-    }
-
-    private static String maskFnr(String userId) {
-        if (userId.matches("^\\d{11}$")) {
-            return userId.replaceAll("\\d{5}$", "*****");
-        }
-        return userId;
     }
 
     public static String getUserId() {

@@ -71,11 +71,6 @@ public final class LoggerUtils {
         if (string.length() >= minLength) {
             return string;
         }
-        StringBuilder sb = new StringBuilder(minLength);
-        sb.append(string);
-        for (int i = string.length(); i < minLength; i++) {
-            sb.append(padChar);
-        }
-        return sb.toString();
+        return string + String.valueOf(padChar).repeat(minLength - string.length());
     }
 }
