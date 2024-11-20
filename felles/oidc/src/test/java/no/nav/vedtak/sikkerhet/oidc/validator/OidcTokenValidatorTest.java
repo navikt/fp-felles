@@ -176,7 +176,7 @@ class OidcTokenValidatorTest {
         // that its client_id is the Claim Value
 
         var ident = "minident";
-        var grupper = List.of("saksbehandler", "oppgavestyrer");
+        var grupper = List.of("eb211c0d-9ca6-467f-8863-9def2cc06fd3", "d18989ec-5e07-494b-ad96-0c1f0c76de53");
         var oid = UUID.randomUUID();
 
         var token = new OidcTokenGenerator()
@@ -223,7 +223,7 @@ class OidcTokenValidatorTest {
         // that its client_id is the Claim Value
 
         var ident = "minident";
-        List<String> grupper = List.of("saksbehandler", "angriper");
+        List<String> grupper = List.of("eb211c0d-9ca6-467f-8863-9def2cc06fd3", "angriper");
 
         var token = new OidcTokenGenerator()
             .withClaim(AzureProperty.NAV_IDENT, ident)
