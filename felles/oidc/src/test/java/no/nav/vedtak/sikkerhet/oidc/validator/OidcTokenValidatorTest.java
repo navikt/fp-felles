@@ -15,7 +15,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.vedtak.sikkerhet.kontekst.Groups;
+import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.config.impl.OidcProviderConfig;
@@ -189,7 +189,7 @@ class OidcTokenValidatorTest {
         assertValid(result);
         assertThat(result.getSubject()).isEqualTo(ident);
         assertThat(result.oid()).isEqualTo(oid);
-        assertThat(result.grupper()).containsAll(List.of(Groups.SAKSBEHANDLER, Groups.OPPGAVESTYRER));
+        assertThat(result.grupper()).containsAll(List.of(AnsattGruppe.SAKSBEHANDLER, AnsattGruppe.OPPGAVESTYRER));
         assertThat(result.getCompactSubject()).isEqualTo(ident);
     }
 
@@ -233,7 +233,7 @@ class OidcTokenValidatorTest {
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertValid(result);
         assertThat(result.getSubject()).isEqualTo(ident);
-        assertThat(result.grupper()).containsExactly(Groups.SAKSBEHANDLER);
+        assertThat(result.grupper()).containsExactly(AnsattGruppe.SAKSBEHANDLER);
         assertThat(result.getCompactSubject()).isEqualTo(ident);
     }
 
