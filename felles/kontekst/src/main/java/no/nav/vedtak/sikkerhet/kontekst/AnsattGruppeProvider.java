@@ -62,6 +62,11 @@ public class AnsattGruppeProvider {
         return INSTANCE;
     }
 
+    // Test usage only
+    static synchronized void refresh() {
+        INSTANCE = new AnsattGruppeProvider();
+    }
+
     public UUID getAnsattGruppeOid(AnsattGruppe gruppe) {
         return ansattGruppeOid.get(gruppe);
     }
@@ -80,10 +85,6 @@ public class AnsattGruppeProvider {
 
     public Set<AnsattGruppe> getAnsattGrupperFra(List<UUID> values) {
         return values.stream().map(this::getAnsattGruppeFra).filter(Objects::nonNull).collect(Collectors.toSet());
-    }
-
-    static String getPropertyNavn(AnsattGruppe ansattGruppe) {
-        return PROPERTY_NAME.get(ansattGruppe);
     }
 
 

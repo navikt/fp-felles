@@ -12,6 +12,7 @@ class AnsattGruppeProviderTest {
 
     @Test
     void testStringGroupsForLocal() {
+        AnsattGruppeProvider.refresh();
         var provider = AnsattGruppeProvider.instance();
         assertThat(provider.getAnsattGruppeOid(AnsattGruppe.BESLUTTER)).isNotNull();
         assertThat(provider.getAnsattGruppeOid(AnsattGruppe.BESLUTTER).toString()).isEqualTo("803b1fd5-27a0-46a2-b1b3-7152f44128b4");
@@ -26,6 +27,7 @@ class AnsattGruppeProviderTest {
 
     @Test
     void testUuidGroupsForLocal() {
+        AnsattGruppeProvider.refresh();
         var provider = AnsattGruppeProvider.instance();
         assertThat(provider.getAnsattGruppeOid(AnsattGruppe.BESLUTTER)).isNotNull();
         assertThat(provider.getAnsattGruppeOid(AnsattGruppe.BESLUTTER)).isEqualTo(UUID.fromString("803b1fd5-27a0-46a2-b1b3-7152f44128b4"));

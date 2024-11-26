@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -14,25 +14,22 @@ import org.junit.jupiter.api.Test;
  */
 class AnsattGruppeProviderEnvTest {
 
-    public void setupAll() {
-        System.setProperty(AnsattGruppeProvider.getPropertyNavn(AnsattGruppe.BESLUTTER), "6e31f9db-7e46-409d-809c-143d3863e4f6");
-        System.setProperty(AnsattGruppeProvider.getPropertyNavn(AnsattGruppe.OVERSTYRER), "542269ee-090b-4017-bbcc-6791580290ac");
+    @BeforeAll
+    public static void setUp() {
+        System.setProperty("gruppe.oid.beslutter", "6e31f9db-7e46-409d-809c-143d3863e4f6");
+        System.setProperty("gruppe.oid.overstyrer", "542269ee-090b-4017-bbcc-6791580290ac");
     }
 
-    @BeforeEach
-    public void setUp() {
-        setupAll();
-    }
-
-    @AfterEach
-    public void teardown() {
-        System.clearProperty(AnsattGruppeProvider.getPropertyNavn(AnsattGruppe.BESLUTTER));
-        System.clearProperty(AnsattGruppeProvider.getPropertyNavn(AnsattGruppe.OVERSTYRER));
+    @AfterAll
+    public static void teardown() {
+        System.clearProperty("gruppe.oid.beslutter");
+        System.clearProperty("gruppe.oid.overstyrer");
     }
 
 
     @Test
     void testStringGroupsForLocal() {
+        AnsattGruppeProvider.refresh();
         var provider = AnsattGruppeProvider.instance();
         assertThat(provider.getAnsattGruppeOid(AnsattGruppe.BESLUTTER)).isNotNull();
         assertThat(provider.getAnsattGruppeOid(AnsattGruppe.BESLUTTER).toString()).isEqualTo("6e31f9db-7e46-409d-809c-143d3863e4f6");
