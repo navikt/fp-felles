@@ -22,6 +22,8 @@ public class AzureSystemTokenKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(AzureSystemTokenKlient.class);
 
+    private static final int RETRIES = 1; // 1 attempt, the n retries
+
     private static AzureSystemTokenKlient INSTANCE;
 
     private final URI tokenEndpoint;
@@ -71,7 +73,7 @@ public class AzureSystemTokenKlient {
             .uri(tokenEndpoint)
             .POST(ofFormData(clientId, clientSecret, scope))
             .build();
-        return GeneriskTokenKlient.hentToken(request, proxy);
+        return GeneriskTokenKlient.hentTokenRetryable(request, proxy, RETRIES);
     }
 
     private static HttpRequest.BodyPublisher ofFormData(String clientId, String clientSecret, String scope) {

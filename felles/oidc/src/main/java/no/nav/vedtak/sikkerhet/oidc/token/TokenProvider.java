@@ -3,7 +3,7 @@ package no.nav.vedtak.sikkerhet.oidc.token;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.DefaultRequestKontekstProvider;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstProvider;
@@ -17,9 +17,6 @@ import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
 public final class TokenProvider {
 
     private static final KontekstProvider KONTEKST_PROVIDER = new DefaultRequestKontekstProvider();
-    private static final String ENV_CLIENT_ID = Optional.ofNullable(Environment.current().clientId())
-        .or(() -> Optional.ofNullable(Environment.current().application()))
-        .orElse("local");
     private static final Set<SikkerhetContext> USE_SYSTEM = Set.of(SikkerhetContext.SYSTEM);
 
     private TokenProvider() {
@@ -62,7 +59,7 @@ public final class TokenProvider {
     public static String getConsumerIdFor(SikkerhetContext context) {
         return switch (context) {
             case REQUEST -> getCurrentConsumerId();
-            case SYSTEM -> ENV_CLIENT_ID;
+            case SYSTEM -> BasisKontekst.getAppConsumerId();
         };
     }
 

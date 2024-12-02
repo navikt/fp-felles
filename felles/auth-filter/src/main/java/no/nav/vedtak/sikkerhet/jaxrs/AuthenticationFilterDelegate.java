@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.klient.http.CommonHttpHeaders;
 import no.nav.vedtak.log.mdc.FnrUtils;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
@@ -90,13 +91,17 @@ public class AuthenticationFilterDelegate {
     }
 
     private static void setCallAndConsumerId(ContainerRequestContext request) {
-        String callId = Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_CALL_ID))
-            .or(() -> Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_ALT_CALL_ID)))
+        String callId = getHeader(request, CommonHttpHeaders.HEADER_NAV_CALLID)
+            .or(() -> getHeader(request, CommonHttpHeaders.HEADER_NAV_ALT_CALLID))
+            .or(() -> getHeader(request, CommonHttpHeaders.HEADER_NAV_LOWER_CALL_ID))
             .orElseGet(MDCOperations::generateCallId);
         MDCOperations.putCallId(callId);
 
-        Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_CONSUMER_ID))
-            .ifPresent(MDCOperations::putConsumerId);
+        getHeader(request, CommonHttpHeaders.HEADER_NAV_CONSUMER_ID).ifPresent(MDCOperations::putConsumerId);
+    }
+
+    private static Optional<String> getHeader(ContainerRequestContext request, String header) {
+        return Optional.ofNullable(request.getHeaderString(header)).filter(s -> !s.isEmpty());
     }
 
     private static void setUserAndConsumerId(String subject) {

@@ -22,9 +22,11 @@ public class AzureBrukerTokenKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(AzureBrukerTokenKlient.class);
 
+    private static final int RETRIES = 1; // 1 attempt, the n retries
+
     private static volatile AzureBrukerTokenKlient INSTANCE; // NOSONAR
 
-    private LRUCache<String, OpenIDToken> obocache;
+    private final LRUCache<String, OpenIDToken> obocache;
 
     private final URI tokenEndpoint;
     private final String clientId;
@@ -60,7 +62,7 @@ public class AzureBrukerTokenKlient {
             + "&grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer" + "&requested_token_use=on_behalf_of" + "&client_secret=" + clientSecret;
         var request = lagRequest(data);
         LOG.trace("AzureBruker henter token for scope {}", scopes);
-        var response = GeneriskTokenKlient.hentToken(request, azureProxy);
+        var response = GeneriskTokenKlient.hentTokenRetryable(request, azureProxy, RETRIES);
         LOG.trace("AzureBruker fikk token for scope {} utløper {}", scopes, response.expires_in());
         if (response.access_token() == null) {
             LOG.warn("AzureBruker tom respons {}", response);
