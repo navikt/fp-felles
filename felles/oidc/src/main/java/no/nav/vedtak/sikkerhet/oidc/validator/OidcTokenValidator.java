@@ -17,7 +17,7 @@ import org.jose4j.jwx.JsonWebStructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.sikkerhet.kontekst.GroupsProvider;
+import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppeProvider;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDConfiguration;
@@ -169,7 +169,7 @@ public class OidcTokenValidator {
             var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.NAV_IDENT)).orElse(subject);
             registrer(clientName, "Saksbehandler", OpenIDProvider.AZUREAD, IdentType.InternBruker);
             var grupper = Optional.ofNullable(JwtUtil.getStringListClaim(claims, AzureProperty.GRUPPER))
-                    .map(arr -> GroupsProvider.instance().getGroupsFrom(arr))
+                    .map(arr -> AnsattGruppeProvider.instance().getAnsattGrupperFraStrings(arr))
                     .orElse(Set.of());
             return OidcTokenValidatorResult.valid(brukSubject, IdentType.InternBruker, oid, grupper, JwtUtil.getExpirationTimeRaw(claims));
         }
