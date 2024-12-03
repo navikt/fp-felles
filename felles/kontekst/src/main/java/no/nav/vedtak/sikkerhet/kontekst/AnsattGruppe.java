@@ -7,7 +7,8 @@ public enum AnsattGruppe {
     OVERSTYRER,
     OPPGAVESTYRER,
     VEILEDER,
-    DRIFTER,
+    HISTORISK,
+    DRIFT,
     FORTROLIG, // Aka Kode7
     STRENGTFORTROLIG, // Aka Kode6
     SKJERMET // Aka EgenAnsatt

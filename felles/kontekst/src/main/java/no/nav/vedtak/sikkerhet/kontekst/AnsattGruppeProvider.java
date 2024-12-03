@@ -29,7 +29,8 @@ public class AnsattGruppeProvider {
         AnsattGruppe.OVERSTYRER, "gruppe.oid.overstyrer",
         AnsattGruppe.VEILEDER, "gruppe.oid.veileder",
         AnsattGruppe.OPPGAVESTYRER, "gruppe.oid.oppgavestyrer",
-        AnsattGruppe.DRIFTER, "gruppe.oid.drifter",
+        AnsattGruppe.HISTORISK, "gruppe.oid.historisk",
+        AnsattGruppe.DRIFT, "gruppe.oid.drift",
         AnsattGruppe.FORTROLIG, "gruppe.oid.fortrolig",
         AnsattGruppe.STRENGTFORTROLIG, "gruppe.oid.strengtfortrolig",
         AnsattGruppe.SKJERMET, "gruppe.oid.skjermet"

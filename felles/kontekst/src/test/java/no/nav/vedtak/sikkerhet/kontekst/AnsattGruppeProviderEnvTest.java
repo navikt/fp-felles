@@ -33,7 +33,7 @@ class AnsattGruppeProviderEnvTest {
         var provider = AnsattGruppeProvider.instance();
         assertThat(provider.getAnsattGruppeOid(AnsattGruppe.BESLUTTER)).isNotNull();
         assertThat(provider.getAnsattGruppeOid(AnsattGruppe.BESLUTTER).toString()).isEqualTo("6e31f9db-7e46-409d-809c-143d3863e4f6");
-        assertThat(provider.getAnsattGruppeFra("89c71f0c-ca57-4e6f-8545-990f9e24c762")).isEqualTo(AnsattGruppe.DRIFTER);
+        assertThat(provider.getAnsattGruppeFra("89c71f0c-ca57-4e6f-8545-990f9e24c762")).isEqualTo(AnsattGruppe.DRIFT);
         var grupper = List.of("eb211c0d-9ca6-467f-8863-9def2cc06fd3", "542269ee-090b-4017-bbcc-6791580290ac");
         assertThat(provider.getAnsattGrupperFraStrings(grupper)).containsAll(Set.of(AnsattGruppe.SAKSBEHANDLER, AnsattGruppe.OVERSTYRER));
 
