@@ -38,7 +38,7 @@ public class GeneriskTokenKlient {
     }
 
 
-    public static OidcTokenResponse hentToken(HttpRequest request, URI proxy) {
+    private static OidcTokenResponse hentToken(HttpRequest request, URI proxy) {
         try (var client = hentEllerByggHttpClient(proxy)) { // På sikt vurder å bruke en generell klient eller å cache. De er blitt autocloseable
             var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
             if (response == null || response.body() == null || !responskode2xx(response)) {
@@ -63,7 +63,7 @@ public class GeneriskTokenKlient {
     private static HttpClient hentEllerByggHttpClient(URI proxy) {
         return HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NEVER)
-            .connectTimeout(Duration.ofSeconds(15))
+            .connectTimeout(Duration.ofSeconds(7))
             .proxy(ProxyProperty.getProxySelector(proxy))
             .build();
     }

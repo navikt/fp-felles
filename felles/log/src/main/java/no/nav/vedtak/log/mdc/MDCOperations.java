@@ -7,36 +7,22 @@ import static org.slf4j.MDC.put;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.xml.namespace.QName;
-
 import org.slf4j.MDC;
 
 /**
  * Utility-klasse for kommunikasjon med MDC.
  */
 public final class MDCOperations {
-    public static final String HTTP_HEADER_CALL_ID = "Nav-Callid";
-    public static final String HTTP_HEADER_ALT_CALL_ID = "nav-call-id";
-    public static final String HTTP_HEADER_CONSUMER_ID = "Nav-Consumer-Id";
+    @Deprecated(forRemoval = true) // Immediate etter tasks ferdig
+    private static final String NAV_CALL_ID = "Nav-CallId";
+    @Deprecated(forRemoval = true) // Immediate
+    private static final String NAV_USER_ID = "Nav-userId";
+    @Deprecated(forRemoval = true) // Immediate
+    private static final String NAV_CONSUMER_ID = "Nav-ConsumerId";
 
-    public static final String NAV_CALL_ID = "Nav-CallId";
-    public static final String NAV_USER_ID = "Nav-userId";
-    public static final String NAV_CONSUMER_ID = "Nav-ConsumerId";
-
-    @Deprecated
-    /*
-     * Bruk NAV_CALL_ID isteden
-     */ public static final String MDC_CALL_ID = "callId";
-
-    @Deprecated
-    /*
-     * Bruk NAV_USER_ID isteden
-     */ public static final String MDC_USER_ID = "userId";
-
-    @Deprecated
-    /*
-     * Bruk NAV_CONSUMER_ID isteden
-     */ public static final String MDC_CONSUMER_ID = "consumerId";
+    private static final String MDC_CALL_ID = "callId";
+    private static final String MDC_USER_ID = "userId";
+    private static final String MDC_CONSUMER_ID = "consumerId";
 
     private MDCOperations() {
     }
@@ -46,11 +32,11 @@ public final class MDCOperations {
     }
 
     public static void putCallId(String callId) {
-        toMDC(NAV_CALL_ID, callId);
+        toMDC(MDC_CALL_ID, callId);
     }
 
     public static String getCallId() {
-        return Optional.ofNullable(get(NAV_CALL_ID)).orElse(get(MDC_CALL_ID));
+        return Optional.ofNullable(get(MDC_CALL_ID)).orElseGet(() -> get(NAV_CALL_ID));
     }
 
     public static void removeCallId() {
@@ -59,11 +45,11 @@ public final class MDCOperations {
     }
 
     public static void putConsumerId(String consumerId) {
-        toMDC(NAV_CONSUMER_ID, consumerId);
+        toMDC(MDC_CONSUMER_ID, consumerId);
     }
 
     public static String getConsumerId() {
-        return Optional.ofNullable(get(NAV_CONSUMER_ID)).orElse(get(MDC_CONSUMER_ID));
+        return Optional.ofNullable(get(MDC_CONSUMER_ID)).orElseGet(() -> get(NAV_CONSUMER_ID));
     }
 
     public static void removeConsumerId() {
@@ -73,11 +59,11 @@ public final class MDCOperations {
 
     public static void putUserId(String userId) {
         Objects.requireNonNull(userId, "userId can't be null");
-        put(NAV_USER_ID, maskFnr(userId));
+        put(MDC_USER_ID, maskFnr(userId));
     }
 
     public static String getUserId() {
-        return Optional.ofNullable(get(NAV_USER_ID)).orElse(MDC_USER_ID);
+        return Optional.ofNullable(get(MDC_USER_ID)).orElseGet(() -> get(NAV_USER_ID));
     }
 
     public static void removeUserId() {

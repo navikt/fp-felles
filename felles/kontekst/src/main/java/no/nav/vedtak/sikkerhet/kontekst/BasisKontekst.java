@@ -6,6 +6,9 @@ import no.nav.foreldrepenger.konfig.Environment;
 
 public class BasisKontekst implements Kontekst {
 
+    private static final String APP_PSEUDO_USERID = "srv" + Optional.ofNullable(Environment.current().application()).orElse("local");
+    private static final String APP_CLIENTID = Optional.ofNullable(Environment.current().clientId()).orElse(APP_PSEUDO_USERID);
+
     private final SikkerhetContext context;
     private final String uid;
     private final String kompaktUid;
@@ -52,16 +55,16 @@ public class BasisKontekst implements Kontekst {
 
     // Denne brukes i prosesstask
     public static BasisKontekst forProsesstaskUtenSystembruker() {
-        var username = "srv" + Optional.ofNullable(Environment.current().application()).orElse("local");
-        var konsument = Optional.ofNullable(Environment.current().clientId()).orElse(username);
-        return new BasisKontekst(SikkerhetContext.SYSTEM, username, IdentType.Prosess, konsument);
+        return new BasisKontekst(SikkerhetContext.SYSTEM, APP_PSEUDO_USERID, IdentType.Prosess, APP_CLIENTID);
     }
 
     public static BasisKontekst ikkeAutentisertRequest(String consumerId) {
-        var consumer = Optional.ofNullable(consumerId)
-            .or(() -> Optional.ofNullable(Environment.current().application()).map(a -> "srv" + a))
-            .orElse("srvlocal");
+        var consumer = Optional.ofNullable(consumerId).orElse(APP_PSEUDO_USERID);
         return new BasisKontekst(SikkerhetContext.REQUEST, null, null, consumer);
+    }
+
+    public static String getAppConsumerId() {
+        return APP_CLIENTID;
     }
 
     static BasisKontekst tomKontekst() {
