@@ -4,7 +4,6 @@ import static io.micrometer.core.instrument.Metrics.globalRegistry;
 import static io.micrometer.prometheusmetrics.PrometheusConfig.DEFAULT;
 
 import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmInfoMetrics;
@@ -24,13 +23,16 @@ public class MetricsUtil {
 
     static {
         Metrics.addRegistry(REGISTRY);
+        // JVM
         new ClassLoaderMetrics().bindTo(globalRegistry);
         new JvmMemoryMetrics().bindTo(globalRegistry);
         new JvmGcMetrics().bindTo(globalRegistry);
-        new ProcessorMetrics().bindTo(globalRegistry);
         new JvmThreadMetrics().bindTo(globalRegistry);
         new JvmInfoMetrics().bindTo(globalRegistry);
+        // System
+        new ProcessorMetrics().bindTo(globalRegistry);
         new UptimeMetrics().bindTo(globalRegistry);
+        // Logging
         new LogbackMetrics().bindTo(globalRegistry);
     }
 
@@ -38,34 +40,7 @@ public class MetricsUtil {
         return REGISTRY.scrape();
     }
 
-    public static void timerUtenHistogram(String navn) {
-        timerMedPercentiler(navn, 0.5, 0.95, 0.99);
-    }
-
-    public static void timerMedianUtenHistogram(String navn) {
-        timerMedPercentiler(navn, 0.5);
-    }
-
-    public static void timerMedPercentiler(String navn, double... percentiles) {
-        Timer.builder(navn)
-            .publishPercentiles(percentiles)
-            .publishPercentileHistogram(false)
-            .register(globalRegistry);
-    }
-
-    public static void timerMedHistogram(String navn) {
-        timerMedHistogram(navn, 0.5, 0.95, 0.99);
-    }
-
-    public static void timerMedianMedHistogram(String navn) {
-        timerMedHistogram(navn, 0.5);
-    }
-
-    public static void timerMedHistogram(String navn, double... percentiles) {
-        Timer.builder(navn)
-            .publishPercentiles(percentiles)
-            .publishPercentileHistogram(true)
-            .register(globalRegistry);
-    }
+    // Til info Eksempel på timer med percentiler
+    // Timer.builder(navn).publishPercentiles(double... percentiles).publishPercentileHistogram(boolean).register(globalRegistry);
 
 }
