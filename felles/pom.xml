@@ -27,6 +27,7 @@
         <module>kontekst</module>
         <module>abac-kontekst</module>
         <module>auth-filter</module>
+        <module>server</module>
     </modules>
 
     <dependencyManagement>
@@ -89,6 +90,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-oidc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles-server</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
