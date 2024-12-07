@@ -52,13 +52,13 @@ public class DefaultJsonMapper {
             .addModule(new Jdk8Module())
             .addModule(new JavaTimeModule())
             .defaultTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES) // TODO: Trengs denne? Sak har kjørt lenge uten
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-            .serializationInclusion(JsonInclude.Include.NON_EMPTY)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES) // TODO: Trengs denne? Sak har kjørt lenge uten
+            .serializationInclusion(JsonInclude.Include.NON_EMPTY)
             .visibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
             .visibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE)
             .visibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE)
