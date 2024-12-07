@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -21,24 +20,39 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.vedtak.exception.TekniskException;
 
+/**
+ * OBS: JsonMapper er en subklasse av ObjectMapper - tilpasset Json og med en enklere builder
+ * Se også jackson-core, pakke json, JsonReadFeature og JsonWriteFeature for mer Java/Json-nær konfig/features
+ */
 public class DefaultJsonMapper {
 
     private DefaultJsonMapper() {
 
     }
 
-    private static final JsonMapper MAPPER = createObjectMapper();
+    private static final JsonMapper MAPPER = createJsonMapper();
 
-    public static ObjectMapper getObjectMapper() {
+    @Deprecated // Bruk getJsonMapper() når mapper-konfig brukes as is og ikke endres ((de)serializers eller subtypes
+    public static JsonMapper getObjectMapper() {
         return MAPPER;
     }
 
-    private static JsonMapper createObjectMapper() {
+    // Foretrekker denne - men bruk heller metoder nedenfor direkte enn å assigne til lokale variable
+    public static JsonMapper getJsonMapper() {
+        return MAPPER;
+    }
+
+    // Bruk denne for kun for ContextResolver (JacksonJsonConfig-klasser) som skal legge til (de)serializers eller registrere subtypes
+    public static JsonMapper getCopyFromDefaultJsonMapper() {
+        return MAPPER.copy();
+    }
+
+    private static JsonMapper createJsonMapper() {
         return JsonMapper.builder()
             .addModule(new Jdk8Module())
             .addModule(new JavaTimeModule())
             .defaultTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES) // Trengs denne? Sak har kjørt uten
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES) // TODO: Trengs denne? Sak har kjørt lenge uten
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
