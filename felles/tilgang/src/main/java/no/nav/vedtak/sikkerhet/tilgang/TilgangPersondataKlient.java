@@ -39,7 +39,7 @@ public class TilgangPersondataKlient implements TilgangPersondata {
     } // CDI
 
     @Inject
-    public TilgangPersondataKlient(@KonfigVerdi(value = "pdl.pip.endpoint.url", defaultVerdi = "http://pdl-pip-api.pdll/api/v1/person") String pdlPipUrl,
+    public TilgangPersondataKlient(@KonfigVerdi(value = "pdl.pip.endpoint.url", defaultVerdi = "http://pdl-pip-api.pdl/api/v1/person") String pdlPipUrl,
                                    @KonfigVerdi(value = "pdl.pip.scopes", defaultVerdi = "api://prod-fss:pdl:pdl-pip-api/.default") String pdlPipScopes) {
         this.personURI = URI.create(pdlPipUrl);
         this.personBolkURI = URI.create(pdlPipUrl + BOLK_SUFFIX);
@@ -49,7 +49,8 @@ public class TilgangPersondataKlient implements TilgangPersondata {
     @Override
     public TilgangPersondataDto hentTilgangPersondata(String ident) {
         var builder = HttpRequest.newBuilder(personURI)
-            .header(HttpHeaders.ACCEPT, MediaType.WILDCARD) // Bruk APPLICATION_JSON ?
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
             .header(HttpHeaders.AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + TokenProvider.getTokenForSystem(personScopes).token())
             .header("ident", ident)
             .timeout(Duration.ofSeconds(5))
@@ -64,7 +65,7 @@ public class TilgangPersondataKlient implements TilgangPersondata {
     public Map<String, TilgangPersondataDto> hentTilgangPersondataBolk(List<String> identer) {
         var builder = HttpRequest.newBuilder(personBolkURI)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .header(HttpHeaders.ACCEPT, MediaType.WILDCARD) // Bruk APPLICATION_JSON ?
+            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
             .header(HttpHeaders.AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + TokenProvider.getTokenForSystem(personScopes).token())
             .timeout(Duration.ofSeconds(5))
             .POST(HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(identer)));
