@@ -75,6 +75,35 @@ public class TilgangPersondataKlient implements TilgangPersondata {
         return response != null ? DefaultJsonMapper.mapFromJson(response, TilgangPersondataDto.class) : Map.of();
     }
 
+    @Override
+    public TilgangPersondataEnkelDto hentEnkelTilgangPersondata(String ident) {
+        var builder = HttpRequest.newBuilder(personURI)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + TokenProvider.getTokenForSystem(personScopes).token())
+            .header("ident", ident)
+            .timeout(Duration.ofSeconds(5))
+            .GET();
+        var request = new PersondataRequest(builder);
+
+        var response = DefaultHttpClient.client().send(request);
+        return response != null ? DefaultJsonMapper.fromJson(response, TilgangPersondataEnkelDto.class) : null;
+    }
+
+    @Override
+    public Map<String, TilgangPersondataEnkelDto> hentEnkelTilgangPersondataBolk(List<String> identer) {
+        var builder = HttpRequest.newBuilder(personBolkURI)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + TokenProvider.getTokenForSystem(personScopes).token())
+            .timeout(Duration.ofSeconds(5))
+            .POST(HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(identer)));
+        var request = new PersondataRequest(builder);
+
+        var response = DefaultHttpClient.client().send(request);
+        return response != null ? DefaultJsonMapper.mapFromJson(response, TilgangPersondataEnkelDto.class) : Map.of();
+    }
+
 
     private static class PersondataRequest extends HttpClientRequest {
         public PersondataRequest(HttpRequest.Builder builder) {
