@@ -10,11 +10,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.klient.http.DefaultHttpClient;
 import no.nav.vedtak.klient.http.HttpClientRequest;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenProvider;
 
 /*
@@ -50,7 +50,7 @@ public class TilgangPersondataKlient implements TilgangPersondata {
     public TilgangPersondataDto hentTilgangPersondata(String ident) {
         var builder = HttpRequest.newBuilder(personURI)
             .header(HttpHeaders.ACCEPT, MediaType.WILDCARD) // Bruk APPLICATION_JSON ?
-            .header(HttpHeaders.AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + TokenProvider.getTokenForSystem(OpenIDProvider.AZUREAD, personScopes).token())
+            .header(HttpHeaders.AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + TokenProvider.getTokenForSystem(personScopes).token())
             .header("ident", ident)
             .timeout(Duration.ofSeconds(5))
             .GET();
@@ -65,7 +65,7 @@ public class TilgangPersondataKlient implements TilgangPersondata {
         var builder = HttpRequest.newBuilder(personBolkURI)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
             .header(HttpHeaders.ACCEPT, MediaType.WILDCARD) // Bruk APPLICATION_JSON ?
-            .header(HttpHeaders.AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + TokenProvider.getTokenForSystem(OpenIDProvider.AZUREAD, personScopes).token())
+            .header(HttpHeaders.AUTHORIZATION, OIDC_AUTH_HEADER_PREFIX + TokenProvider.getTokenForSystem(personScopes).token())
             .timeout(Duration.ofSeconds(5))
             .POST(HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(identer)));
         var request = new PersondataRequest(builder);
