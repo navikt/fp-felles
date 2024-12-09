@@ -21,11 +21,6 @@ public class OtelSpanWrapper {
         return new OtelSpanWrapper(tracer);
     }
 
-    public static OtelSpanWrapper forBibliotek(String libraryName, String libraryVersion) {
-        var tracer = GlobalOpenTelemetry.getTracer(libraryName, libraryVersion);
-        return new OtelSpanWrapper(tracer);
-    }
-
     public OtelSpanWrapper(Tracer tracer) {
         this.tracer = tracer;
     }
