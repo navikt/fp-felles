@@ -60,7 +60,7 @@ public class OtelSpanWrapper {
         }
     }
 
-    public <V> V span(String navn,
+    public <V> V spanCallable(String navn,
                       UnaryOperator<SpanBuilder> spanBuilderTransformer,
                       Callable<V> runnable) throws Exception {
         var span = startSpan(navn, spanBuilderTransformer);
