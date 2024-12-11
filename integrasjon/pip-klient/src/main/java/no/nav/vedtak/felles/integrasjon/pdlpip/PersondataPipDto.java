@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 public record PersondataPipDto(String aktoerId, Person person, Identer identer, GeografiskTilknytning geografiskTilknytning) {
 
     public record Person(List<Adressebeskyttelse> adressebeskyttelse, List<Fødsel> foedsel,
-                         List<Dødsfall> doedsfall, List<Familierelasjoner> familierelasjoner) {
+                         List<Dødsfall> doedsfall, List<Familierelasjon> familierelasjoner) {
     }
 
     public record Adressebeskyttelse(Gradering gradering) { }
@@ -18,7 +18,7 @@ public record PersondataPipDto(String aktoerId, Person person, Identer identer, 
 
     public record Dødsfall(LocalDate doedsdato) { }
 
-    public record Familierelasjoner(String relatertPersonsIdent) { } // FNR
+    public record Familierelasjon(String relatertPersonsIdent) { } // en personIdent (FNR/DNR)
 
     public record Identer(List<Ident> identer) { }
 
@@ -31,6 +31,8 @@ public record PersondataPipDto(String aktoerId, Person person, Identer identer, 
     public enum IdentGruppe { AKTORID, FOLKEREGISTERIDENT, NPID, @JsonEnumDefaultValue UDEFINERT }
 
     public enum GtType { KOMMUNE, BYDEL, UTLAND, @JsonEnumDefaultValue UDEFINERT }
+
+    public enum Relasjonsrolle { FAR, MOR, MEDMOR, BARN,  @JsonEnumDefaultValue UDEFINERT }
 
     public boolean harStrengAdresseBeskyttelse() {
         return Optional.ofNullable(person()).map(Person::adressebeskyttelse).orElse(List.of()).stream()
