@@ -21,11 +21,6 @@ public class OtelSpanWrapper {
         return new OtelSpanWrapper(tracer);
     }
 
-    public static OtelSpanWrapper forBibliotek(String libraryName, String libraryVersion) {
-        var tracer = GlobalOpenTelemetry.getTracer(libraryName, libraryVersion);
-        return new OtelSpanWrapper(tracer);
-    }
-
     public OtelSpanWrapper(Tracer tracer) {
         this.tracer = tracer;
     }
@@ -60,7 +55,7 @@ public class OtelSpanWrapper {
         }
     }
 
-    public <V> V span(String navn,
+    public <V> V spanCallable(String navn,
                       UnaryOperator<SpanBuilder> spanBuilderTransformer,
                       Callable<V> runnable) throws Exception {
         var span = startSpan(navn, spanBuilderTransformer);

@@ -1,7 +1,5 @@
 package no.nav.vedtak.sikkerhet.oidc.validator;
 
-import static no.nav.vedtak.sikkerhet.oidc.validator.ConsumerMetric.registrer;
-
 import java.security.Key;
 import java.util.List;
 import java.util.Objects;
@@ -153,7 +151,6 @@ public class OidcTokenValidator {
         var oid = getAzureOid(claims);
         if (isAzureClientCredentials(claims, subject, oid)) {
             var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.AZP_NAME)).orElse(subject);
-            registrer(clientName, brukSubject, OpenIDProvider.AZUREAD, IdentType.Systemressurs);
             // Ta med bakoverkompatibelt navn ettersom azp_name er ganske langt (tabeller / opprettet_av)
             var sisteKolon = brukSubject.lastIndexOf(':');
             if (sisteKolon >= 0) {
@@ -167,7 +164,6 @@ public class OidcTokenValidator {
             }
         } else {
             var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, AzureProperty.NAV_IDENT)).orElse(subject);
-            registrer(clientName, "Saksbehandler", OpenIDProvider.AZUREAD, IdentType.InternBruker);
             var grupper = Optional.ofNullable(JwtUtil.getStringListClaim(claims, AzureProperty.GRUPPER))
                     .map(arr -> AnsattGruppeProvider.instance().getAnsattGrupperFraStrings(arr))
                     .orElse(Set.of());
@@ -204,7 +200,6 @@ public class OidcTokenValidator {
             return OidcTokenValidatorResult.invalid("TokenX token ikke på nivå 4");
         }
         var brukSubject = Optional.ofNullable(JwtUtil.getStringClaim(claims, PID)).orElse(subject);
-        registrer(clientName, "Borger", OpenIDProvider.TOKENX, IdentType.EksternBruker, acrClaim);
         return OidcTokenValidatorResult.valid(brukSubject, IdentType.EksternBruker, JwtUtil.getExpirationTimeRaw(claims));
     }
 
