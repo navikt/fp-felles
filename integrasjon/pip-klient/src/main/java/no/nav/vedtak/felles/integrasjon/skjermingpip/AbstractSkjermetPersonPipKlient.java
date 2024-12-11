@@ -1,4 +1,4 @@
-package no.nav.vedtak.felles.integrasjon.skjerming;
+package no.nav.vedtak.felles.integrasjon.skjermingpip;
 
 import java.net.URI;
 import java.util.List;
@@ -9,18 +9,21 @@ import jakarta.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
-// Extend og annoter med endpoint+default og scopes/default + tokenConfig = AzureAD_CC
-//@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "skjermet.person.rs.url", endpointDefault = "https://skjermede-personer-pip.intern.nav.no",
-//    scopesProperty = "skjermet.person.rs.azure.scope", scopesDefault = "api://prod-gcp.nom.skjermede-personer-pip/.default")
-public abstract class AbstractSkjermetPersonGCPKlient implements Skjerming {
+/*
+ * Informasjon fra skjermingsløsningen til bruk for tilgangskontroll. Registrer klientapps hos nom
+ */
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractSkjermetPersonGCPKlient.class);
-    private static final boolean TESTENV = Environment.current().isLocal();
+// Extend og annoter med endpoint+default og scopes/default + tokenConfig = AzureAD_CC
+//@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "skjermet.person.pip.base.url",
+//    endpointDefault = "https://skjermede-personer-pip.intern.nav.no", // For FSS - apps i GCP bruker http://skjermede-personer-pip.nom
+//    scopesProperty = "skjermet.person.pip.scope", scopesDefault = "api://prod-gcp.nom.skjermede-personer-pip/.default")
+public abstract class AbstractSkjermetPersonPipKlient implements SkjermetPersonPip {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSkjermetPersonPipKlient.class);
 
     private static final String SKJERMET_PATH = "skjermet";
     private static final String BULK_PATH = "skjermetBulk";
@@ -30,11 +33,11 @@ public abstract class AbstractSkjermetPersonGCPKlient implements Skjerming {
     private final URI bulkEndpoint;
     private final URI skjermetEndpoint;
 
-    protected AbstractSkjermetPersonGCPKlient() {
+    protected AbstractSkjermetPersonPipKlient() {
         this(RestClient.client());
     }
 
-    protected AbstractSkjermetPersonGCPKlient(RestClient restClient) {
+    protected AbstractSkjermetPersonPipKlient(RestClient restClient) {
         this.client = restClient;
         this.restConfig = RestConfig.forClient(this.getClass());
         this.skjermetEndpoint =  UriBuilder.fromUri(restConfig.endpoint()).path(SKJERMET_PATH).build();
@@ -47,7 +50,7 @@ public abstract class AbstractSkjermetPersonGCPKlient implements Skjerming {
 
     @Override
     public boolean erSkjermet(String fnr) {
-        if (TESTENV || fnr == null) {
+        if (fnr == null) {
             return false;
         }
 
@@ -68,7 +71,7 @@ public abstract class AbstractSkjermetPersonGCPKlient implements Skjerming {
 
     @Override
     public boolean erNoenSkjermet(List<String> fnr) {
-        if (TESTENV || fnr == null || fnr.isEmpty()) {
+        if (fnr == null || fnr.isEmpty()) {
             return false;
         }
 

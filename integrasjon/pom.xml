@@ -20,6 +20,7 @@
         <module>infotrygd-grunnlag-klient</module>
         <module>dokarkiv-klient</module>
         <module>person-klient</module>
+        <module>pip-klient</module>
         <module>oppgave-rest-klient</module>
         <module>ereg-klient</module>
         <module>saf-klient</module>
