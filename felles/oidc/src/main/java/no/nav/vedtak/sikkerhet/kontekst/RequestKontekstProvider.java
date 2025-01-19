@@ -1,8 +1,9 @@
 package no.nav.vedtak.sikkerhet.kontekst;
 
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-
+import java.util.Set;
 import java.util.UUID;
+
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
 public interface RequestKontekstProvider extends KontekstProvider {
 
@@ -12,6 +13,10 @@ public interface RequestKontekstProvider extends KontekstProvider {
 
     default UUID getOid() {
         return getKontekst() instanceof RequestKontekst tk ? tk.getOid() : null;
+    }
+
+    default Set<AnsattGruppe> getAnsattGrupper() {
+        return getKontekst() instanceof RequestKontekst tk ? tk.getGrupper() : Set.of();
     }
 
 }

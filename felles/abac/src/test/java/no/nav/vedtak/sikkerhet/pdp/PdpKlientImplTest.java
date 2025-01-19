@@ -56,7 +56,7 @@ class PdpKlientImplTest {
 
     @Test
     void kallPdpUtenFnrResourceHvisPersonlisteErTom() {
-        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
+        var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -71,7 +71,7 @@ class PdpKlientImplTest {
 
     @Test
     void kallPdpMedJwtTokenBodyNårIdTokenErJwtToken() {
-        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
+        var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -86,7 +86,7 @@ class PdpKlientImplTest {
 
     @Test
     void kallPdpMedJwtTokenBodyNårIdTokenErTokeXToken() {
-        var idToken = Token.withOidcToken(JWT_TOKENX_TOKEN, "TEST", IdentType.InternBruker);
+        var idToken = Token.withOidcToken(JWT_TOKENX_TOKEN);
         var responseWrapper = createResponse("xacmlresponse.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -101,7 +101,7 @@ class PdpKlientImplTest {
 
     @Test
     void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn1() {
-        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
+        var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacml3response.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -124,7 +124,7 @@ class PdpKlientImplTest {
 
     @Test
     void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn2() {
-        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
+        var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacmlresponse-array.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -147,7 +147,7 @@ class PdpKlientImplTest {
 
     @Test
     void sporingsloggListeSkalHaSammeRekkefølgePåidenterSomXacmlRequest() {
-        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
+        var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacml3response.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -178,7 +178,7 @@ class PdpKlientImplTest {
 
     @Test
     void skal_bare_ta_med_deny_advice() {
-        var idToken = Token.withOidcToken(JWT_TOKENX_TOKEN, "meg", IdentType.EksternBruker);
+        var idToken = Token.withOidcToken(JWT_TOKENX_TOKEN);
         var responseWrapper = createResponse("xacmlresponse_1deny_1permit.json");
 
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
@@ -188,7 +188,7 @@ class PdpKlientImplTest {
         personnr.add("12345678900");
         personnr.add("07078515206");
 
-        var felles = lagBeskyttetRessursAttributter(idToken, AbacDataAttributter.opprett());
+        var felles = lagBeskyttetRessursAttributter(idToken, AbacDataAttributter.opprett(), IdentType.EksternBruker);
         var ressurs = AppRessursData.builder().leggTilFødselsnumre(personnr).build();
         var resultat = pdpKlient.forespørTilgang(felles, DOMENE, ressurs);
 
@@ -211,7 +211,7 @@ class PdpKlientImplTest {
 
     @Test
     void skalFeileVedUkjentObligation() {
-        var idToken = Token.withOidcToken(new OpenIDToken(OpenIDProvider.TOKENX, new TokenString("OIDC")), "OIDC", IdentType.InternBruker);
+        var idToken = Token.withOidcToken(new OpenIDToken(OpenIDProvider.TOKENX, new TokenString("OIDC")));
         var responseWrapper = createResponse("xacmlresponse_multiple_obligation.json");
 
         when(pdpConsumerMock.evaluate(any(XacmlRequest.class))).thenReturn(responseWrapper);
@@ -229,7 +229,7 @@ class PdpKlientImplTest {
     @Test
     void skal_håndtere_blanding_av_fnr_og_aktør_id() {
 
-        var idToken = Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker);
+        var idToken = Token.withOidcToken(JWT_TOKEN);
         var responseWrapper = createResponse("xacml3response.json");
         var captor = ArgumentCaptor.forClass(XacmlRequest.class);
 
@@ -253,8 +253,15 @@ class PdpKlientImplTest {
     }
 
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributter(Token token, AbacDataAttributter dataAttributter) {
+        return lagBeskyttetRessursAttributter(token, dataAttributter, IdentType.InternBruker);
+    }
+
+    private BeskyttetRessursAttributter lagBeskyttetRessursAttributter(Token token,
+                                                                       AbacDataAttributter dataAttributter,
+                                                                       IdentType identType) {
         return BeskyttetRessursAttributter.builder()
-            .medUserId("IDENT")
+            .medBrukerId("IDENT")
+            .medIdentType(identType)
             .medToken(token)
             .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK)
             .medActionType(ActionType.READ)
@@ -280,7 +287,7 @@ class PdpKlientImplTest {
         File file = new File(getClass().getClassLoader().getResource("request.json").getFile());
         var target = DefaultJsonMapper.getObjectMapper().readValue(file, XacmlRequest.class);
 
-        var felles = lagBeskyttetRessursAttributter(Token.withOidcToken(JWT_TOKEN, "TEST", IdentType.InternBruker), AbacDataAttributter.opprett());
+        var felles = lagBeskyttetRessursAttributter(Token.withOidcToken(JWT_TOKEN), AbacDataAttributter.opprett());
         var ressurs = AppRessursData.builder().leggTilAktørId("11111").leggTilFødselsnummer("12345678900").build();
         var request = XacmlRequestMapper.lagXacmlRequest(felles, DOMENE, ressurs);
 
