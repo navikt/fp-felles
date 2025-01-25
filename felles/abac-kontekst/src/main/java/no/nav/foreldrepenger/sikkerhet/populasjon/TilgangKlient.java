@@ -45,14 +45,14 @@ public class TilgangKlient implements PopulasjonKlient {
     @Override
     public Tilgangsvurdering vurderTilgang(PopulasjonInternRequest request) {
         var rrequest = RestRequest.newPOSTJson(request, internBrukerUri, restConfig);
-        //return klient.send(rrequest, Tilgangsvurdering.class);
-        return Tilgangsvurdering.godkjenn();
+        return klient.send(rrequest, Tilgangsvurdering.class);
+        //return Tilgangsvurdering.godkjenn();
     }
 
     @Override
     public Tilgangsvurdering vurderTilgang(PopulasjonEksternRequest request) {
         var rrequest = RestRequest.newPOSTJson(request, eksternBrukerUri, restConfig);
-        //return klient.send(rrequest, Tilgangsvurdering.class);
-        return Tilgangsvurdering.godkjenn();
+        return klient.send(rrequest, Tilgangsvurdering.class);
+        //return Tilgangsvurdering.godkjenn();
     }
 }

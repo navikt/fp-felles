@@ -5,10 +5,10 @@ import java.util.Set;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 
-public record Tilgangsvurdering(AbacResultat abacResultat, String årsak, Set<AnsattGruppe> kreverGrupper) {
+public record Tilgangsvurdering(AbacResultat tilgangResultat, String årsak, Set<AnsattGruppe> kreverGrupper) {
 
     public boolean fikkTilgang() {
-        return abacResultat == AbacResultat.GODKJENT;
+        return tilgangResultat == AbacResultat.GODKJENT;
     }
 
     public static Tilgangsvurdering godkjenn() {

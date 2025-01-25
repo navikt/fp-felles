@@ -78,10 +78,11 @@ public class PepImpl implements Pep {
     private void sammenlignOgLogg(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData, AbacResultat resultat) {
         try {
             var lokalt = forespørTilgang(beskyttetRessursAttributter, appRessursData);
-            if (Objects.equals(lokalt.abacResultat(), resultat)) {
+            if (Objects.equals(lokalt.tilgangResultat(), resultat)) {
                 LOG.info("FPEGENTILGANG: samme svar");
             } else {
-                LOG.info("FPEGENTILGANG: ulikt svar - gammel {} ny {}", resultat, lokalt.abacResultat());
+                var metode = beskyttetRessursAttributter.getServicePath();
+                LOG.info("FPEGENTILGANG: ulikt svar - gammel {} ny {} - metode {}", resultat, lokalt.tilgangResultat(), metode);
             }
         } catch (Exception e) {
             LOG.info("FPEGENTILGANG: feil", e);
