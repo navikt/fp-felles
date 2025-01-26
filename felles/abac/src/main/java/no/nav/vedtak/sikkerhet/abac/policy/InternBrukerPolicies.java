@@ -19,8 +19,6 @@ import no.nav.vedtak.sikkerhet.kontekst.IdentType;
  */
 public class InternBrukerPolicies {
 
-    private static final Set<AnsattGruppe> VEILEDER_SAKSBEHANDLER = Set.of(AnsattGruppe.SAKSBEHANDLER, AnsattGruppe.VEILEDER);
-
     private InternBrukerPolicies() {
         // Hindre instans
     }
@@ -36,24 +34,24 @@ public class InternBrukerPolicies {
             case ForeldrepengerAttributter.RESOURCE_TYPE_FP_DRIFT -> driftPolicy(beskyttetRessursAttributter);
             case ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK -> fagsakPolicy(beskyttetRessursAttributter, appRessursData);
             case ForeldrepengerAttributter.RESOURCE_TYPE_FP_VENTEFRIST -> ventefristPolicy(beskyttetRessursAttributter);
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_AVDELINGENHET -> avdelingEnhetPolicy(beskyttetRessursAttributter, appRessursData);
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_OPPGAVESTYRING -> oppgavestyrerPolicy(beskyttetRessursAttributter);
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_RISIKOKLASSIFISERING -> veilederEllerSaksbehandler(beskyttetRessursAttributter);
-            default ->  Tilgangsvurdering.avslåGenerell("InternBruker har ikke tilgang til ressurs");
+            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_AVDELINGENHET -> avdelingEnhetPolicy(appRessursData);
+            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_OPPGAVESTYRING -> oppgavestyrerPolicy();
+            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_RISIKOKLASSIFISERING -> erVeilederEllerSaksbehandler(beskyttetRessursAttributter);
+            default ->  Tilgangsvurdering.avslåGenerell("InternBruker har ikke tilgang til ressurs " + beskyttetRessursAttributter.getResourceType());
         };
     }
 
     private static Tilgangsvurdering fagsakPolicy(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
         return switch (beskyttetRessursAttributter.getActionType()) {
-            case READ -> veilederEllerSaksbehandler(beskyttetRessursAttributter);
-            case CREATE -> harGruppe(beskyttetRessursAttributter, AnsattGruppe.SAKSBEHANDLER) ? Tilgangsvurdering.godkjenn() : Tilgangsvurdering.avslåGenerell("InternRessurs er ikke saksbehandler");
+            case READ -> erVeilederEllerSaksbehandler(beskyttetRessursAttributter);
+            case CREATE -> erSaksbehandler(beskyttetRessursAttributter) ? Tilgangsvurdering.godkjenn() : Tilgangsvurdering.avslåGenerell("InternRessurs er ikke saksbehandler");
             case UPDATE -> fagsakUpdatePolicy(beskyttetRessursAttributter, appRessursData);
             case null, default -> Tilgangsvurdering.avslåGenerell("InternRessurs kan ikke utføre handling på fagsak");
         };
     }
 
     private static Tilgangsvurdering fagsakUpdatePolicy(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        if (!harGruppe(beskyttetRessursAttributter, AnsattGruppe.SAKSBEHANDLER)) {
+        if (!erSaksbehandler(beskyttetRessursAttributter)) {
             return Tilgangsvurdering.avslåGenerell("Internbruker er ikke saksbehandler");
         }
         var overstyring = Optional.ofNullable(appRessursData.getResource(ForeldrepengerDataKeys.AKSJONSPUNKT_OVERSTYRING)).map(RessursData::verdi).orElse(null);
@@ -87,64 +85,55 @@ public class InternBrukerPolicies {
             return Tilgangsvurdering.avslåGenerell("Applikasjon-ressurs kan ikke ha personer / saker");
         }
         if (ActionType.READ.equals(beskyttetRessursAttributter.getActionType())) {
-            return veilederEllerSaksbehandler(beskyttetRessursAttributter);
+            return erVeilederEllerSaksbehandler(beskyttetRessursAttributter);
         } else {
-            return Tilgangsvurdering.avslåGenerell("InternBruker kan ikke utføre handling for ressurs");
+            return Tilgangsvurdering.avslåGenerell("InternBruker kan ikke utføre handling for Applikasjon-ressurs");
         }
     }
 
     private static Tilgangsvurdering ventefristPolicy(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         if (ActionType.UPDATE.equals(beskyttetRessursAttributter.getActionType())) {
-            return veilederEllerSaksbehandler(beskyttetRessursAttributter);
+            return erVeilederEllerSaksbehandler(beskyttetRessursAttributter);
         } else {
-            return Tilgangsvurdering.avslåGenerell("InternBruker kan ikke utføre handling for ressurs");
+            return Tilgangsvurdering.avslåGenerell("InternBruker kan ikke utføre handling for Ventefrist-ressurs");
         }
     }
 
     private static Tilgangsvurdering driftPolicy(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         if (ActionType.READ.equals(beskyttetRessursAttributter.getActionType()) || ActionType.CREATE.equals(beskyttetRessursAttributter.getActionType())) {
-            if (harGruppe(beskyttetRessursAttributter, AnsattGruppe.DRIFT)) {
-                return Tilgangsvurdering.godkjenn();
-            } else {
-                return Tilgangsvurdering.godkjenn(AnsattGruppe.DRIFT);
-            }
+            return Tilgangsvurdering.godkjenn(AnsattGruppe.DRIFT);
         } else {
-            return Tilgangsvurdering.avslåGenerell("InternRessurs kan ikke utføre handling på ressurs");
+            return Tilgangsvurdering.avslåGenerell("InternRessurs kan ikke utføre handling på Drift-ressurs");
         }
     }
 
-    private static Tilgangsvurdering oppgavestyrerPolicy(BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        if (harGruppe(beskyttetRessursAttributter, AnsattGruppe.OPPGAVESTYRER)) {
-            return Tilgangsvurdering.godkjenn();
+    private static Tilgangsvurdering oppgavestyrerPolicy() {
+        return Tilgangsvurdering.godkjenn(AnsattGruppe.OPPGAVESTYRER);
+    }
+
+    private static Tilgangsvurdering avdelingEnhetPolicy(AppRessursData appRessursData) {
+        var enhetAdresseBeskyttelse = Optional.ofNullable(appRessursData.getResource(ForeldrepengerDataKeys.AVDELING_ENHET))
+            .map(RessursData::verdi)
+            .filter(ForeldrepengerAttributter.VALUE_FP_AVDELING_ENHET_ADRESSEBESKYTTET::equals)
+            .isPresent();
+        if (enhetAdresseBeskyttelse) {
+            return Tilgangsvurdering.godkjenn(Set.of(AnsattGruppe.OPPGAVESTYRER, AnsattGruppe.STRENGTFORTROLIG));
         } else {
             return Tilgangsvurdering.godkjenn(AnsattGruppe.OPPGAVESTYRER);
         }
     }
 
-    private static Tilgangsvurdering avdelingEnhetPolicy(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        var enhetAdresseBeskyttelse = Optional.ofNullable(appRessursData.getResource(ForeldrepengerDataKeys.AVDELING_ENHET))
-            .map(RessursData::verdi)
-            .filter(ForeldrepengerAttributter.VALUE_FP_AVDELING_ENHET_ADRESSEBESKYTTET::equals)
-            .isPresent();
-        var erOppgavestyrer = harGruppe(beskyttetRessursAttributter, AnsattGruppe.OPPGAVESTYRER);
-        if (enhetAdresseBeskyttelse) {
-            return erOppgavestyrer ? Tilgangsvurdering.godkjenn() : Tilgangsvurdering.godkjenn(Set.of(AnsattGruppe.OPPGAVESTYRER, AnsattGruppe.STRENGTFORTROLIG));
-        } else {
-            return erOppgavestyrer ? Tilgangsvurdering.godkjenn() : Tilgangsvurdering.godkjenn(AnsattGruppe.OPPGAVESTYRER);
-        }
-    }
 
-
-    private static Tilgangsvurdering veilederEllerSaksbehandler(BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        if (beskyttetRessursAttributter.getAnsattGrupper().stream().anyMatch(VEILEDER_SAKSBEHANDLER::contains)) {
+    private static Tilgangsvurdering erVeilederEllerSaksbehandler(BeskyttetRessursAttributter beskyttetRessursAttributter) {
+        if (erSaksbehandler(beskyttetRessursAttributter) || beskyttetRessursAttributter.getAnsattGrupper().contains(AnsattGruppe.VEILEDER)) {
             return Tilgangsvurdering.godkjenn();
         } else {
             return Tilgangsvurdering.avslåGenerell("InternBruker ikke veileder eller saksbehandler");
         }
     }
 
-    private static boolean harGruppe(BeskyttetRessursAttributter beskyttetRessursAttributter, AnsattGruppe gruppe) {
-        return beskyttetRessursAttributter.getAnsattGrupper().stream().anyMatch(gruppe::equals);
+    private static boolean erSaksbehandler(BeskyttetRessursAttributter beskyttetRessursAttributter) {
+        return beskyttetRessursAttributter.getAnsattGrupper().contains(AnsattGruppe.SAKSBEHANDLER);
     }
 
 }

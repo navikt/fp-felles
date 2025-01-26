@@ -47,7 +47,7 @@ public class SystemressursPolicies {
             skriveBeskyttet(beskyttetRessursAttributter, appRessursData)) {
             return Tilgangsvurdering.avslåGenerell("Sak/Behandling avsluttet");
         }
-        // Skal ikke utføre videre kontroll (fagtilgang, populasjonstilgang) for System. Returner GODKJENT.
+        // Skal ikke utføre videre kontroll (fagtilgang, populasjonstilgang) for System.
         return Tilgangsvurdering.godkjenn();
     }
 
@@ -71,9 +71,10 @@ public class SystemressursPolicies {
         if (Objects.equals(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK, beskyttetRessursAttributter.getResourceType())) {
             var behandlingStatus = appRessursData.getResource(ForeldrepengerDataKeys.BEHANDLING_STATUS);
             var fagsakStatus = appRessursData.getResource(ForeldrepengerDataKeys.FAGSAK_STATUS);
+            // Denne er utforskende. Vi trenger oppdatere behandling i tilstand IVED. Potensielt også AVSLU pga brevkvittering
             return behandlingStatus == null && fagsakStatus == null; // Må kunne oppdatere behandling med status IVED. Helst ikke AVSLU.
         } else {
-            return true; // TODO vurder om skriving kun skal være tillatt for FAGSAK (må fikse noe callback fra abakus)
+            return true; // TODO vurder om System update/skriving kun skal være tillatt for FAGSAK (må fikse abakus-callback som har update og applikasjon)
         }
     }
 

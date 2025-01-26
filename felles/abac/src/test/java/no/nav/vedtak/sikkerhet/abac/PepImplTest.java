@@ -32,8 +32,9 @@ import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
-import no.nav.vedtak.sikkerhet.populasjon.PopulasjonInternRequest;
-import no.nav.vedtak.sikkerhet.populasjon.PopulasjonKlient;
+import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
+import no.nav.vedtak.sikkerhet.tilgang.PopulasjonInternRequest;
+import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 
 @ExtendWith(MockitoExtension.class)
 class PepImplTest {
@@ -47,6 +48,8 @@ class PepImplTest {
     private PdpKlient pdpKlientMock;
     @Mock
     private PopulasjonKlient popKlientMock;
+    @Mock
+    private AnsattGruppeKlient gruppeKlientMock;
     @Mock
     private PdpRequestBuilder pdpRequestBuilder;
 
@@ -62,7 +65,7 @@ class PepImplTest {
 
     @BeforeEach
     void setUp() {
-        this.pep = new PepImpl(pdpKlientMock, popKlientMock, pdpRequestBuilder);
+        this.pep = new PepImpl(pdpKlientMock, popKlientMock, gruppeKlientMock, pdpRequestBuilder);
     }
 
     @Test
@@ -163,7 +166,7 @@ class PepImplTest {
 
         @SuppressWarnings("unused") Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         verify(pdpKlientMock).forespørTilgang(eq(attributter), any(String.class), any(AppRessursData.class));
-        verify(popKlientMock).vurderTilgang(new PopulasjonInternRequest(attributter.getBrukerOid(), Set.of(), Set.of(), appressursData.getAktørIdSet()));
+        verify(popKlientMock).vurderTilgang(new PopulasjonInternRequest(attributter.getBrukerOid(), Set.of(), appressursData.getAktørIdSet()));
     }
 
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributter() {

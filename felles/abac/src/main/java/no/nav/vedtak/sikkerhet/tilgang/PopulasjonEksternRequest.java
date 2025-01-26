@@ -1,4 +1,4 @@
-package no.nav.vedtak.sikkerhet.populasjon;
+package no.nav.vedtak.sikkerhet.tilgang;
 
 import java.util.Set;
 

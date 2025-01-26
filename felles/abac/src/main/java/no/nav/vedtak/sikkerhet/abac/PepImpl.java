@@ -6,6 +6,7 @@ import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
@@ -24,9 +25,10 @@ import no.nav.vedtak.sikkerhet.abac.policy.SystemressursPolicies;
 import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.populasjon.PopulasjonEksternRequest;
-import no.nav.vedtak.sikkerhet.populasjon.PopulasjonInternRequest;
-import no.nav.vedtak.sikkerhet.populasjon.PopulasjonKlient;
+import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
+import no.nav.vedtak.sikkerhet.tilgang.PopulasjonEksternRequest;
+import no.nav.vedtak.sikkerhet.tilgang.PopulasjonInternRequest;
+import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 
 /**
  * Dette er strengt tatt PDP (eller en PDP-proxy før kall til Abac).
@@ -41,6 +43,7 @@ public class PepImpl implements Pep {
 
     private PdpKlient pdpKlient;
     private PopulasjonKlient populasjonKlient;
+    private AnsattGruppeKlient ansattGruppeKlient;
     private PdpRequestBuilder pdpRequestBuilder;
 
 
@@ -49,9 +52,10 @@ public class PepImpl implements Pep {
     }
 
     @Inject
-    public PepImpl(PdpKlient pdpKlient, PopulasjonKlient populasjonKlient, PdpRequestBuilder pdpRequestBuilder) {
+    public PepImpl(PdpKlient pdpKlient, PopulasjonKlient populasjonKlient, AnsattGruppeKlient ansattGruppeKlient, PdpRequestBuilder pdpRequestBuilder) {
         this.pdpKlient = pdpKlient;
         this.populasjonKlient = populasjonKlient;
+        this.ansattGruppeKlient = ansattGruppeKlient;
         this.pdpRequestBuilder = pdpRequestBuilder;
     }
 
@@ -82,10 +86,11 @@ public class PepImpl implements Pep {
                 LOG.info("FPEGENTILGANG: samme svar");
             } else {
                 var metode = beskyttetRessursAttributter.getServicePath();
-                LOG.info("FPEGENTILGANG: ulikt svar - gammel {} ny {} - metode {}", resultat, lokalt.tilgangResultat(), metode);
+                LOG.info("FPEGENTILGANG: ulikt svar - abac {} tilgang {} - årsak {} - metode {}", resultat, lokalt.tilgangResultat(), lokalt.årsak(), metode);
             }
         } catch (Exception e) {
-            LOG.info("FPEGENTILGANG: feil", e);
+            var metode = beskyttetRessursAttributter.getServicePath();
+            LOG.info("FPEGENTILGANG: feil for metode {}", metode, e);
         }
     }
 
@@ -104,6 +109,8 @@ public class PepImpl implements Pep {
 
     private Tilgangsvurdering forespørTilgangInternBruker(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
         HashSet<AnsattGruppe> kreverGrupper = new LinkedHashSet<>();
+        // TODO: Vurdere om behov for lokal vurdering for InternBruker. Eneste use-case er k9tilbake som evt kan extende PepImpl.
+        // Evt lokal vurdering av tilgang (utenom vanlig)
         if (pdpRequestBuilder.skalVurdereTilgangLokalt(beskyttetRessursAttributter, appRessursData)) {
             var lokalVurdering = pdpRequestBuilder.vurderTilgangLokalt(beskyttetRessursAttributter, appRessursData);
             if (!lokalVurdering.fikkTilgang() || pdpRequestBuilder.kunLokalVurdering(beskyttetRessursAttributter, appRessursData)) {
@@ -111,20 +118,33 @@ public class PepImpl implements Pep {
             }
             kreverGrupper.addAll(lokalVurdering.kreverGrupper());
         }
+        // Vurdering av fagtilgang
         var fagtilgang = InternBrukerPolicies.vurderTilgang(beskyttetRessursAttributter, appRessursData);
         if (!fagtilgang.fikkTilgang()) {
             return fagtilgang;
         }
         kreverGrupper.addAll(fagtilgang.kreverGrupper());
-        if (kreverGrupper.isEmpty() && appRessursData.getFødselsnumre().isEmpty() && appRessursData.getAktørIdSet().isEmpty()) {
+        // Vurdering av gruppemedlemskap
+        var uavklarteGrupper = kreverGrupper.stream()
+            .filter(g -> !harGruppe(beskyttetRessursAttributter, g))
+            .collect(Collectors.toSet());
+        if (!uavklarteGrupper.isEmpty()) {
+            var harGrupperBlantPåkrevde = ansattGruppeKlient.vurderAnsattGrupper(beskyttetRessursAttributter.getBrukerOid(), uavklarteGrupper);
+            if (uavklarteGrupper.size() != harGrupperBlantPåkrevde.size()) {
+                var manglerGrupper = uavklarteGrupper.stream().filter(g -> !harGrupperBlantPåkrevde.contains(g)).toList();
+                return Tilgangsvurdering.avslåGenerell("Mangler ansattgrupper " + manglerGrupper);
+            }
+        }
+        // Vurdering av populasjonstilgang
+        if (appRessursData.getFødselsnumre().isEmpty() && appRessursData.getAktørIdSet().isEmpty()) {
             // Ikke noe å sjekke for populasjonstilgang
             return Tilgangsvurdering.godkjenn();
         }
-        var popRequest = new PopulasjonInternRequest(beskyttetRessursAttributter.getBrukerOid(), kreverGrupper,
+        var popRequest = new PopulasjonInternRequest(beskyttetRessursAttributter.getBrukerOid(),
             appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet());
         var popTilgang = populasjonKlient.vurderTilgang(popRequest);
         if (popTilgang == null) {
-            return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontrll");
+            return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontroll");
         }
         return popTilgang;
     }
@@ -148,6 +168,10 @@ public class PepImpl implements Pep {
             return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontrll");
         }
         return popTilgang;
+    }
+
+    private static boolean harGruppe(BeskyttetRessursAttributter beskyttetRessursAttributter, AnsattGruppe gruppe) {
+        return beskyttetRessursAttributter.getAnsattGrupper().stream().anyMatch(gruppe::equals);
     }
 
 
