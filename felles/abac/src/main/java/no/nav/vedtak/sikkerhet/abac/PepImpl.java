@@ -26,8 +26,6 @@ import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
-import no.nav.vedtak.sikkerhet.tilgang.PopulasjonEksternRequest;
-import no.nav.vedtak.sikkerhet.tilgang.PopulasjonInternRequest;
 import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 
 /**
@@ -140,9 +138,8 @@ public class PepImpl implements Pep {
             // Ikke noe å sjekke for populasjonstilgang
             return Tilgangsvurdering.godkjenn();
         }
-        var popRequest = new PopulasjonInternRequest(beskyttetRessursAttributter.getBrukerOid(),
+        var popTilgang = populasjonKlient.vurderTilgangInternBruker(beskyttetRessursAttributter.getBrukerOid(),
             appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet());
-        var popTilgang = populasjonKlient.vurderTilgang(popRequest);
         if (popTilgang == null) {
             return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontroll");
         }
@@ -161,9 +158,8 @@ public class PepImpl implements Pep {
             return fagtilgang;
         }
         // Ingen early return - skal sjekke alder på bruker. Kanskje populere attributt ved innsending.
-        var popRequest = new PopulasjonEksternRequest(beskyttetRessursAttributter.getBrukerId(),
+        var popTilgang = populasjonKlient.vurderTilgangEksternBruker(beskyttetRessursAttributter.getBrukerId(),
             appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet());
-        var popTilgang = populasjonKlient.vurderTilgang(popRequest);
         if (popTilgang == null) {
             return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontrll");
         }

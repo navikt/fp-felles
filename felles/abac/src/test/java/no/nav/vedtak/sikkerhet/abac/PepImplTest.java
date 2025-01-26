@@ -33,7 +33,6 @@ import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
-import no.nav.vedtak.sikkerhet.tilgang.PopulasjonInternRequest;
 import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 
 @ExtendWith(MockitoExtension.class)
@@ -78,6 +77,7 @@ class PepImplTest {
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(pdpKlientMock);
+        verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
 
@@ -91,6 +91,7 @@ class PepImplTest {
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(pdpKlientMock);
+        verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
 
@@ -105,6 +106,7 @@ class PepImplTest {
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(pdpKlientMock);
+        verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
 
@@ -120,6 +122,7 @@ class PepImplTest {
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(pdpKlientMock);
+        verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
 
@@ -135,6 +138,7 @@ class PepImplTest {
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(pdpKlientMock);
+        verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
 
@@ -151,6 +155,7 @@ class PepImplTest {
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(pdpKlientMock);
+        verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
 
@@ -166,7 +171,8 @@ class PepImplTest {
 
         @SuppressWarnings("unused") Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         verify(pdpKlientMock).forespørTilgang(eq(attributter), any(String.class), any(AppRessursData.class));
-        verify(popKlientMock).vurderTilgang(new PopulasjonInternRequest(attributter.getBrukerOid(), Set.of(), appressursData.getAktørIdSet()));
+        verifyNoInteractions(gruppeKlientMock);
+        verify(popKlientMock).vurderTilgangInternBruker(attributter.getBrukerOid(), Set.of(), appressursData.getAktørIdSet());
     }
 
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributter() {

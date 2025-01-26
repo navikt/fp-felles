@@ -19,8 +19,6 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
-import no.nav.vedtak.sikkerhet.tilgang.PopulasjonEksternRequest;
-import no.nav.vedtak.sikkerhet.tilgang.PopulasjonInternRequest;
 import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 
 @ApplicationScoped
@@ -55,13 +53,15 @@ public class TilgangKlient implements AnsattGruppeKlient, PopulasjonKlient {
     }
 
     @Override
-    public Tilgangsvurdering vurderTilgang(PopulasjonInternRequest request) {
+    public Tilgangsvurdering vurderTilgangInternBruker(UUID ansattOid, Set<String> personIdenter, Set<String> aktørIdenter) {
+        var request = new PopulasjonInternRequest(ansattOid, personIdenter, aktørIdenter);
         var rrequest = RestRequest.newPOSTJson(request, internBrukerUri, restConfig).timeout(Duration.ofSeconds(3));
         return klient.send(rrequest, Tilgangsvurdering.class);
     }
 
     @Override
-    public Tilgangsvurdering vurderTilgang(PopulasjonEksternRequest request) {
+    public Tilgangsvurdering vurderTilgangEksternBruker(String subjectPersonIdent, Set<String> personIdenter, Set<String> aktørIdenter) {
+        var request = new PopulasjonEksternRequest(subjectPersonIdent, personIdenter, aktørIdenter);
         var rrequest = RestRequest.newPOSTJson(request, eksternBrukerUri, restConfig).timeout(Duration.ofSeconds(3));
         return klient.send(rrequest, Tilgangsvurdering.class);
     }
@@ -70,4 +70,15 @@ public class TilgangKlient implements AnsattGruppeKlient, PopulasjonKlient {
 
 
     private record UidGruppeDto(@NotNull UUID uid, @Valid @NotNull Set<AnsattGruppe> grupper) { }
+
+    private record PopulasjonInternRequest(UUID ansattOid,
+                                          Set<String> personIdenter,
+                                          Set<String> aktørIdenter) {
+    }
+
+    private record PopulasjonEksternRequest(String subjectPersonIdent,
+                                           Set<String> personIdenter,
+                                           Set<String> aktørIdenter) {
+    }
+
 }
