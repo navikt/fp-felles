@@ -1,5 +1,9 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import java.util.Set;
+import java.util.UUID;
+
+import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
@@ -27,5 +31,19 @@ public interface TokenProvider {
      * @return bruker OIDC token.
      */
     OpenIDToken openIdToken();
+
+    /**
+     * Azure OID til brukeren. Kun satt for innkommende Azure-kall, ellers null
+     *
+     * @return brukers oid.
+     */
+    UUID getOid();
+
+    /**
+     * Gjenkjente AD-grupper til brukeren. Kun satt for innkommende Azure OBO-kall, ellers tom
+     *
+     * @return brukers ansattgrupper.
+     */
+    Set<AnsattGruppe> getAnsattGrupper();
 
 }

@@ -3,6 +3,7 @@ package no.nav.vedtak.felles.integrasjon.skjermingpip;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import jakarta.ws.rs.core.UriBuilder;
 
@@ -70,26 +71,33 @@ public abstract class AbstractSkjermetPersonPipKlient implements SkjermetPersonP
     }
 
     @Override
-    public boolean erNoenSkjermet(List<String> fnr) {
+    public Map<String, Boolean> erSkjermet(List<String> fnr) {
         if (fnr == null || fnr.isEmpty()) {
-            return false;
+            return Map.of();
         }
 
         var request = RestRequest.newPOSTJson(new SkjermetBulkRequestDto(fnr), bulkEndpoint, restConfig);
 
         try {
-            return kallBulkMedSjekk(request);
+            return kallBulk(request);
         } catch (Exception e) {
             LOG.info("SkjermetPerson fikk feil", e);
         }
-        return kallBulkMedSjekk(request);
+        return kallBulk(request);
+    }
+
+    @Override
+    public boolean erNoenSkjermet(List<String> fnr) {
+        if (fnr == null || fnr.isEmpty()) {
+            return false;
+        }
+        return erSkjermet(fnr).values().stream().filter(Objects::nonNull).anyMatch(v -> v);
     }
 
     @SuppressWarnings("unchecked")
-    private boolean kallBulkMedSjekk(RestRequest request) {
+    private Map<String, Boolean> kallBulk(RestRequest request) {
         // Se github / skjerming / PipController
-        Map<String, Boolean> skjermet = client.send(request, Map.class);
-        return skjermet.values().stream().anyMatch(v -> v);
+        return client.send(request, Map.class);
     }
 
     private record SkjermetRequestDto(String personident) { }

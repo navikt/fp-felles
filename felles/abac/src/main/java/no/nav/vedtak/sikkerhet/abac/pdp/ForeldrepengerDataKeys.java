@@ -3,6 +3,7 @@ package no.nav.vedtak.sikkerhet.abac.pdp;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_AKSJONSPUNKT_TYPE;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_ALENEOMSORG;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_ANNEN_PART;
+import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_AVDELING_ENHET;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_BEHANDLING_STATUS;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_SAKSBEHANDLER;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_FP_SAKSID;
@@ -18,7 +19,10 @@ public enum ForeldrepengerDataKeys implements RessursDataKey {
 
     // Selvbetjening
     ALENEOMSORG(RESOURCE_FP_ALENEOMSORG), // Boolean.tostring
-    ANNENPART(RESOURCE_FP_ANNEN_PART),  // AktørId format
+    ANNENPART(RESOURCE_FP_ANNEN_PART),  // AktørId format // TODO - legg til fnr-versjon post abac - forenklet kontroll mot tokenx
+
+    // LOS
+    AVDELING_ENHET(RESOURCE_FP_AVDELING_ENHET),
 
     // Ikke i bruk - mangler attributefinder + tilsv for behandlingUuid
     SAKSID(RESOURCE_FP_SAKSID),
