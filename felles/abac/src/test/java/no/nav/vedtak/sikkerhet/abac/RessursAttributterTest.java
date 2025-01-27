@@ -43,7 +43,7 @@ class RessursAttributterTest {
 
     @Test
     void skal_fungere_uten_fnr() {
-        var req = AppRessursData.builder().leggTilRessurs(ForeldrepengerDataKeys.SAKSBEHANDLER, "A000000").build();
+        var req = AppRessursData.builder().medAnsvarligSaksbehandler("A000000").build();
 
         assertThat(getFnrFromList(req, 0)).isNotPresent();
         assertThat(getFnrFromList(req, 1)).isNotPresent();

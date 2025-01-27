@@ -1,17 +1,25 @@
 package no.nav.vedtak.sikkerhet.abac.internal;
 
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
 
 public class BeskyttetRessursAttributter {
 
-    private String userId;
+    private String brukerId;
+    private UUID brukerOid;
+    private IdentType identType;
+    private Set<AnsattGruppe> ansattGrupper = new LinkedHashSet<>();
     private ActionType actionType;
     private String resourceType;
     private AvailabilityType availabilityType;
@@ -24,8 +32,20 @@ public class BeskyttetRessursAttributter {
         return new Builder();
     }
 
-    public String getUserId() {
-        return userId;
+    public String getBrukerId() {
+        return brukerId;
+    }
+
+    public IdentType getIdentType() {
+        return identType;
+    }
+
+    public UUID getBrukerOid() {
+        return brukerOid;
+    }
+
+    public Set<AnsattGruppe> getAnsattGrupper() {
+        return ansattGrupper;
     }
 
     public AvailabilityType getAvailabilityType() {
@@ -69,8 +89,23 @@ public class BeskyttetRessursAttributter {
             pdpRequest = new BeskyttetRessursAttributter();
         }
 
-        public Builder medUserId(String userId) {
-            pdpRequest.userId = userId;
+        public Builder medBrukerId(String brukerId) {
+            pdpRequest.brukerId = brukerId;
+            return this;
+        }
+
+        public Builder medBrukerOid(UUID oid) {
+            pdpRequest.brukerOid = oid;
+            return this;
+        }
+
+        public Builder medIdentType(IdentType identType) {
+            pdpRequest.identType = identType;
+            return this;
+        }
+
+        public Builder medAnsattGrupper(Set<AnsattGruppe> ansattGrupper) {
+            pdpRequest.ansattGrupper.addAll(ansattGrupper);
             return this;
         }
 
@@ -120,7 +155,7 @@ public class BeskyttetRessursAttributter {
         }
 
         private void validateBeforeBuild() {
-            Objects.requireNonNull(pdpRequest.userId, "userId");
+            Objects.requireNonNull(pdpRequest.brukerId, "userId");
             Objects.requireNonNull(pdpRequest.token, "idToken");
             Objects.requireNonNull(pdpRequest.actionType, "actionType");
             Objects.requireNonNull(pdpRequest.resourceType, "resourceType");

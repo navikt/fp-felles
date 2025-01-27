@@ -8,7 +8,6 @@ import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 
@@ -24,22 +23,15 @@ public class Token {
         TOKENX;
     }
 
-    private final String token;
     private final TokenType tokenType;
     private final OpenIDToken openIDToken;
-    private final String brukerId;
-    private final IdentType identType;
-
-    private Token(String token, TokenType tokenType, OpenIDToken openIDToken, String brukerId, IdentType identType) {
-        this.token = token;
+    private Token(TokenType tokenType, OpenIDToken openIDToken) {
         this.tokenType = tokenType;
         this.openIDToken = openIDToken;
-        this.brukerId = brukerId;
-        this.identType = identType;
     }
 
-    public static Token withOidcToken(OpenIDToken token, String brukerId, IdentType identType) {
-        return new Token(null, utledTokenType(token), token, brukerId, identType);
+    public static Token withOidcToken(OpenIDToken token) {
+        return new Token(utledTokenType(token), token);
     }
 
     public TokenType getTokenType() {
@@ -48,14 +40,6 @@ public class Token {
 
     public OpenIDProvider getOpenIDProvider() {
         return Optional.ofNullable(openIDToken).map(OpenIDToken::provider).orElse(null);
-    }
-
-    public String getBrukerId() {
-        return brukerId;
-    }
-
-    public IdentType getIdentType() {
-        return identType;
     }
 
     private static TokenType utledTokenType(OpenIDToken token) {

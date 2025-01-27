@@ -70,7 +70,7 @@ public class BeskyttetRessursInterceptor {
         if (!erSystembrukerKall(beslutning.beskyttetRessursAttributter())) {
             abacAuditlogger.loggDeny(tokenProvider.getUid(), beslutning);
         } else {
-            LOG.info("ABAC AVSLAG SYSTEMBRUKER {}", beslutning.beskyttetRessursAttributter().getUserId());
+            LOG.info("ABAC AVSLAG SYSTEMBRUKER {}", beslutning.beskyttetRessursAttributter().getBrukerId());
         }
 
         switch (beslutning.beslutningKode()) {
@@ -83,8 +83,7 @@ public class BeskyttetRessursInterceptor {
 
     private boolean erSystembrukerKall(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         return Optional.ofNullable(beskyttetRessursAttributter)
-            .map(BeskyttetRessursAttributter::getToken)
-            .map(Token::getIdentType)
+            .map(BeskyttetRessursAttributter::getIdentType)
             .filter(IdentType::erSystem)
             .isPresent();
     }
@@ -94,10 +93,13 @@ public class BeskyttetRessursInterceptor {
         var method = invocationContext.getMethod();
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
 
-        var token = Token.withOidcToken(tokenProvider.openIdToken(), tokenProvider.getUid(), tokenProvider.getIdentType());
+        var token = Token.withOidcToken(tokenProvider.openIdToken());
 
         return BeskyttetRessursAttributter.builder()
-            .medUserId(tokenProvider.getUid())
+            .medBrukerId(tokenProvider.getUid())
+            .medBrukerOid(tokenProvider.getOid())
+            .medIdentType(tokenProvider.getIdentType())
+            .medAnsattGrupper(tokenProvider.getAnsattGrupper())
             .medToken(token)
             .medActionType(beskyttetRessurs.actionType())
             .medAvailabilityType(beskyttetRessurs.availabilityType())

@@ -3,99 +3,172 @@ package no.nav.vedtak.sikkerhet.abac;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
 import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.konfig.Cluster;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.abac.policy.EksternBrukerPolicies;
 import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
+import no.nav.vedtak.sikkerhet.abac.policy.InternBrukerPolicies;
+import no.nav.vedtak.sikkerhet.abac.policy.SystemressursPolicies;
+import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
+import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
+import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
+import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 
+/**
+ * Dette er strengt tatt PDP (eller en PDP-proxy før kall til Abac).
+ * Interceptor er strengt tatt PEP (policy enforcement point)
+ */
 @Default
 @ApplicationScoped
 public class PepImpl implements Pep {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PepImpl.class);
     private static final String PIP = ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
-    private static final Environment ENV = Environment.current();
 
     private PdpKlient pdpKlient;
-    private PdpRequestBuilder builder;
+    private PopulasjonKlient populasjonKlient;
+    private AnsattGruppeKlient ansattGruppeKlient;
+    private PdpRequestBuilder pdpRequestBuilder;
 
-    private String preAuthorized;
-    private Cluster residentCluster;
-    private String residentNamespace;
 
     PepImpl() {
         // CDI proxy
     }
 
     @Inject
-    public PepImpl(PdpKlient pdpKlient, PdpRequestBuilder pdpRequestBuilder) {
+    public PepImpl(PdpKlient pdpKlient, PopulasjonKlient populasjonKlient, AnsattGruppeKlient ansattGruppeKlient, PdpRequestBuilder pdpRequestBuilder) {
         this.pdpKlient = pdpKlient;
-        this.builder = pdpRequestBuilder;
-        this.preAuthorized = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name()); // eg json array av objekt("name", "clientId")
-        this.residentCluster = ENV.getCluster();
-        this.residentNamespace = ENV.namespace();
+        this.populasjonKlient = populasjonKlient;
+        this.ansattGruppeKlient = ansattGruppeKlient;
+        this.pdpRequestBuilder = pdpRequestBuilder;
     }
 
     @Override
     public Tilgangsbeslutning vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        var appRessurser = builder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
+        var appRessurser = pdpRequestBuilder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
 
-        if (kanForetaLokalTilgangsbeslutning(beskyttetRessursAttributter.getToken())) {
+        if (IdentType.Systemressurs.equals(beskyttetRessursAttributter.getIdentType())) {
             return vurderLokalTilgang(beskyttetRessursAttributter, appRessurser);
         } else if (PIP.equals(beskyttetRessursAttributter.getResourceType())) { // pip tilgang bør vurderes kun lokalt
             return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessurser);
         }
 
-        return pdpKlient.forespørTilgang(beskyttetRessursAttributter, builder.abacDomene(), appRessurser);
+        var pdpResultat = pdpKlient.forespørTilgang(beskyttetRessursAttributter, pdpRequestBuilder.abacDomene(), appRessurser);
+        sammenlignOgLogg(beskyttetRessursAttributter, appRessurser, pdpResultat.beslutningKode());
+        return pdpResultat;
     }
 
     protected Tilgangsbeslutning vurderLokalTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        var token = beskyttetRessursAttributter.getToken();
-        var harTilgang = harTilgang(token.getBrukerId(), beskyttetRessursAttributter.getAvailabilityType());
+        var harTilgang = SystemressursPolicies.riktigClusterNamespacePreAuth(beskyttetRessursAttributter.getBrukerId(), beskyttetRessursAttributter.getAvailabilityType());
         return new Tilgangsbeslutning(harTilgang ? GODKJENT : AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessursData);
     }
 
-    // AzureAD CC kommer med sub som ikke ikke en bruker med vanlige AD-grupper og roller
-    // Token kan utvides med roles og groups
-    // Kan legge inn filter på claims/roles intern og/eller ekstern.
-    private boolean kanForetaLokalTilgangsbeslutning(Token token) {
-        var identType = token.getIdentType();
-        var consumer = token.getBrukerId();
-
-        return OpenIDProvider.AZUREAD.equals(token.getOpenIDProvider()) &&
-            IdentType.Systemressurs.equals(identType) &&
-            consumer != null &&
-            preAuthorized != null;
+    private void sammenlignOgLogg(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData, AbacResultat resultat) {
+        try {
+            var lokalt = forespørTilgang(beskyttetRessursAttributter, appRessursData);
+            if (Objects.equals(lokalt.tilgangResultat(), resultat)) {
+                LOG.info("FPEGENTILGANG: samme svar");
+            } else {
+                var metode = beskyttetRessursAttributter.getServicePath();
+                LOG.info("FPEGENTILGANG: ulikt svar - abac {} tilgang {} - årsak {} - metode {}", resultat, lokalt.tilgangResultat(), lokalt.årsak(), metode);
+            }
+        } catch (Exception e) {
+            var metode = beskyttetRessursAttributter.getServicePath();
+            LOG.info("FPEGENTILGANG: feil for metode {}", metode, e);
+        }
     }
 
-    private boolean harTilgang(String consumerId, AvailabilityType availabilityType) {
-        if (consumerId == null || !preAuthorized.contains(consumerId)) {
-            return false;
+    // Skal kunne kalles fra evt subklasser av PepImpl
+    protected Tilgangsvurdering forespørTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+        if (ActionType.DUMMY.equals(beskyttetRessursAttributter.getActionType())) {
+            return Tilgangsvurdering.avslåGenerell("ActionType DUMMY ikke støttet");
         }
-
-        if (erISammeKlusterKlasseOgNamespace(consumerId)) {
-            return true;
-        }
-
-        return AvailabilityType.ALL.equals(availabilityType);
+        return switch (beskyttetRessursAttributter.getIdentType()) {
+            case Systemressurs -> SystemressursPolicies.vurderTilgang(beskyttetRessursAttributter, appRessursData);
+            case InternBruker -> forespørTilgangInternBruker(beskyttetRessursAttributter, appRessursData);
+            case EksternBruker -> forespørTilgangEksternBruker(beskyttetRessursAttributter, appRessursData);
+            default -> Tilgangsvurdering.avslåGenerell("Ukjent IdentType");
+        };
     }
 
-    private boolean erISammeKlusterKlasseOgNamespace(String consumer) {
-        var elementer = consumer.split(":");
-        if (elementer.length < 2) {
-            return false;
+    private Tilgangsvurdering forespørTilgangInternBruker(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+        HashSet<AnsattGruppe> kreverGrupper = new LinkedHashSet<>();
+        // TODO: Vurdere om behov for lokal vurdering for InternBruker. Eneste use-case er k9tilbake som evt kan extende PepImpl.
+        // Evt lokal vurdering av tilgang (utenom vanlig)
+        if (pdpRequestBuilder.skalVurdereTilgangLokalt(beskyttetRessursAttributter, appRessursData)) {
+            var lokalVurdering = pdpRequestBuilder.vurderTilgangLokalt(beskyttetRessursAttributter, appRessursData);
+            if (!lokalVurdering.fikkTilgang() || pdpRequestBuilder.kunLokalVurdering(beskyttetRessursAttributter, appRessursData)) {
+                return lokalVurdering;
+            }
+            kreverGrupper.addAll(lokalVurdering.kreverGrupper());
         }
-
-        var consumerCluster = elementer[0];
-        var consumerNamespace = elementer[1];
-        return residentCluster.isSameClass(Cluster.of(consumerCluster)) && residentNamespace.equals(consumerNamespace);
+        // Vurdering av fagtilgang
+        var fagtilgang = InternBrukerPolicies.vurderTilgang(beskyttetRessursAttributter, appRessursData);
+        if (!fagtilgang.fikkTilgang()) {
+            return fagtilgang;
+        }
+        kreverGrupper.addAll(fagtilgang.kreverGrupper());
+        // Vurdering av gruppemedlemskap
+        var uavklarteGrupper = kreverGrupper.stream()
+            .filter(g -> !harGruppe(beskyttetRessursAttributter, g))
+            .collect(Collectors.toSet());
+        if (!uavklarteGrupper.isEmpty()) {
+            var harGrupperBlantPåkrevde = ansattGruppeKlient.vurderAnsattGrupper(beskyttetRessursAttributter.getBrukerOid(), uavklarteGrupper);
+            if (uavklarteGrupper.size() != harGrupperBlantPåkrevde.size()) {
+                var manglerGrupper = uavklarteGrupper.stream().filter(g -> !harGrupperBlantPåkrevde.contains(g)).toList();
+                return Tilgangsvurdering.avslåGenerell("Mangler ansattgrupper " + manglerGrupper);
+            }
+        }
+        // Vurdering av populasjonstilgang
+        if (appRessursData.getFødselsnumre().isEmpty() && appRessursData.getAktørIdSet().isEmpty()) {
+            // Ikke noe å sjekke for populasjonstilgang
+            return Tilgangsvurdering.godkjenn();
+        }
+        var popTilgang = populasjonKlient.vurderTilgangInternBruker(beskyttetRessursAttributter.getBrukerOid(),
+            appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet());
+        if (popTilgang == null) {
+            return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontroll");
+        }
+        return popTilgang;
     }
+
+    private Tilgangsvurdering forespørTilgangEksternBruker(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+        if (pdpRequestBuilder.skalVurdereTilgangLokalt(beskyttetRessursAttributter, appRessursData)) {
+            var lokalVurdering = pdpRequestBuilder.vurderTilgangLokalt(beskyttetRessursAttributter, appRessursData);
+            if (!lokalVurdering.fikkTilgang() || pdpRequestBuilder.kunLokalVurdering(beskyttetRessursAttributter, appRessursData)) {
+                return lokalVurdering;
+            }
+        }
+        var fagtilgang = EksternBrukerPolicies.vurderTilgang(beskyttetRessursAttributter, appRessursData);
+        if (!fagtilgang.fikkTilgang()) {
+            return fagtilgang;
+        }
+        // Ingen early return - skal sjekke alder på bruker. Kanskje populere attributt ved innsending.
+        var popTilgang = populasjonKlient.vurderTilgangEksternBruker(beskyttetRessursAttributter.getBrukerId(),
+            appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet());
+        if (popTilgang == null) {
+            return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontrll");
+        }
+        return popTilgang;
+    }
+
+    private static boolean harGruppe(BeskyttetRessursAttributter beskyttetRessursAttributter, AnsattGruppe gruppe) {
+        return beskyttetRessursAttributter.getAnsattGrupper().stream().anyMatch(gruppe::equals);
+    }
+
 
 }
