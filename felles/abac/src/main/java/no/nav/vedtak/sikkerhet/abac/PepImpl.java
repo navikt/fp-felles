@@ -62,14 +62,16 @@ public class PepImpl implements Pep {
         var appRessurser = pdpRequestBuilder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
 
         if (IdentType.Systemressurs.equals(beskyttetRessursAttributter.getIdentType())) {
-            return vurderLokalTilgang(beskyttetRessursAttributter, appRessurser);
+            var pdpResultat = vurderLokalTilgang(beskyttetRessursAttributter, appRessurser);
+            sammenlignOgLogg(beskyttetRessursAttributter, appRessurser, pdpResultat.beslutningKode());
+            return pdpResultat;
         } else if (PIP.equals(beskyttetRessursAttributter.getResourceType())) { // pip tilgang bør vurderes kun lokalt
             return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessurser);
+        } else {
+            var pdpResultat = pdpKlient.forespørTilgang(beskyttetRessursAttributter, pdpRequestBuilder.abacDomene(), appRessurser);
+            sammenlignOgLogg(beskyttetRessursAttributter, appRessurser, pdpResultat.beslutningKode());
+            return pdpResultat;
         }
-
-        var pdpResultat = pdpKlient.forespørTilgang(beskyttetRessursAttributter, pdpRequestBuilder.abacDomene(), appRessurser);
-        sammenlignOgLogg(beskyttetRessursAttributter, appRessurser, pdpResultat.beslutningKode());
-        return pdpResultat;
     }
 
     protected Tilgangsbeslutning vurderLokalTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
@@ -80,9 +82,7 @@ public class PepImpl implements Pep {
     private void sammenlignOgLogg(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData, AbacResultat resultat) {
         try {
             var lokalt = forespørTilgang(beskyttetRessursAttributter, appRessursData);
-            if (Objects.equals(lokalt.tilgangResultat(), resultat)) {
-                LOG.info("FPEGENTILGANG: samme svar");
-            } else {
+            if (!Objects.equals(lokalt.tilgangResultat(), resultat)) {
                 var metode = beskyttetRessursAttributter.getServicePath();
                 LOG.info("FPEGENTILGANG: ulikt svar - abac {} tilgang {} - årsak {} - metode {}", resultat, lokalt.tilgangResultat(), lokalt.årsak(), metode);
             }
