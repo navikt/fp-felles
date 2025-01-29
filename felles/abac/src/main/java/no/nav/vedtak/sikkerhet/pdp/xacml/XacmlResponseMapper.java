@@ -52,6 +52,10 @@ public final class XacmlResponseMapper {
             case "fp3_behandle_egen_ansatt" -> Optional.of(Advice.DENY_EGEN_ANSATT);
             case "fp2_behandle_kode7" -> Optional.of(Advice.DENY_KODE_7);
             case "fp1_behandle_kode6" -> Optional.of(Advice.DENY_KODE_6);
+            case "skjermede_navansatte_og_familiemedlemmer" -> Optional.of(Advice.DENY_EGEN_ANSATT);
+            case "adressebeskyttelse_fortrolig_adresse" -> Optional.of(Advice.DENY_KODE_7);
+            case "adressebeskyttelse_strengt_fortrolig_adresse" -> Optional.of(Advice.DENY_KODE_6);
+            case "adressebeskyttelse_strengt_fortrolig_adresse_utland" -> Optional.of(Advice.DENY_KODE_6);
             default -> Optional.empty();
         };
     }
