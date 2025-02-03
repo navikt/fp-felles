@@ -21,7 +21,7 @@ public class BeskyttetRessursAttributter {
     private IdentType identType;
     private Set<AnsattGruppe> ansattGrupper = new LinkedHashSet<>();
     private ActionType actionType;
-    private String resourceType;
+    private ResourceType resourceType;
     private AvailabilityType availabilityType;
     private Token token;
     private String pepId;
@@ -56,7 +56,7 @@ public class BeskyttetRessursAttributter {
         return actionType;
     }
 
-    public String getResourceType() {
+    public ResourceType getResourceType() {
         return resourceType;
     }
 
@@ -125,11 +125,6 @@ public class BeskyttetRessursAttributter {
         }
 
         public Builder medResourceType(ResourceType resourceType) {
-            pdpRequest.resourceType = resourceType.getResourceTypeAttribute();
-            return this;
-        }
-
-        public Builder medResourceType(String resourceType) {
             pdpRequest.resourceType = resourceType;
             return this;
         }

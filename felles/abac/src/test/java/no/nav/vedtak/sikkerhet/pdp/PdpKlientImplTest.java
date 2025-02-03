@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -25,10 +26,10 @@ import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
-import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
@@ -263,7 +264,7 @@ class PdpKlientImplTest {
             .medBrukerId("IDENT")
             .medIdentType(identType)
             .medToken(token)
-            .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK)
+            .medResourceType(ResourceType.FAGSAK)
             .medActionType(ActionType.READ)
             .medPepId("local-app")
             .medServicePath("/metode")
@@ -283,6 +284,7 @@ class PdpKlientImplTest {
     }
 
     @Test
+    @Disabled // FLYTT TIL FPTIL
     void lese_sammenligne_request() throws IOException {
         File file = new File(getClass().getClassLoader().getResource("request.json").getFile());
         var target = DefaultJsonMapper.getObjectMapper().readValue(file, XacmlRequest.class);

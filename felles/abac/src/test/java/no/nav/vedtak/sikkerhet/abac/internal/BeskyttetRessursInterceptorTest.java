@@ -1,6 +1,5 @@
 package no.nav.vedtak.sikkerhet.abac.internal;
 
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -36,6 +35,7 @@ import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
 import no.nav.vedtak.sikkerhet.abac.TokenProvider;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
@@ -180,19 +180,19 @@ public class BeskyttetRessursInterceptorTest {
     @Path("foo")
     static class RestClass {
 
-        @BeskyttetRessurs(actionType = ActionType.CREATE, resource = RESOURCE_TYPE_INTERNAL_PIP)
+        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP)
         @Path("aktoer_in")
         public void aktoerIn(@SuppressWarnings("unused") AktørDto param) {
 
         }
 
-        @BeskyttetRessurs(actionType = ActionType.CREATE, resource = RESOURCE_TYPE_INTERNAL_PIP)
+        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP)
         @Path("behandling_id_in")
         public void behandlingIdIn(@SuppressWarnings("unused") BehandlingIdDto param) {
 
         }
 
-        @BeskyttetRessurs(actionType = ActionType.CREATE, resource = RESOURCE_TYPE_INTERNAL_PIP, sporingslogg = false)
+        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP, sporingslogg = false)
         @Path("uten_sporingslogg")
         public void utenSporingslogg(@SuppressWarnings("unused") BehandlingIdDto param) {
 

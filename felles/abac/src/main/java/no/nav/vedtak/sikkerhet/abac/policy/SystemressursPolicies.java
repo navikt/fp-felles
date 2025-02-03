@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
@@ -27,7 +28,7 @@ public class SystemressursPolicies {
     private static final String PRE_AUTHORIZED = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name());
     private static final Cluster RESIDENT_CLUSTER = ENV.getCluster();
     private static final String RESIDENT_NAMESPACE = ENV.namespace();
-    private static final Set<String> IKKE_TILLATT_RESOURCE_TYPE = Set.of(ForeldrepengerAttributter.RESOURCE_TYPE_FP_UTTAKSPLAN);
+    private static final Set<ResourceType> IKKE_TILLATT_RESOURCE_TYPE = Set.of(ResourceType.UTTAKSPLAN);
 
     private SystemressursPolicies() {
         // Hindre instans
@@ -68,7 +69,7 @@ public class SystemressursPolicies {
     }
 
     private static boolean skriveBeskyttet(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        if (Objects.equals(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK, beskyttetRessursAttributter.getResourceType())) {
+        if (Objects.equals(ResourceType.FAGSAK, beskyttetRessursAttributter.getResourceType())) {
             var behandlingStatus = appRessursData.getResource(ForeldrepengerDataKeys.BEHANDLING_STATUS);
             var fagsakStatus = appRessursData.getResource(ForeldrepengerDataKeys.FAGSAK_STATUS);
             // Denne er utforskende. Vi trenger oppdatere behandling i tilstand IVED. Potensielt også AVSLU pga brevkvittering

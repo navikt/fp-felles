@@ -24,7 +24,7 @@ import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
-@BeskyttetRessurs(actionType = ActionType.DUMMY, resource = "")
+@BeskyttetRessurs(actionType = ActionType.DUMMY, resourceType = ResourceType.DUMMY)
 @Interceptor
 @Priority(Interceptor.Priority.APPLICATION + 11)
 @Dependent
@@ -171,13 +171,9 @@ public class BeskyttetRessursInterceptor {
         return ActionUthenter.action(clazz, method);
     }
 
-    private static String finnResource(BeskyttetRessurs beskyttetRessurs) {
-        if (!beskyttetRessurs.property().isEmpty() && ENV.getProperty(beskyttetRessurs.property()) != null) {
-            return ENV.getProperty(beskyttetRessurs.property());
-        } else if (!ResourceType.DUMMY.equals(beskyttetRessurs.resourceType())) {
-            return beskyttetRessurs.resourceType().getResourceTypeAttribute();
-        } else if (!beskyttetRessurs.resource().isEmpty()) {
-            return beskyttetRessurs.resource();
+    private static ResourceType finnResource(BeskyttetRessurs beskyttetRessurs) {
+        if (!ResourceType.DUMMY.equals(beskyttetRessurs.resourceType())) {
+            return beskyttetRessurs.resourceType();
         }
         return null;
     }

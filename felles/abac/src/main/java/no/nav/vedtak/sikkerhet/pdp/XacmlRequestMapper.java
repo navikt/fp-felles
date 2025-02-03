@@ -51,7 +51,7 @@ public class XacmlRequestMapper {
 
         attributes.add(new XacmlRequest.AttributeAssignment(NavFellesAttributter.RESOURCE_FELLES_DOMENE, domene));
         attributes.add(
-            new XacmlRequest.AttributeAssignment(NavFellesAttributter.RESOURCE_FELLES_RESOURCE_TYPE, beskyttetRessursAttributter.getResourceType()));
+            new XacmlRequest.AttributeAssignment(NavFellesAttributter.RESOURCE_FELLES_RESOURCE_TYPE, beskyttetRessursAttributter.getResourceType().getResourceTypeAttribute()));
 
         appRessursData.getResources()
             .values()

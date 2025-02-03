@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
@@ -30,13 +31,13 @@ public class InternBrukerPolicies {
 
         return switch (beskyttetRessursAttributter.getResourceType()) {
             case null -> Tilgangsvurdering.avslåGenerell("ikke angitt ressurs");
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_APPLIKASJON -> applikasjonPolicy(beskyttetRessursAttributter, appRessursData);
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_DRIFT -> driftPolicy(beskyttetRessursAttributter);
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK -> fagsakPolicy(beskyttetRessursAttributter, appRessursData);
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_VENTEFRIST -> ventefristPolicy(beskyttetRessursAttributter);
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_AVDELINGENHET -> avdelingEnhetPolicy(appRessursData);
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_OPPGAVESTYRING -> oppgavestyrerPolicy();
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_RISIKOKLASSIFISERING -> erVeilederEllerSaksbehandler(beskyttetRessursAttributter);
+            case ResourceType.APPLIKASJON -> applikasjonPolicy(beskyttetRessursAttributter, appRessursData);
+            case ResourceType.DRIFT -> driftPolicy(beskyttetRessursAttributter);
+            case ResourceType.FAGSAK -> fagsakPolicy(beskyttetRessursAttributter, appRessursData);
+            case ResourceType.VENTEFRIST -> ventefristPolicy(beskyttetRessursAttributter);
+            case ResourceType.OPPGAVESTYRING_AVDELINGENHET -> avdelingEnhetPolicy(appRessursData);
+            case ResourceType.OPPGAVESTYRING -> oppgavestyrerPolicy();
+            case ResourceType.RISIKOKLASSIFISERING -> erVeilederEllerSaksbehandler(beskyttetRessursAttributter);
             default ->  Tilgangsvurdering.avslåGenerell("InternBruker har ikke tilgang til ressurs " + beskyttetRessursAttributter.getResourceType());
         };
     }

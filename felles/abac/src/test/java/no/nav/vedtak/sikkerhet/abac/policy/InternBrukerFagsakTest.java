@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
@@ -232,7 +233,7 @@ class InternBrukerFagsakTest {
             .medIdentType(IdentType.InternBruker)
             .medAnsattGrupper(Set.of(ansattGruppe))
             .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
-            .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK)
+            .medResourceType(ResourceType.FAGSAK)
             .medActionType(actionType)
             .medPepId("local-app")
             .medServicePath("/metode")
