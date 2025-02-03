@@ -12,10 +12,6 @@ import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
  */
 public interface PdpRequestBuilder {
 
-    default String abacDomene() {
-        return "foreldrepenger";
-    }
-
     AppRessursData lagAppRessursData(AbacDataAttributter dataAttributter);
 
     // Trenger egentlig bare sette BEHANDLING_STATUS + FAGSAK_STATUS i tilfelle FAGSAK / UPDATE for skrivetilgangs-sjekk
