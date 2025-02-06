@@ -1,9 +1,7 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -22,10 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.konfig.Namespace;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
-import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
+import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
@@ -43,8 +42,6 @@ class PepImplTest {
     private PepImpl pep;
     @Mock
     private TokenProvider tokenProvider;
-    @Mock
-    private PdpKlient pdpKlientMock;
     @Mock
     private PopulasjonKlient popKlientMock;
     @Mock
@@ -64,7 +61,7 @@ class PepImplTest {
 
     @BeforeEach
     void setUp() {
-        this.pep = new PepImpl(pdpKlientMock, popKlientMock, gruppeKlientMock, pdpRequestBuilder);
+        this.pep = new PepImpl(popKlientMock, gruppeKlientMock, pdpRequestBuilder);
     }
 
     @Test
@@ -76,7 +73,6 @@ class PepImplTest {
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
-        verifyNoInteractions(pdpKlientMock);
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
@@ -90,7 +86,6 @@ class PepImplTest {
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
-        verifyNoInteractions(pdpKlientMock);
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
@@ -105,7 +100,6 @@ class PepImplTest {
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
-        verifyNoInteractions(pdpKlientMock);
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
@@ -121,7 +115,6 @@ class PepImplTest {
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
-        verifyNoInteractions(pdpKlientMock);
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
@@ -137,7 +130,6 @@ class PepImplTest {
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
-        verifyNoInteractions(pdpKlientMock);
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
@@ -154,7 +146,6 @@ class PepImplTest {
 
         Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
-        verifyNoInteractions(pdpKlientMock);
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
@@ -166,11 +157,9 @@ class PepImplTest {
         var appressursData = AppRessursData.builder().leggTilAktørId("1234567890123").build();
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(appressursData);
-        when(pdpRequestBuilder.abacDomene()).thenReturn("foreldrepenger");
-        when(pdpKlientMock.forespørTilgang(any(), any(), any())).thenReturn(new Tilgangsbeslutning(AbacResultat.GODKJENT, attributter, appressursData));
+        when(popKlientMock.vurderTilgangInternBruker(any(), any(), any())).thenReturn(Tilgangsvurdering.godkjenn());
 
         @SuppressWarnings("unused") Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
-        verify(pdpKlientMock).forespørTilgang(eq(attributter), any(String.class), any(AppRessursData.class));
         verifyNoInteractions(gruppeKlientMock);
         verify(popKlientMock).vurderTilgangInternBruker(attributter.getBrukerOid(), Set.of(), appressursData.getAktørIdSet());
     }
@@ -182,7 +171,7 @@ class PepImplTest {
             .medIdentType(IdentType.InternBruker)
             .medAnsattGrupper(Set.of(AnsattGruppe.SAKSBEHANDLER))
             .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
-            .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK)
+            .medResourceType(ResourceType.FAGSAK)
             .medActionType(ActionType.READ)
             .medPepId("local-app")
             .medServicePath("/metode")
@@ -195,7 +184,7 @@ class PepImplTest {
             .medBrukerId(tokenProvider.getUid())
             .medIdentType(IdentType.InternBruker)
             .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
-            .medResourceType(RESOURCE_TYPE_INTERNAL_PIP)
+            .medResourceType(ResourceType.PIP)
             .medActionType(ActionType.READ)
             .medPepId("local-app")
             .medServicePath("/metode")
@@ -211,7 +200,7 @@ class PepImplTest {
             .medBrukerId(tokenProvider.getUid())
             .medIdentType(identType)
             .medToken(Token.withOidcToken(token))
-            .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK)
+            .medResourceType(ResourceType.FAGSAK)
             .medActionType(ActionType.READ)
             .medAvailabilityType(availabilityType)
             .medPepId("local-app")

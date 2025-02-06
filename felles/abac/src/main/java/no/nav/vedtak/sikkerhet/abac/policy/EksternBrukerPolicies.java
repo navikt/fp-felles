@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
@@ -31,9 +32,9 @@ public class EksternBrukerPolicies {
 
         return switch (beskyttetRessursAttributter.getResourceType()) {
             case null -> Tilgangsvurdering.avslåGenerell("ikke angitt ressurs");
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_APPLIKASJON -> applikasjonPolicy(beskyttetRessursAttributter, appRessursData);
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK -> fagsakPolicy(beskyttetRessursAttributter, appRessursData);
-            case ForeldrepengerAttributter.RESOURCE_TYPE_FP_UTTAKSPLAN -> uttaksplanPolicy(beskyttetRessursAttributter, appRessursData);
+            case ResourceType.APPLIKASJON -> applikasjonPolicy(beskyttetRessursAttributter, appRessursData);
+            case ResourceType.FAGSAK -> fagsakPolicy(beskyttetRessursAttributter, appRessursData);
+            case ResourceType.UTTAKSPLAN -> uttaksplanPolicy(beskyttetRessursAttributter, appRessursData);
             default ->  Tilgangsvurdering.avslåGenerell("EksternBruker har ikke tilgang til ressurs");
         };
     }

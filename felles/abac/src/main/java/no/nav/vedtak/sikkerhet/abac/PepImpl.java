@@ -1,11 +1,7 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import static no.nav.vedtak.sikkerhet.abac.AbacResultat.AVSLÅTT_ANNEN_ÅRSAK;
-import static no.nav.vedtak.sikkerhet.abac.AbacResultat.GODKJENT;
-
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,12 +15,10 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.policy.EksternBrukerPolicies;
-import no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter;
 import no.nav.vedtak.sikkerhet.abac.policy.InternBrukerPolicies;
 import no.nav.vedtak.sikkerhet.abac.policy.SystemressursPolicies;
 import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
 import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 
@@ -37,9 +31,7 @@ import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 public class PepImpl implements Pep {
 
     private static final Logger LOG = LoggerFactory.getLogger(PepImpl.class);
-    private static final String PIP = ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
 
-    private PdpKlient pdpKlient;
     private PopulasjonKlient populasjonKlient;
     private AnsattGruppeKlient ansattGruppeKlient;
     private PdpRequestBuilder pdpRequestBuilder;
@@ -50,8 +42,7 @@ public class PepImpl implements Pep {
     }
 
     @Inject
-    public PepImpl(PdpKlient pdpKlient, PopulasjonKlient populasjonKlient, AnsattGruppeKlient ansattGruppeKlient, PdpRequestBuilder pdpRequestBuilder) {
-        this.pdpKlient = pdpKlient;
+    public PepImpl(PopulasjonKlient populasjonKlient, AnsattGruppeKlient ansattGruppeKlient, PdpRequestBuilder pdpRequestBuilder) {
         this.populasjonKlient = populasjonKlient;
         this.ansattGruppeKlient = ansattGruppeKlient;
         this.pdpRequestBuilder = pdpRequestBuilder;
@@ -61,36 +52,10 @@ public class PepImpl implements Pep {
     public Tilgangsbeslutning vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         var appRessurser = pdpRequestBuilder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
 
-        if (IdentType.Systemressurs.equals(beskyttetRessursAttributter.getIdentType())) {
-            var pdpResultat = vurderLokalTilgang(beskyttetRessursAttributter, appRessurser);
-            sammenlignOgLogg(beskyttetRessursAttributter, appRessurser, pdpResultat.beslutningKode());
-            return pdpResultat;
-        } else if (PIP.equals(beskyttetRessursAttributter.getResourceType())) { // pip tilgang bør vurderes kun lokalt
-            return new Tilgangsbeslutning(AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessurser);
-        } else {
-            var pdpResultat = pdpKlient.forespørTilgang(beskyttetRessursAttributter, pdpRequestBuilder.abacDomene(), appRessurser);
-            sammenlignOgLogg(beskyttetRessursAttributter, appRessurser, pdpResultat.beslutningKode());
-            return pdpResultat;
-        }
+        var vurdering = forespørTilgang(beskyttetRessursAttributter, appRessurser);
+        return new Tilgangsbeslutning(vurdering.tilgangResultat(), beskyttetRessursAttributter, appRessurser);
     }
 
-    protected Tilgangsbeslutning vurderLokalTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        var harTilgang = SystemressursPolicies.riktigClusterNamespacePreAuth(beskyttetRessursAttributter.getBrukerId(), beskyttetRessursAttributter.getAvailabilityType());
-        return new Tilgangsbeslutning(harTilgang ? GODKJENT : AVSLÅTT_ANNEN_ÅRSAK, beskyttetRessursAttributter, appRessursData);
-    }
-
-    private void sammenlignOgLogg(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData, AbacResultat resultat) {
-        try {
-            var lokalt = forespørTilgang(beskyttetRessursAttributter, appRessursData);
-            if (!Objects.equals(lokalt.tilgangResultat(), resultat)) {
-                var metode = beskyttetRessursAttributter.getServicePath();
-                LOG.info("FPEGENTILGANG: ulikt svar - abac {} tilgang {} - årsak {} - metode {}", resultat, lokalt.tilgangResultat(), lokalt.årsak(), metode);
-            }
-        } catch (Exception e) {
-            var metode = beskyttetRessursAttributter.getServicePath();
-            LOG.info("FPEGENTILGANG: feil for metode {}", metode, e);
-        }
-    }
 
     // Skal kunne kalles fra evt subklasser av PepImpl
     protected Tilgangsvurdering forespørTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {

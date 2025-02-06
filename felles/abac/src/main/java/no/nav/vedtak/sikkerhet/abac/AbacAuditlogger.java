@@ -99,7 +99,7 @@ public class AbacAuditlogger {
         Set<CefField> fields = new HashSet<>();
         fields.add(new CefField(EVENT_TIME, System.currentTimeMillis()));
         fields.add(new CefField(REQUEST, beskyttetRessursAttributter.getServicePath()));
-        fields.add(new CefField(ABAC_RESOURCE_TYPE, abacResourceType));
+        fields.add(new CefField(ABAC_RESOURCE_TYPE, abacResourceType.getResourceTypeAttribute()));
         fields.add(new CefField(ABAC_ACTION, abacAction));
 
         if (userId != null) {

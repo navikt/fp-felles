@@ -13,6 +13,7 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
@@ -92,7 +93,7 @@ class SystemressursTest {
             .medBrukerId(LOCAL_APP)
             .medIdentType(IdentType.Systemressurs)
             .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
-            .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK)
+            .medResourceType(ResourceType.FAGSAK)
             .medActionType(ActionType.UPDATE)
             .medPepId("local-app")
             .medServicePath("/metode")
@@ -105,7 +106,7 @@ class SystemressursTest {
             .medBrukerId(brukerId)
             .medIdentType(IdentType.Systemressurs)
             .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
-            .medResourceType(ForeldrepengerAttributter.RESOURCE_TYPE_FP_APPLIKASJON)
+            .medResourceType(ResourceType.APPLIKASJON)
             .medActionType(ActionType.READ)
             .medAvailabilityType(availabilityType)
             .medPepId("local-app")

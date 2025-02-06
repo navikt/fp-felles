@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
@@ -24,7 +25,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_applikasjon_read() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.READ, ForeldrepengerAttributter.RESOURCE_TYPE_FP_APPLIKASJON);
+        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.READ, ResourceType.APPLIKASJON);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -33,7 +34,7 @@ class InternBrukerTest {
 
     @Test
     void avslag_applikasjon_read_med_personer() {
-        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.READ, ForeldrepengerAttributter.RESOURCE_TYPE_FP_APPLIKASJON);
+        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.READ, ResourceType.APPLIKASJON);
         var ressursdata = AppRessursData.builder().leggTilAktørId("1234567890123").build();
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressursdata);
@@ -42,7 +43,7 @@ class InternBrukerTest {
 
     @Test
     void avslag_applikasjon_create() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.CREATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_APPLIKASJON);
+        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.CREATE, ResourceType.APPLIKASJON);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isFalse();
@@ -50,7 +51,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_drift_read() {
-        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.READ, ForeldrepengerAttributter.RESOURCE_TYPE_FP_DRIFT);
+        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.READ, ResourceType.DRIFT);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -59,7 +60,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_drift_create() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.CREATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_DRIFT);
+        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.CREATE, ResourceType.DRIFT);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -68,7 +69,7 @@ class InternBrukerTest {
 
     @Test
     void avslå_drift_update() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.UPDATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_DRIFT);
+        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.UPDATE, ResourceType.DRIFT);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isFalse();
@@ -76,7 +77,7 @@ class InternBrukerTest {
 
     @Test
     void avslå_ventefrist_read() {
-        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.CREATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_VENTEFRIST);
+        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.CREATE, ResourceType.VENTEFRIST);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isFalse();
@@ -84,7 +85,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_ventefrist_update_veileder() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.UPDATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_VENTEFRIST);
+        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.UPDATE, ResourceType.VENTEFRIST);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -93,7 +94,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_ventefrist_update_saksbehandler() {
-        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.UPDATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_VENTEFRIST);
+        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.UPDATE, ResourceType.VENTEFRIST);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -102,7 +103,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_risiko_read() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.READ, ForeldrepengerAttributter.RESOURCE_TYPE_FP_RISIKOKLASSIFISERING);
+        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.READ, ResourceType.RISIKOKLASSIFISERING);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -110,7 +111,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_risiko_create() {
-        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.CREATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_RISIKOKLASSIFISERING);
+        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.CREATE, ResourceType.RISIKOKLASSIFISERING);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -119,7 +120,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_risiko_update() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.UPDATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_RISIKOKLASSIFISERING);
+        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.UPDATE, ResourceType.RISIKOKLASSIFISERING);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -128,7 +129,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_oppgavestyrer_read() {
-        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.READ, ForeldrepengerAttributter.RESOURCE_TYPE_FP_OPPGAVESTYRING);
+        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.READ, ResourceType.OPPGAVESTYRING);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -137,7 +138,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_oppgavestyrer_update() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.UPDATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_OPPGAVESTYRING);
+        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.UPDATE, ResourceType.OPPGAVESTYRING);
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -147,7 +148,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_avdelingenhet_create() {
-        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.CREATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_AVDELINGENHET);
+        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.CREATE, ResourceType.OPPGAVESTYRING_AVDELINGENHET);
         var ressurs = AppRessursData.builder().leggTilRessurs(ForeldrepengerDataKeys.AVDELING_ENHET, "4867").build();
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
@@ -158,7 +159,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_avdelingenhet_delete() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.DELETE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_AVDELINGENHET);
+        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.DELETE, ResourceType.OPPGAVESTYRING_AVDELINGENHET);
         var ressurs = AppRessursData.builder().leggTilRessurs(ForeldrepengerDataKeys.AVDELING_ENHET, "4867").build();
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
@@ -169,7 +170,7 @@ class InternBrukerTest {
 
     @Test
     void tilgang_avdelingenhet_update_sf() {
-        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.UPDATE, ForeldrepengerAttributter.RESOURCE_TYPE_FP_AVDELINGENHET);
+        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.UPDATE, ResourceType.OPPGAVESTYRING_AVDELINGENHET);
         var ressurs = AppRessursData.builder().leggTilRessurs(ForeldrepengerDataKeys.AVDELING_ENHET, "2103").build();
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);assertThat(resultat.fikkTilgang()).isTrue();
@@ -178,7 +179,7 @@ class InternBrukerTest {
     }
 
 
-    private BeskyttetRessursAttributter lagAttributter(AnsattGruppe ansattGruppe, ActionType actionType, String resourceType) {
+    private BeskyttetRessursAttributter lagAttributter(AnsattGruppe ansattGruppe, ActionType actionType, ResourceType resourceType) {
         return BeskyttetRessursAttributter.builder()
             .medBrukerId("12345678901")
             .medBrukerOid(UUID.randomUUID())
