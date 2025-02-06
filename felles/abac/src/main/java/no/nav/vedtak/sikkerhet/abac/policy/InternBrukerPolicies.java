@@ -37,7 +37,6 @@ public class InternBrukerPolicies {
             case ResourceType.VENTEFRIST -> ventefristPolicy(beskyttetRessursAttributter);
             case ResourceType.OPPGAVESTYRING_AVDELINGENHET -> avdelingEnhetPolicy(appRessursData);
             case ResourceType.OPPGAVESTYRING -> oppgavestyrerPolicy();
-            case ResourceType.RISIKOKLASSIFISERING -> erVeilederEllerSaksbehandler(beskyttetRessursAttributter);
             default ->  Tilgangsvurdering.avslåGenerell("InternBruker har ikke tilgang til ressurs " + beskyttetRessursAttributter.getResourceType());
         };
     }

@@ -1,6 +1,6 @@
 package no.nav.vedtak.felles.jpa.converters;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +35,7 @@ class BooleanToStringConverterTest {
 
     @Test
     void skal_konverte_null_boolean_til_null_streng() {
-        assertThat(BOOLEAN_TO_STRING_CONVERTER.convertToDatabaseColumn(null)).isEqualTo(null);
+        assertThat(BOOLEAN_TO_STRING_CONVERTER.convertToDatabaseColumn(null)).isNull();
     }
 
 }

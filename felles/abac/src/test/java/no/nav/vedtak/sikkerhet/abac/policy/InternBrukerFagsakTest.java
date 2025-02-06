@@ -1,6 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac.policy;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 import java.util.UUID;
@@ -37,7 +37,7 @@ class InternBrukerFagsakTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
+        assertThat(resultat.kreverGrupper()).isEmpty();
     }
 
     @Test
@@ -76,7 +76,7 @@ class InternBrukerFagsakTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
+        assertThat(resultat.kreverGrupper()).isEmpty();
     }
 
     @Test
@@ -89,7 +89,7 @@ class InternBrukerFagsakTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
+        assertThat(resultat.kreverGrupper()).isEmpty();
     }
 
     @Test
@@ -101,7 +101,7 @@ class InternBrukerFagsakTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
+        assertThat(resultat.kreverGrupper()).isEmpty();
     }
 
     @Test
@@ -114,7 +114,7 @@ class InternBrukerFagsakTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
+        assertThat(resultat.kreverGrupper()).isEmpty();
     }
 
     @Test
@@ -140,7 +140,7 @@ class InternBrukerFagsakTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
+        assertThat(resultat.kreverGrupper()).isEmpty();
     }
 
     @Test
@@ -154,7 +154,7 @@ class InternBrukerFagsakTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.BESLUTTER)).isTrue();
+        assertThat(resultat.kreverGrupper()).contains(AnsattGruppe.BESLUTTER);
     }
 
     @Test
@@ -182,7 +182,7 @@ class InternBrukerFagsakTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.OVERSTYRER)).isTrue();
+        assertThat(resultat.kreverGrupper()).contains(AnsattGruppe.OVERSTYRER);
     }
 
     @Test

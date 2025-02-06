@@ -1,6 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -94,7 +94,7 @@ class PepImplTest {
     void skal_gi_tilgang_for_intern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, LOCAL_APP, IdentType.Systemressurs);
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
@@ -108,7 +108,7 @@ class PepImplTest {
     void skal_gi_avslag_for_ekstern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn("vtp:annetnamespace:ukjentapplication");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, "vtp:annetnamespace:ukjentapplication",
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token,
             IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
@@ -123,7 +123,7 @@ class PepImplTest {
     void skal_gi_avslag_for_godkjent_ekstern_azure_cc_men_i_feil_klusterklasse() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn("dev-fss:annetnamespace:eksternapplication");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, "vtp:annetnamespace:eksternapplication",
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token,
             IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
@@ -139,7 +139,7 @@ class PepImplTest {
     void skal_gi_tilgang_for_godkjent_ekstern_azure_cc() {
         var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn("vtp:annetnamespace:eksternapplication");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token, "vtp:annetnamespace:eksternapplication",
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token,
             IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
@@ -194,7 +194,6 @@ class PepImplTest {
 
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributterAzure(AvailabilityType availabilityType,
                                                                             OpenIDToken token,
-                                                                            String brukerId,
                                                                             IdentType identType) {
         return BeskyttetRessursAttributter.builder()
             .medBrukerId(tokenProvider.getUid())
