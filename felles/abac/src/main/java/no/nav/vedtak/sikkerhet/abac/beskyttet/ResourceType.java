@@ -5,7 +5,6 @@ import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESO
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_DRIFT;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_OPPGAVESTYRING;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_RISIKOKLASSIFISERING;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_UTTAKSPLAN;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_VENTEFRIST;
 import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
@@ -21,8 +20,7 @@ public enum ResourceType {
     OPPGAVESTYRING_AVDELINGENHET(RESOURCE_TYPE_FP_AVDELINGENHET),
     OPPGAVESTYRING(RESOURCE_TYPE_FP_OPPGAVESTYRING),
     // OPPGAVEKØ(RESOURCE_TYPE_FP_OPPGAVEKØ), TODO: Vurder om skal brukes for å lese oppgaver for LOS. Nå brukes FAGSAK
-    // Risk
-    RISIKOKLASSIFISERING(RESOURCE_TYPE_FP_RISIKOKLASSIFISERING),
+
     // Selvbetjening
     UTTAKSPLAN(RESOURCE_TYPE_FP_UTTAKSPLAN),
 

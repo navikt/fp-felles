@@ -1,6 +1,6 @@
 package no.nav.vedtak.sikkerhet.abac.policy;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 import java.util.UUID;
@@ -29,7 +29,7 @@ class InternBrukerTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
+        assertThat(resultat.kreverGrupper()).isEmpty();
     }
 
     @Test
@@ -55,7 +55,7 @@ class InternBrukerTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.DRIFT)).isTrue();
+        assertThat(resultat.kreverGrupper()).contains(AnsattGruppe.DRIFT);
     }
 
     @Test
@@ -64,7 +64,7 @@ class InternBrukerTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.DRIFT)).isTrue();
+        assertThat(resultat.kreverGrupper()).contains(AnsattGruppe.DRIFT);
     }
 
     @Test
@@ -89,7 +89,7 @@ class InternBrukerTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
+        assertThat(resultat.kreverGrupper()).isEmpty();
     }
 
     @Test
@@ -98,34 +98,9 @@ class InternBrukerTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
+        assertThat(resultat.kreverGrupper()).isEmpty();
     }
 
-    @Test
-    void tilgang_risiko_read() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.READ, ResourceType.RISIKOKLASSIFISERING);
-
-        var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
-        assertThat(resultat.fikkTilgang()).isTrue();
-    }
-
-    @Test
-    void tilgang_risiko_create() {
-        var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.CREATE, ResourceType.RISIKOKLASSIFISERING);
-
-        var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
-        assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
-    }
-
-    @Test
-    void tilgang_risiko_update() {
-        var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.UPDATE, ResourceType.RISIKOKLASSIFISERING);
-
-        var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
-        assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().isEmpty()).isTrue();
-    }
 
     @Test
     void tilgang_oppgavestyrer_read() {
@@ -133,7 +108,7 @@ class InternBrukerTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.OPPGAVESTYRER)).isTrue();
+        assertThat(resultat.kreverGrupper()).contains(AnsattGruppe.OPPGAVESTYRER);
     }
 
     @Test
@@ -142,7 +117,7 @@ class InternBrukerTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.OPPGAVESTYRER)).isTrue();
+        assertThat(resultat.kreverGrupper()).contains(AnsattGruppe.OPPGAVESTYRER);
     }
 
 
@@ -153,8 +128,8 @@ class InternBrukerTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.OPPGAVESTYRER)).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.STRENGTFORTROLIG)).isFalse();
+        assertThat(resultat.kreverGrupper()).contains(AnsattGruppe.OPPGAVESTYRER);
+        assertThat(resultat.kreverGrupper()).doesNotContain(AnsattGruppe.STRENGTFORTROLIG);
     }
 
     @Test
@@ -164,8 +139,8 @@ class InternBrukerTest {
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.OPPGAVESTYRER)).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.STRENGTFORTROLIG)).isFalse();
+        assertThat(resultat.kreverGrupper()).contains(AnsattGruppe.OPPGAVESTYRER);
+        assertThat(resultat.kreverGrupper()).doesNotContain(AnsattGruppe.STRENGTFORTROLIG);
     }
 
     @Test
@@ -173,9 +148,10 @@ class InternBrukerTest {
         var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.UPDATE, ResourceType.OPPGAVESTYRING_AVDELINGENHET);
         var ressurs = AppRessursData.builder().leggTilRessurs(ForeldrepengerDataKeys.AVDELING_ENHET, "2103").build();
 
-        var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);assertThat(resultat.fikkTilgang()).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.OPPGAVESTYRER)).isTrue();
-        assertThat(resultat.kreverGrupper().contains(AnsattGruppe.STRENGTFORTROLIG)).isTrue();
+        var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
+        assertThat(resultat.fikkTilgang()).isTrue();
+        assertThat(resultat.kreverGrupper()).contains(AnsattGruppe.OPPGAVESTYRER);
+        assertThat(resultat.kreverGrupper()).contains(AnsattGruppe.STRENGTFORTROLIG);
     }
 
 

@@ -50,7 +50,6 @@ public class ForeldrepengerAttributter {
     public static final String RESOURCE_TYPE_FP_AVDELINGENHET = "no.nav.abac.attributter.foreldrepenger.oppgavestyring.avdelingsenhet";
     // public static final String RESOURCE_TYPE_FP_OPPGAVEKØ = "no.nav.abac.attributter.foreldrepenger.oppgaveko"; TODO: Vurder om skal brukes for å lese oppgaver for LOS. Nå brukes FAGSAK. Evt bruk som dataAttributt.
     public static final String RESOURCE_TYPE_FP_OPPGAVESTYRING = "no.nav.abac.attributter.foreldrepenger.oppgavestyring";
-    public static final String RESOURCE_TYPE_FP_RISIKOKLASSIFISERING = "no.nav.abac.attributter.foreldrepenger.risikoklassifisering";
     public static final String RESOURCE_TYPE_FP_UTTAKSPLAN = "no.nav.abac.attributter.resource.foreldrepenger.uttaksplan";
 
     /**
