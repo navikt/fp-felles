@@ -27,6 +27,9 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.log.audit.Auditdata;
 import no.nav.vedtak.log.audit.AuditdataHeader;
 import no.nav.vedtak.log.audit.Auditlogger;
@@ -34,6 +37,7 @@ import no.nav.vedtak.log.audit.CefField;
 import no.nav.vedtak.log.audit.EventClassId;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
 /**
  * Dette loggformatet er avklart med Arcsight. Eventuelle nye felter skal
@@ -43,6 +47,8 @@ import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 @Dependent
 public class AbacAuditlogger {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbacAuditlogger.class);
+
     private final Auditlogger auditlogger;
 
     @Inject
@@ -50,25 +56,24 @@ public class AbacAuditlogger {
         this.auditlogger = auditlogger;
     }
 
-    public void loggTilgang(String userId, Tilgangsbeslutning tilgangsbeslutning) {
-        logg(userId, tilgangsbeslutning, Access.GRANTED);
+    public void loggUtfall(AbacResultat utfall, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+        if (IdentType.Systemressurs.equals(beskyttetRessursAttributter.getIdentType())) {
+            // Skal ikke auditlogge systemkall
+            if (!utfall.fikkTilgang()) {
+                LOG.info("ABAC AVSLAG SYSTEMBRUKER {} tjeneste {}", beskyttetRessursAttributter.getBrukerId(), beskyttetRessursAttributter.getServicePath());
+            }
+        } else if (beskyttetRessursAttributter.isSporingslogg()) {
+            logg(beskyttetRessursAttributter, appRessursData, utfall.fikkTilgang() ? Access.GRANTED : Access.DENIED);
+        }
     }
 
-    public void loggDeny(String userId, Tilgangsbeslutning tilgangsbeslutning) {
-        logg(userId, tilgangsbeslutning, Access.DENIED);
-    }
-
-    private void logg(String userId, Tilgangsbeslutning tilgangsbeslutning, Access access) {
-        logg(userId, tilgangsbeslutning.beskyttetRessursAttributter(), tilgangsbeslutning.appRessursData(), access);
-    }
-
-    private void logg(String userId, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData, Access access) {
+    private void logg(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData, Access access) {
         requireNonNull(beskyttetRessursAttributter);
         requireNonNull(beskyttetRessursAttributter.getDataAttributter());
 
         String abacAction = requireNonNull(beskyttetRessursAttributter.getActionType().getEksternKode());
         var header = createHeader(abacAction, access);
-        var fields = createDefaultAbacFields(userId, beskyttetRessursAttributter);
+        var fields = createDefaultAbacFields(beskyttetRessursAttributter);
 
         List<String> ids = getBerortBrukerId(appRessursData);
         for (String aktorId : ids) {
@@ -92,7 +97,7 @@ public class AbacAuditlogger {
             .build();
     }
 
-    private Set<CefField> createDefaultAbacFields(String userId, BeskyttetRessursAttributter beskyttetRessursAttributter) {
+    protected Set<CefField> createDefaultAbacFields(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         var abacAction = requireNonNull(beskyttetRessursAttributter.getActionType().getEksternKode());
         var abacResourceType = requireNonNull(beskyttetRessursAttributter.getResourceType());
 
@@ -102,8 +107,8 @@ public class AbacAuditlogger {
         fields.add(new CefField(ABAC_RESOURCE_TYPE, abacResourceType.getResourceTypeAttribute()));
         fields.add(new CefField(ABAC_ACTION, abacAction));
 
-        if (userId != null) {
-            fields.add(new CefField(USER_ID, userId));
+        if (beskyttetRessursAttributter.getBrukerId() != null) {
+            fields.add(new CefField(USER_ID, beskyttetRessursAttributter.getBrukerId()));
         }
 
         getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), SAKSNUMMER, FAGSAK_ID).ifPresent(fagsak -> fields.addAll(forSaksnummer(fagsak)));

@@ -5,7 +5,7 @@ import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 
 public interface Pep {
 
-    Tilgangsbeslutning vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter);
+    AbacResultat vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter);
 
     default String pepId() {
         return Environment.current().getNaisAppName();

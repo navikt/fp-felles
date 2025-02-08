@@ -19,13 +19,14 @@ public class BeskyttetRessursAttributter {
     private String brukerId;
     private UUID brukerOid;
     private IdentType identType;
-    private Set<AnsattGruppe> ansattGrupper = new LinkedHashSet<>();
+    private final Set<AnsattGruppe> ansattGrupper = new LinkedHashSet<>();
     private ActionType actionType;
     private ResourceType resourceType;
     private AvailabilityType availabilityType;
     private Token token;
     private String pepId;
     private String servicePath;
+    private boolean sporingslogg = true;
     private AbacDataAttributter dataAttributter;
 
     public static Builder builder() {
@@ -58,6 +59,10 @@ public class BeskyttetRessursAttributter {
 
     public ResourceType getResourceType() {
         return resourceType;
+    }
+
+    public boolean isSporingslogg() {
+        return sporingslogg;
     }
 
     public Token getToken() {
@@ -126,6 +131,11 @@ public class BeskyttetRessursAttributter {
 
         public Builder medResourceType(ResourceType resourceType) {
             pdpRequest.resourceType = resourceType;
+            return this;
+        }
+
+        public Builder medSporingslogg(boolean sporingslogg) {
+            pdpRequest.sporingslogg = sporingslogg;
             return this;
         }
 

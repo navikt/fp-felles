@@ -43,6 +43,8 @@ class PepImplTest {
     @Mock
     private TokenProvider tokenProvider;
     @Mock
+    private AbacAuditlogger abacAuditlogger;
+    @Mock
     private PopulasjonKlient popKlientMock;
     @Mock
     private AnsattGruppeKlient gruppeKlientMock;
@@ -61,7 +63,7 @@ class PepImplTest {
 
     @BeforeEach
     void setUp() {
-        this.pep = new PepImpl(popKlientMock, gruppeKlientMock, pdpRequestBuilder);
+        this.pep = new PepImpl(abacAuditlogger, popKlientMock, gruppeKlientMock, pdpRequestBuilder);
     }
 
     @Test
@@ -71,7 +73,7 @@ class PepImplTest {
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
-        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -84,7 +86,7 @@ class PepImplTest {
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
-        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -98,7 +100,7 @@ class PepImplTest {
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
-        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -113,7 +115,7 @@ class PepImplTest {
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
-        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -128,7 +130,7 @@ class PepImplTest {
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
-        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -144,7 +146,7 @@ class PepImplTest {
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
-        Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -159,7 +161,7 @@ class PepImplTest {
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(appressursData);
         when(popKlientMock.vurderTilgangInternBruker(any(), any(), any())).thenReturn(Tilgangsvurdering.godkjenn());
 
-        @SuppressWarnings("unused") Tilgangsbeslutning permit = pep.vurderTilgang(attributter);
+        @SuppressWarnings("unused") var permit = pep.vurderTilgang(attributter);
         verifyNoInteractions(gruppeKlientMock);
         verify(popKlientMock).vurderTilgangInternBruker(attributter.getBrukerOid(), Set.of(), appressursData.getAktørIdSet());
     }
