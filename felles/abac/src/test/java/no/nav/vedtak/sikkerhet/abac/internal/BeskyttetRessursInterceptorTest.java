@@ -1,42 +1,38 @@
 package no.nav.vedtak.sikkerhet.abac.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.regex.Pattern;
+import java.util.Set;
+import java.util.UUID;
 
 import jakarta.interceptor.InvocationContext;
 import jakarta.ws.rs.Path;
 
-import org.assertj.core.api.Fail;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.log.audit.Auditdata;
-import no.nav.vedtak.log.audit.Auditlogger;
-import no.nav.vedtak.sikkerhet.abac.AbacAuditlogger;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursInterceptor;
+import no.nav.vedtak.sikkerhet.abac.Pep;
+import no.nav.vedtak.sikkerhet.abac.PepNektetTilgangException;
 import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.Tilgangsbeslutning;
 import no.nav.vedtak.sikkerhet.abac.TokenProvider;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
@@ -50,131 +46,99 @@ public class BeskyttetRessursInterceptorTest {
     private final AktørDto aktør1 = new AktørDto("00000000000");
     private final BehandlingIdDto behandlingIdDto = new BehandlingIdDto(1234L);
 
-    private final ArgumentCaptor<Auditdata> auditdataCaptor = ArgumentCaptor.forClass(Auditdata.class);
+    private static final String BRUKER_IDENT = "A000000";
+    private static final UUID BRUKER_OID = UUID.randomUUID();
+    private static final String PEP_ID = "test";
 
-    public static final OpenIDToken DUMMY_OPENID_TOKEN = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString(DUMMY_ID_TOKEN));
+    private final ArgumentCaptor<BeskyttetRessursAttributter> braCaptor = ArgumentCaptor.forClass(BeskyttetRessursAttributter.class);
+
+    public static final OpenIDToken DUMMY_OPENID_TOKEN = new OpenIDToken(OpenIDProvider.TOKENX, new TokenString(DUMMY_ID_TOKEN));
 
     @Mock
-    private static TokenProvider tokenProvider;
+    private TokenProvider tokenProvider;
+    @Mock
+    private Pep pep;
 
 
-    private void mockTokenProvider() {
-        when(tokenProvider.getUid()).thenReturn("A000000");
+    @BeforeEach
+    void mockTokenProvider() {
+        when(tokenProvider.getUid()).thenReturn(BRUKER_IDENT);
+        when(tokenProvider.getOid()).thenReturn(BRUKER_OID);
+        when(tokenProvider.getAnsattGrupper()).thenReturn(Set.of());
+        when(tokenProvider.getIdentType()).thenReturn(IdentType.InternBruker);
         when(tokenProvider.openIdToken()).thenReturn(DUMMY_OPENID_TOKEN);
+        when(pep.pepId()).thenReturn(PEP_ID);
     }
 
     @Test
-    void auditlogg_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit() throws Exception {
-        final Auditlogger auditlogger = mockAuditLogger();
-        final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
-
-        skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(abacAuditlogger);
-        assertGotPattern(auditlogger,
-            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
-    }
-
-    private void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit(AbacAuditlogger abacAuditLogger) throws Exception {
-        mockTokenProvider();
-
-        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
-            var ressurs = AppRessursData.builder().leggTilAktørId(aktør1.getAktørId()).build();
-            return new Tilgangsbeslutning(AbacResultat.GODKJENT, attributter, ressurs);
-        }, abacAuditLogger, tokenProvider);
+    void godkjent_aktør() throws Exception {
+        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(AbacResultat.GODKJENT);
+        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[]{aktør1});
         interceptor.wrapTransaction(ic);
+
+        var bra = braCaptor.getValue();
+        assertBeskyttetRessursAttributter(bra);
+        assertThat(bra.isSporingslogg()).isTrue();
     }
 
     @Test
-    void auditlogg_skal_også_logge_input_parametre_til_sporingslogg_ved_permit() throws Exception {
-        final Auditlogger auditlogger = mockAuditLogger();
-        final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
-        skal_også_logge_input_parametre_til_sporingslogg_ved_permit(abacAuditlogger);
-        assertGotPattern(auditlogger,
-            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ flexString2=1234 flexString2Label=Behandling request=/foo/behandling_id_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
-    }
-
-    private void skal_også_logge_input_parametre_til_sporingslogg_ved_permit(AbacAuditlogger abacAuditLogger) throws Exception {
-        mockTokenProvider();
-
-        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
-            var ressurs = AppRessursData.builder().leggTilAktørId(aktør1.getAktørId()).build();
-            return new Tilgangsbeslutning(AbacResultat.GODKJENT, attributter, ressurs);
-        }, abacAuditLogger, tokenProvider);
+    void godkjent_behandling() throws Exception {
+        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(AbacResultat.GODKJENT);
+        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[]{behandlingIdDto});
         interceptor.wrapTransaction(ic);
+
+        var bra = braCaptor.getValue();
+        assertBeskyttetRessursAttributter(bra);
+        assertThat(bra.isSporingslogg()).isTrue();
     }
+
 
     @Test
-    void auditlog_skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering() throws Exception {
-        when(tokenProvider.openIdToken()).thenReturn(DUMMY_OPENID_TOKEN);
-        final Auditlogger auditlogger = mock(Auditlogger.class);
-        final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
-        skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering(abacAuditlogger);
-        verify(auditlogger, never()).logg(Mockito.any());
-    }
-
-    private void skal_ikke_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_permit_når_det_er_konfigurert_unntak_i_annotering(AbacAuditlogger abacAuditLogger) throws Exception {
-        mockTokenProvider();
-        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
-            var ressurs = AppRessursData.builder().leggTilAktørId(aktør1.getAktørId()).build();
-            return new Tilgangsbeslutning(AbacResultat.GODKJENT, attributter, ressurs);
-        }, abacAuditLogger, tokenProvider);
+    void godkjent_uten_sporing() throws Exception {
+        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(AbacResultat.GODKJENT);
+        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[]{behandlingIdDto});
         interceptor.wrapTransaction(ic);
+
+        var bra = braCaptor.getValue();
+        assertBeskyttetRessursAttributter(bra);
+        assertThat(bra.isSporingslogg()).isFalse();
     }
 
     @Test
-    void auditlog_skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny() throws Exception {
-        mockTokenProvider();
-        final Auditlogger auditlogger = mockAuditLogger();
-        final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
-        skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny(abacAuditlogger);
-        assertGotPattern(auditlogger,
-            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|WARN|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
-    }
-
-    private void skal_logge_parametre_som_går_til_pdp_til_sporingslogg_ved_deny(AbacAuditlogger abacAuditLogger) throws Exception {
-        BeskyttetRessursInterceptor interceptor = new BeskyttetRessursInterceptor(attributter -> {
-            var ressurs = AppRessursData.builder().leggTilAktørId(aktør1.getAktørId()).build();
-            return new Tilgangsbeslutning(AbacResultat.AVSLÅTT_KODE_6, attributter, ressurs);
-        }, abacAuditLogger, tokenProvider);
+    void deny_aktør_gir_exception() throws Exception {
+        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(AbacResultat.AVSLÅTT_KODE_6);
+        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[]{aktør1});
+        Assertions.assertThrowsExactly(PepNektetTilgangException.class, () -> interceptor.wrapTransaction(ic), () -> "F-709170:Tilgangskontroll.Avslag.Kode6");
 
-        try {
-            interceptor.wrapTransaction(ic);
-            Fail.fail("Skal få exception");
-        } catch (ManglerTilgangException e) {
-            // FORVENTET
-        }
+        var bra = braCaptor.getValue();
+        assertBeskyttetRessursAttributter(bra);
+        assertThat(bra.isSporingslogg()).isTrue();
     }
 
-    private void assertGotPattern(final Auditlogger auditlogger, String expected) {
-        verify(auditlogger).logg(auditdataCaptor.capture());
-        final String actual = auditdataCaptor.getValue().toString();
-        assertThat(actual).matches(toAuditdataPattern(expected));
-    }
-
-    private static Auditlogger mockAuditLogger() {
-        final Auditlogger auditlogger = mock(Auditlogger.class);
-        when(auditlogger.getDefaultVendor()).thenReturn("felles");
-        when(auditlogger.getDefaultProduct()).thenReturn("felles-test");
-        return auditlogger;
-    }
-
-    private static final String toAuditdataPattern(String s) {
-        return Pattern.quote(s).replaceAll("__NUMBERS__", unquoteInReplacement("[0-9]*"));
-    }
-
-    private static final String unquoteInReplacement(String s) {
-        return "\\\\E" + s + "\\\\Q";
+    private void assertBeskyttetRessursAttributter(BeskyttetRessursAttributter bra) {
+        assertThat(bra.getBrukerId()).isEqualTo(BRUKER_IDENT);
+        assertThat(bra.getBrukerOid()).isEqualTo(BRUKER_OID);
+        assertThat(bra.getIdentType()).isEqualTo(IdentType.InternBruker);
+        assertThat(bra.getAnsattGrupper()).isEmpty();
+        assertThat(bra.getActionType()).isEqualTo(ActionType.CREATE);
+        assertThat(bra.getResourceType()).isEqualTo(ResourceType.PIP);
+        assertThat(bra.getAvailabilityType()).isEqualTo(AvailabilityType.INTERNAL);
+        assertThat(bra.getPepId()).isEqualTo(PEP_ID);
+        assertThat(bra.getToken().getOpenIDProvider()).isEqualTo(OpenIDProvider.TOKENX);
+        assertThat(bra.getServicePath()).startsWith("/foo");
+        assertThat(bra.getDataAttributter().keySet()).hasSize(1);
     }
 
     @Path("foo")
@@ -200,17 +164,7 @@ public class BeskyttetRessursInterceptorTest {
 
     }
 
-    private static class AktørDto implements AbacDto {
-
-        private String aktørId;
-
-        public AktørDto(String aktørId) {
-            this.aktørId = aktørId;
-        }
-
-        public String getAktørId() {
-            return aktørId;
-        }
+    private record AktørDto(String aktørId) implements AbacDto {
 
         @Override
         public AbacDataAttributter abacAttributter() {
@@ -218,13 +172,7 @@ public class BeskyttetRessursInterceptorTest {
         }
     }
 
-    private static class BehandlingIdDto implements AbacDto {
-
-        private Long id;
-
-        public BehandlingIdDto(Long id) {
-            this.id = id;
-        }
+    private record BehandlingIdDto(Long id) implements AbacDto {
 
         @Override
         public AbacDataAttributter abacAttributter() {

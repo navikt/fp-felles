@@ -27,13 +27,19 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.log.audit.Auditdata;
 import no.nav.vedtak.log.audit.AuditdataHeader;
 import no.nav.vedtak.log.audit.Auditlogger;
 import no.nav.vedtak.log.audit.CefField;
 import no.nav.vedtak.log.audit.EventClassId;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
 /**
  * Dette loggformatet er avklart med Arcsight. Eventuelle nye felter skal
@@ -43,6 +49,8 @@ import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 @Dependent
 public class AbacAuditlogger {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbacAuditlogger.class);
+
     private final Auditlogger auditlogger;
 
     @Inject
@@ -50,27 +58,30 @@ public class AbacAuditlogger {
         this.auditlogger = auditlogger;
     }
 
-    public void loggTilgang(String userId, Tilgangsbeslutning tilgangsbeslutning) {
-        logg(userId, tilgangsbeslutning, Access.GRANTED);
+    public void loggUtfall(AbacResultat utfall, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+        if (IdentType.Systemressurs.equals(beskyttetRessursAttributter.getIdentType())) {
+            // Skal ikke auditlogge systemkall
+            if (!utfall.fikkTilgang()) {
+                LOG.info("ABAC AVSLAG SYSTEMBRUKER {} tjeneste {}", beskyttetRessursAttributter.getBrukerId(), beskyttetRessursAttributter.getServicePath());
+            }
+        } else if (beskyttetRessursAttributter.isSporingslogg()) {
+            try {
+                logg(beskyttetRessursAttributter, appRessursData, utfall.fikkTilgang() ? Access.GRANTED : Access.DENIED);
+            } catch (Exception e) {
+                LOG.warn("ABAC AUDITLOG FAILURE ident {} tjeneste {}", beskyttetRessursAttributter.getIdentType(), beskyttetRessursAttributter.getServicePath(), e);
+            }
+
+        }
     }
 
-    public void loggDeny(String userId, Tilgangsbeslutning tilgangsbeslutning) {
-        logg(userId, tilgangsbeslutning, Access.DENIED);
-    }
-
-    private void logg(String userId, Tilgangsbeslutning tilgangsbeslutning, Access access) {
-        logg(userId, tilgangsbeslutning.beskyttetRessursAttributter(), tilgangsbeslutning.appRessursData(), access);
-    }
-
-    private void logg(String userId, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData, Access access) {
+    private void logg(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData, Access access) {
         requireNonNull(beskyttetRessursAttributter);
         requireNonNull(beskyttetRessursAttributter.getDataAttributter());
 
-        String abacAction = requireNonNull(beskyttetRessursAttributter.getActionType().getEksternKode());
-        var header = createHeader(abacAction, access);
-        var fields = createDefaultAbacFields(userId, beskyttetRessursAttributter);
+        var header = createHeader(beskyttetRessursAttributter.getActionType(), access);
+        var fields = createDefaultAbacFields(beskyttetRessursAttributter);
 
-        List<String> ids = getBerortBrukerId(appRessursData);
+        List<String> ids = getBerortBrukerId(appRessursData); // TODO: Vurder å kun logge for hovedperson
         for (String aktorId : ids) {
             loggTilgangPerBerortAktoer(header, fields, aktorId);
         }
@@ -83,7 +94,7 @@ public class AbacAuditlogger {
         auditlogger.logg(auditdata);
     }
 
-    private AuditdataHeader createHeader(String abacAction, Access access) {
+    private AuditdataHeader createHeader(ActionType abacAction, Access access) {
         return new AuditdataHeader.Builder().medVendor(auditlogger.getDefaultVendor())
             .medProduct(auditlogger.getDefaultProduct())
             .medEventClassId(finnEventClassIdFra(abacAction))
@@ -92,18 +103,18 @@ public class AbacAuditlogger {
             .build();
     }
 
-    private Set<CefField> createDefaultAbacFields(String userId, BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        var abacAction = requireNonNull(beskyttetRessursAttributter.getActionType().getEksternKode());
-        var abacResourceType = requireNonNull(beskyttetRessursAttributter.getResourceType());
+    protected Set<CefField> createDefaultAbacFields(BeskyttetRessursAttributter beskyttetRessursAttributter) {
+        var abacAction = requireNonNull(mapActionType(beskyttetRessursAttributter.getActionType()));
+        var abacResourceType = requireNonNull(mapResourceType(beskyttetRessursAttributter.getResourceType()));
 
         Set<CefField> fields = new HashSet<>();
         fields.add(new CefField(EVENT_TIME, System.currentTimeMillis()));
         fields.add(new CefField(REQUEST, beskyttetRessursAttributter.getServicePath()));
-        fields.add(new CefField(ABAC_RESOURCE_TYPE, abacResourceType.getResourceTypeAttribute()));
+        fields.add(new CefField(ABAC_RESOURCE_TYPE, abacResourceType));
         fields.add(new CefField(ABAC_ACTION, abacAction));
 
-        if (userId != null) {
-            fields.add(new CefField(USER_ID, userId));
+        if (beskyttetRessursAttributter.getBrukerId() != null) {
+            fields.add(new CefField(USER_ID, beskyttetRessursAttributter.getBrukerId()));
         }
 
         getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), SAKSNUMMER, FAGSAK_ID).ifPresent(fagsak -> fields.addAll(forSaksnummer(fagsak)));
@@ -136,12 +147,30 @@ public class AbacAuditlogger {
         return Optional.empty();
     }
 
-    private static EventClassId finnEventClassIdFra(String abacAction) {
+    private static EventClassId finnEventClassIdFra(ActionType abacAction) {
         return switch (abacAction) {
-            case "read" -> AUDIT_ACCESS; /* Fall-through */
-            case "delete", "update" -> AUDIT_UPDATE;
-            case "create" -> AUDIT_CREATE;
+            case READ -> AUDIT_ACCESS; /* Fall-through */
+            case DELETE, UPDATE -> AUDIT_UPDATE;
+            case CREATE -> AUDIT_CREATE;
             default -> throw new IllegalArgumentException("Ukjent abacAction: " + abacAction);
+        };
+    }
+
+    private static String mapActionType(ActionType actionType) {
+        return actionType == ActionType.DUMMY ? null : actionType.name().toLowerCase();
+    }
+
+    // TODO: vurder å forkorte vekk abac.attributter.
+    private static String mapResourceType(ResourceType resourceType) {
+        return switch (resourceType) {
+            case APPLIKASJON -> "no.nav.abac.attributter.foreldrepenger";
+            case DRIFT -> "no.nav.abac.attributter.foreldrepenger.drift";
+            case FAGSAK -> "no.nav.abac.attributter.foreldrepenger.fagsak";
+            case VENTEFRIST -> "no.nav.abac.attributter.foreldrepenger.fagsak.ventefrist";
+            case OPPGAVESTYRING_AVDELINGENHET -> "no.nav.abac.attributter.foreldrepenger.oppgavestyring.avdelingsenhet";
+            case OPPGAVESTYRING -> "no.nav.abac.attributter.foreldrepenger.oppgavestyring";
+            case UTTAKSPLAN -> "no.nav.abac.attributter.foreldrepenger.uttaksplan";
+            case PIP, DUMMY -> throw new IllegalArgumentException("Ulovlig resourceType: " + resourceType);
         };
     }
 

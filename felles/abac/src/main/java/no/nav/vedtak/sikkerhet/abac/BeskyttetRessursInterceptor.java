@@ -3,7 +3,6 @@ package no.nav.vedtak.sikkerhet.abac;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Optional;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
@@ -13,16 +12,12 @@ import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
 @BeskyttetRessurs(actionType = ActionType.DUMMY, resourceType = ResourceType.DUMMY)
 @Interceptor
@@ -30,50 +25,31 @@ import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 @Dependent
 public class BeskyttetRessursInterceptor {
 
-    private static final Environment ENV = Environment.current();
-    private static final Logger LOG = LoggerFactory.getLogger(BeskyttetRessursInterceptor.class);
-
     private final Pep pep;
-    private final AbacAuditlogger abacAuditlogger;
     private final TokenProvider tokenProvider;
 
     @Inject
-    public BeskyttetRessursInterceptor(Pep pep, AbacAuditlogger abacAuditlogger, TokenProvider provider) {
+    public BeskyttetRessursInterceptor(Pep pep, TokenProvider provider) {
         this.pep = pep;
-        this.abacAuditlogger = abacAuditlogger;
         this.tokenProvider = provider;
     }
 
     @AroundInvoke
     public Object wrapTransaction(final InvocationContext invocationContext) throws Exception {
-        var dataAttributter = finnAbacDataAttributter(invocationContext);
-        var beskyttetRessursAttributter = hentBeskyttetRessursAttributter(invocationContext, dataAttributter);
+        var method = invocationContext.getMethod();
+        var dataAttributter = finnAbacDataAttributter(method, invocationContext.getParameters());
+        var beskyttetRessursAttributter = hentBeskyttetRessursAttributter(method, getOpprinneligKlasse(invocationContext), dataAttributter);
+
         var beslutning = pep.vurderTilgang(beskyttetRessursAttributter);
         if (beslutning.fikkTilgang()) {
-            return proceed(invocationContext, beslutning);
-        }
-        return ikkeTilgang(beslutning);
-    }
-
-    private Object proceed(InvocationContext invocationContext, Tilgangsbeslutning beslutning) throws Exception {
-        Method method = invocationContext.getMethod();
-        boolean sporingslogges = method.getAnnotation(BeskyttetRessurs.class).sporingslogg();
-        if (!erSystembrukerKall(beslutning.beskyttetRessursAttributter()) && sporingslogges) {
-            Object resultat = invocationContext.proceed();
-            abacAuditlogger.loggTilgang(tokenProvider.getUid(), beslutning);
-            return resultat;
-        }
-        return invocationContext.proceed();
-    }
-
-    private Object ikkeTilgang(Tilgangsbeslutning beslutning) {
-        if (!erSystembrukerKall(beslutning.beskyttetRessursAttributter())) {
-            abacAuditlogger.loggDeny(tokenProvider.getUid(), beslutning);
+            return invocationContext.proceed();
         } else {
-            LOG.info("ABAC AVSLAG SYSTEMBRUKER {}", beslutning.beskyttetRessursAttributter().getBrukerId());
+            return ikkeTilgang(beslutning);
         }
+    }
 
-        switch (beslutning.beslutningKode()) {
+    private Object ikkeTilgang(AbacResultat abacResultat) {
+        switch (abacResultat) {
             case AVSLÅTT_KODE_6 -> throw new PepNektetTilgangException("F-709170", "Tilgangskontroll.Avslag.Kode6");
             case AVSLÅTT_KODE_7 -> throw new PepNektetTilgangException("F-027901", "Tilgangskontroll.Avslag.Kode7");
             case AVSLÅTT_EGEN_ANSATT -> throw new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");
@@ -81,16 +57,7 @@ public class BeskyttetRessursInterceptor {
         }
     }
 
-    private boolean erSystembrukerKall(BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        return Optional.ofNullable(beskyttetRessursAttributter)
-            .map(BeskyttetRessursAttributter::getIdentType)
-            .filter(IdentType::erSystem)
-            .isPresent();
-    }
-
-    private BeskyttetRessursAttributter hentBeskyttetRessursAttributter(InvocationContext invocationContext, AbacDataAttributter dataAttributter) {
-        Class<?> clazz = getOpprinneligKlasse(invocationContext);
-        var method = invocationContext.getMethod();
+    private BeskyttetRessursAttributter hentBeskyttetRessursAttributter(Method method, Class<?> mClass, AbacDataAttributter dataAttributter) {
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
 
         var token = Token.withOidcToken(tokenProvider.openIdToken());
@@ -104,19 +71,20 @@ public class BeskyttetRessursInterceptor {
             .medActionType(beskyttetRessurs.actionType())
             .medAvailabilityType(beskyttetRessurs.availabilityType())
             .medResourceType(finnResource(beskyttetRessurs))
+            .medSporingslogg(beskyttetRessurs.sporingslogg())
             .medPepId(pep.pepId())
-            .medServicePath(utledAction(clazz, method))
+            .medServicePath(utledAction(mClass, method))
             .medDataAttributter(dataAttributter)
             .build();
 
     }
 
-    static AbacDataAttributter finnAbacDataAttributter(InvocationContext invocationContext) {
-        var method = invocationContext.getMethod();
+    static AbacDataAttributter finnAbacDataAttributter(Method method, Object[] parameters) {
         var dataAttributter = AbacDataAttributter.opprett();
         var parameterDecl = method.getParameters();
-        for (int i = 0; i < method.getParameterCount(); i++) {
-            Object parameterValue = invocationContext.getParameters()[i];
+        var parameterCount = method.getParameterCount();
+        for (int i = 0; i < parameterCount; i++) {
+            Object parameterValue = parameters[i];
             var tilpassetAnnotering = parameterDecl[i].getAnnotation(TilpassetAbacAttributt.class);
             leggTilAttributterFraParameter(dataAttributter, parameterValue, tilpassetAnnotering);
         }

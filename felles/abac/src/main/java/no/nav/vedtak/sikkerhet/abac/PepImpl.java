@@ -8,9 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
@@ -30,8 +27,7 @@ import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 @ApplicationScoped
 public class PepImpl implements Pep {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PepImpl.class);
-
+    private AbacAuditlogger abacAuditlogger;
     private PopulasjonKlient populasjonKlient;
     private AnsattGruppeKlient ansattGruppeKlient;
     private PdpRequestBuilder pdpRequestBuilder;
@@ -42,20 +38,24 @@ public class PepImpl implements Pep {
     }
 
     @Inject
-    public PepImpl(PopulasjonKlient populasjonKlient, AnsattGruppeKlient ansattGruppeKlient, PdpRequestBuilder pdpRequestBuilder) {
+    public PepImpl(AbacAuditlogger abacAuditlogger,
+                   PopulasjonKlient populasjonKlient,
+                   AnsattGruppeKlient ansattGruppeKlient,
+                   PdpRequestBuilder pdpRequestBuilder) {
+        this.abacAuditlogger = abacAuditlogger;
         this.populasjonKlient = populasjonKlient;
         this.ansattGruppeKlient = ansattGruppeKlient;
         this.pdpRequestBuilder = pdpRequestBuilder;
     }
 
     @Override
-    public Tilgangsbeslutning vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
+    public AbacResultat vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         var appRessurser = pdpRequestBuilder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
 
         var vurdering = forespørTilgang(beskyttetRessursAttributter, appRessurser);
-        return new Tilgangsbeslutning(vurdering.tilgangResultat(), beskyttetRessursAttributter, appRessurser);
+        abacAuditlogger.loggUtfall(vurdering.tilgangResultat(), beskyttetRessursAttributter, appRessurser);
+        return vurdering.tilgangResultat();
     }
-
 
     // Skal kunne kalles fra evt subklasser av PepImpl
     protected Tilgangsvurdering forespørTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
