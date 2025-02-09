@@ -49,7 +49,7 @@ class AbacAuditLoggerTest {
 
         abacAuditlogger.loggUtfall(AbacResultat.GODKJENT, beskyttetRessursAttributter, appRessursData);
         assertGotPattern(auditlogger,
-            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
+            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=no.nav.abac.attributter.foreldrepenger.fagsak suid=A000000");
     }
 
     @Test
@@ -65,7 +65,7 @@ class AbacAuditLoggerTest {
         abacAuditlogger.loggUtfall(AbacResultat.GODKJENT, beskyttetRessursAttributter, appRessursData);
 
         assertGotPattern(auditlogger,
-            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ flexString2=1234 flexString2Label=Behandling request=/foo/behandling_id_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
+            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ flexString2=1234 flexString2Label=Behandling request=/foo/behandling_id_in requestContext=no.nav.abac.attributter.foreldrepenger.fagsak suid=A000000");
     }
 
     @Test
@@ -96,7 +96,7 @@ class AbacAuditLoggerTest {
         abacAuditlogger.loggUtfall(AbacResultat.AVSLÅTT_KODE_6, beskyttetRessursAttributter, appRessursData);
 
         assertGotPattern(auditlogger,
-            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|WARN|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker suid=A000000");
+            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|WARN|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=no.nav.abac.attributter.foreldrepenger.fagsak suid=A000000");
     }
 
 
@@ -144,19 +144,19 @@ class AbacAuditLoggerTest {
     @Path("foo")
     static class RestClass {
 
-        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP)
+        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
         @Path("aktoer_in")
         public void aktoerIn(@SuppressWarnings("unused") AktørDto param) {
             // Test
         }
 
-        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP)
+        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
         @Path("behandling_id_in")
         public void behandlingIdIn(@SuppressWarnings("unused") BehandlingIdDto param) {
             // Test
         }
 
-        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP, sporingslogg = false)
+        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
         @Path("uten_sporingslogg")
         public void utenSporingslogg(@SuppressWarnings("unused") BehandlingIdDto param) {
             // Test
