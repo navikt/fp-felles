@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -23,8 +22,6 @@ public class BeskyttetRessursAttributter {
     private ActionType actionType;
     private ResourceType resourceType;
     private AvailabilityType availabilityType;
-    private Token token;
-    private String pepId;
     private String servicePath;
     private boolean sporingslogg = true;
     private AbacDataAttributter dataAttributter;
@@ -65,14 +62,6 @@ public class BeskyttetRessursAttributter {
         return sporingslogg;
     }
 
-    public Token getToken() {
-        return token;
-    }
-
-    public String getPepId() {
-        return pepId;
-    }
-
     public String getServicePath() {
         return servicePath;
     }
@@ -84,7 +73,7 @@ public class BeskyttetRessursAttributter {
     @Override
     public String toString() {
         return "BeskyttetRessursAttributter{" + "userId=MASKERT" + ", actionType=" + actionType + ", resourceType="
-            + resourceType + ", token=" + token + ", pepId=" + pepId + ", servicePath=" + servicePath + '}';
+            + resourceType + ", servicePath=" + servicePath + '}';
     }
 
     public static class Builder {
@@ -114,11 +103,6 @@ public class BeskyttetRessursAttributter {
             return this;
         }
 
-        public Builder medToken(Token token) {
-            pdpRequest.token = token;
-            return this;
-        }
-
         public Builder medActionType(ActionType actionType) {
             pdpRequest.actionType = actionType;
             return this;
@@ -139,11 +123,6 @@ public class BeskyttetRessursAttributter {
             return this;
         }
 
-        public Builder medPepId(String pepId) {
-            pdpRequest.pepId = pepId;
-            return this;
-        }
-
         public Builder medServicePath(String servicePath) {
             pdpRequest.servicePath = servicePath;
             return this;
@@ -161,10 +140,9 @@ public class BeskyttetRessursAttributter {
 
         private void validateBeforeBuild() {
             Objects.requireNonNull(pdpRequest.brukerId, "userId");
-            Objects.requireNonNull(pdpRequest.token, "idToken");
             Objects.requireNonNull(pdpRequest.actionType, "actionType");
             Objects.requireNonNull(pdpRequest.resourceType, "resourceType");
-            Objects.requireNonNull(pdpRequest.pepId, "pepId");
+            Objects.requireNonNull(pdpRequest.identType, "identType");
             Objects.requireNonNull(pdpRequest.servicePath, "servicePath");
             Objects.requireNonNull(pdpRequest.dataAttributter, "dataAttributter");
         }

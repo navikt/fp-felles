@@ -25,7 +25,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
-import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
@@ -121,12 +120,10 @@ class AbacAuditLoggerTest {
             .medBrukerOid(UUID.randomUUID())
             .medIdentType(IdentType.InternBruker)
             .medAnsattGrupper(Set.of())
-            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
             .medActionType(beskyttetRessurs.actionType())
             .medAvailabilityType(beskyttetRessurs.availabilityType())
             .medResourceType(beskyttetRessurs.resourceType())
             .medSporingslogg(beskyttetRessurs.sporingslogg())
-            .medPepId("local-app")
             .medServicePath(ActionUthenter.action(RestClass.class, method))
             .medDataAttributter(dataAttributter)
             .build();

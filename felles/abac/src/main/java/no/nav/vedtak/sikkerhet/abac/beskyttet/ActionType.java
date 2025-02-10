@@ -1,23 +1,14 @@
 package no.nav.vedtak.sikkerhet.abac.beskyttet;
 
 public enum ActionType {
-    READ("read"),
-    UPDATE("update"),
-    CREATE("create"),
-    DELETE("delete"),
+    READ,
+    UPDATE,
+    CREATE,
+    DELETE,
 
     /**
      * Skal kun brukes av Interceptor
      */
-    DUMMY(null);
+    DUMMY;
 
-    private String eksternKode;
-
-    ActionType(String eksternKode) {
-        this.eksternKode = eksternKode;
-    }
-
-    public String getEksternKode() {
-        return eksternKode;
-    }
 }

@@ -38,24 +38,4 @@ public class ForeldrepengerAttributter {
     public static final String VALUE_FP_AVDELING_ENHET_ADRESSEBESKYTTET = "2103";
     public static final String VALUE_FP_AVDELING_ENHET_SKJERMET = "4883";
 
-    /**
-     * Attributter brukt som resource_type
-     * TODO: Behov for AvdelingEnhet og OppgaveStyring? Fjerne risikoklassifisering?
-     * TODO: OPPGAVEKØ ikke i bruk - vurder FAGSAK vs OPPGAVEKØ + evt bruk som dataattributt (køer på 2103. Mangler policies)
-     */
-    public static final String RESOURCE_TYPE_FP_APPLIKASJON = "no.nav.abac.attributter.foreldrepenger";
-    public static final String RESOURCE_TYPE_FP_DRIFT = "no.nav.abac.attributter.foreldrepenger.drift";
-    public static final String RESOURCE_TYPE_FP_FAGSAK = "no.nav.abac.attributter.foreldrepenger.fagsak";
-    public static final String RESOURCE_TYPE_FP_VENTEFRIST = "no.nav.abac.attributter.foreldrepenger.fagsak.ventefrist";
-    public static final String RESOURCE_TYPE_FP_AVDELINGENHET = "no.nav.abac.attributter.foreldrepenger.oppgavestyring.avdelingsenhet";
-    // public static final String RESOURCE_TYPE_FP_OPPGAVEKØ = "no.nav.abac.attributter.foreldrepenger.oppgaveko"; TODO: Vurder om skal brukes for å lese oppgaver for LOS. Nå brukes FAGSAK. Evt bruk som dataAttributt.
-    public static final String RESOURCE_TYPE_FP_OPPGAVESTYRING = "no.nav.abac.attributter.foreldrepenger.oppgavestyring";
-    public static final String RESOURCE_TYPE_FP_UTTAKSPLAN = "no.nav.abac.attributter.resource.foreldrepenger.uttaksplan";
-
-    /**
-     * Attributter brukt til interne formål
-     */
-    public static final String RESOURCE_TYPE_INTERNAL_PIP = "pip.tjeneste.kan.kun.kalles.av.pdp.servicebruker";
-    public static final String RESOURCE_TYPE_INTERNAL_DUMMY = "";
-
 }
