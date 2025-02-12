@@ -60,19 +60,15 @@ public class BeskyttetRessursInterceptor {
     private BeskyttetRessursAttributter hentBeskyttetRessursAttributter(Method method, Class<?> mClass, AbacDataAttributter dataAttributter) {
         var beskyttetRessurs = method.getAnnotation(BeskyttetRessurs.class);
 
-        var token = Token.withOidcToken(tokenProvider.openIdToken());
-
         return BeskyttetRessursAttributter.builder()
             .medBrukerId(tokenProvider.getUid())
             .medBrukerOid(tokenProvider.getOid())
             .medIdentType(tokenProvider.getIdentType())
             .medAnsattGrupper(tokenProvider.getAnsattGrupper())
-            .medToken(token)
             .medActionType(beskyttetRessurs.actionType())
             .medAvailabilityType(beskyttetRessurs.availabilityType())
             .medResourceType(finnResource(beskyttetRessurs))
             .medSporingslogg(beskyttetRessurs.sporingslogg())
-            .medPepId(pep.pepId())
             .medServicePath(utledAction(mClass, method))
             .medDataAttributter(dataAttributter)
             .build();

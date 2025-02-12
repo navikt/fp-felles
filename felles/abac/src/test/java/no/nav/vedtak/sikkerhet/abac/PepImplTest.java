@@ -22,15 +22,11 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
-import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.oidc.config.AzureProperty;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
 import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 
@@ -94,9 +90,8 @@ class PepImplTest {
 
     @Test
     void skal_gi_tilgang_for_intern_azure_cc() {
-        var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token, IdentType.Systemressurs);
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
@@ -108,9 +103,8 @@ class PepImplTest {
 
     @Test
     void skal_gi_avslag_for_ekstern_azure_cc() {
-        var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn("vtp:annetnamespace:ukjentapplication");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token,
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL,
             IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
@@ -123,9 +117,8 @@ class PepImplTest {
 
     @Test
     void skal_gi_avslag_for_godkjent_ekstern_azure_cc_men_i_feil_klusterklasse() {
-        var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn("dev-fss:annetnamespace:eksternapplication");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, token,
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL,
             IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
@@ -139,9 +132,8 @@ class PepImplTest {
 
     @Test
     void skal_gi_tilgang_for_godkjent_ekstern_azure_cc() {
-        var token = new OpenIDToken(OpenIDProvider.AZUREAD, new TokenString("token"));
         when(tokenProvider.getUid()).thenReturn("vtp:annetnamespace:eksternapplication");
-        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL, token,
+        var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL,
             IdentType.Systemressurs);
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
@@ -172,10 +164,8 @@ class PepImplTest {
             .medBrukerOid(UUID.randomUUID())
             .medIdentType(IdentType.InternBruker)
             .medAnsattGrupper(Set.of(AnsattGruppe.SAKSBEHANDLER))
-            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
             .medResourceType(ResourceType.FAGSAK)
             .medActionType(ActionType.READ)
-            .medPepId("local-app")
             .medServicePath("/metode")
             .medDataAttributter(AbacDataAttributter.opprett())
             .build();
@@ -185,26 +175,20 @@ class PepImplTest {
         return BeskyttetRessursAttributter.builder()
             .medBrukerId(tokenProvider.getUid())
             .medIdentType(IdentType.InternBruker)
-            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
             .medResourceType(ResourceType.PIP)
             .medActionType(ActionType.READ)
-            .medPepId("local-app")
             .medServicePath("/metode")
             .medDataAttributter(AbacDataAttributter.opprett())
             .build();
     }
 
-    private BeskyttetRessursAttributter lagBeskyttetRessursAttributterAzure(AvailabilityType availabilityType,
-                                                                            OpenIDToken token,
-                                                                            IdentType identType) {
+    private BeskyttetRessursAttributter lagBeskyttetRessursAttributterAzure(AvailabilityType availabilityType, IdentType identType) {
         return BeskyttetRessursAttributter.builder()
             .medBrukerId(tokenProvider.getUid())
             .medIdentType(identType)
-            .medToken(Token.withOidcToken(token))
             .medResourceType(ResourceType.FAGSAK)
             .medActionType(ActionType.READ)
             .medAvailabilityType(availabilityType)
-            .medPepId("local-app")
             .medServicePath("/metode")
             .medDataAttributter(AbacDataAttributter.opprett())
             .build();

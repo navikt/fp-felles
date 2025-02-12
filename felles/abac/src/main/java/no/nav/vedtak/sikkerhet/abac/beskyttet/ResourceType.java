@@ -1,44 +1,25 @@
 package no.nav.vedtak.sikkerhet.abac.beskyttet;
 
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_APPLIKASJON;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_AVDELINGENHET;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_DRIFT;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_FAGSAK;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_OPPGAVESTYRING;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_UTTAKSPLAN;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_FP_VENTEFRIST;
-import static no.nav.vedtak.sikkerhet.abac.policy.ForeldrepengerAttributter.RESOURCE_TYPE_INTERNAL_PIP;
-
 public enum ResourceType {
 
     // Til bruk i annotering
-    APPLIKASJON(RESOURCE_TYPE_FP_APPLIKASJON),
-    DRIFT(RESOURCE_TYPE_FP_DRIFT),
-    FAGSAK(RESOURCE_TYPE_FP_FAGSAK),
-    VENTEFRIST(RESOURCE_TYPE_FP_VENTEFRIST),
+    APPLIKASJON,
+    DRIFT,
+    FAGSAK,
+    VENTEFRIST,
     // LOS
-    OPPGAVESTYRING_AVDELINGENHET(RESOURCE_TYPE_FP_AVDELINGENHET),
-    OPPGAVESTYRING(RESOURCE_TYPE_FP_OPPGAVESTYRING),
-    // OPPGAVEKØ(RESOURCE_TYPE_FP_OPPGAVEKØ), TODO: Vurder om skal brukes for å lese oppgaver for LOS. Nå brukes FAGSAK
+    OPPGAVESTYRING_AVDELINGENHET,
+    OPPGAVESTYRING,
+    // OPPGAVEKØ, TODO: Vurder om skal brukes for å lese oppgaver for LOS. Nå brukes FAGSAK
 
     // Selvbetjening
-    UTTAKSPLAN(RESOURCE_TYPE_FP_UTTAKSPLAN),
+    UTTAKSPLAN,
 
     // Til bruk i annotering for endepunkt som er PIP-tjenester
-    PIP(RESOURCE_TYPE_INTERNAL_PIP),
+    PIP,
 
     /**
      * Skal kun brukes av Interceptor
      */
-    DUMMY("");
-
-    private final String resourceTypeAttribute;
-
-    ResourceType(String resourceTypeAttribute) {
-        this.resourceTypeAttribute = resourceTypeAttribute;
-    }
-
-    public String getResourceTypeAttribute() {
-        return this != DUMMY ? resourceTypeAttribute : null;
-    }
+    DUMMY
 }

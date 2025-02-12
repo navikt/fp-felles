@@ -10,11 +10,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
-import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
@@ -161,10 +159,8 @@ class InternBrukerTest {
             .medBrukerOid(UUID.randomUUID())
             .medIdentType(IdentType.InternBruker)
             .medAnsattGrupper(Set.of(ansattGruppe))
-            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
             .medResourceType(resourceType)
             .medActionType(actionType)
-            .medPepId("local-app")
             .medServicePath("/metode")
             .medDataAttributter(AbacDataAttributter.opprett())
             .build();

@@ -1,6 +1,7 @@
 package no.nav.vedtak.sikkerhet.abac.policy;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.konfig.Cluster;
@@ -25,7 +26,8 @@ public class SystemressursPolicies {
     private static final Environment ENV = Environment.current();
 
     // Format: json array av objekt("name", "clientId");
-    private static final String PRE_AUTHORIZED = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name());
+    private static final String PRE_AUTHORIZED = Optional.ofNullable(ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name()))
+        .orElseGet(() -> ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name().toLowerCase().replace('_', '.')));
     private static final Cluster RESIDENT_CLUSTER = ENV.getCluster();
     private static final String RESIDENT_NAMESPACE = ENV.namespace();
     private static final Set<ResourceType> IKKE_TILLATT_RESOURCE_TYPE = Set.of(ResourceType.UTTAKSPLAN);

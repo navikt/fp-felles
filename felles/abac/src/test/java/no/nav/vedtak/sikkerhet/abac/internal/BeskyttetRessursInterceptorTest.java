@@ -33,14 +33,10 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
-import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 @ExtendWith(MockitoExtension.class)
-public class BeskyttetRessursInterceptorTest {
+class BeskyttetRessursInterceptorTest {
 
-    private static final String DUMMY_ID_TOKEN = "eyJraWQiOiI3Mzk2ZGIyZC1hN2MyLTQ1OGEtYjkzNC02ODNiNDgzYzUyNDIiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdF9oYXNoIjoiRzJ1Zl83OW1TTUhHSWFfNjFxTnJfUSIsInN1YiI6IjA5MDg4NDIwNjcyIiwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6XC9cL3Rva2VuZGluZ3MuZGV2LWdjcC5uYWlzLmlvIiwibm9uY2UiOiJWR1dyS1Zsa3RXZ3hCdTlMZnNnMHliMmdMUVhoOHRaZHRaVTJBdWdPZVl3IiwiY2xpZW50X2lkIjoiZGV2LWZzczp0ZWFtZm9yZWxkcmVwZW5nZXI6ZnBzb2tuYWQtbW90dGFrIiwiYXVkIjoiZGV2LWZzczp0ZWFtZm9yZWxkcmVwZW5nZXI6ZnBpbmZvIiwiYWNyIjoiTGV2ZWw0IiwibmJmIjoxNjE2Njg1NDA0LCJpZHAiOiJodHRwczpcL1wvbmF2dGVzdGIyYy5iMmNsb2dpbi5jb21cL2QzOGYyNWFhLWVhYjgtNGM1MC05ZjI4LWViZjkyYzEyNTZmMlwvdjIuMFwvIiwiYXV0aF90aW1lIjoxNjE2Njg1NDAyLCJleHAiOjE2MTY2ODU3MDQsImlhdCI6MTYxNjY4NTQwNCwianRpIjoiNGMwNzBmMGUtNzI0Ny00ZTdjLWE1OWEtYzk2Yjk0NWMxZWZhIn0.OvzjuabvPHG9nlRVc_KlCUTHOdfeT9GtBkASUGIoMayWGeIBDkr4-jc9gu6uT_WQqi9IJnvPkWgP3veqYHcOHpapD1yVNaQpxlrJQ04yP6N3gvkn-DcrBRDb3II_6qSaPQ_us2PJBDPq2VD5TGrNOL6EFwr8FK3zglYr-PgjW016ULTcmx_7gdHmbiC5PEn1_OtGNxzoUhSGKoD3YtUWP0qdsXzoKyeFL5FG9uZMSrDHHiJBZQFXGL9OzBU49Zb2K-iEPqa9m91O2JZGkhebfLjCAIPLPN4J68GFyfTvtNkZO71znorjo-e1nWxz53Wkj---RDY3JlIqNqzqHTfJgQ";
     private final RestClass tjeneste = new RestClass();
 
     private final AktørDto aktør1 = new AktørDto("00000000000");
@@ -48,11 +44,8 @@ public class BeskyttetRessursInterceptorTest {
 
     private static final String BRUKER_IDENT = "A000000";
     private static final UUID BRUKER_OID = UUID.randomUUID();
-    private static final String PEP_ID = "test";
 
     private final ArgumentCaptor<BeskyttetRessursAttributter> braCaptor = ArgumentCaptor.forClass(BeskyttetRessursAttributter.class);
-
-    public static final OpenIDToken DUMMY_OPENID_TOKEN = new OpenIDToken(OpenIDProvider.TOKENX, new TokenString(DUMMY_ID_TOKEN));
 
     @Mock
     private TokenProvider tokenProvider;
@@ -66,8 +59,6 @@ public class BeskyttetRessursInterceptorTest {
         when(tokenProvider.getOid()).thenReturn(BRUKER_OID);
         when(tokenProvider.getAnsattGrupper()).thenReturn(Set.of());
         when(tokenProvider.getIdentType()).thenReturn(IdentType.InternBruker);
-        when(tokenProvider.openIdToken()).thenReturn(DUMMY_OPENID_TOKEN);
-        when(pep.pepId()).thenReturn(PEP_ID);
     }
 
     @Test
@@ -135,8 +126,6 @@ public class BeskyttetRessursInterceptorTest {
         assertThat(bra.getActionType()).isEqualTo(ActionType.CREATE);
         assertThat(bra.getResourceType()).isEqualTo(ResourceType.PIP);
         assertThat(bra.getAvailabilityType()).isEqualTo(AvailabilityType.INTERNAL);
-        assertThat(bra.getPepId()).isEqualTo(PEP_ID);
-        assertThat(bra.getToken().getOpenIDProvider()).isEqualTo(OpenIDProvider.TOKENX);
         assertThat(bra.getServicePath()).startsWith("/foo");
         assertThat(bra.getDataAttributter().keySet()).hasSize(1);
     }

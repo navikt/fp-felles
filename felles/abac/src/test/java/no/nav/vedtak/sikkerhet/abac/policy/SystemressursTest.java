@@ -10,12 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.konfig.Namespace;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.Token;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
-import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursInterceptorTest;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -92,10 +90,8 @@ class SystemressursTest {
         return BeskyttetRessursAttributter.builder()
             .medBrukerId(LOCAL_APP)
             .medIdentType(IdentType.Systemressurs)
-            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
             .medResourceType(ResourceType.FAGSAK)
             .medActionType(ActionType.UPDATE)
-            .medPepId("local-app")
             .medServicePath("/metode")
             .medDataAttributter(AbacDataAttributter.opprett())
             .build();
@@ -105,11 +101,9 @@ class SystemressursTest {
         return BeskyttetRessursAttributter.builder()
             .medBrukerId(brukerId)
             .medIdentType(IdentType.Systemressurs)
-            .medToken(Token.withOidcToken(BeskyttetRessursInterceptorTest.DUMMY_OPENID_TOKEN))
             .medResourceType(ResourceType.APPLIKASJON)
             .medActionType(ActionType.READ)
             .medAvailabilityType(availabilityType)
-            .medPepId("local-app")
             .medServicePath("/metode")
             .medDataAttributter(AbacDataAttributter.opprett())
             .build();
