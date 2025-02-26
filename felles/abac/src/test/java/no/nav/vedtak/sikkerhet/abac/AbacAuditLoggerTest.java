@@ -42,7 +42,7 @@ class AbacAuditLoggerTest {
         final var abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
-        var appRessursData = AppRessursData.builder().leggTilAktørId(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().medAuditAktørId(aktør1.aktørId()).build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{aktør1}));
 
@@ -57,7 +57,7 @@ class AbacAuditLoggerTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
-        var appRessursData = AppRessursData.builder().leggTilAktørId(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().medAuditAktørId(aktør1.aktørId()).build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{behandlingIdDto}));
 
@@ -73,7 +73,7 @@ class AbacAuditLoggerTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
-        var appRessursData = AppRessursData.builder().leggTilAktørId(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().medAuditAktørId(aktør1.aktørId()).build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{behandlingIdDto}));
 
@@ -88,7 +88,7 @@ class AbacAuditLoggerTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
-        var appRessursData = AppRessursData.builder().leggTilAktørId(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().medAuditAktørId(aktør1.aktørId()).build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{aktør1}));
 
