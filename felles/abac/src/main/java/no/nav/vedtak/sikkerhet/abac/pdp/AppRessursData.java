@@ -16,9 +16,15 @@ import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
 
 public class AppRessursData {
 
+    private String auditAktørId;
+
     private final Set<String> aktørIdSet = new LinkedHashSet<>();
     private final Set<String> fødselsnumre = new LinkedHashSet<>();
     private final Map<RessursDataKey, RessursData> resources = new HashMap<>();
+
+    public String getAuditAktørId() {
+        return auditAktørId;
+    }
 
     public Set<String> getAktørIdSet() {
         return aktørIdSet;
@@ -50,6 +56,11 @@ public class AppRessursData {
 
         public Builder() {
             pdpRequest = new AppRessursData();
+        }
+
+        public Builder medAuditAktørId(String aktørId) {
+            pdpRequest.auditAktørId = aktørId;
+            return this;
         }
 
         public Builder leggTilAktørId(String aktørId) {

@@ -22,24 +22,34 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 @Dependent
 public class Auditlogger {
 
-    private static final Logger auditLogger = LoggerFactory.getLogger("auditLogger");
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("auditLogger");
 
+    private final boolean enabled;
     private final String defaultVendor;
     private final String defaultProduct;
 
     @Inject
-    public Auditlogger(@KonfigVerdi(value = "auditlogger.vendor") String defaultVendor,
+    public Auditlogger(@KonfigVerdi(value = "auditlogger.enabled", defaultVerdi = "true") String enabled,
+                       @KonfigVerdi(value = "auditlogger.vendor") String defaultVendor,
                        @KonfigVerdi(value = "auditlogger.product") String defaultProduct) {
-
+        this.enabled = !Boolean.FALSE.toString().equalsIgnoreCase(enabled);
         this.defaultVendor = defaultVendor;
         this.defaultProduct = defaultProduct;
     }
 
 
     public void logg(Auditdata auditdata) {
-        auditLogger.info(auditdata.toString());
+        AUDIT_LOGGER.info(auditdata.toString());
     }
 
+
+    public boolean auditLogEnabled() {
+        return enabled;
+    }
+
+    public boolean auditLogDisabled() {
+        return !enabled;
+    }
 
     public String getDefaultVendor() {
         return defaultVendor;

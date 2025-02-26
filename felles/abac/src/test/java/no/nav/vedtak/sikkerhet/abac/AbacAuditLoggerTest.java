@@ -107,6 +107,7 @@ class AbacAuditLoggerTest {
 
     private static Auditlogger mockAuditLogger() {
         final Auditlogger auditlogger = mock(Auditlogger.class);
+        when(auditlogger.auditLogDisabled()).thenReturn(Boolean.FALSE);
         when(auditlogger.getDefaultVendor()).thenReturn("felles");
         when(auditlogger.getDefaultProduct()).thenReturn("felles-test");
         return auditlogger;
