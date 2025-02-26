@@ -59,6 +59,9 @@ public class AbacAuditlogger {
     }
 
     public void loggUtfall(AbacResultat utfall, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+        if (auditlogger.auditLogDisabled()) {
+            return;
+        }
         if (IdentType.Systemressurs.equals(beskyttetRessursAttributter.getIdentType())) {
             // Skal ikke auditlogge systemkall
             if (!utfall.fikkTilgang()) {
@@ -81,7 +84,7 @@ public class AbacAuditlogger {
         var header = createHeader(beskyttetRessursAttributter.getActionType(), access);
         var fields = createDefaultAbacFields(beskyttetRessursAttributter);
 
-        List<String> ids = getBerortBrukerId(appRessursData); // TODO: Vurder å kun logge for hovedperson
+        List<String> ids = getBerortBrukerId(appRessursData); // Beholder appRessursData for K9-tilbake
         for (String aktorId : ids) {
             loggTilgangPerBerortAktoer(header, fields, aktorId);
         }
@@ -125,6 +128,9 @@ public class AbacAuditlogger {
     }
 
     private List<String> getBerortBrukerId(AppRessursData appRessursData) {
+        if (appRessursData.getAuditAktørId() != null) {
+            return List.of(appRessursData.getAuditAktørId());
+        }
         /*
          * Arcsight foretrekker FNR fremfor AktørID, men det er uklart hvordan de
          * håndterer blanding (har sendt forespørsel, men ikke fått svar). Velger derfor
