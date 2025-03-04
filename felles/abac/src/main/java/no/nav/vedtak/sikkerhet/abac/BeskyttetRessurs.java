@@ -40,5 +40,5 @@ public @interface BeskyttetRessurs {
      * Sett til false for å unngå at det logges til sporingslogg ved tilgang. Det
      * skal bare gjøres for tilfeller som ikke håndterer personopplysninger.
      */
-    @Nonbinding boolean sporingslogg() default true;
+    @Nonbinding boolean sporingslogg();
 }
