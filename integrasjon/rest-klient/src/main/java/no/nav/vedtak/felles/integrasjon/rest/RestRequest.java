@@ -100,6 +100,11 @@ public final class RestRequest extends HttpClientRequest {
         return this;
     }
 
+    public RestRequest setAndReplaceHeader(String header, String value) {
+        super.getBuilder().setHeader(header, value);
+        return this;
+    }
+
     @Override
     public RestRequest delayedHeader(String header, Supplier<String> value) {
         super.delayedHeader(header, value);
