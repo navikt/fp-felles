@@ -133,13 +133,13 @@ class BeskyttetRessursInterceptorTest {
     @Path("foo")
     static class RestClass {
 
-        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP)
+        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP, sporingslogg = true)
         @Path("aktoer_in")
         public void aktoerIn(@SuppressWarnings("unused") AktørDto param) {
 
         }
 
-        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP)
+        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP, sporingslogg = true)
         @Path("behandling_id_in")
         public void behandlingIdIn(@SuppressWarnings("unused") BehandlingIdDto param) {
 

@@ -42,7 +42,7 @@ class AbacAuditLoggerTest {
         final var abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
-        var appRessursData = AppRessursData.builder().medAuditAktørId(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().medAuditIdent(aktør1.aktørId()).build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{aktør1}));
 
@@ -57,7 +57,7 @@ class AbacAuditLoggerTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
-        var appRessursData = AppRessursData.builder().medAuditAktørId(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().medAuditIdent(aktør1.aktørId()).build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{behandlingIdDto}));
 
@@ -73,7 +73,7 @@ class AbacAuditLoggerTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
-        var appRessursData = AppRessursData.builder().medAuditAktørId(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().medAuditIdent(aktør1.aktørId()).build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{behandlingIdDto}));
 
@@ -88,7 +88,7 @@ class AbacAuditLoggerTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
-        var appRessursData = AppRessursData.builder().medAuditAktørId(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().medAuditIdent(aktør1.aktørId()).build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{aktør1}));
 
@@ -142,13 +142,13 @@ class AbacAuditLoggerTest {
     @Path("foo")
     static class RestClass {
 
-        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
         @Path("aktoer_in")
         public void aktoerIn(@SuppressWarnings("unused") AktørDto param) {
             // Test
         }
 
-        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+        @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
         @Path("behandling_id_in")
         public void behandlingIdIn(@SuppressWarnings("unused") BehandlingIdDto param) {
             // Test

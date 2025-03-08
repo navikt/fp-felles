@@ -128,8 +128,8 @@ public class AbacAuditlogger {
     }
 
     private List<String> getBerortBrukerId(AppRessursData appRessursData) {
-        if (appRessursData.getAuditAktørId() != null) {
-            return List.of(appRessursData.getAuditAktørId());
+        if (appRessursData.getAuditIdent() != null) {
+            return List.of(appRessursData.getAuditIdent());
         }
         /*
          * Arcsight foretrekker FNR fremfor AktørID, men det er uklart hvordan de
