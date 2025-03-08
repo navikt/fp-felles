@@ -18,12 +18,18 @@ public class AppRessursData {
 
     private String auditAktørId;
 
+    private String auditIdent;
+
     private final Set<String> aktørIdSet = new LinkedHashSet<>();
     private final Set<String> fødselsnumre = new LinkedHashSet<>();
     private final Map<RessursDataKey, RessursData> resources = new HashMap<>();
 
     public String getAuditAktørId() {
         return auditAktørId;
+    }
+
+    public String getAuditIdent() {
+        return Optional.ofNullable(auditIdent).or(() -> Optional.ofNullable(auditAktørId)).orElse(null);
     }
 
     public Set<String> getAktørIdSet() {
@@ -58,8 +64,15 @@ public class AppRessursData {
             pdpRequest = new AppRessursData();
         }
 
+        @Deprecated(forRemoval = true)
         public Builder medAuditAktørId(String aktørId) {
+            pdpRequest.auditIdent = aktørId;
             pdpRequest.auditAktørId = aktørId;
+            return this;
+        }
+
+        public Builder medAuditIdent(String ident) {
+            pdpRequest.auditIdent = ident;
             return this;
         }
 

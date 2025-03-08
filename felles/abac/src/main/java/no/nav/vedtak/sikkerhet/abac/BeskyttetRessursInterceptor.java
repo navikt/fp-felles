@@ -19,7 +19,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 
-@BeskyttetRessurs(actionType = ActionType.DUMMY, resourceType = ResourceType.DUMMY)
+@BeskyttetRessurs(actionType = ActionType.DUMMY, resourceType = ResourceType.DUMMY, sporingslogg = false)
 @Interceptor
 @Priority(Interceptor.Priority.APPLICATION + 11)
 @Dependent
