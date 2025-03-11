@@ -1,9 +1,11 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Oppgavetype {
 
+    @JsonEnumDefaultValue UKJENT("UKJENT"),
     JOURNALFØRING("JFR"),
     VURDER_KONSEKVENS_YTELSE("VUR_KONS_YTE"),
     VURDER_DOKUMENT("VUR"),

@@ -1,6 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -33,7 +32,7 @@ class AbstractOppgaveKlientTest {
         oppgaver = new TestOppgave(restKlient);
     }
 
-    private static final String json = """
+    private static final String JSON_SER = """
         {
           "id": 357736794,
           "tildeltEnhetsnr":"1234",
@@ -61,7 +60,7 @@ class AbstractOppgaveKlientTest {
     void skal_returnere_dokumentoversikt_fagsak() {
         var captor = ArgumentCaptor.forClass(RestRequest.class);
 
-        when(restKlient.send(any(RestRequest.class), eq(Oppgave.class))).thenReturn(DefaultJsonMapper.fromJson(json, Oppgave.class));
+        when(restKlient.send(any(RestRequest.class), eq(Oppgave.class))).thenReturn(DefaultJsonMapper.fromJson(JSON_SER, Oppgave.class));
         when(restKlient.sendExpectConflict(captor.capture(), eq(String.class))).thenReturn("test");
 
         oppgaver.reserverOppgave("1", "testSbh");

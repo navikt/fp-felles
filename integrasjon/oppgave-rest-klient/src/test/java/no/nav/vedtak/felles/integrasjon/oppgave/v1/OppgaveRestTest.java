@@ -8,7 +8,7 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class OppgaveRestTest {
 
-    private static final String json = """
+    private static final String JSON_SER = """
         {
           "id": 357736794,
           "tildeltEnhetsnr":"1234",
@@ -32,10 +32,34 @@ class OppgaveRestTest {
         """;
 
     @Test
-    void test_response() throws Exception {
-        var deserialized = DefaultJsonMapper.fromJson(json, Oppgave.class);
+    void test_response() {
+        var deserialized = DefaultJsonMapper.fromJson(JSON_SER, Oppgave.class);
         assertThat(deserialized).isNotNull();
         assertThat(deserialized.tildeltEnhetsnr()).isEqualTo("1234");
-        assertThat(deserialized.oppgavetype()).isEqualTo(Oppgavetype.BEHANDLE_SAK.getKode());
+        assertThat(deserialized.oppgavetype()).isEqualTo(Oppgavetype.BEHANDLE_SAK);
+    }
+
+    @Test
+    void test_response_ukjent_oppgave_type() {
+        var deserialized = DefaultJsonMapper.fromJson(JSON_SER.replace("BEH_SAK", "EN_VILL_EN"), Oppgave.class);
+        assertThat(deserialized).isNotNull();
+        assertThat(deserialized.tildeltEnhetsnr()).isEqualTo("1234");
+        assertThat(deserialized.oppgavetype()).isEqualTo(Oppgavetype.UKJENT);
+    }
+
+    @Test
+    void test_response_vurder_dok() {
+        var deserialized = DefaultJsonMapper.fromJson(JSON_SER.replace("BEH_SAK", "VUR"), Oppgave.class);
+        assertThat(deserialized).isNotNull();
+        assertThat(deserialized.tildeltEnhetsnr()).isEqualTo("1234");
+        assertThat(deserialized.oppgavetype()).isEqualTo(Oppgavetype.VURDER_DOKUMENT);
+    }
+
+    @Test
+    void test_response_vurder_konsekvens() {
+        var deserialized = DefaultJsonMapper.fromJson(JSON_SER.replace("BEH_SAK", "VUR_KONS_YTE"), Oppgave.class);
+        assertThat(deserialized).isNotNull();
+        assertThat(deserialized.tildeltEnhetsnr()).isEqualTo("1234");
+        assertThat(deserialized.oppgavetype()).isEqualTo(Oppgavetype.VURDER_KONSEKVENS_YTELSE);
     }
 }
