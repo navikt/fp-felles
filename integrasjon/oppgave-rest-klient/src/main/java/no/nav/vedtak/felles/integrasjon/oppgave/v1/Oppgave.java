@@ -1,8 +1,8 @@
 package no.nav.vedtak.felles.integrasjon.oppgave.v1;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Oppgave(Long id,
@@ -12,7 +12,7 @@ public record Oppgave(Long id,
                       String aktoerId,
                       String tema,
                       String behandlingstema,
-                      String oppgavetype,
+                      Oppgavetype oppgavetype,
                       String behandlingstype,
                       Integer versjon,
                       String tildeltEnhetsnr,
