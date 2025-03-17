@@ -16,7 +16,6 @@
 
     <modules>
         <module>rest-klient</module>
-        <module>arbeidsfordeling-klient</module>
         <module>infotrygd-grunnlag-klient</module>
         <module>dokarkiv-klient</module>
         <module>person-klient</module>
