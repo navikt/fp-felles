@@ -104,7 +104,7 @@ public class PepImpl implements Pep {
             return Tilgangsvurdering.godkjenn();
         }
         var popTilgang = populasjonKlient.vurderTilgangInternBruker(beskyttetRessursAttributter.getBrukerOid(),
-            appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet());
+            appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet(), appRessursData.getSaksnummer());
         if (popTilgang == null) {
             return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontroll");
         }

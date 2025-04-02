@@ -151,11 +151,11 @@ class PepImplTest {
         var appressursData = AppRessursData.builder().leggTilAktørId("1234567890123").build();
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(appressursData);
-        when(popKlientMock.vurderTilgangInternBruker(any(), any(), any())).thenReturn(Tilgangsvurdering.godkjenn());
+        when(popKlientMock.vurderTilgangInternBruker(any(), any(), any(), any())).thenReturn(Tilgangsvurdering.godkjenn());
 
         @SuppressWarnings("unused") var permit = pep.vurderTilgang(attributter);
         verifyNoInteractions(gruppeKlientMock);
-        verify(popKlientMock).vurderTilgangInternBruker(attributter.getBrukerOid(), Set.of(), appressursData.getAktørIdSet());
+        verify(popKlientMock).vurderTilgangInternBruker(attributter.getBrukerOid(), Set.of(), appressursData.getAktørIdSet(), null);
     }
 
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributter() {

@@ -20,6 +20,7 @@ public class AppRessursData {
 
     private String auditIdent;
 
+    private String saksnummer;
     private final Set<String> aktørIdSet = new LinkedHashSet<>();
     private final Set<String> fødselsnumre = new LinkedHashSet<>();
     private final Map<RessursDataKey, RessursData> resources = new HashMap<>();
@@ -30,6 +31,10 @@ public class AppRessursData {
 
     public String getAuditIdent() {
         return Optional.ofNullable(auditIdent).or(() -> Optional.ofNullable(auditAktørId)).orElse(null);
+    }
+
+    public String getSaksnummer() {
+        return saksnummer;
     }
 
     public Set<String> getAktørIdSet() {
@@ -73,6 +78,14 @@ public class AppRessursData {
 
         public Builder medAuditIdent(String ident) {
             pdpRequest.auditIdent = ident;
+            return this;
+        }
+
+        public Builder medSaksnummer(String saksnummer) {
+            if (saksnummer == null || pdpRequest.saksnummer != null) {
+                throw new IllegalArgumentException("Utviklerfeil: saksnummer er null eller allerede satt");
+            }
+            pdpRequest.saksnummer = saksnummer;
             return this;
         }
 
