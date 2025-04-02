@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
 import no.nav.vedtak.sikkerhet.abac.pdp.RessursData;
-import no.nav.vedtak.sikkerhet.abac.pdp.RessursDataKey;
 
 class RessursAttributterTest {
 
@@ -60,7 +59,7 @@ class RessursAttributterTest {
         assertThat(getElementFromListByKeyAndIndex(req, ForeldrepengerDataKeys.SAKSBEHANDLER, 0)).isNotPresent();
     }
 
-    private static Optional<String> getElementFromListByKeyAndIndex(AppRessursData appRessursData, RessursDataKey key, int index) {
+    private static Optional<String> getElementFromListByKeyAndIndex(AppRessursData appRessursData, ForeldrepengerDataKeys key, int index) {
         var list = Optional.ofNullable(appRessursData.getResource(key)).map(List::of).orElse(List.of());
         if (list.size() >= index + 1) {
             return Optional.ofNullable(list.get(index)).map(RessursData::verdi);

@@ -39,7 +39,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
 /**
  * Dette loggformatet er avklart med Arcsight. Eventuelle nye felter skal
@@ -59,21 +58,12 @@ public class AbacAuditlogger {
     }
 
     public void loggUtfall(AbacResultat utfall, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        if (auditlogger.auditLogDisabled()) {
-            return;
-        }
-        if (IdentType.Systemressurs.equals(beskyttetRessursAttributter.getIdentType())) {
-            // Skal ikke auditlogge systemkall
-            if (!utfall.fikkTilgang()) {
-                LOG.info("ABAC AVSLAG SYSTEMBRUKER {} tjeneste {}", beskyttetRessursAttributter.getBrukerId(), beskyttetRessursAttributter.getServicePath());
-            }
-        } else if (beskyttetRessursAttributter.isSporingslogg()) {
+        if (!auditlogger.auditLogDisabled() && beskyttetRessursAttributter.isSporingslogg()) {
             try {
                 logg(beskyttetRessursAttributter, appRessursData, utfall.fikkTilgang() ? Access.GRANTED : Access.DENIED);
             } catch (Exception e) {
                 LOG.warn("ABAC AUDITLOG FAILURE ident {} tjeneste {}", beskyttetRessursAttributter.getIdentType(), beskyttetRessursAttributter.getServicePath(), e);
             }
-
         }
     }
 
