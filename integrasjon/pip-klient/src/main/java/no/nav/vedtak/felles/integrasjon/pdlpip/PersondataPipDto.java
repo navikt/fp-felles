@@ -40,6 +40,12 @@ public record PersondataPipDto(String aktoerId, Person person, Identer identer, 
             .anyMatch(g -> Gradering.STRENGT_FORTROLIG.equals(g) || Gradering.STRENGT_FORTROLIG_UTLAND.equals(g));
     }
 
+    public boolean harFortroligAdresseBeskyttelse() {
+        return Optional.ofNullable(person()).map(Person::adressebeskyttelse).orElse(List.of()).stream()
+            .map(Adressebeskyttelse::gradering)
+            .anyMatch(Gradering.FORTROLIG::equals);
+    }
+
     public boolean harAdresseBeskyttelse() {
         return Optional.ofNullable(person()).map(Person::adressebeskyttelse).orElse(List.of()).stream()
             .map(Adressebeskyttelse::gradering)
@@ -50,6 +56,12 @@ public record PersondataPipDto(String aktoerId, Person person, Identer identer, 
         return Optional.ofNullable(person()).map(Person::foedsel).orElse(List.of()).stream()
             .map(Fødsel::foedselsdato)
             .anyMatch(f -> f == null || f.plusYears(18).isAfter(LocalDate.now()));
+    }
+
+    public boolean erUnderAlder(int alder) {
+        return Optional.ofNullable(person()).map(Person::foedsel).orElse(List.of()).stream()
+            .map(Fødsel::foedselsdato)
+            .anyMatch(f -> f == null || f.plusYears(alder).isAfter(LocalDate.now()));
     }
 
     public String personIdent() {
