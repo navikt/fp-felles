@@ -8,6 +8,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
@@ -26,6 +29,8 @@ import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
 @Default
 @ApplicationScoped
 public class PepImpl implements Pep {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PepImpl.class);
 
     private AbacAuditlogger abacAuditlogger;
     private PopulasjonKlient populasjonKlient;
@@ -50,11 +55,21 @@ public class PepImpl implements Pep {
 
     @Override
     public AbacResultat vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        var appRessurser = pdpRequestBuilder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
+        if (beskyttetRessursAttributter.getIdentType().erSystem()) {
+            var trengerAppRessursData = SystemressursPolicies.trengerAppRessursData(beskyttetRessursAttributter);
+            var appRessurser = trengerAppRessursData ? pdpRequestBuilder.lagAppRessursDataForSystembruker(beskyttetRessursAttributter.getDataAttributter()) : null;
+            var vurdering = forespørTilgang(beskyttetRessursAttributter, appRessurser);
+            if (!vurdering.fikkTilgang()) {
+                LOG.warn("ABAC AVSLAG SYSTEMBRUKER {} tjeneste {}", beskyttetRessursAttributter.getBrukerId(), beskyttetRessursAttributter.getServicePath());
+            }
+            return vurdering.tilgangResultat();
+        } else {
+            var appRessurser = pdpRequestBuilder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
 
-        var vurdering = forespørTilgang(beskyttetRessursAttributter, appRessurser);
-        abacAuditlogger.loggUtfall(vurdering.tilgangResultat(), beskyttetRessursAttributter, appRessurser);
-        return vurdering.tilgangResultat();
+            var vurdering = forespørTilgang(beskyttetRessursAttributter, appRessurser);
+            abacAuditlogger.loggUtfall(vurdering.tilgangResultat(), beskyttetRessursAttributter, appRessurser);
+            return vurdering.tilgangResultat();
+        }
     }
 
     // Skal kunne kalles fra evt subklasser av PepImpl

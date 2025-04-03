@@ -1,5 +1,7 @@
 package no.nav.vedtak.sikkerhet.abac;
 
+import java.util.Set;
+
 /**
  * Skal kun inneholde STANDARD ABAC attributt typer. Finner du noe nytt og lurt
  * som du kun bruker i din applikasjon - lag din ege AbacAttributtType
@@ -8,54 +10,28 @@ public enum StandardAbacAttributtType implements AbacAttributtType {
     /**
      * Fødselsnummer eller D-nummer
      */
-    FNR("fnr", true),
-
-    AKTØR_ID("aktorId", true),
-
-    /**
-     * GSAK-saknummer
-     */
-    SAKSNUMMER("saksnummer"),
-
-    BEHANDLING_ID("behandlingId"),
-
-    DOKUMENT_DATA_ID("dokumentDataId"),
-
-    FAGSAK_ID("fagsakId"),
+    FNR,
+    AKTØR_ID,
 
     /**
-     * Eksternt refererbar unik UUID for Behandling. Bør brukes mot andre systemer
-     * istdf. BEHANDLING_ID.
+     * Interne referanser som ikke bør eksponeres utenfor applikasjonen.
      */
-    BEHANDLING_UUID("behandlingUuid"),
+    FAGSAK_ID,
+    BEHANDLING_ID,
+    AKSJONSPUNKT_KODE,
 
-    AKSJONSPUNKT_KODE("aksjonspunktKode"),
+    /**
+     * Eksternt anvendbare referanser - saksnummer, unik UUID for Behandling.
+     */
+    SAKSNUMMER,
+    BEHANDLING_UUID,
+    JOURNALPOST_ID;
 
-    JOURNALPOST_ID("journalpostId");
-
-    private final String sporingsloggEksternKode;
-    private final boolean maskerOutput;
-
-    StandardAbacAttributtType() {
-        this(null);
-    }
-
-    StandardAbacAttributtType(String sporingsloggEksternKode) {
-        this(sporingsloggEksternKode, false);
-    }
-
-    StandardAbacAttributtType(String sporingsloggEksternKode, boolean maskerOutput) {
-        this.sporingsloggEksternKode = sporingsloggEksternKode;
-        this.maskerOutput = maskerOutput;
-    }
-
-    public String getSporingsloggKode() {
-        return sporingsloggEksternKode;
-    }
+    private static final Set<StandardAbacAttributtType> MASKERES = Set.of(FNR, AKTØR_ID);
 
     @Override
     public boolean getMaskerOutput() {
-        return maskerOutput;
+        return MASKERES.contains(this);
     }
 
 }

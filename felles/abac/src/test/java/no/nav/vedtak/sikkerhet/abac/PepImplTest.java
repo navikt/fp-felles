@@ -23,6 +23,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
 import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -93,10 +95,35 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, IdentType.Systemressurs);
 
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
+        var permit = pep.vurderTilgang(attributter);
+        assertThat(permit.fikkTilgang()).isTrue();
+        verifyNoInteractions(gruppeKlientMock);
+        verifyNoInteractions(popKlientMock);
+    }
+
+    @Test
+    void skal_gi_tilgang_for_intern_azure_cc_update() {
+        when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
+        var attributter = lagBeskyttetRessursAttributterUpdateAzure();
+
+        when(pdpRequestBuilder.lagAppRessursDataForSystembruker(any())).thenReturn(AppRessursData.builder()
+            .medBehandlingStatus(PipBehandlingStatus.UTREDES).medFagsakStatus(PipFagsakStatus.UNDER_BEHANDLING).build());
 
         var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
+        verifyNoInteractions(gruppeKlientMock);
+        verifyNoInteractions(popKlientMock);
+    }
+
+    @Test
+    void skal_gi_avslag_for_intern_azure_cc_update() {
+        when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
+        var attributter = lagBeskyttetRessursAttributterUpdateAzure();
+
+        when(pdpRequestBuilder.lagAppRessursDataForSystembruker(any())).thenReturn(AppRessursData.builder().build());
+
+        var permit = pep.vurderTilgang(attributter);
+        assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
     }
@@ -106,8 +133,6 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn("vtp:annetnamespace:ukjentapplication");
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL,
             IdentType.Systemressurs);
-
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
         var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
@@ -121,8 +146,6 @@ class PepImplTest {
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL,
             IdentType.Systemressurs);
 
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
-
         var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
@@ -135,8 +158,6 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn("vtp:annetnamespace:eksternapplication");
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL,
             IdentType.Systemressurs);
-
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
 
         var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
@@ -189,6 +210,18 @@ class PepImplTest {
             .medResourceType(ResourceType.FAGSAK)
             .medActionType(ActionType.READ)
             .medAvailabilityType(availabilityType)
+            .medServicePath("/metode")
+            .medDataAttributter(AbacDataAttributter.opprett())
+            .build();
+    }
+
+    private BeskyttetRessursAttributter lagBeskyttetRessursAttributterUpdateAzure() {
+        return BeskyttetRessursAttributter.builder()
+            .medBrukerId(tokenProvider.getUid())
+            .medIdentType(IdentType.Systemressurs)
+            .medResourceType(ResourceType.FAGSAK)
+            .medActionType(ActionType.UPDATE)
+            .medAvailabilityType(AvailabilityType.INTERNAL)
             .medServicePath("/metode")
             .medDataAttributter(AbacDataAttributter.opprett())
             .build();
