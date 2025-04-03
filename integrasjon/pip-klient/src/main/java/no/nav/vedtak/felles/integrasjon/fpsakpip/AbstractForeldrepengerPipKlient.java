@@ -2,9 +2,9 @@ package no.nav.vedtak.felles.integrasjon.fpsakpip;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
@@ -23,12 +23,12 @@ public abstract class AbstractForeldrepengerPipKlient implements ForeldrepengerP
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractForeldrepengerPipKlient.class);
 
-    private static final String SAK_AKTØR_PATH = "/api/pip/aktoer-for-sak";
-
     private final RestClient restClient;
     private final RestConfig restConfig;
 
     private final URI sakAktørerEndpoint;
+    private final URI behSaksnummerEndpoint;
+    private final URI behSakAktørerEndpoint;
 
     protected AbstractForeldrepengerPipKlient() {
         this(RestClient.client());
@@ -37,7 +37,9 @@ public abstract class AbstractForeldrepengerPipKlient implements ForeldrepengerP
     protected AbstractForeldrepengerPipKlient(RestClient restClient) {
         this.restClient = restClient;
         this.restConfig = RestConfig.forClient(this.getClass());
-        this.sakAktørerEndpoint = UriBuilder.fromUri(restConfig.fpContextPath()).path(SAK_AKTØR_PATH).build();
+        this.sakAktørerEndpoint = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/pip/aktoer-for-sak").build();
+        this.behSaksnummerEndpoint = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/pip/saksnummer-for-behandling").build();
+        this.behSakAktørerEndpoint = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/pip/sak-aktoer-for-behandling").build();
         if (!restConfig.tokenConfig().isAzureAD()) {
             throw new IllegalArgumentException("Utviklerfeil: klient må annoteres med Azure CC");
         }
@@ -45,25 +47,76 @@ public abstract class AbstractForeldrepengerPipKlient implements ForeldrepengerP
 
 
     @Override
-    public List<ForeldrepengerPipAktørId> personerForSak(String saksnummer) {
+    public List<String> personerForSak(String saksnummer) {
         if (saksnummer == null) {
             return List.of();
         }
 
-        var request = RestRequest.newPOSTJson(new SaksnummerDto(saksnummer), sakAktørerEndpoint, restConfig);
+        var uri = UriBuilder.fromUri(sakAktørerEndpoint)
+            .queryParam("saksnummer", saksnummer)
+            .build();
+        var request = RestRequest.newGET(uri, restConfig);
 
         try {
-            return restClient.sendReturnList(request, ForeldrepengerPipAktørId.class);
+            return restClient.sendReturnList(request, String.class);
         } catch (Exception e) {
-            LOG.info("ForeldrepengerPip fikk feil", e);
+            LOG.info("ForeldrepengerPip personForSak fikk feil", e);
         }
-        return restClient.sendReturnList(request, ForeldrepengerPipAktørId.class);
+        return restClient.sendReturnList(request, String.class);
     }
 
-    public record SaksnummerDto(@NotNull String saksnummer) {
-        public SaksnummerDto {
-            Objects.requireNonNull(saksnummer, "saksnummer");
+    @Override
+    public List<SakMedPersonerDto> personerForSaker(Set<String> saksnummer) {
+        if (saksnummer == null || saksnummer.isEmpty()) {
+            return List.of();
         }
+
+        var request = RestRequest.newPOSTJson(saksnummer, sakAktørerEndpoint, restConfig);
+
+        try {
+            return restClient.sendReturnList(request, SakMedPersonerDto.class);
+        } catch (Exception e) {
+            LOG.info("ForeldrepengerPip personerForSaker fikk feil", e);
+        }
+        return restClient.sendReturnList(request, SakMedPersonerDto.class);
+    }
+
+    @Override
+    public String saksnummerForBehandling(UUID behandlingUuid) {
+        if (behandlingUuid == null) {
+            return null;
+        }
+
+        var uri = UriBuilder.fromUri(behSaksnummerEndpoint)
+            .queryParam("behandlingUuid", behandlingUuid.toString())
+            .build();
+        var request = RestRequest.newGET(uri, restConfig);
+
+        try {
+            return restClient.send(request, String.class);
+        } catch (Exception e) {
+            LOG.info("ForeldrepengerPip sakForBehandling fikk feil", e);
+        }
+        return restClient.send(request, String.class);
+    }
+
+    @Override
+    public SakMedPersonerDto sakPersonerForBehandling(UUID behandlingUuid) {
+        if (behandlingUuid == null) {
+            return null;
+        }
+
+        var uri = UriBuilder.fromUri(behSakAktørerEndpoint)
+            .queryParam("behandlingUuid", behandlingUuid.toString())
+            .build();
+        var request = RestRequest.newGET(uri, restConfig);
+
+        try {
+            return restClient.send(request, SakMedPersonerDto.class);
+        } catch (Exception e) {
+            LOG.info("ForeldrepengerPip sakPersonerForBehandling fikk feil", e);
+        }
+        return restClient.send(request, SakMedPersonerDto.class);
     }
 
 }
