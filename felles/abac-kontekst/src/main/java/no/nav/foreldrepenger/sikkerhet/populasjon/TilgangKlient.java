@@ -16,6 +16,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
@@ -53,17 +54,19 @@ public class TilgangKlient implements AnsattGruppeKlient, PopulasjonKlient {
     }
 
     @Override
-    public Tilgangsvurdering vurderTilgangInternBruker(UUID ansattOid, Set<String> personIdenter, Set<String> aktørIdenter) {
-        var request = new PopulasjonInternRequest(ansattOid, personIdenter, aktørIdenter);
+    public Tilgangsvurdering vurderTilgangInternBruker(UUID ansattOid, Set<String> personIdenter, Set<String> aktørIdenter, String saksnummer) {
+        var request = new PopulasjonInternRequest(ansattOid, personIdenter, aktørIdenter, saksnummer);
         var rrequest = RestRequest.newPOSTJson(request, internBrukerUri, restConfig).timeout(Duration.ofSeconds(3));
-        return klient.send(rrequest, Tilgangsvurdering.class);
+        var resultat = klient.send(rrequest, TilgangsvurderingDto.class);
+        return resultat.tilTilgangsvurdering();
     }
 
     @Override
     public Tilgangsvurdering vurderTilgangEksternBruker(String subjectPersonIdent, Set<String> personIdenter, Set<String> aktørIdenter) {
         var request = new PopulasjonEksternRequest(subjectPersonIdent, personIdenter, aktørIdenter);
         var rrequest = RestRequest.newPOSTJson(request, eksternBrukerUri, restConfig).timeout(Duration.ofSeconds(3));
-        return klient.send(rrequest, Tilgangsvurdering.class);
+        var resultat = klient.send(rrequest, TilgangsvurderingDto.class);
+        return resultat.tilTilgangsvurdering();
     }
 
     private record GruppeDto(@NotNull @Valid Set<AnsattGruppe> grupper) { }
@@ -73,12 +76,21 @@ public class TilgangKlient implements AnsattGruppeKlient, PopulasjonKlient {
 
     private record PopulasjonInternRequest(UUID ansattOid,
                                           Set<String> personIdenter,
-                                          Set<String> aktørIdenter) {
+                                          Set<String> aktørIdenter,
+                                           String saksnummer) {
     }
 
     private record PopulasjonEksternRequest(String subjectPersonIdent,
                                            Set<String> personIdenter,
                                            Set<String> aktørIdenter) {
+    }
+
+    // TBD når lager abac-kontrakt TilgangResultat eller
+    public record TilgangsvurderingDto(AbacResultat tilgangResultat, String årsak) {
+
+        public Tilgangsvurdering tilTilgangsvurdering() {
+            return new Tilgangsvurdering(tilgangResultat, årsak, Set.of());
+        }
     }
 
 }
