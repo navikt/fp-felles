@@ -14,7 +14,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
-import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 
@@ -122,7 +121,7 @@ class InternBrukerTest {
     @Test
     void tilgang_avdelingenhet_create() {
         var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.CREATE, ResourceType.OPPGAVESTYRING_AVDELINGENHET);
-        var ressurs = AppRessursData.builder().leggTilRessurs(ForeldrepengerDataKeys.AVDELING_ENHET, "4867").build();
+        var ressurs = AppRessursData.builder().medAvdelingEnhet("4867").build();
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -133,7 +132,7 @@ class InternBrukerTest {
     @Test
     void tilgang_avdelingenhet_delete() {
         var attributter = lagAttributter(AnsattGruppe.VEILEDER, ActionType.DELETE, ResourceType.OPPGAVESTYRING_AVDELINGENHET);
-        var ressurs = AppRessursData.builder().leggTilRessurs(ForeldrepengerDataKeys.AVDELING_ENHET, "4867").build();
+        var ressurs = AppRessursData.builder().medAvdelingEnhet("4867").build();
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();
@@ -144,7 +143,7 @@ class InternBrukerTest {
     @Test
     void tilgang_avdelingenhet_update_sf() {
         var attributter = lagAttributter(AnsattGruppe.SAKSBEHANDLER, ActionType.UPDATE, ResourceType.OPPGAVESTYRING_AVDELINGENHET);
-        var ressurs = AppRessursData.builder().leggTilRessurs(ForeldrepengerDataKeys.AVDELING_ENHET, "2103").build();
+        var ressurs = AppRessursData.builder().medAvdelingEnhet("2103").build();
 
         var resultat = InternBrukerPolicies.vurderTilgang(attributter, ressurs);
         assertThat(resultat.fikkTilgang()).isTrue();

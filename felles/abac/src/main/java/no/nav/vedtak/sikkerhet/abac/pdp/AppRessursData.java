@@ -16,20 +16,17 @@ import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
 
 public class AppRessursData {
 
+    @Deprecated(forRemoval = true)
     private String auditAktørId;
 
     private String auditIdent;
 
     private final Set<String> aktørIdSet = new LinkedHashSet<>();
     private final Set<String> fødselsnumre = new LinkedHashSet<>();
-    private final Map<RessursDataKey, RessursData> resources = new HashMap<>();
-
-    public String getAuditAktørId() {
-        return auditAktørId;
-    }
+    private final Map<ForeldrepengerDataKeys, RessursData> resources = new HashMap<>();
 
     public String getAuditIdent() {
-        return Optional.ofNullable(auditIdent).or(() -> Optional.ofNullable(auditAktørId)).orElse(null);
+        return Optional.ofNullable(auditIdent).orElse(auditAktørId);
     }
 
     public Set<String> getAktørIdSet() {
@@ -40,11 +37,7 @@ public class AppRessursData {
         return fødselsnumre;
     }
 
-    public Map<RessursDataKey, RessursData> getResources() {
-        return resources;
-    }
-
-    public RessursData getResource(RessursDataKey key) {
+    public RessursData getResource(ForeldrepengerDataKeys key) {
         return resources.get(key);
     }
 
@@ -101,7 +94,7 @@ public class AppRessursData {
             return this;
         }
 
-        public Builder leggTilRessurs(RessursDataKey key, String value) {
+        private Builder leggTilRessurs(ForeldrepengerDataKeys key, String value) {
             if (value == null) {
                 removeKeyIfPresent(key);
                 return this;
@@ -110,7 +103,7 @@ public class AppRessursData {
             return this;
         }
 
-        public Builder leggTilRessurs(RessursDataKey key, RessursDataValue value) {
+        private Builder leggTilRessurs(ForeldrepengerDataKeys key, RessursDataValue value) {
             if (value == null) {
                 removeKeyIfPresent(key);
                 return this;
@@ -138,20 +131,23 @@ public class AppRessursData {
             return leggTilRessurs(ForeldrepengerDataKeys.SAKSBEHANDLER, ansvarligSaksbehandler);
         }
 
+        public Builder medAvdelingEnhet(String enhet) {
+            return leggTilRessurs(ForeldrepengerDataKeys.AVDELING_ENHET, enhet);
+        }
+
         public Builder medAleneomsorg(Boolean aleneomsorg) {
             return leggTilRessurs(ForeldrepengerDataKeys.ALENEOMSORG, Optional.ofNullable(aleneomsorg).map(Object::toString).orElse(null));
         }
 
-        public Builder medAnnenpart(String annenpartAktørId) {
-            return leggTilRessurs(ForeldrepengerDataKeys.ANNENPART, annenpartAktørId);
+        public Builder medAnnenpart(String annenpartIdent) {
+            return leggTilRessurs(ForeldrepengerDataKeys.ANNENPART, annenpartIdent);
         }
-
 
         public AppRessursData build() {
             return pdpRequest;
         }
 
-        private void removeKeyIfPresent(RessursDataKey key) {
+        private void removeKeyIfPresent(ForeldrepengerDataKeys key) {
             if (pdpRequest.resources.get(key) != null) {
                 pdpRequest.resources.remove(key);
             }

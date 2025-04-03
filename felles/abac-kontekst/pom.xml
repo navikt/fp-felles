@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>felles-abac-kontekst</artifactId>
-    <name>Felles :: ABAC</name>
+    <name>Felles :: ABAC kontekst</name>
 
     <dependencies>
         <dependency>
