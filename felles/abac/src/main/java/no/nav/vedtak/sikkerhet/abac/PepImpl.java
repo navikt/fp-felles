@@ -114,7 +114,7 @@ public class PepImpl implements Pep {
             }
         }
         // Vurdering av populasjonstilgang
-        if (appRessursData.getFødselsnumre().isEmpty() && appRessursData.getAktørIdSet().isEmpty()) {
+        if (appRessursData.getFødselsnumre().isEmpty() && appRessursData.getAktørIdSet().isEmpty() && appRessursData.getSaksnummer() == null) {
             // Ikke noe å sjekke for populasjonstilgang
             return Tilgangsvurdering.godkjenn();
         }
