@@ -1,11 +1,12 @@
 package no.nav.vedtak.sikkerhet.abac;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class AbacDataAttributterTest {
 
@@ -62,7 +63,7 @@ class AbacDataAttributterTest {
 
     @Test
     void leggTilEnCollection() {
-        var attributtType = StandardAbacAttributtType.AKSJONSPUNKT_KODE;
+        var attributtType = StandardAbacAttributtType.JOURNALPOST_ID;
 
         attributter.leggTil(attributtType, "Test");
         attributter.leggTil(attributtType, List.of("Test1", "Test2", "Test3"));
@@ -74,7 +75,7 @@ class AbacDataAttributterTest {
 
     @Test
     void leggTilEnAnnenAttributeType() {
-        var attributtType = StandardAbacAttributtType.AKSJONSPUNKT_KODE;
+        var attributtType = StandardAbacAttributtType.JOURNALPOST_ID;
 
         attributter.leggTil(attributtType, "Test");
 
