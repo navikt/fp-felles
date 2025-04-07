@@ -12,9 +12,7 @@ import static no.nav.vedtak.log.audit.CefFields.forSaksnummer;
 import static no.nav.vedtak.log.audit.EventClassId.AUDIT_ACCESS;
 import static no.nav.vedtak.log.audit.EventClassId.AUDIT_CREATE;
 import static no.nav.vedtak.log.audit.EventClassId.AUDIT_UPDATE;
-import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.BEHANDLING_ID;
 import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.BEHANDLING_UUID;
-import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.FAGSAK_ID;
 import static no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType.SAKSNUMMER;
 
 import java.util.HashSet;
@@ -110,9 +108,9 @@ public class AbacAuditlogger {
             fields.add(new CefField(USER_ID, beskyttetRessursAttributter.getBrukerId()));
         }
 
-        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), SAKSNUMMER, FAGSAK_ID).ifPresent(fagsak -> fields.addAll(forSaksnummer(fagsak)));
+        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), SAKSNUMMER).ifPresent(fagsak -> fields.addAll(forSaksnummer(fagsak)));
 
-        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), BEHANDLING_UUID, BEHANDLING_ID).ifPresent(behandling -> fields.addAll(forBehandling(behandling)));
+        getOneOfNew(beskyttetRessursAttributter.getDataAttributter(), BEHANDLING_UUID).ifPresent(behandling -> fields.addAll(forBehandling(behandling)));
 
         return Set.copyOf(fields);
     }

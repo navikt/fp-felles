@@ -14,13 +14,6 @@ public enum StandardAbacAttributtType implements AbacAttributtType {
     AKTØR_ID,
 
     /**
-     * Interne referanser som ikke bør eksponeres utenfor applikasjonen.
-     */
-    FAGSAK_ID,
-    BEHANDLING_ID,
-    AKSJONSPUNKT_KODE,
-
-    /**
      * Eksternt anvendbare referanser - saksnummer, unik UUID for Behandling.
      */
     SAKSNUMMER,

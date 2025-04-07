@@ -40,7 +40,7 @@ class BeskyttetRessursInterceptorTest {
     private final RestClass tjeneste = new RestClass();
 
     private final AktørDto aktør1 = new AktørDto("00000000000");
-    private final BehandlingIdDto behandlingIdDto = new BehandlingIdDto(1234L);
+    private final BehandlingIdDto behandlingIdDto = new BehandlingIdDto(UUID.randomUUID());
 
     private static final String BRUKER_IDENT = "A000000";
     private static final UUID BRUKER_OID = UUID.randomUUID();
@@ -161,11 +161,11 @@ class BeskyttetRessursInterceptorTest {
         }
     }
 
-    private record BehandlingIdDto(Long id) implements AbacDto {
+    private record BehandlingIdDto(UUID id) implements AbacDto {
 
         @Override
         public AbacDataAttributter abacAttributter() {
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_ID, id);
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, id);
         }
     }
 

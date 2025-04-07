@@ -32,7 +32,7 @@ import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 class AbacAuditLoggerTest {
 
     private final AktørDto aktør1 = new AktørDto("00000000000");
-    private final BehandlingIdDto behandlingIdDto = new BehandlingIdDto(1234L);
+    private final BehandlingIdDto behandlingIdDto = new BehandlingIdDto(UUID.randomUUID());
 
     private final ArgumentCaptor<Auditdata> auditdataCaptor = ArgumentCaptor.forClass(Auditdata.class);
 
@@ -64,7 +64,7 @@ class AbacAuditLoggerTest {
         abacAuditlogger.loggUtfall(AbacResultat.GODKJENT, beskyttetRessursAttributter, appRessursData);
 
         assertGotPattern(auditlogger,
-            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ flexString2=1234 flexString2Label=Behandling request=/foo/behandling_id_in requestContext=no.nav.abac.attributter.foreldrepenger.fagsak suid=A000000");
+            "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ flexString2=__HEX__ flexString2Label=Behandling request=/foo/behandling_id_in requestContext=no.nav.abac.attributter.foreldrepenger.fagsak suid=A000000");
     }
 
     @Test
@@ -132,7 +132,9 @@ class AbacAuditLoggerTest {
     }
 
     private static String toAuditdataPattern(String s) {
-        return Pattern.quote(s).replaceAll("__NUMBERS__", unquoteInReplacement("[0-9]*"));
+        return Pattern.quote(s)
+            .replaceAll("__NUMBERS__", unquoteInReplacement("[0-9]*"))
+            .replaceAll("__HEX__", unquoteInReplacement("[0-9a-f-]*"));
     }
 
     private static String unquoteInReplacement(String s) {
@@ -170,11 +172,11 @@ class AbacAuditLoggerTest {
         }
     }
 
-    private record BehandlingIdDto(Long id) implements AbacDto {
+    private record BehandlingIdDto(UUID id) implements AbacDto {
 
         @Override
         public AbacDataAttributter abacAttributter() {
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_ID, id);
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, id);
         }
     }
 
