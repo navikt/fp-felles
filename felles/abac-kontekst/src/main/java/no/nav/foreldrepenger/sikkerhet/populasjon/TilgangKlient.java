@@ -62,8 +62,8 @@ public class TilgangKlient implements AnsattGruppeKlient, PopulasjonKlient {
     }
 
     @Override
-    public Tilgangsvurdering vurderTilgangEksternBruker(String subjectPersonIdent, Set<String> personIdenter, Set<String> aktørIdenter) {
-        var request = new PopulasjonEksternRequest(subjectPersonIdent, personIdenter, aktørIdenter);
+    public Tilgangsvurdering vurderTilgangEksternBruker(String subjectPersonIdent, Set<String> personIdenter, Set<String> aktørIdenter, int aldersgrense) {
+        var request = new PopulasjonEksternRequest(subjectPersonIdent, personIdenter, aktørIdenter, aldersgrense);
         var rrequest = RestRequest.newPOSTJson(request, eksternBrukerUri, restConfig).timeout(Duration.ofSeconds(3));
         var resultat = klient.send(rrequest, TilgangsvurderingDto.class);
         return resultat.tilTilgangsvurdering();
@@ -82,7 +82,8 @@ public class TilgangKlient implements AnsattGruppeKlient, PopulasjonKlient {
 
     private record PopulasjonEksternRequest(String subjectPersonIdent,
                                            Set<String> personIdenter,
-                                           Set<String> aktørIdenter) {
+                                           Set<String> aktørIdenter,
+                                            int aldersgrense) {
     }
 
     // TBD når lager abac-kontrakt TilgangResultat eller

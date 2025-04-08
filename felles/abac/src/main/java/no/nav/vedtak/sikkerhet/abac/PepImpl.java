@@ -138,8 +138,9 @@ public class PepImpl implements Pep {
             return fagtilgang;
         }
         // Ingen early return - skal sjekke alder på bruker. Kanskje populere attributt ved innsending.
+        var aldersgrense = EksternBrukerPolicies.aldersgrense(beskyttetRessursAttributter);
         var popTilgang = populasjonKlient.vurderTilgangEksternBruker(beskyttetRessursAttributter.getBrukerId(),
-            appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet());
+            appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet(), aldersgrense);
         if (popTilgang == null) {
             return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontrll");
         }
