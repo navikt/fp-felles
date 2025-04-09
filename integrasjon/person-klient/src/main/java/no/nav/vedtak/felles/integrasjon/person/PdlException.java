@@ -17,7 +17,7 @@ public class PdlException extends IntegrasjonException {
     private final PDLExceptionExtension extension;
 
     public PdlException(String kode, List<GraphQLError> errors, PDLExceptionExtension extension, int status, URI uri) {
-        super(kode, format("Feil %s ved GraphQL oppslag mot %s", errors.stream().map(GraphQLError::getMessage).collect(joining(",")), uri));
+        super(kode, format("Feil %s ved GraphQL oppslag mot %s", errors.stream().map(GraphQLError::getMessage).collect(joining(",")), uri), status);
         this.extension = extension;
         this.status = status;
         this.uri = uri;

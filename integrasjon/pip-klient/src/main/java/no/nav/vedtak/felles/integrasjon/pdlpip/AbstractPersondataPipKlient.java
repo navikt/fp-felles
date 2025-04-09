@@ -1,15 +1,18 @@
 package no.nav.vedtak.felles.integrasjon.pdlpip;
 
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import jakarta.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
@@ -57,15 +60,29 @@ public abstract class AbstractPersondataPipKlient implements PersondataPip {
             .header("ident", ident)
             .timeout(Duration.ofSeconds(5));
         try {
-            return client.send(request, PersondataPipDto.class);
+            return hentPersondataHandleNotFound(request);
         } catch (Exception e) {
             LOG.info("PdlPip fikk feil", e);
         }
-        return client.send(request, PersondataPipDto.class);
+        return hentPersondataHandleNotFound(request);
+    }
+
+    private PersondataPipDto hentPersondataHandleNotFound(RestRequest request) {
+        // Returnerer 200 hvis OK, 404 hvis ident ikke finnes
+        try {
+            return client.send(request, PersondataPipDto.class);
+        } catch (IntegrasjonException e) {
+            if (Objects.equals(HttpURLConnection.HTTP_NOT_FOUND, e.getStatusCode())) {
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
     @Override
     public Map<String, PersondataPipDto> hentTilgangPersondataBolk(List<String> identer) {
+        // Returnerer alltid 200 OK, men value vil være null dersom ident ikke finnes
         var request = RestRequest.newPOSTJson(identer, pipPersonBolkEndpoint, restConfig)
             .timeout(Duration.ofSeconds(5));
         try {
