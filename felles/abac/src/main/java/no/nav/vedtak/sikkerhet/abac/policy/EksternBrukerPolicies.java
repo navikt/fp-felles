@@ -21,6 +21,9 @@ import no.nav.vedtak.sikkerhet.kontekst.IdentType;
  */
 public class EksternBrukerPolicies {
 
+    private static final int ALDERSGRENSE_SKRIV = 18;
+    private static final int ALDERSGRENSE_LES = 15;
+
     private EksternBrukerPolicies() {
         // Hindre instans
     }
@@ -37,6 +40,14 @@ public class EksternBrukerPolicies {
             case ResourceType.UTTAKSPLAN -> uttaksplanPolicy(beskyttetRessursAttributter, appRessursData);
             default ->  Tilgangsvurdering.avslåGenerell("EksternBruker har ikke tilgang til ressurs");
         };
+    }
+
+    public static int aldersgrense(BeskyttetRessursAttributter beskyttetRessursAttributter) {
+        if (ActionType.READ.equals(beskyttetRessursAttributter.getActionType())) {
+            return ALDERSGRENSE_LES;
+        } else {
+            return ALDERSGRENSE_SKRIV;
+        }
     }
 
     private static Tilgangsvurdering fagsakPolicy(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
