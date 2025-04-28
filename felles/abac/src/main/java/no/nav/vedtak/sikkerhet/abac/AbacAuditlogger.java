@@ -37,6 +37,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 
 /**
  * Dette loggformatet er avklart med Arcsight. Eventuelle nye felter skal
@@ -55,24 +56,24 @@ public class AbacAuditlogger {
         this.auditlogger = auditlogger;
     }
 
-    public void loggUtfall(AbacResultat utfall, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
+    public void loggUtfall(Tilgangsvurdering utfall, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
         if (!auditlogger.auditLogDisabled() && beskyttetRessursAttributter.isSporingslogg()) {
             try {
-                logg(beskyttetRessursAttributter, appRessursData, utfall.fikkTilgang() ? Access.GRANTED : Access.DENIED);
+                logg(utfall, beskyttetRessursAttributter, appRessursData);
             } catch (Exception e) {
                 LOG.warn("ABAC AUDITLOG FAILURE ident {} tjeneste {}", beskyttetRessursAttributter.getIdentType(), beskyttetRessursAttributter.getServicePath(), e);
             }
         }
     }
 
-    private void logg(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData, Access access) {
+    private void logg(Tilgangsvurdering utfall, BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
         requireNonNull(beskyttetRessursAttributter);
         requireNonNull(beskyttetRessursAttributter.getDataAttributter());
 
-        var header = createHeader(beskyttetRessursAttributter.getActionType(), access);
+        var header = createHeader(beskyttetRessursAttributter.getActionType(), utfall.fikkTilgang() ? Access.GRANTED : Access.DENIED);
         var fields = createDefaultAbacFields(beskyttetRessursAttributter);
 
-        List<String> ids = getBerortBrukerId(appRessursData); // Beholder appRessursData for K9-tilbake
+        List<String> ids = getBerortBrukerId(utfall, appRessursData); // Beholder appRessursData for K9-tilbake
         for (String aktorId : ids) {
             loggTilgangPerBerortAktoer(header, fields, aktorId);
         }
@@ -115,20 +116,11 @@ public class AbacAuditlogger {
         return Set.copyOf(fields);
     }
 
-    private List<String> getBerortBrukerId(AppRessursData appRessursData) {
-        if (appRessursData.getAuditIdent() != null) {
-            return List.of(appRessursData.getAuditIdent());
+    private List<String> getBerortBrukerId(Tilgangsvurdering utfall, AppRessursData appRessursData) {
+        if (utfall.auditIdent() != null) {
+            return List.of(utfall.auditIdent());
         }
-        /*
-         * Arcsight foretrekker FNR fremfor AktørID, men det er uklart hvordan de
-         * håndterer blanding (har sendt forespørsel, men ikke fått svar). Velger derfor
-         * at AktørID prioriteres (siden alle kallene i k9-sak har denne).
-         */
-        final var ids = appRessursData.getAktørIdSet().stream().filter(Objects::nonNull).toList();
-        if (!ids.isEmpty()) {
-            return ids;
-        }
-        return appRessursData.getFødselsnumre().stream().filter(Objects::nonNull).toList();
+        return appRessursData.getIdenter().stream().filter(Objects::nonNull).toList();
     }
 
     private static Optional<String> getOneOfNew(AbacDataAttributter attributter, AbacAttributtType... typer) {

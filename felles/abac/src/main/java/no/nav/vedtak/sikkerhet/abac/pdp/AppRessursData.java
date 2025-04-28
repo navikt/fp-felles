@@ -1,14 +1,13 @@
 package no.nav.vedtak.sikkerhet.abac.pdp;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
-import no.nav.vedtak.sikkerhet.abac.pipdata.PipAktørId;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
@@ -16,30 +15,21 @@ import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
 
 public class AppRessursData {
 
-    @Deprecated(forRemoval = true)
-    private String auditAktørId;
-
-    private String auditIdent;
-
+    private UUID behandling;
     private String saksnummer;
-    private final Set<String> aktørIdSet = new LinkedHashSet<>();
-    private final Set<String> fødselsnumre = new LinkedHashSet<>();
-    private final Map<ForeldrepengerDataKeys, RessursData> resources = new HashMap<>();
-
-    public String getAuditIdent() {
-        return Optional.ofNullable(auditIdent).orElse(auditAktørId);
-    }
+    private final Set<String> identer = new LinkedHashSet<>();
+    private final Map<ForeldrepengerDataKeys, RessursData> resources = new EnumMap<>(ForeldrepengerDataKeys.class);
 
     public String getSaksnummer() {
         return saksnummer;
     }
 
-    public Set<String> getAktørIdSet() {
-        return aktørIdSet;
+    public UUID getBehandling() {
+        return behandling;
     }
 
-    public Set<String> getFødselsnumre() {
-        return fødselsnumre;
+    public Set<String> getIdenter() {
+        return identer;
     }
 
     public RessursData getResource(ForeldrepengerDataKeys key) {
@@ -62,18 +52,6 @@ public class AppRessursData {
             pdpRequest = new AppRessursData();
         }
 
-        @Deprecated(forRemoval = true)
-        public Builder medAuditAktørId(String aktørId) {
-            pdpRequest.auditIdent = aktørId;
-            pdpRequest.auditAktørId = aktørId;
-            return this;
-        }
-
-        public Builder medAuditIdent(String ident) {
-            pdpRequest.auditIdent = ident;
-            return this;
-        }
-
         public Builder medSaksnummer(String saksnummer) {
             if (saksnummer == null || pdpRequest.saksnummer != null) {
                 throw new IllegalArgumentException("Utviklerfeil: saksnummer er null eller allerede satt");
@@ -82,46 +60,21 @@ public class AppRessursData {
             return this;
         }
 
-        public Builder leggTilAktørId(String aktørId) {
-            pdpRequest.aktørIdSet.add(aktørId);
-            return this;
-        }
-
-        public Builder leggTilAktørIdSet(Collection<String> aktørId) {
-            pdpRequest.aktørIdSet.addAll(aktørId);
-            return this;
-        }
-
-        public Builder leggTilAbacAktørIdSet(Collection<PipAktørId> aktørId) {
-            pdpRequest.aktørIdSet.addAll(aktørId.stream().map(PipAktørId::getVerdi).collect(Collectors.toSet()));
-            return this;
-        }
-
-        public Builder leggTilFødselsnummer(String fnr) {
-            pdpRequest.fødselsnumre.add(fnr);
-            return this;
-        }
-
-        public Builder leggTilFødselsnumre(Collection<String> fnr) {
-            pdpRequest.fødselsnumre.addAll(fnr);
-            return this;
-        }
-
-        private Builder leggTilRessurs(ForeldrepengerDataKeys key, String value) {
-            if (value == null) {
-                removeKeyIfPresent(key);
-                return this;
+        public Builder medBehandling(UUID behandling) {
+            if (behandling == null || pdpRequest.behandling != null) {
+                throw new IllegalArgumentException("Utviklerfeil: behandling er null eller allerede satt");
             }
-            pdpRequest.resources.put(key, new RessursData(key, value));
+            pdpRequest.behandling = behandling;
             return this;
         }
 
-        private Builder leggTilRessurs(ForeldrepengerDataKeys key, RessursDataValue value) {
-            if (value == null) {
-                removeKeyIfPresent(key);
-                return this;
-            }
-            pdpRequest.resources.put(key, new RessursData(key, value.getVerdi()));
+        public Builder leggTilIdent(String ident) {
+            pdpRequest.identer.add(ident);
+            return this;
+        }
+
+        public Builder leggTilIdenter(Collection<String> identer) {
+            pdpRequest.identer.addAll(identer);
             return this;
         }
 
@@ -158,6 +111,24 @@ public class AppRessursData {
 
         public AppRessursData build() {
             return pdpRequest;
+        }
+
+        private Builder leggTilRessurs(ForeldrepengerDataKeys key, String value) {
+            if (value == null) {
+                removeKeyIfPresent(key);
+                return this;
+            }
+            pdpRequest.resources.put(key, new RessursData(key, value));
+            return this;
+        }
+
+        private Builder leggTilRessurs(ForeldrepengerDataKeys key, RessursDataValue value) {
+            if (value == null) {
+                removeKeyIfPresent(key);
+                return this;
+            }
+            pdpRequest.resources.put(key, new RessursData(key, value.getVerdi()));
+            return this;
         }
 
         private void removeKeyIfPresent(ForeldrepengerDataKeys key) {

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.sikkerhet.populasjon;
+package no.nav.vedtak.sikkerhet.populasjon;
 
 import java.net.URI;
 import java.time.Duration;
@@ -16,11 +16,11 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
 import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
+import no.nav.vedtak.sikkerhet.tilgang.TilgangResultat;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, application = FpApplication.FPTILGANG)
@@ -54,19 +54,19 @@ public class TilgangKlient implements AnsattGruppeKlient, PopulasjonKlient {
     }
 
     @Override
-    public Tilgangsvurdering vurderTilgangInternBruker(UUID ansattOid, Set<String> personIdenter, Set<String> aktørIdenter, String saksnummer) {
-        var request = new PopulasjonInternRequest(ansattOid, personIdenter, aktørIdenter, saksnummer);
+    public Tilgangsvurdering vurderTilgangInternBruker(UUID ansattOid, Set<String> identer, String saksnummer, UUID behandling) {
+        var request = new PopulasjonInternRequest(ansattOid, identer, saksnummer, behandling);
         var rrequest = RestRequest.newPOSTJson(request, internBrukerUri, restConfig).timeout(Duration.ofSeconds(3));
-        var resultat = klient.send(rrequest, TilgangsvurderingDto.class);
-        return resultat.tilTilgangsvurdering();
+        var resultat = klient.send(rrequest, TilgangsvurderingRespons.class);
+        return mapTilgangsvurdering(resultat);
     }
 
     @Override
-    public Tilgangsvurdering vurderTilgangEksternBruker(String subjectPersonIdent, Set<String> personIdenter, Set<String> aktørIdenter, int aldersgrense) {
-        var request = new PopulasjonEksternRequest(subjectPersonIdent, personIdenter, aktørIdenter, aldersgrense);
+    public Tilgangsvurdering vurderTilgangEksternBruker(String subjectPersonIdent, Set<String> identer, int aldersgrense) {
+        var request = new PopulasjonEksternRequest(subjectPersonIdent, identer, aldersgrense);
         var rrequest = RestRequest.newPOSTJson(request, eksternBrukerUri, restConfig).timeout(Duration.ofSeconds(3));
-        var resultat = klient.send(rrequest, TilgangsvurderingDto.class);
-        return resultat.tilTilgangsvurdering();
+        var resultat = klient.send(rrequest, TilgangsvurderingRespons.class);
+        return mapTilgangsvurdering(resultat);
     }
 
     private record GruppeDto(@NotNull @Valid Set<AnsattGruppe> grupper) { }
@@ -74,24 +74,21 @@ public class TilgangKlient implements AnsattGruppeKlient, PopulasjonKlient {
 
     private record UidGruppeDto(@NotNull UUID uid, @Valid @NotNull Set<AnsattGruppe> grupper) { }
 
-    private record PopulasjonInternRequest(UUID ansattOid,
-                                          Set<String> personIdenter,
-                                          Set<String> aktørIdenter,
-                                           String saksnummer) {
-    }
+    public record PopulasjonInternRequest(@NotNull UUID ansattOid,
+                                          @Valid Set<String> identer,
+                                          @Valid String saksnummer,
+                                          @Valid UUID behandling) { }
 
-    private record PopulasjonEksternRequest(String subjectPersonIdent,
-                                           Set<String> personIdenter,
-                                           Set<String> aktørIdenter,
-                                            int aldersgrense) {
-    }
+    public record PopulasjonEksternRequest(@NotNull String subjectPersonIdent,
+                                           @Valid Set<String> identer,
+                                           @Valid Integer aldersgrense) { }
 
-    // TBD når lager abac-kontrakt TilgangResultat eller
-    public record TilgangsvurderingDto(AbacResultat tilgangResultat, String årsak) {
+    public record TilgangsvurderingRespons(TilgangResultat tilgangResultat,
+                                           @NotNull String årsak,
+                                           String auditIdent) { }
 
-        public Tilgangsvurdering tilTilgangsvurdering() {
-            return new Tilgangsvurdering(tilgangResultat, årsak, Set.of());
-        }
+    private Tilgangsvurdering mapTilgangsvurdering(TilgangsvurderingRespons tilgangsvurdering) {
+        return new Tilgangsvurdering(tilgangsvurdering.tilgangResultat(), tilgangsvurdering.årsak(), Set.of(), tilgangsvurdering.auditIdent());
     }
 
 }

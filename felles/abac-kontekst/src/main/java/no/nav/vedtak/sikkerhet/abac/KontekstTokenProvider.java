@@ -1,11 +1,10 @@
-package no.nav.foreldrepenger.sikkerhet.abac;
+package no.nav.vedtak.sikkerhet.abac;
 
 import java.util.Set;
 import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
 
-import no.nav.vedtak.sikkerhet.abac.TokenProvider;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.DefaultRequestKontekstProvider;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;

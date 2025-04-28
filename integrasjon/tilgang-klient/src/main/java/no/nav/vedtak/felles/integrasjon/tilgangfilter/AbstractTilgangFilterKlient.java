@@ -53,12 +53,12 @@ public abstract class AbstractTilgangFilterKlient implements TilgangFilter {
 
 
     // For å sjekke hvilke saker den ansatte har tilgang til basert på saksnummer
-    public record FilterSaksnummerRequest(@NotNull UUID ansattOid, Set<String> saker) { }
+    private record FilterSaksnummerRequest(@NotNull UUID ansattOid, Set<String> saker) { }
 
     // For å sjekke hvilke identer den ansatte har tilgang til basert på identer
-    public record FilterIdenterRequest(@NotNull UUID ansattOid, Set<String> identer) { }
+    private record FilterIdenterRequest(@NotNull UUID ansattOid, Set<String> identer) { }
 
     // Hvilke av sakene/identene i request som den ansatte har tilgang til
-    public record FilterResponse(Set<String> harTilgang) {}
+    private record FilterResponse(Set<String> harTilgang) { }
 
 }

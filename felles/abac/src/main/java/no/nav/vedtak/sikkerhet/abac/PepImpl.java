@@ -21,6 +21,7 @@ import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.tilgang.AnsattGruppeKlient;
 import no.nav.vedtak.sikkerhet.tilgang.PopulasjonKlient;
+import no.nav.vedtak.sikkerhet.tilgang.TilgangResultat;
 
 /**
  * Dette er strengt tatt PDP (eller en PDP-proxy før kall til Abac).
@@ -54,7 +55,7 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public AbacResultat vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
+    public TilgangResultat vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         if (beskyttetRessursAttributter.getIdentType().erSystem()) {
             var trengerAppRessursData = SystemressursPolicies.trengerAppRessursData(beskyttetRessursAttributter);
             var appRessurser = trengerAppRessursData ? pdpRequestBuilder.lagAppRessursDataForSystembruker(beskyttetRessursAttributter.getDataAttributter()) : null;
@@ -67,7 +68,7 @@ public class PepImpl implements Pep {
             var appRessurser = pdpRequestBuilder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
 
             var vurdering = forespørTilgang(beskyttetRessursAttributter, appRessurser);
-            abacAuditlogger.loggUtfall(vurdering.tilgangResultat(), beskyttetRessursAttributter, appRessurser);
+            abacAuditlogger.loggUtfall(vurdering, beskyttetRessursAttributter, appRessurser);
             return vurdering.tilgangResultat();
         }
     }
@@ -114,12 +115,12 @@ public class PepImpl implements Pep {
             }
         }
         // Vurdering av populasjonstilgang
-        if (appRessursData.getFødselsnumre().isEmpty() && appRessursData.getAktørIdSet().isEmpty() && appRessursData.getSaksnummer() == null) {
+        if (appRessursData.getIdenter().isEmpty() && appRessursData.getSaksnummer() == null && appRessursData.getBehandling() == null) {
             // Ikke noe å sjekke for populasjonstilgang
             return Tilgangsvurdering.godkjenn();
         }
         var popTilgang = populasjonKlient.vurderTilgangInternBruker(beskyttetRessursAttributter.getBrukerOid(),
-            appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet(), appRessursData.getSaksnummer());
+            appRessursData.getIdenter(), appRessursData.getSaksnummer(), appRessursData.getBehandling());
         if (popTilgang == null) {
             return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontroll");
         }
@@ -140,7 +141,7 @@ public class PepImpl implements Pep {
         // Ingen early return - skal sjekke alder på bruker. Kanskje populere attributt ved innsending.
         var aldersgrense = EksternBrukerPolicies.aldersgrense(beskyttetRessursAttributter);
         var popTilgang = populasjonKlient.vurderTilgangEksternBruker(beskyttetRessursAttributter.getBrukerId(),
-            appRessursData.getFødselsnumre(), appRessursData.getAktørIdSet(), aldersgrense);
+            appRessursData.getIdenter(), aldersgrense);
         if (popTilgang == null) {
             return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontrll");
         }

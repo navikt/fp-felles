@@ -86,7 +86,7 @@ public class InternBrukerPolicies {
     }
 
     private static Tilgangsvurdering applikasjonPolicy(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        if (!appRessursData.getFødselsnumre().isEmpty() || !appRessursData.getAktørIdSet().isEmpty()) {
+        if (!appRessursData.getIdenter().isEmpty()) {
             return Tilgangsvurdering.avslåGenerell("Applikasjon-ressurs kan ikke ha personer / saker");
         }
         if (ActionType.READ.equals(beskyttetRessursAttributter.getActionType())) {

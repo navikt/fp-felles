@@ -76,7 +76,7 @@ class EksternBrukerTest {
     @Test
     void avslag_applikasjon_read_med_personer() {
         var attributter = lagAttributter(ActionType.READ, ResourceType.APPLIKASJON);
-        var ressursdata = AppRessursData.builder().leggTilAktørId("1234567890123").build();
+        var ressursdata = AppRessursData.builder().leggTilIdent("1234567890123").build();
 
         var resultat = EksternBrukerPolicies.vurderTilgang(attributter, ressursdata);
         assertThat(resultat.fikkTilgang()).isFalse();

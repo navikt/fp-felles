@@ -22,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
-import no.nav.vedtak.sikkerhet.abac.AbacResultat;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursInterceptor;
 import no.nav.vedtak.sikkerhet.abac.Pep;
@@ -33,6 +32,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.tilgang.TilgangResultat;
 
 @ExtendWith(MockitoExtension.class)
 class BeskyttetRessursInterceptorTest {
@@ -63,7 +63,7 @@ class BeskyttetRessursInterceptorTest {
 
     @Test
     void godkjent_aktør() throws Exception {
-        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(AbacResultat.GODKJENT);
+        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(TilgangResultat.GODKJENT);
         var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
@@ -77,7 +77,7 @@ class BeskyttetRessursInterceptorTest {
 
     @Test
     void godkjent_behandling() throws Exception {
-        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(AbacResultat.GODKJENT);
+        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(TilgangResultat.GODKJENT);
         var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
@@ -92,7 +92,7 @@ class BeskyttetRessursInterceptorTest {
 
     @Test
     void godkjent_uten_sporing() throws Exception {
-        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(AbacResultat.GODKJENT);
+        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(TilgangResultat.GODKJENT);
         var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
@@ -106,7 +106,7 @@ class BeskyttetRessursInterceptorTest {
 
     @Test
     void deny_aktør_gir_exception() throws Exception {
-        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(AbacResultat.AVSLÅTT_KODE_6);
+        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(TilgangResultat.AVSLÅTT_KODE_6);
         var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
