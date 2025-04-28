@@ -1,3 +1,4 @@
+# SOURCE repo:safselvbetjening:app/src/main/resources/schemas/safselvbetjening.graphqls
 # ISO-8601 representasjon for en kalenderdato med tid, trunkert til nærmeste sekund. YYYY-MM-DD'T'hh:mm:ss. Eksempel: 2018-01-01T12:00:00.
 scalar DateTime
 
