@@ -63,7 +63,7 @@ public class GeneriskTokenKlient {
     private static HttpClient hentEllerByggHttpClient(URI proxy) {
         return HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NEVER)
-            .connectTimeout(Duration.ofSeconds(7))
+            .connectTimeout(Duration.ofSeconds(2))
             .proxy(ProxyProperty.getProxySelector(proxy))
             .build();
     }

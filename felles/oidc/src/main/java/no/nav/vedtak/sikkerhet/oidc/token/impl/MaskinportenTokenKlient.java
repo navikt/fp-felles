@@ -82,7 +82,7 @@ public final class MaskinportenTokenKlient {
         var request = HttpRequest.newBuilder()
             .header("Cache-Control", "no-cache")
             .header(CONTENT_TYPE, APPLICATION_FORM_ENCODED)
-            .timeout(Duration.ofSeconds(10))
+            .timeout(Duration.ofSeconds(3))
             .uri(tokenEndpoint)
             .POST(ofFormData(assertion))
             .build();
