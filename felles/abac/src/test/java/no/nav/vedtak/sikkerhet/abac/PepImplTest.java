@@ -169,14 +169,14 @@ class PepImplTest {
     void skal_kalle_pdp_for_annet_enn_pip_tjenester() {
         when(tokenProvider.getUid()).thenReturn("z142443");
         var attributter = lagBeskyttetRessursAttributter();
-        var appressursData = AppRessursData.builder().leggTilAktørId("1234567890123").build();
+        var appressursData = AppRessursData.builder().leggTilIdent("1234567890123").build();
 
         when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(appressursData);
         when(popKlientMock.vurderTilgangInternBruker(any(), any(), any(), any())).thenReturn(Tilgangsvurdering.godkjenn());
 
         @SuppressWarnings("unused") var permit = pep.vurderTilgang(attributter);
         verifyNoInteractions(gruppeKlientMock);
-        verify(popKlientMock).vurderTilgangInternBruker(attributter.getBrukerOid(), Set.of(), appressursData.getAktørIdSet(), null);
+        verify(popKlientMock).vurderTilgangInternBruker(attributter.getBrukerOid(), appressursData.getIdenter(), null, null);
     }
 
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributter() {

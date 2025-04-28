@@ -52,10 +52,10 @@ public abstract class AbstractRutingKlient implements Ruting {
     }
 
 
-    public record RutingIdenterRequest(@Valid Set<String> identer) { }
+    private record RutingIdenterRequest(@Valid Set<String> identer) { }
 
-    public record RutingSakRequest(@Valid @NotNull String saksnummer) { }
+    private record RutingSakRequest(@Valid @NotNull String saksnummer) { }
 
-    public record RutingRespons(Set<RutingResultat> resultater) { }
+    private record RutingRespons(Set<RutingResultat> resultater) { }
 
 }

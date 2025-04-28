@@ -6,9 +6,9 @@
         <artifactId>felles-integrasjon-pom</artifactId>
         <version>0.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>pip-klient</artifactId>
+    <artifactId>tilgang-klient</artifactId>
     <packaging>jar</packaging>
-    <name>Felles :: Integrasjonsendepunkt - pip-klient</name>
+    <name>Felles :: Integrasjonsendepunkt - tilgang-klient</name>
 
     <dependencies>
         <dependency>

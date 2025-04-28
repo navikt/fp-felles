@@ -26,7 +26,9 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.abac.policy.Tilgangsvurdering;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.tilgang.TilgangResultat;
 
 @ExtendWith(MockitoExtension.class)
 class AbacAuditLoggerTest {
@@ -42,11 +44,12 @@ class AbacAuditLoggerTest {
         final var abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
-        var appRessursData = AppRessursData.builder().medAuditIdent(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{aktør1}));
+        var vurdering = new Tilgangsvurdering(TilgangResultat.GODKJENT, "", Set.of(), aktør1.aktørId());
 
-        abacAuditlogger.loggUtfall(AbacResultat.GODKJENT, beskyttetRessursAttributter, appRessursData);
+        abacAuditlogger.loggUtfall(vurdering, beskyttetRessursAttributter, appRessursData);
         assertGotPattern(auditlogger,
             "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=no.nav.abac.attributter.foreldrepenger.fagsak suid=A000000");
     }
@@ -57,11 +60,12 @@ class AbacAuditLoggerTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
-        var appRessursData = AppRessursData.builder().medAuditIdent(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{behandlingIdDto}));
+        var vurdering = new Tilgangsvurdering(TilgangResultat.GODKJENT, "", Set.of(), aktør1.aktørId());
 
-        abacAuditlogger.loggUtfall(AbacResultat.GODKJENT, beskyttetRessursAttributter, appRessursData);
+        abacAuditlogger.loggUtfall(vurdering, beskyttetRessursAttributter, appRessursData);
 
         assertGotPattern(auditlogger,
             "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|INFO|act=create duid=00000000000 end=__NUMBERS__ flexString2=__HEX__ flexString2Label=Behandling request=/foo/behandling_id_in requestContext=no.nav.abac.attributter.foreldrepenger.fagsak suid=A000000");
@@ -73,11 +77,12 @@ class AbacAuditLoggerTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
-        var appRessursData = AppRessursData.builder().medAuditIdent(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{behandlingIdDto}));
+        var vurdering = new Tilgangsvurdering(TilgangResultat.GODKJENT, "", Set.of(), aktør1.aktørId());
 
-        abacAuditlogger.loggUtfall(AbacResultat.GODKJENT, beskyttetRessursAttributter, appRessursData);
+        abacAuditlogger.loggUtfall(vurdering, beskyttetRessursAttributter, appRessursData);
 
         verify(auditlogger, never()).logg(Mockito.any());
     }
@@ -88,11 +93,12 @@ class AbacAuditLoggerTest {
         final AbacAuditlogger abacAuditlogger = new AbacAuditlogger(auditlogger);
 
         var method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
-        var appRessursData = AppRessursData.builder().medAuditIdent(aktør1.aktørId()).build();
+        var appRessursData = AppRessursData.builder().build();
         var beskyttetRessursAttributter = getBeskyttetRessursAttributter(method,
             BeskyttetRessursInterceptor.finnAbacDataAttributter(method, new Object[]{aktør1}));
+        var vurdering = new Tilgangsvurdering(TilgangResultat.AVSLÅTT_KODE_6, "", Set.of(), aktør1.aktørId());
 
-        abacAuditlogger.loggUtfall(AbacResultat.AVSLÅTT_KODE_6, beskyttetRessursAttributter, appRessursData);
+        abacAuditlogger.loggUtfall(vurdering, beskyttetRessursAttributter, appRessursData);
 
         assertGotPattern(auditlogger,
             "CEF:0|felles|felles-test|1.0|audit:create|ABAC Sporingslogg|WARN|act=create duid=00000000000 end=__NUMBERS__ request=/foo/aktoer_in requestContext=no.nav.abac.attributter.foreldrepenger.fagsak suid=A000000");

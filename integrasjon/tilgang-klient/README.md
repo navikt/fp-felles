@@ -1,6 +1,6 @@
-# pip-klient
+# tilgang-klient
 
-Samling av pip-klienter som brukes til å henter informasjon for tilgangskontroll og ruting av saker
+Samling av tilgang-klienter som brukes til å henter informasjon for tilgangskontroll og ruting av saker
 
 ## Hensikten
 
