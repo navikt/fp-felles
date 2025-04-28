@@ -75,16 +75,16 @@ public class TilgangKlient implements AnsattGruppeKlient, PopulasjonKlient {
     private record UidGruppeDto(@NotNull UUID uid, @Valid @NotNull Set<AnsattGruppe> grupper) { }
 
     public record PopulasjonInternRequest(@NotNull UUID ansattOid,
-                                          @Valid Set<String> identer,
+                                          @NotNull @Valid Set<String> identer,
                                           @Valid String saksnummer,
                                           @Valid UUID behandling) { }
 
     public record PopulasjonEksternRequest(@NotNull String subjectPersonIdent,
-                                           @Valid Set<String> identer,
-                                           @Valid Integer aldersgrense) { }
+                                           @NotNull @Valid Set<String> identer,
+                                           @Valid int aldersgrense) { }
 
-    public record TilgangsvurderingRespons(TilgangResultat tilgangResultat,
-                                           @NotNull String årsak,
+    public record TilgangsvurderingRespons(@NotNull TilgangResultat tilgangResultat,
+                                           String årsak,
                                            String auditIdent) { }
 
     private Tilgangsvurdering mapTilgangsvurdering(TilgangsvurderingRespons tilgangsvurdering) {

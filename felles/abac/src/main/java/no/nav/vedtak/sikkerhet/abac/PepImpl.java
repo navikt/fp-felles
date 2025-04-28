@@ -57,8 +57,7 @@ public class PepImpl implements Pep {
     @Override
     public TilgangResultat vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         if (beskyttetRessursAttributter.getIdentType().erSystem()) {
-            var trengerAppRessursData = SystemressursPolicies.trengerAppRessursData(beskyttetRessursAttributter);
-            var appRessurser = trengerAppRessursData ? pdpRequestBuilder.lagAppRessursDataForSystembruker(beskyttetRessursAttributter.getDataAttributter()) : null;
+            var appRessurser = pdpRequestBuilder.lagAppRessursDataForSystembruker(beskyttetRessursAttributter.getDataAttributter());
             var vurdering = forespørTilgang(beskyttetRessursAttributter, appRessurser);
             if (!vurdering.fikkTilgang()) {
                 LOG.warn("ABAC AVSLAG SYSTEMBRUKER {} tjeneste {}", beskyttetRessursAttributter.getBrukerId(), beskyttetRessursAttributter.getServicePath());
@@ -66,9 +65,12 @@ public class PepImpl implements Pep {
             return vurdering.tilgangResultat();
         } else {
             var appRessurser = pdpRequestBuilder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
-
             var vurdering = forespørTilgang(beskyttetRessursAttributter, appRessurser);
             abacAuditlogger.loggUtfall(vurdering, beskyttetRessursAttributter, appRessurser);
+            if (TilgangResultat.AVSLÅTT_ANNEN_ÅRSAK.equals(vurdering.tilgangResultat())) {
+                var logAnnenÅrsak = vurdering.årsak() != null ? vurdering.årsak() : "";
+                LOG.info("ABAC AVSLAG ANNEN ÅRSAK {} tjeneste {}", logAnnenÅrsak, beskyttetRessursAttributter.getServicePath());
+            }
             return vurdering.tilgangResultat();
         }
     }
@@ -104,23 +106,17 @@ public class PepImpl implements Pep {
         }
         kreverGrupper.addAll(fagtilgang.kreverGrupper());
         // Vurdering av gruppemedlemskap
-        var uavklarteGrupper = kreverGrupper.stream()
-            .filter(g -> !harGruppe(beskyttetRessursAttributter, g))
-            .collect(Collectors.toSet());
-        if (!uavklarteGrupper.isEmpty()) {
-            var harGrupperBlantPåkrevde = ansattGruppeKlient.vurderAnsattGrupper(beskyttetRessursAttributter.getBrukerOid(), uavklarteGrupper);
-            if (uavklarteGrupper.size() != harGrupperBlantPåkrevde.size()) {
-                var manglerGrupper = uavklarteGrupper.stream().filter(g -> !harGrupperBlantPåkrevde.contains(g)).toList();
-                return Tilgangsvurdering.avslåGenerell("Mangler ansattgrupper " + manglerGrupper);
-            }
+        var harAlleGrupper = harNødvendigeGrupper(beskyttetRessursAttributter, kreverGrupper);
+        if (!harAlleGrupper.fikkTilgang()) {
+            return harAlleGrupper;
         }
         // Vurdering av populasjonstilgang
         if (appRessursData.getIdenter().isEmpty() && appRessursData.getSaksnummer() == null && appRessursData.getBehandling() == null) {
             // Ikke noe å sjekke for populasjonstilgang
             return Tilgangsvurdering.godkjenn();
         }
-        var popTilgang = populasjonKlient.vurderTilgangInternBruker(beskyttetRessursAttributter.getBrukerOid(),
-            appRessursData.getIdenter(), appRessursData.getSaksnummer(), appRessursData.getBehandling());
+        var popTilgang = populasjonKlient.vurderTilgangInternBruker(beskyttetRessursAttributter.getBrukerOid(), appRessursData.getIdenter(),
+            appRessursData.getSaksnummer(), appRessursData.getBehandling());
         if (popTilgang == null) {
             return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontroll");
         }
@@ -140,12 +136,25 @@ public class PepImpl implements Pep {
         }
         // Ingen early return - skal sjekke alder på bruker. Kanskje populere attributt ved innsending.
         var aldersgrense = EksternBrukerPolicies.aldersgrense(beskyttetRessursAttributter);
-        var popTilgang = populasjonKlient.vurderTilgangEksternBruker(beskyttetRessursAttributter.getBrukerId(),
-            appRessursData.getIdenter(), aldersgrense);
+        var popTilgang = populasjonKlient.vurderTilgangEksternBruker(beskyttetRessursAttributter.getBrukerId(), appRessursData.getIdenter(), aldersgrense);
         if (popTilgang == null) {
             return Tilgangsvurdering.avslåGenerell("Feil ved kontakt med tilgangskontrll");
         }
         return popTilgang;
+    }
+
+    private Tilgangsvurdering harNødvendigeGrupper(BeskyttetRessursAttributter beskyttetRessursAttributter, HashSet<AnsattGruppe> kreverGrupper) {
+        var uavklarteGrupper = kreverGrupper.stream()
+            .filter(g -> !harGruppe(beskyttetRessursAttributter, g))
+            .collect(Collectors.toSet());
+        if (!uavklarteGrupper.isEmpty()) {
+            var harGrupperBlantPåkrevde = ansattGruppeKlient.vurderAnsattGrupper(beskyttetRessursAttributter.getBrukerOid(), uavklarteGrupper);
+            if (uavklarteGrupper.size() != harGrupperBlantPåkrevde.size()) {
+                var manglerGrupper = uavklarteGrupper.stream().filter(g -> !harGrupperBlantPåkrevde.contains(g)).toList();
+                return Tilgangsvurdering.avslåGenerell("Mangler ansattgrupper " + manglerGrupper);
+            }
+        }
+        return Tilgangsvurdering.godkjenn();
     }
 
     private static boolean harGruppe(BeskyttetRessursAttributter beskyttetRessursAttributter, AnsattGruppe gruppe) {
