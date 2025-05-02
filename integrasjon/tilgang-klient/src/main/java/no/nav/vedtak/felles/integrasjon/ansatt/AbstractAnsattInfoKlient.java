@@ -26,10 +26,10 @@ public abstract class AbstractAnsattInfoKlient {
     public AbstractAnsattInfoKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(this.getClass());
-        this.ansattIdentUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansatt/ansatt-ident").build();
-        this.ansattOidUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansatt/ansatt-oid").build();
-        this.grupperMedlemUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansatt/grupper-medlem").build();
-        this.grupperFilterUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansatt/grupper-filter").build();
+        this.ansattIdentUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansattinfo/ansatt-ident").build();
+        this.ansattOidUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansattinfo/ansatt-oid").build();
+        this.grupperMedlemUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansattinfo/grupper-medlem").build();
+        this.grupperFilterUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansattinfo/grupper-filter").build();
     }
 
     protected AnsattInfoDto.Respons hentAnsattInfoForIdent(String ident) {
