@@ -12,7 +12,7 @@ import no.nav.safselvbetjening.DokumentoversiktSelvbetjeningQueryRequest;
 
 public interface SafSelvbetjening {
 
-    Dokumentoversikt dokumentoversiktFagsak(DokumentoversiktSelvbetjeningQueryRequest query, DokumentoversiktResponseProjection projection);
+    Dokumentoversikt dokumentoversiktSelvbetjening(DokumentoversiktSelvbetjeningQueryRequest query, DokumentoversiktResponseProjection projection);
 
     byte[] hentDokument(HentDokumentQuery q);
 
