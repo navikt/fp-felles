@@ -15,6 +15,8 @@ import no.nav.safselvbetjening.DokumentvariantResponseProjection;
 import no.nav.safselvbetjening.JournalpostResponseProjection;
 import no.nav.safselvbetjening.RelevantDatoResponseProjection;
 import no.nav.safselvbetjening.SakResponseProjection;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +42,7 @@ class SafSelvbetjeningKlientTest {
     @BeforeEach
     void setUp() {
         // Service setup
-        safSelvbetjeningTjeneste = new SafSelvbetjeningKlient(restKlient);
+        safSelvbetjeningTjeneste = new TestSafSelvbetjeningTjeneste(restKlient);
     }
 
     @Test
@@ -87,7 +89,7 @@ class SafSelvbetjeningKlientTest {
         var query = new DokumentoversiktSelvbetjeningQueryRequest();
         var projection = byggDokumentoversiktResponseProjection();
 
-        var dokumentoversikt = safSelvbetjeningTjeneste.dokumentoversiktFagsak(query, projection);
+        var dokumentoversikt = safSelvbetjeningTjeneste.dokumentoversiktSelvbetjening(query, projection);
 
         assertThat(dokumentoversikt.getJournalposter()).hasSize(2);
         var rq = captor.getValue();
@@ -124,5 +126,18 @@ class SafSelvbetjeningKlientTest {
                 .dokumentvarianter(new DokumentvariantResponseProjection().variantformat().filtype().brukerHarTilgang()))
             .relevanteDatoer(new RelevantDatoResponseProjection().dato().datotype())
             .eksternReferanseId());
+    }
+
+    @RestClientConfig(
+            tokenConfig = TokenFlow.ADAPTIVE,
+            endpointProperty = "safselvbetjening.base.url",
+            endpointDefault = "https://safselvbetjening.prod-fss-pub.nais.io",
+            scopesProperty = "safselvbetjening.scopes",
+            scopesDefault = "api://prod-fss.teamdokumenthandtering.safselvbetjening/.default"
+    )
+    private static class TestSafSelvbetjeningTjeneste extends AbstractSafSelvbetjeningKlient {
+        TestSafSelvbetjeningTjeneste(RestClient restKlient) {
+            super(restKlient);
+        }
     }
 }
