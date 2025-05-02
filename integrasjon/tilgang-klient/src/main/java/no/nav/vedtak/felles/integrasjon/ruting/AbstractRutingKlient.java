@@ -3,8 +3,6 @@ package no.nav.vedtak.felles.integrasjon.ruting;
 import java.net.URI;
 import java.util.Set;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -39,23 +37,16 @@ public abstract class AbstractRutingKlient implements Ruting {
 
     @Override
     public Set<RutingResultat> finnRutingEgenskaper(Set<String> identer) {
-        var request = new RutingIdenterRequest(identer);
+        var request = new RutingDto.IdenterRequest(identer);
         var rrequest = RestRequest.newPOSTJson(request, rutingIdenterUri, restConfig);
-        return klient.sendReturnOptional(rrequest, RutingRespons.class).map(RutingRespons::resultater).orElseGet(Set::of);
+        return klient.sendReturnOptional(rrequest, RutingDto.Respons.class).map(RutingDto.Respons::resultater).orElseGet(Set::of);
     }
 
     @Override
     public Set<RutingResultat> finnRutingEgenskaper(String saksnummer) {
-        var request = new RutingSakRequest(saksnummer);
+        var request = new RutingDto.SakRequest(saksnummer);
         var rrequest = RestRequest.newPOSTJson(request, rutingSakUri, restConfig);
-        return klient.sendReturnOptional(rrequest, RutingRespons.class).map(RutingRespons::resultater).orElseGet(Set::of);
+        return klient.sendReturnOptional(rrequest, RutingDto.Respons.class).map(RutingDto.Respons::resultater).orElseGet(Set::of);
     }
-
-
-    private record RutingIdenterRequest(@Valid Set<String> identer) { }
-
-    private record RutingSakRequest(@Valid @NotNull String saksnummer) { }
-
-    private record RutingRespons(Set<RutingResultat> resultater) { }
 
 }
