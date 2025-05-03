@@ -78,6 +78,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>tilgang-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-mapper</artifactId>
                 <version>${project.version}</version>

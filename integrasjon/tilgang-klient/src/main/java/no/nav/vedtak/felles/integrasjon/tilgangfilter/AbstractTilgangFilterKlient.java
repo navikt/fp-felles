@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.Set;
 import java.util.UUID;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -39,26 +38,16 @@ public abstract class AbstractTilgangFilterKlient implements TilgangFilter {
 
     @Override
     public Set<String> filterSaksnummer(UUID ansattOid, Set<String> saksnummer) {
-        var request = new FilterSaksnummerRequest(ansattOid, saksnummer);
+        var request = new FilterDto.SaksnummerRequest(ansattOid, saksnummer);
         var rrequest = RestRequest.newPOSTJson(request, filterSaksnummerUri, restConfig);
-        return klient.sendReturnOptional(rrequest, FilterResponse.class).map(FilterResponse::harTilgang).orElseGet(Set::of);
+        return klient.sendReturnOptional(rrequest, FilterDto.Respons.class).map(FilterDto.Respons::harTilgang).orElseGet(Set::of);
     }
 
     @Override
     public Set<String> filterIdenter(UUID ansattOid, Set<String> identer) {
-        var request = new FilterIdenterRequest(ansattOid, identer);
+        var request = new FilterDto.IdenterRequest(ansattOid, identer);
         var rrequest = RestRequest.newPOSTJson(request, filterIdenterUri, restConfig);
-        return klient.sendReturnOptional(rrequest, FilterResponse.class).map(FilterResponse::harTilgang).orElseGet(Set::of);
+        return klient.sendReturnOptional(rrequest, FilterDto.Respons.class).map(FilterDto.Respons::harTilgang).orElseGet(Set::of);
     }
-
-
-    // For å sjekke hvilke saker den ansatte har tilgang til basert på saksnummer
-    private record FilterSaksnummerRequest(@NotNull UUID ansattOid, Set<String> saker) { }
-
-    // For å sjekke hvilke identer den ansatte har tilgang til basert på identer
-    private record FilterIdenterRequest(@NotNull UUID ansattOid, Set<String> identer) { }
-
-    // Hvilke av sakene/identene i request som den ansatte har tilgang til
-    private record FilterResponse(Set<String> harTilgang) { }
 
 }
