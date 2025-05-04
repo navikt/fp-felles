@@ -26,7 +26,7 @@ public abstract class AbstractTilgangKlient {
         this.klient = RestClient.client();
         this.restConfig = RestConfig.forClient(this.getClass());
         this.ansattGruppeUri = UriBuilder.fromUri(restConfig.fpContextPath())
-            .path("/api/ansatt/grupper-filter")
+            .path("/api/ansattinfo/grupper-filter")
             .build();
         this.internBrukerUri = UriBuilder.fromUri(restConfig.fpContextPath())
             .path("/api/populasjon/internbruker")
