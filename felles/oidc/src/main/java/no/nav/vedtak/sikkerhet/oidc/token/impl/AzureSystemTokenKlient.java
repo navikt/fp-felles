@@ -69,7 +69,7 @@ public class AzureSystemTokenKlient {
         var request = HttpRequest.newBuilder()
             .header("Cache-Control", "no-cache")
             .header(Headers.CONTENT_TYPE, Headers.APPLICATION_FORM_ENCODED)
-            .timeout(Duration.ofSeconds(10))
+            .timeout(Duration.ofSeconds(3))
             .uri(tokenEndpoint)
             .POST(ofFormData(clientId, clientSecret, scope))
             .build();

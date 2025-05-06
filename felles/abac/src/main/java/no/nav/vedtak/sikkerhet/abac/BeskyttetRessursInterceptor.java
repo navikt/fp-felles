@@ -18,6 +18,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import no.nav.vedtak.sikkerhet.tilgang.TilgangResultat;
 
 @BeskyttetRessurs(actionType = ActionType.DUMMY, resourceType = ResourceType.DUMMY, sporingslogg = false)
 @Interceptor
@@ -48,8 +49,8 @@ public class BeskyttetRessursInterceptor {
         }
     }
 
-    private Object ikkeTilgang(AbacResultat abacResultat) {
-        switch (abacResultat) {
+    private Object ikkeTilgang(TilgangResultat tilgangResultat) {
+        switch (tilgangResultat) {
             case AVSLÅTT_KODE_6 -> throw new PepNektetTilgangException("F-709170", "Tilgangskontroll.Avslag.Kode6");
             case AVSLÅTT_KODE_7 -> throw new PepNektetTilgangException("F-027901", "Tilgangskontroll.Avslag.Kode7");
             case AVSLÅTT_EGEN_ANSATT -> throw new PepNektetTilgangException("F-788257", "Tilgangskontroll.Avslag.EgenAnsatt");

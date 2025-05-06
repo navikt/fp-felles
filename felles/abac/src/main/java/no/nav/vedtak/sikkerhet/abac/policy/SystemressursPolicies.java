@@ -54,12 +54,6 @@ public class SystemressursPolicies {
         return Tilgangsvurdering.godkjenn();
     }
 
-    public static boolean trengerAppRessursData(BeskyttetRessursAttributter beskyttetRessursAttributter) {
-        // se i relasjon til skriveBeskyttet
-        return ActionType.UPDATE.equals(beskyttetRessursAttributter.getActionType())
-            && ResourceType.FAGSAK.equals(beskyttetRessursAttributter.getResourceType());
-    }
-
     public static boolean riktigClusterNamespacePreAuth(String consumerId, AvailabilityType availabilityType) {
         if (consumerId == null || !PRE_AUTHORIZED.contains(consumerId)) {
             return false;

@@ -14,12 +14,13 @@ public interface PdpRequestBuilder {
 
     AppRessursData lagAppRessursData(AbacDataAttributter dataAttributter);
 
+    // Kalles primært for å sette log-context for systembruker
     // Trenger egentlig bare sette BEHANDLING_STATUS + FAGSAK_STATUS i tilfelle FAGSAK / UPDATE for skrivetilgangs-sjekk
     default AppRessursData lagAppRessursDataForSystembruker(AbacDataAttributter dataAttributter) {
         return lagAppRessursData(dataAttributter);
     }
 
-
+    // TODO: Evaluer behov for disse ifm inntektsmelding og selvbetjening. De er ikke i bruk i de klassiske applikasjonene.
     default boolean skalVurdereTilgangLokalt(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
         return false;
     }

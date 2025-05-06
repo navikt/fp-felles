@@ -60,7 +60,7 @@ public class EksternBrukerPolicies {
     }
 
     private static Tilgangsvurdering applikasjonPolicy(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        if (!appRessursData.getFødselsnumre().isEmpty() || !appRessursData.getAktørIdSet().isEmpty()) {
+        if (!appRessursData.getIdenter().isEmpty()) {
             return Tilgangsvurdering.avslåGenerell("Applikasjon-ressurs kan ikke ha personer / saker");
         }
         if (ActionType.READ.equals(beskyttetRessursAttributter.getActionType())) {
@@ -82,8 +82,8 @@ public class EksternBrukerPolicies {
     }
 
     private static boolean gjelderEgenPersonFnr(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {
-        var fnr = appRessursData.getFødselsnumre();
-        return fnr.size() == 1 && Objects.equals(beskyttetRessursAttributter.getBrukerId(), fnr.stream().findFirst().orElse(null));
+        var identer = appRessursData.getIdenter();
+        return identer.size() == 1 && Objects.equals(beskyttetRessursAttributter.getBrukerId(), identer.stream().findFirst().orElse(null));
     }
 
 }

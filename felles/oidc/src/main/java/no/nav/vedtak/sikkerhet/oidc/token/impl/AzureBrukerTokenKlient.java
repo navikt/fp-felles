@@ -78,7 +78,7 @@ public class AzureBrukerTokenKlient {
         return HttpRequest.newBuilder()
             .header("Cache-Control", "no-cache")
             .header(Headers.CONTENT_TYPE, Headers.APPLICATION_FORM_ENCODED)
-            .timeout(Duration.ofSeconds(10))
+            .timeout(Duration.ofSeconds(3))
             .uri(tokenEndpoint)
             .POST(HttpRequest.BodyPublishers.ofString(data, UTF_8))
             .build();

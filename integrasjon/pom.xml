@@ -19,10 +19,11 @@
         <module>infotrygd-grunnlag-klient</module>
         <module>dokarkiv-klient</module>
         <module>person-klient</module>
-        <module>pip-klient</module>
+        <module>tilgang-klient</module>
         <module>oppgave-rest-klient</module>
         <module>ereg-klient</module>
         <module>saf-klient</module>
+        <module>safselvbetjening-klient</module>
         <module>spokelse-klient</module>
         <module>kafka-properties</module>
     </modules>
