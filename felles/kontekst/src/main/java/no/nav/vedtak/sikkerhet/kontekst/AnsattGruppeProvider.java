@@ -12,14 +12,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.konfig.Environment;
 
 public class AnsattGruppeProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnsattGruppeProvider.class);
     private static final Environment ENV = Environment.current();
     private static final String SUFFIX = ".properties";
 
@@ -112,14 +108,12 @@ public class AnsattGruppeProvider {
         String navn = AnsattGruppeProvider.class.getSimpleName().toLowerCase() + infix + SUFFIX;
         try (var is = AnsattGruppeProvider.class.getResourceAsStream(navn)) {
             if (is != null) {
-                LOG.info("Laster groups fra {}", navn);
                 p.load(is);
                 return p;
             }
         } catch (IOException e) {
-            LOG.info("Propertyfil {} ikke lesbar", navn);
+            // Do nothing. Vurdere å gjør obligatorisk kaste Ex videre her og nedenfor
         }
-        LOG.info("Propertyfil {} ikke funnet", navn);
         return p;
     }
 
