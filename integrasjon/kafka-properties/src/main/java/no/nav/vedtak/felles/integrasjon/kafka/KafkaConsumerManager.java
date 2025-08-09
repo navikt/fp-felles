@@ -76,7 +76,7 @@ public class KafkaConsumerManager<K,V> {
 
         private final KafkaMessageHandler<K, V> handler;
         private KafkaConsumer<K, V> consumer;
-        private final AtomicInteger conState = new AtomicInteger(ConsumerState.UNINITIALIZED.hashCode());
+        private final AtomicInteger consumerState = new AtomicInteger(ConsumerState.UNINITIALIZED.hashCode());
 
         public KafkaConsumerLoop(KafkaMessageHandler<K,V> handler) {
             this.handler = handler;
@@ -94,8 +94,8 @@ public class KafkaConsumerManager<K,V> {
                 var props = KafkaProperties.forConsumerGenericValue(handler.groupId(), key, value, handler.autoOffsetReset().orElse(null));
                 consumer = new KafkaConsumer<>(props, key, value);
                 consumer.subscribe(List.of(handler.topic()));
-                conState.set(RUNNING);
-                while (conState.get() == RUNNING) {
+                consumerState.set(RUNNING);
+                while (consumerState.get() == RUNNING) {
                     var krecords = consumer.poll(POLL_TIMEOUT);
                     for (var krecord : krecords) {
                         handler.handleRecord(krecord.key(), krecord.value());
@@ -105,7 +105,7 @@ public class KafkaConsumerManager<K,V> {
                 if (consumer != null) {
                     consumer.close(CLOSE_TIMEOUT);
                 }
-                conState.set(ConsumerState.STOPPED.hashCode());
+                consumerState.set(ConsumerState.STOPPED.hashCode());
                 if (KontekstHolder.harKontekst()) {
                     KontekstHolder.fjernKontekst();
                 }
@@ -113,10 +113,10 @@ public class KafkaConsumerManager<K,V> {
         }
 
         public void shutdown() {
-            if (conState.get() == RUNNING) {
-                conState.set(ConsumerState.STOPPING.hashCode());
+            if (consumerState.get() == RUNNING) {
+                consumerState.set(ConsumerState.STOPPING.hashCode());
             } else {
-                conState.set(ConsumerState.STOPPED.hashCode());
+                consumerState.set(ConsumerState.STOPPED.hashCode());
             }
             // Kan vurdere consumer.wakeup() + håndtere WakeupException ovenfor - men har utelatt til fordel for en tilstand og polling med kort timeout
         }
@@ -126,11 +126,11 @@ public class KafkaConsumerManager<K,V> {
         }
 
         public boolean isRunning() {
-            return conState.get() == RUNNING;
+            return consumerState.get() == RUNNING;
         }
 
         public boolean isStopped() {
-            return conState.get() == ConsumerState.STOPPED.hashCode();
+            return consumerState.get() == ConsumerState.STOPPED.hashCode();
         }
     }
 }
