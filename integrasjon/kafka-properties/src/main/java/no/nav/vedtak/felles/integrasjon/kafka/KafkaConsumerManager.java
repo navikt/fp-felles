@@ -7,6 +7,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 public class KafkaConsumerManager<K,V> {
@@ -73,7 +76,7 @@ public class KafkaConsumerManager<K,V> {
 
         private final KafkaMessageHandler<K, V> handler;
         private KafkaConsumer<K, V> consumer;
-        private final AtomicInteger running = new AtomicInteger(ConsumerState.UNINITIALIZED.hashCode());
+        private final AtomicInteger consumerState = new AtomicInteger(ConsumerState.UNINITIALIZED.hashCode());
 
         public KafkaConsumerLoop(KafkaMessageHandler<K,V> handler) {
             this.handler = handler;
@@ -87,29 +90,33 @@ public class KafkaConsumerManager<K,V> {
         @Override
         public void run() {
             try(var key = handler.keyDeserializer().get(); var value = handler.valueDeserializer().get()) {
+                KontekstHolder.setKontekst(BasisKontekst.forProsesstaskUtenSystembruker());
                 var props = KafkaProperties.forConsumerGenericValue(handler.groupId(), key, value, handler.autoOffsetReset().orElse(null));
                 consumer = new KafkaConsumer<>(props, key, value);
                 consumer.subscribe(List.of(handler.topic()));
-                running.set(RUNNING);
-                while (running.get() == RUNNING) {
-                    var records = consumer.poll(POLL_TIMEOUT);
-                    for (var record : records) {
-                        handler.handleRecord(record.key(), record.value());
+                consumerState.set(RUNNING);
+                while (consumerState.get() == RUNNING) {
+                    var krecords = consumer.poll(POLL_TIMEOUT);
+                    for (var krecord : krecords) {
+                        handler.handleRecord(krecord.key(), krecord.value());
                     }
                 }
             } finally {
                 if (consumer != null) {
                     consumer.close(CLOSE_TIMEOUT);
                 }
-                running.set(ConsumerState.STOPPED.hashCode());
+                consumerState.set(ConsumerState.STOPPED.hashCode());
+                if (KontekstHolder.harKontekst()) {
+                    KontekstHolder.fjernKontekst();
+                }
             }
         }
 
         public void shutdown() {
-            if (running.get() == RUNNING) {
-                running.set(ConsumerState.STOPPING.hashCode());
+            if (consumerState.get() == RUNNING) {
+                consumerState.set(ConsumerState.STOPPING.hashCode());
             } else {
-                running.set(ConsumerState.STOPPED.hashCode());
+                consumerState.set(ConsumerState.STOPPED.hashCode());
             }
             // Kan vurdere consumer.wakeup() + håndtere WakeupException ovenfor - men har utelatt til fordel for en tilstand og polling med kort timeout
         }
@@ -119,11 +126,11 @@ public class KafkaConsumerManager<K,V> {
         }
 
         public boolean isRunning() {
-            return running.get() == RUNNING;
+            return consumerState.get() == RUNNING;
         }
 
         public boolean isStopped() {
-            return running.get() == ConsumerState.STOPPED.hashCode();
+            return consumerState.get() == ConsumerState.STOPPED.hashCode();
         }
     }
 }
