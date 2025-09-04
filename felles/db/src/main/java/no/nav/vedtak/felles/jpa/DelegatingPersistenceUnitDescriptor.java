@@ -4,13 +4,13 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
+import jakarta.persistence.PersistenceUnitTransactionType;
+import jakarta.persistence.SharedCacheMode;
+import jakarta.persistence.ValidationMode;
+
 import org.hibernate.bytecode.enhance.spi.EnhancementContext;
 import org.hibernate.bytecode.spi.ClassTransformer;
 import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
-
-import jakarta.persistence.SharedCacheMode;
-import jakarta.persistence.ValidationMode;
-import jakarta.persistence.spi.PersistenceUnitTransactionType;
 
 /**
  * Delegerer kall fra en {@link PersistenceUnitDescriptor} til en annen slik at det er enklere å lage en SPI implementasjon baser på Hibernate
@@ -53,7 +53,12 @@ public class DelegatingPersistenceUnitDescriptor implements PersistenceUnitDescr
     }
 
     @Override
-    public PersistenceUnitTransactionType getTransactionType() {
+    public PersistenceUnitTransactionType getPersistenceUnitTransactionType() {
+        return persistenceUnitDescriptor.getPersistenceUnitTransactionType();
+    }
+
+    @Override
+    public jakarta.persistence.spi.PersistenceUnitTransactionType getTransactionType() {
         return persistenceUnitDescriptor.getTransactionType();
     }
 
