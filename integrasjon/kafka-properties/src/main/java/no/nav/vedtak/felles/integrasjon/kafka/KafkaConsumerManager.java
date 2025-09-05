@@ -2,6 +2,8 @@ package no.nav.vedtak.felles.integrasjon.kafka;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -10,7 +12,10 @@ import java.util.stream.Collectors;
 import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 
 public class KafkaConsumerManager<K,V> {
 
@@ -83,23 +88,36 @@ public class KafkaConsumerManager<K,V> {
         }
 
         // Implementert som at-least-once - krever passe idempotente handleRecord og regner med at de er Transactional (commit hvert kall)
-        // Hvis man vil komplisere ting så kan gå for exactly-once -  håndtere OffsetCommit (set property ENABLE_AUTO_COMMIT_CONFIG false)
-        // Man må da være bevisst på samspill DB-commit og Offset-commit - lage en Transactional handleRecords for alle som er pollet.
-        // handleRecords må ta inn ConsumerRecords (alle pollet) og 2 callbacks som a) legger til konsumert og b) kaller commitAsync(konsumert)
-        // Dessuten må man catche WakeupException og andre exceptions og avstemme håndtering (OffsetCommit) med DB-TX-Commit
+        // Consumeren håndterer OffsetCommit (property ENABLE_AUTO_COMMIT_CONFIG false) ved å kalle commitAsync etter hver ferdigprosesserte poll.
+        // Ved rebalansering kalles commitSync med prosesserte offsets.
         @Override
         public void run() {
             try(var key = handler.keyDeserializer().get(); var value = handler.valueDeserializer().get()) {
                 KontekstHolder.setKontekst(BasisKontekst.forProsesstaskUtenSystembruker());
                 var props = KafkaProperties.forConsumerGenericValue(handler.groupId(), key, value, handler.autoOffsetReset().orElse(null));
+                var processedOffsets = new HashMap<TopicPartition, OffsetAndMetadata>();
                 consumer = new KafkaConsumer<>(props, key, value);
-                consumer.subscribe(List.of(handler.topic()));
+                consumer.subscribe(List.of(handler.topic()), new ConsumerRebalanceListener() {
+                    @Override
+                    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+                        consumer.commitSync(processedOffsets);
+                    }
+
+                    @Override
+                    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+                        // n/a
+                    }
+                });
                 consumerState.set(RUNNING);
                 while (consumerState.get() == RUNNING) {
                     var krecords = consumer.poll(POLL_TIMEOUT);
                     for (var krecord : krecords) {
                         handler.handleRecord(krecord.key(), krecord.value());
+                        processedOffsets.put(
+                            new TopicPartition(krecord.topic(), krecord.partition()),
+                            new OffsetAndMetadata(krecord.offset() + 1));
                     }
+                    consumer.commitAsync(processedOffsets, null);
                 }
             } finally {
                 if (consumer != null) {
