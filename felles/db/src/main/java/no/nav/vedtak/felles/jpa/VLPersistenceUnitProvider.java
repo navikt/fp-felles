@@ -25,8 +25,6 @@ import jakarta.persistence.spi.PersistenceUnitInfo;
 
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
 import org.hibernate.jpa.HibernatePersistenceProvider;
-import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
-import org.hibernate.jpa.boot.internal.PersistenceXmlParser;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import org.hibernate.jpa.boot.spi.ProviderChecker;
@@ -152,9 +150,9 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
         LOG.trace("Attempting to obtain correct EntityManagerFactoryBuilder for persistenceUnitName : {}", persistenceUnitName);
 
         final Map integration = wrap(properties);
-        final List<ParsedPersistenceXmlDescriptor> units;
+        final Collection<PersistenceUnitDescriptor> units;
         try {
-            units = PersistenceXmlParser.locatePersistenceUnits(integration);
+            units = locatePersistenceUnits( integration, providedClassLoader, providedClassLoaderService );
         } catch (Exception e) {
             LOG.debug("Unable to locate persistence units", e);
             throw new PersistenceException("Unable to locate persistence units", e);
@@ -168,7 +166,7 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
             throw new PersistenceException("No name provided and multiple persistence units found");
         }
 
-        for (ParsedPersistenceXmlDescriptor persistenceUnit : units) {
+        for (var persistenceUnit : units) {
             LOG.debug("Checking persistence-unit [name={}, explicit-provider={}] against incoming persistence unit name [{}]",
                 persistenceUnit.getName(), persistenceUnit.getProviderClassName(), persistenceUnitName);
 
@@ -197,7 +195,7 @@ public class VLPersistenceUnitProvider extends HibernatePersistenceProvider {
     /**
      * overridden check from HibernatePersistenceProvider
      */
-    protected boolean isMatchingProvider(ParsedPersistenceXmlDescriptor persistenceUnit, Map properties) {
+    protected boolean isMatchingProvider(PersistenceUnitDescriptor persistenceUnit, Map properties) {
         // Alternativ persistence provider
         String requestedProviderName = ProviderChecker.extractRequestedProviderName(persistenceUnit, properties);
         return getClass().getName().equals(requestedProviderName);

@@ -4,16 +4,16 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.PersistenceUnitTransactionType;
+import jakarta.persistence.SharedCacheMode;
+import jakarta.persistence.ValidationMode;
+import jakarta.persistence.spi.PersistenceUnitInfo;
+
 import org.hibernate.bytecode.enhance.spi.EnhancementContext;
 import org.hibernate.bytecode.spi.ClassTransformer;
 import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import org.hibernate.jpa.internal.enhance.EnhancingClassTransformerImpl;
-
-import jakarta.persistence.PersistenceException;
-import jakarta.persistence.SharedCacheMode;
-import jakarta.persistence.ValidationMode;
-import jakarta.persistence.spi.PersistenceUnitInfo;
-import jakarta.persistence.spi.PersistenceUnitTransactionType;
 
 /**
  * Bridging calls to PersistenceUnitDescriptor onto a PersistenceUnitInfo implementation.
@@ -88,7 +88,15 @@ class PersistenceUnitInfoDescriptorAdapter implements PersistenceUnitDescriptor 
     }
 
     @Override
-    public PersistenceUnitTransactionType getTransactionType() {
+    public PersistenceUnitTransactionType getPersistenceUnitTransactionType() {
+        return switch (persistenceUnitInfo.getTransactionType()) {
+            case JTA -> PersistenceUnitTransactionType.JTA;
+            case RESOURCE_LOCAL -> PersistenceUnitTransactionType.RESOURCE_LOCAL;
+        };
+    }
+
+    @Override
+    public jakarta.persistence.spi.PersistenceUnitTransactionType getTransactionType() {
         return persistenceUnitInfo.getTransactionType();
     }
 
