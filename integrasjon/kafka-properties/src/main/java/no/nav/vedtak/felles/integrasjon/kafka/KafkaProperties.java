@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 public class KafkaProperties {
 
     private static final Environment ENV = Environment.current();
-    private static final boolean IS_DEPLOYMENT = ENV.isProd() || ENV.isDev();
+    private static final boolean IS_DEPLOYMENT = ENV.isProd() || ENV.isDev() || brukKafkaAivenPropertyLokalt();
     private static final String APPLICATION_NAME = ENV.getNaisAppName();
 
     private KafkaProperties() {
@@ -86,6 +86,12 @@ public class KafkaProperties {
     private static String getAivenConfig(AivenProperty property) {
         return Optional.ofNullable(ENV.getProperty(property.name()))
             .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
+    }
+
+    private static boolean brukKafkaAivenPropertyLokalt() {
+        return Optional.ofNullable(ENV.getProperty("KAFKA_BRUK_AIVEN_PROPERTY_LOKALT"))
+            .map(Boolean::valueOf) // Defaulter to false, if not 'true'
+            .orElse(false);
     }
 
     private static String generateClientId() {
