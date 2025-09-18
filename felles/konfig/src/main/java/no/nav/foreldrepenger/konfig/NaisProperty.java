@@ -4,7 +4,7 @@ package no.nav.foreldrepenger.konfig;
  * Standard navn på environment injisert av NAIS
  * Med vilje ikke public slik at man heller går via Environment
  */
-enum NaisProperty {
+public enum NaisProperty {
     CLUSTER("NAIS_CLUSTER_NAME"),
     NAMESPACE("NAIS_NAMESPACE"),
     APPLICATION("NAIS_APP_NAME"),
@@ -21,7 +21,7 @@ enum NaisProperty {
         this.name = name;
     }
 
-    String propertyName() {
+    public String propertyName() {
         return name;
     }
 
