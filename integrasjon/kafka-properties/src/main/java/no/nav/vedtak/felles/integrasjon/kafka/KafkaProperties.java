@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 public class KafkaProperties {
 
     private static final Environment ENV = Environment.current();
-    private static final boolean IS_DEPLOYMENT = ENV.isProd() || ENV.isDev() || brukKafkaAivenPropertyLokalt();
+    private static final boolean IS_DEPLOYMENT_OR_KAFKA_DOCKER = ENV.isProd() || ENV.isDev() || brukKafkaAivenPropertyLokalt();
     private static final String APPLICATION_NAME = ENV.getNaisAppName();
 
     private KafkaProperties() {
@@ -33,7 +33,7 @@ public class KafkaProperties {
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getAivenConfig(AivenProperty.KAFKA_BROKERS));
 
         putSecurity(props);
-        if (IS_DEPLOYMENT) {
+        if (IS_DEPLOYMENT_OR_KAFKA_DOCKER) {
             props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD)); // Kun producer
         }
 
@@ -93,7 +93,7 @@ public class KafkaProperties {
     }
 
     private static void putSecurity(Properties props) {
-        if (IS_DEPLOYMENT) {
+        if (IS_DEPLOYMENT_OR_KAFKA_DOCKER) {
             var credStorePassword = getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name);
             props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
@@ -113,13 +113,10 @@ public class KafkaProperties {
     }
 
     private static String hentPassordTruststore(String credStorePassword) {
-        if (IS_DEPLOYMENT) {
-            return credStorePassword;
-        }
         if (brukKafkaAivenPropertyLokalt()) { // Kafka kjørende i docker
             Optional.ofNullable(ENV.getTruststorePassword()).orElseThrow();
         }
-        return credStorePassword; // Dagens VTP/kafka oppsett
+        return credStorePassword;
     }
 
     private static boolean brukKafkaAivenPropertyLokalt() { // Brukes i en overgansfase for å toggle mellom kafka i vtp og kafka i docker
