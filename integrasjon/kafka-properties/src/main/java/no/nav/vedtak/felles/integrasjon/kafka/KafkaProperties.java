@@ -122,7 +122,7 @@ public class KafkaProperties {
         return credStorePassword; // Dagens VTP/kafka oppsett
     }
 
-    private static boolean brukKafkaAivenPropertyLokalt() {
+    private static boolean brukKafkaAivenPropertyLokalt() { // Brukes i en overgansfase for å toggle mellom kafka i vtp og kafka i docker
         return Optional.ofNullable(ENV.getProperty("KAFKA_BRUK_AIVEN_PROPERTY_LOKALT"))
             .map(Boolean::valueOf) // Defaulter to false, if not 'true'
             .orElse(false);
