@@ -116,10 +116,10 @@ public class KafkaProperties {
         if (IS_DEPLOYMENT) {
             return credStorePassword;
         }
-        if (brukKafkaAivenPropertyLokalt()) {
+        if (brukKafkaAivenPropertyLokalt()) { // Kafka kjørende i docker
             Optional.ofNullable(ENV.getTruststorePassword()).orElseThrow();
         }
-        return credStorePassword;
+        return credStorePassword; // Dagens VTP/kafka oppsett
     }
 
     private static boolean brukKafkaAivenPropertyLokalt() {
