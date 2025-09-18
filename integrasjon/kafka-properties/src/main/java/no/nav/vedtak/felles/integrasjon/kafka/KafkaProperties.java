@@ -4,8 +4,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.konfig.NaisProperty;
-
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
@@ -96,11 +94,6 @@ public class KafkaProperties {
             .orElse(false);
     }
 
-    private static String kafkaTrustStorePassordLokalt() {
-        return Optional.ofNullable(ENV.getProperty(NaisProperty.TRUSTSTORE_PASSWORD.propertyName()))
-            .orElseThrow();
-    }
-
     private static String generateClientId() {
         return APPLICATION_NAME + "-" + UUID.randomUUID();
     }
@@ -112,7 +105,7 @@ public class KafkaProperties {
             props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
             props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "jks");
             props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_TRUSTSTORE_PATH));
-            props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, brukKafkaAivenPropertyLokalt() ? kafkaTrustStorePassordLokalt() : credStorePassword);
+            props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, hentPassordTruststore(credStorePassword));
             props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12");
             props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_KEYSTORE_PATH));
             props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, credStorePassword);
@@ -123,6 +116,16 @@ public class KafkaProperties {
             String jaasCfg = String.format(jaasTemplate, "vtp", "vtp");
             props.setProperty(SaslConfigs.SASL_JAAS_CONFIG, jaasCfg);
         }
+    }
+
+    private static String hentPassordTruststore(String credStorePassword) {
+        if (IS_DEPLOYMENT) {
+            return credStorePassword;
+        }
+        if (brukKafkaAivenPropertyLokalt()) {
+            Optional.ofNullable(ENV.getTruststorePassword()).orElseThrow();
+        }
+        return credStorePassword;
     }
 
 }
