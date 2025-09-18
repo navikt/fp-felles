@@ -88,12 +88,6 @@ public class KafkaProperties {
             .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
     }
 
-    private static boolean brukKafkaAivenPropertyLokalt() {
-        return Optional.ofNullable(ENV.getProperty("KAFKA_BRUK_AIVEN_PROPERTY_LOKALT"))
-            .map(Boolean::valueOf) // Defaulter to false, if not 'true'
-            .orElse(false);
-    }
-
     private static String generateClientId() {
         return APPLICATION_NAME + "-" + UUID.randomUUID();
     }
@@ -126,6 +120,12 @@ public class KafkaProperties {
             Optional.ofNullable(ENV.getTruststorePassword()).orElseThrow();
         }
         return credStorePassword;
+    }
+
+    private static boolean brukKafkaAivenPropertyLokalt() {
+        return Optional.ofNullable(ENV.getProperty("KAFKA_BRUK_AIVEN_PROPERTY_LOKALT"))
+            .map(Boolean::valueOf) // Defaulter to false, if not 'true'
+            .orElse(false);
     }
 
 }
