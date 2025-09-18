@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 public class KafkaProperties {
 
     private static final Environment ENV = Environment.current();
-    private static final boolean IS_DEPLOYMENT = ENV.isProd() || ENV.isDev();
+    private static final boolean IS_DEPLOYMENT = ENV.isProd() || ENV.isDev() || brukKafkaAivenPropertyLokalt();
     private static final String APPLICATION_NAME = ENV.getNaisAppName();
 
     private KafkaProperties() {
@@ -99,17 +99,33 @@ public class KafkaProperties {
             props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
             props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "jks");
             props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_TRUSTSTORE_PATH));
-            props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, credStorePassword);
+            props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, hentPassordTruststore(credStorePassword));
             props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12");
             props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_KEYSTORE_PATH));
             props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, credStorePassword);
-        } else {
+        } else { // Deprecated: Fjern etter nytt kafka image
             props.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SASL_SSL.name);
             props.setProperty(SaslConfigs.SASL_MECHANISM, "PLAIN");
             String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
             String jaasCfg = String.format(jaasTemplate, "vtp", "vtp");
             props.setProperty(SaslConfigs.SASL_JAAS_CONFIG, jaasCfg);
         }
+    }
+
+    private static String hentPassordTruststore(String credStorePassword) {
+        if (IS_DEPLOYMENT) {
+            return credStorePassword;
+        }
+        if (brukKafkaAivenPropertyLokalt()) { // Kafka kjørende i docker
+            Optional.ofNullable(ENV.getTruststorePassword()).orElseThrow();
+        }
+        return credStorePassword; // Dagens VTP/kafka oppsett
+    }
+
+    private static boolean brukKafkaAivenPropertyLokalt() { // Brukes i en overgansfase for å toggle mellom kafka i vtp og kafka i docker
+        return Optional.ofNullable(ENV.getProperty("KAFKA_BRUK_AIVEN_PROPERTY_LOKALT"))
+            .map(Boolean::valueOf) // Defaulter to false, if not 'true'
+            .orElse(false);
     }
 
 }
