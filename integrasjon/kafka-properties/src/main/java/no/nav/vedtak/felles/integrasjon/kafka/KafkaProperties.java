@@ -94,15 +94,14 @@ public class KafkaProperties {
 
     private static void putSecurity(Properties props) {
         if (IS_DEPLOYMENT_OR_KAFKA_DOCKER) {
-            var credStorePassword = getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name);
             props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
             props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "jks");
             props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_TRUSTSTORE_PATH));
-            props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, hentPassordTruststore(credStorePassword));
+            props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, hentPassordTruststore());
             props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12");
             props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_KEYSTORE_PATH));
-            props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, credStorePassword);
+            props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD));
         } else { // Deprecated: Fjern etter nytt kafka image
             props.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SASL_SSL.name);
             props.setProperty(SaslConfigs.SASL_MECHANISM, "PLAIN");
@@ -112,11 +111,11 @@ public class KafkaProperties {
         }
     }
 
-    private static String hentPassordTruststore(String credStorePassword) {
-        if (brukKafkaAivenPropertyLokalt()) { // Kafka kjørende i docker
-            Optional.ofNullable(ENV.getTruststorePassword()).orElseThrow();
+    private static String hentPassordTruststore() {
+        if (brukKafkaAivenPropertyLokalt()) {
+            return ENV.getTruststorePassword();
         }
-        return credStorePassword;
+        return getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
     }
 
     private static boolean brukKafkaAivenPropertyLokalt() { // Brukes i en overgansfase for å toggle mellom kafka i vtp og kafka i docker
