@@ -100,8 +100,26 @@ public class KafkaProperties {
     }
 
     private static String hentPassordTruststore() {
+        // PRØVER Å HENTE FRA LOCAL_KAFKA_TRUSTSTORE_PASSWORD -> FUGNERER IKKE NÅR
+        /*if (ENV.isLocal()) {
+            String localPassword = ENV.getProperty("LOCAL_KAFKA_TRUSTSTORE_PASSWORD");
+            if (localPassword == null || localPassword.isEmpty()) {
+                throw new IllegalStateException(
+                    "LOCAL_KAFKA_TRUSTSTORE_PASSWORD is not set. Please set this property as a system property or environment variable in your test or local environment.");
+            }
+            return localPassword;
+        }
+        String prodPassword = getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
+        if (prodPassword == null || prodPassword.isEmpty()) {
+            throw new IllegalStateException(
+                "KAFKA_CREDSTORE_PASSWORD is not set. Please check your environment configuration.");
+        }
+        return prodPassword;*/
+
+        // DETTE FUGNERER, MEN FJERNER IKKE HARDCODET PASSORD
         if (ENV.isLocal()) {
-            return "changeit";
+            String localPassword = ENV.getProperty("LOCAL_KAFKA_TRUSTSTORE_PASSWORD");
+            return localPassword != null ? localPassword : "changeit";
         }
         return getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
     }
