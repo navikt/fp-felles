@@ -12,6 +12,8 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.Environment;
 
@@ -19,6 +21,7 @@ public class KafkaProperties {
 
     private static final Environment ENV = Environment.current();
     private static final String APPLICATION_NAME = ENV.getNaisAppName();
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaProperties.class);
 
     private KafkaProperties() {
     }
@@ -88,6 +91,11 @@ public class KafkaProperties {
         return APPLICATION_NAME + "-" + UUID.randomUUID();
     }
 
+    private static String hentPassordTruststore() {
+        return Optional.ofNullable(ENV.getProperty("NAV_TRUSTSTORE_PASSWORD"))
+            .orElseGet(() -> ENV.getProperty("NAV_TRUSTSTORE_PASSWORD".toLowerCase().replace('_', '.')));
+    }
+
     private static void putSecurity(Properties props) {
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name);
         props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
@@ -99,30 +107,6 @@ public class KafkaProperties {
         props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD));
     }
 
-    private static String hentPassordTruststore() {
-        // PRØVER Å HENTE FRA LOCAL_KAFKA_TRUSTSTORE_PASSWORD -> FUGNERER IKKE NÅR
-        /*if (ENV.isLocal()) {
-            String localPassword = ENV.getProperty("LOCAL_KAFKA_TRUSTSTORE_PASSWORD");
-            if (localPassword == null || localPassword.isEmpty()) {
-                throw new IllegalStateException(
-                    "LOCAL_KAFKA_TRUSTSTORE_PASSWORD is not set. Please set this property as a system property or environment variable in your test or local environment.");
-            }
-            return localPassword;
-        }
-        String prodPassword = getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
-        if (prodPassword == null || prodPassword.isEmpty()) {
-            throw new IllegalStateException(
-                "KAFKA_CREDSTORE_PASSWORD is not set. Please check your environment configuration.");
-        }
-        return prodPassword;*/
-
-        // DETTE FUGNERER, MEN FJERNER IKKE HARDCODET PASSORD
-        if (ENV.isLocal()) {
-            String localPassword = ENV.getProperty("LOCAL_KAFKA_TRUSTSTORE_PASSWORD");
-            return localPassword != null ? localPassword : "changeit";
-        }
-        return getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
-    }
 
 
 }
