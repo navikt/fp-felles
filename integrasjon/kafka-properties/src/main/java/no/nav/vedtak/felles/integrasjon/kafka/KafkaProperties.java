@@ -87,7 +87,7 @@ public class KafkaProperties {
         props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
         props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "jks");
         props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_TRUSTSTORE_PATH));
-        props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, hentPassordTruststore());
+        props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD));
         props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12");
         props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_KEYSTORE_PATH));
         props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD));
@@ -96,14 +96,6 @@ public class KafkaProperties {
     private static String getAivenConfig(AivenProperty property) {
         return Optional.ofNullable(ENV.getProperty(property.name()))
             .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
-    }
-
-    private static String hentPassordTruststore() {
-        if (ENV.isLocal()) {
-            return Optional.ofNullable(ENV.getTruststorePassword())
-                .orElseThrow(() -> new IllegalStateException("NAV_TRUSTSTORE_PASSWORD is not set or missing in the current environment"));
-        }
-        return getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
     }
 
 }

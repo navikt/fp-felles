@@ -57,7 +57,7 @@ public class KeyStoreTool {
     }
 
     public static char[] getKeyStoreAndKeyPassword() {
-        return "changeit".toCharArray();
+        return "devillokeystore1234".toCharArray();
     }
 
     public static String getKeyAndCertAlias() {
