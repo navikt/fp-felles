@@ -12,8 +12,6 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.Environment;
 
@@ -21,7 +19,6 @@ public class KafkaProperties {
 
     private static final Environment ENV = Environment.current();
     private static final String APPLICATION_NAME = ENV.getNaisAppName();
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaProperties.class);
 
     private KafkaProperties() {
     }
@@ -81,19 +78,8 @@ public class KafkaProperties {
         return getAivenConfig(AivenProperty.KAFKA_SCHEMA_REGISTRY_USER) + ":" + getAivenConfig(AivenProperty.KAFKA_SCHEMA_REGISTRY_PASSWORD);
     }
 
-
-    private static String getAivenConfig(AivenProperty property) {
-        return Optional.ofNullable(ENV.getProperty(property.name()))
-            .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
-    }
-
     private static String generateClientId() {
         return APPLICATION_NAME + "-" + UUID.randomUUID();
-    }
-
-    private static String hentPassordTruststore() {
-        return Optional.ofNullable(ENV.getProperty("NAV_TRUSTSTORE_PASSWORD"))
-            .orElseGet(() -> ENV.getProperty("NAV_TRUSTSTORE_PASSWORD".toLowerCase().replace('_', '.')));
     }
 
     private static void putSecurity(Properties props) {
@@ -107,6 +93,16 @@ public class KafkaProperties {
         props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD));
     }
 
+    private static String getAivenConfig(AivenProperty property) {
+        return Optional.ofNullable(ENV.getProperty(property.name()))
+            .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
+    }
 
+    private static String hentPassordTruststore() {
+        if (ENV.isLocal()) {
+            return ENV.getTruststorePassword();
+        }
+        return getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
+    }
 
 }
