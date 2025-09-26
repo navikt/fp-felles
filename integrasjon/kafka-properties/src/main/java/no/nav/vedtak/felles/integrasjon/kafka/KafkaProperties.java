@@ -100,7 +100,8 @@ public class KafkaProperties {
 
     private static String hentPassordTruststore() {
         if (ENV.isLocal()) {
-            return ENV.getTruststorePassword();
+            return Optional.ofNullable(ENV.getTruststorePassword())
+                .orElseThrow(() -> new IllegalStateException("NAV_TRUSTSTORE_PASSWORD is not set or missing in the current environment"));
         }
         return getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
     }
