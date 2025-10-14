@@ -15,7 +15,6 @@ import no.nav.pdl.KjoennType;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.pdl.PersonnavnResponseProjection;
-import no.nav.vedtak.konfig.Tid;
 
 public class FalskIdentitet {
 
@@ -27,6 +26,7 @@ public class FalskIdentitet {
     private static final List<String> UKJENT_LAND = List.of(LAND_UKJENT);
 
     public record Informasjon(String navn, LocalDate fødselsdato, List<String> statsborgerskap,
+                              String fornavn, String mellomnavn, String etternavn,
                               KjoennType kjønn, String personstatus) {
     }
 
@@ -55,21 +55,26 @@ public class FalskIdentitet {
             var falskIdentitet = falskIdentitetPerson.getFalskIdentitet();
             // Falsk Identitet skal mangle personidentifikator, ha opphørt personstatus og kanskje informasjon i falskIdentitet
             if (Objects.equals(falskIdentitet.getRettIdentitetErUkjent(), Boolean.TRUE)) {
-                return Optional.of(new Informasjon( "Falsk Identitet", Tid.TIDENES_BEGYNNELSE, UKJENT_LAND, KjoennType.UKJENT, STATUS_OPPHØRT));
+                return Optional.of(new Informasjon( "Falsk Identitet", null, UKJENT_LAND,
+                    "Ukjent", null, "Navn", KjoennType.UKJENT, STATUS_OPPHØRT));
             } else if (falskIdentitet.getRettIdentitetVedIdentifikasjonsnummer() != null) {
                 LOG.warn("Falsk identitet: rettIdentitetVedIdentifikasjonsnummer {}", falskIdentitet.getRettIdentitetVedIdentifikasjonsnummer());
                 throw new IllegalStateException("Falsk identitet: rettIdentitetVedIdentifikasjonsnummer finnes");
             } else if (falskIdentitet.getRettIdentitetVedOpplysninger() != null) {
                 var falskIdentitetInfo = falskIdentitet.getRettIdentitetVedOpplysninger();
                 var kjønn = Optional.ofNullable(falskIdentitetInfo.getKjoenn()).orElse(KjoennType.UKJENT);
-                var navn = PersonMappers.mapNavn(falskIdentitetInfo.getPersonnavn());
+                var fnavn = PersonMappers.titlecaseNavn(falskIdentitetInfo.getPersonnavn().getFornavn());
+                var mnavn = PersonMappers.titlecaseNavn(falskIdentitetInfo.getPersonnavn().getMellomnavn());
+                var enavn = PersonMappers.titlecaseNavn(falskIdentitetInfo.getPersonnavn().getEtternavn());
+                var navn = fnavn + PersonMappers.leftPad(mnavn) + PersonMappers.leftPad(enavn);
                 var fødselsdato = Optional.ofNullable(falskIdentitetInfo.getFoedselsdato()).
-                    flatMap(PersonMappers::mapDato).orElse(Tid.TIDENES_BEGYNNELSE);
+                    flatMap(PersonMappers::mapDato).orElse(null);
                 var statsborgerskap = falskIdentitetInfo.getStatsborgerskap().stream()
                     .filter(l -> !LAND_UKJENT.equals(l) && !LAND_UKJENT2.equals(l))
                     .toList();
                 var brukStatsborgerskap = statsborgerskap.isEmpty() ? UKJENT_LAND : statsborgerskap;
-                return Optional.of(new Informasjon(navn, fødselsdato, brukStatsborgerskap, kjønn, STATUS_OPPHØRT));
+                return Optional.of(new Informasjon(navn, fødselsdato, brukStatsborgerskap,
+                    fnavn, mnavn,  enavn, kjønn, STATUS_OPPHØRT));
             }
         }
         return Optional.empty();
