@@ -8,7 +8,6 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.konfig.Environment;
 public class KafkaProperties {
 
     private static final Environment ENV = Environment.current();
-    private static final boolean IS_DEPLOYMENT = ENV.isProd() || ENV.isDev();
     private static final String APPLICATION_NAME = ENV.getNaisAppName();
 
     private KafkaProperties() {
@@ -33,9 +31,7 @@ public class KafkaProperties {
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getAivenConfig(AivenProperty.KAFKA_BROKERS));
 
         putSecurity(props);
-        if (IS_DEPLOYMENT) {
-            props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD)); // Kun producer
-        }
+        props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD)); // Kun producer
 
         // Serde
         props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -82,34 +78,24 @@ public class KafkaProperties {
         return getAivenConfig(AivenProperty.KAFKA_SCHEMA_REGISTRY_USER) + ":" + getAivenConfig(AivenProperty.KAFKA_SCHEMA_REGISTRY_PASSWORD);
     }
 
-
-    private static String getAivenConfig(AivenProperty property) {
-        return Optional.ofNullable(ENV.getProperty(property.name()))
-            .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
-    }
-
     private static String generateClientId() {
         return APPLICATION_NAME + "-" + UUID.randomUUID();
     }
 
     private static void putSecurity(Properties props) {
-        if (IS_DEPLOYMENT) {
-            var credStorePassword = getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD);
-            props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name);
-            props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
-            props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "jks");
-            props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_TRUSTSTORE_PATH));
-            props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, credStorePassword);
-            props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12");
-            props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_KEYSTORE_PATH));
-            props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, credStorePassword);
-        } else {
-            props.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SASL_SSL.name);
-            props.setProperty(SaslConfigs.SASL_MECHANISM, "PLAIN");
-            String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
-            String jaasCfg = String.format(jaasTemplate, "vtp", "vtp");
-            props.setProperty(SaslConfigs.SASL_JAAS_CONFIG, jaasCfg);
-        }
+        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name);
+        props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
+        props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "jks");
+        props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_TRUSTSTORE_PATH));
+        props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD));
+        props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12");
+        props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_KEYSTORE_PATH));
+        props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD));
+    }
+
+    private static String getAivenConfig(AivenProperty property) {
+        return Optional.ofNullable(ENV.getProperty(property.name()))
+            .orElseGet(() -> ENV.getProperty(property.name().toLowerCase().replace('_', '.')));
     }
 
 }
