@@ -106,13 +106,13 @@ class PersonMappersTest {
 
     @Test
     void map_navn() {
-        person.setNavn(List.of(new Navn("Ola", null, "Nordmann", "", null, "", null, null)));
+        person.setNavn(List.of(new Navn("Ola", null, "NORDMANN", "", null, "", null, null)));
         assertThat(PersonMappers.mapNavn(person)).isPresent().hasValueSatisfying(n -> assertThat(n).isEqualTo("Ola Nordmann"));
 
         person.setNavn(List.of());
         assertThat(PersonMappers.mapNavn(person)).isEmpty();
 
-        assertThat(PersonMappers.mapNavn(new Personnavn("Kari", null, "Nordmann"))).isEqualTo("Kari Nordmann");
+        assertThat(PersonMappers.mapNavn(new Personnavn("kari", null, "NORDMANN"))).isEqualTo("Kari Nordmann");
     }
 
 }

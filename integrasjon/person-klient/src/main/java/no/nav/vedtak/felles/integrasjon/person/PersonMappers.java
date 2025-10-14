@@ -16,6 +16,7 @@ import no.nav.pdl.KjoennType;
 import no.nav.pdl.Navn;
 import no.nav.pdl.Person;
 import no.nav.pdl.Personnavn;
+import no.nav.vedtak.util.StringCaseUtils;
 
 public class PersonMappers {
 
@@ -53,15 +54,19 @@ public class PersonMappers {
     }
 
     public static String mapNavn(Navn navn) {
-        return navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn());
+        return titlecaseNavn(navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn()));
     }
 
     public static String mapNavn(Personnavn navn) {
-        return navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn());
+        return titlecaseNavn(navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn()));
     }
 
     public static String leftPad(String navn) {
         return Optional.ofNullable(navn).map(n -> " " + navn).orElse("");
+    }
+
+    public static String titlecaseNavn(String navn) {
+        return Optional.ofNullable(navn).map(StringCaseUtils::formaterMedStoreOgSmåBokstaver).orElse(navn);
     }
 
     // Må ha projection med foedselsdato  + foedselsdato
