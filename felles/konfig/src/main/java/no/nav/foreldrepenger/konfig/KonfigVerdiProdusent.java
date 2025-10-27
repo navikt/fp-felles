@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 @ApplicationScoped
 public class KonfigVerdiProdusent {
     private static final DefaultValueKonfigProvider DEFAULTVALUEPROVIDER = new DefaultValueKonfigProvider();
-    private static final Pattern SKJUL = Pattern.compile(".*(passw?ord|[k|c]redential|secret).*"); // NOSONAR
+    protected static final Pattern SKJUL = Pattern.compile(".*(passw?ord|[k|c]redential|secret).*", Pattern.CASE_INSENSITIVE); // NOSONAR
     private static final Logger log = LoggerFactory.getLogger(KonfigVerdiProdusent.class);
 
     private Instance<KonfigVerdiProvider> providerBeans;
