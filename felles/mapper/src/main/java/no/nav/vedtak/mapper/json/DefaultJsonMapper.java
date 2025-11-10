@@ -1,5 +1,6 @@
 package no.nav.vedtak.mapper.json;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -58,7 +59,7 @@ public class DefaultJsonMapper {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES) // TODO: Trengs denne? Sak har kjørt lenge uten
-            .serializationInclusion(JsonInclude.Include.NON_EMPTY)
+            .defaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL))
             .visibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
             .visibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE)
             .visibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE)
@@ -83,7 +84,16 @@ public class DefaultJsonMapper {
         }
     }
 
+    @Deprecated // Konverter til File og bruk den
     public static <T> T fromJson(URL json, Class<T> clazz) {
+        try {
+            return MAPPER.readerFor(clazz).readValue(json, clazz);
+        } catch (IOException e) {
+            throw deserializationException(e);
+        }
+    }
+
+    public static <T> T fromJson(File json, Class<T> clazz) {
         try {
             return MAPPER.readerFor(clazz).readValue(json, clazz);
         } catch (IOException e) {
