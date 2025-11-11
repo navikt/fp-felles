@@ -46,8 +46,8 @@ public class DefaultJson3Mapper {
             .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES) // TODO: Trengs denne? Sak har kjørt lenge uten
             .changeDefaultPropertyInclusion((a) -> a
-                .withValueInclusion(JsonInclude.Include.NON_NULL)
-                .withContentInclusion(JsonInclude.Include.NON_NULL))
+                .withValueInclusion(JsonInclude.Include.NON_ABSENT)
+                .withContentInclusion(JsonInclude.Include.NON_ABSENT))
             .changeDefaultVisibility((v) -> v
                     .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
                     .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE)
