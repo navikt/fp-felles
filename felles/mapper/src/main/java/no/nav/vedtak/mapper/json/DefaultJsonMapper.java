@@ -59,7 +59,7 @@ public class DefaultJsonMapper {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES) // TODO: Trengs denne? Sak har kjørt lenge uten
-            .defaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL))
+            .defaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT))
             .visibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
             .visibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE)
             .visibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE)
