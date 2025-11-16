@@ -1,6 +1,9 @@
 package no.nav.vedtak.mapper.json;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -45,10 +48,10 @@ public class DefaultJson3Mapper {
             .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES) // Var noen tester med null for booleans
             .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES) // TODO: Trengs denne? Sak har kjørt lenge uten
-            .changeDefaultPropertyInclusion((a) -> a
+            .changeDefaultPropertyInclusion(a -> a
                 .withValueInclusion(JsonInclude.Include.NON_ABSENT)
                 .withContentInclusion(JsonInclude.Include.NON_ABSENT))
-            .changeDefaultVisibility((v) -> v
+            .changeDefaultVisibility(v -> v
                     .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
                     .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE)
                     .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
@@ -74,6 +77,14 @@ public class DefaultJson3Mapper {
     }
 
     public static <T> T fromJson(File json, Class<T> clazz) {
+        try {
+            return MAPPER.readerFor(clazz).readValue(json);
+        } catch (JacksonException e) {
+            throw deserializationException(e);
+        }
+    }
+
+    public static <T> T fromJson(InputStream json, Class<T> clazz) {
         try {
             return MAPPER.readerFor(clazz).readValue(json);
         } catch (JacksonException e) {

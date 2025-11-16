@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -64,12 +65,14 @@ class PersondataKlientJackson3Test {
         pdlKlient = new TestPdlKLient(restClient);
     }
 
+    // Bruker ulike metoder for å hente filressurser: File, URL, InputStream
+
     @Test
-    void skal_returnere_person() throws URISyntaxException {
+    void skal_returnere_person() throws IOException {
         // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111",
         // fagsaksystem: "AO01"}, foerste: 5)
-        var resource = new File(getClass().getClassLoader().getResource("pdl/personResponse.json").toURI());
-        var response = DefaultJson3Mapper.fromJson(resource, HentPersonQueryResponse.class);
+        var resource = getClass().getClassLoader().getResource("pdl/personResponse.json");
+        var response = DefaultJson3Mapper.fromJson(resource.openStream(), HentPersonQueryResponse.class);
         var captor = ArgumentCaptor.forClass(RestRequest.class);
 
         when(restClient.send(captor.capture(), any(Class.class))).thenReturn(response);
@@ -115,8 +118,8 @@ class PersondataKlientJackson3Test {
     }
 
     @Test
-    void skal_returnere_ident() throws URISyntaxException {
-        var resource = new File(getClass().getClassLoader().getResource("pdl/identerResponse.json").toURI());
+    void skal_returnere_ident() throws IOException {
+        var resource = getClass().getClassLoader().getResource("pdl/identerResponse.json").openStream();
         var response = DefaultJson3Mapper.fromJson(resource, HentIdenterQueryResponse.class);
         when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
 

@@ -84,7 +84,7 @@ public class DefaultJsonMapper {
         }
     }
 
-    @Deprecated // Konverter til File og bruk den
+    @Deprecated // Bruk File eller InputStream
     public static <T> T fromJson(URL json, Class<T> clazz) {
         try {
             return MAPPER.readerFor(clazz).readValue(json, clazz);
