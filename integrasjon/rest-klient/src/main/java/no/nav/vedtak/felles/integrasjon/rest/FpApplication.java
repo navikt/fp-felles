@@ -14,6 +14,7 @@ public enum FpApplication {
     FPFORMIDLING,
     FPRISK,
     FPOPPDRAG,
+    FPLOS,
     FPTILBAKE,
     FPDOKGEN,
     FPWSPROXY,
@@ -34,6 +35,7 @@ public enum FpApplication {
             case FPTILBAKE -> 8030;
             case FPTILGANG -> 8050;
             case FPOPPDRAG -> 8070;
+            case FPLOS -> 8071;
             case FPRISK -> 8075;
             case FPSAK -> 8080;
             case FPDOKGEN -> 8291;
