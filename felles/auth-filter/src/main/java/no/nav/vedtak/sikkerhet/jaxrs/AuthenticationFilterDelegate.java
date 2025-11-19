@@ -141,7 +141,7 @@ public class AuthenticationFilterDelegate {
                 validateResult.identType(), token, validateResult.oid(), validateResult.getGrupper()));
             LOG.trace("token validert");
         } else {
-            throw new ValideringsFeil("Ugyldig token");
+            throw new ValideringsFeil("Ugyldig token " + validateResult.getErrorMessage());
         }
     }
 
