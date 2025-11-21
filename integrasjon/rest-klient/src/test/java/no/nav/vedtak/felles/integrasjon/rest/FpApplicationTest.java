@@ -26,8 +26,8 @@ class FpApplicationTest {
         when(environment.getCluster()).thenReturn(Cluster.DEV_FSS);
         when(environment.isFss()).thenReturn(true);
         when(environment.isDev()).thenReturn(true);
-        var contextPath = FpApplication.contextPathFor(FpApplication.FPOVERSIKT, environment);
-        assertThat(contextPath).isEqualTo("https://fpoversikt.intern.dev.nav.no/fpoversikt");
+        var contextPath = FpApplication.contextPathFor(FpApplication.FPINNTEKTSMELDING, environment);
+        assertThat(contextPath).isEqualTo("https://fpinntektsmelding.intern.dev.nav.no/fpinntektsmelding");
     }
 
     @Test

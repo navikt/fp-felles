@@ -13,14 +13,11 @@ public enum FpApplication {
     FPKALKULUS,
     FPFORMIDLING,
     FPRISK,
-    FPABONNENT,
-    FPFORDEL,
-    FPLOS,
     FPOPPDRAG,
+    FPLOS,
     FPTILBAKE,
     FPDOKGEN,
     FPWSPROXY,
-    FPOVERSIKT,
     FPTILGANG,
     FPINNTEKTSMELDING,
     NONFP;
@@ -37,21 +34,18 @@ public enum FpApplication {
             case FPKALKULUS -> 8016;
             case FPTILBAKE -> 8030;
             case FPTILGANG -> 8050;
-            case FPABONNENT -> 8065;
             case FPOPPDRAG -> 8070;
             case FPLOS -> 8071;
             case FPRISK -> 8075;
             case FPSAK -> 8080;
-            case FPFORDEL -> 8090;
             case FPDOKGEN -> 8291;
             case FPWSPROXY -> 8292;
-            case FPOVERSIKT -> 8889;
             case FPINNTEKTSMELDING -> 8040;
             case NONFP -> throw new IllegalArgumentException("Utviklerfeil: angitt app er ikke i fp-familien");
         };
     }
 
-    private static final Set<FpApplication> GCP_APPS = Set.of(FPOVERSIKT, FPINNTEKTSMELDING);
+    private static final Set<FpApplication> GCP_APPS = Set.of(FPINNTEKTSMELDING);
 
     public boolean specified() {
         return !NONFP.equals(this);
