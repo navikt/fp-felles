@@ -73,7 +73,7 @@ class OidcTokenValidatorTest {
 
         OidcTokenValidatorResult result = tokenValidator.validate(token);
         assertInvalid(result,
-            "rejected due to invalid claims or other invalid content. Additional details: [[12] Issuer (iss) claim value (https://tull.nav.no) doesn't match expected value of https://foo.bar.adeo.no/azure/oauth2]");
+            "Additional details: [[12] Issuer (iss) claim value (https://tull.nav.no) doesn't match expected value of https://foo.bar.adeo.no/azure/oauth2]");
     }
 
     @Test

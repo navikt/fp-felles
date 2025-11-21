@@ -99,7 +99,7 @@ public class OidcTokenValidator {
         try {
             header = getHeader(token);
         } catch (InvalidJwtException e) {
-            return OidcTokenValidatorResult.invalid("Invalid OIDC " + e.getMessage());
+            return OidcTokenValidatorResult.invalid("Invalid OIDC " + getExeptionMessage(e));
         }
         Key validationKey = jwks.getValidationKey(header);
         if (validationKey == null) {
@@ -131,7 +131,7 @@ public class OidcTokenValidator {
                 case null -> OidcTokenValidatorResult.invalid("mangler issuer");
             };
         } catch (InvalidJwtException e) {
-            return OidcTokenValidatorResult.invalid(e.toString());
+            return OidcTokenValidatorResult.invalid("Invalid OIDC " + getExeptionMessage(e));
         } catch (Exception e) {
             return OidcTokenValidatorResult.invalid("Malformed claim: " + e);
         }
@@ -211,6 +211,20 @@ public class OidcTokenValidator {
             kid = "";
         }
         return new JwtHeader(kid, wstruct.getAlgorithmHeaderValue());
+    }
+
+    private static String getExeptionMessage(InvalidJwtException invalidJwtException) {
+        var sb = new StringBuilder();
+        if (!invalidJwtException.getOriginalMessage().contains("\"sub\"")) {
+            sb.append(invalidJwtException.getOriginalMessage());
+        }
+        if (!invalidJwtException.getErrorDetails().isEmpty()) {
+            sb.append(" Additional details: ");
+            sb.append(invalidJwtException.getErrorDetails());
+        } else {
+            sb.append(" No additional details available.");
+        }
+        return sb.toString();
     }
 
     @Override
