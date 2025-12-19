@@ -144,8 +144,8 @@ class PersondataKlientJackson3Test {
         var projection = new HentIdenterBolkResultResponseProjection().ident().identer(new IdentInformasjonResponseProjection().ident().gruppe());
         var identer = pdlKlient.hentIdenterBolkResults(queryRequest, projection);
 
-        assertThat(identer.stream().flatMap(r -> r.getIdenter().stream()).map(IdentInformasjon::getIdent)).containsExactlyInAnyOrder("16047439276",
-            "9916047439276", "25017312345", "9925017312345");
+        assertThat(identer.stream().flatMap(r -> r.getIdenter().stream()).map(IdentInformasjon::getIdent)).containsExactlyInAnyOrder("24920000092",
+            "9924920000092", "17850000050", "9917850000050");
     }
 
     @Test
