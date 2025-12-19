@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -65,11 +66,11 @@ class PersondataKlientTest {
     }
 
     @Test
-    void skal_returnere_person() {
+    void skal_returnere_person() throws IOException {
         // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111",
         // fagsaksystem: "AO01"}, foerste: 5)
         var resource = getClass().getClassLoader().getResource("pdl/personResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource, HentPersonQueryResponse.class);
+        var response = DefaultJsonMapper.fromJson(resource.openStream(), HentPersonQueryResponse.class);
         var captor = ArgumentCaptor.forClass(RestRequest.class);
 
         when(restClient.send(captor.capture(), any(Class.class))).thenReturn(response);
@@ -88,9 +89,9 @@ class PersondataKlientTest {
     }
 
     @Test
-    void skal_returnere_bolk_med_person() {
+    void skal_returnere_bolk_med_person() throws IOException {
         var resource = getClass().getClassLoader().getResource("pdl/personBolkResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource, HentPersonBolkQueryResponse.class);
+        var response = DefaultJsonMapper.fromJson(resource.openStream(), HentPersonBolkQueryResponse.class);
         var captor = ArgumentCaptor.forClass(RestRequest.class);
 
         when(restClient.send(captor.capture(), any(Class.class))).thenReturn(response);
@@ -115,9 +116,9 @@ class PersondataKlientTest {
     }
 
     @Test
-    void skal_returnere_ident() {
+    void skal_returnere_ident() throws IOException {
         var resource = getClass().getClassLoader().getResource("pdl/identerResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource, HentIdenterQueryResponse.class);
+        var response = DefaultJsonMapper.fromJson(resource.openStream(), HentIdenterQueryResponse.class);
         when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var queryRequest = new HentIdenterQueryRequest();
@@ -130,9 +131,9 @@ class PersondataKlientTest {
     }
 
     @Test
-    void skal_returnere_bolk_med_identer() {
+    void skal_returnere_bolk_med_identer() throws IOException {
         var resource = getClass().getClassLoader().getResource("pdl/identerBolkResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource, HentIdenterBolkQueryResponse.class);
+        var response = DefaultJsonMapper.fromJson(resource.openStream(), HentIdenterBolkQueryResponse.class);
         when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var queryRequest = new HentIdenterBolkQueryRequest();

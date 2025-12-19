@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -61,10 +62,10 @@ class SafKlientTest {
 
     @SuppressWarnings("resource")
     @Test
-    void skal_returnere_dokumentoversikt_fagsak() {
+    void skal_returnere_dokumentoversikt_fagsak() throws IOException {
         // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111", fagsaksystem: "AO01"}, foerste: 5)
         var resource = getClass().getClassLoader().getResource("saf/documentResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource, DokumentoversiktFagsakQueryResponse.class);
+        var response = DefaultJsonMapper.fromJson(resource.openStream(), DokumentoversiktFagsakQueryResponse.class);
         var captor = ArgumentCaptor.forClass(RestRequest.class);
         when(restKlient.send(captor.capture(), any())).thenReturn(response);
 
@@ -83,10 +84,10 @@ class SafKlientTest {
 
     @SuppressWarnings("resource")
     @Test
-    void skal_returnere_journalpost() {
+    void skal_returnere_journalpost() throws IOException {
         // query-eksempel: journalpost(journalpostId: "439560100")
         var resource = getClass().getClassLoader().getResource("saf/journalpostResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource, JournalpostQueryResponse.class);
+        var response = DefaultJsonMapper.fromJson(resource.openStream(), JournalpostQueryResponse.class);
         when(restKlient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var query = new JournalpostQueryRequest();
@@ -100,11 +101,11 @@ class SafKlientTest {
 
     @SuppressWarnings("resource")
     @Test
-    void skal_returnere_tilknyttet_journalpost() {
+    void skal_returnere_tilknyttet_journalpost() throws IOException {
         // query-eksempel: tilknyttedeJournalposter(dokumentInfoId:"469211538",
         // tilknytning:GJENBRUK)
         var resource = getClass().getClassLoader().getResource("saf/tilknyttetResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource, TilknyttedeJournalposterQueryResponse.class);
+        var response = DefaultJsonMapper.fromJson(resource.openStream(), TilknyttedeJournalposterQueryResponse.class);
         when(restKlient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var query = new TilknyttedeJournalposterQueryRequest();
@@ -120,10 +121,10 @@ class SafKlientTest {
 
     @SuppressWarnings("resource")
     @Test
-    void skal_konvertere_feilmelding_til_feil() {
+    void skal_konvertere_feilmelding_til_feil() throws IOException {
         // query-eksempel: journalpost(journalpostId: "439560100")
         var resource = getClass().getClassLoader().getResource("saf/errorResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource, JournalpostQueryResponse.class);
+        var response = DefaultJsonMapper.fromJson(resource.openStream(), JournalpostQueryResponse.class);
         when(restKlient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var query = new JournalpostQueryRequest();

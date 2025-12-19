@@ -2,6 +2,7 @@ package no.nav.vedtak.mapper.json;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,14 @@ public class DefaultJsonMapper {
     public static <T> T fromJson(URL json, Class<T> clazz) {
         try {
             return MAPPER.readerFor(clazz).readValue(json, clazz);
+        } catch (IOException e) {
+            throw deserializationException(e);
+        }
+    }
+
+    public static <T> T fromJson(InputStream json, Class<T> clazz) {
+        try {
+            return MAPPER.readerFor(clazz).readValue(json);
         } catch (IOException e) {
             throw deserializationException(e);
         }

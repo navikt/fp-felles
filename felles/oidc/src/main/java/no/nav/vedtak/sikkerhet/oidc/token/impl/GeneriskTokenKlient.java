@@ -21,9 +21,12 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class GeneriskTokenKlient {
 
+    private GeneriskTokenKlient() {
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(GeneriskTokenKlient.class);
 
-    private static final ObjectReader READER = DefaultJsonMapper.getObjectMapper().readerFor(OidcTokenResponse.class);
+    private static final ObjectReader READER = DefaultJsonMapper.getJsonMapper().readerFor(OidcTokenResponse.class);
 
     public static OidcTokenResponse hentTokenRetryable(HttpRequest request, URI proxy, int retries) {
         int i = retries;

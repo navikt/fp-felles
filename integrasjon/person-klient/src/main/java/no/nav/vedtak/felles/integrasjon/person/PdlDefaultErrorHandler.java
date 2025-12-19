@@ -34,7 +34,7 @@ public class PdlDefaultErrorHandler {
 
     private static PDLExceptionExtension details(Map<String, Object> details) {
         try {
-            return DefaultJsonMapper.getObjectMapper().convertValue(details, PDLExceptionExtension.class);
+            return DefaultJsonMapper.getJsonMapper().convertValue(details, PDLExceptionExtension.class);
         } catch (IllegalArgumentException e) {
             LOG.warn("Kunne ikke konvertere {} til extension", details, e);
             return null;
