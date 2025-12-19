@@ -49,10 +49,10 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import no.nav.vedtak.mapper.json.DefaultJson3Mapper;
 
 @ExtendWith(MockitoExtension.class)
-class PersondataKlientTest {
+class PersondataKlientJackson3Test {
 
     private Persondata pdlKlient;
 
@@ -65,12 +65,14 @@ class PersondataKlientTest {
         pdlKlient = new TestPdlKLient(restClient);
     }
 
+    // Bruker ulike metoder for å hente filressurser: File, URL, InputStream
+
     @Test
     void skal_returnere_person() throws IOException {
         // query-eksempel: dokumentoversiktFagsak(fagsak: {fagsakId: "2019186111",
         // fagsaksystem: "AO01"}, foerste: 5)
         var resource = getClass().getClassLoader().getResource("pdl/personResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource.openStream(), HentPersonQueryResponse.class);
+        var response = DefaultJson3Mapper.fromJson(resource.openStream(), HentPersonQueryResponse.class);
         var captor = ArgumentCaptor.forClass(RestRequest.class);
 
         when(restClient.send(captor.capture(), any(Class.class))).thenReturn(response);
@@ -89,9 +91,9 @@ class PersondataKlientTest {
     }
 
     @Test
-    void skal_returnere_bolk_med_person() throws IOException {
-        var resource = getClass().getClassLoader().getResource("pdl/personBolkResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource.openStream(), HentPersonBolkQueryResponse.class);
+    void skal_returnere_bolk_med_person() throws URISyntaxException {
+        var resource = new File(getClass().getClassLoader().getResource("pdl/personBolkResponse.json").toURI());
+        var response = DefaultJson3Mapper.fromJson(resource, HentPersonBolkQueryResponse.class);
         var captor = ArgumentCaptor.forClass(RestRequest.class);
 
         when(restClient.send(captor.capture(), any(Class.class))).thenReturn(response);
@@ -117,8 +119,8 @@ class PersondataKlientTest {
 
     @Test
     void skal_returnere_ident() throws IOException {
-        var resource = getClass().getClassLoader().getResource("pdl/identerResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource.openStream(), HentIdenterQueryResponse.class);
+        var resource = getClass().getClassLoader().getResource("pdl/identerResponse.json").openStream();
+        var response = DefaultJson3Mapper.fromJson(resource, HentIdenterQueryResponse.class);
         when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var queryRequest = new HentIdenterQueryRequest();
@@ -131,9 +133,9 @@ class PersondataKlientTest {
     }
 
     @Test
-    void skal_returnere_bolk_med_identer() throws IOException {
-        var resource = getClass().getClassLoader().getResource("pdl/identerBolkResponse.json");
-        var response = DefaultJsonMapper.fromJson(resource.openStream(), HentIdenterBolkQueryResponse.class);
+    void skal_returnere_bolk_med_identer() throws URISyntaxException {
+        var resource = new File(getClass().getClassLoader().getResource("pdl/identerBolkResponse.json").toURI());
+        var response = DefaultJson3Mapper.fromJson(resource, HentIdenterBolkQueryResponse.class);
         when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
 
         var queryRequest = new HentIdenterBolkQueryRequest();
@@ -148,8 +150,8 @@ class PersondataKlientTest {
 
     @Test
     void skal_returnere_ikke_funnet() throws URISyntaxException {
-        var resource = getClass().getClassLoader().getResource("pdl/errorResponse.json");
-        var response = DefaultJsonMapper.fromJson(new File(resource.toURI()), HentIdenterQueryResponse.class);
+        var resource = new File(getClass().getClassLoader().getResource("pdl/errorResponse.json").toURI());
+        var response = DefaultJson3Mapper.fromJson(new File(resource.toURI()), HentIdenterQueryResponse.class);
         when(restClient.send(any(RestRequest.class), any())).thenReturn(response);
 
 
