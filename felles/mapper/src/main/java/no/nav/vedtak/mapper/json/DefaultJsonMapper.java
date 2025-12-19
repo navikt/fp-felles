@@ -1,54 +1,73 @@
 package no.nav.vedtak.mapper.json;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.vedtak.exception.TekniskException;
 
+/**
+ * OBS: JsonMapper er en subklasse av ObjectMapper - tilpasset Json og med en enklere builder
+ * Se også jackson-core, pakke json, JsonReadFeature og JsonWriteFeature for mer Java/Json-nær konfig/features
+ */
 public class DefaultJsonMapper {
 
     private DefaultJsonMapper() {
 
     }
 
-    private static final ObjectMapper MAPPER = createObjectMapper();
+    private static final JsonMapper MAPPER = createJsonMapper();
 
-    public static ObjectMapper getObjectMapper() {
+    @Deprecated // Bruk getJsonMapper() når mapper-konfig brukes as is og ikke endres ((de)serializers eller subtypes
+    public static JsonMapper getObjectMapper() {
         return MAPPER;
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return new ObjectMapper().registerModule(new Jdk8Module())
-            .registerModule(new JavaTimeModule())
-            .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+    // Foretrekker denne - men bruk heller metoder nedenfor direkte enn å assigne til lokale variable
+    public static JsonMapper getJsonMapper() {
+        return MAPPER;
+    }
+
+    // Bruk denne for kun for ContextResolver (JacksonJsonConfig-klasser) som skal legge til (de)serializers eller registrere subtypes
+    public static JsonMapper getCopyFromDefaultJsonMapper() {
+        return MAPPER.copy();
+    }
+
+    private static JsonMapper createJsonMapper() {
+        return JsonMapper.builder()
+            .addModule(new Jdk8Module())
+            .addModule(new JavaTimeModule())
+            .defaultTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+            .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES) // TODO: Trengs denne? Sak har kjørt lenge uten
+            .defaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL))
+            .visibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
+            .visibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE)
+            .visibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE)
+            .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+            .visibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY)
+            .build();
     }
-
-    //    TODO: Vurder om disse bør med - tas ifm rydding i integrasjon-dtos (mest mulig records)
-    //        .setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
-    //        .setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE);
-    //        .setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
-    //        .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-    //        .setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
 
     public static <T> List<T> fromJson(String json, TypeReference<List<T>> typeReference) {
         try {
@@ -60,15 +79,32 @@ public class DefaultJsonMapper {
 
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
-            return MAPPER.readValue(json, clazz);
+            return MAPPER.readerFor(clazz).readValue(json);
         } catch (IOException e) {
             throw deserializationException(e);
         }
     }
 
+    @Deprecated // Bruk File eller InputStream
     public static <T> T fromJson(URL json, Class<T> clazz) {
         try {
-            return MAPPER.readValue(json, clazz);
+            return MAPPER.readerFor(clazz).readValue(json, clazz);
+        } catch (IOException e) {
+            throw deserializationException(e);
+        }
+    }
+
+    public static <T> T fromJson(InputStream json, Class<T> clazz) {
+        try {
+            return MAPPER.readerFor(clazz).readValue(json);
+        } catch (IOException e) {
+            throw deserializationException(e);
+        }
+    }
+
+    public static <T> T fromJson(File json, Class<T> clazz) {
+        try {
+            return MAPPER.readerFor(clazz).readValue(json, clazz);
         } catch (IOException e) {
             throw deserializationException(e);
         }
