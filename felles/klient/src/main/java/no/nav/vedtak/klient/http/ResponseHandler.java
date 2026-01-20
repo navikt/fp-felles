@@ -24,7 +24,8 @@ final class ResponseHandler {
         if (status == HttpURLConnection.HTTP_FORBIDDEN) {
             throw new ManglerTilgangException("F-468816", "Feilet mot " + endpoint);
         }
-        throw new IntegrasjonException("F-468817", String.format("Uventet respons %s fra %s", status, endpoint), status);
+        var feilEntitet = (response.body() instanceof String s) ? s : null;
+        throw new IntegrasjonException("F-468817", String.format("Uventet respons %s fra %s", status, endpoint), status, feilEntitet, null);
     }
 
     static <W> HttpResponse<W> handleRawResponse(final HttpResponse<W> response, URI endpoint, Set<Integer> acceptStatus) {
@@ -38,7 +39,8 @@ final class ResponseHandler {
         if (status == HttpURLConnection.HTTP_FORBIDDEN) {
             throw new ManglerTilgangException("F-468816", "Feilet mot " + endpoint);
         }
-        throw new IntegrasjonException("F-468817", String.format("Uventet respons %s fra %s", status, endpoint), status);
+        var feilEntitet = (response.body() instanceof String s) ? s : null;
+        throw new IntegrasjonException("F-468817", String.format("Uventet respons %s fra %s", status, endpoint), status, feilEntitet, null);
     }
 
 }

@@ -3,6 +3,7 @@ package no.nav.vedtak.exception;
 public class IntegrasjonException extends VLException {
 
     private final Integer statusCode;
+    private final String feil;
 
     public IntegrasjonException(String kode, String msg) {
         this(kode, msg, null, null);
@@ -19,9 +20,20 @@ public class IntegrasjonException extends VLException {
     public IntegrasjonException(String kode, String msg, Integer statusCode, Throwable cause) {
         super(kode, msg, cause);
         this.statusCode = statusCode;
+        this.feil = null;
+    }
+
+    public IntegrasjonException(String kode, String msg, Integer statusCode, String feil, Throwable cause) {
+        super(kode, msg, null);
+        this.statusCode = statusCode;
+        this.feil = feil;
     }
 
     public Integer getStatusCode() {
         return statusCode;
+    }
+
+    public Object getFeil() {
+        return feil;
     }
 }
