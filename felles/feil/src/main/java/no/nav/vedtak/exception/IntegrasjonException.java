@@ -24,7 +24,7 @@ public class IntegrasjonException extends VLException {
     }
 
     public IntegrasjonException(String kode, String msg, Integer statusCode, String feil, Throwable cause) {
-        super(kode, msg, null);
+        super(kode, formaterFeilmelding(msg, feil), cause);
         this.statusCode = statusCode;
         this.feil = feil;
     }
@@ -33,7 +33,11 @@ public class IntegrasjonException extends VLException {
         return statusCode;
     }
 
-    public Object getFeil() {
+    public String getFeil() {
         return feil;
+    }
+
+    private static String formaterFeilmelding(String msg, String feil) {
+        return feil != null ? "%s. Detaljert feilmedling: %s".formatted(msg, feil) : msg;
     }
 }
