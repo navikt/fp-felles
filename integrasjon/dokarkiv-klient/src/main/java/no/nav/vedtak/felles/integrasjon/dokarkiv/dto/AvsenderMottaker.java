@@ -5,6 +5,8 @@ public record AvsenderMottaker(String id, AvsenderMottakerIdType idType, String 
     public enum AvsenderMottakerIdType {
         UKJENT,
         FNR,
-        ORGNR
+        ORGNR,
+        HPRNR,
+        UTL_ORG
     }
 }

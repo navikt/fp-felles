@@ -3,7 +3,8 @@ package no.nav.vedtak.felles.integrasjon.dokarkiv.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public record DokumentInfoOpprett(String tittel, String brevkode, String dokumentKategori, List<Dokumentvariant> dokumentvarianter) {
+// Rekkefølge er normalt ikke i bruk, men null for hoveddokument og 1,2,... for vedlegg. Se swagger for semantikk
+public record DokumentInfoOpprett(String tittel, String brevkode, Integer rekkefoelge, List<Dokumentvariant> dokumentvarianter) {
 
 
     public static Builder builder() {
@@ -14,8 +15,8 @@ public record DokumentInfoOpprett(String tittel, String brevkode, String dokumen
 
         private String tittel;
         private String brevkode;
-        private String dokumentKategori;
-        private List<Dokumentvariant> dokumentvarianter;
+        private Integer rekkefoelge;
+        private final List<Dokumentvariant> dokumentvarianter;
 
         private Builder() {
             this.dokumentvarianter = new ArrayList<>();
@@ -31,8 +32,9 @@ public record DokumentInfoOpprett(String tittel, String brevkode, String dokumen
             return this;
         }
 
-        public Builder medDokumentkategori(String dokumentkategori) {
-            this.dokumentKategori = dokumentkategori;
+        // Se swagger for semantikk. Bruk null for hoveddokument
+        public Builder medRekkefølge(Integer rekkefoelge) {
+            this.rekkefoelge = rekkefoelge;
             return this;
         }
 
@@ -42,13 +44,13 @@ public record DokumentInfoOpprett(String tittel, String brevkode, String dokumen
         }
 
         public DokumentInfoOpprett build() {
-            if (this.dokumentvarianter == null || this.dokumentvarianter.isEmpty()) {
+            if (this.dokumentvarianter.isEmpty()) {
                 throw new IllegalArgumentException("Krever minst 1 dokumentvariant");
             }
             if (this.dokumentvarianter.stream().noneMatch(d -> Dokumentvariant.Variantformat.ARKIV.equals(d.variantformat()))) {
                 throw new IllegalArgumentException("Krever at det finnes variant av type " + Dokumentvariant.Variantformat.ARKIV);
             }
-            return new DokumentInfoOpprett(tittel, brevkode, dokumentKategori, dokumentvarianter);
+            return new DokumentInfoOpprett(tittel, brevkode, rekkefoelge, dokumentvarianter);
         }
     }
 }

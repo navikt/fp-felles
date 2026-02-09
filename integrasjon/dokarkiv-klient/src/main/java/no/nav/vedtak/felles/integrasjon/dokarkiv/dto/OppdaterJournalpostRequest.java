@@ -1,10 +1,13 @@
 package no.nav.vedtak.felles.integrasjon.dokarkiv.dto;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+// Feltene LocalDateTime datoDokument, String overstyrInnsynsregler skal normalt ikke settes, bruk null
 public record OppdaterJournalpostRequest(String tittel, AvsenderMottaker avsenderMottaker, Bruker bruker, String tema, String behandlingstema,
-                                         Sak sak, List<Tilleggsopplysning> tilleggsopplysninger, List<DokumentInfoOppdater> dokumenter) {
+                                         Sak sak, List<Tilleggsopplysning> tilleggsopplysninger, List<DokumentInfoOppdater> dokumenter,
+                                         LocalDateTime datoDokument, String overstyrInnsynsregler) {
 
 
     public record DokumentInfoOppdater(String dokumentInfoId, String tittel, String brevkode) {
@@ -86,7 +89,7 @@ public record OppdaterJournalpostRequest(String tittel, AvsenderMottaker avsende
         }
 
         public OppdaterJournalpostRequest build() {
-            return new OppdaterJournalpostRequest(tittel, avsenderMottaker, bruker, tema, behandlingstema, sak, tilleggsopplysninger, dokumenter);
+            return new OppdaterJournalpostRequest(tittel, avsenderMottaker, bruker, tema, behandlingstema, sak, tilleggsopplysninger, dokumenter, null, null);
         }
     }
 

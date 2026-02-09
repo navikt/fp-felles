@@ -1,13 +1,14 @@
 package no.nav.vedtak.felles.integrasjon.dokarkiv.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public record OpprettJournalpostRequest(JournalpostType journalpostType, String tittel, AvsenderMottaker avsenderMottaker, String kanal,
                                         Bruker bruker, String tema, String behandlingstema, Sak sak, String journalfoerendeEnhet,
-                                        LocalDate datoMottatt, String eksternReferanseId, List<Tilleggsopplysning> tilleggsopplysninger,
-                                        List<DokumentInfoOpprett> dokumenter) {
+                                        LocalDateTime datoMottatt, String eksternReferanseId, List<Tilleggsopplysning> tilleggsopplysninger,
+                                        List<DokumentInfoOpprett> dokumenter, LocalDateTime datoDokument, String overstyrInnsynsregler) {
 
     public static OpprettJournalpostRequestBuilder nyInngående() {
         return new OpprettJournalpostRequestBuilder(JournalpostType.INNGAAENDE);
@@ -18,19 +19,19 @@ public record OpprettJournalpostRequest(JournalpostType journalpostType, String 
     }
 
     public static class OpprettJournalpostRequestBuilder {
-        private JournalpostType journalpostType;
+        private final JournalpostType journalpostType;
         private String tittel;
         private String kanal;
         private String tema;
         private String behandlingstema;
         private String journalfoerendeEnhet;
-        private LocalDate datoMottatt;
+        private LocalDateTime datoMottatt;
         private String eksternReferanseId;
         private Bruker bruker;
         private AvsenderMottaker avsenderMottaker;
         private Sak sak;
         private List<Tilleggsopplysning> tilleggsopplysninger;
-        private List<DokumentInfoOpprett> dokumenter;
+        private final List<DokumentInfoOpprett> dokumenter;
 
         private OpprettJournalpostRequestBuilder(JournalpostType journalpostType) {
             this.journalpostType = journalpostType;
@@ -63,6 +64,11 @@ public record OpprettJournalpostRequest(JournalpostType journalpostType, String 
         }
 
         public OpprettJournalpostRequestBuilder medDatoMottatt(LocalDate datoMottatt) {
+            this.datoMottatt = datoMottatt.atStartOfDay();
+            return this;
+        }
+
+        public OpprettJournalpostRequestBuilder medDatoMottatt(LocalDateTime datoMottatt) {
             this.datoMottatt = datoMottatt;
             return this;
         }
@@ -107,7 +113,7 @@ public record OpprettJournalpostRequest(JournalpostType journalpostType, String 
                 throw new IllegalArgumentException("Mangler dokumenter tiul ny journalpost");
             }
             return new OpprettJournalpostRequest(journalpostType, tittel, avsenderMottaker, kanal, bruker, tema, behandlingstema, sak,
-                journalfoerendeEnhet, datoMottatt, eksternReferanseId, tilleggsopplysninger, dokumenter);
+                journalfoerendeEnhet, datoMottatt, eksternReferanseId, tilleggsopplysninger, dokumenter, null, null);
         }
     }
 }
