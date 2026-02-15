@@ -46,6 +46,7 @@ public class KafkaProperties {
         props.put(CommonClientConfigs.GROUP_ID_CONFIG, groupId);
         props.put(CommonClientConfigs.CLIENT_ID_CONFIG, generateClientId());
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getAivenConfig(AivenProperty.KAFKA_BROKERS));
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         Optional.ofNullable(offsetReset).ifPresent(or -> props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, or.toString()));
 
         putSecurity(props);
