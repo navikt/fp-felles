@@ -12,6 +12,9 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * API / Swagger https://oppgave.dev.intern.nav.no
  * <p>
@@ -21,6 +24,7 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
 
     private static final String STATUSKATEGORI_AAPEN = "AAPEN";
     private static final String TEMA_FORELDREPENGER = "FOR";
+    private static final Logger log = LoggerFactory.getLogger(AbstractOppgaveKlient.class);
 
     private final RestClient restKlient;
     private final RestConfig restConfig;
@@ -87,8 +91,12 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
     @Override
     public void ferdigstillOppgave(String oppgaveId) {
         var oppgave = hentOppgave(oppgaveId);
-        var patch = new PatchOppgave(oppgave.id(), oppgave.versjon(), Oppgavestatus.FERDIGSTILT);
-        endreOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
+        if (!oppgave.status().equals(Oppgavestatus.FEILREGISTRERT) && !oppgave.status().equals(Oppgavestatus.FERDIGSTILT)) {
+            var patch = new PatchOppgave(oppgave.id(), oppgave.versjon(), Oppgavestatus.FERDIGSTILT);
+            endreOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
+        } else {
+            log.warn("Oppgave {} er allerede ferdigstilt eller feilregistrert, og kan ikke ferdigstilles", oppgaveId);
+        }
     }
 
     @Override
