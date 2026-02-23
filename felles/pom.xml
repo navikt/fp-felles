@@ -28,6 +28,7 @@
         <module>abac-kontekst</module>
         <module>auth-filter</module>
         <module>server</module>
+        <module>openapi</module>
     </modules>
 
     <dependencyManagement>
@@ -95,6 +96,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles-oidc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles-openapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

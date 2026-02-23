@@ -1,7 +1,10 @@
 package no.nav.vedtak.exception;
 
-public class IntegrasjonException extends VLException {
+import java.net.HttpURLConnection;
 
+public non-sealed class IntegrasjonException extends VLException {
+
+    // Inneholder feilobjekt. Ved kall til FP-apps kanskje en FeilDto som kan propageres
     private final Integer statusCode;
     private final String feil;
 
@@ -18,9 +21,7 @@ public class IntegrasjonException extends VLException {
     }
 
     public IntegrasjonException(String kode, String msg, Integer statusCode, Throwable cause) {
-        super(kode, msg, cause);
-        this.statusCode = statusCode;
-        this.feil = null;
+        this(kode, msg, statusCode, null, cause);
     }
 
     public IntegrasjonException(String kode, String msg, Integer statusCode, String feil, Throwable cause) {
@@ -29,15 +30,16 @@ public class IntegrasjonException extends VLException {
         this.feil = feil;
     }
 
-    public Integer getStatusCode() {
-        return statusCode;
-    }
-
     public String getFeil() {
         return feil;
     }
 
     private static String formaterFeilmelding(String msg, String feil) {
         return feil != null ? "%s. Detaljert feilmedling: %s".formatted(msg, feil) : msg;
+    }
+
+    @Override
+    public int getStatusCode() {
+        return statusCode != null ? statusCode : HttpURLConnection.HTTP_INTERNAL_ERROR;
     }
 }
