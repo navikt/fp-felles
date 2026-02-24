@@ -9,11 +9,6 @@ public class Jackson3Mapper implements ContextResolver<JsonMapper> {
 
     private static final JsonMapper MAPPER = DefaultJson3Mapper.getJsonMapper();
 
-
-    public Jackson3Mapper() {
-        // CDI
-    }
-
     @Override
     public JsonMapper getContext(Class<?> type) {
         return MAPPER;

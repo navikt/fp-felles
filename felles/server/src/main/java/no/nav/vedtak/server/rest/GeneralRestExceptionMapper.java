@@ -88,7 +88,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         return brukerRettetApplikasjon;
     }
 
-    // Settes false i applikasjoner som ikke skal lage en brukerorientert feilmelding (kontakt
+    // Settes false i applikasjoner som ikke skal lage en brukerorientert feilmelding (kontakt support med referanse-id)
     public static void setBrukerRettetApplikasjon(boolean brukerRettet) {
         brukerRettetApplikasjon = brukerRettet;
     }
