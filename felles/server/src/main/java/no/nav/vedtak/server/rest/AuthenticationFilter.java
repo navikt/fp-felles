@@ -19,10 +19,6 @@ public class AuthenticationFilter implements ContainerRequestFilter, ContainerRe
     @Context
     private ResourceInfo resourceinfo;
 
-    public AuthenticationFilter() {
-        // Ingenting
-    }
-
     @Override
     public void filter(ContainerRequestContext req, ContainerResponseContext res) {
         AuthenticationFilterDelegate.fjernKontekst();

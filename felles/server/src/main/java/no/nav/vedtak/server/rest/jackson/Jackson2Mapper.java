@@ -10,11 +10,6 @@ public class Jackson2Mapper implements ContextResolver<ObjectMapper> {
 
     private static final ObjectMapper MAPPER = DefaultJsonMapper.getJsonMapper();
 
-
-    public Jackson2Mapper() {
-        // CDI
-    }
-
     @Override
     public ObjectMapper getContext(Class<?> type) {
         return MAPPER;
