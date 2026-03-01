@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.OffsetResetStrategy;
+import org.apache.kafka.clients.consumer.internals.AutoOffsetResetStrategy;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
@@ -40,7 +40,9 @@ public class KafkaProperties {
         return props;
     }
 
-    public static <K,V> Properties forConsumerGenericValue(String groupId, Deserializer<K> keyDeserializer, Deserializer<V> valueDeserializer, OffsetResetStrategy offsetReset) {
+    public static <K,V> Properties forConsumerGenericValue(String groupId,
+                                                           Deserializer<K> keyDeserializer, Deserializer<V> valueDeserializer,
+                                                           AutoOffsetResetStrategy.StrategyType offsetReset) {
         final Properties props = new Properties();
 
         props.put(CommonClientConfigs.GROUP_ID_CONFIG, groupId);
