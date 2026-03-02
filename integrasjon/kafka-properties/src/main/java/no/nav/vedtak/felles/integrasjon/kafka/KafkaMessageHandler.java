@@ -3,7 +3,6 @@ package no.nav.vedtak.felles.integrasjon.kafka;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -14,7 +13,7 @@ public interface KafkaMessageHandler<K,V> {
     // Configuration
     String topic();
     String groupId(); // Keep stable (or it will read from autoOffsetReset()
-    default Optional<OffsetResetStrategy> autoOffsetReset() {  // Implement if other than default (LATEST). Use NONE to discover low-volume topics
+    default Optional<StrategyType> autoOffsetReset() {  // Implement if other than default (LATEST). Use NONE to discover low-volume topics
         return Optional.empty();
     }
 
@@ -31,5 +30,9 @@ public interface KafkaMessageHandler<K,V> {
         default Supplier<Deserializer<String>> valueDeserializer() {
             return StringDeserializer::new;
         }
+    }
+
+    enum StrategyType {
+        LATEST, EARLIEST, NONE
     }
 }
