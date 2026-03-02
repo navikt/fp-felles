@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.internals.AutoOffsetResetStrategy;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
@@ -42,13 +41,14 @@ public class KafkaProperties {
 
     public static <K,V> Properties forConsumerGenericValue(String groupId,
                                                            Deserializer<K> keyDeserializer, Deserializer<V> valueDeserializer,
-                                                           AutoOffsetResetStrategy.StrategyType offsetReset) {
+                                                           KafkaMessageHandler.StrategyType offsetReset) {
         final Properties props = new Properties();
 
         props.put(CommonClientConfigs.GROUP_ID_CONFIG, groupId);
         props.put(CommonClientConfigs.CLIENT_ID_CONFIG, generateClientId());
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getAivenConfig(AivenProperty.KAFKA_BROKERS));
-        Optional.ofNullable(offsetReset).ifPresent(or -> props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, or.toString()));
+        Optional.ofNullable(offsetReset)
+            .ifPresent(or -> props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, or.name().toLowerCase()));
 
         putSecurity(props);
 
