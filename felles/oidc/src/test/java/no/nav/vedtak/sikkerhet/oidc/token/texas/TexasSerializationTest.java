@@ -14,7 +14,7 @@ class TexasSerializationTest {
 
     @Test
     void skal_serialisere_hentTokenRequest_korrekt() throws JsonProcessingException {
-        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", "https://resource.no", null);
+        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", "https://resource.no", null, false);
 
         var json = DefaultJsonMapper.toJson(request);
 
@@ -33,7 +33,7 @@ class TexasSerializationTest {
             List.of("33a0911a-5459-456f-bc57-3d37ef9a016c"),
             "974761076_skatt_demo_system"
         );
-        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", null, List.of(authDetails));
+        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", null, List.of(authDetails), false);
 
         var json = DefaultJsonMapper.toJson(request);
 

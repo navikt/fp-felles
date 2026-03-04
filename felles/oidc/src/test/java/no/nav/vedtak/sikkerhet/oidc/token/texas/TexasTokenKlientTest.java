@@ -80,7 +80,7 @@ class TexasTokenKlientTest {
             {"access_token": "eyJ0b2tlbi...", "expires_in": 3600, "token_type": "Bearer"}
             """;
 
-        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", null, null);
+        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", null, null, false);
         var response = klient.hentToken(request);
 
         assertThat(response.access_token()).isEqualTo("eyJ0b2tlbi...");
@@ -97,7 +97,7 @@ class TexasTokenKlientTest {
 
         var org = new AuthorizationDetails.Consumer("iso6523-actorid-upis", "0192:313367002");
         var authDetails = new AuthorizationDetails("urn:altinn:systemuser", org, List.of("abc-123"), "system_1");
-        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", "https://resource.no", List.of(authDetails));
+        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", "https://resource.no", List.of(authDetails), false);
         klient.hentToken(request);
 
         assertThat(lastContentType).isEqualTo("application/json");
@@ -115,7 +115,7 @@ class TexasTokenKlientTest {
             {"access_token": "tok", "expires_in": 60, "token_type": "Bearer"}
             """;
 
-        var request = new HentTokenRequest(IdProvider.TOKENX, "https://target.no", null, null);
+        var request = new HentTokenRequest(IdProvider.TOKENX, "https://target.no", null, null, false);
         klient.hentToken(request);
 
         assertThat(lastRequestBody).doesNotContain("resource")
@@ -129,7 +129,7 @@ class TexasTokenKlientTest {
             {"error": "internal server error"}
             """;
 
-        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", null, null);
+        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", null, null, false);
         assertThatThrownBy(() -> klient.hentToken(request))
             .isInstanceOf(TekniskException.class)
             .hasMessageContaining("F-157385");
@@ -137,14 +137,14 @@ class TexasTokenKlientTest {
 
     @Test
     void hentToken_skal_kaste_exception_ved_manglende_provider() {
-        var request = new HentTokenRequest(null, "https://target.no", null, null);
+        var request = new HentTokenRequest(null, "https://target.no", null, null, false);
         assertThatThrownBy(() -> klient.hentToken(request))
             .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void hentToken_skal_kaste_exception_ved_manglende_target() {
-        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, null, null, null);
+        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, null, null, null, false);
         assertThatThrownBy(() -> klient.hentToken(request))
             .isInstanceOf(NullPointerException.class);
     }
@@ -390,7 +390,7 @@ class TexasTokenKlientTest {
             URI.create("http://localhost:1")
         );
 
-        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", null, null);
+        var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", null, null, false);
         assertThatThrownBy(() -> utilgjengeligKlient.hentToken(request))
             .isInstanceOf(TekniskException.class)
             .hasMessageContaining("F-432937");
