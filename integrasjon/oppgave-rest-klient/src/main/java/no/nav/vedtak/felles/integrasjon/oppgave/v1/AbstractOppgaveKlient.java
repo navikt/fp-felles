@@ -95,7 +95,7 @@ public abstract class AbstractOppgaveKlient implements Oppgaver {
             var patch = new PatchOppgave(oppgave.id(), oppgave.versjon(), Oppgavestatus.FERDIGSTILT);
             endreOppgave(oppgaveId, RestRequest.jsonPublisher(patch));
         } else {
-            log.warn("Oppgave {} er allerede ferdigstilt eller feilregistrert, og kan ikke ferdigstilles", oppgaveId);
+            log.info("Oppgave {} er allerede ferdigstilt eller feilregistrert, og kan ikke ferdigstilles", oppgaveId);
         }
     }
 
