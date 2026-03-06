@@ -9,6 +9,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -58,7 +59,13 @@ public class TexasTokenKlient {
         return inst;
     }
 
-    public TokenResponse kallTexas(HentTokenRequest req) {
+    /**
+     * Metoden returnerer et token basert på informasjonen i requesten. Requesten må inneholde identity_provider og target. Identity_provider kan være ENTRA_ID eller MASKINPORTEN.
+     * OBS! Det er kun ENTRA_ID og MASKINPORTEN som støtter token i Texas, og det er kun disse providerene som kan brukes i requesten.
+     * @param req request med informasjon om hvilken provider som skal brukes og hvilken target tokenet skal være gyldig for. Må inneholde identity_provider og target.
+     * @return TokenResponse som inneholder det hentede tokenet og informasjon om tokenet, som utløpstid og token_type.
+     */
+    public TokenResponse token(HentTokenRequest req) {
         Objects.requireNonNull(req.identity_provider(), PROVIDER_MAA_VAERE_SATT);
         Objects.requireNonNull(req.target(), "target må være satt");
         LOG.trace("Henter token fra Texas for request {}", req);
@@ -75,6 +82,12 @@ public class TexasTokenKlient {
             .build();
     }
 
+    /**
+     * Metoden returnerer et nytt token basert på et eksisterende token. Dette kan være nyttig for å få et token med nye claims, eller for å få et token som er gyldig for en annen target.
+     * OBS! Det er kun ENTRA_ID og TOKENX som støtter token exchange i Texas, og det er kun disse providerene som kan brukes i requesten.
+     * @param req request med informasjon om det eksisterende tokenet og den nye targeten. Må inneholde identity_provider, target og user_token.
+     * @return TokenResponse som inneholder det nye tokenet og informasjon om tokenet, som utløpstid og token_type.
+     */
     public TokenResponse exchangeToken(ExchangeTokenRequest req) {
         Objects.requireNonNull(req.identity_provider(), PROVIDER_MAA_VAERE_SATT);
         Objects.requireNonNull(req.target(), "target må være satt");
@@ -93,11 +106,30 @@ public class TexasTokenKlient {
             .build();
     }
 
+    /**
+     * Metoden returnerer en IntrospectTokenResponse som inneholder informasjon om tokenet, som om det er aktivt
+     * @param req request med tokenet som skal introspekteres
+     * @return IntrospectTokenResponse som inneholder informasjon om tokenet, inkludert "active" og "error" verdier som kan brukes for å bestemme om tokenet er gyldig eller ikke.
+     */
     public IntrospectTokenResponse introspectToken(IntrospectTokenRequest req) {
         Objects.requireNonNull(req.identity_provider(), PROVIDER_MAA_VAERE_SATT);
         Objects.requireNonNull(req.token(), "token må være satt");
         LOG.trace("Introspect token med Texas for request {}", req);
         return kallTexas(lagIntrospectRequest(req), IntrospectTokenResponse.class);
+    }
+
+    /**
+     * Metoden returnerer en Map<String, Object> med alle claims i tokenet. Dette kan være nyttig for å få tilgang til claims som ikke er standard i IntrospectTokenResponse, eller for å logge alle claims i tokenet.
+     * active verdi vil fortelle on tokenet er guyldig eller ikke, og kan brukes i kombinasjon med andre claims for å bestemme om tokenet skal aksepteres eller ikke.
+     * error verdi vil fortelle om det var en feil ved introspection, og kan brukes for å logge eller håndtere feil på en bedre måte.
+     * @param req request med tokenet som skal introspekteres
+     * @return Map<String, Object> med alle claims i tokenet, inkludert "active" og "error" verdier som kan brukes for å bestemme om tokenet er gyldig eller ikke.
+     */
+    public Map<String, Object> introspectFullToken(IntrospectTokenRequest req) {
+        Objects.requireNonNull(req.identity_provider(), PROVIDER_MAA_VAERE_SATT);
+        Objects.requireNonNull(req.token(), "token må være satt");
+        LOG.trace("Introspect full token med Texas for request {}", req);
+        return kallTexas(lagIntrospectRequest(req), Map.class);
     }
 
     private HttpRequest lagIntrospectRequest(IntrospectTokenRequest introspectRequest) {
