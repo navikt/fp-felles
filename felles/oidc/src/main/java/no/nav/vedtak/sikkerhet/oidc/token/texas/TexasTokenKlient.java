@@ -24,6 +24,11 @@ public class TexasTokenKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(TexasTokenKlient.class);
     private static final Environment ENV = Environment.current();
+    protected static final String CONTENT_TYPE = "Content-Type";
+    protected static final String APPLICATION_JSON = "application/json";
+    protected static final String CACHE_CONTROL = "Cache-Control";
+    protected static final String NO_CACHE = "no-cache";
+    protected static final String PROVIDER_MAA_VAERE_SATT = "provider må være satt";
 
     private final URI tokenEndpoint;
     private final URI introspectEndpoint;
@@ -53,17 +58,17 @@ public class TexasTokenKlient {
         return inst;
     }
 
-    public TokenResponse hentToken(HentTokenRequest req) {
-        Objects.requireNonNull(req.identity_provider(), "provider må være satt");
+    public TokenResponse kallTexas(HentTokenRequest req) {
+        Objects.requireNonNull(req.identity_provider(), PROVIDER_MAA_VAERE_SATT);
         Objects.requireNonNull(req.target(), "target må være satt");
         LOG.trace("Henter token fra Texas for request {}", req);
-        return hentToken(lagTokenRequest(req), TokenResponse.class);
+        return kallTexas(lagTokenRequest(req), TokenResponse.class);
     }
 
     private HttpRequest lagTokenRequest(HentTokenRequest tokenRequest) {
         return HttpRequest.newBuilder()
-            .header("Cache-Control", "no-cache")
-            .header("Content-Type", "application/json")
+            .header(CACHE_CONTROL, NO_CACHE)
+            .header(CONTENT_TYPE, APPLICATION_JSON)
             .timeout(Duration.ofSeconds(3))
             .uri(tokenEndpoint)
             .POST(HttpRequest.BodyPublishers.ofString(toJson(tokenRequest), UTF_8))
@@ -71,17 +76,17 @@ public class TexasTokenKlient {
     }
 
     public TokenResponse exchangeToken(ExchangeTokenRequest req) {
-        Objects.requireNonNull(req.identity_provider(), "provider må være satt");
+        Objects.requireNonNull(req.identity_provider(), PROVIDER_MAA_VAERE_SATT);
         Objects.requireNonNull(req.target(), "target må være satt");
         Objects.requireNonNull(req.user_token(), "token må være satt");
         LOG.trace("Exchanger token med Texas for request {}", req);
-        return hentToken(lagExchangeRequest(req), TokenResponse.class);
+        return kallTexas(lagExchangeRequest(req), TokenResponse.class);
     }
 
     private HttpRequest lagExchangeRequest(ExchangeTokenRequest exchangeRequest) {
         return HttpRequest.newBuilder()
-            .header("Cache-Control", "no-cache")
-            .header("Content-Type", "application/json")
+            .header(CACHE_CONTROL, NO_CACHE)
+            .header(CONTENT_TYPE, APPLICATION_JSON)
             .timeout(Duration.ofSeconds(3))
             .uri(exchangeEndpoint)
             .POST(HttpRequest.BodyPublishers.ofString(toJson(exchangeRequest), UTF_8))
@@ -89,23 +94,23 @@ public class TexasTokenKlient {
     }
 
     public IntrospectTokenResponse introspectToken(IntrospectTokenRequest req) {
-        Objects.requireNonNull(req.identity_provider(), "provider må være satt");
+        Objects.requireNonNull(req.identity_provider(), PROVIDER_MAA_VAERE_SATT);
         Objects.requireNonNull(req.token(), "token må være satt");
         LOG.trace("Introspect token med Texas for request {}", req);
-        return hentToken(lagIntrospectRequest(req), IntrospectTokenResponse.class);
+        return kallTexas(lagIntrospectRequest(req), IntrospectTokenResponse.class);
     }
 
     private HttpRequest lagIntrospectRequest(IntrospectTokenRequest introspectRequest) {
         return HttpRequest.newBuilder()
-            .header("Cache-Control", "no-cache")
-            .header("Content-Type", "application/json")
+            .header(CACHE_CONTROL, NO_CACHE)
+            .header(CONTENT_TYPE, APPLICATION_JSON)
             .timeout(Duration.ofSeconds(3))
             .uri(introspectEndpoint)
             .POST(HttpRequest.BodyPublishers.ofString(toJson(introspectRequest), UTF_8))
             .build();
     }
 
-    private static <T> T hentToken(HttpRequest request, Class<T> responseType) {
+    private static <T> T kallTexas(HttpRequest request, Class<T> responseType) {
         try (var client = hentEllerByggHttpClient()) { // På sikt vurder å bruke en generell klient eller å cache. De er blitt autocloseable
             var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
             if (response == null || response.body() == null || !responskode2xx(response)) {
