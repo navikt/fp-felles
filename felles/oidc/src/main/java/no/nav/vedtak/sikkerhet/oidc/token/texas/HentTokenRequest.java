@@ -18,4 +18,20 @@ public record HentTokenRequest(IdProvider identity_provider, String target, Stri
             (authorization_details != null && !authorization_details.isEmpty() ? ", authorization_details=<redacted>" : "") +
             '}';
     }
+
+    public HentTokenRequest(IdProvider identity_provider, String target) {
+        this(identity_provider, target, (String)null);
+    }
+
+    public HentTokenRequest(IdProvider identity_provider, String target, String resource) {
+        this(identity_provider, target, resource, null);
+    }
+
+    public HentTokenRequest(IdProvider identity_provider, String target, String resource, List<AuthorizationDetails> authorization_details) {
+        this(identity_provider, target, resource, authorization_details, null);
+    }
+
+    public HentTokenRequest(IdProvider identity_provider, String target, Boolean skip_cache) {
+        this(identity_provider, target, null, null, skip_cache);
+    }
 }

@@ -47,7 +47,7 @@ class TexasSerializationTest {
 
     @Test
     void skal_serialisere_exchangeTokenRequest_korrekt() throws JsonProcessingException {
-        var request = new ExchangeTokenRequest(IdProvider.TOKENX, "eyJhbGciOiJSUzI1NiJ9...", "https://target.no");
+        var request = new ExchangeTokenRequest(IdProvider.TOKENX, "eyJhbGciOiJSUzI1NiJ9...", "https://target.no", false);
 
         var json = DefaultJsonMapper.toJson(request);
 

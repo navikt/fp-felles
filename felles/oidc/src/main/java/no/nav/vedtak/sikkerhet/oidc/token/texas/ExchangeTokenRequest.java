@@ -14,4 +14,8 @@ public record ExchangeTokenRequest(IdProvider identity_provider, String user_tok
             (skip_cache != null ? ", skip_cache='" + skip_cache + '\'' : "") +
             '}';
     }
+
+    public ExchangeTokenRequest(IdProvider identity_provider, String user_token, String target) {
+        this(identity_provider, user_token, target, null);
+    }
 }

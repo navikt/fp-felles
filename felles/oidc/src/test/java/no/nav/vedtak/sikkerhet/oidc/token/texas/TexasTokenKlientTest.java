@@ -156,7 +156,7 @@ class TexasTokenKlientTest {
             {"access_token": "exchanged-token", "expires_in": 1800, "token_type": "Bearer"}
             """;
 
-        var request = new ExchangeTokenRequest(IdProvider.TOKENX, "original-token", "https://target.no");
+        var request = new ExchangeTokenRequest(IdProvider.TOKENX, "original-token", "https://target.no", false);
         var response = klient.exchangeToken(request);
 
         assertThat(response.access_token()).isEqualTo("exchanged-token");
@@ -171,7 +171,7 @@ class TexasTokenKlientTest {
             {"access_token": "tok", "expires_in": 60, "token_type": "Bearer"}
             """;
 
-        var request = new ExchangeTokenRequest(IdProvider.TOKENX, "bruker-token", "https://target.no");
+        var request = new ExchangeTokenRequest(IdProvider.TOKENX, "bruker-token", "https://target.no", false);
         klient.exchangeToken(request);
 
         assertThat(lastContentType).isEqualTo("application/json");
@@ -187,7 +187,7 @@ class TexasTokenKlientTest {
             {"error": "bad request"}
             """;
 
-        var request = new ExchangeTokenRequest(IdProvider.TOKENX, "ugyldig-token", "https://target.no");
+        var request = new ExchangeTokenRequest(IdProvider.TOKENX, "ugyldig-token", "https://target.no", false);
         assertThatThrownBy(() -> klient.exchangeToken(request))
             .isInstanceOf(TekniskException.class)
             .hasMessageContaining("F-157385");
@@ -195,21 +195,21 @@ class TexasTokenKlientTest {
 
     @Test
     void exchangeToken_skal_kaste_exception_ved_manglende_provider() {
-        var request = new ExchangeTokenRequest(null, "token", "https://target.no");
+        var request = new ExchangeTokenRequest(null, "token", "https://target.no", false);
         assertThatThrownBy(() -> klient.exchangeToken(request))
             .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void exchangeToken_skal_kaste_exception_ved_manglende_target() {
-        var request = new ExchangeTokenRequest(IdProvider.TOKENX, "token", null);
+        var request = new ExchangeTokenRequest(IdProvider.TOKENX, "token", null, false);
         assertThatThrownBy(() -> klient.exchangeToken(request))
             .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void exchangeToken_skal_kaste_exception_ved_manglende_user_token() {
-        var request = new ExchangeTokenRequest(IdProvider.TOKENX, null, "https://target.no");
+        var request = new ExchangeTokenRequest(IdProvider.TOKENX, null, "https://target.no", false);
         assertThatThrownBy(() -> klient.exchangeToken(request))
             .isInstanceOf(NullPointerException.class);
     }

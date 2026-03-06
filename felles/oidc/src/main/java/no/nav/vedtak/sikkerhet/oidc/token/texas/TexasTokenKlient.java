@@ -32,9 +32,9 @@ public class TexasTokenKlient {
     private static volatile TexasTokenKlient INSTANCE; // NOSONAR
 
     private TexasTokenKlient() {
-        this.tokenEndpoint = ENV.getProperty(TexasProperty.NAIS_TOKEN_ENDPOINT.name(), URI.class);
-        this.introspectEndpoint = ENV.getProperty(TexasProperty.NAIS_TOKEN_INTROSPECTION_ENDPOINT.name(), URI.class);
-        this.exchangeEndpoint = ENV.getProperty(TexasProperty.NAIS_TOKEN_EXCHANGE_ENDPOINT.name(), URI.class);
+        this.tokenEndpoint = ENV.getRequiredProperty(TexasProperty.NAIS_TOKEN_ENDPOINT.name(), URI.class);
+        this.introspectEndpoint = ENV.getRequiredProperty(TexasProperty.NAIS_TOKEN_INTROSPECTION_ENDPOINT.name(), URI.class);
+        this.exchangeEndpoint = ENV.getRequiredProperty(TexasProperty.NAIS_TOKEN_EXCHANGE_ENDPOINT.name(), URI.class);
     }
 
     // Kun for testing
