@@ -8,7 +8,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ResourceInfo;
 
@@ -80,11 +79,11 @@ class AuthenticationFilterDelegateTest {
 
         when(request.getHeaderString("Authorization")).thenReturn(null);
 
-        assertThrows(WebApplicationException.class, () -> AuthenticationFilterDelegate.validerSettKontekst(ri, request));
+        assertThrows(AutentiseringException.class, () -> AuthenticationFilterDelegate.validerSettKontekst(ri, request));
         try {
             AuthenticationFilterDelegate.validerSettKontekst(ri, request);
-        } catch (WebApplicationException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(401);
+        } catch (AutentiseringException e) {
+            assertThat(e.getStatusCode()).isEqualTo(401);
         }
     }
 
@@ -99,11 +98,11 @@ class AuthenticationFilterDelegateTest {
 
         when(tokenValidator.validate(utløptIdToken)).thenReturn(OidcTokenValidatorResult.invalid("expired"));
 
-        assertThrows(WebApplicationException.class, () -> AuthenticationFilterDelegate.validerSettKontekst(ri, request));
+        assertThrows(AutentiseringException.class, () -> AuthenticationFilterDelegate.validerSettKontekst(ri, request));
         try {
             AuthenticationFilterDelegate.validerSettKontekst(ri, request);
-        } catch (WebApplicationException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(401);
+        } catch (AutentiseringException e) {
+            assertThat(e.getStatusCode()).isEqualTo(401);
         }
 
     }

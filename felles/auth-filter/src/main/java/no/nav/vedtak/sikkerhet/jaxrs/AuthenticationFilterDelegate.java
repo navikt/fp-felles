@@ -6,17 +6,15 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.klient.http.CommonHttpHeaders;
 import no.nav.vedtak.log.mdc.FnrUtils;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -74,12 +72,12 @@ public class AuthenticationFilterDelegate {
                 validerTokenSetKontekst(tokenString);
                 setUserAndConsumerId(KontekstHolder.getKontekst().getUid());
             }
-        } catch (TekniskException | TokenFeil e) {
-            throw new WebApplicationException(e, Response.Status.FORBIDDEN);
-        } catch (WebApplicationException e) {
+        } catch (TokenFeil | ValideringsFeil e) {
+            throw new AutentiseringException(e.getMessage(), null);
+        } catch (VLException e) {
             throw e;
         } catch (Exception e) {
-            throw new WebApplicationException(e, Response.Status.UNAUTHORIZED);
+            throw new AutentiseringException(e.getMessage(), e);
         }
     }
 
