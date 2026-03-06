@@ -1,6 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.dokarkiv;
 
 import java.net.URI;
+import java.time.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,7 @@ public class AbstractDokArkivKlient implements DokArkiv {
             var opprett = ferdigstill ? UriBuilder.fromUri(restConfig.endpoint())
                 .queryParam("forsoekFerdigstill", "true")
                 .build() : restConfig.endpoint();
-            var restRequest = RestRequest.newPOSTJson(request, opprett, restConfig);
+            var restRequest = RestRequest.newPOSTJson(request, opprett, restConfig).timeout(Duration.ofSeconds(35));
             var res = restKlient.sendExpectConflict(restRequest, OpprettJournalpostResponse.class);
             return res;
         } catch (Exception e) {
