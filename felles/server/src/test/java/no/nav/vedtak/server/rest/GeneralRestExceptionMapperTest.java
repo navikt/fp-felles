@@ -41,7 +41,7 @@ class GeneralRestExceptionMapperTest {
             assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
             var feilDto = (FeilDto) response.getEntity();
 
-            assertThat(feilDto.type()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL.name());
+            assertThat(feilDto.feiltype()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL.name());
             assertThat(feilDto.feilmelding()).contains("ManglerTilgangFeilmeldingKode");
             assertThat(logSniffer.search("ManglerTilgangFeilmeldingKode", Level.WARN)).isEmpty();
         }

@@ -39,12 +39,12 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         var meldingTilDto = getExceptionMelding(feil);
         return switch (feil) {
             case WebApplicationException wae -> Response.status(wae.getResponse().getStatus())
-                .entity(new FeilDto(FeilType.GENERELL_FEIL, meldingTilDto, null))
+                .entity(new FeilDto(FeilType.GENERELL_FEIL, meldingTilDto))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
             case VLException vlFeil -> Response
                 .status(vlFeil.getStatusCode())
-                .entity(new FeilDto(vlFeil.getFeilType(), meldingTilDto, null))
+                .entity(new FeilDto(vlFeil.getFeilType(), meldingTilDto))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
             default -> Response.serverError()

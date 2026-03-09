@@ -16,7 +16,6 @@ class Jackson2ExceptionMapperTest {
         try (var resultat = new JsonMappingExceptionMapper().toResponse(new InvalidTypeIdException(null, "Ukjent type-kode", null, "23525"))) {
             var dto = (FeilDto) resultat.getEntity();
             assertThat(dto.feilmelding()).contains("JSON-mapping feil");
-            assertThat(dto.safeFeltFeil()).isEmpty();
         }
     }
 
@@ -27,7 +26,6 @@ class Jackson2ExceptionMapperTest {
             var dto = (FeilDto) resultat.getEntity();
 
             assertThat(dto.feilmelding()).contains("JSON-parsing feil: " + feilTekst);
-            assertThat(dto.feltFeil()).isEmpty();
         }
     }
 
