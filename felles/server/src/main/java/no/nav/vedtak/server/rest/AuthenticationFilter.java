@@ -8,11 +8,12 @@ import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.ext.Provider;
 
 import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
 
-@Provider
+/*
+ * Skal alltid tas med i Jakarta RS Applications som betjener user requests
+ */
 @Priority(Priorities.AUTHENTICATION)
 public class AuthenticationFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
