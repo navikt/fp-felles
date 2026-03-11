@@ -12,9 +12,11 @@ public enum FpApplication {
     FPABAKUS,
     FPKALKULUS,
     FPFORMIDLING,
+    FPFORMIDLINGGCP, // Midlertidig for migrering
     FPRISK,
     FPOPPDRAG,
     FPLOS,
+    FPLOSGCP, // Midlertidig for migrering
     FPMOTTAK,
     FPTILBAKE,
     FPDOKGEN,
@@ -30,13 +32,13 @@ public enum FpApplication {
 
     private static Integer lokalPort(FpApplication application) {
         return switch (application) {
-            case FPFORMIDLING -> 8010;
+            case FPFORMIDLING, FPFORMIDLINGGCP -> 8010;
             case FPABAKUS -> 8015;
             case FPKALKULUS -> 8016;
             case FPTILBAKE -> 8030;
             case FPTILGANG -> 8050;
             case FPOPPDRAG -> 8070;
-            case FPLOS -> 8071;
+            case FPLOS, FPLOSGCP -> 8071;
             case FPRISK -> 8075;
             case FPSAK -> 8080;
             case FPDOKGEN -> 8291;
@@ -47,7 +49,7 @@ public enum FpApplication {
         };
     }
 
-    private static final Set<FpApplication> GCP_APPS = Set.of(FPINNTEKTSMELDING, FPMOTTAK);
+    private static final Set<FpApplication> GCP_APPS = Set.of(FPINNTEKTSMELDING, FPMOTTAK, FPLOSGCP, FPDOKGEN, FPFORMIDLINGGCP);
 
     public boolean specified() {
         return !NONFP.equals(this);
@@ -66,7 +68,7 @@ public enum FpApplication {
         if (application == null || NONFP.equals(application)) {
             throw new IllegalArgumentException("Utviklerfeil: angitt app er ikke i fp-familien");
         }
-        var appname = application.name().toLowerCase();
+        var appname = applicationName(application);
 
         if (currentEnvironment.isLocal()) {
             return urlForLocal(application, currentEnvironment, appname);
@@ -94,7 +96,7 @@ public enum FpApplication {
     }
 
     private static String urlForLocal(FpApplication application, Environment currentEnvironment, String appname) {
-        return Optional.ofNullable(currentEnvironment.getProperty(application.name().toLowerCase() + ".override.url"))
+        return Optional.ofNullable(currentEnvironment.getProperty(applicationName(application) + ".override.url"))
             .orElseGet(() -> String.format("http://localhost:%s/%s", lokalPort(application), appname));
     }
 
@@ -102,7 +104,7 @@ public enum FpApplication {
         if (currentEnvironment.isLocal()) {
             return "api://" + Cluster.VTP.clusterName() + "." + FORELDREPENGER.getName() + "." + Cluster.VTP.clusterName() + "/.default";
         }
-        return "api://" + getClusterTilFPApplikasjonenSomSkalKalles(application, currentEnvironment).clusterName() + "." + FORELDREPENGER.getName() + "." + application.name().toLowerCase() + "/.default";
+        return "api://" + getClusterTilFPApplikasjonenSomSkalKalles(application, currentEnvironment).clusterName() + "." + FORELDREPENGER.getName() + "." + applicationName(application) + "/.default";
     }
 
     private static Cluster getClusterTilFPApplikasjonenSomSkalKalles(FpApplication application, Environment currentEnvironment) {
@@ -113,5 +115,13 @@ public enum FpApplication {
             return GCP_APPS.contains(application) ? Cluster.DEV_GCP : Cluster.DEV_FSS;
         }
         throw new IllegalArgumentException("Utviklerfeil: Skal ikke kunne nå her med cluster annet enn de som er definert over");
+    }
+
+    private static String applicationName(FpApplication application) {
+        return switch (application) {
+            case FPLOSGCP -> "fplos";
+            case FPFORMIDLINGGCP ->  "fpformidling";
+            default -> application.name().toLowerCase();
+        };
     }
 }
