@@ -1,6 +1,9 @@
 package no.nav.vedtak.exception;
 
-public abstract class VLException extends RuntimeException {
+import no.nav.vedtak.feil.FeilType;
+
+public abstract sealed class VLException extends RuntimeException
+    permits FunksjonellException, IntegrasjonException, ManglerTilgangException, TekniskException {
 
     private final String kode;
     private final String msg;
@@ -13,6 +16,10 @@ public abstract class VLException extends RuntimeException {
         this.cause = cause;
     }
 
+    public String getFeilType() {
+        return FeilType.GENERELL_FEIL.name();
+    }
+
     public String getKode() {
         return kode;
     }
@@ -21,8 +28,11 @@ public abstract class VLException extends RuntimeException {
         return msg;
     }
 
+    public abstract int getStatusCode();
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [kode=" + kode + ", msg=" + msg + ", cause=" + cause + "]";
     }
+
 }
