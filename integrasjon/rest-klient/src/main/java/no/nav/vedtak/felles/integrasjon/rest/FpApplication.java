@@ -65,6 +65,9 @@ public enum FpApplication {
     }
 
     static String contextPathFor(FpApplication application, Environment currentEnvironment) {
+        if (FPFORMIDLING.equals(application) && currentEnvironment.isDev()) {
+            application = FPFORMIDLINGGCP;
+        }
         if (application == null || NONFP.equals(application)) {
             throw new IllegalArgumentException("Utviklerfeil: angitt app er ikke i fp-familien");
         }
@@ -101,6 +104,9 @@ public enum FpApplication {
     }
 
     static String scopesFor(FpApplication application, Environment currentEnvironment) {
+        if (FPFORMIDLING.equals(application) && currentEnvironment.isDev()) {
+            application = FPFORMIDLINGGCP;
+        }
         if (currentEnvironment.isLocal()) {
             return "api://" + Cluster.VTP.clusterName() + "." + FORELDREPENGER.getName() + "." + Cluster.VTP.clusterName() + "/.default";
         }
