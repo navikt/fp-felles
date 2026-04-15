@@ -54,7 +54,7 @@ public class AuditdataHeader {
     }
 
     private static String cefHeaderEscape(String s) {
-        return s.replace("\\", "\\\\").replace("|", "\\|").replace("\n", "").replace("\r", "");
+        return s.replace("\\", "\\\\").replace("|", "\\|").replaceAll("\\R", "");
     }
 
     public static final class Builder {

@@ -2,7 +2,7 @@ package no.nav.vedtak.exception;
 
 import java.net.HttpURLConnection;
 
-import no.nav.vedtak.feil.FeilType;
+import no.nav.vedtak.feil.Feilkode;
 
 public non-sealed class ManglerTilgangException extends VLException {
 
@@ -20,7 +20,12 @@ public non-sealed class ManglerTilgangException extends VLException {
     }
 
     @Override
-    public String getFeilType() {
-        return FeilType.MANGLER_TILGANG_FEIL.name();
+    public String getFeilkode() {
+        return Feilkode.IKKE_TILGANG.name();
+    }
+
+    @Override
+    public VLLogLevel getLogLevel() {
+        return VLLogLevel.NOLOG;
     }
 }

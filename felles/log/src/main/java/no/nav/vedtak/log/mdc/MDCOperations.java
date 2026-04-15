@@ -5,7 +5,7 @@ import static org.slf4j.MDC.get;
 import static org.slf4j.MDC.put;
 
 import java.util.Objects;
-import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.MDC;
 
@@ -13,12 +13,6 @@ import org.slf4j.MDC;
  * Utility-klasse for kommunikasjon med MDC.
  */
 public final class MDCOperations {
-    @Deprecated(forRemoval = true) // Immediate etter tasks ferdig
-    private static final String NAV_CALL_ID = "Nav-CallId";
-    @Deprecated(forRemoval = true) // Immediate
-    private static final String NAV_USER_ID = "Nav-userId";
-    @Deprecated(forRemoval = true) // Immediate
-    private static final String NAV_CONSUMER_ID = "Nav-ConsumerId";
 
     private static final String MDC_CALL_ID = "callId";
     private static final String MDC_USER_ID = "userId";
@@ -36,11 +30,10 @@ public final class MDCOperations {
     }
 
     public static String getCallId() {
-        return Optional.ofNullable(get(MDC_CALL_ID)).orElseGet(() -> get(NAV_CALL_ID));
+        return get(MDC_CALL_ID);
     }
 
     public static void removeCallId() {
-        remove(NAV_CALL_ID);
         remove(MDC_CALL_ID);
     }
 
@@ -49,11 +42,10 @@ public final class MDCOperations {
     }
 
     public static String getConsumerId() {
-        return Optional.ofNullable(get(MDC_CONSUMER_ID)).orElseGet(() -> get(NAV_CONSUMER_ID));
+        return get(MDC_CONSUMER_ID);
     }
 
     public static void removeConsumerId() {
-        remove(NAV_CONSUMER_ID);
         remove(MDC_CONSUMER_ID);
     }
 
@@ -63,29 +55,15 @@ public final class MDCOperations {
     }
 
     public static String getUserId() {
-        return Optional.ofNullable(get(MDC_USER_ID)).orElseGet(() -> get(NAV_USER_ID));
+        return get(MDC_USER_ID);
     }
 
     public static void removeUserId() {
-        remove(NAV_USER_ID);
         remove(MDC_USER_ID);
     }
 
     public static String generateCallId() {
-        return CallIdGenerator.create();
-    }
-
-    @Deprecated
-    public static String getFromMDC(String key) {
-        return get(key);
-    }
-
-    public static void putToMDC(String key, String value) {
-        toMDC(key, value);
-    }
-
-    public static void putToMDC(String key, String value, String defaultValue) {
-        put(key, Optional.ofNullable(value).orElse(defaultValue));
+        return UUID.randomUUID().toString();
     }
 
     public static void remove(String key) {

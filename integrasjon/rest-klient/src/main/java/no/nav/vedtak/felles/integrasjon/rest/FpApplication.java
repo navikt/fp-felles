@@ -49,7 +49,7 @@ public enum FpApplication {
         };
     }
 
-    private static final Set<FpApplication> GCP_APPS = Set.of(FPINNTEKTSMELDING, FPMOTTAK, FPLOSGCP, FPDOKGEN, FPFORMIDLINGGCP);
+    private static final Set<FpApplication> GCP_APPS = Set.of(FPINNTEKTSMELDING, FPMOTTAK, FPLOSGCP, FPDOKGEN, FPFORMIDLING, FPFORMIDLINGGCP);
 
     public boolean specified() {
         return !NONFP.equals(this);

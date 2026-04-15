@@ -1,6 +1,5 @@
 package no.nav.vedtak.server.rest.jackson;
 
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
@@ -9,8 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import no.nav.vedtak.feil.FeilDto;
-import no.nav.vedtak.feil.FeilType;
+import no.nav.vedtak.server.rest.FeilRespons;
 
 public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingException> {
 
@@ -18,13 +16,10 @@ public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingEx
 
     @Override
     public Response toResponse(JsonMappingException exception) {
+        FeilRespons.ensureCallId();
         var feil = "FP-252294 JSON-mapping feil";
         LOG.warn(feil, exception);
-        return Response
-            .status(Response.Status.BAD_REQUEST)
-            .entity(new FeilDto(FeilType.JSON_FEIL, feil))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+        return FeilRespons.jsonFeil(feil);
     }
 
 
