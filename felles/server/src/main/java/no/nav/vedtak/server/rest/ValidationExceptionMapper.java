@@ -1,6 +1,5 @@
 package no.nav.vedtak.server.rest;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,28 +10,27 @@ import jakarta.validation.Path;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.vedtak.feil.Feilkode;
 
 public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ValidationExceptionMapper.class);
-
-
     @Override
     public Response toResponse(ConstraintViolationException exception) {
-        FeilRespons.ensureCallId();
+        FeilUtils.ensureCallId();
         var feilmelding = getFeilmeldingTekst(exception);
-        LOG.warn(feilmelding);
-        return FeilRespons.fra(Response.Status.BAD_REQUEST, Feilkode.VALIDERING, feilmelding);
+        FeilUtils.loggWarning(feilmelding);
+        return FeilUtils.responseFra(Response.Status.BAD_REQUEST, Feilkode.VALIDERING, feilmelding);
     }
 
     protected static String getFeilmeldingTekst(ConstraintViolationException exception) {
-        var feltFeil = getFeltFeil(exception);
-        var feilTekst = getLoggTekst(feltFeil);
+        var feilTekst = getLoggTekst(exception);
         return String.format("Det oppstod en valideringsfeil for felt %s.", feilTekst);
+    }
+
+    private static String getLoggTekst(ConstraintViolationException exception) {
+        return getFeltFeil(exception).stream()
+            .map(f -> f.navn() + ": " + f.melding())
+            .collect(Collectors.joining(", "));
     }
 
     private static Set<FeltFeil> getFeltFeil(ConstraintViolationException exception) {
@@ -50,12 +48,6 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
             .orElse("");
         var field = Optional.ofNullable(constraintViolation.getPropertyPath()).map(Path::toString).orElse("null");
         return new FeltFeil(root + field, constraintViolation.getMessage());
-    }
-
-    private static String getLoggTekst(Collection<FeltFeil> feil) {
-        return feil.stream()
-            .map(f -> f.navn() + ": " + f.melding())
-            .collect(Collectors.joining(", "));
     }
 
     private record FeltFeil(String navn, String melding) {}

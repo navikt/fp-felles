@@ -25,7 +25,7 @@ class GeneralRestExceptionMapperTest {
 
     @BeforeEach
     void setUp() {
-        logSniffer = MemoryAppender.sniff(GeneralRestExceptionMapper.class);
+        logSniffer = MemoryAppender.sniff(FeilUtils.class);
     }
 
     @AfterEach
