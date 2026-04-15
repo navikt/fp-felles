@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.vedtak.feil.FeilDto;
 import no.nav.vedtak.feil.Feilkode;
 
 class ValidationExceptionMapperTest {
@@ -34,7 +35,7 @@ class ValidationExceptionMapperTest {
     void test_validerer_tallFeil() {
         var dto = new TestRec(5, "55555");
         try (var respons = valider(dto)){
-            var feilene = (no.nav.vedtak.feil.FeilDto) respons.getEntity();
+            var feilene = (FeilDto) respons.getEntity();
             assertThat(feilene.feilkode()).isEqualTo(Feilkode.VALIDERING.name());
             assertThat(feilene.feilmelding()).contains("TestRec.tall");
             assertThat(feilene.feilmelding()).contains("greater than or equal to 10");
@@ -46,7 +47,7 @@ class ValidationExceptionMapperTest {
         var dto = new SuperTestRec(new CompTestRec(new TestRec(25, "Logg<script>alert(1)</script>Slutt%0a%0d[ERROR]%20Wake%20up")));
         try (var respons = valider(dto)){
             assertThat(respons.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-            var feilene = (no.nav.vedtak.feil.FeilDto) respons.getEntity();
+            var feilene = (FeilDto) respons.getEntity();
             assertThat(feilene.feilkode()).isEqualTo(Feilkode.VALIDERING.name());
             assertThat(feilene.feilmelding()).contains("SuperTestRec.rec.rec.tekst");
             assertThat(feilene.feilmelding()).contains("d{5}");
@@ -58,7 +59,7 @@ class ValidationExceptionMapperTest {
         var dto = new TestRec(2, "EnHeltFeilTekst");
         try (var respons = valider(dto)){
             assertThat(respons.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-            var feilene = (no.nav.vedtak.feil.FeilDto) respons.getEntity();
+            var feilene = (FeilDto) respons.getEntity();
             assertThat(feilene.feilkode()).isEqualTo(Feilkode.VALIDERING.name());
             assertThat(feilene.feilmelding()).contains("TestRec.tall");
             assertThat(feilene.feilmelding()).contains("TestRec.tekst");

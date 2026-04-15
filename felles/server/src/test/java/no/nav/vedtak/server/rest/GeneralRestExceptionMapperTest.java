@@ -12,6 +12,7 @@ import ch.qos.logback.classic.Level;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.feil.FeilDto;
 import no.nav.vedtak.feil.Feilkode;
 import no.nav.vedtak.log.util.MemoryAppender;
 
@@ -37,8 +38,8 @@ class GeneralRestExceptionMapperTest {
         try (var response = exceptionMapper.toResponse(manglerTilgangFeil())) {
 
             assertThat(response.getStatus()).isEqualTo(403);
-            assertThat(response.getEntity()).isInstanceOf(no.nav.vedtak.feil.FeilDto.class);
-            var feilDto = (no.nav.vedtak.feil.FeilDto) response.getEntity();
+            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+            var feilDto = (FeilDto) response.getEntity();
 
             assertThat(feilDto.feilkode()).isEqualTo(Feilkode.IKKE_TILGANG.name());
             assertThat(feilDto.feilmelding()).contains("ManglerTilgangFeilmeldingKode");
@@ -50,8 +51,8 @@ class GeneralRestExceptionMapperTest {
     void skalMappeFunksjonellFeil() {
         try (var response = exceptionMapper.toResponse(funksjonellFeil())) {
 
-            assertThat(response.getEntity()).isInstanceOf(no.nav.vedtak.feil.FeilDto.class);
-            var feilDto = (no.nav.vedtak.feil.FeilDto) response.getEntity();
+            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+            var feilDto = (FeilDto) response.getEntity();
 
             assertThat(feilDto.feilmelding()).contains("FUNK_FEIL");
             assertThat(feilDto.feilmelding()).contains("en funksjonell feilmelding");
@@ -66,8 +67,8 @@ class GeneralRestExceptionMapperTest {
 
             assertThat(response.getStatus()).isEqualTo(500);
 
-            assertThat(response.getEntity()).isInstanceOf(no.nav.vedtak.feil.FeilDto.class);
-            var feilDto = (no.nav.vedtak.feil.FeilDto) response.getEntity();
+            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+            var feilDto = (FeilDto) response.getEntity();
 
             assertThat(feilDto.feilmelding()).contains("TEK_FEIL");
             assertThat(feilDto.feilmelding()).contains("en teknisk feilmelding");
@@ -83,8 +84,8 @@ class GeneralRestExceptionMapperTest {
         try (var response = exceptionMapper.toResponse(new TekniskException("KODE", "TEKST", generellFeil))) {
 
             assertThat(response.getStatus()).isEqualTo(500);
-            assertThat(response.getEntity()).isInstanceOf(no.nav.vedtak.feil.FeilDto.class);
-            var feilDto = (no.nav.vedtak.feil.FeilDto) response.getEntity();
+            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+            var feilDto = (FeilDto) response.getEntity();
 
             assertThat(feilDto.feilmelding()).contains("TEKST");
             assertThat(logSniffer.search("TEKST", Level.WARN)).hasSize(1);
@@ -98,8 +99,8 @@ class GeneralRestExceptionMapperTest {
         try (var response = exceptionMapper.toResponse(new TekniskException("KODE", feilmelding))) {
 
             assertThat(response.getStatus()).isEqualTo(500);
-            assertThat(response.getEntity()).isInstanceOf(no.nav.vedtak.feil.FeilDto.class);
-            var feilDto = (no.nav.vedtak.feil.FeilDto) response.getEntity();
+            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+            var feilDto = (FeilDto) response.getEntity();
 
             assertThat(feilDto.feilmelding()).contains(feilmelding);
             assertThat(logSniffer.search(feilmelding, Level.WARN)).hasSize(1);
@@ -115,8 +116,8 @@ class GeneralRestExceptionMapperTest {
         try (var response = exceptionMapper.toResponse(generellFeil)) {
 
             assertThat(response.getStatus()).isEqualTo(500);
-            assertThat(response.getEntity()).isInstanceOf(no.nav.vedtak.feil.FeilDto.class);
-            var feilDto = (no.nav.vedtak.feil.FeilDto) response.getEntity();
+            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+            var feilDto = (FeilDto) response.getEntity();
 
             assertThat(feilDto.feilmelding()).contains(feilmelding);
             assertThat(logSniffer.search(feilmelding, Level.WARN)).hasSize(1);
