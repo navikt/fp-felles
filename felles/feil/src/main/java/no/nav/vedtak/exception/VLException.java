@@ -1,6 +1,6 @@
 package no.nav.vedtak.exception;
 
-import no.nav.vedtak.feil.FeilType;
+import no.nav.vedtak.feil.Feilkode;
 
 public abstract sealed class VLException extends RuntimeException
     permits FunksjonellException, IntegrasjonException, ManglerTilgangException, TekniskException {
@@ -10,14 +10,14 @@ public abstract sealed class VLException extends RuntimeException
     private final Throwable cause;
 
     protected VLException(String kode, String msg, Throwable cause) {
-        super(kode + ": " + msg, cause);
+        super(kode != null ? kode + ": " + msg : msg, cause);
         this.kode = kode;
         this.msg = msg;
         this.cause = cause;
     }
 
-    public String getFeilType() {
-        return FeilType.GENERELL_FEIL.name();
+    public String getFeilkode() {
+        return Feilkode.GENERELL.name();
     }
 
     public String getKode() {
@@ -29,6 +29,10 @@ public abstract sealed class VLException extends RuntimeException
     }
 
     public abstract int getStatusCode();
+
+    public VLLogLevel getLogLevel() {
+        return VLLogLevel.WARN;
+    }
 
     @Override
     public String toString() {

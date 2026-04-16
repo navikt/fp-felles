@@ -6,6 +6,7 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 
 import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.sikkerhet.jaxrs.AutentiseringException;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
@@ -19,7 +20,7 @@ public class ForvaltningAuthorizationFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext req) {
         if (!KontekstHolder.harKontekst() || !KontekstHolder.getKontekst().erAutentisert()) {
-            throw new ManglerTilgangException("FORVALTNING", "Ikke autentisert");
+            throw new AutentiseringException("FORVALTNING: Ikke autentisert", null);
         }
         if (!(KontekstHolder.getKontekst() instanceof RequestKontekst kontekst && kontekst.harGruppe(AnsattGruppe.DRIFT))) {
             throw new ManglerTilgangException("FORVALTNING", "Mangler driftstilgang");

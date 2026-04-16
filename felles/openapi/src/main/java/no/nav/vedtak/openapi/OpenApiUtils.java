@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import jakarta.ws.rs.core.Application;
 
+import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
@@ -26,40 +27,36 @@ public class OpenApiUtils {
     }
 
     /*
-     * Oppsett av minimal OpenApi/Swagger for en enkelt Jakarta RS Application - uten konflikter.
-     * Default og håndterer også tilfelle der OpenApiresource.config er en ServletConfig i stedet for Application-klasse
-     */
-    public static void setupSingleApplicationOpenApi(String tittel, String contextPath, Collection<Class<?>> resourceClasses) {
-        Objects.requireNonNull(tittel, "tittel");
-        Objects.requireNonNull(contextPath, "contextPath");
-        var info = new Info().title(tittel).version("1.0");
-        var oas = openApiFrom(info, contextPath);
-        var swaggerConfiguration = swaggerConfigurationFrom(oas)
-            .resourceClasses(resourceClasses.stream().map(Class::getName).collect(Collectors.toSet()));
-        try {
-            new JaxrsOpenApiContextBuilder<>().openApiConfiguration(swaggerConfiguration).buildContext(true);
-        } catch (OpenApiConfigurationException e) {
-            throw new TekniskException("OPEN-API", e.getMessage(), e);
-        }
-    }
-
-    /*
      * Oppsett av OpenApi/Swagger for navngitt(e) Jakarta RS Application. Unngår konflikter ved ctxId.
      */
     public static void setupOpenApi(String tittel, String contextPath,
                                     Collection<Class<?>> resourceClasses, Application application) {
         Objects.requireNonNull(tittel, "tittel");
         Objects.requireNonNull(contextPath, "contextPath");
-        var info = new Info().title(tittel).version("1.0");
-        openApiConfigFor(info, contextPath, application)
+        openApiConfigFor(tittel, contextPath, application)
             .registerClasses(resourceClasses)
             .buildOpenApiContext();
+    }
+
+    public static OpenApiUtils openApiConfigFor(String tittel, String contextPath, Application application) {
+        var info = new Info().title(tittel).version("1.0");
+        return openApiConfigFor(info, contextPath, application);
     }
 
     public static OpenApiUtils openApiConfigFor(Info info, String contextPath, Application application) {
         var oas = openApiFrom(info, contextPath);
         var swaggerConfiguration = swaggerConfigurationFrom(oas).id(idFra(application));
         return new OpenApiUtils(swaggerConfiguration, application);
+    }
+
+    public OpenApiUtils readerClass(Reader readerClass) {
+        swaggerConfiguration.readerClass(readerClass.getClass().getName());
+        return this;
+    }
+
+    public OpenApiUtils readerClass(Class<?> readerClass) {
+        swaggerConfiguration.readerClass(readerClass.getName());
+        return this;
     }
 
     public OpenApiUtils registerClasses(Collection<Class<?>> resourceClasses) {

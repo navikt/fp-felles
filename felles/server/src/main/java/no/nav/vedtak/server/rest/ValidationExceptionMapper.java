@@ -1,7 +1,5 @@
 package no.nav.vedtak.server.rest;
 
-import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,32 +7,30 @@ import java.util.stream.Collectors;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.vedtak.feil.FeilDto;
-import no.nav.vedtak.feil.FeilType;
+import no.nav.vedtak.feil.Feilkode;
 
 public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ValidationExceptionMapper.class);
-
-
     @Override
     public Response toResponse(ConstraintViolationException exception) {
-        var feltFeil = getFeltFeil(exception);
-        var feilTekst = getLoggTekst(feltFeil);
-        var feilmelding = String.format("Det oppstod en valideringsfeil på felt %s. Vennligst kontroller at verdier er korrekte.", feilTekst);
-        var feil = new FeilDto(FeilType.VALIDERINGSFEIL, feilmelding);
-        LOG.warn(feilTekst);
-        return Response.status(Response.Status.BAD_REQUEST)
-            .entity(feil)
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+        FeilUtils.ensureCallId();
+        var feilmelding = getFeilmeldingTekst(exception);
+        FeilUtils.loggWarning(feilmelding);
+        return FeilUtils.responseFra(Response.Status.BAD_REQUEST, Feilkode.VALIDERING, feilmelding);
+    }
+
+    protected static String getFeilmeldingTekst(ConstraintViolationException exception) {
+        var feilTekst = getLoggTekst(exception);
+        return String.format("Det oppstod en valideringsfeil for felt %s.", feilTekst);
+    }
+
+    private static String getLoggTekst(ConstraintViolationException exception) {
+        return getFeltFeil(exception).stream()
+            .map(f -> f.navn() + ": " + f.melding())
+            .collect(Collectors.joining(", "));
     }
 
     private static Set<FeltFeil> getFeltFeil(ConstraintViolationException exception) {
@@ -46,17 +42,12 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
 
     // Hvis du vil ta med constraintViolation.getInvalidValue() - så vask teksten for å unngå logg-injeksjon (se testcase)
     private static FeltFeil getFeltFeil(ConstraintViolation<?> constraintViolation) {
-        var root = Optional.ofNullable(constraintViolation.getRootBeanClass()).map(Class::getSimpleName).orElse("null");
-        var leaf = Optional.ofNullable(constraintViolation.getLeafBean()).map(Object::getClass).map(Class::getSimpleName).orElse("null");
+        var root = Optional.ofNullable(constraintViolation.getRootBeanClass())
+            .map(Class::getSimpleName)
+            .map(rbn -> rbn.replace("$Proxy$_$$_WeldClientProxy", "").concat("."))
+            .orElse("");
         var field = Optional.ofNullable(constraintViolation.getPropertyPath()).map(Path::toString).orElse("null");
-        var start = Objects.equals(root, leaf) ? leaf : root + "." + leaf;
-        return new FeltFeil(start + "." + field, constraintViolation.getMessage());
-    }
-
-    private static String getLoggTekst(Collection<FeltFeil> feil) {
-        return feil.stream()
-            .map(f -> f.navn() + ": " + f.melding())
-            .collect(Collectors.joining(", "));
+        return new FeltFeil(root + field, constraintViolation.getMessage());
     }
 
     private record FeltFeil(String navn, String melding) {}

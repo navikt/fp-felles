@@ -3,7 +3,7 @@ package no.nav.vedtak.felles.jpa;
 import java.net.HttpURLConnection;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.feil.FeilType;
+import no.nav.vedtak.feil.Feilkode;
 
 /**
  * Spesialisert exception som kastes når det kreves et eksakt svar fra Hibernate.
@@ -20,7 +20,7 @@ public class TomtResultatException extends TekniskException {
     }
 
     @Override
-    public String getFeilType() {
-        return FeilType.TOMT_RESULTAT_FEIL.name();
+    public String getFeilkode() {
+        return Feilkode.IKKE_FUNNET.name();
     }
 }
