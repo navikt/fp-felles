@@ -55,10 +55,11 @@ public class HttpClientRequest {
     }
 
     HttpRequest request() {
-        builder.timeout(Optional.ofNullable(timeout).orElse(DEFAULT_TIMEOUT));
-        headers.forEach((key, value) -> builder.header(key, value.get()));
-        dependentHeaders.forEach((key, value) -> Optional.ofNullable(key.get()).ifPresent(v -> builder.header(value, v)));
-        var request = builder.build();
+        var requestBuilder = builder.copy();
+        requestBuilder.timeout(Optional.ofNullable(timeout).orElse(DEFAULT_TIMEOUT));
+        headers.forEach((key, value) -> requestBuilder.header(key, value.get()));
+        dependentHeaders.forEach((key, value) -> Optional.ofNullable(key.get()).ifPresent(v -> requestBuilder.header(value, v)));
+        var request = requestBuilder.build();
         validators.forEach(v -> v.accept(request));
         return request;
     }
