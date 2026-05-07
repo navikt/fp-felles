@@ -15,6 +15,7 @@ import no.nav.vedtak.feil.FeilDto;
 import no.nav.vedtak.feil.Feilkode;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 /*
  * Hjelpemetoder for logging og håndtering av feil i REST-laget
@@ -24,6 +25,7 @@ import no.nav.vedtak.log.util.LoggerUtils;
 public class FeilUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(FeilUtils.class);
+    private static Logger sikkerlog = null;
 
 
     private FeilUtils() {
@@ -37,9 +39,14 @@ public class FeilUtils {
 
     public static void loggFeil(Throwable feil) {
         var logLevel = feil instanceof VLException vlFeil ? vlFeil.getLogLevel() : VLLogLevel.WARN;
-        var melding = String.format("Fikk uventet feil: %s.", getFeilmelding(feil));
+        var feilmelding = getFeilmelding(feil);
+        var melding = String.format("Fikk uventet feil: %s.", feilmelding);
         if (logLevel == null || VLLogLevel.WARN.equals(logLevel)) {
             LOG.warn(melding, feil);
+            if (harSikkerlogg()) {
+                var sikkermelding = String.format("Fikk uventet feil for bruker %s: %s.", KontekstHolder.getKontekst().getUid(), feilmelding);
+                sikkerloggWarning(sikkermelding);
+            }
         } else if (VLLogLevel.INFO.equals(logLevel)) {
             LOG.info(melding, feil);
         }
@@ -53,6 +60,12 @@ public class FeilUtils {
         LOG.warn(loggmelding, cause);
     }
 
+    public static void sikkerloggWarning(String loggmelding) {
+        if (sikkerlog != null) {
+            sikkerlog.warn(loggmelding);
+        }
+    }
+
     public static Response responseFra(Throwable feil) {
         return responseFra(getStatusCode(feil), getFeilkode(feil), getFeilmelding(feil));
     }
@@ -63,31 +76,28 @@ public class FeilUtils {
 
     public static Response responseFra(Response.Status status, Feilkode feilkode, String feilmelding) {
         return Response.status(status)
-            .entity(feilDto(feilkode.name(), feilmelding))
+            .entity(feilDto(status.getStatusCode(), feilkode.name(), feilmelding))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
 
     public static Response responseFra(int status, Feilkode feilkode, String feilmelding) {
         return Response.status(status)
-            .entity(feilDto(feilkode.name(), feilmelding))
+            .entity(feilDto(status, feilkode.name(), feilmelding))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
 
-    public static Response responseFra(int status, String feilType, String feilmelding) {
+    public static Response responseFra(int status, String feilkode, String feilmelding) {
         return Response.status(status)
-            .entity(feilDto(feilType, feilmelding))
+            .entity(feilDto(status, feilkode, feilmelding))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
 
-    public static Response jsonFeil(String feilmelding) {
-        return responseFra(Response.Status.BAD_REQUEST, Feilkode.GENERELL, feilmelding);
-    }
-
-    public static FeilDto feilDto(String feilType, String feilmelding) {
-        return new FeilDto(feilType, feilmelding, MDCOperations.getCallId());
+    public static FeilDto feilDto(int status, String feilkode, String feilmelding) {
+        ensureCallId();
+        return new FeilDto(status, feilkode, feilmelding, MDCOperations.getCallId());
     }
 
     public static boolean internFeil(Throwable feil) {
@@ -109,6 +119,14 @@ public class FeilUtils {
     public static String getFeilmelding(Throwable feil) {
         var input = feil.getMessage();
         return input != null ? LoggerUtils.removeLineBreaks(input) : "";
+    }
+
+    public static boolean harSikkerlogg() {
+        return sikkerlog != null;
+    }
+
+    public static void setSikkerlogg(Logger logger) {
+        sikkerlog = logger;
     }
 
 }

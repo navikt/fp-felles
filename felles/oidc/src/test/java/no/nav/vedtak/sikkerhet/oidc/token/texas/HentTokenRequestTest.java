@@ -4,16 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class HentTokenRequestTest {
 
-    private static final ObjectMapper OBJECT_MAPPER = DefaultJsonMapper.getJsonMapper();
+    private static final JsonMapper OBJECT_MAPPER = DefaultJsonMapper.getJsonMapper();
 
     @Test
     void skal_serialisere_med_alle_felter() throws JsonProcessingException {

@@ -5,7 +5,7 @@ import jakarta.ws.rs.ext.ContextResolver;
 import no.nav.vedtak.mapper.json.DefaultJson3Mapper;
 import tools.jackson.databind.json.JsonMapper;
 
-public class Jackson3Mapper implements ContextResolver<JsonMapper> {
+public class Jackson3ContextResolver implements ContextResolver<JsonMapper> {
 
     private static final JsonMapper MAPPER = DefaultJson3Mapper.getJsonMapper();
 
