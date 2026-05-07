@@ -57,7 +57,7 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
 
     private record FeltFeil(String navn, String melding) {}
 
-    private static Set<String> getInputs(ConstraintViolationException exception) {
+    public static Set<String> getInputs(ConstraintViolationException exception) {
         return exception.getConstraintViolations()
             .stream()
             .map(ConstraintViolation::getInvalidValue)
