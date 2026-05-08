@@ -1,5 +1,8 @@
 package no.nav.vedtak.klient.http;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -19,6 +22,8 @@ import java.util.function.Supplier;
  */
 public class HttpClientRequest {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HttpClientRequest.class);
+
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
 
     private final HttpRequest.Builder builder;
@@ -26,6 +31,7 @@ public class HttpClientRequest {
     private final Map<String, Supplier<String>> headers;
     private final Map<Supplier<String>, String> dependentHeaders;
     private final List<Consumer<HttpRequest>> validators;
+    private boolean built;
 
     private HttpClientRequest() {
         this(HttpRequest.newBuilder(), null);
@@ -36,6 +42,7 @@ public class HttpClientRequest {
         this.headers = headers != null ? new HashMap<>(headers) : new HashMap<>();
         this.dependentHeaders = new HashMap<>();
         this.validators = new ArrayList<>(List.of(HttpClientRequest::validateTimeout));
+        this.built = false;
     }
 
     public HttpClientRequest timeout(Duration timeout) {
@@ -55,6 +62,14 @@ public class HttpClientRequest {
     }
 
     HttpRequest request() {
+        if (built) {
+            try {
+               throw new IllegalStateException("HttpRequest already built");
+            } catch (IllegalStateException e) {
+                LOG.warn("HttpRequest already built", e);
+            }
+        }
+        this.built = true;
         var requestBuilder = builder.copy();
         requestBuilder.timeout(Optional.ofNullable(timeout).orElse(DEFAULT_TIMEOUT));
         headers.forEach((key, value) -> requestBuilder.header(key, value.get()));
