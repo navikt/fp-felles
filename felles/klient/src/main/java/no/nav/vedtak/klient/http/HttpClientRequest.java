@@ -63,11 +63,8 @@ public class HttpClientRequest {
 
     HttpRequest request() {
         if (built) {
-            try {
-               throw new IllegalStateException("HttpRequest already built");
-            } catch (IllegalStateException e) {
-                LOG.warn("HttpRequest already built", e);
-            }
+            // Logg forekomster - vil unngå gjenbruk av requests
+            LOG.warn("HttpRequest already built", new IllegalStateException("HttpRequest already built"));
         }
         this.built = true;
         var requestBuilder = builder.copy();
