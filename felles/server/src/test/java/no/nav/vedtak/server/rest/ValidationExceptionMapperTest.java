@@ -16,9 +16,9 @@ import no.nav.vedtak.feil.Feilkode;
 
 class ValidationExceptionMapperTest {
 
-    private record SuperTestRec(@Valid CompTestRec rec) {}
+    private record SuperTestRec(@Valid CompTestRec comptestrec) {}
 
-    private record CompTestRec(@Valid TestRec rec) {}
+    private record CompTestRec(@Valid TestRec testrec) {}
 
     private record TestRec(@Min(10) int tall, @Pattern(regexp = "\\d{5}") String tekst) { }
 
@@ -49,7 +49,7 @@ class ValidationExceptionMapperTest {
             assertThat(respons.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
             var feilene = (FeilDto) respons.getEntity();
             assertThat(feilene.feilkode()).isEqualTo(Feilkode.VALIDERING.name());
-            assertThat(feilene.feilmelding()).contains("SuperTestRec.rec.rec.tekst");
+            assertThat(feilene.feilmelding()).contains("SuperTestRec.comptestrec.testrec.tekst");
             assertThat(feilene.feilmelding()).contains("d{5}");
         }
     }

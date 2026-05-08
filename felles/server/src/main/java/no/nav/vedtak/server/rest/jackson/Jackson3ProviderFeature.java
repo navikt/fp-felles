@@ -9,7 +9,7 @@ import jakarta.ws.rs.ext.MessageBodyWriter;
 import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 
-public class Jackson3BasicFeature implements Feature {
+public class Jackson3ProviderFeature implements Feature {
 
     @Override
     public boolean configure(final FeatureContext context) {
@@ -19,8 +19,6 @@ public class Jackson3BasicFeature implements Feature {
         if (!config.isRegistered(JacksonJsonProvider.class)) {
             context.register(JacksonJsonProvider.class, MessageBodyReader.class, MessageBodyWriter.class);
         }
-        context.register(DatabindExceptionMapper.class);
-        context.register(StreamReadExceptionMapper.class);
 
         return true;
     }

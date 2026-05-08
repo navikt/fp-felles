@@ -19,7 +19,6 @@ import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * OBS: JsonMapper er en subklasse av ObjectMapper - tilpasset Json og med en enklere builder
  * Se også jackson-core, pakke json, JsonReadFeature og JsonWriteFeature for mer Java/Json-nær konfig/features
  */
 public class DefaultJson3Mapper {

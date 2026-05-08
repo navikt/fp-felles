@@ -1,5 +1,6 @@
 package no.nav.vedtak.server.rest;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
 import no.nav.vedtak.feil.Feilkode;
+import no.nav.vedtak.log.util.LoggerUtils;
 
 public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
 
@@ -19,12 +21,15 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
         FeilUtils.ensureCallId();
         var feilmelding = getFeilmeldingTekst(exception);
         FeilUtils.loggWarning(feilmelding);
+        if (FeilUtils.harSikkerlogg()) {
+            FeilUtils.sikkerloggWarning(String.format("%s - input %s", feilmelding, getInputs(exception)));
+        }
         return FeilUtils.responseFra(Response.Status.BAD_REQUEST, Feilkode.VALIDERING, feilmelding);
     }
 
-    protected static String getFeilmeldingTekst(ConstraintViolationException exception) {
+    public static String getFeilmeldingTekst(ConstraintViolationException exception) {
         var feilTekst = getLoggTekst(exception);
-        return String.format("Det oppstod en valideringsfeil for felt %s.", feilTekst);
+        return String.format("Valideringsfeil for felt %s.", feilTekst);
     }
 
     private static String getLoggTekst(ConstraintViolationException exception) {
@@ -51,5 +56,15 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
     }
 
     private record FeltFeil(String navn, String melding) {}
+
+    public static Set<String> getInputs(ConstraintViolationException exception) {
+        return exception.getConstraintViolations()
+            .stream()
+            .map(ConstraintViolation::getInvalidValue)
+            .filter(Objects::nonNull)
+            .map(Object::toString)
+            .map(LoggerUtils::removeLineBreaks)
+            .collect(Collectors.toSet());
+    }
 
 }

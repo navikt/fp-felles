@@ -9,7 +9,7 @@ import jakarta.ws.rs.ext.MessageBodyWriter;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 
-public class Jackson2BasicFeature implements Feature {
+public class Jackson2ProviderFeature implements Feature {
 
     @Override
     public boolean configure(final FeatureContext context) {
@@ -19,8 +19,6 @@ public class Jackson2BasicFeature implements Feature {
         if (!config.isRegistered(JacksonJsonProvider.class)) {
             context.register(JacksonJsonProvider.class, MessageBodyReader.class, MessageBodyWriter.class);
         }
-        context.register(JsonMappingExceptionMapper.class);
-        context.register(JsonParseExceptionMapper.class);
 
         return true;
     }

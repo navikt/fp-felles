@@ -3,7 +3,6 @@ package no.nav.vedtak.mapper.json;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -23,7 +22,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.nav.vedtak.exception.TekniskException;
 
 /**
- * OBS: JsonMapper er en subklasse av ObjectMapper - tilpasset Json og med en enklere builder
  * Se også jackson-core, pakke json, JsonReadFeature og JsonWriteFeature for mer Java/Json-nær konfig/features
  */
 public class DefaultJsonMapper {
@@ -33,11 +31,6 @@ public class DefaultJsonMapper {
     }
 
     private static final JsonMapper MAPPER = createJsonMapper();
-
-    @Deprecated // Bruk getJsonMapper() når mapper-konfig brukes as is og ikke endres ((de)serializers eller subtypes
-    public static JsonMapper getObjectMapper() {
-        return MAPPER;
-    }
 
     // Foretrekker denne - men bruk heller metoder nedenfor direkte enn å assigne til lokale variable
     public static JsonMapper getJsonMapper() {
@@ -80,15 +73,6 @@ public class DefaultJsonMapper {
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
             return MAPPER.readerFor(clazz).readValue(json);
-        } catch (IOException e) {
-            throw deserializationException(e);
-        }
-    }
-
-    @Deprecated // Bruk File eller InputStream
-    public static <T> T fromJson(URL json, Class<T> clazz) {
-        try {
-            return MAPPER.readerFor(clazz).readValue(json, clazz);
         } catch (IOException e) {
             throw deserializationException(e);
         }
