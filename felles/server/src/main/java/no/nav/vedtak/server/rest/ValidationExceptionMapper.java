@@ -21,8 +21,8 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
         RestServerFeilUtils.ensureCallId();
         var feilmelding = getFeilmeldingTekst(exception);
         RestServerFeilUtils.loggWarning(feilmelding);
-        if (RestSikkerLoggFeature.erSikkerloggEnabled()) {
-            RestServerFeilUtils.sikkerloggWarning(String.format("%s - input %s", feilmelding, getInputs(exception)));
+        if (RestSecureLogFeature.erSikkerloggEnabled()) {
+            RestSecureLogFeature.sikkerloggWarning(String.format("%s - input %s", feilmelding, getInputs(exception)));
         }
         return RestServerFeilUtils.responseFra(Response.Status.BAD_REQUEST, Feilkode.VALIDERING, feilmelding);
     }

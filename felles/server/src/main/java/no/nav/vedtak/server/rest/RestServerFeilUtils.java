@@ -25,7 +25,6 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 public class RestServerFeilUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestServerFeilUtils.class);
-    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     private RestServerFeilUtils() {
     }
@@ -42,9 +41,9 @@ public class RestServerFeilUtils {
         var melding = String.format("Fikk uventet feil: %s.", feilmelding);
         if (logLevel == null || VLLogLevel.WARN.equals(logLevel)) {
             LOG.warn(melding, feil);
-            if (RestSikkerLoggFeature.erSikkerloggEnabled()) {
+            if (RestSecureLogFeature.erSikkerloggEnabled()) {
                 var sikkermelding = String.format("Fikk uventet feil for bruker %s: %s.", KontekstHolder.getKontekst().getUid(), feilmelding);
-                sikkerloggWarning(sikkermelding);
+                RestSecureLogFeature.sikkerloggWarning(sikkermelding);
             }
         } else if (VLLogLevel.INFO.equals(logLevel)) {
             LOG.info(melding, feil);
@@ -57,12 +56,6 @@ public class RestServerFeilUtils {
 
     public static void loggWarning(String loggmelding, Throwable cause) {
         LOG.warn(loggmelding, cause);
-    }
-
-    public static void sikkerloggWarning(String loggmelding) {
-        if (RestSikkerLoggFeature.erSikkerloggEnabled()) {
-            SECURE_LOG.warn(loggmelding);
-        }
     }
 
     public static Response responseFra(Throwable feil) {
