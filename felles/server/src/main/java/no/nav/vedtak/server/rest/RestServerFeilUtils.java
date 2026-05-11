@@ -22,13 +22,12 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
  * - logging av feil eller melding (evt med årsak)
  * - utledning av Response - hele eller elementer (status, FeilDto)
  */
-public class FeilUtils {
+public class RestServerFeilUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FeilUtils.class);
-    private static Logger sikkerlog = null;
+    private static final Logger LOG = LoggerFactory.getLogger(RestServerFeilUtils.class);
+    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
-
-    private FeilUtils() {
+    private RestServerFeilUtils() {
     }
 
     public static void ensureCallId() {
@@ -43,7 +42,7 @@ public class FeilUtils {
         var melding = String.format("Fikk uventet feil: %s.", feilmelding);
         if (logLevel == null || VLLogLevel.WARN.equals(logLevel)) {
             LOG.warn(melding, feil);
-            if (harSikkerlogg()) {
+            if (RestSikkerLoggFeature.erSikkerloggEnabled()) {
                 var sikkermelding = String.format("Fikk uventet feil for bruker %s: %s.", KontekstHolder.getKontekst().getUid(), feilmelding);
                 sikkerloggWarning(sikkermelding);
             }
@@ -61,8 +60,8 @@ public class FeilUtils {
     }
 
     public static void sikkerloggWarning(String loggmelding) {
-        if (sikkerlog != null) {
-            sikkerlog.warn(loggmelding);
+        if (RestSikkerLoggFeature.erSikkerloggEnabled()) {
+            SECURE_LOG.warn(loggmelding);
         }
     }
 
@@ -119,14 +118,6 @@ public class FeilUtils {
     public static String getFeilmelding(Throwable feil) {
         var input = feil.getMessage();
         return input != null ? LoggerUtils.removeLineBreaks(input) : "";
-    }
-
-    public static boolean harSikkerlogg() {
-        return sikkerlog != null;
-    }
-
-    public static void setSikkerlogg(Logger logger) {
-        sikkerlog = logger;
     }
 
 }
