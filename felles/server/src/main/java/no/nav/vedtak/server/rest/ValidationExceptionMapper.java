@@ -18,13 +18,13 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
-        FeilUtils.ensureCallId();
+        RestServerFeilUtils.ensureCallId();
         var feilmelding = getFeilmeldingTekst(exception);
-        FeilUtils.loggWarning(feilmelding);
-        if (FeilUtils.harSikkerlogg()) {
-            FeilUtils.sikkerloggWarning(String.format("%s - input %s", feilmelding, getInputs(exception)));
+        RestServerFeilUtils.loggWarning(feilmelding);
+        if (RestSecureLogFeature.erSikkerloggEnabled()) {
+            RestSecureLogFeature.sikkerloggWarning(String.format("%s - input %s", feilmelding, getInputs(exception)));
         }
-        return FeilUtils.responseFra(Response.Status.BAD_REQUEST, Feilkode.VALIDERING, feilmelding);
+        return RestServerFeilUtils.responseFra(Response.Status.BAD_REQUEST, Feilkode.VALIDERING, feilmelding);
     }
 
     public static String getFeilmeldingTekst(ConstraintViolationException exception) {

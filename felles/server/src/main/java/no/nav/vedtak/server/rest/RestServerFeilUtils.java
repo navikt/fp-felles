@@ -22,13 +22,11 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
  * - logging av feil eller melding (evt med årsak)
  * - utledning av Response - hele eller elementer (status, FeilDto)
  */
-public class FeilUtils {
+public class RestServerFeilUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FeilUtils.class);
-    private static Logger sikkerlog = null;
+    private static final Logger LOG = LoggerFactory.getLogger(RestServerFeilUtils.class);
 
-
-    private FeilUtils() {
+    private RestServerFeilUtils() {
     }
 
     public static void ensureCallId() {
@@ -43,9 +41,9 @@ public class FeilUtils {
         var melding = String.format("Fikk uventet feil: %s.", feilmelding);
         if (logLevel == null || VLLogLevel.WARN.equals(logLevel)) {
             LOG.warn(melding, feil);
-            if (harSikkerlogg()) {
+            if (RestSecureLogFeature.erSikkerloggEnabled()) {
                 var sikkermelding = String.format("Fikk uventet feil for bruker %s: %s.", KontekstHolder.getKontekst().getUid(), feilmelding);
-                sikkerloggWarning(sikkermelding);
+                RestSecureLogFeature.sikkerloggWarning(sikkermelding);
             }
         } else if (VLLogLevel.INFO.equals(logLevel)) {
             LOG.info(melding, feil);
@@ -58,12 +56,6 @@ public class FeilUtils {
 
     public static void loggWarning(String loggmelding, Throwable cause) {
         LOG.warn(loggmelding, cause);
-    }
-
-    public static void sikkerloggWarning(String loggmelding) {
-        if (sikkerlog != null) {
-            sikkerlog.warn(loggmelding);
-        }
     }
 
     public static Response responseFra(Throwable feil) {
@@ -119,14 +111,6 @@ public class FeilUtils {
     public static String getFeilmelding(Throwable feil) {
         var input = feil.getMessage();
         return input != null ? LoggerUtils.removeLineBreaks(input) : "";
-    }
-
-    public static boolean harSikkerlogg() {
-        return sikkerlog != null;
-    }
-
-    public static void setSikkerlogg(Logger logger) {
-        sikkerlog = logger;
     }
 
 }
