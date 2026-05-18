@@ -1,8 +1,5 @@
 package no.nav.vedtak.felles.integrasjon.rest;
 
-import no.nav.vedtak.klient.http.BaseHttpClient;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-
 import java.net.HttpURLConnection;
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -11,12 +8,28 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
-class BaseRestClient {
+import no.nav.vedtak.klient.http.DefaultHttpClient;
+import no.nav.vedtak.mapper.json.DefaultJson3Mapper;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
-    private BaseHttpClient httpklient;
+public final class Jackson3RestClient {
 
-    public BaseRestClient(BaseHttpClient httpClient) {
+    private final DefaultHttpClient httpklient;
+
+    private Jackson3RestClient() {
+        this(DefaultHttpClient.client());
+    }
+
+    private Jackson3RestClient(DefaultHttpClient httpClient) {
         this.httpklient = httpClient;
+    }
+
+    public static Jackson3RestClient client() {
+        return new Jackson3RestClient();
+    }
+
+    public static Jackson3RestClient proxyclient() {
+        return new Jackson3RestClient(DefaultHttpClient.proxyclient());
     }
 
     public <T> T send(RestRequest request, Class<T> clazz) {
@@ -74,6 +87,6 @@ class BaseRestClient {
         if (clazz.isAssignableFrom(String.class)) {
             return clazz.cast(response);
         }
-        return DefaultJsonMapper.fromJson(response, clazz);
+        return DefaultJson3Mapper.fromJson(response, clazz);
     }
 }

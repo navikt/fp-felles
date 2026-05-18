@@ -14,6 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import no.nav.vedtak.klient.http.HttpClientRequest;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.mapper.json.DefaultJson3Mapper;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
@@ -44,6 +45,10 @@ public final class RestRequest extends HttpClientRequest {
 
         public static Method postJson(Object body) {
             return new Method(WebMethod.POST, RestRequest.jsonPublisher(body));
+        }
+
+        public static Method postJson3(Object body) {
+            return new Method(WebMethod.POST, RestRequest.json3Publisher(body));
         }
     }
 
@@ -76,12 +81,20 @@ public final class RestRequest extends HttpClientRequest {
         return HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(object));
     }
 
+    public static HttpRequest.BodyPublisher json3Publisher(Object object) {
+        return HttpRequest.BodyPublishers.ofString(DefaultJson3Mapper.toJson(object));
+    }
+
     public static RestRequest newGET(URI target, RestConfig config) {
         return newRequest(Method.get(), target, config);
     }
 
     public static RestRequest newPOSTJson(Object body, URI target, RestConfig config) {
         return newRequest(Method.postJson(body), target, config);
+    }
+
+    public static RestRequest newPOSTJson3(Object body, URI target, RestConfig config) {
+        return newRequest(Method.postJson3(body), target, config);
     }
 
     public static RestRequest newRequest(Method method, URI target, RestConfig config) {
