@@ -7,10 +7,9 @@ import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Optional;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
-
+import no.nav.foreldrepenger.graphql.GraphQLOperationRequest;
+import no.nav.foreldrepenger.graphql.GraphQLResponseProjection;
+import no.nav.foreldrepenger.graphql.GraphQLResult;
 import no.nav.pdl.GeografiskTilknytning;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
 import no.nav.pdl.HentGeografiskTilknytningQueryRequest;

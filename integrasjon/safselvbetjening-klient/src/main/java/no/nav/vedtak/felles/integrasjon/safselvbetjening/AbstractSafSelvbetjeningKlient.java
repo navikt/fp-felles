@@ -1,16 +1,14 @@
 package no.nav.vedtak.felles.integrasjon.safselvbetjening;
 
 import java.net.URI;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 import jakarta.ws.rs.core.UriBuilder;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
-
+import no.nav.foreldrepenger.graphql.GraphQLOperationRequest;
+import no.nav.foreldrepenger.graphql.GraphQLRequest;
+import no.nav.foreldrepenger.graphql.GraphQLResponseProjection;
+import no.nav.foreldrepenger.graphql.GraphQLResult;
 import no.nav.safselvbetjening.Dokumentoversikt;
 import no.nav.safselvbetjening.DokumentoversiktResponseProjection;
 import no.nav.safselvbetjening.DokumentoversiktSelvbetjeningQueryRequest;
@@ -87,7 +85,7 @@ public abstract class AbstractSafSelvbetjeningKlient implements SafSelvbetjening
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
-        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
+        var method = RestRequest.Method.postJson(req.toQueryObject());
         var request = RestRequest.newRequest(method, graphql, restConfig);
         var res = restKlient.send(request, clazz);
         if (res.hasErrors()) {

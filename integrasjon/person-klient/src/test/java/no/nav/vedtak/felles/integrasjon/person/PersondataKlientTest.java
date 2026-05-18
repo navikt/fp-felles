@@ -25,8 +25,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
-
+import no.nav.foreldrepenger.graphql.GraphQLError;
 import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.HentIdenterBolkQueryRequest;
@@ -164,8 +163,8 @@ class PersondataKlientTest {
     @DisplayName("Test error handler")
     void testErrorHandler() {
         var handler = new PdlDefaultErrorHandler();
-        var error = new GraphQLError();
-        error.setExtensions(Map.of("code", FORBUDT, "details", Map.of("cause", "a cause", "type", "a type", "policy", "a policy")));
+        var error = new GraphQLError("msg", List.of(), null, List.of(),
+            Map.of("code", FORBUDT, "details", Map.of("cause", "a cause", "type", "a type", "policy", "a policy")));
         var e = assertThrows(PdlException.class,
             () -> handler.handleError(List.of(error), RestConfig.forClient(TestPdlKLient.class).endpoint(), "KODE"));
         assertNotNull(e.getDetails());

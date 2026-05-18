@@ -18,8 +18,8 @@
             <artifactId>felles-integrasjon-rest-klient</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.kobylynskyi</groupId>
-            <artifactId>graphql-java-codegen</artifactId>
+            <groupId>no.nav.foreldrepenger.graphql</groupId>
+            <artifactId>graphql-runtime</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
@@ -35,8 +35,8 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>io.github.kobylynskyi</groupId>
-                <artifactId>graphql-codegen-maven-plugin</artifactId>
+                <groupId>no.nav.foreldrepenger.graphql</groupId>
+                <artifactId>graphql-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <goals>
@@ -49,16 +49,7 @@
                             <modelPackageName>no.nav.safselvbetjening</modelPackageName>
                             <customTypesMapping>
                                 <DateTime>java.util.Date</DateTime>
-                                <!-- <Price.amount>java.math.BigDecimal</Price.amount> -->
                             </customTypesMapping>
-                            <generateClient>true</generateClient>
-                            <generateApis>false</generateApis>
-                            <generateBuilder>false</generateBuilder>
-                            <generateToString>true</generateToString>
-                            <generateParameterizedFieldsResolvers>false</generateParameterizedFieldsResolvers>
-                            <addGeneratedAnnotation>true</addGeneratedAnnotation>
-                            <generatedAnnotation>jakarta.annotation.Generated</generatedAnnotation>
-                            <modelValidationAnnotation>@jakarta.validation.constraints.NotNull</modelValidationAnnotation>
                         </configuration>
                     </execution>
                 </executions>
