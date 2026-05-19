@@ -29,7 +29,7 @@
     </modules>
 
     <properties>
-        <graphql-java-codegen.version>5.10.0</graphql-java-codegen.version>
+        <graphql.version>1.0.0</graphql.version>
     </properties>
 
     <dependencyManagement>
@@ -79,11 +79,10 @@
                 <artifactId>felles-integrasjon-rest-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
-                <groupId>io.github.kobylynskyi</groupId>
-                <artifactId>graphql-java-codegen</artifactId>
-                <version>${graphql-java-codegen.version}</version>
+                <groupId>no.nav.foreldrepenger.graphql</groupId>
+                <artifactId>graphql-runtime</artifactId>
+                <version>${graphql.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -92,9 +91,9 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>io.github.kobylynskyi</groupId>
-                    <artifactId>graphql-codegen-maven-plugin</artifactId>
-                    <version>${graphql-java-codegen.version}</version>
+                    <groupId>no.nav.foreldrepenger.graphql</groupId>
+                    <artifactId>graphql-maven-plugin</artifactId>
+                    <version>${graphql.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

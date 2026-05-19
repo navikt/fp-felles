@@ -1,17 +1,15 @@
 package no.nav.vedtak.felles.integrasjon.saf;
 
 import java.net.URI;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 
 import jakarta.ws.rs.core.UriBuilder;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
-
+import no.nav.foreldrepenger.graphql.GraphQLOperationRequest;
+import no.nav.foreldrepenger.graphql.GraphQLRequest;
+import no.nav.foreldrepenger.graphql.GraphQLResponseProjection;
+import no.nav.foreldrepenger.graphql.GraphQLResult;
 import no.nav.saf.Dokumentoversikt;
 import no.nav.saf.DokumentoversiktFagsakQueryRequest;
 import no.nav.saf.DokumentoversiktFagsakQueryResponse;
@@ -97,8 +95,7 @@ public abstract class AbstractSafKlient implements Saf {
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
 
-        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
-        var request = RestRequest.newRequest(method, graphql, restConfig);
+        var request = RestRequest.newPOSTJson(req.toQueryObject(), graphql, restConfig);
         var res = restKlient.send(request, clazz);
         if (res.hasErrors()) {
             return errorHandler.handleError(res.getErrors(), restConfig.endpoint(), F_240613);

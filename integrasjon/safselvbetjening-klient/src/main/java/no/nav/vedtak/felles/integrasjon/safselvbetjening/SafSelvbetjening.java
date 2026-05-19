@@ -2,9 +2,9 @@ package no.nav.vedtak.felles.integrasjon.safselvbetjening;
 
 import java.net.http.HttpResponse;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
+import no.nav.foreldrepenger.graphql.GraphQLOperationRequest;
+import no.nav.foreldrepenger.graphql.GraphQLResponseProjection;
+import no.nav.foreldrepenger.graphql.GraphQLResult;
 import no.nav.safselvbetjening.Dokumentoversikt;
 import no.nav.safselvbetjening.DokumentoversiktResponseProjection;
 import no.nav.safselvbetjening.DokumentoversiktSelvbetjeningQueryRequest;

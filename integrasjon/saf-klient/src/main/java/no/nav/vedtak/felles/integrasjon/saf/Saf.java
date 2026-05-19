@@ -3,10 +3,9 @@ package no.nav.vedtak.felles.integrasjon.saf;
 import java.net.http.HttpResponse;
 import java.util.List;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
-
+import no.nav.foreldrepenger.graphql.GraphQLOperationRequest;
+import no.nav.foreldrepenger.graphql.GraphQLResponseProjection;
+import no.nav.foreldrepenger.graphql.GraphQLResult;
 import no.nav.saf.Dokumentoversikt;
 import no.nav.saf.DokumentoversiktFagsakQueryRequest;
 import no.nav.saf.DokumentoversiktResponseProjection;
