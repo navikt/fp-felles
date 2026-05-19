@@ -1,15 +1,13 @@
 package no.nav.vedtak.felles.integrasjon.person;
 
 import java.net.HttpURLConnection;
-import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Optional;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLOperationRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
-
+import no.nav.foreldrepenger.graphql.GraphQLOperationRequest;
+import no.nav.foreldrepenger.graphql.GraphQLRequest;
+import no.nav.foreldrepenger.graphql.GraphQLResponseProjection;
+import no.nav.foreldrepenger.graphql.GraphQLResult;
 import no.nav.pdl.GeografiskTilknytning;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
 import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
@@ -137,8 +135,7 @@ public abstract class AbstractPersonKlient implements Persondata {
     }
 
     private <T extends GraphQLResult<?>> T query(Ytelse ytelse, GraphQLRequest req, Class<T> clazz) {
-        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
-        var restRequest = RestRequest.newRequest(method, restConfig.endpoint(), restConfig).header("TEMA", tema.name());
+        var restRequest = RestRequest.newPOSTJson(req.toQueryObject(), restConfig.endpoint(), restConfig).header("TEMA", tema.name());
         Optional.ofNullable(ytelse).ifPresent(bnr -> restRequest.header("behandlingsnummer", bnr.getBehandlingsnummer()));
         var res = restKlient.send(restRequest, clazz);
         if (res.hasErrors()) {

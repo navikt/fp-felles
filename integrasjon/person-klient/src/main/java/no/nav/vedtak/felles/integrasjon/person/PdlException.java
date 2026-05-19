@@ -6,8 +6,7 @@ import static java.util.stream.Collectors.joining;
 import java.net.URI;
 import java.util.List;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
-
+import no.nav.foreldrepenger.graphql.GraphQLError;
 import no.nav.vedtak.exception.IntegrasjonException;
 
 public class PdlException extends IntegrasjonException {
@@ -17,7 +16,7 @@ public class PdlException extends IntegrasjonException {
     private final PDLExceptionExtension extension;
 
     public PdlException(String kode, List<GraphQLError> errors, PDLExceptionExtension extension, int status, URI uri) {
-        super(kode, format("Feil %s ved GraphQL oppslag mot %s", errors.stream().map(GraphQLError::getMessage).collect(joining(",")), uri), status);
+        super(kode, format("Feil %s ved GraphQL oppslag mot %s", errors.stream().map(GraphQLError::message).collect(joining(",")), uri), status);
         this.extension = extension;
         this.status = status;
         this.uri = uri;

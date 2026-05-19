@@ -12,8 +12,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
-
+import no.nav.foreldrepenger.graphql.GraphQLError;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class PdlDefaultErrorHandler {
@@ -26,7 +25,7 @@ public class PdlDefaultErrorHandler {
     public <T> T handleError(List<GraphQLError> errors, URI uri, String kode) {
         throw errors.stream()
             .findFirst() // TODO hva med flere?
-            .map(GraphQLError::getExtensions)
+            .map(GraphQLError::extensions)
             .map(PdlDefaultErrorHandler::details)
             .map(k -> exception(errors, k, uri))
             .orElseThrow(() -> exceptionFra(errors, HttpURLConnection.HTTP_INTERNAL_ERROR, PDL_INTERNAL, null, uri));
