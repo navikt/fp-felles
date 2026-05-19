@@ -95,8 +95,7 @@ public abstract class AbstractSafKlient implements Saf {
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
 
-        var method = RestRequest.Method.postJson(req.toQueryObject());
-        var request = RestRequest.newRequest(method, graphql, restConfig);
+        var request = RestRequest.newPOSTJson(req.toQueryObject(), graphql, restConfig);
         var res = restKlient.send(request, clazz);
         if (res.hasErrors()) {
             return errorHandler.handleError(res.getErrors(), restConfig.endpoint(), F_240613);

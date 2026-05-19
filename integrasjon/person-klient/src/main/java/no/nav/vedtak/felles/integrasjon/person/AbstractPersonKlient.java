@@ -135,8 +135,7 @@ public abstract class AbstractPersonKlient implements Persondata {
     }
 
     private <T extends GraphQLResult<?>> T query(Ytelse ytelse, GraphQLRequest req, Class<T> clazz) {
-        var method = RestRequest.Method.postJson(req.toQueryObject());
-        var restRequest = RestRequest.newRequest(method, restConfig.endpoint(), restConfig).header("TEMA", tema.name());
+        var restRequest = RestRequest.newPOSTJson(req.toQueryObject(), restConfig.endpoint(), restConfig).header("TEMA", tema.name());
         Optional.ofNullable(ytelse).ifPresent(bnr -> restRequest.header("behandlingsnummer", bnr.getBehandlingsnummer()));
         var res = restKlient.send(restRequest, clazz);
         if (res.hasErrors()) {
