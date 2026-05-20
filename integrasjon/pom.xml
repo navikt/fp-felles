@@ -29,7 +29,7 @@
     </modules>
 
     <properties>
-        <graphql.version>1.0.0</graphql.version>
+        <graphql.version>1.0.1</graphql.version>
     </properties>
 
     <dependencyManagement>
