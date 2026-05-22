@@ -15,19 +15,19 @@ Foreldrepenger backend apps.
 
 ### `felles/` — building blocks
 
-| Module | Purpose |
-|--------|---------|
-| `feil` | Structured error codes |
-| `log` | Logback/SLF4J structured logging |
-| `konfig` | App configuration |
-| `mapper` | Standard mapping helpers |
-| `kontekst` | Thread/request context |
+| Module | Purpose                                            |
+|--------|----------------------------------------------------|
+| `feil` | Structured exceptions and error codes              |
+| `log` | Logback/SLF4J structured logging                   |
+| `konfig` | App configuration                                  |
+| `mapper` | Primary Jackson Json-mapping feature               |
+| `kontekst` | Thread/request context                             |
 | `oidc` | Incoming token validation + outgoing token provider/exchange |
-| `abac`, `abac-kontekst` | XACML PEP/PDP framework |
+| `abac`, `abac-kontekst` | XACML PEP/PDP framework                            |
 | `db` | JPA/transaction utilities, multi-module ORM discovery |
-| `auth-filter`, `server` | Jetty + Jersey wiring |
-| `klient`, `kafka-properties` | REST/Kafka helpers |
-| `mapper`, `graphql`, `openapi`, `xmlutils`, `util`, `testutilities` | Misc |
+| `auth-filter`, `server` | Jetty + Jersey wiring                              |
+| `klient`, `kafka-properties` | REST/Kafka helpers                                 |
+| `openapi`, `xmlutils`, `util`, `testutilities` | Misc                                               |
 
 Known consumer exceptions (do not break these flows):
 - **fp-inntektsmelding-api**: uses maskinporten for incoming tokens (not `oidc`)
@@ -38,10 +38,12 @@ Known consumer exceptions (do not break these flows):
 REST/GraphQL clients used by **more than one** app. Single-app integrations
 stay in that app — do not promote here.
 
+`rest-klient` is the base for building REST/GrapghQL-integrations other than clients here.
+
 Current clients: `person-klient` (PDL), `saf-klient`,
 `safselvbetjening-klient`, `dokarkiv-klient`, `ereg-klient`,
 `oppgave-rest-klient`, `infotrygd-grunnlag-klient`, `spokelse-klient`,
-`tilgang-klient`, `rest-klient` (base), `kafka-properties`.
+`tilgang-klient`, `kafka-properties`.
 
 ## Release flow
 
