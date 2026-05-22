@@ -50,4 +50,4 @@ changes in public APIs require a major bump and a heads-up in team channels.
 
 ## Tech
 
-Java 25, Jakarta EE 10, Maven. Versions pinned via `fp-bom`.
+Java 25, Jakarta EE 11, Maven. Versions pinned via `fp-bom`.
