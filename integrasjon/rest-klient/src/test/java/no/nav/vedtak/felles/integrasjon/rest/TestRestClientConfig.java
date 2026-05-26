@@ -6,7 +6,7 @@ import java.net.URI;
 
 import org.junit.jupiter.api.Test;
 
-public class TestRestClientConfig {
+class TestRestClientConfig {
 
     @Test
     void testCase_app_med_endpoint_property_uten_verdi() {

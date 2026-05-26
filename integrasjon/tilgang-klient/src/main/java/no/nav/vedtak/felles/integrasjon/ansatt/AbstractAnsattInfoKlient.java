@@ -23,7 +23,7 @@ public abstract class AbstractAnsattInfoKlient {
     private final URI ansattOidUri;
 
 
-    public AbstractAnsattInfoKlient() {
+    protected AbstractAnsattInfoKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(this.getClass());
         this.ansattIdentUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansattinfo/ansatt-ident").build();

@@ -185,7 +185,7 @@ public class OidcTokenValidator {
         }
         try {
             return UUID.fromString(oid);
-        } catch (Exception e) {
+        } catch (Exception _) {
             LOG.info("AZURE VALIDATE kunne ikke konvertere oid til UUID {}", oid);
             return null;
         }

@@ -2,9 +2,9 @@ package no.nav.vedtak.sikkerhet.abac.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-
 import jakarta.ws.rs.Path;
+
+import org.junit.jupiter.api.Test;
 
 class ActionUthenterTest {
 
@@ -21,14 +21,17 @@ class ActionUthenterTest {
     static class MyRestSvc1 {
         @Path("/resource1")
         public void myRestMethod1(@SuppressWarnings("unused") String s) {
+            // Dummy endpoint
         }
 
         @Path("resource2")
         public void myRestMethod2(@SuppressWarnings("unused") String s) {
+            // Dummy endpoint
         }
 
         @SuppressWarnings("unused")
         public void myRestMethod3(String s) {
+            // Dummy endpoint
         }
     }
 

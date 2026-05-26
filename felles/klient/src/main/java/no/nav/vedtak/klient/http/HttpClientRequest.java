@@ -1,8 +1,5 @@
 package no.nav.vedtak.klient.http;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -13,6 +10,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Encapsulation of java.net.http.HttpRequest to supply specific headers and ensure a timeout is set.
@@ -29,7 +29,6 @@ public class HttpClientRequest {
     private final HttpRequest.Builder builder;
     private Duration timeout;
     private final Map<String, Supplier<String>> headers;
-    private final Map<Supplier<String>, String> dependentHeaders;
     private final List<Consumer<HttpRequest>> validators;
     private boolean built;
 
@@ -40,7 +39,6 @@ public class HttpClientRequest {
     protected HttpClientRequest(HttpRequest.Builder builder, Map<String, Supplier<String>> headers) {
         this.builder = builder;
         this.headers = headers != null ? new HashMap<>(headers) : new HashMap<>();
-        this.dependentHeaders = new HashMap<>();
         this.validators = new ArrayList<>(List.of(HttpClientRequest::validateTimeout));
         this.built = false;
     }
@@ -70,7 +68,6 @@ public class HttpClientRequest {
         var requestBuilder = builder.copy();
         requestBuilder.timeout(Optional.ofNullable(timeout).orElse(DEFAULT_TIMEOUT));
         headers.forEach((key, value) -> requestBuilder.header(key, value.get()));
-        dependentHeaders.forEach((key, value) -> Optional.ofNullable(key.get()).ifPresent(v -> requestBuilder.header(value, v)));
         var request = requestBuilder.build();
         validators.forEach(v -> v.accept(request));
         return request;

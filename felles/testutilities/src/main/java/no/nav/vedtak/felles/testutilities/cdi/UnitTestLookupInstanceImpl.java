@@ -52,6 +52,7 @@ public class UnitTestLookupInstanceImpl<T> implements Instance<T> {
 
     @Override
     public void destroy(T t) {
+        // NOOP
     }
 
     @Override

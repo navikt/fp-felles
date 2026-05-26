@@ -8,7 +8,7 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class EregRestTest {
 
-    private static final String json = """
+    private static final String SOURCE_JSON = """
         {
           "organisasjonsnummer": "990983666",
           "type": "Virksomhet",
@@ -101,7 +101,7 @@ class EregRestTest {
 
     @Test
     void mapping_organisasjon() {
-        var org = DefaultJsonMapper.fromJson(json, OrganisasjonEReg.class);
+        var org = DefaultJsonMapper.fromJson(SOURCE_JSON, OrganisasjonEReg.class);
 
         assertThat(org.getNavn()).isEqualTo("NAV IKT");
         assertThat(org.type()).isEqualTo(OrganisasjonstypeEReg.VIRKSOMHET);

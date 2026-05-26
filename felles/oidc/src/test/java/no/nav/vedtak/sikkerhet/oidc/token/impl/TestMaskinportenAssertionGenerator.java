@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.validator.KeyStoreTool;
 
-public class TestMaskinportenAssertionGenerator {
+class TestMaskinportenAssertionGenerator {
 
     @Test
     void lag_signer_valider_maskinporten_assertion_med_ressurs() throws MalformedClaimException {

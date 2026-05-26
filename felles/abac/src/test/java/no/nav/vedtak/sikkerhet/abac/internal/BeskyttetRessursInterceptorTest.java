@@ -136,19 +136,19 @@ class BeskyttetRessursInterceptorTest {
         @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP, sporingslogg = true)
         @Path("aktoer_in")
         public void aktoerIn(@SuppressWarnings("unused") AktørDto param) {
-
+            // Dummy endpoint
         }
 
         @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP, sporingslogg = true)
         @Path("behandling_id_in")
         public void behandlingIdIn(@SuppressWarnings("unused") BehandlingIdDto param) {
-
+            // Dummy endpoint
         }
 
         @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.PIP, sporingslogg = false)
         @Path("uten_sporingslogg")
         public void utenSporingslogg(@SuppressWarnings("unused") BehandlingIdDto param) {
-
+            // Dummy endpoint
         }
 
     }

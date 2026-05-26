@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.vedtak.sikkerhet.oidc.validator.JwtUtil;
 import no.nav.vedtak.sikkerhet.oidc.validator.KeyStoreTool;
 
-public class TestTokenXAssertionGenerator {
+class TestTokenXAssertionGenerator {
 
     @Test
     void lag_signer_valider_tokenx_assertion() throws MalformedClaimException {
