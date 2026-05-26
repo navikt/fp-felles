@@ -62,9 +62,9 @@ public class DefaultJsonMapper {
             .build();
     }
 
-    public static <T> List<T> fromJson(String json, TypeReference<List<T>> typeReference) {
+    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
         try {
-            return MAPPER.readValue(json, typeReference);
+            return MAPPER.readerFor(typeReference).readValue(json);
         } catch (IOException e) {
             throw deserializationException(e);
         }
