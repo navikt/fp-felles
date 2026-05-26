@@ -57,9 +57,9 @@ public class DefaultJson3Mapper {
                     .withScalarConstructorVisibility(JsonAutoDetect.Visibility.ANY));
     }
 
-    public static <T> List<T> fromJson(String json, TypeReference<List<T>> typeReference) {
+    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
         try {
-            return MAPPER.readValue(json, typeReference);
+            return MAPPER.readerFor(typeReference).readValue(json);
         } catch (JacksonException e) {
             throw deserializationException(e);
         }
