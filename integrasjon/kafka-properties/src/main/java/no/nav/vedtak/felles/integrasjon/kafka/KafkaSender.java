@@ -24,7 +24,7 @@ public class KafkaSender {
         return topicName;
     }
 
-    public record KafkaHeader(String key, byte[] value) {}
+    public record KafkaHeader(String key, String value) {}
 
     public RecordMetadata send(String key, String message) {
         if (topicName == null) {
@@ -46,13 +46,13 @@ public class KafkaSender {
 
     public RecordMetadata send(KafkaHeader header, String key, String message, String topic) {
         try {
-            var record = new ProducerRecord<>(topic, key, message);
-            Optional.ofNullable(header).ifPresent(h -> record.headers().add(new RecordHeader(h.key(), h.value())));
-            return producer.send(record).get();
+            var kafkaRecord = new ProducerRecord<>(topic, key, message);
+            Optional.ofNullable(header).ifPresent(h -> kafkaRecord.headers().add(new RecordHeader(h.key(), h.value().getBytes())));
+            return producer.send(kafkaRecord).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw kafkaPubliseringException(topic, e);
         } catch (Exception e) {
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
             throw kafkaPubliseringException(topic, e);
         }
     }

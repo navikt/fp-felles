@@ -47,11 +47,6 @@ class CdiExtensionTest {
 @ApplicationScoped
 class AppBean {
 
-    @Inject
-    public AppBean() {
-
-    }
-
     String hello() {
         return "app";
     }
@@ -61,11 +56,6 @@ class AppBean {
 @ApplicationScoped
 class ReqBean {
 
-    @Inject
-    public ReqBean() {
-
-    }
-
     String hello() {
         return "request";
     }
@@ -74,11 +64,6 @@ class ReqBean {
 
 @Dependent
 class DepBean {
-
-    @Inject
-    public DepBean() {
-
-    }
 
     String hello() {
         return "dep";

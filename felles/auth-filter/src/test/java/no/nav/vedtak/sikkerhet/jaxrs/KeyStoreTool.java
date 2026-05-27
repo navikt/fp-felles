@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class KeyStoreTool {
 
-    private static RsaJsonWebKey jwk = null;
+    private static RsaJsonWebKey jwk;
 
     private static final Logger LOG = LoggerFactory.getLogger(KeyStoreTool.class);
 
@@ -42,7 +42,6 @@ public class KeyStoreTool {
             Certificate cert = ks.getCertificate(keyAndCertAlias);
             myPublicKey = cert.getPublicKey();
 
-            //KeyStoreTool.keystore = ks;
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | UnrecoverableEntryException e) {
             LOG.error("Error during loading of keystore. Do you have your keystore in order, soldier?", e);
             throw new RuntimeException(e);
@@ -53,7 +52,7 @@ public class KeyStoreTool {
             jwk.setPrivateKey(myPrivateKey);
             jwk.setKeyId("1");
         } catch (JoseException e) {
-            LOG.error("Error during init of JWK: " + e);
+            LOG.error("Error during init of JWK:",  e);
             throw new RuntimeException(e);
         }
 

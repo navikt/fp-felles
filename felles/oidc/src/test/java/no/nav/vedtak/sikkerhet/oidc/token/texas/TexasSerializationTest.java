@@ -6,26 +6,24 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class TexasSerializationTest {
 
     @Test
-    void skal_serialisere_hentTokenRequest_korrekt() throws JsonProcessingException {
+    void skal_serialisere_hentTokenRequest_korrekt() {
         var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "https://target.no", "https://resource.no", null, false);
 
         var json = DefaultJsonMapper.toJson(request);
 
-        assertThat(json).contains("\"identity_provider\":\"maskinporten\"");
-        assertThat(json).contains("\"target\":\"https://target.no\"");
-        assertThat(json).contains("\"resource\":\"https://resource.no\"");
-        assertThat(json).doesNotContain("authorization_details");
+        assertThat(json).contains("\"identity_provider\":\"maskinporten\"")
+            .contains("\"target\":\"https://target.no\"")
+            .contains("\"resource\":\"https://resource.no\"")
+            .doesNotContain("authorization_details");
     }
 
     @Test
-    void skal_serialisere_hentTokenRequest_med_authorization_details() throws JsonProcessingException {
+    void skal_serialisere_hentTokenRequest_med_authorization_details() {
         var systemuserOrg = new AuthorizationDetails.Consumer("iso6523-actorid-upis", "0192:313367002");
         var authDetails = new AuthorizationDetails(
             "urn:altinn:systemuser",
@@ -37,33 +35,33 @@ class TexasSerializationTest {
 
         var json = DefaultJsonMapper.toJson(request);
 
-        assertThat(json).contains("\"identity_provider\":\"maskinporten\"");
-        assertThat(json).contains("\"type\":\"urn:altinn:systemuser\"");
-        assertThat(json).contains("\"system_id\":\"974761076_skatt_demo_system\"");
-        assertThat(json).contains("\"systemuser_id\":[\"33a0911a-5459-456f-bc57-3d37ef9a016c\"]");
-        assertThat(json).contains("\"ID\":\"0192:313367002\"");
-        assertThat(json).contains("\"authority\":\"iso6523-actorid-upis\"");
+        assertThat(json).contains("\"identity_provider\":\"maskinporten\"")
+            .contains("\"type\":\"urn:altinn:systemuser\"")
+            .contains("\"system_id\":\"974761076_skatt_demo_system\"")
+            .contains("\"systemuser_id\":[\"33a0911a-5459-456f-bc57-3d37ef9a016c\"]")
+            .contains("\"ID\":\"0192:313367002\"")
+            .contains("\"authority\":\"iso6523-actorid-upis\"");
     }
 
     @Test
-    void skal_serialisere_exchangeTokenRequest_korrekt() throws JsonProcessingException {
+    void skal_serialisere_exchangeTokenRequest_korrekt() {
         var request = new ExchangeTokenRequest(IdProvider.TOKENX, "eyJhbGciOiJSUzI1NiJ9...", "https://target.no", false);
 
         var json = DefaultJsonMapper.toJson(request);
 
-        assertThat(json).contains("\"identity_provider\":\"tokenx\"");
-        assertThat(json).contains("\"target\":\"https://target.no\"");
-        assertThat(json).contains("\"user_token\":\"eyJhbGciOiJSUzI1NiJ9...\"");
+        assertThat(json).contains("\"identity_provider\":\"tokenx\"")
+            .contains("\"target\":\"https://target.no\"")
+            .contains("\"user_token\":\"eyJhbGciOiJSUzI1NiJ9...\"");
     }
 
     @Test
-    void skal_serialisere_introspectTokenRequest_korrekt() throws JsonProcessingException {
+    void skal_serialisere_introspectTokenRequest_korrekt() {
         var request = new IntrospectTokenRequest(IdProvider.ENTRA_ID, "eyJhbGciOiJSUzI1NiJ9...");
 
         var json = DefaultJsonMapper.toJson(request);
 
-        assertThat(json).contains("\"identity_provider\":\"entra_id\"");
-        assertThat(json).contains("\"token\":\"eyJhbGciOiJSUzI1NiJ9...\"");
+        assertThat(json).contains("\"identity_provider\":\"entra_id\"")
+            .contains("\"token\":\"eyJhbGciOiJSUzI1NiJ9...\"");
     }
 
     @Test
@@ -176,7 +174,7 @@ class TexasSerializationTest {
     }
 
     @Test
-    void skal_serialisere_idProvider_til_lowercase() throws JsonProcessingException {
+    void skal_serialisere_idProvider_til_lowercase() {
         assertThat(DefaultJsonMapper.toJson(IdProvider.MASKINPORTEN)).isEqualTo("\"maskinporten\"");
         assertThat(DefaultJsonMapper.toJson(IdProvider.TOKENX)).isEqualTo("\"tokenx\"");
         assertThat(DefaultJsonMapper.toJson(IdProvider.ENTRA_ID)).isEqualTo("\"entra_id\"");

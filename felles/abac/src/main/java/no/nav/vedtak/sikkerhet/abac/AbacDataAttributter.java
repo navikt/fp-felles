@@ -44,7 +44,7 @@ public class AbacDataAttributter {
 
     public AbacDataAttributter leggTil(AbacAttributtType type, Object verdi) {
         requireNonNull(verdi, "Attributt av type " + type + " kan ikke være null");
-        attributter.computeIfAbsent(type, k -> new LinkedHashSet<>(4))
+        attributter.computeIfAbsent(type, k -> LinkedHashSet.newLinkedHashSet(4))
             .add(verdi);
         return this;
     }

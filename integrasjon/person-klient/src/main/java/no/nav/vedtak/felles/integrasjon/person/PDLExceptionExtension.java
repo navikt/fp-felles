@@ -1,5 +1,7 @@
 package no.nav.vedtak.felles.integrasjon.person;
 
-public record PDLExceptionExtension(String code, PDLExceptionDetails details) {
+import java.io.Serializable;
+
+public record PDLExceptionExtension(String code, PDLExceptionDetails details) implements Serializable {
 
 }

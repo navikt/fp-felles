@@ -51,12 +51,12 @@ class AuthenticationFilterDelegateTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         setupAll();
     }
 
     @AfterEach
-    public void teardown() {
+    void teardown() {
         Arrays.asList(AzureProperty.values()).forEach(p -> System.clearProperty(p.name()));
         System.clearProperty(SYSTEMBRUKER_PROP);
     }
@@ -174,10 +174,12 @@ class AuthenticationFilterDelegateTest {
         @UtenAutentisering
         @Path("ubeskyttet")
         public void ubeskyttet() {
+            // Dummy endpoint
         }
 
         @Path("beskyttet")
         public void beskyttet() {
+            // Dummy endpoint
         }
 
     }

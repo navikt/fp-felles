@@ -8,7 +8,7 @@ public class AuditdataHeader {
      * Loggversjon som endres ved nye felter. Ved bytte avtales nytt format med
      * Arcsight-gjengen.
      */
-    private static final String logVersion = "1.0";
+    private static final String LOG_VERSION = "1.0";
 
     private final String vendor;
     private final String product;
@@ -49,7 +49,7 @@ public class AuditdataHeader {
      */
     @Override
     public String toString() {
-        return String.format("CEF:0|%s|%s|%s|%s|%s|%s|", cefHeaderEscape(vendor), cefHeaderEscape(product), cefHeaderEscape(logVersion),
+        return String.format("CEF:0|%s|%s|%s|%s|%s|%s|", cefHeaderEscape(vendor), cefHeaderEscape(product), cefHeaderEscape(LOG_VERSION),
             cefHeaderEscape(eventClassId.getCefKode()), cefHeaderEscape(name), cefHeaderEscape(severity));
     }
 
