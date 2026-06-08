@@ -18,6 +18,9 @@ public final class LocalDevProperties {
      * Leser properties: keystore.relativ.path, truststore.relativ.path, vtp.ssl.passord, user.home.
      */
     public static void setPropertiesForLocalDev() {
+        if (!ENV.isLocal()) {
+            throw new IllegalStateException("LocalDevProperties skal kun brukes i lokal utvikling");
+        }
         var keystoreRelativPath = ENV.getProperty("keystore.relativ.path");
         var truststoreRelativPath = ENV.getProperty("truststore.relativ.path");
         var keystoreTruststorePassword = ENV.getProperty("vtp.ssl.passord");
