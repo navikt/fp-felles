@@ -1,9 +1,9 @@
-package no.nav.vedtak.felles.testutilities.server;
+package no.nav.vedtak.server.localdev;
 
 import no.nav.foreldrepenger.konfig.Environment;
 
 /**
- * Felles oppsett for JettyDevServer i IDE.
+ * Felles oppsett for JettyDevServer i IDE. Ikke bruk utenom JettyDevServer.
  */
 public final class LocalDevProperties {
 
