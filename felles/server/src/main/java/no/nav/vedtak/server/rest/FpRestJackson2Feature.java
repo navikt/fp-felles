@@ -10,7 +10,6 @@ public class FpRestJackson2Feature implements Feature {
 
     @Override
     public boolean configure(final FeatureContext context) {
-        context.register(AuthenticationFilter.class);
         context.register(Jackson2RestFeature.class);
         context.register(ValidationExceptionMapper.class);
         context.register(GeneralRestExceptionMapper.class);
