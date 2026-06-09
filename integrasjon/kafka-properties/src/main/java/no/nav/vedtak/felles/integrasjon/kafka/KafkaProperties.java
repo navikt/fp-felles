@@ -86,19 +86,13 @@ public class KafkaProperties {
     }
 
     private static void putSecurity(Properties props) {
-        var keystore = getAivenConfig(AivenProperty.KAFKA_KEYSTORE_PATH);
-        if (keystore == null) {
-            // Ingen SSL-konfigurasjon tilgjengelig – bruker Kafka-klientens default (PLAINTEXT).
-            // Gjelder lokal kjøring og tester der Aiven-hemmeligheter ikke er montert.
-            return;
-        }
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name);
         props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
         props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "jks");
         props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_TRUSTSTORE_PATH));
         props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD));
         props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12");
-        props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, keystore);
+        props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getAivenConfig(AivenProperty.KAFKA_KEYSTORE_PATH));
         props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, getAivenConfig(AivenProperty.KAFKA_CREDSTORE_PASSWORD));
     }
 
