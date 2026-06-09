@@ -97,8 +97,12 @@ class KafkaConsumerManagerTransientErrorTest {
         //
         // Asserter ok med ny kafka manager med manuell commit.
         assertThat(handler.processed()).containsAll(Set.of("MSG-0", "MSG-1", "MSG-2", "MSG-3", "MSG-4"));
-        assertThat(handler.processed()).filteredOn(v -> !v.equalsIgnoreCase("MSG-1")).allMatch(v -> handler.attemptCount(v) == 1);
-        assertThat(handler.processed()).filteredOn(v -> v.equalsIgnoreCase("MSG-1")).allMatch(v -> handler.attemptCount(v) == 2);
+        assertThat(handler.processed()).allSatisfy(v -> {
+            switch (v) {
+                case "MSG-0", "MSG-1" -> assertThat(handler.attemptCount(v)).isEqualTo(2);
+                default -> assertThat(handler.attemptCount(v)).isEqualTo(1);
+            }
+        });
     }
 
     private static void createTopic(String topic) throws Exception {
