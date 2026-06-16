@@ -15,13 +15,15 @@ public final class FlywayUtil {
     private FlywayUtil() {
     }
 
-    public static void migratePostgresGcp(DataSource ds, String location) {
+    // Standard migrering. Unntak: On-prem postgres med callback og Oracle med "schema-version"
+    public static void migrate(DataSource ds, String location) {
         flywayConfig(ds, location)
             .load()
             .migrate();
     }
 
-    public static void migrateOracle(DataSource ds, String location) {
+    // Må brukes fram til tabell schema_version (+constraint + 2 index) er renamed til flyway_schema_history
+    public static void migrateLegacyOracle(DataSource ds, String location) {
         flywayConfig(ds, location)
             .table("schema_version")
             .load()
@@ -32,7 +34,7 @@ public final class FlywayUtil {
         return Flyway.configure().dataSource(dataSource).locations(location).baselineOnMigrate(true);
     }
 
-    // DataSource used in a try/resources around migration. Not used elsewhere.
+    // Dedicated DataSource for use in a try/resources around migration. Not used elsewhere.
     public static HikariDataSource createMigrationDataSource(String jdbcUrl, String username, String password) {
         var hikariConfig = createMigrationDataSourceConfig(jdbcUrl, username, password);
         return new HikariDataSource(hikariConfig);
