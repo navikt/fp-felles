@@ -2,14 +2,8 @@ package no.nav.vedtak.felles.jpa;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.hibernate.SessionFactory;
-import org.hibernate.jpa.HibernateHints;
-import org.hibernate.stat.HibernateMetrics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
@@ -19,7 +13,16 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.FlushModeType;
+
 import jakarta.persistence.Persistence;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.jpa.HibernateHints;
+import org.hibernate.orm.micrometer.HibernateMetrics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.felles.jpa.jdbc.DataSourceHolder;
 
 
 /**
@@ -30,24 +33,20 @@ import jakarta.persistence.Persistence;
 @ApplicationScoped
 public class EntityManagerProducer {
 
-    private static final String EM_NAME = "pu-default";
     private static final Logger LOG = LoggerFactory.getLogger(EntityManagerProducer.class);
-    /**
-     * registrerte {@link EntityManagerFactory}.
-     */
-    private static final Map<String, EntityManagerFactory> CACHE_FACTORIES = new ConcurrentHashMap<>();
+    private static EntityManagerFactory entityManagerFactory;
 
     @Produces
     @RequestScoped
     public EntityManager createEntityManager() {
-        return createNewEntityManager(EM_NAME);
+        return createNewEntityManager();
     }
 
-    private synchronized EntityManager createNewEntityManager(String key) {
-        if (!CACHE_FACTORIES.containsKey(key)) {
-            CACHE_FACTORIES.put(key, createEntityManager(key));
+    private synchronized EntityManager createNewEntityManager() {
+        if (entityManagerFactory == null) {
+            entityManagerFactory = getEntityManagerFactory();
         }
-        var emf = CACHE_FACTORIES.get(key);
+        var emf = entityManagerFactory;
         var em = emf.createEntityManager();
         initConfig(em, emf.getProperties());
         return em;
@@ -59,16 +58,20 @@ public class EntityManagerProducer {
      */
     private void initConfig(EntityManager em, Map<String, Object> props) {
         // regresson hibernate 4.5.6 - org.hibernate.flushMode er redefinert som
-        // QueryHint (ikke AvailableSettings) - blir ikke automatisk satt på
-        // EM.
+        // QueryHint (ikke AvailableSettings) - blir ikke automatisk satt på EM.
         em.setFlushMode(FlushModeType.valueOf((String) props.getOrDefault(HibernateHints.HINT_FLUSH_MODE, "COMMIT")));
     }
 
-    public EntityManagerFactory createEntityManager(String key) {
-        var emf = Persistence.createEntityManagerFactory(key);
-        LOG.info("Muliggjør hibernate monitorering, slås på med hibernate.generate_statistics=true i de enkeltes persistence.xml");
-        HibernateMetrics.monitor(globalRegistry, emf.unwrap(SessionFactory.class), EM_NAME);
-        return emf;
+    public static EntityManagerFactory getEntityManagerFactory() {
+        if (entityManagerFactory == null) {
+            Map<String, Object> props = new HashMap<>();
+            props.put("jakarta.persistence.nonJtaDataSource", DataSourceHolder.getDataSource());
+            var emf = Persistence.createEntityManagerFactory(NamingStandard.DEFAULT_PERSISTENCE_UNIT, props);
+            LOG.info("Muliggjør hibernate monitorering, slås på med hibernate.generate_statistics=true i de enkeltes persistence.xml");
+            HibernateMetrics.monitor(globalRegistry, emf.unwrap(SessionFactory.class), NamingStandard.DEFAULT_PERSISTENCE_UNIT);
+            entityManagerFactory = emf;
+        }
+        return entityManagerFactory;
     }
 
     public void dispose(@Disposes EntityManager mgr) {
