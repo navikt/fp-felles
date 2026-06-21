@@ -14,9 +14,6 @@ public class DataSourceHolder {
     // Call this explicitly in your main method before launching Jetty/Weld
     public static void initialize(DataSource localDataSource) {
         ds = localDataSource;
-        if (ds instanceof HikariDataSource hds) {
-            Runtime.getRuntime().addShutdownHook(new Thread(hds::close));
-        }
     }
 
     public static DataSource getDataSource() {
@@ -26,6 +23,17 @@ public class DataSourceHolder {
 
     public static boolean isInitialized() {
         return ds != null;
+    }
+
+    public static void close() {
+        if (ds instanceof HikariDataSource hikariDataSource && !hikariDataSource.isClosed()) {
+            try {
+                hikariDataSource.close();
+                ds = null;
+            } catch (Exception _) {
+                // NOOP - in shutdown
+            }
+        }
     }
 
 }
