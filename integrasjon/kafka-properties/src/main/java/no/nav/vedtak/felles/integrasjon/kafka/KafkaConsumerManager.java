@@ -31,7 +31,7 @@ public class KafkaConsumerManager<K, V> {
         consumers.forEach(c -> {
             c.setErrorLogger(errorlogger);
             var ct = new Thread(c, "KC-" + c.handler().groupId());
-            ct.setUncaughtExceptionHandler((_t, e) -> {
+            ct.setUncaughtExceptionHandler((_, e) -> {
                 errorlogger.accept(c.handler().topic(), e);
                 stop();
             });
@@ -46,7 +46,7 @@ public class KafkaConsumerManager<K, V> {
         while (!allStopped() && LocalDateTime.now().isBefore(timeout)) {
             try {
                 Thread.sleep(Duration.ofSeconds(1));
-            } catch (InterruptedException e) {
+            } catch (InterruptedException _) {
                 Thread.currentThread().interrupt();
             }
         }
@@ -100,7 +100,7 @@ public class KafkaConsumerManager<K, V> {
                         handler.handleRecord(krecord.key(), krecord.value());
                     }
                     if (!krecords.isEmpty()) {
-                        consumer.commitAsync((_offsets, ex) -> {
+                        consumer.commitAsync((_, ex) -> {
                             if (ex != null && errorLogger != null) {
                                 errorLogger.accept(handler.topic(), ex);
                             }
