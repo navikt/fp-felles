@@ -36,6 +36,10 @@ public class MetricsUtil {
         new LogbackMetrics().bindTo(globalRegistry);
     }
 
+    public static void init() {
+        // Intentional NOOP
+    }
+
     public static String scrape() {
         return REGISTRY.scrape();
     }
