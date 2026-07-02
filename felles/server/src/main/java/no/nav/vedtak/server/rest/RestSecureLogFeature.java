@@ -11,7 +11,7 @@ public class RestSecureLogFeature implements Feature {
 
     // Kan evt vurdere en variabel for logger-navn. Må da registrere object/ctor framfor klasse.
     private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
-    private static boolean sikkerloggEnabled = false;
+    private static volatile boolean sikkerloggEnabled = false;
 
     public static boolean erSikkerloggEnabled() {
         return sikkerloggEnabled;
