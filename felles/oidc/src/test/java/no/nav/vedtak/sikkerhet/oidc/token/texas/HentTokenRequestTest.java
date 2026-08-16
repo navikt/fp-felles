@@ -6,17 +6,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 class HentTokenRequestTest {
 
     private static final JsonMapper OBJECT_MAPPER = DefaultJsonMapper.getJsonMapper();
 
     @Test
-    void skal_serialisere_med_alle_felter() throws JsonProcessingException {
+    void skal_serialisere_med_alle_felter() throws JacksonException {
         var systemuserOrg = new AuthorizationDetails.Consumer("iso6523-actorid-upis", "0192:11111111111");
         var authDetails = new AuthorizationDetails("urn:altinn:systemuser", systemuserOrg, List.of("33a0911a-5459-456f-bc57-3d37ef9a016c"), "11111111_skatt_demo_system");
         var request = new HentTokenRequest(IdProvider.MASKINPORTEN, "target-value", "resource-value", List.of(authDetails), false);
@@ -33,7 +32,7 @@ class HentTokenRequestTest {
     }
 
     @Test
-    void skal_utelate_null_verdier_ved_serialisering() throws JsonProcessingException {
+    void skal_utelate_null_verdier_ved_serialisering() throws JacksonException {
         var request = new HentTokenRequest(IdProvider.TOKENX, "target-value", null, null, false);
 
         var json = OBJECT_MAPPER.writeValueAsString(request);
@@ -45,7 +44,7 @@ class HentTokenRequestTest {
     }
 
     @Test
-    void skal_utelate_tom_liste_ved_serialisering() throws JsonProcessingException {
+    void skal_utelate_tom_liste_ved_serialisering() throws JacksonException {
         var request = new HentTokenRequest(IdProvider.ENTRA_ID, "target-value", "resource-value", List.of(), false);
 
         var json = OBJECT_MAPPER.writeValueAsString(request);

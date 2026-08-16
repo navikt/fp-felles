@@ -15,11 +15,10 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import tools.jackson.core.JacksonException;
 
 public class TexasTokenKlient {
 
@@ -149,7 +148,7 @@ public class TexasTokenKlient {
                 throw new TekniskException("F-157385", "Kunne ikke hente token");
             }
             return DefaultJsonMapper.fromJson(response.body(), responseType);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new TekniskException("F-208314", "Kunne ikke deserialisere objekt til JSON", e);
         } catch (IOException e) {
             throw new TekniskException("F-432937", "IOException ved kommunikasjon med server", e);

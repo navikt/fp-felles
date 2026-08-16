@@ -3,12 +3,7 @@ package no.nav.vedtak.felles.integrasjon.dokarkiv.dto;
 import java.util.Arrays;
 import java.util.Objects;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import no.nav.vedtak.felles.integrasjon.dokarkiv.ser.ByteArraySomBase64StringSerializer;
-
-public record Dokumentvariant(Variantformat variantformat, Filtype filtype,
-                              @JsonSerialize(using = ByteArraySomBase64StringSerializer.class) byte[] fysiskDokument) {
+public record Dokumentvariant(Variantformat variantformat, Filtype filtype, byte[] fysiskDokument) {
 
     public enum Variantformat {
         ARKIV,

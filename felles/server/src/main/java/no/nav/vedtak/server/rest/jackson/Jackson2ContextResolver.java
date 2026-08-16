@@ -4,11 +4,11 @@ import jakarta.ws.rs.ext.ContextResolver;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import no.nav.vedtak.mapper.json.DefaultJson2Mapper;
 
 public class Jackson2ContextResolver implements ContextResolver<JsonMapper> {
 
-    private static final JsonMapper MAPPER = DefaultJsonMapper.getJsonMapper();
+    private static final JsonMapper MAPPER = DefaultJson2Mapper.getJsonMapper();
 
     @Override
     public JsonMapper getContext(Class<?> type) {

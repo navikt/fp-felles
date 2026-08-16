@@ -9,7 +9,7 @@ import jakarta.ws.rs.ext.MessageBodyWriter;
 import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 
-public class Jackson3ProviderFeature implements Feature {
+public class JacksonProviderFeature implements Feature {
 
     @Override
     public boolean configure(final FeatureContext context) {
