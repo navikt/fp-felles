@@ -12,12 +12,11 @@ import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectReader;
-
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.klient.http.ProxyProperty;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectReader;
 
 public class GeneriskTokenKlient {
 
@@ -48,7 +47,7 @@ public class GeneriskTokenKlient {
                 throw new TekniskException("F-157385", "Kunne ikke hente token");
             }
             return READER.readValue(response.body());
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new TekniskException("F-208314", "Kunne ikke deserialisere objekt til JSON", e);
         } catch (IOException e) {
             throw new TekniskException("F-432937", "IOException ved kommunikasjon med server", e);

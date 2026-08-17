@@ -131,10 +131,10 @@ type RelevantDato {
 type AvsenderMottaker {
     # Identifikatoren til parten som er avsender eller mottaker av dokumentene på journalposten.
     # * Normalt et fødselsnummer eller organisasjonsnummer.
-    id: String!
+    id: String
 
     # Identifikatortypen til parten som er avsender eller mottaker av dokumentene på journalposten.
-    type: AvsenderMottakerIdType!
+    type: AvsenderMottakerIdType
 
     # Navnet til parten som er avsender eller mottaker av dokumentene på journalposten.
     navn: String!
@@ -328,6 +328,10 @@ enum Kanal {
     # * Brukes for utgående journalposter.
     DPV
 
+    # Brevet er sendt til eFormidling Digital post offentlig
+    # * Brukes for utgående journalposter.
+    DPO
+
     # Forsendelsen er mottatt på e-post.
     # * Brukes for inngående journalposter.
     E_POST
@@ -424,6 +428,9 @@ enum Tema {
     # Barnetrygd
     BAR
 
+    # Barnebortføring
+    BBF
+
     # Bidrag
     BID
 
@@ -486,6 +493,9 @@ enum Tema {
 
     # Mobilitetsfremmende stønad
     MOB
+
+    # Oljepionerene
+    OLJ
 
     # Omsorgspenger, pleiepenger og opplæringspenger
     OMS

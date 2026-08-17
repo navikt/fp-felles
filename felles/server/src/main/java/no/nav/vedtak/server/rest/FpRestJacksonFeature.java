@@ -3,14 +3,14 @@ package no.nav.vedtak.server.rest;
 import jakarta.ws.rs.core.Feature;
 import jakarta.ws.rs.core.FeatureContext;
 
-import no.nav.vedtak.server.rest.jackson.Jackson3RestFeature;
+import no.nav.vedtak.server.rest.jackson.JacksonRestFeature;
 
 
-public class FpRestJackson3Feature implements Feature {
+public class FpRestJacksonFeature implements Feature {
 
     @Override
     public boolean configure(final FeatureContext context) {
-        context.register(Jackson3RestFeature.class);
+        context.register(JacksonRestFeature.class);
         context.register(ValidationExceptionMapper.class);
         context.register(GeneralRestExceptionMapper.class);
 

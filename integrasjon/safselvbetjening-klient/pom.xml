@@ -50,6 +50,7 @@
                             <customTypesMapping>
                                 <DateTime>java.util.Date</DateTime>
                             </customTypesMapping>
+                            <generateJackson3>true</generateJackson3>
                         </configuration>
                     </execution>
                 </executions>
