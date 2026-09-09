@@ -55,16 +55,23 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public TilgangResultat vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter) {
+    public AppRessursData hentRessurser(BeskyttetRessursAttributter beskyttetRessursAttributter) {
         if (beskyttetRessursAttributter.getIdentType().erSystem()) {
-            var appRessurser = pdpRequestBuilder.lagAppRessursDataForSystembruker(beskyttetRessursAttributter.getDataAttributter());
+            return pdpRequestBuilder.lagAppRessursDataForSystembruker(beskyttetRessursAttributter.getDataAttributter());
+        } else {
+            return pdpRequestBuilder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
+        }
+    }
+
+    @Override
+    public TilgangResultat vurderTilgang(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessurser) {
+        if (beskyttetRessursAttributter.getIdentType().erSystem()) {
             var vurdering = forespørTilgang(beskyttetRessursAttributter, appRessurser);
             if (!vurdering.fikkTilgang()) {
                 LOG.warn("ABAC AVSLAG SYSTEMBRUKER {} tjeneste {}", beskyttetRessursAttributter.getBrukerId(), beskyttetRessursAttributter.getServicePath());
             }
             return vurdering.tilgangResultat();
         } else {
-            var appRessurser = pdpRequestBuilder.lagAppRessursData(beskyttetRessursAttributter.getDataAttributter());
             var vurdering = forespørTilgang(beskyttetRessursAttributter, appRessurser);
             abacAuditlogger.loggUtfall(vurdering, beskyttetRessursAttributter, appRessurser);
             if (TilgangResultat.AVSLÅTT_ANNEN_ÅRSAK.equals(vurdering.tilgangResultat())) {

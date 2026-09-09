@@ -82,7 +82,9 @@ public class InternBrukerPolicies {
             !PipOverstyring.OVERSTYRING.equals(overstyring)) {
             return Tilgangsvurdering.godkjenn();
         }
-        return Tilgangsvurdering.avslåGenerell("InternRessurs har ikke tilgang til å oppdatere fagsak");
+        var årsak = String.format("InternRessurs kan ikke oppdatere fagsak med status %s, behandlingstatus %s og overstyring %s",
+            fagsakStatus, behandlingStatus, overstyring);
+        return Tilgangsvurdering.avslåGenerell(årsak);
     }
 
     private static Tilgangsvurdering applikasjonPolicy(BeskyttetRessursAttributter beskyttetRessursAttributter, AppRessursData appRessursData) {

@@ -1,6 +1,7 @@
 package no.nav.vedtak.sikkerhet.abac.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
@@ -63,7 +64,7 @@ class BeskyttetRessursInterceptorTest {
 
     @Test
     void godkjent_aktør() throws Exception {
-        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(TilgangResultat.GODKJENT);
+        when(pep.vurderTilgang(braCaptor.capture(), any())).thenReturn(TilgangResultat.GODKJENT);
         var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
@@ -77,7 +78,7 @@ class BeskyttetRessursInterceptorTest {
 
     @Test
     void godkjent_behandling() throws Exception {
-        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(TilgangResultat.GODKJENT);
+        when(pep.vurderTilgang(braCaptor.capture(), any())).thenReturn(TilgangResultat.GODKJENT);
         var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
@@ -92,7 +93,7 @@ class BeskyttetRessursInterceptorTest {
 
     @Test
     void godkjent_uten_sporing() throws Exception {
-        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(TilgangResultat.GODKJENT);
+        when(pep.vurderTilgang(braCaptor.capture(), any())).thenReturn(TilgangResultat.GODKJENT);
         var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
@@ -106,7 +107,7 @@ class BeskyttetRessursInterceptorTest {
 
     @Test
     void deny_aktør_gir_exception() throws Exception {
-        when(pep.vurderTilgang(braCaptor.capture())).thenReturn(TilgangResultat.AVSLÅTT_KODE_6);
+        when(pep.vurderTilgang(braCaptor.capture(), any())).thenReturn(TilgangResultat.AVSLÅTT_KODE_6);
         var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);

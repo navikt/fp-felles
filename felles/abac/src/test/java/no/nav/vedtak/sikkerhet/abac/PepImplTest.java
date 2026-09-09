@@ -69,9 +69,7 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn("srvpdp");
         var attributter = lagBeskyttetRessursAttributterPip();
 
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
-
-        var permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -82,9 +80,7 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn("z142443");
         var attributter = lagBeskyttetRessursAttributterPip();
 
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
-
-        var permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -95,7 +91,9 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, IdentType.Systemressurs);
 
-        var permit = pep.vurderTilgang(attributter);
+        var ressurser = pep.hentRessurser(attributter);
+
+        var permit = pep.vurderTilgang(attributter, ressurser);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -106,10 +104,8 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
         var attributter = lagBeskyttetRessursAttributterUpdateAzure();
 
-        when(pdpRequestBuilder.lagAppRessursDataForSystembruker(any())).thenReturn(AppRessursData.builder()
+        var permit = pep.vurderTilgang(attributter, AppRessursData.builder()
             .medBehandlingStatus(PipBehandlingStatus.UTREDES).medFagsakStatus(PipFagsakStatus.UNDER_BEHANDLING).build());
-
-        var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -120,9 +116,7 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
         var attributter = lagBeskyttetRessursAttributterUpdateAzure();
 
-        when(pdpRequestBuilder.lagAppRessursDataForSystembruker(any())).thenReturn(AppRessursData.builder().build());
-
-        var permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -134,7 +128,9 @@ class PepImplTest {
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL,
             IdentType.Systemressurs);
 
-        var permit = pep.vurderTilgang(attributter);
+        var ressurser = pep.hentRessurser(attributter);
+
+        var permit = pep.vurderTilgang(attributter, ressurser);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -146,7 +142,9 @@ class PepImplTest {
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL,
             IdentType.Systemressurs);
 
-        var permit = pep.vurderTilgang(attributter);
+        var ressurser = pep.hentRessurser(attributter);
+
+        var permit = pep.vurderTilgang(attributter, ressurser);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -159,7 +157,9 @@ class PepImplTest {
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL,
             IdentType.Systemressurs);
 
-        var permit = pep.vurderTilgang(attributter);
+        var ressurser = pep.hentRessurser(attributter);
+
+        var permit = pep.vurderTilgang(attributter, ressurser);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -171,10 +171,9 @@ class PepImplTest {
         var attributter = lagBeskyttetRessursAttributter();
         var appressursData = AppRessursData.builder().leggTilIdent("1234567890123").build();
 
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(appressursData);
         when(popKlientMock.vurderTilgangInternBruker(any(), any(), any(), any())).thenReturn(Tilgangsvurdering.godkjenn());
 
-        @SuppressWarnings("unused") var permit = pep.vurderTilgang(attributter);
+        @SuppressWarnings("unused") var permit = pep.vurderTilgang(attributter, appressursData);
         verifyNoInteractions(gruppeKlientMock);
         verify(popKlientMock).vurderTilgangInternBruker(attributter.getBrukerOid(), appressursData.getIdenter(), null, null);
     }

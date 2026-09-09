@@ -1,6 +1,8 @@
 package no.nav.vedtak.log.mdc;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.slf4j.MDC;
@@ -29,6 +31,13 @@ public class MdcExtendedLogContext {
         } else {
             MDC.put(paramKey(key), value.toString());
         }
+    }
+
+    // TODO: remove filter for getValue after Abac-rollout
+    public void addAll(Map<String, String> fields) {
+        Optional.ofNullable(fields).orElseGet(Map::of).entrySet().stream()
+            .filter(e -> e.getValue() != null)
+            .forEach(e -> add(e.getKey(), e.getValue()));
     }
 
     public void remove(String key) {
