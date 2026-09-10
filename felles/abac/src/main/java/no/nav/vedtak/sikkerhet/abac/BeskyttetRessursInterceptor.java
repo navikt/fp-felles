@@ -3,6 +3,8 @@ package no.nav.vedtak.sikkerhet.abac;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
@@ -14,10 +16,12 @@ import jakarta.interceptor.InvocationContext;
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.internal.ActionUthenter;
 import no.nav.vedtak.sikkerhet.abac.internal.BeskyttetRessursAttributter;
+import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
 import no.nav.vedtak.sikkerhet.tilgang.TilgangResultat;
 
 @BeskyttetRessurs(actionType = ActionType.DUMMY, resourceType = ResourceType.DUMMY, sporingslogg = false)
@@ -25,6 +29,8 @@ import no.nav.vedtak.sikkerhet.tilgang.TilgangResultat;
 @Priority(Interceptor.Priority.APPLICATION + 11)
 @Dependent
 public class BeskyttetRessursInterceptor {
+
+    private static final MdcExtendedLogContext LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess");
 
     private final Pep pep;
     private final TokenProvider tokenProvider;
@@ -41,7 +47,12 @@ public class BeskyttetRessursInterceptor {
         var dataAttributter = finnAbacDataAttributter(method, invocationContext.getParameters());
         var beskyttetRessursAttributter = hentBeskyttetRessursAttributter(method, getOpprinneligKlasse(invocationContext), dataAttributter);
 
-        var beslutning = pep.vurderTilgang(beskyttetRessursAttributter);
+        var appRessursData = pep.hentRessurser(beskyttetRessursAttributter);
+        // Skal erstattes med ScopedMDC på litt sikt.
+        var loggfelter = Optional.ofNullable(appRessursData).map(AppRessursData::getLoggfelter).orElseGet(Map::of);
+        LOG_CONTEXT.addAll(loggfelter);
+
+        var beslutning = pep.vurderTilgang(beskyttetRessursAttributter, appRessursData);
         if (beslutning.fikkTilgang()) {
             return invocationContext.proceed();
         } else {

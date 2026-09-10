@@ -1,6 +1,7 @@
 package no.nav.vedtak.sikkerhet.abac;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.konfig.Namespace;
+import no.nav.vedtak.log.mdc.LoggFelter;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -69,9 +71,7 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn("srvpdp");
         var attributter = lagBeskyttetRessursAttributterPip();
 
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
-
-        var permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -82,9 +82,7 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn("z142443");
         var attributter = lagBeskyttetRessursAttributterPip();
 
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(AppRessursData.builder().build());
-
-        var permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -95,7 +93,9 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL, IdentType.Systemressurs);
 
-        var permit = pep.vurderTilgang(attributter);
+        var ressurser = pep.hentRessurser(attributter);
+
+        var permit = pep.vurderTilgang(attributter, ressurser);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -106,10 +106,8 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
         var attributter = lagBeskyttetRessursAttributterUpdateAzure();
 
-        when(pdpRequestBuilder.lagAppRessursDataForSystembruker(any())).thenReturn(AppRessursData.builder()
+        var permit = pep.vurderTilgang(attributter, AppRessursData.builder()
             .medBehandlingStatus(PipBehandlingStatus.UTREDES).medFagsakStatus(PipFagsakStatus.UNDER_BEHANDLING).build());
-
-        var permit = pep.vurderTilgang(attributter);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -120,9 +118,7 @@ class PepImplTest {
         when(tokenProvider.getUid()).thenReturn(LOCAL_APP);
         var attributter = lagBeskyttetRessursAttributterUpdateAzure();
 
-        when(pdpRequestBuilder.lagAppRessursDataForSystembruker(any())).thenReturn(AppRessursData.builder().build());
-
-        var permit = pep.vurderTilgang(attributter);
+        var permit = pep.vurderTilgang(attributter, AppRessursData.builder().build());
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -134,7 +130,9 @@ class PepImplTest {
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL,
             IdentType.Systemressurs);
 
-        var permit = pep.vurderTilgang(attributter);
+        var ressurser = pep.hentRessurser(attributter);
+
+        var permit = pep.vurderTilgang(attributter, ressurser);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -146,7 +144,9 @@ class PepImplTest {
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.INTERNAL,
             IdentType.Systemressurs);
 
-        var permit = pep.vurderTilgang(attributter);
+        var ressurser = pep.hentRessurser(attributter);
+
+        var permit = pep.vurderTilgang(attributter, ressurser);
         assertThat(permit.fikkTilgang()).isFalse();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -159,7 +159,9 @@ class PepImplTest {
         var attributter = lagBeskyttetRessursAttributterAzure(AvailabilityType.ALL,
             IdentType.Systemressurs);
 
-        var permit = pep.vurderTilgang(attributter);
+        var ressurser = pep.hentRessurser(attributter);
+
+        var permit = pep.vurderTilgang(attributter, ressurser);
         assertThat(permit.fikkTilgang()).isTrue();
         verifyNoInteractions(gruppeKlientMock);
         verifyNoInteractions(popKlientMock);
@@ -171,12 +173,70 @@ class PepImplTest {
         var attributter = lagBeskyttetRessursAttributter();
         var appressursData = AppRessursData.builder().leggTilIdent("1234567890123").build();
 
-        when(pdpRequestBuilder.lagAppRessursData(any())).thenReturn(appressursData);
         when(popKlientMock.vurderTilgangInternBruker(any(), any(), any(), any())).thenReturn(Tilgangsvurdering.godkjenn());
 
-        @SuppressWarnings("unused") var permit = pep.vurderTilgang(attributter);
+        @SuppressWarnings("unused") var permit = pep.vurderTilgang(attributter, appressursData);
         verifyNoInteractions(gruppeKlientMock);
         verify(popKlientMock).vurderTilgangInternBruker(attributter.getBrukerOid(), appressursData.getIdenter(), null, null);
+    }
+
+    @Test
+    void skal_legge_saksnummer_og_behandling_i_loggfelter() {
+        var behandling = UUID.randomUUID();
+
+        var appressursData = AppRessursData.builder().medSaksnummer("12345").medBehandling(behandling).build();
+
+        assertThat(appressursData.getLoggfelter()).containsExactly(
+            entry(LoggFelter.SAK, "12345"),
+            entry(LoggFelter.BEHANDLING, behandling.toString()));
+    }
+
+    @Test
+    void skal_kun_legge_logg_saksnummer_og_logg_behandling_i_loggfelter() {
+        var behandling = UUID.randomUUID();
+
+        var appressursData = AppRessursData.builder().medLoggSaksnummer("12345").medLoggBehandling(behandling).build();
+
+        assertThat(appressursData.getSaksnummer()).isNull();
+        assertThat(appressursData.getBehandling()).isNull();
+        assertThat(appressursData.getLoggfelter()).containsExactly(
+            entry(LoggFelter.SAK, "12345"),
+            entry(LoggFelter.BEHANDLING, behandling.toString()));
+    }
+
+    @Test
+    void skal_la_loggfelter_overstyre_saksnummer_og_behandling_for_logging() {
+        var behandling = UUID.randomUUID();
+        var loggBehandling = UUID.randomUUID();
+
+        var appressursData = AppRessursData.builder()
+            .medSaksnummer("12345")
+            .medBehandling(behandling)
+            .medLoggSaksnummer("67890")
+            .medLoggBehandling(loggBehandling)
+            .build();
+
+        assertThat(appressursData.getSaksnummer()).isEqualTo("12345");
+        assertThat(appressursData.getBehandling()).isEqualTo(behandling);
+        assertThat(appressursData.getLoggfelter()).containsExactly(
+            entry(LoggFelter.SAK, "67890"),
+            entry(LoggFelter.BEHANDLING, loggBehandling.toString()));
+    }
+
+    @Test
+    void skal_la_saksnummer_og_behandling_overstyre_eksisterende_loggfelter() {
+        var behandling = UUID.randomUUID();
+
+        var appressursData = AppRessursData.builder()
+            .medLoggSaksnummer("67890")
+            .medLoggBehandling(UUID.randomUUID())
+            .medSaksnummer("12345")
+            .medBehandling(behandling)
+            .build();
+
+        assertThat(appressursData.getLoggfelter()).containsExactly(
+            entry(LoggFelter.SAK, "12345"),
+            entry(LoggFelter.BEHANDLING, behandling.toString()));
     }
 
     private BeskyttetRessursAttributter lagBeskyttetRessursAttributter() {

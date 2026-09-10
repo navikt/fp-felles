@@ -2,12 +2,14 @@ package no.nav.vedtak.sikkerhet.abac.pdp;
 
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import no.nav.vedtak.log.mdc.LoggFelter;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
@@ -19,6 +21,7 @@ public class AppRessursData {
     private String saksnummer;
     private final Set<String> identer = new LinkedHashSet<>();
     private final Map<ForeldrepengerDataKeys, RessursData> resources = new EnumMap<>(ForeldrepengerDataKeys.class);
+    private final Map<String, String> loggfelter = new LinkedHashMap<>();
 
     public String getSaksnummer() {
         return saksnummer;
@@ -34,6 +37,10 @@ public class AppRessursData {
 
     public RessursData getResource(ForeldrepengerDataKeys key) {
         return resources.get(key);
+    }
+
+    public Map<String, String> getLoggfelter() {
+        return loggfelter;
     }
 
     public static Builder builder() {
@@ -57,7 +64,7 @@ public class AppRessursData {
                 throw new IllegalArgumentException("Utviklerfeil: saksnummer er null eller allerede satt");
             }
             pdpRequest.saksnummer = saksnummer;
-            return this;
+            return this.medLoggSaksnummer(saksnummer);
         }
 
         public Builder medBehandling(UUID behandling) {
@@ -65,7 +72,7 @@ public class AppRessursData {
                 throw new IllegalArgumentException("Utviklerfeil: behandling er null eller allerede satt");
             }
             pdpRequest.behandling = behandling;
-            return this;
+            return this.medLoggBehandling(behandling);
         }
 
         public Builder leggTilIdent(String ident) {
@@ -135,6 +142,22 @@ public class AppRessursData {
             if (pdpRequest.resources.get(key) != null) {
                 pdpRequest.resources.remove(key);
             }
+        }
+
+        // Rene loggkontekst-settere som ikke påvirker tilgangskontroll.
+        public Builder medLoggSaksnummer(String saksnummer) {
+            pdpRequest.loggfelter.put(LoggFelter.SAK, saksnummer);
+            return this;
+        }
+
+        public Builder medLoggBehandling(UUID behandling) {
+            pdpRequest.loggfelter.put(LoggFelter.BEHANDLING, behandling.toString());
+            return this;
+        }
+
+        public Builder medLoggFelt(String loggFelt, String verdi) {
+            pdpRequest.loggfelter.put(loggFelt, verdi);
+            return this;
         }
     }
 }
