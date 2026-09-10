@@ -64,8 +64,7 @@ public class AppRessursData {
                 throw new IllegalArgumentException("Utviklerfeil: saksnummer er null eller allerede satt");
             }
             pdpRequest.saksnummer = saksnummer;
-            pdpRequest.loggfelter.put(LoggFelter.SAK, saksnummer);
-            return this;
+            return this.medLoggSaksnummer(saksnummer);
         }
 
         public Builder medBehandling(UUID behandling) {
@@ -73,8 +72,7 @@ public class AppRessursData {
                 throw new IllegalArgumentException("Utviklerfeil: behandling er null eller allerede satt");
             }
             pdpRequest.behandling = behandling;
-            pdpRequest.loggfelter.put(LoggFelter.BEHANDLING, behandling.toString());
-            return this;
+            return this.medLoggBehandling(behandling);
         }
 
         public Builder leggTilIdent(String ident) {
