@@ -146,17 +146,17 @@ public class AppRessursData {
 
         // Rene loggkontekst-settere som ikke påvirker tilgangskontroll.
         public Builder medLoggSaksnummer(String saksnummer) {
-            pdpRequest.loggfelter.put(LoggFelter.SAK, saksnummer);
-            return this;
+            return medLoggFelt(LoggFelter.SAK, saksnummer);
         }
 
         public Builder medLoggBehandling(UUID behandling) {
-            pdpRequest.loggfelter.put(LoggFelter.BEHANDLING, behandling.toString());
-            return this;
+            return medLoggFelt(LoggFelter.BEHANDLING, behandling.toString());
         }
 
         public Builder medLoggFelt(String loggFelt, String verdi) {
-            pdpRequest.loggfelter.put(loggFelt, verdi);
+            if (verdi != null) {
+                pdpRequest.loggfelter.put(loggFelt, verdi);
+            }
             return this;
         }
     }
