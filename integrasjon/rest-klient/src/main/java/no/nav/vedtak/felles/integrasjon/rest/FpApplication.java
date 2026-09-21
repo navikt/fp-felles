@@ -12,11 +12,10 @@ public enum FpApplication {
     FPABAKUS,
     FPKALKULUS,
     FPFORMIDLING,
-    FPFORMIDLINGGCP, // Midlertidig for migrering
     FPRISK,
+    FPRISKGCP, // Midlertidig for migrering
     FPOPPDRAG,
     FPLOS,
-    FPLOSGCP, // Midlertidig for migrering
     FPMOTTAK,
     FPTILBAKE,
     FPDOKGEN,
@@ -32,14 +31,14 @@ public enum FpApplication {
 
     private static Integer lokalPort(FpApplication application) {
         return switch (application) {
-            case FPFORMIDLING, FPFORMIDLINGGCP -> 8010;
+            case FPFORMIDLING -> 8010;
             case FPABAKUS -> 8015;
             case FPKALKULUS -> 8016;
             case FPTILBAKE -> 8030;
             case FPTILGANG -> 8050;
             case FPOPPDRAG -> 8070;
-            case FPLOS, FPLOSGCP -> 8071;
-            case FPRISK -> 8075;
+            case FPLOS -> 8071;
+            case FPRISK, FPRISKGCP -> 8075;
             case FPSAK -> 8080;
             case FPDOKGEN -> 8291;
             case FPWSPROXY -> 8292;
@@ -49,7 +48,7 @@ public enum FpApplication {
         };
     }
 
-    private static final Set<FpApplication> GCP_APPS = Set.of(FPINNTEKTSMELDING, FPMOTTAK, FPLOSGCP, FPDOKGEN, FPFORMIDLING, FPFORMIDLINGGCP);
+    private static final Set<FpApplication> GCP_APPS = Set.of(FPINNTEKTSMELDING, FPMOTTAK, FPLOS, FPDOKGEN, FPFORMIDLING, FPRISKGCP);
 
     public boolean specified() {
         return !NONFP.equals(this);
@@ -119,8 +118,7 @@ public enum FpApplication {
 
     private static String applicationName(FpApplication application) {
         return switch (application) {
-            case FPLOSGCP -> "fplos";
-            case FPFORMIDLINGGCP ->  "fpformidling";
+            case FPRISKGCP -> "fprisk";
             default -> application.name().toLowerCase();
         };
     }
