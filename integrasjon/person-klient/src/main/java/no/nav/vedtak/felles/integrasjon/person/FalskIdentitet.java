@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.vedtak.log.util.LoggerUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +60,8 @@ public class FalskIdentitet {
                 return Optional.of(new Informasjon( "Falsk Identitet", null, UKJENT_LAND,
                     "Ukjent", null, "Navn", KjoennType.UKJENT, STATUS_OPPHØRT));
             } else if (falskIdentitet.getRettIdentitetVedIdentifikasjonsnummer() != null) {
-                LOG.warn("Falsk identitet: rettIdentitetVedIdentifikasjonsnummer {}", falskIdentitet.getRettIdentitetVedIdentifikasjonsnummer());
+                var rettIdent = LoggerUtils.partialMask(falskIdentitet.getRettIdentitetVedIdentifikasjonsnummer());
+                LOG.warn("Falsk identitet: rettIdentitetVedIdentifikasjonsnummer {}", rettIdent);
                 throw new IllegalStateException("Falsk identitet: rettIdentitetVedIdentifikasjonsnummer finnes");
             } else if (falskIdentitet.getRettIdentitetVedOpplysninger() != null) {
                 var falskIdentitetInfo = falskIdentitet.getRettIdentitetVedOpplysninger();

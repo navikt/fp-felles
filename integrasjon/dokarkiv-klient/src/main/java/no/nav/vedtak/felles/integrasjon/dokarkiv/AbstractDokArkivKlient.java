@@ -49,7 +49,9 @@ public class AbstractDokArkivKlient implements DokArkiv {
             var res = restKlient.sendExpectConflict(restRequest, OpprettJournalpostResponse.class);
             return res;
         } catch (Exception e) {
-            LOG.info("DOKARKIV OPPRETT feilet for {}", request, e);
+            var saksnummer = request.sak() != null ? request.sak().fagsakId() : null;
+            var eksternReferanseId = request.eksternReferanseId();
+            LOG.info("DOKARKIV OPPRETT feilet for {} {}", saksnummer, eksternReferanseId, e);
             return null;
         }
     }
@@ -63,7 +65,7 @@ public class AbstractDokArkivKlient implements DokArkiv {
             restKlient.send(restRequest, String.class);
             return true;
         } catch (Exception e) {
-            LOG.info("DOKARKIV OPPDATER {} feilet for {}", journalpostId, request, e);
+            LOG.info("DOKARKIV OPPDATER {} feilet", journalpostId, e);
             return false;
         }
     }
