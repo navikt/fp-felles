@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,9 +27,9 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
         return List.of();
     }
 
-    /** Bygger AND upper(kolonneRef) NOT LIKE 'mønster' for hvert ekskludert tabellmønster. */
+    /** Bygger AND upper(kolonneRef) NOT LIKE 'mønster' for Oracles papirkurv (BIN$) og hvert ekskludert tabellmønster. */
     private String tabellFilter(String kolonneRef) {
-        return ekskluderteTabellmønstre().stream()
+        return Stream.concat(Stream.of("BIN$%"), ekskluderteTabellmønstre().stream())
             .map(m -> "  AND upper(" + kolonneRef + ") NOT LIKE '" + m.toUpperCase() + "'")
             .collect(Collectors.joining("\n"));
     }
@@ -49,7 +50,6 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
             SELECT table_name FROM all_tables
             WHERE owner = sys_context('userenv','current_schema')
               AND upper(table_name) NOT LIKE '%SCHEMA_%'
-              AND upper(table_name) NOT LIKE 'BIN$%'
             """ + tabellFilter("table_name");
         assertThat(runSingleColumnQuery(sql))
             .withFailMessage("Aktivt schema '%s' har ingen tabeller utover historikktabeller og ekskluderte tabellmønstre.", schema)
@@ -176,7 +176,6 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
               AND index_name NOT LIKE 'IDX_%'
               AND index_name NOT LIKE 'UIDX_%'
               AND upper(table_name) NOT LIKE '%SCHEMA_%'
-              AND upper(table_name) NOT LIKE 'BIN$%'
             """ + tabellFilter("table_name");
         var q = getEntityManager().createNativeQuery(sql, Object[].class);
         List<Object[]> rows = q.getResultList();
