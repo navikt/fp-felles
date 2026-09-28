@@ -10,9 +10,6 @@ import org.junit.jupiter.api.Test;
 /** Felles strukturtester for Oracle. */
 public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTest {
 
-    /** Schema-eier brukt i Oracle ALL_*-views. */
-    protected abstract String getOwner();
-
     /**
      * Tabellnavn-mønstre (LIKE-syntax) som ekskluderes fra alle sjekker.
      * Eksempel: {@code List.of("%_MOCK", "HTE_%")}
@@ -43,6 +40,20 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
             .map(k -> "'" + k.toUpperCase() + "'")
             .collect(Collectors.joining(","));
         return "  AND upper(" + kolonneRef + ") NOT IN (" + verdier + ")";
+    }
+
+    @Test
+    void sjekk_at_aktivt_schema_har_tabeller() {
+        var schema = runSingleColumnQuery("SELECT sys_context('userenv','current_schema') FROM dual").getFirst();
+        var sql = """
+            SELECT table_name FROM all_tables
+            WHERE owner = sys_context('userenv','current_schema')
+              AND upper(table_name) NOT LIKE '%SCHEMA_%'
+              AND upper(table_name) NOT LIKE 'BIN$%'
+            """ + tabellFilter("table_name");
+        assertThat(runSingleColumnQuery(sql))
+            .withFailMessage("Aktivt schema '%s' har ingen tabeller utover historikktabeller og ekskluderte tabellmønstre.", schema)
+            .isNotEmpty();
     }
 
     @Test
@@ -96,7 +107,7 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
             INNER JOIN ALL_CONS_COLUMNS DCC
               ON DCC.CONSTRAINT_NAME = UC.CONSTRAINT_NAME AND DCC.OWNER = UC.OWNER
             WHERE UC.CONSTRAINT_TYPE = 'R'
-              AND upper(UC.OWNER) = upper(:owner)
+              AND UC.OWNER = sys_context('userenv','current_schema')
             """ + tabellFilter("UC.TABLE_NAME") + """
 
               AND EXISTS (
@@ -112,7 +123,6 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
             ORDER BY UC.TABLE_NAME
             """;
         var q = getEntityManager().createNativeQuery(sql, Object[].class);
-        q.setParameter("owner", getOwner());
         List<Object[]> rows = q.getResultList();
         assertThat(rows)
             .withFailMessage("Kolonner som inngår i Foreign Keys skal ha indekser. Mangler indekser for %s foreign keys%n%s",
@@ -129,11 +139,10 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
               WHERE ac.constraint_type = 'P'
                 AND at.owner = ac.owner
                 AND ac.constraint_name LIKE 'PK_%')
-              AND upper(at.owner) = upper(:owner)
+              AND at.owner = sys_context('userenv','current_schema')
               AND upper(at.table_name) NOT LIKE '%SCHEMA_%'
             """ + tabellFilter("at.table_name");
         var q = getEntityManager().createNativeQuery(sql, String.class);
-        q.setParameter("owner", getOwner());
         List<String> avvik = q.getResultList();
         assertThat(avvik)
             .withFailMessage("Feil eller manglende primary key (skal hete 'PK_<tabell navn>'). Antall feil = %s%n%nTabell:%n%s",
@@ -146,11 +155,10 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
         var sql = """
             SELECT ac.table_name, ac.constraint_name FROM all_constraints ac
             WHERE ac.constraint_type = 'R'
-              AND upper(ac.owner) = upper(:owner)
+              AND ac.owner = sys_context('userenv','current_schema')
               AND constraint_name NOT LIKE 'FK_%'
             """ + tabellFilter("ac.table_name");
         var q = getEntityManager().createNativeQuery(sql, Object[].class);
-        q.setParameter("owner", getOwner());
         List<Object[]> rows = q.getResultList();
         assertThat(rows)
             .withFailMessage("Feil eller manglende foreign key (skal hete 'FK_<tabell navn>_<løpenummer>'). Antall feil = %s%n%nTabell, Foreign Key%n%s",
@@ -163,7 +171,7 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
         var sql = """
             SELECT table_name, index_name, column_name
             FROM all_ind_columns
-            WHERE table_owner = upper(:owner)
+            WHERE table_owner = sys_context('userenv','current_schema')
               AND index_name NOT LIKE 'PK_%'
               AND index_name NOT LIKE 'IDX_%'
               AND index_name NOT LIKE 'UIDX_%'
@@ -171,7 +179,6 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
               AND upper(table_name) NOT LIKE 'BIN$%'
             """ + tabellFilter("table_name");
         var q = getEntityManager().createNativeQuery(sql, Object[].class);
-        q.setParameter("owner", getOwner());
         List<Object[]> rows = q.getResultList();
         assertThat(rows)
             .withFailMessage("Feil navngiving av index (PK_, UIDX_, IDX_). Antall feil = %s%n%nTabell, Index, Kolonne%n%s",
@@ -201,7 +208,7 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
             INNER JOIN ALL_TAB_COLS ATR
               ON ATR.COLUMN_NAME = RCC.COLUMN_NAME AND ATR.OWNER = RCC.OWNER
              AND ATR.TABLE_NAME = RCC.TABLE_NAME
-            WHERE T.OWNER = upper(:owner)
+            WHERE T.OWNER = sys_context('userenv','current_schema')
               AND T.CONSTRAINT_TYPE = 'R'
               AND TCC.POSITION = RCC.POSITION
               AND TCC.POSITION IS NOT NULL AND RCC.POSITION IS NOT NULL
@@ -213,7 +220,6 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
             ORDER BY T.TABLE_NAME, TCC.COLUMN_NAME
             """;
         var q = getEntityManager().createNativeQuery(sql, Object[].class);
-        q.setParameter("owner", getOwner());
         List<Object[]> rows = q.getResultList();
         assertThat(rows)
             .withFailMessage("Forskjellig datatype på FK-sider (husk VARCHAR2(100 CHAR)). Antall feil = %s%n%nTABELL, KOL_A, KOL_A_DATA_TYPE, KOL_A_CHAR_LENGTH, KOL_A_CHAR_USED, KOL_B, KOL_B_DATA_TYPE, KOL_B_CHAR_LENGTH, KOL_B_CHAR_USED%n%s",
@@ -231,13 +237,12 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
               AND CHAR_USED != 'C'
               AND upper(TABLE_NAME) NOT LIKE '%SCHEMA%'
               AND CHAR_LENGTH > 1
-              AND OWNER = upper(:owner)
+              AND OWNER = sys_context('userenv','current_schema')
             """ + tabellFilter("TABLE_NAME") + """
 
             ORDER BY TABLE_NAME, COLUMN_NAME
             """;
         var q = getEntityManager().createNativeQuery(sql, Object[].class);
-        q.setParameter("owner", getOwner());
         List<Object[]> rows = q.getResultList();
         assertThat(rows)
             .withFailMessage("Feil deklarasjon av VARCHAR2 (husk VARCHAR2(100 CHAR)). Antall feil = %s%n%nTABELL, KOLONNE, DATA_TYPE, CHAR_USED, CHAR_LENGTH%n%s",
@@ -250,14 +255,13 @@ public abstract class AbstractOracleDbStrukturTest extends AbstractDbStrukturTes
         var sql = """
             SELECT TO_CHAR(TABLE_NAME), TO_CHAR(COLUMN_NAME), TO_CHAR(DATA_TYPE)
             FROM ALL_TAB_COLS
-            WHERE OWNER = upper(:owner)
+            WHERE OWNER = sys_context('userenv','current_schema')
               AND DATA_TYPE IN ('FLOAT', 'DOUBLE')
             """ + tabellFilter("TABLE_NAME") + """
 
             ORDER BY TABLE_NAME, COLUMN_NAME
             """;
         var q = getEntityManager().createNativeQuery(sql, Object[].class);
-        q.setParameter("owner", getOwner());
         List<Object[]> rows = q.getResultList();
         assertThat(rows)
             .withFailMessage("Feil bruk av datatype, skal ikke ha FLOAT eller DOUBLE (bruk NUMBER for alle desimaltall, spesielt der penger representeres). Antall feil = %s%n%nTabell, Kolonne, Datatype%n%s",
