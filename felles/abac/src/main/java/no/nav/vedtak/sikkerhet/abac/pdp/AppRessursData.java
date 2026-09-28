@@ -150,7 +150,11 @@ public class AppRessursData {
         }
 
         public Builder medLoggBehandling(UUID behandling) {
-            return medLoggFelt(LoggFelter.BEHANDLING, behandling.toString());
+            return medLoggFelt(LoggFelter.BEHANDLING, behandling != null ? behandling.toString() : null);
+        }
+
+        public Builder medLoggBehandlingId(Long behandlingId) {
+            return medLoggFelt(LoggFelter.BEHANDLING, behandlingId != null ? behandlingId.toString() : null);
         }
 
         public Builder medLoggFelt(String loggFelt, String verdi) {
