@@ -8,7 +8,6 @@ import jakarta.persistence.EntityManager;
 
 import org.hibernate.Session;
 import org.hibernate.jdbc.ReturningWork;
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
 /**
  * Kjører et stykke jobb med et savepoint for rollback mot database. Gir samme
@@ -18,15 +17,8 @@ import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 public class RunWithSavepoint {
     private final EntityManager em;
 
-    @SuppressWarnings("rawtypes")
     public RunWithSavepoint(EntityManager em) {
-        Objects.requireNonNull(em, "em");
-        // workaround for hibernate issue HHH-11020
-        if (em instanceof TargetInstanceProxy) {
-            em = (EntityManager) ((TargetInstanceProxy) em).weld_getTargetInstance();
-        }
-        this.em = em;
-
+        this.em = Objects.requireNonNull(em, "em");
     }
 
     public <V> V doWork(Work<V> work) {

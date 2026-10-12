@@ -2,10 +2,16 @@ package no.nav.vedtak.felles.testutilities.cdi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -41,6 +47,12 @@ class CdiExtensionTest {
         assertThat(depBean.getClass()).isEqualTo(DepBean.class);
         assertThat(depBean.hello()).isEqualTo("dep");
     }
+
+    @AfterAll
+    static void destroyedInjectedDependents() {
+        assertThat(DepBean.DESTROYED.get()).isEqualTo(DepBean.CREATED.get());
+        assertThat(DepBean.CREATED.get()).isEqualTo(3);
+    }
 }
 
 
@@ -53,8 +65,13 @@ class AppBean {
 }
 
 
-@ApplicationScoped
+@RequestScoped
 class ReqBean {
+    private final UUID id = UUID.randomUUID();
+
+    UUID id() {
+        return id;
+    }
 
     String hello() {
         return "request";
@@ -64,6 +81,17 @@ class ReqBean {
 
 @Dependent
 class DepBean {
+    static final AtomicInteger CREATED = new AtomicInteger();
+    static final AtomicInteger DESTROYED = new AtomicInteger();
+
+    DepBean() {
+        CREATED.incrementAndGet();
+    }
+
+    @PreDestroy
+    void destroy() {
+        DESTROYED.incrementAndGet();
+    }
 
     String hello() {
         return "dep";

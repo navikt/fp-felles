@@ -1,49 +1,48 @@
 package no.nav.vedtak.felles.testutilities.cdi;
 
-import org.jboss.weld.context.RequestContext;
-import org.jboss.weld.context.unbound.UnboundLiteral;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.InjectionTarget;
+
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
-import jakarta.enterprise.context.spi.CreationalContext;
-import jakarta.enterprise.inject.spi.AnnotatedType;
-import jakarta.enterprise.inject.spi.CDI;
-import jakarta.enterprise.inject.spi.InjectionTarget;
-
 public class CdiAwareExtension implements TestInstancePostProcessor {
 
-    static class IgnorantCreationalContext<T> implements CreationalContext<T> {
-        @Override
-        public void push(T incompleteInstance) {
-        }
-
-        @Override
-        public void release() {
-        }
+    @Override
+    public ExtensionContextScope getTestInstantiationExtensionContextScope(ExtensionContext context) {
+        return ExtensionContextScope.TEST_METHOD;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-
-        var weld = WeldContext.getInstance(); // initialserer cdi container om det ikke har skedd
-
-        var ctx = getRequestContext();
-        if (ctx.isActive()) {
-            // sørg for at requestcontext alltid er aktiv når denne brukes, også før
-            // initialiserer beanss
-            ctx.activate();
-        }
-
-        var bm = weld.getBeanManager();
-        Class cls = testInstance.getClass();
-        AnnotatedType annotatedType = bm.createAnnotatedType(cls);
-        InjectionTarget injectionTarget = bm.getInjectionTargetFactory(annotatedType).createInjectionTarget(null);
-        injectionTarget.inject(testInstance, new IgnorantCreationalContext<>());
-        injectionTarget.postConstruct(testInstance);
+        var weld = WeldContext.getInstance();
+        weld.activateRequestContext(context);
+        inject(testInstance, testInstance.getClass(), context);
     }
 
-    private RequestContext getRequestContext() {
-        return CDI.current().select(RequestContext.class, UnboundLiteral.INSTANCE).get();
+    private static <T> void inject(Object testInstance, Class<T> type, ExtensionContext context) {
+        var manager = WeldContext.getInstance().getBeanManager();
+        var annotatedType = manager.createAnnotatedType(type);
+        InjectionTarget<T> target = manager.getInjectionTargetFactory(annotatedType).createInjectionTarget(null);
+        T instance = type.cast(testInstance);
+        CreationalContext<T> creationalContext = manager.createCreationalContext(null);
+        WeldContext.store(context).put(testInstance, new InjectedInstance<>(instance, target, creationalContext));
+        target.inject(instance, creationalContext);
+        target.postConstruct(instance);
+    }
+
+    private record InjectedInstance<T>(T instance, InjectionTarget<T> target, CreationalContext<T> context) implements AutoCloseable {
+        @Override
+        public void close() {
+            try {
+                target.preDestroy(instance);
+            } finally {
+                try {
+                    target.dispose(instance);
+                } finally {
+                    context.release();
+                }
+            }
+        }
     }
 }

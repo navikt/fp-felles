@@ -8,12 +8,12 @@ import java.util.Optional;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Intercepted;
+import jakarta.enterprise.inject.spi.Bean;
 import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
-
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
@@ -34,18 +34,23 @@ public class BeskyttetRessursInterceptor {
 
     private final Pep pep;
     private final TokenProvider tokenProvider;
+    private final Bean<?> interceptedBean;
 
+    /**
+     * {@code interceptedBean} gir den annoterte bønneklassen; {@code InvocationContext.getTarget()} er en Weld-subklasse uten klasseannoteringer.
+     */
     @Inject
-    public BeskyttetRessursInterceptor(Pep pep, TokenProvider provider) {
+    public BeskyttetRessursInterceptor(Pep pep, TokenProvider provider, @Intercepted Bean<?> interceptedBean) {
         this.pep = pep;
         this.tokenProvider = provider;
+        this.interceptedBean = interceptedBean;
     }
 
     @AroundInvoke
     public Object wrapTransaction(final InvocationContext invocationContext) throws Exception {
         var method = invocationContext.getMethod();
         var dataAttributter = finnAbacDataAttributter(method, invocationContext.getParameters());
-        var beskyttetRessursAttributter = hentBeskyttetRessursAttributter(method, getOpprinneligKlasse(invocationContext), dataAttributter);
+        var beskyttetRessursAttributter = hentBeskyttetRessursAttributter(method, interceptedBean.getBeanClass(), dataAttributter);
 
         var appRessursData = pep.hentRessurser(beskyttetRessursAttributter);
         // Skal erstattes med ScopedMDC på litt sikt.
@@ -132,15 +137,6 @@ public class BeskyttetRessursInterceptor {
         } catch (InvocationTargetException e) {
             throw new IllegalStateException(e.getCause());
         }
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static Class<?> getOpprinneligKlasse(InvocationContext invocationContext) {
-        Object target = invocationContext.getTarget();
-        if (target instanceof TargetInstanceProxy tip) {
-            return tip.weld_getTargetClass();
-        }
-        return target.getClass();
     }
 
     private static String utledAction(Class<?> clazz, Method method) {

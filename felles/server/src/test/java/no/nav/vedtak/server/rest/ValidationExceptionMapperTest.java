@@ -23,6 +23,13 @@ class ValidationExceptionMapperTest {
     private record TestRec(@Min(10) int tall, @Pattern(regexp = "\\d{5}") String tekst) { }
 
     @Test
+    void fjerner_weld_proxy_suffix() {
+        assertThat(ValidationExceptionMapper.utenCdiProxySuffix("FooRestTjeneste$Proxy$_$$_WeldClientProxy")).isEqualTo("FooRestTjeneste");
+        assertThat(ValidationExceptionMapper.utenCdiProxySuffix("FooRestTjeneste$Proxy$_$$_WeldSubclass")).isEqualTo("FooRestTjeneste");
+        assertThat(ValidationExceptionMapper.utenCdiProxySuffix("FooDto")).isEqualTo("FooDto");
+    }
+
+    @Test
     void test_validerer_OK() {
         var dto = new TestRec(50, "55555");
         try (var respons = valider(dto)){

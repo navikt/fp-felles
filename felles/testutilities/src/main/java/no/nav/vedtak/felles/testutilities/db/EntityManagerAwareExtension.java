@@ -3,12 +3,9 @@ package no.nav.vedtak.felles.testutilities.db;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
-import org.jboss.weld.context.RequestContext;
-import org.jboss.weld.context.unbound.UnboundLiteral;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -23,9 +20,8 @@ import org.slf4j.LoggerFactory;
 import no.nav.vedtak.felles.testutilities.cdi.WeldContext;
 
 /**
- * Denne erstatter {@link RepositoryRule} i JUnit 5 tester o gir lett tilgang
- * til en EntityManager. Hvis egen initialisering er nødvendig, subklass og
- * override {@link #init()} Brukes slik
+ * Denne erstatter gir lett tilgang til en EntityManager.
+ * Hvis egen initialisering er nødvendig, subklass og override {@link #init()} Brukes slik
  *
  * <pre>
  * &#64;ExtendWith(EntityManagerAwareExtension.class)
@@ -47,6 +43,11 @@ import no.nav.vedtak.felles.testutilities.cdi.WeldContext;
 public class EntityManagerAwareExtension extends PersistenceUnitInitializer implements ParameterResolver, InvocationInterceptor, TestInstancePostProcessor, TestInstancePreDestroyCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityManagerAwareExtension.class);
+
+    @Override
+    public ExtensionContextScope getTestInstantiationExtensionContextScope(ExtensionContext context) {
+        return ExtensionContextScope.TEST_METHOD;
+    }
 
     static {
         WeldContext.getInstance(); // init cdi container
@@ -72,11 +73,7 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext extensionContext) throws Exception {
 
-        var ctx = getRequestContext();
-        if (!ctx.isActive()) {
-            // sørg for at RequestContext alltid er aktiv før initialserer mer
-            ctx.activate();
-        }
+        WeldContext.getInstance().activateRequestContext(extensionContext);
 
         // kaller på hvis finnes
         var methodToFind = Arrays.stream(testInstance.getClass().getMethods())
@@ -111,15 +108,8 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
 
     @Override
     public void preDestroyTestInstance(ExtensionContext extensionContext) throws Exception {
-        var ctx = getRequestContext();
         var em = internalEntityManager();
-        try {
-            stopTransaction(extensionContext, em.getTransaction());
-        } finally {
-            if (ctx.isActive()) {
-                ctx.deactivate();
-            }
-        }
+        stopTransaction(extensionContext, em.getTransaction());
     }
 
     @Override
@@ -130,10 +120,6 @@ public class EntityManagerAwareExtension extends PersistenceUnitInitializer impl
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return internalEntityManager();
-    }
-
-    private RequestContext getRequestContext() {
-        return CDI.current().select(RequestContext.class, UnboundLiteral.INSTANCE).get();
     }
 
     private EntityManager internalEntityManager() {

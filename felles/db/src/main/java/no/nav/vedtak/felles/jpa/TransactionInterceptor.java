@@ -2,7 +2,8 @@ package no.nav.vedtak.felles.jpa;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
-import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
@@ -32,25 +33,26 @@ public class TransactionInterceptor {
         }
     }
 
-    private static final CDI<Object> CURRENT = CDI.current();
+    private final Instance<EntityManager> entityManagers;
 
-    private void destroyEntityManager(EntityManager entityManager) {
-        CURRENT.destroy(entityManager);
+    @Inject
+    public TransactionInterceptor(Instance<EntityManager> entityManagers) {
+        this.entityManagers = entityManagers;
     }
 
     @AroundInvoke
     public Object wrapTransaction(final InvocationContext invocationContext) throws Exception {
 
-        EntityManager entityManager = CURRENT.select(EntityManager.class).get();
+        var entityManager = entityManagers.get();
 
         boolean isActiveTx = entityManager.getTransaction().isActive();
 
         try {
-            Object result = new TransactionHandlerInvocation(invocationContext).apply(entityManager);
-            return result;
+            return new TransactionHandlerInvocation(invocationContext).apply(entityManager);
         } finally {
             if (!isActiveTx) {
-                destroyEntityManager(entityManager);
+                // Fjerner request-scoped EntityManager fra konteksten slik at neste transaksjon får en ny
+                entityManagers.destroy(entityManager);
             }
         }
 
