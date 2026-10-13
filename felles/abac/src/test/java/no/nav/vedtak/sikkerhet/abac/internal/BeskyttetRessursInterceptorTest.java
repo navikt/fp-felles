@@ -2,6 +2,7 @@ package no.nav.vedtak.sikkerhet.abac.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import jakarta.enterprise.inject.spi.Bean;
 import jakarta.interceptor.InvocationContext;
 import jakarta.ws.rs.Path;
 
@@ -52,6 +54,8 @@ class BeskyttetRessursInterceptorTest {
     private TokenProvider tokenProvider;
     @Mock
     private Pep pep;
+    @Mock
+    private Bean<RestClass> interceptedBean;
 
 
     @BeforeEach
@@ -60,12 +64,13 @@ class BeskyttetRessursInterceptorTest {
         when(tokenProvider.getOid()).thenReturn(BRUKER_OID);
         when(tokenProvider.getAnsattGrupper()).thenReturn(Set.of());
         when(tokenProvider.getIdentType()).thenReturn(IdentType.InternBruker);
+        doReturn(RestClass.class).when(interceptedBean).getBeanClass();
     }
 
     @Test
     void godkjent_aktør() throws Exception {
         when(pep.vurderTilgang(braCaptor.capture(), any())).thenReturn(TilgangResultat.GODKJENT);
-        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
+        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider, interceptedBean);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[]{aktør1});
@@ -79,7 +84,7 @@ class BeskyttetRessursInterceptorTest {
     @Test
     void godkjent_behandling() throws Exception {
         when(pep.vurderTilgang(braCaptor.capture(), any())).thenReturn(TilgangResultat.GODKJENT);
-        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
+        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider, interceptedBean);
 
         Method method = RestClass.class.getMethod("behandlingIdIn", BehandlingIdDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[]{behandlingIdDto});
@@ -94,7 +99,7 @@ class BeskyttetRessursInterceptorTest {
     @Test
     void godkjent_uten_sporing() throws Exception {
         when(pep.vurderTilgang(braCaptor.capture(), any())).thenReturn(TilgangResultat.GODKJENT);
-        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
+        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider, interceptedBean);
 
         Method method = RestClass.class.getMethod("utenSporingslogg", BehandlingIdDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[]{behandlingIdDto});
@@ -108,7 +113,7 @@ class BeskyttetRessursInterceptorTest {
     @Test
     void deny_aktør_gir_exception() throws Exception {
         when(pep.vurderTilgang(braCaptor.capture(), any())).thenReturn(TilgangResultat.AVSLÅTT_KODE_6);
-        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider);
+        var interceptor = new BeskyttetRessursInterceptor(pep, tokenProvider, interceptedBean);
 
         Method method = RestClass.class.getMethod("aktoerIn", AktørDto.class);
         InvocationContext ic = new TestInvocationContext(method, new Object[]{aktør1});

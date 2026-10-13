@@ -49,10 +49,17 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
     private static FeltFeil getFeltFeil(ConstraintViolation<?> constraintViolation) {
         var root = Optional.ofNullable(constraintViolation.getRootBeanClass())
             .map(Class::getSimpleName)
-            .map(rbn -> rbn.replace("$Proxy$_$$_WeldClientProxy", "").concat("."))
+            .map(ValidationExceptionMapper::utenCdiProxySuffix)
+            .map(rbn -> rbn.concat("."))
             .orElse("");
         var field = Optional.ofNullable(constraintViolation.getPropertyPath()).map(Path::toString).orElse("null");
         return new FeltFeil(root + field, constraintViolation.getMessage());
+    }
+
+    // Weld: client proxy (WeldClientProxy) og intercepted subclass (WeldSubclass)
+    static String utenCdiProxySuffix(String klassenavn) {
+        var idx = klassenavn.indexOf("$Proxy$");
+        return idx < 0 ? klassenavn : klassenavn.substring(0, idx);
     }
 
     private record FeltFeil(String navn, String melding) {}
