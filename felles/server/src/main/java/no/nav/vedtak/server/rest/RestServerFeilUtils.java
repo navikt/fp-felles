@@ -56,7 +56,9 @@ public class RestServerFeilUtils {
      * Logges på info uten stacktrace. Stien er vilkårlig input og saneres før logging.
      */
     public static void loggUkjentSti(String metode, String sti) {
-        LOG.info("Ukjent sti: {} {}", LoggerUtils.removeLineBreaks(metode), sanerSti(sti));
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Ukjent sti: {} {}", LoggerUtils.removeLineBreaks(metode), sanerSti(sti));
+        }
     }
 
     static String sanerSti(String sti) {
