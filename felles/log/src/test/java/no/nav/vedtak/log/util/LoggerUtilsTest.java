@@ -26,4 +26,10 @@ class LoggerUtilsTest {
     void removeLineBreaksSkalTakleNull() {
         assertThat(LoggerUtils.removeLineBreaks(null)).isNull();
     }
+
+    @Test
+    void maskPersonIdentifiersSkalMaskereFnrOgAktørIdMenIkkeOrgnr() {
+        assertThat(LoggerUtils.maskPersonIdentifiers("/p/12345678901/a/1234567890123/o/999999999")).isEqualTo("/p/***/a/***/o/999999999");
+        assertThat(LoggerUtils.maskPersonIdentifiers(null)).isNull();
+    }
 }

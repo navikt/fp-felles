@@ -25,6 +25,7 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 public class RestServerFeilUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestServerFeilUtils.class);
+    private static final int MAKS_STI_LENGDE = 200;
 
     private RestServerFeilUtils() {
     }
@@ -48,6 +49,18 @@ public class RestServerFeilUtils {
         } else if (VLLogLevel.INFO.equals(logLevel)) {
             LOG.info(melding, feil);
         }
+    }
+
+    /**
+     * Kall mot en sti uten ressurs (typisk skannere, utdaterte klienter eller relative lenker i dokumenter).
+     * Logges på info uten stacktrace. Stien er vilkårlig input og saneres før logging.
+     */
+    public static void loggUkjentSti(String metode, String sti) {
+        LOG.info("Fant ingen ressurs for {} {}", LoggerUtils.removeLineBreaks(metode), sanerSti(sti));
+    }
+
+    static String sanerSti(String sti) {
+        return LoggerUtils.limit(LoggerUtils.maskPersonIdentifiers(LoggerUtils.removeLineBreaks(sti)), MAKS_STI_LENGDE);
     }
 
     public static void loggWarning(String loggmelding) {

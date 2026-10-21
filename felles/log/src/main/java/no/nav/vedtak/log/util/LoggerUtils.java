@@ -8,10 +8,12 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public final class LoggerUtils {
 
     private static final int DEFAULT_LENGTH = 50;
+    private static final Pattern PERSON_IDENTIFIERS = Pattern.compile("\\d{11,}");
 
     private LoggerUtils() {
     }
@@ -57,6 +59,13 @@ public final class LoggerUtils {
 
     public static String mask(String value) {
         return Optional.ofNullable(value).map(String::stripLeading).filter(not(String::isBlank)).map(v -> "*".repeat(v.length())).orElse("<null>");
+    }
+
+    /**
+     * Maskerer tallrekker på 11 eller flere siffer (fnr/dnr/aktørId) i fritekst, f.eks. en vilkårlig url-sti.
+     */
+    public static String maskPersonIdentifiers(String tekst) {
+        return Optional.ofNullable(tekst).map(t -> PERSON_IDENTIFIERS.matcher(t).replaceAll("***")).orElse(null);
     }
 
     public static String encode(String string) {

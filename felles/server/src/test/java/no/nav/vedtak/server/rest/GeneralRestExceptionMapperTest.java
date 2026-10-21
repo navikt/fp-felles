@@ -1,6 +1,15 @@
 package no.nav.vedtak.server.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.util.List;
+
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Request;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -124,6 +133,48 @@ class GeneralRestExceptionMapperTest {
         }
     }
 
+
+    @Test
+    void skalLoggeUkjentStiPåInfoMedMaskertSti() {
+        var uriInfo = mock(UriInfo.class);
+        var request = mock(Request.class);
+        when(uriInfo.getMatchedResources()).thenReturn(List.of());
+        when(uriInfo.getRequestUri()).thenReturn(URI.create("https://host/fpsak/api/person/12345678901/f.nr"));
+        when(request.getMethod()).thenReturn("GET");
+        var mapper = new GeneralRestExceptionMapper(uriInfo, request);
+
+        try (var response = mapper.toResponse(new NotFoundException())) {
+
+            assertThat(response.getStatus()).isEqualTo(404);
+            assertThat(logSniffer.getLoggedEvents())
+                .singleElement()
+                .satisfies(e -> {
+                    assertThat(e.getLevel()).isEqualTo(Level.INFO);
+                    assertThat(e.getFormattedMessage()).isEqualTo("Fant ingen ressurs for GET /fpsak/api/person/***/f.nr");
+                    assertThat(e.getThrowableProxy()).isNull();
+                });
+        }
+    }
+
+    @Test
+    void skalLoggeNotFoundFraMatchetRessursSomFør() {
+        var uriInfo = mock(UriInfo.class);
+        when(uriInfo.getMatchedResources()).thenReturn(List.of(new Object()));
+        var mapper = new GeneralRestExceptionMapper(uriInfo, mock(Request.class));
+
+        try (var response = mapper.toResponse(new NotFoundException("finnes ikke"))) {
+
+            assertThat(response.getStatus()).isEqualTo(404);
+            assertThat(logSniffer.search("Fikk uventet feil: finnes ikke", Level.WARN)).hasSize(1);
+        }
+    }
+
+    @Test
+    void skalSanereSti() {
+        assertThat(RestServerFeilUtils.sanerSti("/a\n/12345678901/1234567890123/999999999")).isEqualTo("/a/***/***/999999999");
+        assertThat(RestServerFeilUtils.sanerSti("/" + "a".repeat(500))).hasSizeLessThanOrEqualTo(202);
+        assertThat(RestServerFeilUtils.sanerSti(null)).isNull();
+    }
 
     private static FunksjonellException funksjonellFeil() {
         return new FunksjonellException("FUNK_FEIL", "en funksjonell feilmelding", "et løsningsforslag");
