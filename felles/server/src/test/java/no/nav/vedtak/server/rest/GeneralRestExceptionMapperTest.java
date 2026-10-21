@@ -150,7 +150,7 @@ class GeneralRestExceptionMapperTest {
                 .singleElement()
                 .satisfies(e -> {
                     assertThat(e.getLevel()).isEqualTo(Level.INFO);
-                    assertThat(e.getFormattedMessage()).isEqualTo("Fant ingen ressurs for GET /fpsak/api/person/***/f.nr");
+                    assertThat(e.getFormattedMessage()).isEqualTo("Ukjent sti: GET /fpsak/api/person/***/f.nr");
                     assertThat(e.getThrowableProxy()).isNull();
                 });
         }

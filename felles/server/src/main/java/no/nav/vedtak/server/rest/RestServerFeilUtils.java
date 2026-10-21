@@ -56,7 +56,7 @@ public class RestServerFeilUtils {
      * Logges på info uten stacktrace. Stien er vilkårlig input og saneres før logging.
      */
     public static void loggUkjentSti(String metode, String sti) {
-        LOG.info("Fant ingen ressurs for {} {}", LoggerUtils.removeLineBreaks(metode), sanerSti(sti));
+        LOG.info("Ukjent sti: {} {}", LoggerUtils.removeLineBreaks(metode), sanerSti(sti));
     }
 
     static String sanerSti(String sti) {
