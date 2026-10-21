@@ -171,7 +171,7 @@ class GeneralRestExceptionMapperTest {
 
     @Test
     void skalSanereSti() {
-        assertThat(RestServerFeilUtils.sanerSti("/a\n/12345678901/1234567890123/999999999")).isEqualTo("/a/***/***/999999999");
+        assertThat(RestServerFeilUtils.sanerSti("/a\n/12345678901/1234567890123/999999999/v1")).isEqualTo("/a/***/***/***/v1");
         assertThat(RestServerFeilUtils.sanerSti("/" + "a".repeat(500))).hasSizeLessThanOrEqualTo(202);
         assertThat(RestServerFeilUtils.sanerSti(null)).isNull();
     }

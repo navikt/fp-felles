@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public final class LoggerUtils {
 
     private static final int DEFAULT_LENGTH = 50;
-    private static final Pattern PERSON_IDENTIFIERS = Pattern.compile("\\d{11,}");
+    private static final Pattern DIGIT_SEQUENCES = Pattern.compile("\\d{4,}");
 
     private LoggerUtils() {
     }
@@ -62,10 +62,11 @@ public final class LoggerUtils {
     }
 
     /**
-     * Maskerer tallrekker på 11 eller flere siffer (fnr/dnr/aktørId) i fritekst, f.eks. en vilkårlig url-sti.
+     * Maskerer tallrekker på 4 eller flere siffer i fritekst, f.eks. en vilkårlig url-sti. Dekker fnr/dnr/aktørId
+     * (også med skilletegn), fødselsdato, saksnummer o.l., men beholder korte tall som versjon i "/v1".
      */
-    public static String maskPersonIdentifiers(String tekst) {
-        return Optional.ofNullable(tekst).map(t -> PERSON_IDENTIFIERS.matcher(t).replaceAll("***")).orElse(null);
+    public static String maskDigitSequences(String tekst) {
+        return Optional.ofNullable(tekst).map(t -> DIGIT_SEQUENCES.matcher(t).replaceAll("***")).orElse(null);
     }
 
     public static String encode(String string) {

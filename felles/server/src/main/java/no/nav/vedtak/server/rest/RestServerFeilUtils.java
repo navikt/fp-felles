@@ -60,7 +60,7 @@ public class RestServerFeilUtils {
     }
 
     static String sanerSti(String sti) {
-        return LoggerUtils.limit(LoggerUtils.maskPersonIdentifiers(LoggerUtils.removeLineBreaks(sti)), MAKS_STI_LENGDE);
+        return LoggerUtils.limit(LoggerUtils.maskDigitSequences(LoggerUtils.removeLineBreaks(sti)), MAKS_STI_LENGDE);
     }
 
     public static void loggWarning(String loggmelding) {
