@@ -8,10 +8,12 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public final class LoggerUtils {
 
     private static final int DEFAULT_LENGTH = 50;
+    private static final Pattern DIGIT_SEQUENCES = Pattern.compile("\\d{4,}");
 
     private LoggerUtils() {
     }
@@ -57,6 +59,14 @@ public final class LoggerUtils {
 
     public static String mask(String value) {
         return Optional.ofNullable(value).map(String::stripLeading).filter(not(String::isBlank)).map(v -> "*".repeat(v.length())).orElse("<null>");
+    }
+
+    /**
+     * Maskerer tallrekker på 4 eller flere siffer i fritekst, f.eks. en vilkårlig url-sti. Dekker fnr/dnr/aktørId
+     * (også med skilletegn), fødselsdato, saksnummer o.l., men beholder korte tall som versjon i "/v1".
+     */
+    public static String maskDigitSequences(String tekst) {
+        return Optional.ofNullable(tekst).map(t -> DIGIT_SEQUENCES.matcher(t).replaceAll("***")).orElse(null);
     }
 
     public static String encode(String string) {
