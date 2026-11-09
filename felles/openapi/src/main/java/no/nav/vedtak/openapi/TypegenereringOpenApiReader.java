@@ -75,15 +75,11 @@ public class TypegenereringOpenApiReader extends Reader {
 
     private static JsonMapper lagObjectMapperUtenJsonSubTypeAnnotasjoner() {
         return DefaultJsonMapper.getJsonMapper().rebuild()
-            // OpenApi-spec som blir generert er ikke alltid konsekvent på rekkefølgen til properties.
+            // OpenApi-spec som blir generert er ikke alltid konsekvent på rekkefølgen til properties fra class.
             // Ved å skru på disse flaggene blir output deterministic og det blir enklere å se hva som faktisk er diff fra forrige typegenerering
+            // Unngå at records sorteres as-is i feltrekkefølge: disable MapperFeature.SORT_CREATOR_PROPERTIES_FIRST
+            // Unngå at Ctor-felter/signatur med andre navn eller domeneobjekt tas med: endre default visibility for creator og scalar constructor til NONE.
             .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
-            // Unngå at records sorteres as-is i feltrekkefølge.
-            //.disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
-            // Inkluder for å unngå å få med Ctor som er basert på noe helt annet enn det som tas med i Dto (fx basert på domeneobjekt)
-            //.changeDefaultVisibility(v -> v
-              //  .withCreatorVisibility(JsonAutoDetect.Visibility.NONE)
-                //.withScalarConstructorVisibility(JsonAutoDetect.Visibility.NONE))
             // Fjern alle annotasjoner om JsonSubTypes. Hvis disse er med i generasjon av openapi spec får vi sirkulære avhengigheter.
             // Det skjer ved at superklassen sier den har "oneOf" arvingene sine. Mens en arving sier den har "allOf" forelderen sin.
             // Ved å fjerne jsonSubType annotasjoner får vi heller en enveis-lenke der superklassen definerer arvingene sine med "oneOf".
