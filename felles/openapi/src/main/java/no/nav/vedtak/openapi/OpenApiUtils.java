@@ -6,14 +6,14 @@ import java.util.stream.Collectors;
 
 import jakarta.ws.rs.core.Application;
 
-import io.swagger.v3.jaxrs2.Reader;
-import io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner;
-import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.rest.Reader;
+import io.swagger.v3.rest.integration.RestAnnotationScanner;
+import io.swagger.v3.rest.integration.RestOpenApiContextBuilder;
 import no.nav.vedtak.exception.TekniskException;
 
 public class OpenApiUtils {
@@ -66,7 +66,7 @@ public class OpenApiUtils {
 
     public void buildOpenApiContext() {
         try {
-            new JaxrsOpenApiContextBuilder<>()
+            new RestOpenApiContextBuilder<>()
                 .ctxId(idFra(application))
                 .application(application)
                 .openApiConfiguration(swaggerConfiguration)
@@ -81,7 +81,7 @@ public class OpenApiUtils {
     }
 
     private static SwaggerConfiguration swaggerConfigurationFrom(OpenAPI openAPI) {
-        return new SwaggerConfiguration().openAPI(openAPI).prettyPrint(true).scannerClass(JaxrsAnnotationScanner.class.getName());
+        return new SwaggerConfiguration().openAPI(openAPI).prettyPrint(true).scannerClass(RestAnnotationScanner.class.getName());
     }
 
     private static String idFra(Application application) {
