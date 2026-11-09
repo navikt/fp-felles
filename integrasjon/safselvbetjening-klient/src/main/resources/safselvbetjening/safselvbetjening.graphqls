@@ -604,6 +604,9 @@ enum Tema {
 
     # Innsyn etter personopplysningsloven
     POI
+
+    # Aktivitetspenger
+    AVP
 }
 
 # Sier hvorvidt saken inngår i et fagsystem (FAGSAK) eller ikke (GENERELL_SAK).
