@@ -2,6 +2,8 @@ package no.nav.vedtak.openapi;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.jackson.TypeNameResolver;
@@ -77,9 +79,12 @@ public class TypegenereringOpenApiReader extends Reader {
         return DefaultJsonMapper.getJsonMapper().rebuild()
             // OpenApi-spec som blir generert er ikke alltid konsekvent på rekkefølgen til properties fra class.
             // Ved å skru på disse flaggene blir output deterministic og det blir enklere å se hva som faktisk er diff fra forrige typegenerering
-            // Unngå at records sorteres as-is i feltrekkefølge: disable MapperFeature.SORT_CREATOR_PROPERTIES_FIRST
-            // Unngå at Ctor-felter/signatur med andre navn eller domeneobjekt tas med: endre default visibility for creator og scalar constructor til NONE.
+            // For å unngå at records sorteres as-is i feltrekkefølge: disable MapperFeature.SORT_CREATOR_PROPERTIES_FIRST
             .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+            // Unngå at Ctor brukes ved generering og styrer rekkefølge, samt tar med navn og andre typer
+            .changeDefaultVisibility(v -> v
+                .withCreatorVisibility(JsonAutoDetect.Visibility.NONE)
+                .withScalarConstructorVisibility(JsonAutoDetect.Visibility.NONE))
             // Fjern alle annotasjoner om JsonSubTypes. Hvis disse er med i generasjon av openapi spec får vi sirkulære avhengigheter.
             // Det skjer ved at superklassen sier den har "oneOf" arvingene sine. Mens en arving sier den har "allOf" forelderen sin.
             // Ved å fjerne jsonSubType annotasjoner får vi heller en enveis-lenke der superklassen definerer arvingene sine med "oneOf".
