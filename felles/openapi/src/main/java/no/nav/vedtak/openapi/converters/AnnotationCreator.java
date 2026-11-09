@@ -1,6 +1,7 @@
 package no.nav.vedtak.openapi.converters;
 
 import java.lang.annotation.Annotation;
+import java.util.Comparator;
 import java.util.Set;
 
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -19,7 +20,7 @@ public class AnnotationCreator {
      */
     public static io.swagger.v3.oas.annotations.media.Schema createOneOfSchemaAnnotation(Set<Class<?>> oneOf) {
         final var sortedOneOf = oneOf.stream()
-                .sorted((a, b) -> a.getCanonicalName().compareTo(b.getCanonicalName()))
+                .sorted(Comparator.comparing(Class::getCanonicalName))
                 .toArray(Class<?>[]::new);
 
         io.swagger.v3.oas.annotations.media.Schema schema = new io.swagger.v3.oas.annotations.media.Schema() {

@@ -27,14 +27,21 @@ public class TypegenereringOpenApiReader extends Reader {
 
     @Override
     public OpenAPI read(Set<Class<?>> resourceClasses) {
-        settOppForTypegenereringFrontend();
+        settOppForTypegenereringFrontend(new FellesTypeNameResolver(), Set.of());
         var openApi = super.read(resourceClasses);
         openApi.setPaths(new Paths());
         return openApi;
     }
 
+    private static class FellesTypeNameResolver extends TypeNameResolver {
+        @Override
+        public String getNameOfClass(Class<?> cls) {
+            return cls.getName();
+        }
+    }
+
     public static void settOppForTypegenereringFrontend() {
-        settOppForTypegenereringFrontend(TypeNameResolver.std, Set.of());
+        settOppForTypegenereringFrontend(new FellesTypeNameResolver(), Set.of());
     }
 
     public static void settOppForTypegenereringFrontend(TypeNameResolver typeNameResolver) {
@@ -42,7 +49,7 @@ public class TypegenereringOpenApiReader extends Reader {
     }
 
     public static void settOppForTypegenereringFrontend(Set<Class<?>> registeredSubtypes) {
-        settOppForTypegenereringFrontend(TypeNameResolver.std, registeredSubtypes);
+        settOppForTypegenereringFrontend(new FellesTypeNameResolver(), registeredSubtypes);
     }
 
     public static void settOppForTypegenereringFrontend(TypeNameResolver typeNameResolver, Set<Class<?>> registeredSubtypes) {

@@ -34,7 +34,7 @@ public class PrefixStrippingFQNTypeNameResolver extends TypeNameResolver {
 
     private boolean hasPreviouslyResolvedToOtherClass(final String name, final Class<?> cls) {
         final var prevCls = this.previouslyResolvedTo.get(name);
-        if(cls != null && prevCls != null) {
+        if (cls != null && prevCls != null) {
             return !prevCls.equals(cls);
         }
         return false;
@@ -46,9 +46,9 @@ public class PrefixStrippingFQNTypeNameResolver extends TypeNameResolver {
 
     private String strippedName(final String fqn, final Class<?> cls) {
         for(final var stripPrefix : this.stripPrefixes) {
-            if(fqn.startsWith(stripPrefix)) {
+            if (fqn.startsWith(stripPrefix)) {
                 final var stripped = fqn.substring(stripPrefix.length());
-                if(this.hasNotPreviouslyResolvedToOtherClass(stripped, cls)) {
+                if (this.hasNotPreviouslyResolvedToOtherClass(stripped, cls)) {
                     return stripped;
                 }
             }
@@ -59,9 +59,9 @@ public class PrefixStrippingFQNTypeNameResolver extends TypeNameResolver {
     @Override
     protected String getNameOfClass(Class<?> cls) {
         final String name = this.strippedName(super.getNameOfClass(cls), cls);
-        if(this.hasPreviouslyResolvedToOtherClass(name, cls)) { // Should not really ever happen
+        if (this.hasPreviouslyResolvedToOtherClass(name, cls)) { // Should not really ever happen
             final Class<?> otherClass = this.previouslyResolvedTo.get(name);
-            if(otherClass != null) {
+            if (otherClass != null) {
                 throw new IllegalArgumentException("Type name \"" + name + "\", (for class"+ cls.getName() + ") has previously resolved to another class (" + otherClass.getName() + ")");
             } else {
                 throw new IllegalArgumentException("Type name \"" + name + "\", (for class"+ cls.getName() + ") has previously resolved to another class");
