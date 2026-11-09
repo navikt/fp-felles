@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RefToClassLookup {
-    private Map<String, Class<?>> refToClassMap = new ConcurrentHashMap<>();
+    private final Map<String, Class<?>> refToClassMap = new ConcurrentHashMap<>();
 
     public void put(final String ref, final Class<?> cls) {
         this.refToClassMap.put(ref, cls);

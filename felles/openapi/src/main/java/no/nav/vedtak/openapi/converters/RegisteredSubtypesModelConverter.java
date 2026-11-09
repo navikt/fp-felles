@@ -27,20 +27,19 @@ public class RegisteredSubtypesModelConverter implements ModelConverter {
 
     @Override
     public Schema<?> resolve(AnnotatedType type, ModelConverterContext context, Iterator<ModelConverter> chain) {
-        if(chain.hasNext()) {
-            if(type.getType() instanceof SimpleType simpleType) {
-                if (simpleType.isAbstract() && !simpleType.isFinal()) { // Only add registeredSubtypes to abstract non-final types
-                    final Class<?> cls = simpleType.getRawClass();
-                    // Resolve current schema annotation from context (if set there) and type.
-                    final var incomingSchemaAnnotation = AnnotationUtils.resolveIncomingSchemaAnnotation(type.getCtxAnnotations(), simpleType);
-                    if (!AnnotationUtils.hasOneOfSchema(incomingSchemaAnnotation)) {
-                        // Create schema with oneOf for the current type based on registeredSubTypes
-                        final var subclasses = registeredSubtypes.stream().filter(cls::isAssignableFrom).collect(Collectors.toUnmodifiableSet());
-                        final var oneOfSchema = subclasses.isEmpty() ? null : AnnotationCreator.createOneOfSchemaAnnotation(subclasses);
-                        final var outgoingSchema = AnnotationUtils.mergeOneOfInto(incomingSchemaAnnotation, oneOfSchema);
-                        final var newCtxAnnotations = AnnotationUtils.replaceSchemaOrArraySchemaAnnotation(type.getCtxAnnotations(), outgoingSchema);
-                        return chain.next().resolve(type.ctxAnnotations(newCtxAnnotations), context, chain);
-                    }
+        if (chain.hasNext()) {
+            if (type.getType() instanceof SimpleType simpleType && simpleType.isAbstract() && !simpleType.isFinal()) {
+                // Only add registeredSubtypes to abstract non-final types
+                final Class<?> cls = simpleType.getRawClass();
+                // Resolve current schema annotation from context (if set there) and type.
+                final var incomingSchemaAnnotation = AnnotationUtils.resolveIncomingSchemaAnnotation(type.getCtxAnnotations(), simpleType);
+                if (!AnnotationUtils.hasOneOfSchema(incomingSchemaAnnotation)) {
+                    // Create schema with oneOf for the current type based on registeredSubTypes
+                    final var subclasses = registeredSubtypes.stream().filter(cls::isAssignableFrom).collect(Collectors.toUnmodifiableSet());
+                    final var oneOfSchema = subclasses.isEmpty() ? null : AnnotationCreator.createOneOfSchemaAnnotation(subclasses);
+                    final var outgoingSchema = AnnotationUtils.mergeOneOfInto(incomingSchemaAnnotation, oneOfSchema);
+                    final var newCtxAnnotations = AnnotationUtils.replaceSchemaOrArraySchemaAnnotation(type.getCtxAnnotations(), outgoingSchema);
+                    return chain.next().resolve(type.ctxAnnotations(newCtxAnnotations), context, chain);
                 }
             }
             return chain.next().resolve(type, context, chain);

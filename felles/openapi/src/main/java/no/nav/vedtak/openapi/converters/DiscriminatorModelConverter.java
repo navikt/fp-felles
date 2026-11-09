@@ -31,7 +31,7 @@ import tools.jackson.databind.type.SimpleType;
  * schemas with a name.
  */
 public class DiscriminatorModelConverter implements ModelConverter {
-    private RefToClassLookup classLookup;
+    private final RefToClassLookup classLookup;
 
     public DiscriminatorModelConverter(final RefToClassLookup classLookup) {
         this.classLookup = classLookup;
@@ -41,20 +41,20 @@ public class DiscriminatorModelConverter implements ModelConverter {
         // get @JsonTypeInfo annotation from the class. If there is none, see if the types ctxAnnotations has it. If none
         // found anywhere, throw
         JsonTypeInfo jsonTypeInfo = typeRawClass.getAnnotation(JsonTypeInfo.class);
-        if(jsonTypeInfo == null) {
+        if (jsonTypeInfo == null) {
             for(final Annotation annotation : type.getCtxAnnotations()) {
-                if(annotation instanceof JsonTypeInfo info) {
+                if (annotation instanceof JsonTypeInfo info) {
                     jsonTypeInfo = info;
                     break;
                 }
             }
-            if(jsonTypeInfo == null) {
+            if (jsonTypeInfo == null) {
                 throw new IllegalArgumentException("superClass " + typeRawClass.getCanonicalName() + " has no @JsonTypeInfo annotation. This is required either on the type itself, or on its container type to determine subtype discriminator");
             }
         }
         // For now we only support use = Id.CLASS and use = Id.NAME. Don't think others are used in our codebase.
         final boolean useClassOrNameDiscriminator = jsonTypeInfo.use() == JsonTypeInfo.Id.CLASS || jsonTypeInfo.use() == JsonTypeInfo.Id.NAME;
-        if(!useClassOrNameDiscriminator) {
+        if (!useClassOrNameDiscriminator) {
             throw new IllegalArgumentException("superClass " + typeRawClass.getCanonicalName() + " has unsupported @JsonTypeInfo(use = "+ jsonTypeInfo.use()+" ) value");
         }
         return jsonTypeInfo;
@@ -65,7 +65,7 @@ public class DiscriminatorModelConverter implements ModelConverter {
         // Note: If we are to support other include options than PROPERTY, this might need changing.
         // if the property value on annotation is set, use that. Else, use the value from the use value.
         final var property = jsonTypeInfo.property();
-        if(property != null && !property.isBlank()) {
+        if (property != null && !property.isBlank()) {
             return property;
         }
         else {
@@ -75,7 +75,7 @@ public class DiscriminatorModelConverter implements ModelConverter {
 
     // A JsonSubType.Type annotation can have several names set for the same class, so this returns a Set.
     protected SortedSet<String> resolveJsonSubTypeNames(final JsonSubTypes jsonSubTypes, final Class<?> subClass) {
-        if(jsonSubTypes != null) {
+        if (jsonSubTypes != null) {
             // Find the Type annotation for given subClass, if there is one.
             final Stream<JsonSubTypes.Type> maybeJsonSubType = Arrays.stream(jsonSubTypes.value()).filter(v -> v.value().equals(subClass));
             // Find name or names value, if defined
@@ -123,7 +123,7 @@ public class DiscriminatorModelConverter implements ModelConverter {
             final JsonTypeInfo jsonTypeInfo = getJsonTypeInfo(type, typeRawClass);
             // If jsonTypeInfo.include is set to PROPERTY, EXISTING_PROPERTY, or EXTERNAL_PROPERTY on a class (not property),
             // add a discriminator.
-            if(
+            if (
                     jsonTypeInfo.include() == JsonTypeInfo.As.PROPERTY ||
                     jsonTypeInfo.include() == JsonTypeInfo.As.EXISTING_PROPERTY ||
                     (jsonTypeInfo.include() == JsonTypeInfo.As.EXTERNAL_PROPERTY && isNotProperty(type))
@@ -171,15 +171,15 @@ public class DiscriminatorModelConverter implements ModelConverter {
 
     @Override
     public Schema resolve(AnnotatedType type, ModelConverterContext context, Iterator<ModelConverter> chain) {
-        if(chain.hasNext()) {
+        if (chain.hasNext()) {
             final Schema resolved = chain.next().resolve(type, context, chain);
-            if(resolved != null) {
+            if (resolved != null) {
                 final String ref = Optional.ofNullable(resolved.get$ref()).orElse(RefUtils.constructRef(resolved.getName()));
                 // Resolved Schema must have name set for us to do anything useful with it.
                 final boolean resolvedHasName = resolved.getName() != null && !resolved.getName().isBlank();
-                if(type.getType() instanceof SimpleType simpleType) {
+                if (type.getType() instanceof SimpleType simpleType) {
                     final Class<?> typeRawClass = simpleType.getRawClass();
-                    if(resolvedHasName) {
+                    if (resolvedHasName) {
                         this.classLookup.put(ref, typeRawClass);
                     }
 
@@ -189,7 +189,7 @@ public class DiscriminatorModelConverter implements ModelConverter {
                             resolved;
 
                     fixDiscriminator(type, typeRawClass, resolvedOrReferenced);
-                } else if(type.getType() instanceof Class<?> cls && resolvedHasName) {
+                } else if (type.getType() instanceof Class<?> cls && resolvedHasName) {
                     this.classLookup.put(ref, cls);
                 }
             }

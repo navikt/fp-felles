@@ -11,7 +11,7 @@ public class NoJsonSubTypesAnnotationIntrospector extends JacksonAnnotationIntro
 
     @Override
     protected <A extends Annotation> A _findAnnotation(Annotated ann, Class<A> annoClass) {
-        if(JsonSubTypes.class.equals(annoClass)) {
+        if (JsonSubTypes.class.equals(annoClass)) {
             return  null;
         }
         return super._findAnnotation(ann, annoClass);

@@ -10,6 +10,10 @@ import io.swagger.v3.oas.annotations.media.DependentRequired;
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 
 public class AnnotationCreator {
+
+    private AnnotationCreator() {
+    }
+
     /**
      * Programmatically creates an instance of swagger @Schema annotation with given oneOf value
      */
@@ -330,7 +334,7 @@ public class AnnotationCreator {
             }
 
             @Override
-            public Class<?> _if() {
+            public Class<?> _if () {
                 return Void.class;
             }
 
